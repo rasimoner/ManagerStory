@@ -1,0 +1,4819 @@
+{
+  "environment": "Chromium 153.0.8010.0 / Linux SwiftShader / DPR1 / 390x844",
+  "errors": [],
+  "external": [],
+  "measurements": [
+    {
+      "name": "before-kickoff-end",
+      "wall": 3.189999999999976,
+      "snapshot": {
+        "schema": 1,
+        "coordinateSystem": "pitch-percent-x-length-y-width",
+        "matchSeconds": 0,
+        "speed": 1,
+        "teams": {
+          "home": {
+            "id": "Anadolu Hisarı",
+            "name": "Anadolu Hisarı",
+            "primaryColor": "#f3c623",
+            "secondaryColor": "#b3132b",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(90deg,#f3c623 0 50%,#b3132b 50%)\"><i>AH</i></span>",
+            "shortName": "AH",
+            "stadium": "Anadolu Hisarı Stadı"
+          },
+          "away": {
+            "id": "Ormanşehir",
+            "name": "Ormanşehir",
+            "primaryColor": "#235c2b",
+            "secondaryColor": "#eee",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(135deg,#235c2b 0 49%,#eee 50%)\"><i>O</i></span>",
+            "shortName": "O",
+            "stadium": "Ormanşehir Stadı"
+          },
+          "userHome": true
+        },
+        "statistics": {
+          "shots": [
+            0,
+            0
+          ],
+          "xg": [
+            0,
+            0
+          ],
+          "possession": [
+            50,
+            50
+          ]
+        },
+        "lifecycle": "RUNNING",
+        "paused": false,
+        "finished": false,
+        "secondHalf": false,
+        "score": [
+          0,
+          0
+        ],
+        "players": [
+          {
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK",
+            "enginePosition": [
+              10,
+              50
+            ],
+            "displayPosition": [
+              10,
+              50
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "name": "Berkay",
+            "role": "LB",
+            "enginePosition": [
+              28,
+              15
+            ],
+            "displayPosition": [
+              28,
+              15
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "name": "Furkan",
+            "role": "CB",
+            "enginePosition": [
+              27,
+              38
+            ],
+            "displayPosition": [
+              27,
+              38
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "name": "Serkan",
+            "role": "CB",
+            "enginePosition": [
+              27,
+              62
+            ],
+            "displayPosition": [
+              27,
+              62
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "name": "Diallo",
+            "role": "RB",
+            "enginePosition": [
+              28,
+              85
+            ],
+            "displayPosition": [
+              28,
+              85
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "name": "Burak",
+            "role": "CM",
+            "enginePosition": [
+              50,
+              50
+            ],
+            "displayPosition": [
+              50,
+              50
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "name": "Taylan",
+            "role": "CM",
+            "enginePosition": [
+              46,
+              60
+            ],
+            "displayPosition": [
+              46,
+              60
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "name": "Kerem",
+            "role": "RW",
+            "enginePosition": [
+              47,
+              84
+            ],
+            "displayPosition": [
+              47,
+              84
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "name": "Okoro",
+            "role": "LW",
+            "enginePosition": [
+              47,
+              16
+            ],
+            "displayPosition": [
+              47,
+              16
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "name": "Aras",
+            "role": "CAM",
+            "enginePosition": [
+              43.74722330539493,
+              49.9939310978884
+            ],
+            "displayPosition": [
+              43.74722330539493,
+              49.9939310978884
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "name": "Mensah",
+            "role": "ST",
+            "enginePosition": [
+              47.946857251876544,
+              50.04938121564562
+            ],
+            "displayPosition": [
+              47.946857251876544,
+              50.04938121564562
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK",
+            "enginePosition": [
+              92,
+              50
+            ],
+            "displayPosition": [
+              92,
+              50
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "name": "Cem Özkan",
+            "role": "LB",
+            "enginePosition": [
+              75,
+              15
+            ],
+            "displayPosition": [
+              75,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "name": "Sarp Doğan",
+            "role": "CB",
+            "enginePosition": [
+              75,
+              38
+            ],
+            "displayPosition": [
+              75,
+              38
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "name": "Emir Çelik",
+            "role": "CB",
+            "enginePosition": [
+              75,
+              62
+            ],
+            "displayPosition": [
+              75,
+              62
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "name": "Ali Şahin",
+            "role": "RB",
+            "enginePosition": [
+              75,
+              85
+            ],
+            "displayPosition": [
+              75,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "name": "Bora Işık",
+            "role": "CM",
+            "enginePosition": [
+              55,
+              30
+            ],
+            "displayPosition": [
+              55,
+              30
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "name": "Tuna Aksoy",
+            "role": "CM",
+            "enginePosition": [
+              55,
+              70
+            ],
+            "displayPosition": [
+              55,
+              70
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "name": "Yusuf Kurt",
+            "role": "LW",
+            "enginePosition": [
+              53,
+              15
+            ],
+            "displayPosition": [
+              53,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "name": "Sinan Erdem",
+            "role": "CAM",
+            "enginePosition": [
+              51.43533915932802,
+              51.38931994440709
+            ],
+            "displayPosition": [
+              51.43533915932802,
+              51.38931994440709
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "name": "Cem Özer",
+            "role": "RW",
+            "enginePosition": [
+              53,
+              85
+            ],
+            "displayPosition": [
+              53,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "name": "Sarp Yıldız",
+            "role": "ST",
+            "enginePosition": [
+              54.74307944013563,
+              48.80110545663318
+            ],
+            "displayPosition": [
+              54.74307944013563,
+              48.80110545663318
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          }
+        ],
+        "ball": {
+          "engine": {
+            "position": [
+              50,
+              50
+            ],
+            "ownerId": 6,
+            "state": "LIVE",
+            "target": null,
+            "travelType": "ground",
+            "travelDuration": 0,
+            "height": 0
+          },
+          "engineSide": "user",
+          "displayPosition": [
+            53,
+            50
+          ],
+          "displayOwnerId": 6,
+          "displaySide": "user",
+          "displayState": {
+            "position": [
+              53,
+              50
+            ],
+            "ownerId": 6,
+            "state": "LIVE",
+            "target": [
+              53,
+              50
+            ],
+            "travelType": "ground",
+            "travelDuration": 0.8,
+            "height": 0
+          },
+          "heightNormalized": 0,
+          "heightMeters": null
+        },
+        "lastEvent": {
+          "restartType": "KICK_OFF",
+          "restartPhase": "EXECUTE_RESTART",
+          "fromId": 6,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            50,
+            50
+          ],
+          "toPos": [
+            53,
+            50
+          ],
+          "type": "kickoff",
+          "eventId": 1,
+          "minute": 0,
+          "second": 0,
+          "gameSecond": 0,
+          "text": "0’ Anadolu Hisarı santra yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        "presentation": {
+          "activeEvent": {
+            "restartType": "KICK_OFF",
+            "restartPhase": "EXECUTE_RESTART",
+            "fromId": 6,
+            "toId": 6,
+            "fromSide": "user",
+            "toSide": "user",
+            "ballSide": "user",
+            "fromPos": [
+              50,
+              50
+            ],
+            "toPos": [
+              53,
+              50
+            ],
+            "type": "kickoff",
+            "eventId": 1,
+            "minute": 0,
+            "second": 0,
+            "gameSecond": 0,
+            "text": "0’ Anadolu Hisarı santra yaptı.",
+            "homeGoals": 0,
+            "awayGoals": 0,
+            "enginePositions": {
+              "0": [
+                10,
+                50
+              ],
+              "1": [
+                28,
+                15
+              ],
+              "2": [
+                27,
+                38
+              ],
+              "3": [
+                27,
+                62
+              ],
+              "5": [
+                28,
+                85
+              ],
+              "6": [
+                50,
+                50
+              ],
+              "7": [
+                46,
+                60
+              ],
+              "9": [
+                47,
+                84
+              ],
+              "10": [
+                47,
+                16
+              ],
+              "11": [
+                43.74722330539493,
+                49.9939310978884
+              ],
+              "12": [
+                47.946857251876544,
+                50.04938121564562
+              ],
+              "o0": [
+                92,
+                50
+              ],
+              "o1": [
+                75,
+                15
+              ],
+              "o2": [
+                75,
+                38
+              ],
+              "o3": [
+                75,
+                62
+              ],
+              "o4": [
+                75,
+                85
+              ],
+              "o5": [
+                55,
+                30
+              ],
+              "o6": [
+                55,
+                70
+              ],
+              "o7": [
+                53,
+                15
+              ],
+              "o8": [
+                51.43533915932802,
+                51.38931994440709
+              ],
+              "o9": [
+                53,
+                85
+              ],
+              "o10": [
+                54.74307944013563,
+                48.80110545663318
+              ]
+            },
+            "engineStatistics": {
+              "shots": [
+                0,
+                0
+              ],
+              "xg": [
+                0,
+                0
+              ],
+              "possession": [
+                50,
+                50
+              ]
+            }
+          },
+          "progress": 0.9968749999999936,
+          "source": "match-event",
+          "queuedEventIds": [],
+          "sampledAtMilliseconds": 3189.999999999976,
+          "eventScore": [
+            0,
+            0
+          ],
+          "eventStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              50,
+              50
+            ]
+          },
+          "duration": 0.8,
+          "seconds": 0.7974999999999883,
+          "delta": 0.0024999999999998864,
+          "clockSource": "shared-live-frame / atomic-minute-backpressure",
+          "positionSamples": null,
+          "matchSeconds": 0,
+          "rawEngineLeadSeconds": 0,
+          "interventionBoundary": "next-uncomputed-engine-minute; current atomic batch is already committed",
+          "readableTempo": 4
+        },
+        "missing": [
+          "body-facing",
+          "foot-contact-time",
+          "physical-ball-height",
+          "continuous-engine-velocity"
+        ]
+      },
+      "view": {
+        "ball": [
+          3.150000000000003,
+          0.15,
+          0
+        ],
+        "contacts": [
+          {
+            "id": 0,
+            "side": "user",
+            "toe": [
+              -41.59512380283422,
+              0.06403066516043293,
+              -0.10199999999999994
+            ]
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "toe": [
+              -22.695123802834225,
+              0.06403066516043199,
+              -23.901999999999997
+            ]
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "toe": [
+              -23.745123802834225,
+              0.06403066516043199,
+              -8.262
+            ]
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "toe": [
+              -23.745123802834225,
+              0.06403066516043199,
+              8.058
+            ]
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "toe": [
+              -22.695123802834225,
+              0.06403066516043199,
+              23.697999999999997
+            ]
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "toe": [
+              0.17301664985499052,
+              0.03645752310843609,
+              -0.10199545710205536
+            ]
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "toe": [
+              -3.795123802834224,
+              0.06403066516043199,
+              6.697999999999999
+            ]
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "toe": [
+              -2.745123802834229,
+              0.06403066516043227,
+              23.017999999999997
+            ]
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "toe": [
+              -2.745123802834229,
+              0.06403066516043227,
+              -23.221999999999998
+            ]
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "toe": [
+              -6.160539332169546,
+              0.06403066516043199,
+              -0.10612685343588797
+            ]
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "toe": [
+              -1.7509236883638528,
+              0.06403066516043227,
+              -0.06842077336098079
+            ]
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "toe": [
+              43.695123802834225,
+              0.06403066516043293,
+              0.10200000000000004
+            ]
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              -23.697999999999997
+            ]
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              -8.058
+            ]
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              8.262
+            ]
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              23.901999999999997
+            ]
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "toe": [
+              4.84512380283423,
+              0.06403066516043227,
+              -13.498000000000001
+            ]
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "toe": [
+              4.84512380283423,
+              0.06403066516043227,
+              13.701999999999998
+            ]
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "toe": [
+              2.745123802834229,
+              0.06403066516043227,
+              -23.697999999999997
+            ]
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "toe": [
+              1.1022299201286465,
+              0.06403066516043227,
+              1.046737562196826
+            ]
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "toe": [
+              2.745123802834229,
+              0.06403066516043227,
+              23.901999999999997
+            ]
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "toe": [
+              4.575357214976641,
+              0.06403066516043227,
+              -0.7132482894894366
+            ]
+          }
+        ],
+        "camera": {
+          "focus": [
+            3.142388377888308,
+            0,
+            0
+          ],
+          "span": 12.540945263017512
+        }
+      }
+    },
+    {
+      "name": "before-kickoff-reset",
+      "wall": 3.1999999999999758,
+      "snapshot": {
+        "schema": 1,
+        "coordinateSystem": "pitch-percent-x-length-y-width",
+        "matchSeconds": 0,
+        "speed": 1,
+        "teams": {
+          "home": {
+            "id": "Anadolu Hisarı",
+            "name": "Anadolu Hisarı",
+            "primaryColor": "#f3c623",
+            "secondaryColor": "#b3132b",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(90deg,#f3c623 0 50%,#b3132b 50%)\"><i>AH</i></span>",
+            "shortName": "AH",
+            "stadium": "Anadolu Hisarı Stadı"
+          },
+          "away": {
+            "id": "Ormanşehir",
+            "name": "Ormanşehir",
+            "primaryColor": "#235c2b",
+            "secondaryColor": "#eee",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(135deg,#235c2b 0 49%,#eee 50%)\"><i>O</i></span>",
+            "shortName": "O",
+            "stadium": "Ormanşehir Stadı"
+          },
+          "userHome": true
+        },
+        "statistics": {
+          "shots": [
+            0,
+            0
+          ],
+          "xg": [
+            0,
+            0
+          ],
+          "possession": [
+            50,
+            50
+          ]
+        },
+        "lifecycle": "RUNNING",
+        "paused": false,
+        "finished": false,
+        "secondHalf": false,
+        "score": [
+          0,
+          0
+        ],
+        "players": [
+          {
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK",
+            "enginePosition": [
+              10,
+              50
+            ],
+            "displayPosition": [
+              10,
+              50
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "name": "Berkay",
+            "role": "LB",
+            "enginePosition": [
+              28,
+              15
+            ],
+            "displayPosition": [
+              28,
+              15
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "name": "Furkan",
+            "role": "CB",
+            "enginePosition": [
+              27,
+              38
+            ],
+            "displayPosition": [
+              27,
+              38
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "name": "Serkan",
+            "role": "CB",
+            "enginePosition": [
+              27,
+              62
+            ],
+            "displayPosition": [
+              27,
+              62
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "name": "Diallo",
+            "role": "RB",
+            "enginePosition": [
+              28,
+              85
+            ],
+            "displayPosition": [
+              28,
+              85
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "name": "Burak",
+            "role": "CM",
+            "enginePosition": [
+              50,
+              50
+            ],
+            "displayPosition": [
+              50,
+              50
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "name": "Taylan",
+            "role": "CM",
+            "enginePosition": [
+              46,
+              60
+            ],
+            "displayPosition": [
+              46,
+              60
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "name": "Kerem",
+            "role": "RW",
+            "enginePosition": [
+              47,
+              84
+            ],
+            "displayPosition": [
+              47,
+              84
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "name": "Okoro",
+            "role": "LW",
+            "enginePosition": [
+              47,
+              16
+            ],
+            "displayPosition": [
+              47,
+              16
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "name": "Aras",
+            "role": "CAM",
+            "enginePosition": [
+              43.74722330539493,
+              49.9939310978884
+            ],
+            "displayPosition": [
+              43.74722330539493,
+              49.9939310978884
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "name": "Mensah",
+            "role": "ST",
+            "enginePosition": [
+              47.946857251876544,
+              50.04938121564562
+            ],
+            "displayPosition": [
+              47.946857251876544,
+              50.04938121564562
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK",
+            "enginePosition": [
+              92,
+              50
+            ],
+            "displayPosition": [
+              92,
+              50
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "name": "Cem Özkan",
+            "role": "LB",
+            "enginePosition": [
+              75,
+              15
+            ],
+            "displayPosition": [
+              75,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "name": "Sarp Doğan",
+            "role": "CB",
+            "enginePosition": [
+              75,
+              38
+            ],
+            "displayPosition": [
+              75,
+              38
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "name": "Emir Çelik",
+            "role": "CB",
+            "enginePosition": [
+              75,
+              62
+            ],
+            "displayPosition": [
+              75,
+              62
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "name": "Ali Şahin",
+            "role": "RB",
+            "enginePosition": [
+              75,
+              85
+            ],
+            "displayPosition": [
+              75,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "name": "Bora Işık",
+            "role": "CM",
+            "enginePosition": [
+              55,
+              30
+            ],
+            "displayPosition": [
+              55,
+              30
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "name": "Tuna Aksoy",
+            "role": "CM",
+            "enginePosition": [
+              55,
+              70
+            ],
+            "displayPosition": [
+              55,
+              70
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "name": "Yusuf Kurt",
+            "role": "LW",
+            "enginePosition": [
+              53,
+              15
+            ],
+            "displayPosition": [
+              53,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "name": "Sinan Erdem",
+            "role": "CAM",
+            "enginePosition": [
+              51.43533915932802,
+              51.38931994440709
+            ],
+            "displayPosition": [
+              51.43533915932802,
+              51.38931994440709
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "name": "Cem Özer",
+            "role": "RW",
+            "enginePosition": [
+              53,
+              85
+            ],
+            "displayPosition": [
+              53,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "name": "Sarp Yıldız",
+            "role": "ST",
+            "enginePosition": [
+              54.74307944013563,
+              48.80110545663318
+            ],
+            "displayPosition": [
+              54.74307944013563,
+              48.80110545663318
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          }
+        ],
+        "ball": {
+          "engine": {
+            "position": [
+              50,
+              50
+            ],
+            "ownerId": 6,
+            "state": "LIVE",
+            "target": null,
+            "travelType": "ground",
+            "travelDuration": 0,
+            "height": 0
+          },
+          "engineSide": "user",
+          "displayPosition": [
+            50,
+            50
+          ],
+          "displayOwnerId": 6,
+          "displaySide": "user",
+          "displayState": {
+            "position": [
+              53,
+              50
+            ],
+            "ownerId": 6,
+            "state": "LIVE",
+            "target": [
+              53,
+              50
+            ],
+            "travelType": "ground",
+            "travelDuration": 0.8,
+            "height": 0
+          },
+          "heightNormalized": 0,
+          "heightMeters": null
+        },
+        "lastEvent": {
+          "restartType": "KICK_OFF",
+          "restartPhase": "EXECUTE_RESTART",
+          "fromId": 6,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            50,
+            50
+          ],
+          "toPos": [
+            53,
+            50
+          ],
+          "type": "kickoff",
+          "eventId": 1,
+          "minute": 0,
+          "second": 0,
+          "gameSecond": 0,
+          "text": "0’ Anadolu Hisarı santra yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        "presentation": {
+          "activeEvent": null,
+          "progress": 0,
+          "source": "match-event",
+          "queuedEventIds": [],
+          "sampledAtMilliseconds": 3199.999999999976,
+          "eventScore": [
+            0,
+            0
+          ],
+          "eventStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              50,
+              50
+            ]
+          },
+          "duration": 0,
+          "seconds": 0.7999999999999883,
+          "delta": 0.0025,
+          "clockSource": "shared-live-frame / atomic-minute-backpressure",
+          "positionSamples": null,
+          "matchSeconds": 0,
+          "rawEngineLeadSeconds": 0,
+          "interventionBoundary": "next-uncomputed-engine-minute; current atomic batch is already committed",
+          "readableTempo": 4
+        },
+        "missing": [
+          "body-facing",
+          "foot-contact-time",
+          "physical-ball-height",
+          "continuous-engine-velocity"
+        ]
+      },
+      "view": {
+        "ball": [
+          0,
+          0.15,
+          0
+        ],
+        "contacts": [
+          {
+            "id": 0,
+            "side": "user",
+            "toe": [
+              -41.59512380283422,
+              0.06403066516043293,
+              -0.10199999999999994
+            ]
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "toe": [
+              -22.695123802834225,
+              0.06403066516043199,
+              -23.901999999999997
+            ]
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "toe": [
+              -23.745123802834225,
+              0.06403066516043199,
+              -8.262
+            ]
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "toe": [
+              -23.745123802834225,
+              0.06403066516043199,
+              8.058
+            ]
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "toe": [
+              -22.695123802834225,
+              0.06403066516043199,
+              23.697999999999997
+            ]
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "toe": [
+              0.4048761971657741,
+              0.06403066516043227,
+              -0.10199999999999994
+            ]
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "toe": [
+              -3.795123802834224,
+              0.06403066516043199,
+              6.697999999999999
+            ]
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "toe": [
+              -2.745123802834229,
+              0.06403066516043227,
+              23.017999999999997
+            ]
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "toe": [
+              -2.745123802834229,
+              0.06403066516043227,
+              -23.221999999999998
+            ]
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "toe": [
+              -6.160539332169546,
+              0.06403066516043199,
+              -0.10612685343588797
+            ]
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "toe": [
+              -1.7509236883638528,
+              0.06403066516043227,
+              -0.06842077336098079
+            ]
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "toe": [
+              43.695123802834225,
+              0.06403066516043293,
+              0.10200000000000004
+            ]
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              -23.697999999999997
+            ]
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              -8.058
+            ]
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              8.262
+            ]
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              23.901999999999997
+            ]
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "toe": [
+              4.84512380283423,
+              0.06403066516043227,
+              -13.498000000000001
+            ]
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "toe": [
+              4.84512380283423,
+              0.06403066516043227,
+              13.701999999999998
+            ]
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "toe": [
+              2.745123802834229,
+              0.06403066516043227,
+              -23.697999999999997
+            ]
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "toe": [
+              1.1022299201286465,
+              0.06403066516043227,
+              1.046737562196826
+            ]
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "toe": [
+              2.745123802834229,
+              0.06403066516043227,
+              23.901999999999997
+            ]
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "toe": [
+              4.575357214976641,
+              0.06403066516043227,
+              -0.7132482894894366
+            ]
+          }
+        ],
+        "camera": {
+          "focus": [
+            2.989132288256431,
+            0,
+            0
+          ],
+          "span": 12.535562767717888
+        }
+      }
+    },
+    {
+      "name": "after-kickoff-end",
+      "wall": 3.189999999999976,
+      "snapshot": {
+        "schema": 1,
+        "coordinateSystem": "pitch-percent-x-length-y-width",
+        "matchSeconds": 0,
+        "speed": 1,
+        "teams": {
+          "home": {
+            "id": "Anadolu Hisarı",
+            "name": "Anadolu Hisarı",
+            "primaryColor": "#f3c623",
+            "secondaryColor": "#b3132b",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(90deg,#f3c623 0 50%,#b3132b 50%)\"><i>AH</i></span>",
+            "shortName": "AH",
+            "stadium": "Anadolu Hisarı Stadı"
+          },
+          "away": {
+            "id": "Ormanşehir",
+            "name": "Ormanşehir",
+            "primaryColor": "#235c2b",
+            "secondaryColor": "#eee",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(135deg,#235c2b 0 49%,#eee 50%)\"><i>O</i></span>",
+            "shortName": "O",
+            "stadium": "Ormanşehir Stadı"
+          },
+          "userHome": true
+        },
+        "statistics": {
+          "shots": [
+            0,
+            0
+          ],
+          "xg": [
+            0,
+            0
+          ],
+          "possession": [
+            50,
+            50
+          ]
+        },
+        "lifecycle": "RUNNING",
+        "paused": false,
+        "finished": false,
+        "secondHalf": false,
+        "score": [
+          0,
+          0
+        ],
+        "players": [
+          {
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK",
+            "enginePosition": [
+              10,
+              50
+            ],
+            "displayPosition": [
+              10,
+              50
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "name": "Berkay",
+            "role": "LB",
+            "enginePosition": [
+              28,
+              15
+            ],
+            "displayPosition": [
+              28,
+              15
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "name": "Furkan",
+            "role": "CB",
+            "enginePosition": [
+              27,
+              38
+            ],
+            "displayPosition": [
+              27,
+              38
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "name": "Serkan",
+            "role": "CB",
+            "enginePosition": [
+              27,
+              62
+            ],
+            "displayPosition": [
+              27,
+              62
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "name": "Diallo",
+            "role": "RB",
+            "enginePosition": [
+              28,
+              85
+            ],
+            "displayPosition": [
+              28,
+              85
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "name": "Burak",
+            "role": "CM",
+            "enginePosition": [
+              50,
+              50
+            ],
+            "displayPosition": [
+              50,
+              50
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "name": "Taylan",
+            "role": "CM",
+            "enginePosition": [
+              46,
+              60
+            ],
+            "displayPosition": [
+              46,
+              60
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "name": "Kerem",
+            "role": "RW",
+            "enginePosition": [
+              47,
+              84
+            ],
+            "displayPosition": [
+              47,
+              84
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "name": "Okoro",
+            "role": "LW",
+            "enginePosition": [
+              47,
+              16
+            ],
+            "displayPosition": [
+              47,
+              16
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "name": "Aras",
+            "role": "CAM",
+            "enginePosition": [
+              43.74722330539493,
+              49.9939310978884
+            ],
+            "displayPosition": [
+              43.74722330539493,
+              49.9939310978884
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "name": "Mensah",
+            "role": "ST",
+            "enginePosition": [
+              47.946857251876544,
+              50.04938121564562
+            ],
+            "displayPosition": [
+              47.946857251876544,
+              50.04938121564562
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK",
+            "enginePosition": [
+              92,
+              50
+            ],
+            "displayPosition": [
+              92,
+              50
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "name": "Cem Özkan",
+            "role": "LB",
+            "enginePosition": [
+              75,
+              15
+            ],
+            "displayPosition": [
+              75,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "name": "Sarp Doğan",
+            "role": "CB",
+            "enginePosition": [
+              75,
+              38
+            ],
+            "displayPosition": [
+              75,
+              38
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "name": "Emir Çelik",
+            "role": "CB",
+            "enginePosition": [
+              75,
+              62
+            ],
+            "displayPosition": [
+              75,
+              62
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "name": "Ali Şahin",
+            "role": "RB",
+            "enginePosition": [
+              75,
+              85
+            ],
+            "displayPosition": [
+              75,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "name": "Bora Işık",
+            "role": "CM",
+            "enginePosition": [
+              55,
+              30
+            ],
+            "displayPosition": [
+              55,
+              30
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "name": "Tuna Aksoy",
+            "role": "CM",
+            "enginePosition": [
+              55,
+              70
+            ],
+            "displayPosition": [
+              55,
+              70
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "name": "Yusuf Kurt",
+            "role": "LW",
+            "enginePosition": [
+              53,
+              15
+            ],
+            "displayPosition": [
+              53,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "name": "Sinan Erdem",
+            "role": "CAM",
+            "enginePosition": [
+              51.43533915932802,
+              51.38931994440709
+            ],
+            "displayPosition": [
+              51.43533915932802,
+              51.38931994440709
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "name": "Cem Özer",
+            "role": "RW",
+            "enginePosition": [
+              53,
+              85
+            ],
+            "displayPosition": [
+              53,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "name": "Sarp Yıldız",
+            "role": "ST",
+            "enginePosition": [
+              54.74307944013563,
+              48.80110545663318
+            ],
+            "displayPosition": [
+              54.74307944013563,
+              48.80110545663318
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          }
+        ],
+        "ball": {
+          "engine": {
+            "position": [
+              50,
+              50
+            ],
+            "ownerId": 6,
+            "state": "LIVE",
+            "target": null,
+            "travelType": "ground",
+            "travelDuration": 0,
+            "height": 0
+          },
+          "engineSide": "user",
+          "displayPosition": [
+            50,
+            50
+          ],
+          "displayOwnerId": 6,
+          "displaySide": "user",
+          "displayState": {
+            "position": [
+              50,
+              50
+            ],
+            "ownerId": 6,
+            "state": "LIVE",
+            "target": [
+              50,
+              50
+            ],
+            "travelType": "ground",
+            "travelDuration": 0.8,
+            "height": 0
+          },
+          "heightNormalized": 0,
+          "heightMeters": null
+        },
+        "lastEvent": {
+          "restartType": "KICK_OFF",
+          "restartPhase": "EXECUTE_RESTART",
+          "fromId": 6,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            50,
+            50
+          ],
+          "toPos": [
+            53,
+            50
+          ],
+          "type": "kickoff",
+          "eventId": 1,
+          "minute": 0,
+          "second": 0,
+          "gameSecond": 0,
+          "text": "0’ Anadolu Hisarı santra yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        "presentation": {
+          "activeEvent": {
+            "restartType": "KICK_OFF",
+            "restartPhase": "EXECUTE_RESTART",
+            "fromId": 6,
+            "toId": 6,
+            "fromSide": "user",
+            "toSide": "user",
+            "ballSide": "user",
+            "fromPos": [
+              50,
+              50
+            ],
+            "toPos": [
+              50,
+              50
+            ],
+            "type": "kickoff",
+            "eventId": 1,
+            "minute": 0,
+            "second": 0,
+            "gameSecond": 0,
+            "text": "0’ Anadolu Hisarı santra yaptı.",
+            "homeGoals": 0,
+            "awayGoals": 0,
+            "declaredTarget": [
+              53,
+              50
+            ],
+            "targetSource": "actual-engine-restart-position",
+            "enginePositions": {
+              "0": [
+                10,
+                50
+              ],
+              "1": [
+                28,
+                15
+              ],
+              "2": [
+                27,
+                38
+              ],
+              "3": [
+                27,
+                62
+              ],
+              "5": [
+                28,
+                85
+              ],
+              "6": [
+                50,
+                50
+              ],
+              "7": [
+                46,
+                60
+              ],
+              "9": [
+                47,
+                84
+              ],
+              "10": [
+                47,
+                16
+              ],
+              "11": [
+                43.74722330539493,
+                49.9939310978884
+              ],
+              "12": [
+                47.946857251876544,
+                50.04938121564562
+              ],
+              "o0": [
+                92,
+                50
+              ],
+              "o1": [
+                75,
+                15
+              ],
+              "o2": [
+                75,
+                38
+              ],
+              "o3": [
+                75,
+                62
+              ],
+              "o4": [
+                75,
+                85
+              ],
+              "o5": [
+                55,
+                30
+              ],
+              "o6": [
+                55,
+                70
+              ],
+              "o7": [
+                53,
+                15
+              ],
+              "o8": [
+                51.43533915932802,
+                51.38931994440709
+              ],
+              "o9": [
+                53,
+                85
+              ],
+              "o10": [
+                54.74307944013563,
+                48.80110545663318
+              ]
+            },
+            "sampleTime": {
+              "gameSecond": 0,
+              "stage": "event-after-position-update",
+              "sequence": 1
+            },
+            "engineStatistics": {
+              "shots": [
+                0,
+                0
+              ],
+              "xg": [
+                0,
+                0
+              ],
+              "possession": [
+                50,
+                50
+              ]
+            }
+          },
+          "progress": 0.9968749999999936,
+          "source": "match-event",
+          "queuedEventIds": [],
+          "sampledAtMilliseconds": 3189.999999999976,
+          "eventScore": [
+            0,
+            0
+          ],
+          "eventStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              50,
+              50
+            ]
+          },
+          "duration": 0.8,
+          "seconds": 0.7974999999999883,
+          "delta": 0.0024999999999998864,
+          "clockSource": "shared-live-frame / atomic-minute-backpressure",
+          "positionSamples": null,
+          "matchSeconds": 0,
+          "rawEngineLeadSeconds": 0,
+          "interventionBoundary": "next-uncomputed-engine-minute; current atomic batch is already committed",
+          "readableTempo": 4
+        },
+        "missing": [
+          "body-facing",
+          "foot-contact-time",
+          "physical-ball-height",
+          "continuous-engine-velocity"
+        ]
+      },
+      "view": {
+        "ball": [
+          0,
+          0.15,
+          0
+        ],
+        "contacts": [
+          {
+            "id": 0,
+            "side": "user",
+            "toe": [
+              -41.59512380283422,
+              0.06403066516043293,
+              -0.10199999999999994
+            ]
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "toe": [
+              -22.695123802834225,
+              0.06403066516043199,
+              -23.901999999999997
+            ]
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "toe": [
+              -23.745123802834225,
+              0.06403066516043199,
+              -8.262
+            ]
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "toe": [
+              -23.745123802834225,
+              0.06403066516043199,
+              8.058
+            ]
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "toe": [
+              -22.695123802834225,
+              0.06403066516043199,
+              23.697999999999997
+            ]
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "toe": [
+              0.1019954571020554,
+              0.036457523108436085,
+              0.1730166498549905
+            ]
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "toe": [
+              -3.795123802834224,
+              0.06403066516043199,
+              6.697999999999999
+            ]
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "toe": [
+              -2.745123802834229,
+              0.06403066516043227,
+              23.017999999999997
+            ]
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "toe": [
+              -2.745123802834229,
+              0.06403066516043227,
+              -23.221999999999998
+            ]
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "toe": [
+              -6.160539332169546,
+              0.06403066516043199,
+              -0.10612685343588797
+            ]
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "toe": [
+              -1.7509236883638528,
+              0.06403066516043227,
+              -0.06842077336098079
+            ]
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "toe": [
+              43.695123802834225,
+              0.06403066516043293,
+              0.10200000000000004
+            ]
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              -23.697999999999997
+            ]
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              -8.058
+            ]
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              8.262
+            ]
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "toe": [
+              25.845123802834227,
+              0.06403066516043199,
+              23.901999999999997
+            ]
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "toe": [
+              4.84512380283423,
+              0.06403066516043227,
+              -13.498000000000001
+            ]
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "toe": [
+              4.84512380283423,
+              0.06403066516043227,
+              13.701999999999998
+            ]
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "toe": [
+              2.745123802834229,
+              0.06403066516043227,
+              -23.697999999999997
+            ]
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "toe": [
+              1.1022299201286465,
+              0.06403066516043227,
+              1.046737562196826
+            ]
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "toe": [
+              2.745123802834229,
+              0.06403066516043227,
+              23.901999999999997
+            ]
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "toe": [
+              4.575357214976641,
+              0.06403066516043227,
+              -0.7132482894894366
+            ]
+          }
+        ],
+        "camera": {
+          "focus": [
+            0,
+            0,
+            0
+          ],
+          "span": 12.540945263017512
+        }
+      }
+    },
+    {
+      "name": "after-minute-start",
+      "wall": 3.2099999999999755,
+      "snapshot": {
+        "schema": 1,
+        "coordinateSystem": "pitch-percent-x-length-y-width",
+        "matchSeconds": 60,
+        "speed": 1,
+        "teams": {
+          "home": {
+            "id": "Anadolu Hisarı",
+            "name": "Anadolu Hisarı",
+            "primaryColor": "#f3c623",
+            "secondaryColor": "#b3132b",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(90deg,#f3c623 0 50%,#b3132b 50%)\"><i>AH</i></span>",
+            "shortName": "AH",
+            "stadium": "Anadolu Hisarı Stadı"
+          },
+          "away": {
+            "id": "Ormanşehir",
+            "name": "Ormanşehir",
+            "primaryColor": "#235c2b",
+            "secondaryColor": "#eee",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(135deg,#235c2b 0 49%,#eee 50%)\"><i>O</i></span>",
+            "shortName": "O",
+            "stadium": "Ormanşehir Stadı"
+          },
+          "userHome": true
+        },
+        "statistics": {
+          "shots": [
+            0,
+            0
+          ],
+          "xg": [
+            0,
+            0
+          ],
+          "possession": [
+            100,
+            0
+          ]
+        },
+        "lifecycle": "RUNNING",
+        "paused": false,
+        "finished": false,
+        "secondHalf": false,
+        "score": [
+          0,
+          0
+        ],
+        "players": [
+          {
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK",
+            "enginePosition": [
+              10.897567340046276,
+              50
+            ],
+            "displayPosition": [
+              10.000037771456853,
+              50
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "name": "Berkay",
+            "role": "LB",
+            "enginePosition": [
+              33.25108955441978,
+              15
+            ],
+            "displayPosition": [
+              28.000220976514726,
+              15
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "name": "Furkan",
+            "role": "CB",
+            "enginePosition": [
+              29.279507897078798,
+              38
+            ],
+            "displayPosition": [
+              27.000095926322558,
+              38
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "name": "Serkan",
+            "role": "CB",
+            "enginePosition": [
+              27.935040015772323,
+              62
+            ],
+            "displayPosition": [
+              27.000039348383165,
+              62
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "name": "Diallo",
+            "role": "RB",
+            "enginePosition": [
+              34.380761363341165,
+              85
+            ],
+            "displayPosition": [
+              28.000268515399092,
+              85
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "name": "Burak",
+            "role": "CM",
+            "enginePosition": [
+              51.74681948312588,
+              46.032571764073715
+            ],
+            "displayPosition": [
+              50.0000675984135,
+              49.99984501549717
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "name": "Taylan",
+            "role": "CM",
+            "enginePosition": [
+              50.29841537355456,
+              62.13897701988388
+            ],
+            "displayPosition": [
+              46.000180886050074,
+              60.00009001249779
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "name": "Kerem",
+            "role": "RW",
+            "enginePosition": [
+              54.24879092360631,
+              81.35726651955983
+            ],
+            "displayPosition": [
+              47.00030504384617,
+              83.99988878840709
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "name": "Okoro",
+            "role": "LW",
+            "enginePosition": [
+              55.013534410333,
+              18.83651704303099
+            ],
+            "displayPosition": [
+              47.00033722580548,
+              16.000119366398845
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "name": "Aras",
+            "role": "CAM",
+            "enginePosition": [
+              49.37645748072436,
+              51.10396222554067
+            ],
+            "displayPosition": [
+              43.74747473213804,
+              49.99394508373447
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "name": "Mensah",
+            "role": "ST",
+            "enginePosition": [
+              56.91601474151537,
+              52.54071098412777
+            ],
+            "displayPosition": [
+              47.94723469224231,
+              50.049486055862786
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK",
+            "enginePosition": [
+              92,
+              50
+            ],
+            "displayPosition": [
+              92,
+              50
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "name": "Cem Özkan",
+            "role": "LB",
+            "enginePosition": [
+              79.45727108262287,
+              15
+            ],
+            "displayPosition": [
+              75.00018757102099,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "name": "Sarp Doğan",
+            "role": "CB",
+            "enginePosition": [
+              74.89275767639307,
+              39.022960689400065
+            ],
+            "displayPosition": [
+              74.99999548702519,
+              38.0000430482637
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "name": "Emir Çelik",
+            "role": "CB",
+            "enginePosition": [
+              75.72838730031629,
+              61.07013265281711
+            ],
+            "displayPosition": [
+              75.00003065201713,
+              61.99996086929324
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "name": "Ali Şahin",
+            "role": "RB",
+            "enginePosition": [
+              78.4349493493345,
+              85
+            ],
+            "displayPosition": [
+              75.00014454964587,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "name": "Bora Işık",
+            "role": "CM",
+            "enginePosition": [
+              58.994674393679865,
+              35.48749264373538
+            ],
+            "displayPosition": [
+              55.000168104012666,
+              30.000230924836917
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "name": "Tuna Aksoy",
+            "role": "CM",
+            "enginePosition": [
+              60.74393075796076,
+              62.896252753268556
+            ],
+            "displayPosition": [
+              55.000241716273656,
+              69.99970105988638
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "name": "Yusuf Kurt",
+            "role": "LW",
+            "enginePosition": [
+              45.584813406788236,
+              15
+            ],
+            "displayPosition": [
+              52.99968795388606,
+              15
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "name": "Sinan Erdem",
+            "role": "CAM",
+            "enginePosition": [
+              46.16796984368312,
+              48.26629169833936
+            ],
+            "displayPosition": [
+              51.43511749772787,
+              51.389188521034846
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "name": "Cem Özer",
+            "role": "RW",
+            "enginePosition": [
+              47.43877545235662,
+              85
+            ],
+            "displayPosition": [
+              52.999765972374796,
+              85
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "name": "Sarp Yıldız",
+            "role": "ST",
+            "enginePosition": [
+              50.50229018062,
+              48.54027333414887
+            ],
+            "displayPosition": [
+              54.74289235327343,
+              48.801115233870014
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          }
+        ],
+        "ball": {
+          "engine": {
+            "position": [
+              29.279507897078798,
+              38
+            ],
+            "ownerId": 2,
+            "state": "LIVE",
+            "target": null,
+            "travelType": "ground",
+            "travelDuration": 0,
+            "height": 0
+          },
+          "engineSide": "user",
+          "displayPosition": [
+            50.0000675984135,
+            49.99984501549717
+          ],
+          "displayOwnerId": 6,
+          "displaySide": "user",
+          "displayState": {
+            "position": [
+              50.0000675984135,
+              49.99984501549717
+            ],
+            "ownerId": 6,
+            "state": "LIVE",
+            "target": [
+              51.60634863603276,
+              46.31708598120823
+            ],
+            "travelType": "ground",
+            "travelDuration": 0.6666666666666666,
+            "height": 0
+          },
+          "heightNormalized": 0,
+          "heightMeters": null
+        },
+        "lastEvent": {
+          "fromId": 2,
+          "toId": 2,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            29.279507897078798,
+            38
+          ],
+          "toPos": [
+            29.279507897078798,
+            38
+          ],
+          "type": "firstTouch",
+          "eventId": 4,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Furkan topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        "presentation": {
+          "activeEvent": {
+            "type": "enginePositionGap",
+            "fromPos": [
+              50,
+              50
+            ],
+            "toPos": [
+              51.60634863603276,
+              46.31708598120823
+            ],
+            "enginePositions": {
+              "0": [
+                10.897567340046276,
+                50
+              ],
+              "1": [
+                33.25108955441978,
+                15
+              ],
+              "2": [
+                29.279507897078798,
+                38
+              ],
+              "3": [
+                27.935040015772323,
+                62
+              ],
+              "5": [
+                34.380761363341165,
+                85
+              ],
+              "6": [
+                51.60634863603276,
+                46.31708598120823
+              ],
+              "7": [
+                50.29841537355456,
+                62.13897701988388
+              ],
+              "9": [
+                54.24879092360631,
+                81.35726651955983
+              ],
+              "10": [
+                55.013534410333,
+                18.83651704303099
+              ],
+              "11": [
+                49.721905031518794,
+                50.3262783171251
+              ],
+              "12": [
+                56.91601474151537,
+                52.54071098412777
+              ],
+              "o0": [
+                92,
+                50
+              ],
+              "o1": [
+                79.45727108262287,
+                15
+              ],
+              "o2": [
+                74.89275767639307,
+                39.022960689400065
+              ],
+              "o3": [
+                75.72838730031629,
+                61.07013265281711
+              ],
+              "o4": [
+                78.4349493493345,
+                85
+              ],
+              "o5": [
+                58.994674393679865,
+                35.48749264373538
+              ],
+              "o6": [
+                60.74393075796076,
+                62.896252753268556
+              ],
+              "o7": [
+                45.584813406788236,
+                15
+              ],
+              "o8": [
+                46.16796984368312,
+                48.26629169833936
+              ],
+              "o9": [
+                47.43877545235662,
+                85
+              ],
+              "o10": [
+                50.29731347691869,
+                49.033443025429925
+              ]
+            },
+            "presentationDuration": 0.6666666666666666,
+            "gameSecond": 60,
+            "gapMetres": 3.019398828592452,
+            "maxMovementMetres": 9.568775696566933,
+            "carryId": 6,
+            "carrySide": "user",
+            "endOwner": 6,
+            "endSide": "user",
+            "movementSource": "derived-between-minute-position-samples",
+            "sampleInterval": {
+              "fromGameSecond": 0,
+              "toGameSecond": 60,
+              "phase": "after-position-update-before-action-decisions"
+            },
+            "motionEvents": [
+              {
+                "playerId": 9,
+                "fromId": 9,
+                "toId": 9,
+                "fromSide": "user",
+                "toSide": "user",
+                "ballSide": "user",
+                "fromPos": [
+                  47,
+                  84
+                ],
+                "toPos": [
+                  54.24879092360631,
+                  81.35726651955983
+                ],
+                "carrierId": 6,
+                "type": "offBallRun",
+                "eventId": 2,
+                "minute": 1,
+                "second": 60,
+                "gameSecond": 60,
+                "text": "1’ Kerem boş alana koşuyor.",
+                "homeGoals": 0,
+                "awayGoals": 0,
+                "enginePositions": {
+                  "0": [
+                    10.897567340046276,
+                    50
+                  ],
+                  "1": [
+                    33.25108955441978,
+                    15
+                  ],
+                  "2": [
+                    29.279507897078798,
+                    38
+                  ],
+                  "3": [
+                    27.935040015772323,
+                    62
+                  ],
+                  "5": [
+                    34.380761363341165,
+                    85
+                  ],
+                  "6": [
+                    51.575560009159894,
+                    46.37709452780407
+                  ],
+                  "7": [
+                    50.29841537355456,
+                    62.13897701988388
+                  ],
+                  "9": [
+                    54.24879092360631,
+                    81.35726651955983
+                  ],
+                  "10": [
+                    47,
+                    16
+                  ],
+                  "11": [
+                    43.74722330539493,
+                    49.9939310978884
+                  ],
+                  "12": [
+                    47.946857251876544,
+                    50.04938121564562
+                  ],
+                  "o0": [
+                    92,
+                    50
+                  ],
+                  "o1": [
+                    75,
+                    15
+                  ],
+                  "o2": [
+                    75,
+                    38
+                  ],
+                  "o3": [
+                    75,
+                    62
+                  ],
+                  "o4": [
+                    75,
+                    85
+                  ],
+                  "o5": [
+                    55,
+                    30
+                  ],
+                  "o6": [
+                    55,
+                    70
+                  ],
+                  "o7": [
+                    53,
+                    15
+                  ],
+                  "o8": [
+                    51.43533915932802,
+                    51.38931994440709
+                  ],
+                  "o9": [
+                    53,
+                    85
+                  ],
+                  "o10": [
+                    54.74307944013563,
+                    48.80110545663318
+                  ]
+                },
+                "sampleTime": {
+                  "gameSecond": 60,
+                  "stage": "during-position-update",
+                  "sequence": 2
+                },
+                "engineStatistics": {
+                  "shots": [
+                    0,
+                    0
+                  ],
+                  "xg": [
+                    0,
+                    0
+                  ],
+                  "possession": [
+                    50,
+                    50
+                  ]
+                }
+              }
+            ],
+            "homeGoals": 0,
+            "awayGoals": 0,
+            "engineStatistics": {
+              "shots": [
+                0,
+                0
+              ],
+              "xg": [
+                0,
+                0
+              ],
+              "possession": [
+                50,
+                50
+              ]
+            }
+          },
+          "progress": 0.00374999999999983,
+          "source": "presentation-catchup",
+          "queuedEventIds": [
+            3,
+            4
+          ],
+          "sampledAtMilliseconds": 7689,
+          "eventScore": [
+            0,
+            0
+          ],
+          "eventStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              50,
+              50
+            ]
+          },
+          "duration": 0.6666666666666666,
+          "seconds": 0.8024999999999881,
+          "delta": 0.0024999999999998864,
+          "clockSource": "shared-live-frame / atomic-minute-backpressure",
+          "positionSamples": {
+            "fromGameSecond": 0,
+            "toGameSecond": 60,
+            "fromPositions": {
+              "0": [
+                10,
+                50
+              ],
+              "1": [
+                28,
+                15
+              ],
+              "2": [
+                27,
+                38
+              ],
+              "3": [
+                27,
+                62
+              ],
+              "5": [
+                28,
+                85
+              ],
+              "6": [
+                50,
+                50
+              ],
+              "7": [
+                46,
+                60
+              ],
+              "9": [
+                47,
+                84
+              ],
+              "10": [
+                47,
+                16
+              ],
+              "11": [
+                43.74722330539493,
+                49.9939310978884
+              ],
+              "12": [
+                47.946857251876544,
+                50.04938121564562
+              ],
+              "o0": [
+                92,
+                50
+              ],
+              "o1": [
+                75,
+                15
+              ],
+              "o2": [
+                75,
+                38
+              ],
+              "o3": [
+                75,
+                62
+              ],
+              "o4": [
+                75,
+                85
+              ],
+              "o5": [
+                55,
+                30
+              ],
+              "o6": [
+                55,
+                70
+              ],
+              "o7": [
+                53,
+                15
+              ],
+              "o8": [
+                51.43533915932802,
+                51.38931994440709
+              ],
+              "o9": [
+                53,
+                85
+              ],
+              "o10": [
+                54.74307944013563,
+                48.80110545663318
+              ]
+            },
+            "fromBall": [
+              50,
+              50
+            ],
+            "fromOwner": 6,
+            "fromSide": "user",
+            "toPositions": {
+              "0": [
+                10.897567340046276,
+                50
+              ],
+              "1": [
+                33.25108955441978,
+                15
+              ],
+              "2": [
+                29.279507897078798,
+                38
+              ],
+              "3": [
+                27.935040015772323,
+                62
+              ],
+              "5": [
+                34.380761363341165,
+                85
+              ],
+              "6": [
+                51.60634863603276,
+                46.31708598120823
+              ],
+              "7": [
+                50.29841537355456,
+                62.13897701988388
+              ],
+              "9": [
+                54.24879092360631,
+                81.35726651955983
+              ],
+              "10": [
+                55.013534410333,
+                18.83651704303099
+              ],
+              "11": [
+                49.721905031518794,
+                50.3262783171251
+              ],
+              "12": [
+                56.91601474151537,
+                52.54071098412777
+              ],
+              "o0": [
+                92,
+                50
+              ],
+              "o1": [
+                79.45727108262287,
+                15
+              ],
+              "o2": [
+                74.89275767639307,
+                39.022960689400065
+              ],
+              "o3": [
+                75.72838730031629,
+                61.07013265281711
+              ],
+              "o4": [
+                78.4349493493345,
+                85
+              ],
+              "o5": [
+                58.994674393679865,
+                35.48749264373538
+              ],
+              "o6": [
+                60.74393075796076,
+                62.896252753268556
+              ],
+              "o7": [
+                45.584813406788236,
+                15
+              ],
+              "o8": [
+                46.16796984368312,
+                48.26629169833936
+              ],
+              "o9": [
+                47.43877545235662,
+                85
+              ],
+              "o10": [
+                50.29731347691869,
+                49.033443025429925
+              ]
+            },
+            "toBall": [
+              51.60634863603276,
+              46.31708598120823
+            ],
+            "toOwner": 6,
+            "toSide": "user",
+            "phase": "after-position-update-before-action-decisions"
+          },
+          "matchSeconds": 0.2249999999999898,
+          "rawEngineLeadSeconds": 59.77500000000001,
+          "interventionBoundary": "next-uncomputed-engine-minute; current atomic batch is already committed",
+          "readableTempo": 4
+        },
+        "missing": [
+          "body-facing",
+          "foot-contact-time",
+          "physical-ball-height",
+          "continuous-engine-velocity"
+        ]
+      },
+      "view": {
+        "ball": [
+          7.097833417513133e-05,
+          0.15,
+          -0.00010538946192162335
+        ],
+        "contacts": [
+          {
+            "id": 0,
+            "side": "user",
+            "toe": [
+              -42.08809897502309,
+              0.07126781789185116,
+              -0.10199999999999998
+            ]
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "toe": [
+              -23.1879419543257,
+              0.07127938645973468,
+              -23.901999999999997
+            ]
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "toe": [
+              -24.238049159578903,
+              0.07127149898647432,
+              -8.262
+            ]
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "toe": [
+              -24.23809762456834,
+              0.07126791781726655,
+              8.058
+            ]
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "toe": [
+              -23.18790116808718,
+              0.07128237493080719,
+              23.697999999999997
+            ]
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "toe": [
+              0.09514720736783736,
+              0.07127308430392047,
+              -0.09568659239883304
+            ]
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "toe": [
+              -4.287034556122226,
+              0.07127743916321942,
+              6.697253180698248
+            ]
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "toe": [
+              -3.2385683020577987,
+              0.07128519342460138,
+              23.018531099847806
+            ]
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "toe": [
+              -3.237162604578331,
+              0.07128723236453272,
+              -23.222503949883933
+            ]
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "toe": [
+              -6.653222791458758,
+              0.07128131155968324,
+              -0.10621112823276584
+            ]
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "toe": [
+              -2.2430709349204716,
+              0.07128958038028432,
+              -0.06881204527380115
+            ]
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "toe": [
+              43.695123802834225,
+              0.06403066516043293,
+              0.10200000000000004
+            ]
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "toe": [
+              26.34744164483219,
+              0.07127728316429938,
+              -23.706613776041834
+            ]
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "toe": [
+              26.342305730435573,
+              0.07126721389420604,
+              -8.06173188061195
+            ]
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "toe": [
+              26.33055865422071,
+              0.07126794461228514,
+              8.26808432921095
+            ]
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "toe": [
+              26.347388220266726,
+              0.07127457041360669,
+              23.893386992361275
+            ]
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "toe": [
+              5.345399420700144,
+              0.07127963954288719,
+              -13.504389400380736
+            ]
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "toe": [
+              5.330782473567516,
+              0.07128495881356972,
+              13.707948401261318
+            ]
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "toe": [
+              3.2378638055768683,
+              0.07128510659226978,
+              -23.697999999999997
+            ]
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "toe": [
+              1.593940180639815,
+              0.07128042206839208,
+              1.0475975972302602
+            ]
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "toe": [
+              3.2379307587708133,
+              0.07128020745071577,
+              23.901999999999997
+            ]
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "toe": [
+              5.068306396510694,
+              0.07127725940947155,
+              -0.7133298492406228
+            ]
+          }
+        ],
+        "camera": {
+          "focus": [
+            3.4616542057015724e-06,
+            0,
+            -5.139904709477329e-06
+          ],
+          "span": 12.53023382914134
+        }
+      }
+    },
+    {
+      "name": "after-pass-chain",
+      "wall": 38.46583565629143,
+      "snapshot": {
+        "schema": 1,
+        "coordinateSystem": "pitch-percent-x-length-y-width",
+        "matchSeconds": 240,
+        "speed": 1,
+        "teams": {
+          "home": {
+            "id": "Anadolu Hisarı",
+            "name": "Anadolu Hisarı",
+            "primaryColor": "#f3c623",
+            "secondaryColor": "#b3132b",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(90deg,#f3c623 0 50%,#b3132b 50%)\"><i>AH</i></span>",
+            "shortName": "AH",
+            "stadium": "Anadolu Hisarı Stadı"
+          },
+          "away": {
+            "id": "Ormanşehir",
+            "name": "Ormanşehir",
+            "primaryColor": "#235c2b",
+            "secondaryColor": "#eee",
+            "logo": "<span class=crest style=\"width:34px;height:34px;background:linear-gradient(135deg,#235c2b 0 49%,#eee 50%)\"><i>O</i></span>",
+            "shortName": "O",
+            "stadium": "Ormanşehir Stadı"
+          },
+          "userHome": true
+        },
+        "statistics": {
+          "shots": [
+            1,
+            0
+          ],
+          "xg": [
+            0.068688748539402,
+            0
+          ],
+          "possession": [
+            50,
+            50
+          ]
+        },
+        "lifecycle": "RUNNING",
+        "paused": false,
+        "finished": false,
+        "secondHalf": false,
+        "score": [
+          0,
+          0
+        ],
+        "players": [
+          {
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK",
+            "enginePosition": [
+              14.613561159831297,
+              48.671058388743695
+            ],
+            "displayPosition": [
+              14.613561159831297,
+              48.671058388743695
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "name": "Berkay",
+            "role": "LB",
+            "enginePosition": [
+              24.487990669172977,
+              12.457778663579408
+            ],
+            "displayPosition": [
+              24.487990669172977,
+              12.457778663579408
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "name": "Furkan",
+            "role": "CB",
+            "enginePosition": [
+              28.836855940483687,
+              36.11029768319092
+            ],
+            "displayPosition": [
+              28.836855940483687,
+              36.11029768319092
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "name": "Serkan",
+            "role": "CB",
+            "enginePosition": [
+              30.742602057321974,
+              58.950417468046254
+            ],
+            "displayPosition": [
+              30.742602057321974,
+              58.950417468046254
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "name": "Diallo",
+            "role": "RB",
+            "enginePosition": [
+              19.57043231359625,
+              85.37808623963524
+            ],
+            "displayPosition": [
+              19.57043231359625,
+              85.37808623963524
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "name": "Burak",
+            "role": "CM",
+            "enginePosition": [
+              41.32042736427352,
+              38.25335680641324
+            ],
+            "displayPosition": [
+              41.32042736427352,
+              38.25335680641324
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "name": "Taylan",
+            "role": "CM",
+            "enginePosition": [
+              49.29849445532598,
+              58.0611053732987
+            ],
+            "displayPosition": [
+              49.29849445532598,
+              58.0611053732987
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "name": "Kerem",
+            "role": "RW",
+            "enginePosition": [
+              59.33081977678145,
+              87.6685440060938
+            ],
+            "displayPosition": [
+              59.33081977678145,
+              87.6685440060938
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "name": "Okoro",
+            "role": "LW",
+            "enginePosition": [
+              61.573264943955515,
+              7.432889846628436
+            ],
+            "displayPosition": [
+              61.573264943955515,
+              7.432889846628436
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "name": "Aras",
+            "role": "CAM",
+            "enginePosition": [
+              63.46466125603102,
+              46.341099857049464
+            ],
+            "displayPosition": [
+              63.46466125603102,
+              46.341099857049464
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "name": "Mensah",
+            "role": "ST",
+            "enginePosition": [
+              80.80057234793333,
+              38.80796470409226
+            ],
+            "displayPosition": [
+              80.66233962040201,
+              38.65832504320302
+            ],
+            "attackDirection": 1,
+            "facingRadians": null
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK",
+            "enginePosition": [
+              95.5,
+              56
+            ],
+            "displayPosition": [
+              89.46988328375387,
+              48.90855913249433
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "name": "Cem Özkan",
+            "role": "LB",
+            "enginePosition": [
+              84.56524162366787,
+              13.077988148144035
+            ],
+            "displayPosition": [
+              84.56524162366787,
+              13.077988148144035
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "name": "Sarp Doğan",
+            "role": "CB",
+            "enginePosition": [
+              78.90061779922195,
+              36.7512263364745
+            ],
+            "displayPosition": [
+              79.03885052675327,
+              36.90086599736374
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "name": "Emir Çelik",
+            "role": "CB",
+            "enginePosition": [
+              81.30670199573912,
+              61.2179450608013
+            ],
+            "displayPosition": [
+              81.30670199573912,
+              61.2179450608013
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "name": "Ali Şahin",
+            "role": "RB",
+            "enginePosition": [
+              85.25210241827871,
+              84.94711187513833
+            ],
+            "displayPosition": [
+              85.25210241827871,
+              84.94711187513833
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "name": "Bora Işık",
+            "role": "CM",
+            "enginePosition": [
+              47.305183820001844,
+              25.996145653105838
+            ],
+            "displayPosition": [
+              47.305183820001844,
+              25.996145653105838
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "name": "Tuna Aksoy",
+            "role": "CM",
+            "enginePosition": [
+              55.433378695843544,
+              67.76564576515344
+            ],
+            "displayPosition": [
+              55.433378695843544,
+              67.76564576515344
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "name": "Yusuf Kurt",
+            "role": "LW",
+            "enginePosition": [
+              23.445155603353157,
+              7.980253673844031
+            ],
+            "displayPosition": [
+              23.445155603353157,
+              7.980253673844031
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "name": "Sinan Erdem",
+            "role": "CAM",
+            "enginePosition": [
+              39.30814468413217,
+              44.816479834133965
+            ],
+            "displayPosition": [
+              39.30814468413217,
+              44.816479834133965
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "name": "Cem Özer",
+            "role": "RW",
+            "enginePosition": [
+              26.935305406242485,
+              75.6559914740221
+            ],
+            "displayPosition": [
+              26.935305406242485,
+              75.6559914740221
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "name": "Sarp Yıldız",
+            "role": "ST",
+            "enginePosition": [
+              28.905812848536378,
+              44.027196093743356
+            ],
+            "displayPosition": [
+              28.905812848536378,
+              44.027196093743356
+            ],
+            "attackDirection": -1,
+            "facingRadians": null
+          }
+        ],
+        "ball": {
+          "engine": {
+            "position": [
+              78.90061779922195,
+              36.7512263364745
+            ],
+            "ownerId": "o2",
+            "state": "LIVE",
+            "target": null,
+            "travelType": "ground",
+            "travelDuration": 0,
+            "height": 0
+          },
+          "engineSide": "opp",
+          "displayPosition": [
+            63.46466125603102,
+            46.341099857049464
+          ],
+          "displayOwnerId": 11,
+          "displaySide": "user",
+          "displayState": {
+            "position": [
+              63.46466125603102,
+              46.341099857049464
+            ],
+            "ownerId": 11,
+            "state": "LIVE",
+            "target": [
+              63.46466125603102,
+              46.341099857049464
+            ],
+            "travelType": "ground",
+            "travelDuration": 0.40496483001025707,
+            "height": 0
+          },
+          "heightNormalized": 0,
+          "heightMeters": null
+        },
+        "lastEvent": {
+          "restartType": "GOAL_KICK",
+          "restartPhase": "EXECUTE_RESTART",
+          "side": 1,
+          "fromId": "o0",
+          "toId": "o2",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            95.5,
+            56
+          ],
+          "toPos": [
+            78.90061779922195,
+            36.7512263364745
+          ],
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 25.417607617498938,
+          "success": true,
+          "type": "goalKick",
+          "eventId": 21,
+          "minute": 4,
+          "second": 240,
+          "gameSecond": 240,
+          "text": "4’ Sinan Arslan kale vuruşunu kullandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        "presentation": {
+          "activeEvent": null,
+          "progress": 0,
+          "source": "match-event",
+          "queuedEventIds": [
+            13,
+            14,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21
+          ],
+          "sampledAtMilliseconds": 38465.835656291434,
+          "eventScore": [
+            0,
+            0
+          ],
+          "eventStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              33,
+              67
+            ]
+          },
+          "duration": 0,
+          "seconds": 9.606458914073107,
+          "delta": 0.002191559202477947,
+          "clockSource": "shared-live-frame / atomic-minute-backpressure",
+          "positionSamples": {
+            "fromGameSecond": 180,
+            "toGameSecond": 240,
+            "fromPositions": {
+              "0": [
+                13.590302820640158,
+                49.41263060989138
+              ],
+              "1": [
+                28.02953385643719,
+                18.535733291073246
+              ],
+              "2": [
+                30.192665679148078,
+                36.97122309808971
+              ],
+              "3": [
+                30.740205394118952,
+                59.656074349303715
+              ],
+              "5": [
+                28.03280249718582,
+                84.44516815383716
+              ],
+              "6": [
+                44.034729471916954,
+                42.99431350695438
+              ],
+              "7": [
+                53.91263581303484,
+                57.26655690248074
+              ],
+              "9": [
+                64.85997106643843,
+                83.57558960258594
+              ],
+              "10": [
+                66.16649516747229,
+                16.23493391199885
+              ],
+              "11": [
+                63.379117232349884,
+                45.599809703777524
+              ],
+              "12": [
+                77.9580086031062,
+                51.41889799885232
+              ],
+              "o0": [
+                90.90497293166871,
+                49.44969156983189
+              ],
+              "o1": [
+                87.29101663102516,
+                14.709533815889364
+              ],
+              "o2": [
+                77.70502256733333,
+                38.39113542759092
+              ],
+              "o3": [
+                79.33100052969921,
+                61.52875644586905
+              ],
+              "o4": [
+                86.39077725252201,
+                84.83708729513867
+              ],
+              "o5": [
+                53.157396763570844,
+                30.03288116578775
+              ],
+              "o6": [
+                63.82430032831632,
+                64.23061997211117
+              ],
+              "o7": [
+                32.52952876789341,
+                7.789290569598524
+              ],
+              "o8": [
+                46.12728074086536,
+                44.85475140885339
+              ],
+              "o9": [
+                33.45221611914353,
+                79.56209086443747
+              ],
+              "o10": [
+                35.80831336827605,
+                46.217410028486675
+              ]
+            },
+            "fromBall": [
+              32.52952876789341,
+              7.789290569598524
+            ],
+            "fromOwner": "o7",
+            "fromSide": "opp",
+            "toPositions": {
+              "0": [
+                14.613561159831297,
+                48.671058388743695
+              ],
+              "1": [
+                24.487990669172977,
+                12.457778663579408
+              ],
+              "2": [
+                28.836855940483687,
+                36.11029768319092
+              ],
+              "3": [
+                30.742602057321974,
+                58.950417468046254
+              ],
+              "5": [
+                19.57043231359625,
+                85.37808623963524
+              ],
+              "6": [
+                41.32042736427352,
+                38.25335680641324
+              ],
+              "7": [
+                49.29849445532598,
+                58.0611053732987
+              ],
+              "9": [
+                59.33081977678145,
+                87.6685440060938
+              ],
+              "10": [
+                61.573264943955515,
+                7.432889846628436
+              ],
+              "11": [
+                63.46466125603102,
+                46.341099857049464
+              ],
+              "12": [
+                87.44789158008554,
+                46.00381921326639
+              ],
+              "o0": [
+                89.46988328375387,
+                48.90855913249433
+              ],
+              "o1": [
+                84.56524162366787,
+                13.077988148144035
+              ],
+              "o2": [
+                79.03885052675327,
+                36.90086599736374
+              ],
+              "o3": [
+                81.30670199573912,
+                61.2179450608013
+              ],
+              "o4": [
+                85.25210241827871,
+                84.94711187513833
+              ],
+              "o5": [
+                47.305183820001844,
+                25.996145653105838
+              ],
+              "o6": [
+                55.433378695843544,
+                67.76564576515344
+              ],
+              "o7": [
+                23.445155603353157,
+                7.980253673844031
+              ],
+              "o8": [
+                39.30814468413217,
+                44.816479834133965
+              ],
+              "o9": [
+                26.935305406242485,
+                75.6559914740221
+              ],
+              "o10": [
+                28.905812848536378,
+                44.027196093743356
+              ]
+            },
+            "toBall": [
+              23.445155603353157,
+              7.980253673844031
+            ],
+            "toOwner": "o7",
+            "toSide": "opp",
+            "phase": "after-position-update-before-action-decisions"
+          },
+          "matchSeconds": 240,
+          "rawEngineLeadSeconds": 0,
+          "interventionBoundary": "next-uncomputed-engine-minute; current atomic batch is already committed",
+          "readableTempo": 4
+        },
+        "missing": [
+          "body-facing",
+          "foot-contact-time",
+          "physical-ball-height",
+          "continuous-engine-velocity"
+        ]
+      },
+      "view": {
+        "ball": [
+          14.13789431883257,
+          0.15,
+          -2.488052097206366
+        ],
+        "contacts": [
+          {
+            "id": 0,
+            "side": "user",
+            "toe": [
+              -37.11019537303562,
+              0.035000000000000024,
+              -1.0367651717697255
+            ]
+          },
+          {
+            "id": 1,
+            "side": "user",
+            "toe": [
+              -26.816810826034263,
+              0.09179551862151591,
+              -25.408691917903376
+            ]
+          },
+          {
+            "id": 2,
+            "side": "user",
+            "toe": [
+              -22.51821598982964,
+              0.15294054506518798,
+              -9.45652917857123
+            ]
+          },
+          {
+            "id": 3,
+            "side": "user",
+            "toe": [
+              -20.312456780806727,
+              0.03499999999999997,
+              5.965464989611518
+            ]
+          },
+          {
+            "id": 5,
+            "side": "user",
+            "toe": [
+              -31.81849441588307,
+              0.08453160566476475,
+              24.14990022848554
+            ]
+          },
+          {
+            "id": 6,
+            "side": "user",
+            "toe": [
+              -9.474024884612962,
+              0.07149227790859908,
+              -8.241394980346946
+            ]
+          },
+          {
+            "id": 7,
+            "side": "user",
+            "toe": [
+              -1.1406193125150037,
+              0.06797134670518606,
+              5.62899256108123
+            ]
+          },
+          {
+            "id": 9,
+            "side": "user",
+            "toe": [
+              9.737734667034577,
+              0.16202828676147332,
+              25.75637911449499
+            ]
+          },
+          {
+            "id": 10,
+            "side": "user",
+            "toe": [
+              11.907637907830035,
+              0.15635401425486917,
+              -29.086395952618577
+            ]
+          },
+          {
+            "id": 11,
+            "side": "user",
+            "toe": [
+              14.391232108378624,
+              0.16157210679605957,
+              -2.6112503752869176
+            ]
+          },
+          {
+            "id": 12,
+            "side": "user",
+            "toe": [
+              31.997894253578547,
+              0.03500000000000003,
+              -7.566730532224677
+            ]
+          },
+          {
+            "id": "o0",
+            "side": "opp",
+            "toe": [
+              41.358168369736475,
+              0.03707173791884316,
+              -0.657286482323917
+            ]
+          },
+          {
+            "id": "o1",
+            "side": "opp",
+            "toe": [
+              35.89680895232957,
+              0.058718553555590705,
+              -25.152010453927836
+            ]
+          },
+          {
+            "id": "o2",
+            "side": "opp",
+            "toe": [
+              30.38305970068959,
+              0.06251222192442335,
+              -8.954541285622483
+            ]
+          },
+          {
+            "id": "o3",
+            "side": "opp",
+            "toe": [
+              33.11292555773494,
+              0.15820852530281618,
+              7.501154096101891
+            ]
+          },
+          {
+            "id": "o4",
+            "side": "opp",
+            "toe": [
+              36.625077404841704,
+              0.10237947471067418,
+              23.891022485375988
+            ]
+          },
+          {
+            "id": "o5",
+            "side": "opp",
+            "toe": [
+              -3.1342287011987375,
+              0.150762614690715,
+              -16.34702738936679
+            ]
+          },
+          {
+            "id": "o6",
+            "side": "opp",
+            "toe": [
+              5.864629195735095,
+              0.08920341388557944,
+              12.142837080132535
+            ]
+          },
+          {
+            "id": "o7",
+            "side": "opp",
+            "toe": [
+              -27.460981637478785,
+              0.08338055831109842,
+              -28.430129211877016
+            ]
+          },
+          {
+            "id": "o8",
+            "side": "opp",
+            "toe": [
+              -11.15257772632178,
+              0.08749117194251277,
+              -3.422595073658934
+            ]
+          },
+          {
+            "id": "o9",
+            "side": "opp",
+            "toe": [
+              -24.62798305863449,
+              0.09978777287807111,
+              17.39631888623678
+            ]
+          },
+          {
+            "id": "o10",
+            "side": "opp",
+            "toe": [
+              -22.082209926627872,
+              0.07156353885373501,
+              -3.9436715929247854
+            ]
+          }
+        ],
+        "camera": {
+          "focus": [
+            14.465887115436887,
+            0,
+            -2.5829541915364067
+          ],
+          "span": 12.707925173170135
+        }
+      }
+    }
+  ],
+  "contactChecks": [
+    {
+      "eventId": 3,
+      "kind": "contact",
+      "success": true,
+      "owner": 6,
+      "toeBallMetres": 0.13756816492197582,
+      "rootGaps": [
+        {
+          "id": 6,
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 3,
+      "kind": "arrival",
+      "success": true,
+      "owner": null,
+      "toeBallMetres": 0.1375681649219791,
+      "rootGaps": [
+        {
+          "id": 2,
+          "kind": "receiver",
+          "metres": 0
+        },
+        {
+          "id": 6,
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 5,
+      "kind": "contact",
+      "success": false,
+      "owner": null,
+      "toeBallMetres": 0.13756816492199628,
+      "rootGaps": [
+        {
+          "id": 2,
+          "kind": "source-root-to-contact",
+          "metres": 0
+        },
+        {
+          "id": "o8",
+          "kind": "interceptor",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 5,
+      "kind": "arrival",
+      "success": false,
+      "owner": "o8",
+      "toeBallMetres": 0.13756816492197602,
+      "rootGaps": [
+        {
+          "id": 2,
+          "kind": "source-root-to-contact",
+          "metres": 0
+        },
+        {
+          "id": "o8",
+          "kind": "interceptor",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 7,
+      "kind": "contact",
+      "success": true,
+      "owner": null,
+      "toeBallMetres": 0.137568164921982,
+      "rootGaps": [
+        {
+          "id": "o5",
+          "kind": "receiver",
+          "metres": 0
+        },
+        {
+          "id": "o8",
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 7,
+      "kind": "arrival",
+      "success": true,
+      "owner": null,
+      "toeBallMetres": 0.1375681649219734,
+      "rootGaps": [
+        {
+          "id": "o5",
+          "kind": "receiver",
+          "metres": 0
+        },
+        {
+          "id": "o8",
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 9,
+      "kind": "contact",
+      "success": true,
+      "owner": "o5",
+      "toeBallMetres": 0.1375681649219776,
+      "rootGaps": [
+        {
+          "id": "o5",
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 9,
+      "kind": "arrival",
+      "success": true,
+      "owner": null,
+      "toeBallMetres": 0.13756816492197496,
+      "rootGaps": [
+        {
+          "id": "o5",
+          "kind": "source-root-to-contact",
+          "metres": 0
+        },
+        {
+          "id": "o7",
+          "kind": "receiver",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 11,
+      "kind": "contact",
+      "success": false,
+      "owner": null,
+      "toeBallMetres": 0.1375681649220818,
+      "rootGaps": [
+        {
+          "id": 12,
+          "kind": "interceptor",
+          "metres": 0
+        },
+        {
+          "id": "o7",
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 11,
+      "kind": "arrival",
+      "success": false,
+      "owner": null,
+      "toeBallMetres": 0.13756816492199006,
+      "rootGaps": [
+        {
+          "id": 12,
+          "kind": "interceptor",
+          "metres": 0
+        },
+        {
+          "id": "o7",
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 12,
+      "kind": "contact",
+      "success": true,
+      "owner": null,
+      "toeBallMetres": 0.1375681649220108,
+      "rootGaps": [
+        {
+          "id": 11,
+          "kind": "receiver",
+          "metres": 0
+        },
+        {
+          "id": 12,
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    },
+    {
+      "eventId": 12,
+      "kind": "arrival",
+      "success": true,
+      "owner": 11,
+      "toeBallMetres": 0.1375681649219732,
+      "rootGaps": [
+        {
+          "id": 11,
+          "kind": "receiver",
+          "metres": 0
+        },
+        {
+          "id": 12,
+          "kind": "source-root-to-contact",
+          "metres": 0
+        }
+      ]
+    }
+  ],
+  "video": {
+    "available": true,
+    "method": "Natural existing RAF in Chromium; CDP screencast frames encoded with their real timestamp differences. No controlled replay timestamps during recording; no mobile/render-FPS claim.",
+    "frames": 33,
+    "captureSeconds": 11.275958061218262,
+    "start": {
+      "time": 4.242499999999916,
+      "raw": 180,
+      "display": 125.81939693968802,
+      "passIds": [
+        3,
+        5
+      ]
+    },
+    "end": {
+      "time": 7.638224999999912,
+      "raw": 180,
+      "display": 180,
+      "passIds": [
+        3,
+        5,
+        7,
+        9
+      ]
+    },
+    "bytes": 119665,
+    "setup": "The existing engine was first advanced to the 17s section with controlled RAF timestamps. Capture itself uses natural browser RAF and real CDP timestamp differences. Absolute wall-log times across this QA seek must not be compared; the isolated minute audit uses a single uninterrupted clock."
+  }
+}

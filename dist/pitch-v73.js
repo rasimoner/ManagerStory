@@ -134,7 +134,11 @@ function enqueuePitchEvent(e) {
   if(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled){
     // Transient read-only engine keyframes; never stored back in M.events or career saves.
     const enginePositions=Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
-    state.queue.push({...structuredClone(e),enginePositions,engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
+    const copy=structuredClone(e);
+    // The old kickoff declares a 3-percent tap that the engine never commits.
+    // Retain the raw declaration for diagnostics; present the actual restart spot.
+    if(e.type==='kickoff'){copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';}
+    state.queue.push({...copy,enginePositions,sampleTime:{gameSecond:e.gameSecond,stage:window.ManagerStoryLive3D.inPositionUpdate?'during-position-update':'event-after-position-update',sequence:e.eventId},engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
   }else state.queue.push(e);
 }
 function pitchEventPhase(progress) {
@@ -369,6 +373,7 @@ function nearestSet(side,point,count,filter){
 function evolvePitchPositions(){
  if(engineFrozen())return;
  M.dynamicPositions ??={};M.pitchMotion ??={};
+ window.ManagerStoryLive3D?.beginMotionSample?.();
  const ball=M.ballState?.position||[50,50],attacking=M.ballSide;
  const previous=M.previousPossessionSide;
  if(previous&&previous!==attacking&&attacking!=='none')M.regain={side:attacking,min:M.min};
@@ -474,6 +479,7 @@ function evolvePitchPositions(){
  if(M.ballOwner!=null&&M.ballSide!=='none'&&M.ballState?.state==='LIVE'){
   M.ballState.position=eventPoint(M.ballOwner,M.ballSide);
  }
+ window.ManagerStoryLive3D?.endMotionSample?.();
 }
 function passLanePressure(a,b,side){
  const others=side==='user'?M.oppIds:M.active;

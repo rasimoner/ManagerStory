@@ -43,6 +43,10 @@
         duration: frame.durationEvent === frame.active ? frame.activeDuration : (frame.active ? eventAnimationTime(frame.active) : 0),
         seconds: frame.presentationSeconds ?? null, delta: frame.presentationDelta ?? 0,
         clockSource: window.ManagerStoryLive3D?.enabled ? 'shared-live-frame / atomic-minute-backpressure' : 'legacy-presentation',
+        positionSamples:copy(frame.positionSamples),
+        matchSeconds:frame.displayMatchSeconds??matchSecond(),
+        rawEngineLeadSeconds:matchSecond()-(frame.displayMatchSeconds??matchSecond()),
+        interventionBoundary:'next-uncomputed-engine-minute; current atomic batch is already committed',
         readableTempo: window.ManagerStoryLive3D?.enabled ? window.ManagerStoryLive3D.tempo : null
       } : null,
       missing: ['body-facing', 'foot-contact-time', 'physical-ball-height', 'continuous-engine-velocity']

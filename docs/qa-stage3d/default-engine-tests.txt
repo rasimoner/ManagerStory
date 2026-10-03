@@ -1,0 +1,25 @@
+✔ 1. a home-team pass can only target a valid home-team teammate (1238.334436ms)
+✔ 2. away-team pass isolation works identically (1211.222741ms)
+✔ 3. teams attack opposite directions and shots go toward the correct goal (487.962055ms)
+✔ 4. directions switch after half-time and both teams restart in valid positions (236.551854ms)
+✔ 5. the ball never moves without a valid ball/action state (no ghost kicks) (1922.923938ms)
+✔ 6. possession side always agrees with ball owner, and broken states are repaired (532.549476ms)
+✔ 7. player ids from different teams cannot collide logically (13.551397ms)
+✔ 8. players keep recognisable shape and minimum spacing (508.91572ms)
+✔ 9. the entire team does not collapse onto the ball (1731.190284ms)
+✔ 10. a loose ball stays unowned until a player physically reaches it (29.296085ms)
+✔ 11. second balls (blocks, parries, rebounds) resolve through the loose-ball logic (5817.941287ms)
+✔ 12. the simulation is frozen after full time (466.593438ms)
+✔ 13. match finalisation executes exactly once (472.437175ms)
+✔ 14. the same seed produces the same match (2770.811744ms)
+✔ 15/16. no NaN, Infinity, undefined players or out-of-bounds coordinates over 100 stress matches (59068.805077ms)
+✔ no second simulation path: legacy duplicates are gone and the live loop is single-sourced (6.127815ms)
+✔ one football minute cannot be processed twice (no re-entrant tick) (23.856735ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 76693.612624

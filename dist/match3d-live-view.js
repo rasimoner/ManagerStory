@@ -10,7 +10,7 @@ export function createLivePoseSampler(){
   const dt=lastTime==null?0:Math.max(0,time-lastTime);
   if(lastTime!=null&&time<lastTime){previous.clear();focus=null;lastPass=null;}lastTime=time;
   const pass=e&&['pass','cross'].includes(e.type),ball=metres(snapshot.ball.displayPosition||snapshot.ball.engine.position);
-  const A=pass?metres(e.fromPos):ball,B=pass?metres(e.toPos):ball,len=Math.hypot(B[0]-A[0],B[2]-A[2]),u=clamp((p-.19)/.57),dir=len?[(B[0]-A[0])/len,0,(B[2]-A[2])/len]:[0,0,1],right=[dir[2],0,-dir[0]];
+  const A=pass||e?.type==='kickoff'?metres(e.fromPos):ball,B=pass?metres(e.toPos):ball,len=Math.hypot(B[0]-A[0],B[2]-A[2]),u=clamp((p-.19)/.57),dir=len?[(B[0]-A[0])/len,0,(B[2]-A[2])/len]:[0,0,1],right=[dir[2],0,-dir[0]];
   const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=.15+(aerial?Math.sin(Math.PI*u)*clamp(len/12,1.2,3.8):0);
   if(pass)lastPass=e;
   const poses=[],gaps=[];
@@ -30,7 +30,7 @@ export function createLivePoseSampler(){
     return {point,cycle,plant};
    });
    let left=feet[0].point,rightFoot=feet[1].point,arm=moving?Math.sin(travel/1.25*Math.PI*2)*.24:0;
-   if(pass&&player.id===e.fromId&&player.side===e.fromSide){
+   if((pass||e?.type==='kickoff')&&player.id===e.fromId&&player.side===e.fromSide){
     yaw=angle(yaw,Math.atan2(dir[0],dir[2]),smooth(p/.19));
     const contact=add(A,mul(dir,-.30));contact[1]=.16;
     const neutral=add(root,mul(right,.102));neutral[1]=.09;
