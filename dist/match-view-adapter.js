@@ -13,6 +13,8 @@
     if (typeof M === 'undefined' || !M) return null;
     const players = ['user', 'opp'].flatMap(side => (side === 'user' ? M.active : M.oppIds).map(id => ({
       id, side,
+      name: playerAtMarker(id,side)?.name ?? String(id),
+      role: side === 'user' ? M.matchRoles[id] : playerAtMarker(id,side)?.position,
       enginePosition: copy(eventPoint(id, side)),
       displayPosition: copy(frame?.positions?.[String(id)]),
       attackDirection: attackDirection(side),
@@ -21,6 +23,8 @@
     return freeze({
       schema: 1, coordinateSystem: 'pitch-percent-x-length-y-width',
       matchSeconds: M.matchElapsedSeconds, speed: M.speed,
+      teams: { home: copy(resolveClubIdentity('goal',{teamId:M.home})), away: copy(resolveClubIdentity('goal',{teamId:M.away})), userHome: M.userHome },
+      statistics: { shots: copy(M.shots), xg: copy(M.stats?.xg), possession: copy(matchPossession()) },
       lifecycle: M.lifecycle, paused: M.pause, finished: M.finished,
       secondHalf: M.secondHalf, score: [M.hg, M.ag], players,
       ball: {
@@ -41,6 +45,11 @@
   }
   window.MatchView = Object.freeze({
     read,
+    previewIdentity() {
+      const user = resolveClubIdentity('career');
+      const rivalName = S ? currentOpponent()[0] : OPP[0][0];
+      return freeze({user:copy(user),rival:copy(resolveClubIdentity('goal',{teamId:rivalName}))});
+    },
     readEvents(afterId = 0) {
       if (typeof M === 'undefined' || !M) return Object.freeze([]);
       // End event currently has no ID; include it explicitly, do not invent one.

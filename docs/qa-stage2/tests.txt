@@ -1,0 +1,11 @@
+2026-10-03 / Node 24.19.0 / npm test
+✔ PASSING STYLE decision: Direkt differs from Dengeli (not only from Kısa); execution still comes from Phase 2 (10463.097056ms)
+ℹ tests 122
+ℹ suites 0
+ℹ pass 122
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 156728.108614
+Browser QA: tools/match3d-qa.mjs; see metrics.json

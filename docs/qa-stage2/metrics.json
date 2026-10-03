@@ -1,0 +1,86 @@
+{
+  "mode": "visual-test",
+  "players": 22,
+  "balls": 1,
+  "bones": 16,
+  "initMs": 2004.699999999255,
+  "renderSubmissionMs": 17.59999999962747,
+  "calls": 156,
+  "triangles": 388344,
+  "canvas": [
+    585,
+    819
+  ],
+  "renderer": "WebKit WebGL",
+  "meanRenderCompletedMs": 6.866666666620101,
+  "staticBenchmarkFrames": 12,
+  "staticBenchmarkFps": 57.279236276849645,
+  "rendererUnmasked": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "controls": [
+    {
+      "disabled": true,
+      "bottom": 818
+    },
+    {
+      "disabled": true,
+      "bottom": 818
+    },
+    {
+      "disabled": true,
+      "bottom": 818
+    }
+  ],
+  "viewport": [
+    390,
+    844
+  ],
+  "sceneGoals": 2,
+  "skeletons": [
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "initialRenderReadyMs": 2224.884053,
+  "navigationThroughScreenshotAndBenchmarkMs": 5890.6833670000005,
+  "browserVersion": "153.0.8010.0",
+  "environment": "Linux headless Chromium / SwiftShader software renderer / 390x844 CSS / DPR 1.5",
+  "compactControls": [
+    {
+      "bottom": 542,
+      "right": 100
+    },
+    {
+      "bottom": 542,
+      "right": 216
+    },
+    {
+      "bottom": 542,
+      "right": 314
+    }
+  ],
+  "offlineReload": true,
+  "closeReturnsToExistingApp": true,
+  "defaultEntryKeepsOriginalApp": true,
+  "errors": [],
+  "warnings": [],
+  "externalRequests": []
+}
