@@ -272,6 +272,7 @@ function paintLivePitch() {
   state.lastTime=now;
   synchronizePitchPresentation(state);
   const frame=pitchFrameState(dt,now);
+  if(typeof window!=='undefined'&&window.MatchView)window.MatchView.publish(frame);
   const score=document.querySelector('#live-score');
   if(score)score.textContent=[M.hg,M.ag].join('–');
   const pitch=document.querySelector('.livepitch');if(!pitch||!frame)return;
