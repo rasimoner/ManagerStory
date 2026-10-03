@@ -1,0 +1,14 @@
+{
+  "name": "ManagerStory V7.4.0 — MatchEngine V2",
+  "short_name": "ManagerStory",
+  "start_url": "./",
+  "scope": "./",
+  "lang": "tr",
+  "display": "standalone",
+  "background_color": "#06100c",
+  "theme_color": "#07120d",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

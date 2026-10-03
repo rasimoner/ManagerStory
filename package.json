@@ -1,0 +1,8 @@
+{
+  "name": "managerstory",
+  "version": "7.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "vite", "test": "node --test tests/*.test.cjs" },
+  "devDependencies": { "vite": "8.0.13" }
+}
