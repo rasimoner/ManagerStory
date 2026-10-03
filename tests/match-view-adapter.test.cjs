@@ -46,3 +46,13 @@ test('observing a full match preserves seeded events/results and stops after uns
   assert.equal(a.run('window.received'), count);
   assert.equal(a.run('MatchView.readEvents().at(-1).type'), 'end');
 });
+test('pass description derives existing phase timing without changing engine or save state',()=>{
+ const h=setup();h.run('S=fresh();init();startMatch();resumeLive();advanceLive(2)');
+ const before=h.run('JSON.stringify([M,S,pitchV73])'),saved=JSON.stringify([...h.storage]);
+ h.run('window.examplePass=M.events.find(e=>e.type==="pass");window.passView=MatchView.describePass(examplePass)');
+ assert.equal(h.run('passView.event.eventId'),h.run('examplePass.eventId'));
+ assert.equal(h.run('passView.contactAt'),h.run('eventAnimationTime(examplePass)*.19'));
+ assert.equal(h.run('passView.arrivalAt'),h.run('eventAnimationTime(examplePass)*.76'));
+ assert.equal(h.run('Object.isFrozen(passView.event.fromPos)'),true);
+ assert.equal(h.run('JSON.stringify([M,S,pitchV73])'),before);assert.equal(JSON.stringify([...h.storage]),saved);
+});

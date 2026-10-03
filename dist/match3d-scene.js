@@ -1,5 +1,6 @@
 import * as T from './vendor/three/three.module.min.js';
 import { createFootballer } from './match3d-player.js';
+import { poseFootballer } from './match3d-football-pose.js';
 
 export const PITCH = Object.freeze({ length:105, width:68, goalWidth:7.32, goalHeight:2.44 });
 export const pitchToWorld = xy => new T.Vector3((xy[0]/100-.5)*105,0,(xy[1]/100-.5)*68);
@@ -142,6 +143,21 @@ export function createMatchScene({canvas,home,away,players}) {
     for(let i=0;i<12;i++){const x=(i*31)%w,y=(i*17)%h;c.beginPath();for(let j=0;j<5;j++){const a=j/5*Math.PI*2;c.lineTo(x+Math.cos(a)*8,y+Math.sin(a)*8)}c.closePath();c.fill();}
   });
   const ball=new T.Mesh(new T.SphereGeometry(.14,20,14),new T.MeshStandardMaterial({map:ballTexture,roughness:.65}));ball.name='match-ball';ball.castShadow=true;scene.add(ball);ball.position.set(7,.15,8);
+  const ballShadow=new T.Mesh(new T.PlaneGeometry(.65,.65),new T.MeshBasicMaterial({map:contactTexture,transparent:true,opacity:.85,depthWrite:false}));ballShadow.rotation.x=-Math.PI/2;ballShadow.position.y=.02;scene.add(ballShadow);
+  function applyPassSample(s){
+    const from=footballers.get(`${s.source.side}:${s.source.id}`),to=footballers.get(`${s.receiver.side}:${s.receiver.id}`);
+    const source=from?poseFootballer(from,s.source):null,receiver=to?poseFootballer(to,s.receiver):null;
+    ball.position.set(...s.ball);ball.rotation.set(s.flightProgress*18,0,s.flightProgress*14);
+    ballShadow.position.set(s.ball[0],.02,s.ball[2]);ballShadow.scale.setScalar(1+(s.ball[1]-.15)*.18);ballShadow.material.opacity=.85/(1+(s.ball[1]-.15)*.22);
+    if(cameraRig.mode==='broadcast'){
+      cameraRig.framePoints=null;const focus=new T.Vector3(...s.camera.focus);focus.y=(s.ball[1]-.15)*.35*Math.sin(Math.PI*s.flightProgress);
+      cameraRig.focus.copy(focus);camera.position.set(focus.x,24,38);camera.lookAt(focus);
+      const aspect=canvas.clientWidth/Math.max(1,canvas.clientHeight),distance=camera.position.distanceTo(focus);
+      camera.fov=T.MathUtils.radToDeg(2*Math.atan((s.camera.span/aspect)*.5/distance));camera.updateProjectionMatrix();
+    }
+    return {sourceToeDistance:source?.rightToe.distanceTo(ball.position),receiverToeDistance:receiver?.rightToe.distanceTo(ball.position),sourceSupportError:source?.leftAnkle.distanceTo(new T.Vector3(...s.source.leftFoot)),
+      receiverFootErrors:receiver?[receiver.leftAnkle.distanceTo(new T.Vector3(...s.receiver.leftFoot)),receiver.rightAnkle.distanceTo(new T.Vector3(...s.receiver.rightFoot))]:[]};
+  }
   const camera=new T.PerspectiveCamera(48,1,.1,320);
   const cameraRig={focus:new T.Vector3(9,0,8),position:new T.Vector3(9,16,36),mode:'broadcast',framePoints:null};
   // Fit source and destination at their true world scale. Manual framing only:
@@ -154,9 +170,9 @@ export function createMatchScene({canvas,home,away,players}) {
     const distance=Math.max(20,(size.x+margin)/(2*tan*aspect),(size.z*.65+8)/(2*tan));
     cameraRig.focus.copy(center);cameraRig.position.copy(center).add(new T.Vector3(0,distance*.52,distance*.85));cameraRig.framePoints=points.map(p=>p.clone());
   }
-  function setCamera(mode='broadcast') {
+  function setCamera(mode='broadcast',playerKey=null) {
     cameraRig.mode=mode;
-    if(mode==='model') {const p=players.filter(p=>!p.goalkeeper&&p.side==='user')[8]||players.find(p=>!p.goalkeeper&&p.side==='user'),m=footballers.get(`${p.side}:${p.id}`);camera.position.copy(m.position).add(new T.Vector3(3.3,1.5,1.8));camera.lookAt(m.position.clone().add(new T.Vector3(0,.94,0)));camera.fov=35;}
+    if(mode==='model') {const p=players.filter(p=>!p.goalkeeper&&p.side==='user')[8]||players.find(p=>!p.goalkeeper&&p.side==='user'),m=footballers.get(playerKey||`${p.side}:${p.id}`);camera.position.copy(m.position).add(new T.Vector3(3.3,1.5,1.8).applyQuaternion(m.quaternion));camera.lookAt(m.position.clone().add(new T.Vector3(0,.94,0)));camera.fov=35;}
     else if(mode==='overview'){camera.position.set(0,86,98);camera.lookAt(0,0,0);camera.fov=56;}
     else {camera.position.copy(cameraRig.position);camera.lookAt(cameraRig.focus);camera.fov=42;}
     camera.updateProjectionMatrix();
@@ -172,5 +188,5 @@ export function createMatchScene({canvas,home,away,players}) {
   function render(){renderer.render(scene,camera);return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}
   function dispose(){const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)o.skeleton.dispose();for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}});geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());renderer.dispose();renderer.forceContextLoss();}
   setCamera();resize();
-  return {scene,camera,cameraRig,renderer,footballers,ball,resize,setCamera,framePoints,projectPoint,apply,render,dispose};
+  return {scene,camera,cameraRig,renderer,footballers,ball,resize,setCamera,framePoints,projectPoint,apply,applyPassSample,render,dispose};
 }

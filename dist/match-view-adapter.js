@@ -45,6 +45,16 @@
   }
   window.MatchView = Object.freeze({
     read,
+    describePass(event, firstTouch = null) {
+      if (!event || !['pass','cross'].includes(event.type)) return null;
+      const duration = eventAnimationTime(event);
+      const controlDuration = firstTouch ? eventAnimationTime(firstTouch) : 0;
+      // Existing renderer phase boundaries; no new authoritative match time.
+      return freeze({ event:copy(event), firstTouch:copy(firstTouch), duration,
+        contactAt:duration*.19, arrivalAt:duration*.76, endAt:duration+controlDuration,
+        controlDuration, timingSource:'eventAnimationTime / pitchEventPhase',
+        missing:['absolute-presentation-start','measured-foot-contact','physical-height','receiver-continuous-trajectory'] });
+    },
     previewIdentity() {
       const user = resolveClubIdentity('career');
       const rivalName = S ? currentOpponent()[0] : OPP[0][0];
