@@ -2,7 +2,13 @@
 (() => {
  let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
  const lerp=(a,b,u)=>a.map((v,i)=>v+(b[i]-v)*u),ease=u=>u*u*(3-2*u);
- const duration=e=>eventAnimationTime(e);
+ const isCarry=e=>['dribble','ballCarry','run'].includes(e.type);
+ const duration=e=>{
+  const base=eventAnimationTime(e);
+  if(!isCarry(e))return base;
+  const d=metres(e.fromPos,e.toPos),others=Math.max(0,...Object.entries(e.enginePositions||{}).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)));
+  return Math.max(base,d*1.5/(24*.57),others*1.5/24);
+ };
  const positions=()=>Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
  function beginMotionSample(){if(!enabled)return;inPositionUpdate=true;motionSample={fromGameSecond:Math.max(0,M.min*60-60),toGameSecond:M.min*60,fromPositions:positions(),fromBall:[...M.ballState.position],fromOwner:M.ballOwner,fromSide:M.ballSide};}
  function endMotionSample(){if(!enabled||!motionSample)return;inPositionUpdate=false;Object.assign(motionSample,{toPositions:positions(),toBall:[...M.ballState.position],toOwner:M.ballOwner,toSide:M.ballSide,phase:'after-position-update-before-action-decisions'});}
@@ -62,7 +68,9 @@
   while(remaining>1e-9&&(state.active||state.queue.length)){
    if(!state.active){
     const next=state.queue[0];
-    const transition=next.fromPos&&['pass','cross'].includes(next.type)?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond):null;
+    const sourceTargets=next.enginePositions?structuredClone(next.enginePositions):{};
+    if(isCarry(next))sourceTargets[String(next.fromId)]=[...next.fromPos];
+    const transition=next.fromPos&&(['pass','cross'].includes(next.type)||isCarry(next))?keyframeTransition(state,sourceTargets,next.fromPos,next.gameSecond):null;
     const placement=next.type==='kickoff'?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond,next.fromId,next.fromSide):null;
     if(placement){placement.sampleInterval={fromGameSecond:next.gameSecond,toGameSecond:next.gameSecond,phase:'restart-placement'};placement.carryId=null;placement.carrySide='none';placement.movementSource='derived-dead-ball-placement';}
     if(placement)state.active=placement;
@@ -71,7 +79,7 @@
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
     state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/M.speed*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
    }
-   const e=state.active;
+   const e=state.active;state.carryMotion=null;
    if(Number.isFinite(e.homeGoals)&&Number.isFinite(e.awayGoals))state.eventScore=[e.homeGoals,e.awayGoals];
    if(e.engineStatistics)state.eventStatistics=e.engineStatistics;
    const D=state.activeDuration,take=Math.min(remaining,(1-state.progress)*D);
@@ -83,12 +91,20 @@
     if(p>=.19&&state.contactObserved==null)state.contactObserved=now;
     if(p>=.76&&state.arrivalObserved==null)state.arrivalObserved=now;
     state.ball=lerp(e.fromPos,e.toPos,flight(u));state.carrier=p<.19?e.fromId:p<.76?null:e.toId;state.side=p<.19?e.fromSide:p<.76?'none':e.toSide;}
+   else if(isCarry(e)){
+    // Derived touches on the recorded segment, not new decisions or physical engine data.
+    const t=ease(u),d=metres(e.fromPos,e.toPos),travel=d*t,phase=(travel/1.25)%1;
+    const lead=.18*Math.sin(Math.PI*phase)**2*Math.sin(Math.PI*t)**2;
+    const ballT=d?Math.min(1,t+lead/d):t;
+    state.ball=lerp(e.fromPos,e.toPos,ballT);state.carrier=e.fromId;state.side=e.fromSide;
+    state.carryMotion={eventId:e.eventId,travelMetres:travel,touchPhase:phase,leadMetres:lead,source:'derived-distance-touches-on-engine-segment'};
+   }
    else if(e.type==='enginePositionGap'){state.ball=lerp(e.fromPos,e.toPos,ease(p));state.carrier=e.carryId;state.side=e.carrySide;}
    else{const point=animationPoint(e,p,state.eventStartBall);if(point)state.ball=point;}
    const targets=e.enginePositions;
    if(targets)for(const [key,target] of Object.entries(targets)){
     const start=state.startPositions[key]||target;
-    const fraction=pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):p;
+    const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):p;
     state.positions[key]=lerp(start,target,ease(fraction));
    }
    // A non-ball event can still contain movement of the actual ball carrier.

@@ -38,6 +38,16 @@ export function createLivePoseSampler(){
     else{const follow=clamp((p-.19)/.81);rightFoot=mix(contact,neutral,smooth(follow));rightFoot=add(rightFoot,mul(dir,.25*Math.sin(Math.PI*follow)));rightFoot[1]+=.12*Math.sin(Math.PI*follow);}
     gaps.push({id:player.id,kind:'source-root-to-contact',metres:Math.hypot(root[0]-A[0],root[2]-A[2])});
    }
+   const carry=P?.carryMotion;
+   if(carry&&player.id===e.fromId&&player.side===e.fromSide){
+    // Reach only near a derived touch; intervening frames keep the distance-based gait.
+    const phase=carry.touchPhase,weight=1-smooth(Math.min(phase,1-phase)/.12);
+    const pathA=metres(e.fromPos),pathB=metres(e.toPos),n=Math.hypot(pathB[0]-pathA[0],pathB[2]-pathA[2])||1;
+    const touchDir=[(pathB[0]-pathA[0])/n,0,(pathB[2]-pathA[2])/n];
+    const contact=add(ball,mul(touchDir,-.30));contact[1]=.16;
+    rightFoot=mix(rightFoot,contact,weight);
+    gaps.push({id:player.id,kind:'derived-carry-touch',metres:Math.hypot(root[0]-ball[0],root[2]-ball[2]),phase,weight});
+   }
    const touch=e?.type==='firstTouch'&&lastPass?.success===true&&lastPass.toId===e.toId;
    let receiveEventYaw=old?.receiveEventYaw,receiveEventId=old?.receiveEventId;
    const receiving=(pass&&p>.19&&player.id===e.toId&&player.side===e.toSide)||(touch&&player.id===e.toId&&player.side===e.toSide);
