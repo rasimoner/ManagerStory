@@ -158,6 +158,18 @@ export function createMatchScene({canvas,home,away,players}) {
     return {sourceToeDistance:source?.rightToe.distanceTo(ball.position),receiverToeDistance:receiver?.rightToe.distanceTo(ball.position),sourceSupportError:source?.leftAnkle.distanceTo(new T.Vector3(...s.source.leftFoot)),
       receiverFootErrors:receiver?[receiver.leftAnkle.distanceTo(new T.Vector3(...s.receiver.leftFoot)),receiver.rightAnkle.distanceTo(new T.Vector3(...s.receiver.rightFoot))]:[]};
   }
+  function applyLiveSample(sample){
+    const contacts=[];
+    for(const pose of sample.poses){const m=footballers.get(`${pose.side}:${pose.id}`);if(m){const r=poseFootballer(m,pose);contacts.push({id:pose.id,side:pose.side,toe:r.rightToe.toArray()});}}
+    ball.position.set(...sample.ball);ballShadow.position.set(sample.ball[0],.02,sample.ball[2]);ballShadow.scale.setScalar(1+(sample.ball[1]-.15)*.18);ballShadow.material.opacity=.85/(1+(sample.ball[1]-.15)*.22);
+    if(cameraRig.mode==='broadcast'){
+      cameraRig.framePoints=null;const focus=new T.Vector3(...sample.camera.focus);cameraRig.focus.copy(focus);
+      camera.position.set(focus.x,24,focus.z+38);camera.lookAt(focus);
+      const aspect=canvas.clientWidth/Math.max(1,canvas.clientHeight),distance=camera.position.distanceTo(focus);
+      camera.fov=T.MathUtils.radToDeg(2*Math.atan(sample.camera.span/aspect*.5/distance));camera.updateProjectionMatrix();
+    }
+    return contacts;
+  }
   const camera=new T.PerspectiveCamera(48,1,.1,320);
   const cameraRig={focus:new T.Vector3(9,0,8),position:new T.Vector3(9,16,36),mode:'broadcast',framePoints:null};
   // Fit source and destination at their true world scale. Manual framing only:
@@ -186,7 +198,7 @@ export function createMatchScene({canvas,home,away,players}) {
   }
   function projectPoint(xy){const p=pitchToWorld(xy).project(camera);return [(p.x+1)*.5*canvas.clientWidth,(1-p.y)*.5*canvas.clientHeight];}
   function render(){renderer.render(scene,camera);return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}
-  function dispose(){const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)o.skeleton.dispose();for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}});geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());renderer.dispose();renderer.forceContextLoss();}
+  function dispose({loseContext=true}={}){const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)o.skeleton.dispose();for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}});geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());renderer.dispose();if(loseContext)renderer.forceContextLoss();}
   setCamera();resize();
-  return {scene,camera,cameraRig,renderer,footballers,ball,resize,setCamera,framePoints,projectPoint,apply,applyPassSample,render,dispose};
+  return {scene,camera,cameraRig,renderer,footballers,ball,resize,setCamera,framePoints,projectPoint,apply,applyPassSample,applyLiveSample,render,dispose};
 }

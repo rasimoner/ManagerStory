@@ -77,7 +77,8 @@ function liveFrameStep(now) {
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
   liveLastFrame = now;
   const oldMin = M.min;
-  if (!M.finished) advanceLive(dt);
+  if(window.ManagerStoryLive3D?.enabled){window.ManagerStoryLive3D.step(dt,now);}
+  else if (!M.finished) advanceLive(dt);
   if (M.min !== oldMin || (M.pause && !M.finished)) render();
   else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
   if (M && !M.pause && !M.finished && liveFrame === null)

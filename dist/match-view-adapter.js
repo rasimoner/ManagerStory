@@ -36,9 +36,14 @@
       lastEvent: copy(M.events?.at(-1)),
       presentation: frame ? {
         activeEvent: copy(frame.active), progress: frame.progress,
-        source: frame.active?.type === 'presentationSync' ? 'presentation-catchup' : 'match-event',
+        source: ['presentationSync','enginePositionGap'].includes(frame.active?.type) ? 'presentation-catchup' : 'match-event',
         queuedEventIds: frame.queue.map(e => e.eventId ?? null),
-        sampledAtMilliseconds: frame.lastTime
+        sampledAtMilliseconds: frame.lastTime,
+        eventScore: copy(frame.eventScore), eventStatistics: copy(frame.eventStatistics),
+        duration: frame.durationEvent === frame.active ? frame.activeDuration : (frame.active ? eventAnimationTime(frame.active) : 0),
+        seconds: frame.presentationSeconds ?? null, delta: frame.presentationDelta ?? 0,
+        clockSource: window.ManagerStoryLive3D?.enabled ? 'shared-live-frame / atomic-minute-backpressure' : 'legacy-presentation',
+        readableTempo: window.ManagerStoryLive3D?.enabled ? window.ManagerStoryLive3D.tempo : null
       } : null,
       missing: ['body-facing', 'foot-contact-time', 'physical-ball-height', 'continuous-engine-velocity']
     });

@@ -1,0 +1,34 @@
+Full npm test:
+ℹ tests 134
+ℹ suites 0
+ℹ pass 134
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 180935.983441
+
+Final focused checks:
+✔ view reads never initialize or mutate match/presentation/save state (108.439446ms)
+✔ copies are deeply frozen; presentation sync stays distinct from match events (40.796772ms)
+✔ observing a full match preserves seeded events/results and stops after unsubscribe (1131.654084ms)
+✔ pass description derives existing phase timing without changing engine or save state (38.046386ms)
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (57.384035ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (136.394711ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (1532.965895ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (18.734084ms)
+✔ joining an already active legacy event preserves progress and stays finite (16.727217ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (82.249654ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (31.870022ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (5.072687ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.7724ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (6.489017ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (7.977034ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2032.382825

@@ -80,7 +80,7 @@ function pitchInstructionTarget(id,side,ball,attacking) {
 function eventAnimationTime(e) {
   if(e.presentationDuration)return e.presentationDuration;
   const a=e.fromPos||[50,50],b=e.toPos||a,dist=Math.hypot(a[0]-b[0],a[1]-b[1]);
-  const viewing=M?.speed===.5?1.18:M?.speed===2?.85:1;
+  const viewing=typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled?1:M?.speed===.5?1.18:M?.speed===2?.85:1;
   if(e.type==='pass'||e.type==='cross') {
     const passing=playerAttribute(e.fromId,e.fromSide,'passing',69);
     const aerial=e.type==='cross'||e.travelType==='aerial'||e.passKind==='long'||dist>34;
@@ -116,7 +116,7 @@ function currentPitchState() {
 function enqueuePitchEvent(e) {
   if(!M||!PITCH_ACTIONS.has(e.type))return;
   const state=currentPitchState();
-  if(e.type==='goal'){
+  if(e.type==='goal'&&!(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled)){
     // Score/overlay are immediate, but an in-flight shot completes visually.
     state.queue.length=0;
     const scoringTeam=e.side===0?M.home:M.away;
@@ -126,12 +126,16 @@ function enqueuePitchEvent(e) {
     state.goalText=goalIdentity.name+' • '+(e.scorer||'Gol')+' • '+e.minute+'’';
     state.goalUntil=(typeof performance!=='undefined'?performance.now():0)+1700;
   }
-  if(state.queue.length>=36) {
+  if(state.queue.length>=36&&!(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled)) {
     const old=state.queue.findIndex(x=>!IMPORTANT_ACTIONS.has(x.type));
     if(old>=0)state.queue.splice(old,1);
     else if(!IMPORTANT_ACTIONS.has(e.type))return;
   }
-  state.queue.push(e);
+  if(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled){
+    // Transient read-only engine keyframes; never stored back in M.events or career saves.
+    const enginePositions=Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
+    state.queue.push({...e,enginePositions,engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
+  }else state.queue.push(e);
 }
 function pitchEventPhase(progress) {
   return progress<.19?'PREPARATION':progress<.76?'ACTION':progress<.91?'RESULT':'SETTLE';
@@ -270,8 +274,9 @@ function paintLivePitch() {
   const state=currentPitchState();
   const dt=state.lastTime==null?0:limitPitch((now-state.lastTime)/1000,0,.1);
   state.lastTime=now;
-  synchronizePitchPresentation(state);
-  const frame=pitchFrameState(dt,now);
+  const dev=window.ManagerStoryLive3D?.enabled;
+  if(!dev)synchronizePitchPresentation(state);
+  const frame=dev?state:pitchFrameState(dt,now);
   if(typeof window!=='undefined'&&window.MatchView)window.MatchView.publish(frame);
   const score=document.querySelector('#live-score');
   if(score)score.textContent=[M.hg,M.ag].join('–');
