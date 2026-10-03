@@ -1,4 +1,4 @@
-const CACHE = "managerstory-v7.4.0-stage3b-live-passes";
+const CACHE = "managerstory-v7.4.0-stage3c-position-continuity";
 const ASSETS = [
   "./match3d-live-clock.js", "./match3d-live-view.js",
   "./match3d-pass-timeline.js", "./match3d-football-pose.js", "./match3d-pass-replay.js", "./match3d-pass-recordings.json",

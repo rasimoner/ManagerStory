@@ -134,7 +134,7 @@ function enqueuePitchEvent(e) {
   if(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled){
     // Transient read-only engine keyframes; never stored back in M.events or career saves.
     const enginePositions=Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
-    state.queue.push({...e,enginePositions,engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
+    state.queue.push({...structuredClone(e),enginePositions,engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
   }else state.queue.push(e);
 }
 function pitchEventPhase(progress) {

@@ -3,6 +3,16 @@
  let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0;
  const lerp=(a,b,u)=>a.map((v,i)=>v+(b[i]-v)*u),ease=u=>u*u*(3-2*u);
  const duration=e=>eventAnimationTime(e);
+ const metres=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68);
+ function keyframeTransition(state,targets,to,gameSecond,owner=state.carrier,side=state.side){
+  const gap=metres(state.ball,to),movement=Math.max(gap,...Object.entries(targets||{}).map(([id,p])=>metres(state.positions[id]||p,p)));
+  if(movement<=.02)return null;
+  // Unknown intermediate trajectory: bounded interpolation of recorded engine samples.
+  // smoothstep peak derivative is 1.5; /4 at 1x gives a maximum 6 m/s.
+  return {type:'enginePositionGap',fromPos:[...state.ball],toPos:[...to],enginePositions:structuredClone(targets),
+   presentationDuration:Math.max(.15,movement*1.5/24),gameSecond,gapMetres:gap,maxMovementMetres:movement,
+   carryId:state.carrier,carrySide:state.side,endOwner:owner,endSide:side,movementSource:'derived-between-engine-keyframes'};
+ }
  // Stage 3A braking curve, same contact/arrival boundaries and endpoint.
  const flight=u=>{if(u<.7)return u*1.15;const t=(u-.7)/.3;return (2*t*t*t-3*t*t+1)*.805+(t*t*t-2*t*t+t)*.345+(-2*t*t*t+3*t*t);};
  function step(dt,now){
@@ -21,13 +31,17 @@
   if(!state.active&&!state.queue.length){
    const idle=Math.min(delta,(60-matchSecond()%60)/90);
    advanceLive(idle/M.speed);remaining-=idle;
-   if(!state.queue.length){state.ball=[...(M.ballState.position)];state.carrier=M.ballOwner;state.side=M.ballSide;}
+   if(!state.queue.length){
+    const targets=Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
+    const transition=keyframeTransition(state,targets,M.ballState.position,matchSecond(),M.ballOwner,M.ballSide);
+    if(transition)state.queue.push(transition);
+   }
   }
   while(remaining>1e-9&&(state.active||state.queue.length)){
    if(!state.active){
     const next=state.queue[0];
-    const gap=next.fromPos&&['pass','cross'].includes(next.type)?Math.hypot((next.fromPos[0]-state.ball[0])*1.05,(next.fromPos[1]-state.ball[1])*.68):0;
-    if(gap>.2){state.active={type:'enginePositionGap',fromPos:[...state.ball],toPos:[...next.fromPos],presentationDuration:Math.max(.15,gap/12),gameSecond:next.gameSecond,gapMetres:gap};}
+    const transition=next.fromPos&&['pass','cross'].includes(next.type)?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond):null;
+    if(transition)state.active=transition;
     else state.active=state.queue.shift();
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
     state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/M.speed*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
@@ -43,7 +57,7 @@
     if(p>=.19&&state.contactObserved==null)state.contactObserved=now;
     if(p>=.76&&state.arrivalObserved==null)state.arrivalObserved=now;
     state.ball=lerp(e.fromPos,e.toPos,flight(u));state.carrier=p<.19?e.fromId:p<.76?null:e.toId;state.side=p<.19?e.fromSide:p<.76?'none':e.toSide;}
-   else if(e.type==='enginePositionGap'){state.ball=lerp(e.fromPos,e.toPos,ease(p));state.carrier=null;state.side='none';}
+   else if(e.type==='enginePositionGap'){state.ball=lerp(e.fromPos,e.toPos,ease(p));state.carrier=e.carryId;state.side=e.carrySide;}
    else{const point=animationPoint(e,p,state.eventStartBall);if(point)state.ball=point;}
    const targets=e.enginePositions;
    if(targets)for(const [key,target] of Object.entries(targets)){
@@ -51,10 +65,13 @@
     const fraction=pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):p;
     state.positions[key]=lerp(start,target,ease(fraction));
    }
+   // A non-ball event can still contain movement of the actual ball carrier.
+   // Keep the owned ball on that recorded root rather than leave it behind.
+   if(!pass&&e.type!=='enginePositionGap'&&animationPoint(e,p,state.eventStartBall)==null&&state.carrier!=null&&state.positions[String(state.carrier)])state.ball=[...state.positions[String(state.carrier)]];
    state.ballState={...state.ballState,position:[...state.ball],ownerId:state.carrier,state:state.carrier==null?'LOOSE_BALL':'LIVE',height:aerialHeight(e,p),travelType:e.travelType||'ground',target:e.toPos||null,travelDuration:D};
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(p>=1-1e-8){
-    if(e.type!=='enginePositionGap')finishPitchAction(state,e,now);
+    if(e.type!=='enginePositionGap')finishPitchAction(state,e,now);else {state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     state.active=null;state.progress=0;
    }

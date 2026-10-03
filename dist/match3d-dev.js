@@ -40,7 +40,7 @@ function paint(snapshot){
  const event=snapshot.presentation?.activeEvent;
  $('[data-mode]').textContent=`Gerçek MatchEngine · ${window.ManagerStoryLive3D.tempo===4?'okunabilir tempo /4':'standart tempo'} · ${snapshot.speed}×`;
  $('.m3-badge').textContent='CANLI MOTOR · DAKİKA ADIMI';
- $('[data-commentary]').textContent=event?(sample.pass||event.type==='firstTouch'?event.text:event.type==='enginePositionGap'?`Motor konum süreksizliği · ${event.gapMetres.toFixed(1)} m · ara görüntü; gerçek olay değil`:`Desteklenmeyen animasyon: ${event.type} · ${event.text||'motor konum geçişi'}`):'Motorun sonraki dakika adımı bekleniyor.';
+ $('[data-commentary]').textContent=event?(sample.pass||event.type==='firstTouch'?event.text:event.type==='enginePositionGap'?`Motor konum örnekleri · ${event.gapMetres.toFixed(1)} m · türetilmiş ara hareket; gerçek olay değil`:`Desteklenmeyen animasyon: ${event.type} · ${event.text||'motor konum geçişi'}`):'Motorun sonraki dakika adımı bekleniyor.';
  $('[data-play]').textContent=snapshot.paused?'▶ Devam':'⏸ Duraklat';
  $('.m3-radar small').textContent='Aynı maç / aynı sunum zamanı';
  $('[data-tempo]').disabled=false;$('[data-tempo]').textContent=`Tempo /${window.ManagerStoryLive3D.tempo}`;

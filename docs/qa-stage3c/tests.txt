@@ -1,0 +1,26 @@
+✔ view reads never initialize or mutate match/presentation/save state (96.755294ms)
+✔ copies are deeply frozen; presentation sync stays distinct from match events (47.401223ms)
+✔ observing a full match preserves seeded events/results and stops after unsubscribe (1163.305679ms)
+✔ pass description derives existing phase timing without changing engine or save state (38.617999ms)
+✔ seed 8800: selected real pass #11 and six consecutive passes meet root/contact/arrival tolerances (4920.137565ms)
+✔ derived transition moves actual roots with the owned ball and has a bounded peak speed at /4 (157.428837ms)
+✔ event queue owns its point arrays; pause and speed changes do not restart a transition (79.587794ms)
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (37.000555ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (136.003868ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (1351.847818ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (18.22139ms)
+✔ joining an already active legacy event preserves progress and stays finite (17.152683ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (103.628392ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (19.76949ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (3.263843ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.598771ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (4.228919ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (5.211374ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5292.588704

@@ -8,7 +8,7 @@ test('common scheduler uses speed once and freezes clock, positions, ball and ev
  h.run('M.pause=true');const before=h.run('JSON.stringify([M,pitchV73,ManagerStoryLive3D.time])');h.run('ManagerStoryLive3D.step(2,2300)');assert.equal(h.run('JSON.stringify([M,pitchV73,ManagerStoryLive3D.time])'),before);
 });
 test('one engine minute drains before another is generated; real snapshots do not enter saved events',()=>{
- const h=setup(true);h.run('for(let i=0;i<2700;i++)ManagerStoryLive3D.step(1/60,i*1000/60)');
+ const h=setup(true);h.run('for(let i=0;i<4500;i++)ManagerStoryLive3D.step(1/60,i*1000/60)');
  const logs=h.run('ManagerStoryLive3D.logs');assert.ok(logs.length>=5);assert.ok(logs.some(e=>!e.success));assert.ok(logs.some(e=>e.metres>25));assert.ok(logs.every(e=>e.actualScreenDuration>=e.duration*4-.03));
  assert.equal(h.run('M.events.some(e=>e.enginePositions!=null)'),false);
  assert.ok(h.run('pitchV73.queue.every(e=>e.gameSecond===M.min*60)'));
