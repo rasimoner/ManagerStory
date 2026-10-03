@@ -4,7 +4,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 const require=createRequire(import.meta.url);
 const { chromium }=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES ? process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/playwright' : 'playwright');
-const root=path.resolve('dist'),out=path.resolve('docs/qa-stage2');await fs.mkdir(out,{recursive:true});
+const root=path.resolve('dist'),out=path.resolve(process.env.MS_QA_OUT||'docs/qa-stage2');await fs.mkdir(out,{recursive:true});
 const mime={'.js':'text/javascript','.css':'text/css','.html':'text/html','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.gif':'image/gif','.json':'application/json'};
 const server=http.createServer(async(req,res)=>{try{let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(pathname.endsWith('/'))pathname+='index.html';const file=path.resolve(root,'.'+pathname);if(!file.startsWith(root+path.sep))throw Error('path');res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.end(await fs.readFile(file));}catch{res.statusCode=404;res.end('Missing')}});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -23,8 +23,22 @@ try{
   for(let i=0;i<12;i++){await new Promise(r=>requestAnimationFrame(r));const t=performance.now();v.render();gl.finish();samples.push(performance.now()-t);}
   const mean=samples.reduce((a,b)=>a+b)/samples.length;
   const debug=gl.getExtension('WEBGL_debug_renderer_info');
-  return {...window.ManagerStory3DDebug,meanRenderCompletedMs:mean,staticBenchmarkFrames:12,staticBenchmarkFps:12/(performance.now()-loopStart)*1000,rendererUnmasked:debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):null,controls:[...document.querySelectorAll('.m3-controls button')].map(b=>({disabled:b.disabled,bottom:b.getBoundingClientRect().bottom})),viewport:[innerWidth,innerHeight],sceneGoals:v.scene.children.filter(o=>o.name.endsWith('-goal')).length,skeletons:[...v.footballers.values()].map(p=>p.children.find(o=>o.isSkinnedMesh)?.skeleton.bones.length)};
+  v.scene.updateMatrixWorld(true);const model=[...v.footballers.values()][5].children.find(o=>o.isSkinnedMesh);model.computeBoundingBox();
+  let weightsValid=true,blendedVertices=0;const sw=model.geometry.attributes.skinWeight;
+  for(let i=0;i<sw.count;i++){const sum=sw.getX(i)+sw.getY(i)+sw.getZ(i)+sw.getW(i);if(Math.abs(sum-1)>1e-5)weightsValid=false;if(sw.getY(i)>0)blendedVertices++;}
+  return {modelHeightMeters:model.boundingBox.max.y-model.boundingBox.min.y,modelFootMinY:model.boundingBox.min.y,weightsValid,blendedVertices,unitScaleAll:[...v.footballers.values()].every(p=>p.scale.x===1&&p.scale.y===1&&p.scale.z===1),...window.ManagerStory3DDebug,meanRenderCompletedMs:mean,staticBenchmarkFrames:12,staticBenchmarkFps:12/(performance.now()-loopStart)*1000,rendererUnmasked:debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):null,controls:[...document.querySelectorAll('.m3-controls button')].map(b=>({disabled:b.disabled,bottom:b.getBoundingClientRect().bottom})),viewport:[innerWidth,innerHeight],sceneGoals:v.scene.children.filter(o=>o.name.endsWith('-goal')).length,skeletons:[...v.footballers.values()].map(p=>p.children.find(o=>o.isSkinnedMesh)?.skeleton.bones.length)};
  });metrics.initialRenderReadyMs=initialRenderReadyMs;metrics.navigationThroughScreenshotAndBenchmarkMs=performance.now()-start;metrics.browserVersion=browser.version();metrics.environment='Linux headless Chromium / SwiftShader software renderer / 390x844 CSS / DPR 1.5';
+ async function framing(){await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));return page.evaluate(async()=>{
+   const T=await import('./vendor/three/three.module.min.js'),v=window.ManagerStory3D.view,rect=document.querySelector('[data-scene]').getBoundingClientRect();
+   const endpoints=window.ManagerStory3DDebug.testEndpoints.map(xy=>new T.Vector3((xy[0]/100-.5)*105,0,(xy[1]/100-.5)*68).project(v.camera));
+   const p=[...v.footballers.values()][5],base=p.position.clone().project(v.camera),top=p.position.clone().add(new T.Vector3(0,1.80,0)).project(v.camera);
+   return {viewport:[innerWidth,innerHeight],endpoints:endpoints.map(p=>[p.x,p.y,p.z]),endpointsVisible:endpoints.every(p=>Math.abs(p.x)<1&&Math.abs(p.y)<1&&p.z>-1&&p.z<1),carrierHeightCssPx:Math.abs(top.y-base.y)*rect.height/2,camera:[...v.camera.position.toArray()],focus:v.cameraRig.focus.toArray(),playerScale:p.scale.toArray()};
+ });}
+ metrics.framing={short390:await framing()};
+ await page.locator('[data-fixture]').selectOption('long');metrics.framing.long390=await framing();await page.screenshot({type:'jpeg',quality:92,path:path.join(out,'mobile-long-pass.jpg')});
+ await page.setViewportSize({width:320,height:568});metrics.framing.long320=await framing();await page.screenshot({type:'jpeg',quality:92,path:path.join(out,'compact-long-pass.jpg')});
+ await page.locator('[data-fixture]').selectOption('short');metrics.framing.short320=await framing();await page.screenshot({type:'jpeg',quality:92,path:path.join(out,'compact-broadcast.jpg')});
+ await page.setViewportSize({width:390,height:844});
  await page.locator('[data-camera="model"]').click();await page.locator('[data-scene]').screenshot({type:'jpeg',quality:92,path:path.join(out,'player-closeup.jpg')});
  await page.locator('[data-camera="overview"]').click();await page.setViewportSize({width:1280,height:900});await page.screenshot({type:'jpeg',quality:92,path:path.join(out,'stadium-overview.jpg')});
  await page.setViewportSize({width:320,height:568});
@@ -37,5 +51,5 @@ try{
  await page.goto(url);metrics.defaultEntryKeepsOriginalApp=await page.locator('#app').isVisible()&&!await page.locator('.match3d-shell').count();
  metrics.errors=errors;metrics.warnings=warnings;metrics.externalRequests=external;
  await fs.writeFile(path.join(out,'metrics.json'),JSON.stringify(metrics,null,2));console.log(JSON.stringify(metrics,null,2));
- if(errors.length||external.length||metrics.players!==22||metrics.balls!==1||!metrics.offlineReload||!metrics.defaultEntryKeepsOriginalApp||metrics.compactControls.some(b=>b.bottom>568||b.right>320)||metrics.controls.some(b=>!b.disabled||b.bottom>844))process.exitCode=1;
+ if(!metrics.weightsValid||!metrics.unitScaleAll||metrics.modelHeightMeters<1.7||metrics.modelHeightMeters>1.95||Object.values(metrics.framing).some(f=>!f.endpointsVisible)||errors.length||external.length||metrics.players!==22||metrics.balls!==1||!metrics.offlineReload||!metrics.defaultEntryKeepsOriginalApp||metrics.compactControls.some(b=>b.bottom>568||b.right>320)||metrics.controls.some(b=>!b.disabled||b.bottom>844))process.exitCode=1;
 }finally{await browser?.close();server.close();}

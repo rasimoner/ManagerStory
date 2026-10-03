@@ -1,11 +1,16 @@
-2026-10-03 / Node 24.19.0 / npm test
-✔ PASSING STYLE decision: Direkt differs from Dengeli (not only from Kısa); execution still comes from Phase 2 (10463.097056ms)
-ℹ tests 122
+2026-10-03 visual refinement / Node 24.19.0
+node --test tests/match-view-adapter.test.cjs
+✔ view reads never initialize or mutate match/presentation/save state (69.413855ms)
+✔ copies are deeply frozen; presentation sync stays distinct from match events (29.665361ms)
+✔ observing a full match preserves seeded events/results and stops after unsubscribe (877.730543ms)
+ℹ tests 3
 ℹ suites 0
-ℹ pass 122
+ℹ pass 3
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 156728.108614
-Browser QA: tools/match3d-qa.mjs; see metrics.json
+ℹ duration_ms 1054.789831
+
+Real WebGL QA: tools/match3d-qa.mjs exit 0 (metrics.json)
+Previous full npm test: 122/122 at a091920; not repeated in this visual-only task.

@@ -1,4 +1,4 @@
-const CACHE = "managerstory-v7.4.0-stage2-3d-scene";
+const CACHE = "managerstory-v7.4.0-stage2-3d-refinement";
 const ASSETS = [
   "./match3d-scene.js", "./match3d-player.js", "./match3d-dev.css",
   "./match-view-adapter.js", "./match3d-dev.js", "./vendor/three/three.module.min.js", "./vendor/three/three.core.min.js",

@@ -7,3 +7,7 @@
 @media(min-width:750px){.m3-score{grid-template-columns:1fr 120px 1fr;padding-inline:40px}.m3-score>div{font-size:16px}.m3-stage{min-height:480px}.m3-brand strong{font-size:24px}.m3-viewbar span{font-size:12px}.m3-commentary{font-size:14px}.m3-radar{max-width:220px}}
 @media(max-height:700px){.m3-stage{min-height:200px}.m3-brand{min-height:38px}.m3-score{min-height:58px}.m3-commentary{padding-block:5px}}
 @media(max-width:350px){.m3-brand{gap:6px;padding-inline:8px}.m3-brand strong{font-size:16px}.m3-brand small{font-size:8px}.m3-score{padding-inline:8px}.m3-viewbar{padding-inline:6px;gap:3px}.m3-viewbar button{padding-inline:5px}.m3-controls{gap:4px;padding-inline:6px}}
+
+.m3-testpoint{position:absolute;transform:translate(-50%,-100%);font-size:9px;color:#f6db7d;background:#082e25b8;border-radius:3px;padding:2px 4px;pointer-events:none;white-space:nowrap}
+
+@media(max-height:700px){.m3-radar{min-width:106px;width:34%;bottom:8px}}
