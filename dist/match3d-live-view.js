@@ -90,6 +90,16 @@ export function createLivePoseSampler(){
     rightFoot=mix(rightFoot,contact,reach);pelvisHeight-=.10*reach;lean=.10*reach;
    }
    if(contest&&player.id===contest.attackerId&&!contest.attackerKeepsBall&&p>=.76){lean=-.06*Math.sin(Math.PI*clamp((p-.76)/.24));}
+   const shield=P?.holdMotion;
+   if(shield&&player.id===e.fromId&&player.side===e.fromSide){
+    const opponent=snapshot.players.find(x=>x.id===shield.defenderId),other=opponent?metres(opponent.displayPosition):add(root,[1,0,0]);
+    const targetYaw=Math.atan2(root[0]-other[0],root[2]-other[2]);yaw=angle(yaw,targetYaw,smooth(p/.65));
+    const facing=[Math.sin(yaw),0,Math.cos(yaw)],side=[facing[2],0,-facing[0]],weight=p<.76?smooth(p/.19):1-smooth((p-.76)/.24);
+    const foot=add(ball,mul(facing,-.30));foot[1]=.16;rightFoot=mix(rightFoot,foot,weight);
+    pelvisHeight-=.055*weight;lean=.10*weight;arm=0;
+    const hands=add(root,mul(facing,.10));hands[1]=1.1;
+    leftHand=add(hands,mul(side,-(.12+.25*weight)));rightHand=add(hands,mul(side,.12+.25*weight));
+   }
    if(e?.type==='recovery'&&player.id===e.toId&&player.side===e.toSide){
     const gap=Math.hypot(root[0]-ball[0],root[2]-ball[2]);
     yaw=angle(yaw,Math.atan2(ball[0]-root[0],ball[2]-root[2]),smooth((p-.5)/.26));
@@ -116,7 +126,7 @@ export function createLivePoseSampler(){
   let target=pass?(tracking?add(ball,mul(dir,len*.03*Math.sin(Math.PI*u))):mix(A,B,.5)):[...ball];target[1]=0;
   let desired=pass&&!tracking?Math.max(12,len+4):12+3*Math.sin(Math.PI*u)**2;
   // Existing side-camera framing: do not lose the approaching real defender off screen.
-  const contest=P?.contestMotion,cut=pass&&e.cutPresentation&&p>.19?e.cutPresentation:null,defender=contest?poses.find(p=>p.id===contest.defenderId&&p.side===contest.defenderSide):cut?poses.find(p=>p.id===cut.id&&p.side===cut.side):null;
+  const contest=P?.contestMotion||P?.holdMotion,cut=pass&&e.cutPresentation&&p>.19?e.cutPresentation:null,defender=contest?poses.find(p=>p.id===contest.defenderId&&p.side===contest.defenderSide):cut?poses.find(p=>p.id===cut.id&&p.side===cut.side):null;
   if(defender){target=mix(ball,defender.position,.5);target[1]=0;desired=Math.max(12,Math.hypot(ball[0]-defender.position[0],ball[2]-defender.position[2])+4);}
   if(shot){
    // Same outcome-blind anticipation for every shot. Keep source legible, then

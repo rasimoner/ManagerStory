@@ -16,9 +16,7 @@
       name: playerAtMarker(id,side)?.name ?? String(id),
       role: side === 'user' ? M.matchRoles[id] : playerAtMarker(id,side)?.position,
       enginePosition: copy(eventPoint(id, side)),
-      baseDisplayPosition:copy(frame?.positions?.[String(id)]),
-      visualOffset:copy(frame?.visualOffsets?.[String(id)]||[0,0]),
-      displayPosition:copy(frame?.positions?.[String(id)]?.map((v,i)=>v+(frame.visualOffsets?.[String(id)]?.[i]||0))),
+      displayPosition: copy(frame?.positions?.[String(id)]),
       attackDirection: attackDirection(side),
       facingRadians: null // Engine has no body orientation or foot contact data.
     })));
@@ -38,7 +36,7 @@
       },
       lastEvent: copy(M.events?.at(-1)),
       presentation: frame ? {
-        activeEvent: copy(frame.active), progress: frame.progress, holdMotion:copy(frame.holdMotion),visualOffsetSource:"derived-persistent-root-offset; radar-and-renderer-use-displayPosition; ball-unmodified",looseMotion:copy(frame.looseMotion), carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion), shotMotion:copy(frame.shotMotion),
+        activeEvent: copy(frame.active), progress: frame.progress, looseMotion:copy(frame.looseMotion), carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion), shotMotion:copy(frame.shotMotion),
         source: ['presentationSync','enginePositionGap'].includes(frame.active?.type) ? 'presentation-catchup' : 'match-event',
         queuedEventIds: frame.queue.map(e => e.eventId ?? null),
         sampledAtMilliseconds: frame.lastTime,

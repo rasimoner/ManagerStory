@@ -668,12 +668,14 @@ function actionMinute(userPoss,effect,opponent){
    // shield lost: the ball runs loose and is contested for real
    matchEvent('hold',M.min+'’ '+(owner?.name||'Rakip')+' topu koruyamadı.',
     {fromId:from,toId:from,fromSide:side,toSide:side,ballSide:'none',fromPos:point,toPos:point,success:false});
+   window.ManagerStoryLive3D?.captureShield?.({attackerId:from,attackerSide:side,defenderId:nearby.id,defenderSide:side==='user'?'opp':'user',point:[...point],defenderStart:[...eventPoint(nearby.id,side==='user'?'opp':'user')]});
    makeLooseBall(point,point,'shield',side==='user'?'opp':'user');
    break;
   }
   if(choice.type==='hold'){
    matchEvent('hold',M.min+'’ '+(owner?.name||'Rakip')+' topu koruyup destek bekledi.',
     {fromId:from,toId:from,fromSide:side,toSide:side,ballSide:side,fromPos:point,toPos:point});
+   window.ManagerStoryLive3D?.captureShield?.({attackerId:from,attackerSide:side,defenderId:nearby?.id,defenderSide:side==='user'?'opp':'user',point:[...point],defenderStart:nearby?[...eventPoint(nearby.id,side==='user'?'opp':'user')]:null});
    continue;
   }
   if(choice.type==='carry'){

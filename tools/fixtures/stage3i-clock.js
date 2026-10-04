@@ -3,7 +3,7 @@
  let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
  const lerp=(a,b,u)=>a.map((v,i)=>v+(b[i]-v)*u),ease=u=>u*u*(3-2*u);
  const isCarry=e=>['dribble','ballCarry','run'].includes(e.type);
- const baseDuration=e=>{
+ const duration=e=>{
   const base=eventAnimationTime(e);
   if(e.type==='shot'&&e.shotResult){
    const target=shotTarget(e),start=e.enginePositions[String(e.goalkeeperId)]||target;
@@ -18,24 +18,6 @@
   const d=metres(e.fromPos,e.toPos),others=Math.max(0,...Object.entries(e.enginePositions||{}).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)));
   return Math.max(base,d*1.5/(24*.57),others*1.5/24,e.contest?contestDuration(e):0);
  };
- // Persistent visual roots only. Ball and engine keyframes are never offset.
- const duration=e=>baseDuration(e)+Math.max(0,...Object.values(e.offsetTracks||{}).map(t=>metres(t.start,t.end)*1.5/24/(t.endProgress-t.startProgress)));
- function captureShield(data){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(e?.type==='hold'&&e.fromId===data.attackerId)e.shield=structuredClone({...data,source:'captured-hold-challenger; derived-body-shield-and-visual-separation'});}
- function planOffsets(state,e){
-  state.visualOffsets??={};const tracks={},set=(id,end,a=0,b=1)=>{if(id==null)return;const start=state.visualOffsets[String(id)]||[0,0];tracks[String(id)]={start:[...start],end:[...end],startProgress:a,endProgress:b,source:'derived-persistent-non-owner-root-offset; engine-and-ball-unchanged'};};
-  const zero=(id,b=.76)=>{if(id!=null&&state.visualOffsets[String(id)]?.some(v=>Math.abs(v)>1e-9))set(id,[0,0],0,b);};
-  const away=(a,b)=>{const A=xy(a),B=xy(b),dx=A[0]-B[0],dy=A[1]-B[1],n=Math.hypot(dx,dy)||1;return pct([dx/n*.85,dy/n*.85]);};
-  if(e.contest)zero(e.contest.defenderId);
-  if(e.contest?.independent){const c=e.contest,f=contestFrame(e,.76);set(c.attackerId,away(f.attacker,f.defender),.76,1);zero(c.defenderId);}
-  if(e.shield&&e.success===false){const c=e.shield,other=e.enginePositions[String(c.defenderId)]||c.defenderStart||[c.point[0]+1,c.point[1]],off=state.visualOffsets[String(c.defenderId)]||[0,0];set(c.attackerId,away(c.point,other.map((v,i)=>v+off[i])),.76,1);}
-  if(e.type==='recovery'||e.type==='interception'||['pass','cross','corner'].includes(e.type))zero(e.toId);
-  if(isCarry(e)||['pass','cross','shot','hold'].includes(e.type))zero(e.fromId,.19);
-  // Keep separation across zero-distance continuations; fade only when the real
-  // next segment actually separates the bodies, or this player must contact ball.
-  for(const [id,off] of Object.entries(state.visualOffsets))if(!tracks[id]&&off.some(v=>Math.abs(v)>1e-9)&&e.enginePositions?.[id]&&e.toPos&&metres(e.enginePositions[id],e.toPos)>1.4)set(id,[0,0]);
-  e.offsetTracks=tracks;
- }
- function applyOffsets(state,e,p){for(const [id,t] of Object.entries(e.offsetTracks||{})){const u=Math.max(0,Math.min(1,(p-t.startProgress)/(t.endProgress-t.startProgress)));state.visualOffsets[id]=lerp(t.start,t.end,ease(u));}}
  // Presentation-only linkage of three already committed engine events.
  function linkDribbleContest(data){
   if(!enabled)return;const q=currentPitchState().queue,[carry,press,tackle]=q.slice(-3);
@@ -150,7 +132,7 @@
   presentationSeconds+=delta;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
   // Drain only the current atomic engine minute. Never produce a future minute behind a queue.
   if(state.active&&state.durationEvent!==state.active){
-   planOffsets(state,state.active);state.activeDuration=duration(state.active);state.durationEvent=state.active;state.startPositions=structuredClone(state.positions);
+   state.activeDuration=duration(state.active);state.durationEvent=state.active;state.startPositions=structuredClone(state.positions);
    state.clipStartTimestamp=now-state.progress*state.activeDuration*tempo/M.speed*1000;
    state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
   }
@@ -204,9 +186,9 @@
     }
     state.shotPreStatistics=structuredClone(state.eventStatistics);
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
-    planOffsets(state,state.active);state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/M.speed*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
+    state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/M.speed*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
    }
-   const e=state.active;state.carryMotion=null;state.contestMotion=null;state.shotMotion=null;state.looseMotion=null;state.holdMotion=null;
+   const e=state.active;state.carryMotion=null;state.contestMotion=null;state.shotMotion=null;state.looseMotion=null;
    if(Number.isFinite(e.homeGoals)&&Number.isFinite(e.awayGoals))state.eventScore=[e.homeGoals,e.awayGoals];
    if(e.engineStatistics)state.eventStatistics=e.engineStatistics;
    const D=state.activeDuration,take=Math.min(remaining,(1-state.progress)*D);
@@ -264,11 +246,6 @@
     if(won){state.carryMotion=null;state.eventStatistics=c.tackle.engineStatistics||state.eventStatistics;}
     state.contestMotion={...c,phase:p<.65?'approach':p<.76?'reach':p<.91?'contact-result':'recovery',progress:p,clearanceMetres:f.clearance,event:won?(c.result||c.tackle):p<.65?e:c.press};
    }
-   if(e.type==='hold'){
-    state.ball=[...e.fromPos];state.carrier=e.success===false&&p>=.76?null:e.fromId;state.side=state.carrier==null?'none':e.fromSide;
-    state.holdMotion={...e.shield,progress:p,phase:p<.65?'shield':p<.76?'pressure':e.success===false?'release':'retained',event:p<.76&&e.success===false?{...e,text:'Oyuncu topu korumaya çalışıyor'}:e,source:e.shield?.source||'derived-shield-pose-on-real-hold'};
-   }
-   applyOffsets(state,e,p);
    // A non-ball event can still contain movement of the actual ball carrier.
    // Keep the owned ball on that recorded root rather than leave it behind.
    if(!e.contest&&!pass&&e.type!=='enginePositionGap'&&animationPoint(e,p,state.eventStartBall)==null&&state.carrier!=null&&state.positions[String(state.carrier)])state.ball=[...state.positions[String(state.carrier)]];
@@ -279,12 +256,12 @@
     if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(state.shotMotion)state.afterShot=true;
-    state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;state.holdMotion=null;
+    state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;
    }
   }
   if(window.MatchView)window.MatchView.publish(state);
  }
- window.ManagerStoryLive3D={beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+ window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){enabled=true;if(M){const s=currentPitchState();for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration, togglePause(){if(!M)return;if(M.pause)resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
