@@ -685,7 +685,7 @@ function actionMinute(userPoss,effect,opponent){
   const accuracy=passSuccessProbability(from,side,selected,{pressure,effect,risk:order==='riskPass',tempo:tacticProfile(side).tempo});
   const stat=side==='user'?M.playerStats[from]:null,index=side==='user'?userSide():1-userSide();
   M.stats.passes[index]++;if(stat)stat.passesAttempted++;
-  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null;
+  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null;
   const longBall=range>29||(['LW','RW'].includes(role)&&range>22&&forward>58);
   const contested=range>38||(['LW','RW'].includes(role)&&range>26&&forward>58);   // only genuinely high/long deliveries are contested
   if(success&&contested){
@@ -703,6 +703,7 @@ function actionMinute(userPoss,effect,opponent){
   }else{
    const defSide=side==='user'?'opp':'user',interceptor=nearestMarker(defSide,to);
    if(interceptor&&interceptor.d<18){
+    if(window.ManagerStoryLive3D?.enabled)cutPresentation={id:interceptor.id,side:defSide,start:[...eventPoint(interceptor.id,defSide)],intendedTarget:[...to]};
     const gain=moveTowards(eventPoint(interceptor.id,defSide),to,Math.min(interceptor.d,10));
     M.dynamicPositions[String(interceptor.id)]=gain;
     switchPitchOwner(interceptor.id,defSide);setBallState(gain,interceptor.id);
@@ -721,6 +722,7 @@ function actionMinute(userPoss,effect,opponent){
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
      passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
      distance:range,passing});
+  if(cutPresentation)window.ManagerStoryLive3D.linkPassCut?.(cutPresentation);
   if(success){
    const receiver=playerAtMarker(target,side);
    matchEvent('firstTouch',M.min+'’ '+(receiver?.name||'Rakip')+' topu kontrol etti.',

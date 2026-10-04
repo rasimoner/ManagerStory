@@ -9,8 +9,6 @@
    const target=shotTarget(e),start=e.enginePositions[String(e.goalkeeperId)]||target;
    return Math.max(.7,metres(e.fromPos,target)/22/.57,metres(start,keeperTarget(e))*1.5/24/.57);
   }
-  if(e.cutPresentation)return Math.max(base,metres(e.cutPresentation.start,e.toPos)*1.5/24/.76);
-  if(e.recoveryStarts)return Math.max(base,(e.chaseSeconds||0)/4,...Object.entries(e.recoveryStarts).map(([id,start])=>metres(start,e.enginePositions[id]||start)*1.5/24/.76));
   if(!isCarry(e))return base;
   const d=metres(e.fromPos,e.toPos),others=Math.max(0,...Object.entries(e.enginePositions||{}).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)));
   return Math.max(base,d*1.5/(24*.57),others*1.5/24,e.contest?contestDuration(e):0);
@@ -21,10 +19,6 @@
   if(carry?.type!=='dribble'||press?.type!=='press'||tackle?.type!=='tackle'||carry.fromId!==data.attackerId||tackle.defenderId!==data.defenderId)return;
   carry.contest=structuredClone({...data,press,tackle,source:'captured-before-defender-placement; derived-approach-and-contact',contactProgress:.76});
  }
- // All links live on copied presentation events, never M.events or saved state.
- function linkPassCut(data){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(['pass','cross'].includes(e?.type)&&!e.success&&e.toId===data.id)e.cutPresentation=structuredClone(data);}
- function linkRecovery(starts){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(e?.type==='recovery')e.recoveryStarts=structuredClone(starts);}
- function linkLooseTouch(){if(!enabled)return;const q=currentPitchState().queue,[carry,loose]=q.slice(-2);if(carry?.type==='ballCarry'&&carry.success===false&&loose?.reason==='touch'){carry.heavyTouch=true;loose.fromPos=[...carry.toPos];loose.movementSource='heavy-touch-endpoint; no second replay of carry';}}
  const xy=p=>[p[0]*1.05,p[1]*.68],pct=p=>[p[0]/1.05,p[1]/.68];
  function contestFrame(e,p){
   const c=e.contest,A=xy(c.attackerStart),B=xy(c.point),S=xy(c.defenderStart),E=xy(c.defenderEnd),dx=B[0]-A[0],dy=B[1]-A[1],n=Math.hypot(dx,dy)||1,dir=[dx/n,dy/n];
@@ -129,8 +123,6 @@
    if(!state.active){
     const next=state.queue[0];
     const sourceTargets=next.enginePositions?structuredClone(next.enginePositions):{};
-    if(next.cutPresentation)sourceTargets[String(next.toId)]=[...next.cutPresentation.start];
-    if(next.recoveryStarts)Object.assign(sourceTargets,structuredClone(next.recoveryStarts));
     if(isCarry(next)||next.type==='shot')sourceTargets[String(next.fromId)]=[...next.fromPos];
     const transition=next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||state.afterShot)?keyframeTransition(state,sourceTargets,next.fromPos,next.gameSecond):null;
     const placement=next.type==='kickoff'?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond,next.fromId,next.fromSide):null;
@@ -145,7 +137,7 @@
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
     state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/M.speed*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
    }
-   const e=state.active;state.carryMotion=null;state.contestMotion=null;state.shotMotion=null;state.looseMotion=null;
+   const e=state.active;state.carryMotion=null;state.contestMotion=null;state.shotMotion=null;
    if(Number.isFinite(e.homeGoals)&&Number.isFinite(e.awayGoals))state.eventScore=[e.homeGoals,e.awayGoals];
    if(e.engineStatistics)state.eventStatistics=e.engineStatistics;
    const D=state.activeDuration,take=Math.min(remaining,(1-state.progress)*D);
@@ -162,16 +154,15 @@
     const t=ease(u),d=metres(e.fromPos,e.toPos),travel=d*t,phase=(travel/1.25)%1;
     const lead=.18*Math.sin(Math.PI*phase)**2*Math.sin(Math.PI*t)**2;
     const ballT=d?Math.min(1,t+lead/d):t;
-    state.ball=lerp(e.fromPos,e.toPos,ballT);state.carrier=e.heavyTouch&&p>=.76?null:e.fromId;state.side=state.carrier==null?'none':e.fromSide;
+    state.ball=lerp(e.fromPos,e.toPos,ballT);state.carrier=e.fromId;state.side=e.fromSide;
     state.carryMotion={eventId:e.eventId,travelMetres:travel,touchPhase:phase,leadMetres:lead,source:'derived-distance-touches-on-engine-segment'};
    }
-   else if(e.type==='looseBall'||e.type==='recovery'){state.ball=e.type==='recovery'?[...e.toPos]:(animationPoint(e,p,state.eventStartBall)||[...state.ball]);state.carrier=e.type==='recovery'&&p>=.76?e.toId:null;state.side=state.carrier==null?'none':e.toSide;state.looseMotion={phase:e.type==='recovery'?(p<.65?'approach':p<.76?'reach':'control'):'unowned',event:p<.76&&e.type==='recovery'?{...e,text:'Top sahipsiz · gerçek kazanım teması bekleniyor'}:e,source:'captured-chaser-starts; derived-interpolation-and-contact'};}
    else if(e.type==='enginePositionGap'){state.ball=lerp(e.fromPos,e.toPos,ease(p));state.carrier=e.carryId;state.side=e.carrySide;}
    else{const point=animationPoint(e,p,state.eventStartBall);if(point)state.ball=point;}
    const targets=e.enginePositions;
    if(targets)for(const [key,target] of Object.entries(targets)){
-    const start=e.recoveryStarts?.[key]||state.startPositions[key]||target;
-    const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):e.recoveryStarts?Math.min(1,p/.76):p;
+    const start=state.startPositions[key]||target;
+    const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):p;
     state.positions[key]=lerp(start,target,ease(fraction));
    }
    if(e.type==='shot'&&e.shotResult){
@@ -199,12 +190,12 @@
     if(e.type!=='enginePositionGap'&&!state.shotMotion)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(state.shotMotion)state.afterShot=true;
-    state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;
+    state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;
    }
   }
   if(window.MatchView)window.MatchView.publish(state);
  }
- window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkDribbleContest,linkPassCut,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+ window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkDribbleContest,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){enabled=true;if(M){const s=currentPitchState();for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration, togglePause(){if(!M)return;if(M.pause)resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}

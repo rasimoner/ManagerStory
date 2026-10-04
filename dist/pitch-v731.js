@@ -562,6 +562,7 @@ function resolveLooseBall(maxSeconds=8,force=false){
  if(!chasers.length)for(const side of ['user','opp'])for(const id of (side==='user'?M.active:M.oppIds)){
   const pos=eventPoint(id,side);chasers.push({id,side,pos:[...pos],d:pitchDistance(pos,land),d0:pitchDistance(pos,land)});
  }
+ const presentationStarts=window.ManagerStoryLive3D?.enabled?Object.fromEntries(chasers.map(c=>[String(c.id),[...c.pos]])):null;
  // remember where each chaser started so a chase that spans several ticks reports its true length
  if(!lb.d0){lb.d0={};for(const c of chasers)lb.d0[String(c.id)]=c.d0;}
  for(const c of chasers)c.d0=lb.d0[String(c.id)]??c.d0;
@@ -601,6 +602,7 @@ function resolveLooseBall(maxSeconds=8,force=false){
  matchEvent('recovery',M.min+'’ '+(winner.side==='user'?getPlayer('user',winner.id)?.name:opponentName(winner.id))+' dönen topu aldı.',
   {fromPos:land,toPos:[...land],toId:winner.id,toSide:winner.side,ballSide:winner.side,
    chaseSeconds:+lb.elapsed.toFixed(2),startDistance:+winner.d0.toFixed(2),contested:false});
+ if(presentationStarts)window.ManagerStoryLive3D.linkRecovery?.(presentationStarts);
  switchPitchOwner(winner.id,winner.side);
  return winner;
 }
@@ -611,6 +613,7 @@ function makeLooseBall(from,to,reason,preferSide){
  setBallState(land,null,'LOOSE_BALL');
  M.looseBall={position:[...land],reason,preferSide:preferSide||null,elapsed:0};
  matchEvent('looseBall',M.min+'’ Top sahipsiz kaldı.',{fromPos:from,toPos:land,ballSide:'none',reason});
+ window.ManagerStoryLive3D?.linkLooseTouch?.();
  return resolveLooseBall(8);
 }
 // Half-time / full-time: no sequence may be left half-resolved.

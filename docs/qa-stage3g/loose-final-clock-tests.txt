@@ -1,0 +1,11 @@
+✔ seed4 genuine failed pass38 and heavy touch75→76→77 preserve all engine events, stats, RNG and transient-only metadata (6814.75464ms)
+✔ interceptor approaches from captured start and free ball remains unowned until real recovery contact (0.22314ms)
+✔ pause and speed changes retain a single recovery phase without restarting the chain (349.881048ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7270.558804
