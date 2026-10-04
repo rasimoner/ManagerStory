@@ -139,9 +139,13 @@ function enqueuePitchEvent(e) {
     // Retain the raw declaration for diagnostics; present the actual restart spot.
     if(e.type==='kickoff'){copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';}
     // Link immutable presentation copies only; engine events/save schema stay unchanged.
-    if(['goal','save','wide'].includes(copy.type)){
-      const shot=[...state.queue].reverse().find(x=>x.type==='shot'&&!x.header&&!x.shotResult&&x.fromId===copy.fromId&&x.gameSecond===copy.gameSecond&&x.outcome===copy.type);
+    if(['goal','save','wide','block','post'].includes(copy.type)){
+      const shot=[...state.queue].reverse().find(x=>x.type==='shot'&&!x.shotResult&&x.fromId===copy.fromId&&x.gameSecond===copy.gameSecond&&x.outcome===copy.type);
       if(shot)shot.shotResult=structuredClone({...copy,enginePositions});
+    }
+    if(copy.type==='shot'&&copy.header){copy.text='Kafa vuruşu · gerçek korner topu';
+      const incoming=[...state.queue].reverse().find(x=>x.type==='corner'&&x.toId===copy.fromId&&x.gameSecond===copy.gameSecond);
+      if(incoming){copy.headerIncoming={eventId:incoming.eventId,fromPos:[...incoming.fromPos],toPos:[...incoming.toPos]};incoming.headerShot=structuredClone(copy);incoming.enginePositions[String(copy.fromId)]=[...copy.fromPos];}
     }
     state.queue.push({...copy,enginePositions,sampleTime:{gameSecond:e.gameSecond,stage:window.ManagerStoryLive3D.inPositionUpdate?'during-position-update':'event-after-position-update',sequence:e.eventId},engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
   }else state.queue.push(e);
@@ -820,6 +824,7 @@ function resolveShot(user,shooter,p,opts={}) {
   const dir=(user?1:-1)*userDirection();
   const defLine=tacticProfile(user?'opp':'user').line;
   switchPitchOwner(shooter,sideName);
+  const shotStart=window.ManagerStoryLive3D?.enabled?[...eventPoint(shooter,sideName)]:null;
   if(opts.source)M.dynamicPositions[String(shooter)]=[...opts.source];
   const source=opts.source?[...opts.source]:eventPoint(shooter,sideName);
   const destination=[dir>0?98:2,50+(M.rand()-.5)*16],opponentGK=keeperId(user?'opp':'user');
@@ -863,6 +868,7 @@ function resolveShot(user,shooter,p,opts={}) {
   matchEvent('shot',M.min+'’ '+p.name+' şut çekti.',{side,playerId:user?p.id:null,fromId:shooter,
     fromSide:user?'user':'opp',ballSide:user?'user':'opp',fromPos:source,toPos:destination,
     goalkeeperId:opponentGK,xg,onTarget:on,outcome,frame,restartType:opts.restartType||null,header:!!opts.header,penalty:!!opts.penalty});
+  if(shotStart)window.ManagerStoryLive3D.captureShotStart?.(shotStart);
   if(!goal)matchEvent('chance',M.min+'’ '+p.name+' şutunun sonucu: '+({save:'kurtarış',block:'blok',post:'direk',wide:'aut'}[outcome])+'.',
     {side,playerId:user?p.id:null,xg,onTarget:on,outcome});
   if(goal) {

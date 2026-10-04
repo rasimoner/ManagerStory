@@ -160,7 +160,7 @@ export function createMatchScene({canvas,home,away,players}) {
   }
   function applyLiveSample(sample){
     const contacts=[];
-    for(const pose of sample.poses){const m=footballers.get(`${pose.side}:${pose.id}`);if(m){const r=poseFootballer(m,pose);contacts.push({id:pose.id,side:pose.side,toe:r.rightToe.toArray(),leftHand:r.leftHand.toArray(),rightHand:r.rightHand.toArray()});}}
+    for(const pose of sample.poses){const m=footballers.get(`${pose.side}:${pose.id}`);if(m){const r=poseFootballer(m,pose);contacts.push({id:pose.id,side:pose.side,toe:r.rightToe.toArray(),forehead:r.forehead.toArray(),leftHand:r.leftHand.toArray(),rightHand:r.rightHand.toArray()});}}
     ball.position.set(...sample.ball);ballShadow.position.set(sample.ball[0],.02,sample.ball[2]);ballShadow.scale.setScalar(1+(sample.ball[1]-.15)*.18);ballShadow.material.opacity=.85/(1+(sample.ball[1]-.15)*.22);
     if(cameraRig.mode==='broadcast'){
       cameraRig.framePoints=null;const focus=new T.Vector3(...sample.camera.focus);cameraRig.focus.copy(focus);

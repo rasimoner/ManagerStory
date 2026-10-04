@@ -1,0 +1,11 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 55000ms exceeded.
+    at /workspace/scratch/8bd0598b1055/ManagerStory-3H/tools/match3d-stage3h-record.mjs:33:13 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

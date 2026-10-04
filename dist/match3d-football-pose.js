@@ -30,6 +30,7 @@ export function poseFootballer(root,pose){
  const b=root.userData.bones;if(!b)return;
  Object.values(b).forEach(bone=>bone.quaternion.identity());b.pelvis.position.y=pose.pelvisHeight??.935;
  root.position.set(...pose.position);root.rotation.set(0,pose.yaw,0);
+ b.head.rotation.x=pose.headPitch||0;
  b.spine.rotation.x=pose.lean||0;b.leftShoulder.rotation.x=pose.armSwing||0;b.rightShoulder.rotation.x=-(pose.armSwing||0);
  b.leftShoulder.rotation.z=-.07;b.rightShoulder.rotation.z=.07;b.leftElbow.rotation.x=-.32;b.rightElbow.rotation.x=-.32;
  leg(root,b,'leftHip','leftKnee','leftAnkle',pose.leftFoot);leg(root,b,'rightHip','rightKnee','rightAnkle',pose.rightFoot);
@@ -37,5 +38,5 @@ export function poseFootballer(root,pose){
  if(pose.rightHand)arm(root,b,'rightShoulder','rightElbow','rightHand',pose.rightHand);
  root.updateMatrixWorld(true);
  return {leftHand:b.leftHand.getWorldPosition(new T.Vector3()),rightHand:b.rightHand.getWorldPosition(new T.Vector3()),leftAnkle:b.leftAnkle.getWorldPosition(new T.Vector3()),rightAnkle:b.rightAnkle.getWorldPosition(new T.Vector3()),
-  rightToe:b.rightAnkle.localToWorld(new T.Vector3(0,-.055,.17))};
+  forehead:b.head.localToWorld(new T.Vector3(0,.139,.087)),rightToe:b.rightAnkle.localToWorld(new T.Vector3(0,-.055,.17))};
 }

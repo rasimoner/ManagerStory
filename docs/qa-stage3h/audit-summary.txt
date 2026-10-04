@@ -1,0 +1,460 @@
+[
+  {
+    "kind": "post",
+    "seed": 2,
+    "id": 19,
+    "start": 19,
+    "end": 23,
+    "minute": 3,
+    "wall": 50.070368088906456,
+    "maxSpeed": 5.999674208762699,
+    "preReleaseMovement": 0,
+    "maxPreResultOwnerErrors": 0,
+    "maxFlightDeviation": 0,
+    "earlyIncomingOwnership": 0,
+    "visited": [
+      19,
+      23
+    ],
+    "boundaries": [
+      {
+        "from": 19,
+        "to": "enginePositionGap",
+        "ballStep": 0.00004856700402921945,
+        "heightStep": 0.000003749962965954312,
+        "rootStep": 0.0030063657332335524
+      },
+      {
+        "from": "enginePositionGap",
+        "to": 23,
+        "ballStep": 0,
+        "heightStep": 0,
+        "rootStep": 0.0009064354110704299
+      }
+    ],
+    "phases": [
+      {
+        "threshold": 0.19,
+        "ball": [
+          69.93252486241983,
+          51.8052531339182
+        ],
+        "ball3d": [
+          20.92915110554081,
+          0.15000000004553032,
+          1.2275721310643721
+        ],
+        "owner": null,
+        "toeBall": 0.13756816544604578,
+        "foreheadBall": 1.5564334228494305,
+        "blockToe": null,
+        "frameDistance": 31.94693821406258,
+        "rawEventId": 21,
+        "target": [
+          99.8047619047619,
+          44.61764705882353
+        ]
+      },
+      {
+        "threshold": 0.65,
+        "ball": [
+          94.03994423034165,
+          46.004728932864104
+        ],
+        "ball3d": [
+          46.24194144185873,
+          1.1897102210953225,
+          -2.71678432565241
+        ],
+        "owner": null,
+        "toeBall": 25.343748161271282,
+        "foreheadBall": 25.536440394837584,
+        "blockToe": null,
+        "frameDistance": 6.328740216303732,
+        "rawEventId": 21,
+        "target": [
+          99.8047619047619,
+          44.61764705882353
+        ]
+      },
+      {
+        "threshold": 0.76,
+        "ball": [
+          99.80476190444074,
+          44.61764705832193
+        ],
+        "ball3d": [
+          52.29499999966278,
+          1.049999999962966,
+          -3.6600000003410877
+        ],
+        "owner": null,
+        "toeBall": 31.450337554100415,
+        "foreheadBall": 31.664121705174274,
+        "blockToe": null,
+        "frameDistance": 0.20500000033722188,
+        "rawEventId": 21,
+        "target": [
+          99.8047619047619,
+          44.61764705882353
+        ]
+      },
+      {
+        "threshold": 0.91,
+        "ball": [
+          94.92678571396455,
+          36.99900542325102
+        ],
+        "ball3d": [
+          47.173124999662775,
+          0.4874999999629658,
+          -8.840676312189307
+        ],
+        "owner": null,
+        "toeBall": 27.85159656660762,
+        "foreheadBall": 28.050338717221063,
+        "blockToe": null,
+        "frameDistance": 7.430679936647595,
+        "rawEventId": 21,
+        "target": [
+          99.8047619047619,
+          44.61764705882353
+        ]
+      },
+      {
+        "threshold": 0.999999,
+        "ball": [
+          92.00003251952012,
+          32.42787123315271
+        ],
+        "ball3d": [
+          44.10003414549612,
+          0.15000374996296595,
+          -11.94904756145616
+        ],
+        "owner": null,
+        "toeBall": 26.46060220194149,
+        "foreheadBall": 26.61952173045371,
+        "blockToe": null,
+        "frameDistance": 11.801175188637506,
+        "rawEventId": 21,
+        "target": [
+          99.8047619047619,
+          44.61764705882353
+        ]
+      }
+    ],
+    "preserved": true
+  },
+  {
+    "kind": "block",
+    "seed": 2,
+    "id": 62,
+    "start": 62,
+    "end": 66,
+    "minute": 15,
+    "wall": 200.21624102269269,
+    "maxSpeed": 0,
+    "preReleaseMovement": 0,
+    "maxPreResultOwnerErrors": 0,
+    "maxFlightDeviation": 0,
+    "earlyIncomingOwnership": 0,
+    "visited": [
+      62,
+      65,
+      66
+    ],
+    "boundaries": [
+      {
+        "from": 62,
+        "to": 65,
+        "ballStep": 0.00015507290896447766,
+        "heightStep": 0,
+        "rootStep": 0
+      },
+      {
+        "from": 65,
+        "to": 66,
+        "ballStep": 0,
+        "heightStep": 0,
+        "rootStep": 0
+      }
+    ],
+    "phases": [
+      {
+        "threshold": 0.19,
+        "ball": [
+          78.28641993454383,
+          73.05741420025639
+        ],
+        "ball3d": [
+          29.700740931271017,
+          0.15000000001075137,
+          15.679041656174343
+        ],
+        "owner": null,
+        "toeBall": 0.1375681650557467,
+        "foreheadBall": 1.5564334229069692,
+        "blockToe": 22.40221237670776,
+        "frameDistance": 29.89656746622039,
+        "rawEventId": 64,
+        "target": [
+          93.8766642880787,
+          49.724917754923446
+        ]
+      },
+      {
+        "threshold": 0.65,
+        "ball": [
+          90.86802064098359,
+          54.227680226712636
+        ],
+        "ball3d": [
+          42.91142167303276,
+          0.46339443162181104,
+          2.8748225541645938
+        ],
+        "owner": null,
+        "toeBall": 18.10517496842623,
+        "foreheadBall": 18.352536846289176,
+        "blockToe": 4.023297837651441,
+        "frameDistance": 11.603652017653928,
+        "rawEventId": 64,
+        "target": [
+          93.8766642880787,
+          49.724917754923446
+        ]
+      },
+      {
+        "threshold": 0.76,
+        "ball": [
+          93.87666428819875,
+          49.72491775571074
+        ],
+        "ball3d": [
+          46.07049750260869,
+          0.15,
+          -0.18705592611669664
+        ],
+        "owner": null,
+        "toeBall": 22.48999148520499,
+        "foreheadBall": 22.763079633081613,
+        "blockToe": 0.13756816518853934,
+        "frameDistance": 7.307519613677563,
+        "rawEventId": 64,
+        "target": [
+          93.8766642880787,
+          49.724917754923446
+        ]
+      },
+      {
+        "threshold": 0.91,
+        "ball": [
+          98.95374910814957,
+          83.0218441588836
+        ],
+        "ball3d": [
+          51.40143656355705,
+          0.15,
+          22.454854028040845
+        ],
+        "owner": null,
+        "toeBall": 22.704872703332807,
+        "foreheadBall": 22.74562577058742,
+        "blockToe": 23.19134455257111,
+        "frameDistance": 26.13795023581173,
+        "rawEventId": 64,
+        "target": [
+          93.8766642880787,
+          49.724917754923446
+        ]
+      },
+      {
+        "threshold": 0.999999,
+        "ball": [
+          101.99996615288791,
+          102.99977802127793
+        ],
+        "ball3d": [
+          54.599964460532306,
+          0.15,
+          36.039849054468995
+        ],
+        "owner": null,
+        "toeBall": 32.24659814378493,
+        "foreheadBall": 32.19178431486065,
+        "blockToe": 37.08735100873153,
+        "frameDistance": 39.75535015168552,
+        "rawEventId": 64,
+        "target": [
+          93.8766642880787,
+          49.724917754923446
+        ]
+      }
+    ],
+    "preserved": true
+  },
+  {
+    "kind": "header",
+    "seed": 10,
+    "id": 41,
+    "start": 40,
+    "end": 45,
+    "minute": 6,
+    "wall": 125.58175274343095,
+    "maxSpeed": 5.9985115130896896,
+    "preReleaseMovement": 0,
+    "maxPreResultOwnerErrors": 0,
+    "maxFlightDeviation": 0,
+    "earlyIncomingOwnership": 0,
+    "visited": [
+      40,
+      41,
+      44,
+      45
+    ],
+    "boundaries": [
+      {
+        "from": 40,
+        "to": 41,
+        "ballStep": 0.00004794343750058484,
+        "heightStep": 0.0000073898347987544355,
+        "rootStep": 0
+      },
+      {
+        "from": 41,
+        "to": "enginePositionGap",
+        "ballStep": 0,
+        "heightStep": 1.6653345369377348e-16,
+        "rootStep": 0.0044173381821518256
+      },
+      {
+        "from": "enginePositionGap",
+        "to": 44,
+        "ballStep": 0,
+        "heightStep": 0,
+        "rootStep": 0.001685048247559181
+      },
+      {
+        "from": 44,
+        "to": 45,
+        "ballStep": 0,
+        "heightStep": 0,
+        "rootStep": 0
+      }
+    ],
+    "phases": [
+      {
+        "threshold": 0.19,
+        "ball": [
+          91.10544841730896,
+          58.10857891943702
+        ],
+        "ball3d": [
+          43.16072083817441,
+          1.7040000000660613,
+          5.513833665217177
+        ],
+        "owner": null,
+        "toeBall": 1.626716703527643,
+        "foreheadBall": 0.1400000005412476,
+        "blockToe": null,
+        "frameDistance": 13.091270350106658,
+        "rawEventId": 43,
+        "target": [
+          102,
+          28
+        ]
+      },
+      {
+        "threshold": 0.65,
+        "ball": [
+          99.89754267722874,
+          33.810427510204185
+        ],
+        "ball3d": [
+          52.392419811090186,
+          1.2476260172364344,
+          -11.008909293061155
+        ],
+        "owner": null,
+        "toeBall": 18.833957668178517,
+        "foreheadBall": 19.072301734056754,
+        "blockToe": null,
+        "frameDistance": 7.349696680454675,
+        "rawEventId": 43,
+        "target": [
+          102,
+          28
+        ]
+      },
+      {
+        "threshold": 0.76,
+        "ball": [
+          102,
+          28
+        ],
+        "ball3d": [
+          54.6,
+          0.15000000000000016,
+          -14.959999999999997
+        ],
+        "owner": null,
+        "toeBall": 23.324219598230027,
+        "foreheadBall": 23.643948053423408,
+        "blockToe": null,
+        "frameDistance": 11.493476410555683,
+        "rawEventId": 43,
+        "target": [
+          102,
+          28
+        ]
+      },
+      {
+        "threshold": 0.91,
+        "ball": [
+          102,
+          28
+        ],
+        "ball3d": [
+          54.6,
+          0.15000000000000016,
+          -14.959999999999997
+        ],
+        "owner": null,
+        "toeBall": 23.324219598230027,
+        "foreheadBall": 23.643948053423408,
+        "blockToe": null,
+        "frameDistance": 11.493476410555683,
+        "rawEventId": 43,
+        "target": [
+          102,
+          28
+        ]
+      },
+      {
+        "threshold": 0.999999,
+        "ball": [
+          102,
+          28
+        ],
+        "ball3d": [
+          54.6,
+          0.15000000000000016,
+          -14.959999999999997
+        ],
+        "owner": null,
+        "toeBall": 23.324219598230027,
+        "foreheadBall": 23.643948053423408,
+        "blockToe": null,
+        "frameDistance": 11.493476410555683,
+        "rawEventId": 43,
+        "target": [
+          102,
+          28
+        ]
+      }
+    ],
+    "preserved": true
+  }
+]

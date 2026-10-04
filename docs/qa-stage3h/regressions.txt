@@ -1,0 +1,36 @@
+✔ seed4 heavy touch has a visible free roll, genuine winner and bounded approach (18772.342216ms)
+✔ comparison with b351028 preserves complete real events, winners, statistics and RNG (9798.732317ms)
+✔ last touch, free roll and approach pause together and speed changes keep the same chain (1066.231452ms)
+✔ seed4 genuine failed pass38 and heavy touch75→76→77 preserve all engine events, stats, RNG and transient-only metadata (17977.943979ms)
+✔ interceptor approaches from captured start and free ball remains unowned until real recovery contact (0.427913ms)
+✔ pause and speed changes retain a single recovery phase without restarting the chain (898.013118ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (20817.126104ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (1.245769ms)
+✔ pause and speed changes do not restart shot or expose result early (138.861921ms)
+✔ 3H real shots and continuations preserve previous complete engine events, score, statistics and RNG (4336.857168ms)
+✔ 3H actual boot, frame and forehead contacts; one shot/result and one rebound only (0.888046ms)
+✖ 3H preparation, flight and result pause and rate changes stay on the same phase (98.087293ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 11
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29926.760807
+
+✖ failing tests:
+
+test at tests/match3d-stage3h.test.cjs:4:1
+✖ 3H preparation, flight and result pause and rate changes stay on the same phase (98.087293ms)
+  evalmachine.<anonymous>:1
+  let guard=0;while(guard++<3000){if(pitchV73.active?.eventId===19&&pitchV73.progress>=0.1)break;qaWall+=.02;ManagerStoryLive3D.step(.02,qaWall*1000);}if(guard>=3000)throw Error('Missing phase');
+  ^
+  
+  SyntaxError: Identifier 'guard' has already been declared
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at Object.run (/workspace/scratch/8bd0598b1055/ManagerStory-3H/tests/engine-harness.cjs:21:28)
+      at TestContext.<anonymous> (/workspace/scratch/8bd0598b1055/ManagerStory-3H/tests/match3d-stage3h.test.cjs:4:315)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

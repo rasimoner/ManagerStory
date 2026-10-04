@@ -1,0 +1,29 @@
+✔ seed4 heavy touch has a visible free roll, genuine winner and bounded approach (9543.900407ms)
+✖ comparison with b351028 preserves complete real events, winners, statistics and RNG (603.259694ms)
+✔ last touch, free roll and approach pause together and speed changes keep the same chain (679.138836ms)
+✔ seed4 genuine failed pass38 and heavy touch75→76→77 preserve all engine events, stats, RNG and transient-only metadata (15386.035402ms)
+✔ interceptor approaches from captured start and free ball remains unowned until real recovery contact (0.314543ms)
+✔ pause and speed changes retain a single recovery phase without restarting the chain (586.055045ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (21993.559813ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (1.219973ms)
+✔ pause and speed changes do not restart shot or expose result early (120.174714ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22248.810836
+
+✖ failing tests:
+
+test at tests/match3d-heavy-touch.test.cjs:3:1
+✖ comparison with b351028 preserves complete real events, winners, statistics and RNG (603.259694ms)
+  TypeError: Cannot read properties of undefined (reading '0')
+      at metres (file:///workspace/scratch/8bd0598b1055/ManagerStory-3H/dist/match3d-pass-timeline.js:5:29)
+      at file:///workspace/scratch/8bd0598b1055/ManagerStory-3H/dist/match3d-live-view.js:14:91
+      at Module.audit (file:///workspace/scratch/8bd0598b1055/ManagerStory-3H/tools/match3d-heavy-touch-audit.mjs:7:136)
+      at TestContext.<anonymous> (/workspace/scratch/8bd0598b1055/ManagerStory-3H/tests/match3d-heavy-touch.test.cjs:3:198)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

@@ -7,8 +7,10 @@
   const base=eventAnimationTime(e);
   if(e.type==='shot'&&e.shotResult){
    const target=shotTarget(e),start=e.enginePositions[String(e.goalkeeperId)]||target;
-   return Math.max(.7,metres(e.fromPos,target)/22/.57,metres(start,keeperTarget(e))*1.5/24/.57);
+   const block=e.outcome==='block'?blockRoot(e):null,bStart=block?e.enginePositions[String(e.shotResult.toId)]||block:target;
+   return Math.max(.7,metres(e.fromPos,target)/22/.57,metres(start,keeperTarget(e))*1.5/24/.57,block?metres(bStart,block)*1.5/24/.76:0,e.continuation?metres(target,e.continuation.toPos)/22/.24:0);
   }
+  if(e.headerShot)return Math.max(base,metres(e.fromPos,headerContact(e.headerShot))/18/.81,...Object.entries(e.enginePositions).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)*1.5/24));
   if(e.cutPresentation)return Math.max(base,metres(e.cutPresentation.start,e.toPos)*1.5/24/.76);
   if(e.recoveryStarts)return Math.max(base,(e.chaseSeconds||0)/4,...Object.entries(e.recoveryStarts).map(([id,start])=>metres(start,e.enginePositions[id]||start)*1.5/24/.76));
   if(!isCarry(e))return base;
@@ -35,6 +37,7 @@
   const geometry={...structuredClone(data),touch,rollEnd,gapMetres:gap,releaseProgress:.76,source:'derived-final-segment-separation; immutable-engine-land-and-winner'};
   carry.heavyGeometry=structuredClone(geometry);loose.heavyGeometry=structuredClone(geometry);loose.fromPos=[...rollEnd];loose.movementSource=geometry.source;
  }
+ function captureShotStart(start){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(e?.type==='shot')e.shooterStart=[...start];}
  const xy=p=>[p[0]*1.05,p[1]*.68],pct=p=>[p[0]/1.05,p[1]/.68];
  function contestFrame(e,p){
   const c=e.contest,A=xy(c.attackerStart),B=xy(c.point),S=xy(c.defenderStart),E=xy(c.defenderEnd),dx=B[0]-A[0],dy=B[1]-A[1],n=Math.hypot(dx,dy)||1,dir=[dx/n,dy/n];
@@ -55,28 +58,37 @@
   return peak/24*1.02;
  }
  // Derived shot geometry. Raw percent goal mouth is wider than the real 7.32m goal.
- // Preserve raw endpoints on e; remap only an already decided goal into the real net.
- function shotTarget(e){return e.outcome==='goal'?[e.toPos[0]>50?102.1:-2.1,50+(e.toPos[1]-50)*.55]:e.outcome==='wide'?[e.toPos[0]>50?102:-2,e.toPos[1]]:[...e.toPos];}
+ // Preserve raw endpoints on e; remap committed goal/post contacts into the real net/frame; never decide outcomes.
+ function headerContact(e){const t=shotTarget(e),a=xy(e.fromPos),b=xy(t),n=Math.hypot(b[0]-a[0],b[1]-a[1])||1;return pct(a.map((v,i)=>v+(b[i]-a[i])/n*.227));}
+ function blockRoot(e){return [...e.shotResult.toPos];}
+ function shotTarget(e){
+  if(e.outcome==='post')return [e.frame==='crossbar'?(e.toPos[0]>50?100:0):e.toPos[0]>50?100-.205/1.05:.205/1.05,e.frame==='crossbar'?50+(e.toPos[1]-50)*.55:50+(e.toPos[1]<50?-1:1)*3.66/.68];
+  if(e.outcome==='block'&&e.shotResult)return [...e.shotResult.toPos];
+  return e.outcome==='goal'?[e.toPos[0]>50?102.1:-2.1,50+(e.toPos[1]-50)*.55]:e.outcome==='wide'?[e.toPos[0]>50?102:-2,e.toPos[1]]:[...e.toPos];}
  function keeperTarget(e){const t=shotTarget(e),dir=e.toPos[0]>50?1:-1;
+  if(e.outcome==='post')return [e.toPos[0],50+(t[1]-50)*.25];
   return [e.outcome==='wide'?e.toPos[0]:t[0]-dir*.55/1.05,['goal','wide'].includes(e.outcome)?50+(e.toPos[1]-50)*.25:t[1]];
  }
  function shotFrame(e,p){
   const target=shotTarget(e),u=Math.max(0,Math.min(1,(p-.19)/.57)),dir=e.toPos[0]>50?1:-1;
-  let ball=lerp(e.fromPos,target,u),height=.15+(1.05-.15)*u+Math.sin(Math.PI*u)*.55;
+  const source=e.header&&e.headerIncoming?headerContact(e):e.fromPos,sourceHeight=e.header&&e.headerIncoming?1.704:.15;
+  const targetHeight=e.outcome==='post'&&e.frame==='crossbar'?2.235:e.outcome==='block'?.15:1.05;
+  let ball=lerp(source,target,u),height=sourceHeight+(targetHeight-sourceHeight)*u+Math.sin(Math.PI*u)*.55;
   const kStart=e.enginePositions[String(e.goalkeeperId)]||keeperTarget(e),kEnd=keeperTarget(e);
   // Goal keeper cannot reach the ball; his attempt stays inside the field.
   if(e.outcome==='goal')kEnd[0]=dir>0?98:2;
   const keeper=lerp(kStart,kEnd,ease(u));
   const cross=e.outcome==='goal'?( (dir>0?100:0)-e.fromPos[0])/(target[0]-e.fromPos[0]):null;
-  if(e.outcome==='goal'){height=.15+Math.sin(Math.PI*u)*1.15;if(p>.76)height=.15;}
-  if(e.outcome==='wide'){height=.15+Math.sin(Math.PI*u)*1.4;}
+  if(e.outcome==='goal'){height=sourceHeight*(1-u)+.15*u+Math.sin(Math.PI*u)*1.15;if(p>.76)height=.15;}
+  if(e.outcome==='wide'){height=sourceHeight*(1-u)+.15*u+Math.sin(Math.PI*u)*1.4;}
   if(e.outcome==='save'&&p>=.76){
    const r=ease(Math.max(0,Math.min(1,(p-.76)/.24)));
    if(e.shotResult.saveType==='CATCH'){ball=lerp(target,keeper,r);height=1.05*(1-r)+.15*r;}
    else height=1.05*(1-r)+.15*r;
    // PARRY/DEFLECT keep the real result point: next existing loose-ball/restart owns continuation.
   }
-  return {ball,keeper,height,contactProgress:.19,resultProgress:.76,lineCrossProgress:cross==null?null:.19+.57*cross,
+  if(['block','post'].includes(e.outcome)&&p>=.76&&e.continuation){const r=Math.max(0,Math.min(1,(p-.76)/.24));ball=lerp(target,e.continuation.toPos,r);height=targetHeight*(1-r)+.15*r;}
+  return {ball,keeper,height,target,sourcePoint:source,header:!!(e.header&&e.headerIncoming),blocker:e.outcome==='block'?lerp(e.enginePositions[String(e.shotResult.toId)]||blockRoot(e),blockRoot(e),ease(Math.min(1,p/.76))):null,contactProgress:.19,resultProgress:.76,lineCrossProgress:cross==null?null:.19+.57*cross,
    goalCrossed:cross!=null&&u>=cross,source:'derived-shot-flight-and-keeper-reach',result:e.shotResult};
  }
  const positions=()=>Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
@@ -132,6 +144,8 @@
     }else if(!state.queue.length){
      const move=keyframeTransition(state,positions(),M.ballState.position,matchSecond(),M.ballOwner,M.ballSide);if(move)state.queue.push(move);
     }
+    for(const shot of state.queue.filter(e=>e.headerIncoming)){shot.presentationTarget=shotTarget(shot);const delivery=state.queue.find(e=>e.eventId===shot.headerIncoming.eventId);if(delivery)delivery.headerShot=structuredClone(shot);}
+    for(const shot of state.queue.filter(e=>e.type==='shot'&&e.shotResult&&['post','block'].includes(e.outcome))){const resultIndex=state.queue.findIndex(e=>e.eventId===shot.shotResult.eventId),next=state.queue[resultIndex+1];if(next&&['looseBall','ballOut'].includes(next.type)){shot.continuation=structuredClone(next);if(next.type==='looseBall')shot.consumedContinuationId=next.eventId;}}
     state.batchEnd={positions:positions(),ball:[...M.ballState.position],owner:M.ballOwner,side:M.ballSide,gameSecond:matchSecond(),score:[M.hg,M.ag],statistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}};
    }
   }
@@ -141,14 +155,15 @@
     const sourceTargets=next.enginePositions?structuredClone(next.enginePositions):{};
     if(next.cutPresentation)sourceTargets[String(next.toId)]=[...next.cutPresentation.start];
     if(next.recoveryStarts)Object.assign(sourceTargets,structuredClone(next.recoveryStarts));
+    if(next.headerShot)sourceTargets[String(next.headerShot.fromId)]=[...(next.headerShot.shooterStart||state.positions[String(next.headerShot.fromId)]||next.headerShot.fromPos)];
     if(isCarry(next)||next.type==='shot')sourceTargets[String(next.fromId)]=[...next.fromPos];
-    const transition=next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||state.afterShot)?keyframeTransition(state,sourceTargets,next.fromPos,next.gameSecond):null;
+    const transition=next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||state.afterShot)?keyframeTransition(state,sourceTargets,next.headerIncoming?headerContact(next):next.fromPos,next.gameSecond):null;
     const placement=next.type==='kickoff'?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond,next.fromId,next.fromSide):null;
     if(placement){placement.sampleInterval={fromGameSecond:next.gameSecond,toGameSecond:next.gameSecond,phase:'restart-placement'};placement.carryId=null;placement.carrySide='none';placement.movementSource='derived-dead-ball-placement';}
     if(placement)state.active=placement;
     else if(transition)state.active=transition;
     else {state.active=state.queue.shift();state.afterShot=false;
-     if(state.active.shotResult)state.queue=state.queue.filter(x=>x.eventId!==state.active.shotResult.eventId);
+     if(state.active.shotResult)state.queue=state.queue.filter(x=>x.eventId!==state.active.shotResult.eventId&&x.eventId!==state.active.consumedContinuationId);
      if(state.active.contest){const c=state.active.contest;state.queue=state.queue.filter(x=>x.eventId!==c.press.eventId&&x.eventId!==c.tackle.eventId);}
     }
     state.shotPreStatistics=structuredClone(state.eventStatistics);
@@ -161,12 +176,12 @@
    const D=state.activeDuration,take=Math.min(remaining,(1-state.progress)*D);
    state.progress+=take/D;remaining-=take;
    const p=state.progress;state.displayMatchSeconds=e.sampleInterval?e.sampleInterval.fromGameSecond+(e.sampleInterval.toGameSecond-e.sampleInterval.fromGameSecond)*p:(e.gameSecond??matchSecond());
-   const pass=['pass','cross'].includes(e.type),u=p<.19?0:p<.76?(p-.19)/.57:1;
+   const pass=['pass','cross'].includes(e.type)||!!e.headerShot,u=p<.19?0:p<.76?(p-.19)/.57:1;
    if(pass){
     if(state.rateSegments.at(-1)?.speed!==M.speed||state.rateSegments.at(-1)?.tempo!==tempo)state.rateSegments.push({progress:p,speed:M.speed,tempo});
     if(p>=.19&&state.contactObserved==null)state.contactObserved=now;
     if(p>=.76&&state.arrivalObserved==null)state.arrivalObserved=now;
-    state.ball=lerp(e.fromPos,e.toPos,flight(u));state.carrier=p<.19?e.fromId:p<.76?null:e.toId;state.side=p<.19?e.fromSide:p<.76?'none':e.toSide;}
+    state.ball=e.headerShot?lerp(e.fromPos,headerContact(e.headerShot),Math.max(0,Math.min(1,(p-.19)/.81))):lerp(e.fromPos,e.toPos,flight(u));state.carrier=p<.19?e.fromId:e.headerShot?null:p<.76?null:e.toId;state.side=state.carrier==null?'none':p<.19?e.fromSide:e.toSide;}
    else if(isCarry(e)){
     // Derived touches on the recorded segment, not new decisions or physical engine data.
     const t=ease(u),d=metres(e.fromPos,e.toPos),travel=d*t,phase=(travel/1.25)%1;
@@ -181,7 +196,7 @@
    const targets=e.enginePositions;
    if(targets)for(const [key,target] of Object.entries(targets)){
     const start=e.recoveryStarts?.[key]||state.startPositions[key]||target;
-    const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):e.recoveryStarts?Math.min(1,p/.76):p;
+    const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/(e.headerShot?1:.76)):e.recoveryStarts?Math.min(1,p/.76):p;
     state.positions[key]=lerp(start,target,ease(fraction));
    }
    if(e.heavyGeometry){
@@ -200,8 +215,9 @@
     const f=shotFrame(e,p),result=e.shotResult;
     if(p<.19)state.eventStatistics=state.shotPreStatistics;
     state.ball=f.ball;state.positions[String(e.fromId)]=[...e.fromPos];state.positions[String(e.goalkeeperId)]=f.keeper;
-    state.carrier=p<.19?e.fromId:e.outcome==='save'&&result.saveType==='CATCH'&&p>=.76?e.goalkeeperId:null;
-    state.side=p<.19?e.fromSide:state.carrier==null?'none':result.toSide;
+    if(f.blocker)state.positions[String(result.toId)]=f.blocker;
+    state.carrier=p<.19&&!f.header?e.fromId:e.outcome==='save'&&result.saveType==='CATCH'&&p>=.76?e.goalkeeperId:null;
+    state.side=p<.19&&!f.header?e.fromSide:state.carrier==null?'none':result.toSide;
     state.shotMotion={...f,progress:p,event:p>=.76||f.goalCrossed?result:e,phase:p<.19?'preparation':p<.76?'flight':'result'};
     if(f.goalCrossed)state.eventScore=[result.homeGoals,result.awayGoals];
    }
@@ -216,9 +232,10 @@
    // Keep the owned ball on that recorded root rather than leave it behind.
    if(!pass&&e.type!=='enginePositionGap'&&animationPoint(e,p,state.eventStartBall)==null&&state.carrier!=null&&state.positions[String(state.carrier)])state.ball=[...state.positions[String(state.carrier)]];
    state.ballState={...state.ballState,position:[...state.ball],ownerId:state.carrier,state:e.sampleInterval?.phase==='restart-placement'?'RESTART_SETUP':state.carrier==null?'LOOSE_BALL':'LIVE',height:aerialHeight(e,p),travelType:e.travelType||'ground',target:e.toPos||null,travelDuration:D};
+   state.displayBallHeight=state.shotMotion?.height??(e.headerShot?.15+(1.704-.15)*Math.max(0,Math.min(1,(p-.19)/.81))+Math.sin(Math.PI*Math.max(0,Math.min(1,(p-.19)/.81)))*2.4:.15);
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(p>=1-1e-8){
-    if(e.type!=='enginePositionGap'&&!state.shotMotion)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
+    if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(state.shotMotion)state.afterShot=true;
     state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;
@@ -226,7 +243,7 @@
   }
   if(window.MatchView)window.MatchView.publish(state);
  }
- window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkDribbleContest,linkPassCut,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+ window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){enabled=true;if(M){const s=currentPitchState();for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration, togglePause(){if(!M)return;if(M.pause)resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}

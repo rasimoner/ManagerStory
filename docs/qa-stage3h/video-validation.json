@@ -1,0 +1,35 @@
+[
+  {
+    "kind": "post",
+    "bytes": 213810,
+    "duration": "23.080000",
+    "codec": "h264",
+    "tag": "avc1",
+    "pixel": "yuv420p",
+    "moov": 32,
+    "mdat": 1200,
+    "decodeErrors": 0
+  },
+  {
+    "kind": "block",
+    "bytes": 286514,
+    "duration": "31.880000",
+    "codec": "h264",
+    "tag": "avc1",
+    "pixel": "yuv420p",
+    "moov": 32,
+    "mdat": 1384,
+    "decodeErrors": 0
+  },
+  {
+    "kind": "header",
+    "bytes": 196215,
+    "duration": "17.600000",
+    "codec": "h264",
+    "tag": "avc1",
+    "pixel": "yuv420p",
+    "moov": 32,
+    "mdat": 1128,
+    "decodeErrors": 0
+  }
+]

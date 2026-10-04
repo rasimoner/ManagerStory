@@ -1,0 +1,11 @@
+✔ 3H real shots and continuations preserve previous complete engine events, score, statistics and RNG (8014.283956ms)
+✔ 3H actual boot, frame and forehead contacts; one shot/result and one rebound only (0.956184ms)
+✔ 3H preparation, flight and result pause and rate changes stay on the same phase (719.301321ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9025.924187

@@ -28,6 +28,7 @@
       lifecycle: M.lifecycle, paused: M.pause, finished: M.finished,
       secondHalf: M.secondHalf, score: [M.hg, M.ag], players,
       ball: {
+        presentationHeight:frame?.displayBallHeight??.15,
         engine: copy(M.ballState), engineSide: M.ballSide,
         displayPosition: copy(frame?.ball), displayOwnerId: frame?.carrier ?? null,
         displaySide: frame?.side ?? null, displayState: copy(frame?.ballState),
