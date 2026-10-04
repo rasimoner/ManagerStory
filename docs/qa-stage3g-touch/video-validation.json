@@ -1,0 +1,11 @@
+{
+  "bytes": 126786,
+  "duration": "11.600000",
+  "codec": "h264",
+  "profile": "Constrained Baseline",
+  "pixelFormat": "yuv420p",
+  "tag": "avc1",
+  "moov": 36,
+  "mdat": 1140,
+  "fullDecode": true
+}

@@ -23,18 +23,8 @@
  }
  // All links live on copied presentation events, never M.events or saved state.
  function linkPassCut(data){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(['pass','cross'].includes(e?.type)&&!e.success&&e.toId===data.id)e.cutPresentation=structuredClone(data);}
- function captureHeavyTouch(data){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(e?.type==='ballCarry'&&e.fromId===data.carrierId)e.heavyDecision=structuredClone(data);}
- function linkRecovery(starts){if(!enabled)return;const q=currentPitchState().queue,e=q.at(-1),loose=q.at(-2);if(e?.type!=='recovery')return;e.recoveryStarts=structuredClone(starts);
-  if(loose?.heavyGeometry){e.heavyGeometry=structuredClone(loose.heavyGeometry);e.recoveryStarts[String(e.heavyGeometry.carrierId)]=[...e.heavyGeometry.touch];}
- }
- function linkLooseTouch(){if(!enabled)return;const q=currentPitchState().queue,[carry,loose]=q.slice(-2);if(carry?.type!=='ballCarry'||carry.success!==false||loose?.reason!=='touch')return;
-  carry.heavyTouch=true;const data=carry.heavyDecision||{carrierId:carry.fromId,carrierSide:carry.fromSide,start:carry.fromPos,land:carry.toPos,gameSecond:carry.gameSecond};
-  const d=metres(data.start,data.land),gap=Math.min(3.5,d*.35),touch=lerp(data.start,data.land,d?(d-gap)/d:1),rollEnd=lerp(touch,data.land,.65);
-  // Motor has no separate stop point. Reserve the final recorded segment for
-  // deterministic presentation-only heavy-touch roll and the real winner's chase.
-  const geometry={...structuredClone(data),touch,rollEnd,gapMetres:gap,releaseProgress:.76,source:'derived-final-segment-separation; immutable-engine-land-and-winner'};
-  carry.heavyGeometry=structuredClone(geometry);loose.heavyGeometry=structuredClone(geometry);loose.fromPos=[...rollEnd];loose.movementSource=geometry.source;
- }
+ function linkRecovery(starts){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(e?.type==='recovery')e.recoveryStarts=structuredClone(starts);}
+ function linkLooseTouch(){if(!enabled)return;const q=currentPitchState().queue,[carry,loose]=q.slice(-2);if(carry?.type==='ballCarry'&&carry.success===false&&loose?.reason==='touch'){carry.heavyTouch=true;loose.fromPos=[...carry.toPos];loose.movementSource='heavy-touch-endpoint; no second replay of carry';}}
  const xy=p=>[p[0]*1.05,p[1]*.68],pct=p=>[p[0]/1.05,p[1]/.68];
  function contestFrame(e,p){
   const c=e.contest,A=xy(c.attackerStart),B=xy(c.point),S=xy(c.defenderStart),E=xy(c.defenderEnd),dx=B[0]-A[0],dy=B[1]-A[1],n=Math.hypot(dx,dy)||1,dir=[dx/n,dy/n];
@@ -184,18 +174,6 @@
     const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):e.recoveryStarts?Math.min(1,p/.76):p;
     state.positions[key]=lerp(start,target,ease(fraction));
    }
-   if(e.heavyGeometry){
-    const g=e.heavyGeometry,key=String(g.carrierId);
-    if(isCarry(e)){
-     const t=ease(u),d=metres(g.start,g.touch),travel=d*t,phase=travel/1.25%1,lead=.18*Math.sin(Math.PI*phase)**2*Math.sin(Math.PI*t)**2;
-     state.positions[key]=lerp(g.start,g.touch,t);state.ball=p<=.76?lerp(g.start,g.touch,d?Math.min(1,t+lead/d):t):lerp(g.touch,g.rollEnd,ease((p-.76)/.24));
-     state.carryMotion={eventId:e.eventId,travelMetres:travel,touchPhase:phase,leadMetres:lead,heavyContact:g.touch,releaseProgress:.76,source:g.source};
-    }else if(e.type==='looseBall'){
-     state.positions[key]=[...g.touch];state.ball=lerp(g.rollEnd,g.land,ease(p));
-    }else if(e.type==='recovery'){
-     state.positions[key]=lerp(g.touch,e.enginePositions[key]||g.land,ease(e.toId===g.carrierId?Math.min(1,p/.76):p));state.ball=[...g.land];
-    }
-   }
    if(e.type==='shot'&&e.shotResult){
     const f=shotFrame(e,p),result=e.shotResult;
     if(p<.19)state.eventStatistics=state.shotPreStatistics;
@@ -226,7 +204,7 @@
   }
   if(window.MatchView)window.MatchView.publish(state);
  }
- window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkDribbleContest,linkPassCut,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+ window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkDribbleContest,linkPassCut,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){enabled=true;if(M){const s=currentPitchState();for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration, togglePause(){if(!M)return;if(M.pause)resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}

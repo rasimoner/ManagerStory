@@ -571,12 +571,14 @@ function pitchDribble(from,side,opponent){
  const touchSkill=normalizeAttribute(playerAttribute(from,side,'technique',65)*.5+playerAttribute(from,side,'dribbling',65)*.5);
  const heavyTouch=!near&&M.rand()<clamp(.035-(touchSkill-.5)*.07,.004,.07);
  const success=!heavyTouch&&(!near||M.rand()<chance);
+ const touchPresentation=heavyTouch&&window.ManagerStoryLive3D?.enabled?{carrierId:from,carrierSide:side,start:[...start],land:[...end],gameSecond:matchSecond(),source:'captured-before-heavy-touch-carrier-placement'}:null;
  const contestStart=near&&window.ManagerStoryLive3D?.enabled?[...eventPoint(defender.id,defendingSide)]:null;
  M.dynamicPositions[String(from)]=end;
  if(heavyTouch){
   const st=side==='user'?M.playerStats[from]:null;if(st)st.dribblesAttempted++;
   matchEvent('ballCarry',M.min+'’ '+(owner?.name||opponentName(from))+' topu açık bıraktı.',
    {playerId:side==='user'?from:null,fromId:from,toId:from,fromSide:side,toSide:side,ballSide:'none',fromPos:start,toPos:end,success:false});
+  if(touchPresentation)window.ManagerStoryLive3D.captureHeavyTouch?.(touchPresentation);
   makeLooseBall(start,end,'touch',defendingSide);
   return false;
  }

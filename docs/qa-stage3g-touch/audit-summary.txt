@@ -1,0 +1,246 @@
+{
+  "before": {
+    "preserved": true,
+    "rows": [
+      {
+        "id": 38,
+        "maxRootSpeed": 5.999879960074679,
+        "maxBallStep": 0.3718715539158003,
+        "startBallStep": 0,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 39.31237747244474,
+        "separatedUnownedSeconds": 1.9519996479628792,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 108.08794417436613,
+          "owner": 9,
+          "ball": [
+            86.44358050885776,
+            83.69382209488187
+          ],
+          "root": [
+            86.44358050885776,
+            83.69382209488187
+          ],
+          "rootBallMetres": 0,
+          "toeBallMetres": 0.13756816492198018
+        }
+      },
+      {
+        "id": 75,
+        "maxRootSpeed": 5.999776270598953,
+        "maxBallStep": 0.17217988852304927,
+        "startBallStep": 0,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 0.17603771164025367,
+        "separatedUnownedSeconds": 0,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 219.35067648599718,
+          "owner": null,
+          "ball": [
+            93.9532273609654,
+            32.26367873600013
+          ],
+          "root": [
+            93.9532273609654,
+            32.26367873600013
+          ],
+          "rootBallMetres": 0,
+          "toeBallMetres": 0.16461218862394017
+        }
+      },
+      {
+        "id": 76,
+        "maxRootSpeed": 0,
+        "maxBallStep": 0,
+        "startBallStep": 0,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 0,
+        "separatedUnownedSeconds": 0,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 222.19491642058642,
+          "owner": null,
+          "ball": [
+            93.9532273609654,
+            32.26367873600013
+          ],
+          "rootBallMetres": null,
+          "toeBallMetres": null
+        }
+      },
+      {
+        "id": 77,
+        "maxRootSpeed": 0,
+        "maxBallStep": 0,
+        "startBallStep": 0,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 0,
+        "separatedUnownedSeconds": 0,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 224.43491642058757,
+          "owner": 10,
+          "ball": [
+            93.9532273609654,
+            32.26367873600013
+          ],
+          "root": [
+            93.9532273609654,
+            32.26367873600013
+          ],
+          "rootBallMetres": 0,
+          "toeBallMetres": 0.1375681649219768
+        }
+      },
+      {
+        "id": 79,
+        "maxRootSpeed": 5.351924388927467,
+        "maxBallStep": 0.000052609221944085544,
+        "startBallStep": 0.000052609221944085544,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 0,
+        "separatedUnownedSeconds": 0,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 228.99678084725656,
+          "owner": 10,
+          "ball": [
+            91.2952055517213,
+            32.7507791784132
+          ],
+          "rootBallMetres": null,
+          "toeBallMetres": null
+        }
+      }
+    ]
+  },
+  "after": {
+    "preserved": true,
+    "rows": [
+      {
+        "id": 38,
+        "maxRootSpeed": 5.999879960074679,
+        "maxBallStep": 0.3718715539158003,
+        "startBallStep": 0,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 39.31237747244474,
+        "separatedUnownedSeconds": 1.9519996479628792,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 108.08794417436613,
+          "owner": 9,
+          "ball": [
+            86.44358050885776,
+            83.69382209488187
+          ],
+          "root": [
+            86.44358050885776,
+            83.69382209488187
+          ],
+          "rootBallMetres": 0,
+          "toeBallMetres": 0.13756816492198018
+        }
+      },
+      {
+        "id": 75,
+        "maxRootSpeed": 4.063914840104153,
+        "maxBallStep": 0.11527540175229219,
+        "startBallStep": 0,
+        "endBoundaryBallStep": 0.0002910868829133066,
+        "earlyOwnership": 0,
+        "maxSeparation": 2.2749999998815014,
+        "separatedUnownedSeconds": 0.6218351769213899,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 219.35067648599718,
+          "owner": null,
+          "ball": [
+            90.86466323624052,
+            34.199612354040454
+          ],
+          "root": [
+            90.86466323624052,
+            34.199612354040454
+          ],
+          "rootBallMetres": 0,
+          "toeBallMetres": 0.13756816492198295
+        }
+      },
+      {
+        "id": 76,
+        "maxRootSpeed": 0,
+        "maxBallStep": 0.016405560825890293,
+        "startBallStep": 0.0002910868829133066,
+        "endBoundaryBallStep": 3.6720138474444695e-12,
+        "earlyOwnership": 0,
+        "maxSeparation": 3.4999999999963256,
+        "separatedUnownedSeconds": 2.2400025176663982,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 222.19491642058642,
+          "owner": null,
+          "ball": [
+            93.79631842002418,
+            32.36203035878415
+          ],
+          "rootBallMetres": null,
+          "toeBallMetres": null
+        }
+      },
+      {
+        "id": 77,
+        "maxRootSpeed": 3.083657299160606,
+        "maxBallStep": 3.6720138474444695e-12,
+        "startBallStep": 3.6720138474444695e-12,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 3.4985624785080502,
+        "separatedUnownedSeconds": 1.0856022400000007,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 224.43491642058757,
+          "owner": 10,
+          "ball": [
+            93.9532273609654,
+            32.26367873600013
+          ],
+          "root": [
+            93.9532273609654,
+            32.26367873600013
+          ],
+          "rootBallMetres": 0,
+          "toeBallMetres": 0.1375681649219768
+        }
+      },
+      {
+        "id": 79,
+        "maxRootSpeed": 5.351924388927467,
+        "maxBallStep": 0.000052609221944085544,
+        "startBallStep": 0.000052609221944085544,
+        "endBoundaryBallStep": 0,
+        "earlyOwnership": 0,
+        "maxSeparation": 0,
+        "separatedUnownedSeconds": 0,
+        "contact": {
+          "threshold": 0.76,
+          "wall": 228.99678084725656,
+          "owner": 10,
+          "ball": [
+            91.2952055517213,
+            32.7507791784132
+          ],
+          "rootBallMetres": null,
+          "toeBallMetres": null
+        }
+      }
+    ]
+  }
+}

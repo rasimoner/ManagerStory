@@ -1,0 +1,11 @@
+✔ seed4 heavy touch has a visible free roll, genuine winner and bounded approach (13337.878087ms)
+✔ comparison with b351028 preserves complete real events, winners, statistics and RNG (8070.603581ms)
+✔ last touch, free roll and approach pause together and speed changes keep the same chain (472.182474ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22050.524044

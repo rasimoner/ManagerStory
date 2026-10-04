@@ -41,7 +41,7 @@ export function createLivePoseSampler(){
     gaps.push({id:player.id,kind:'source-root-to-contact',metres:Math.hypot(root[0]-A[0],root[2]-A[2])});
    }
    const carry=P?.carryMotion;
-   if(carry&&player.id===e.fromId&&player.side===e.fromSide){
+   if(carry&&player.id===e.fromId&&player.side===e.fromSide&&(!carry.heavyContact||p<.65)){
     // Reach only near a derived touch; intervening frames keep the distance-based gait.
     const phase=carry.touchPhase,weight=1-smooth(Math.min(phase,1-phase)/.12);
     const pathA=metres(e.fromPos),pathB=metres(e.toPos),n=Math.hypot(pathB[0]-pathA[0],pathB[2]-pathA[2])||1;
@@ -49,6 +49,13 @@ export function createLivePoseSampler(){
     const contact=add(ball,mul(touchDir,-.30));contact[1]=.16;
     rightFoot=mix(rightFoot,contact,weight);
     gaps.push({id:player.id,kind:'derived-carry-touch',metres:Math.hypot(root[0]-ball[0],root[2]-ball[2]),phase,weight});
+   }
+   if(carry?.heavyContact&&player.id===e.fromId&&player.side===e.fromSide&&p>=.65){
+    const contact=metres(carry.heavyContact),start=metres(e.fromPos),n=Math.hypot(contact[0]-start[0],contact[2]-start[2])||1;
+    const direction=[(contact[0]-start[0])/n,0,(contact[2]-start[2])/n];yaw=Math.atan2(direction[0],direction[2]);
+    const foot=add(contact,mul(direction,-.30));foot[1]=.16;
+    if(p<=.76)rightFoot=mix(rightFoot,foot,smooth((p-.65)/.11));
+    else{const neutral=add(root,mul([direction[2],0,-direction[0]],.102));neutral[1]=.09;rightFoot=mix(foot,neutral,smooth((p-.76)/.24));}
    }
    const contest=P?.contestMotion;
    let pelvisHeight=.935,lean=0,leftHand=null,rightHand=null;
