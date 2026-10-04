@@ -1,0 +1,19 @@
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (3824.183931ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.234507ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (201.551678ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (2.927543ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.413581ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (4.104321ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (3.501009ms)
+✔ shot anticipation keeps late-flight ball, keeper and goal inside both portrait frames without outcome branching (8609.711855ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (16256.222308ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (0.865418ms)
+✔ pause and speed changes do not restart shot or expose result early (109.663816ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16511.206328

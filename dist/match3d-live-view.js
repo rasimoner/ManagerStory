@@ -90,7 +90,14 @@ export function createLivePoseSampler(){
   // Existing side-camera framing: do not lose the approaching real defender off screen.
   const contest=P?.contestMotion,defender=contest&&poses.find(p=>p.id===contest.defenderId&&p.side===contest.defenderSide);
   if(defender){target=mix(ball,defender.position,.5);target[1]=0;desired=Math.max(12,Math.hypot(ball[0]-defender.position[0],ball[2]-defender.position[2])+4);}
-  if(shot){target=p<.19?[...A]:mix(ball,metres([e.toPos[0]>50?100:0,50]),.32);target[1]=0;desired=14;}
+  if(shot){
+   // Same outcome-blind anticipation for every shot. Keep source legible, then
+   // reveal the goal while the ball is still travelling; no whole-path fit.
+   const goal=metres([e.toPos[0]>50?100:0,50]),anticipation=smooth(u/.28);
+   const remaining=Math.abs(goal[0]-ball[0]),lead=Math.min(8,remaining*.5)*anticipation;
+   target=[ball[0]+Math.sign(goal[0]-ball[0])*lead,0,ball[2]+(goal[2]-ball[2])*.5*anticipation];
+   desired=14+12*smooth(u/.30);
+  }
   if(!focus){focus=[...target];span=desired;}
   else if(dt>0){focus=mix(focus,target,1-Math.exp(-dt*20));span+= (desired-span)*(1-Math.exp(-dt*4));}
   lastSignature=signature;lastSample={poses,ball,ballPercent:percent(ball),camera:{focus:[...focus],span},flightProgress:u,gaps,eventId:e?.eventId??null,type:e?.type??'idle',pass,estimatedHeight:aerial,ownerId:snapshot.ball.displayOwnerId,side:snapshot.ball.displaySide};return lastSample;
