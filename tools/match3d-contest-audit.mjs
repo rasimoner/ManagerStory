@@ -8,7 +8,7 @@ export function audit(){const h=setup(),sample=createLivePoseSampler(),model=ske
  for(let i=0;i<30000;i++){
   const before=h.run('MatchView.read()'),e=before.presentation.activeEvent,p=before.presentation.progress;let dt=.01;
   if(e?.contest){const boundary=[.65,.76,.91,.999999].find(x=>x>p+1e-8);if(boundary)dt=Math.min(dt,(boundary-p)*before.presentation.duration*4+1e-10);}
-  wall+=dt;h.run(`ManagerStoryLive3D.step(${dt},${wall*1000})`);const s=h.run('MatchView.read()'),P=s.presentation,c=P.contestMotion,poses=sample(s),root=id=>s.players.find(p=>p.id===id).displayPosition;
+  wall+=dt;h.run(`ManagerStoryLive3D.step(${dt},${wall*1000})`);const s=h.run('MatchView.read()'),P=s.presentation,c=P.contestMotion?.independent?null:P.contestMotion,poses=sample(s),root=id=>s.players.find(p=>p.id===id).displayPosition;
   if(c){let r=rows.get(P.activeEvent.eventId);if(!r){r={eventId:P.activeEvent.eventId,tackleId:c.tackle.eventId,keepsBall:c.attackerKeepsBall,defenderStart:c.defenderStart,defenderEnd:c.defenderEnd,startWall:wall,duration:P.duration*4,minClearance:Infinity,maxRootSpeed:0,maxBallStep:0,earlyOwnerChanges:0,maxWinnerBallGapAfterControl:0,phases:[]};rows.set(r.eventId,r);}
    r.minClearance=Math.min(r.minClearance,distance(root(c.attackerId),root(c.defenderId)));
    if(old?.eventId===r.eventId){r.maxRootSpeed=Math.max(r.maxRootSpeed,distance(root(c.attackerId),old.attacker)/dt,distance(root(c.defenderId),old.defender)/dt);r.maxBallStep=Math.max(r.maxBallStep,distance(s.ball.displayPosition,old.ball));}

@@ -624,6 +624,7 @@ function actionMinute(userPoss,effect,opponent){
   if(defender&&defender.d<reach){
    const press=(()=>{const P=tacticProfile(defSide).press;return P>0?.11:P<0?-.07:0;})();
    const success=M.rand()<tackleChance(defender.id,defSide,carrier,side,{distance:defender.d,press});
+   const gainStart=window.ManagerStoryLive3D?.enabled?{attackerId:carrier,attackerSide:side,defenderId:defender.id,defenderSide:defSide,attackerStart:[...point],point:[...point],defenderStart:[...eventPoint(defender.id,defSide)],decision:"actionMinute"}:null;
    M.dynamicPositions[String(defender.id)]=moveTowards(eventPoint(defender.id,defSide),point,defender.d);
    recordPitchTackle(defender.id,defSide,carrier,side,success,point);
    if(boxChallengePenalty(defender.id,defSide,carrier,side,point))return; // the penalty sequence owns the rest of this minute
@@ -632,6 +633,7 @@ function actionMinute(userPoss,effect,opponent){
     M.stats.possessionsWon[defSide==='user'?userSide():1-userSide()]++;
     matchEvent('interception',M.min+'’ '+(playerAtMarker(defender.id,defSide)?.name||'Rakip')+' topu kazandı.',
      {fromId:carrier,toId:defender.id,fromSide:side,toSide:defSide,ballSide:defSide,fromPos:point,toPos:point});
+    if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    }
   }
  }
@@ -747,6 +749,7 @@ function chanceV73(user) {
     const spot=eventPoint(M.ballOwner,M.ballSide),defender=nearestMarker(sideName,spot);
     if(!defender||defender.d>19)return;
     const previous=M.ballOwner,previousSide=M.ballSide;
+    const gainStart=window.ManagerStoryLive3D?.enabled?{attackerId:previous,attackerSide:previousSide,defenderId:defender.id,defenderSide:sideName,attackerStart:[...spot],point:[...spot],defenderStart:[...eventPoint(defender.id,sideName)],decision:"chanceV73"}:null;
     M.dynamicPositions[String(defender.id)]=moveTowards(eventPoint(defender.id,sideName),spot,Math.min(10,defender.d));
     recordPitchTackle(defender.id,sideName,previous,previousSide,true,spot);
     switchPitchOwner(defender.id,sideName);
@@ -754,6 +757,7 @@ function chanceV73(user) {
     matchEvent('interception',M.min+'’ '+(playerAtMarker(defender.id,sideName)?.name||'Rakip')+' topu kazandı.',
       {fromId:previous,toId:defender.id,fromSide:previousSide,toSide:sideName,
        ballSide:sideName,fromPos:spot,toPos:eventPoint(defender.id,sideName)});
+    if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,sideName)]});
   }
   let carrier=M.ballOwner;
   const carrierSide=M.ballSide,dir=(user?1:-1)*userDirection();

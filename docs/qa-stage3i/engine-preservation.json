@@ -1,0 +1,132 @@
+{
+  "seed": 1,
+  "minutes": 35,
+  "identical": true,
+  "compared": [
+    "events-all-fields-and-order",
+    "winners",
+    "score",
+    "team-and-player-stats",
+    "shots",
+    "RNG-state"
+  ],
+  "decisions": [
+    {
+      "eventId": 3,
+      "resultId": 5,
+      "decision": "actionMinute",
+      "defenderStart": [
+        50.29731347691869,
+        49.033443025429925
+      ],
+      "defenderEnd": [
+        51.60634863603276,
+        46.31708598120823
+      ]
+    },
+    {
+      "eventId": 12,
+      "resultId": 14,
+      "decision": "actionMinute",
+      "defenderStart": [
+        69.3327772132316,
+        53.8932302111769
+      ],
+      "defenderEnd": [
+        64.79550156018095,
+        53.855403750008875
+      ]
+    },
+    {
+      "eventId": 45,
+      "resultId": 47,
+      "decision": "actionMinute",
+      "defenderStart": [
+        22.019878567802188,
+        42.12632558488733
+      ],
+      "defenderEnd": [
+        26.760332824881736,
+        43.10595148100712
+      ]
+    },
+    {
+      "eventId": 60,
+      "resultId": 62,
+      "decision": "actionMinute",
+      "defenderStart": [
+        89.5538602605576,
+        50.46698695114641
+      ],
+      "defenderEnd": [
+        92.75858217962973,
+        45.98957377646163
+      ]
+    },
+    {
+      "eventId": 66,
+      "resultId": 68,
+      "decision": "actionMinute",
+      "defenderStart": [
+        29.9994400153081,
+        45.33295286932961
+      ],
+      "defenderEnd": [
+        35.698195486999076,
+        45.50124837631493
+      ]
+    },
+    {
+      "eventId": 74,
+      "resultId": 76,
+      "decision": "actionMinute",
+      "defenderStart": [
+        31.61153704676059,
+        42.3070058707792
+      ],
+      "defenderEnd": [
+        29.786958648446635,
+        37.56438357386746
+      ]
+    },
+    {
+      "eventId": 80,
+      "resultId": 82,
+      "decision": "actionMinute",
+      "defenderStart": [
+        82.02047976265963,
+        36.19479599997415
+      ],
+      "defenderEnd": [
+        85.15103438454072,
+        32.31723062118456
+      ]
+    },
+    {
+      "eventId": 118,
+      "resultId": 120,
+      "decision": "actionMinute",
+      "defenderStart": [
+        58.13986793882619,
+        37.962546234609704
+      ],
+      "defenderEnd": [
+        53.22940001286702,
+        31.62748041035672
+      ]
+    },
+    {
+      "eventId": 189,
+      "resultId": 191,
+      "decision": "actionMinute",
+      "defenderStart": [
+        4.662995300906617,
+        36.55066526174713
+      ],
+      "defenderEnd": [
+        6.549400282508772,
+        43.849153807866976
+      ]
+    }
+  ]
+}

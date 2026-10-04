@@ -13,7 +13,6 @@
   if(e.headerShot)return Math.max(base,metres(e.fromPos,headerContact(e.headerShot))/18/.81,...Object.entries(e.enginePositions).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)*1.5/24));
   if(e.cutPresentation)return Math.max(base,metres(e.cutPresentation.start,e.toPos)*1.5/24/.76);
   if(e.recoveryStarts)return Math.max(base,(e.chaseSeconds||0)/4,...Object.entries(e.recoveryStarts).map(([id,start])=>metres(start,e.enginePositions[id]||start)*1.5/24/.76));
-  if(e.contest)return Math.max(base,contestDuration(e),...Object.entries(e.enginePositions||{}).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)*1.5/24));
   if(!isCarry(e))return base;
   const d=metres(e.fromPos,e.toPos),others=Math.max(0,...Object.entries(e.enginePositions||{}).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)));
   return Math.max(base,d*1.5/(24*.57),others*1.5/24,e.contest?contestDuration(e):0);
@@ -23,11 +22,6 @@
   if(!enabled)return;const q=currentPitchState().queue,[carry,press,tackle]=q.slice(-3);
   if(carry?.type!=='dribble'||press?.type!=='press'||tackle?.type!=='tackle'||carry.fromId!==data.attackerId||tackle.defenderId!==data.defenderId)return;
   carry.contest=structuredClone({...data,press,tackle,source:'captured-before-defender-placement; derived-approach-and-contact',contactProgress:.76});
- }
- function linkCarrierGain(data){
-  if(!enabled)return;const q=currentPitchState().queue,[press,tackle,result]=q.slice(-3);
-  if(press?.type!=='press'||tackle?.type!=='tackle'||result?.type!=='interception'||!tackle.success||press.contest||tackle.defenderId!==data.defenderId||result.toId!==data.defenderId||result.fromId!==data.attackerId||press.gameSecond!==result.gameSecond)return;
-  press.contest=structuredClone({...data,press,tackle,result,independent:true,attackerKeepsBall:false,source:'captured-before-carrier-gain-placement; derived-approach-contact-recovery',contactProgress:.76});
  }
  // All links live on copied presentation events, never M.events or saved state.
  function linkPassCut(data){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(['pass','cross'].includes(e?.type)&&!e.success&&e.toId===data.id)e.cutPresentation=structuredClone(data);}
@@ -47,24 +41,13 @@
  const xy=p=>[p[0]*1.05,p[1]*.68],pct=p=>[p[0]/1.05,p[1]/.68];
  function contestFrame(e,p){
   const c=e.contest,A=xy(c.attackerStart),B=xy(c.point),S=xy(c.defenderStart),E=xy(c.defenderEnd),dx=B[0]-A[0],dy=B[1]-A[1],n=Math.hypot(dx,dy)||1,dir=[dx/n,dy/n];
-  const sign=((S[0]-B[0])*-dir[1]+(S[1]-B[1])*dir[0])<0?-1:1,normal=[-dir[1]*sign,dir[0]*sign];
-  const settledContact=B.map((v,i)=>v+normal[i]*.62);
-  // Existing side-view: bias only the derived contact offset toward screen x.
-  // Real starts/endpoints and the winner remain immutable.
-  if(Math.abs(normal[0])<.9){normal[0]=.9*Math.sign(normal[0]||S[0]-B[0]||1);normal[1]=Math.sqrt(1-.9**2)*Math.sign(normal[1]||1);}
-  const contact=B.map((v,i)=>v+normal[i]*.70);
+  const sign=((S[0]-B[0])*-dir[1]+(S[1]-B[1])*dir[0])<0?-1:1,normal=[-dir[1]*sign,dir[0]*sign],contact=B.map((v,i)=>v+normal[i]*.62);
   const u=Math.max(0,Math.min(1,(p-.19)/.57)),t=ease(u),r=ease(Math.max(0,Math.min(1,(p-.76)/.24)));
-  if(c.independent){
-   const attacker=lerp(A,B,t),defender=p<.76?lerp(S,contact,ease(p/.76)):lerp(contact,E,r);
-   const ball=p<.76?lerp(A,B,t):lerp(B,defender,ease(Math.max(0,Math.min(1,(p-.76)/.15))));
-   return {attacker:pct(attacker),defender:pct(defender),ball:pct(ball),travel:Math.hypot(dx,dy)*t,phase:0,lead:0,clearance:Math.hypot(...defender.map((v,i)=>v-attacker[i]))};
-  }
   const attacker=lerp(A,B,t).map((v,i)=>v-(c.attackerKeepsBall?0:dir[i]*.75*r));
-  let defender=p<.76?lerp(S,contact,ease(Math.max(0,Math.min(1,p/.76)))):c.attackerKeepsBall?lerp(contact,E,r):lerp(contact,settledContact,r);
+  let defender=p<.76?lerp(S,contact,ease(Math.max(0,Math.min(1,p/.76)))):c.attackerKeepsBall?lerp(contact,E,r):contact;
   // Body-root clearance only; immutable engine endpoints remain in c/enginePositions.
   const vector=defender.map((v,i)=>v-attacker[i]),gap=Math.hypot(...vector);
-  const clearance=p<=.76?.70:.62;
-  if(gap<clearance)defender=attacker.map((v,i)=>v+(gap>1e-8?vector[i]/gap:normal[i])*clearance);
+  if(gap<.62)defender=attacker.map((v,i)=>v+(gap>1e-8?vector[i]/gap:normal[i])*.62);
   const travel=Math.hypot(dx,dy)*t,phase=travel/1.25%1,lead=.18*Math.sin(Math.PI*phase)**2*Math.sin(Math.PI*t)**2;
   let ball=lerp(A,B,t).map((v,i)=>v+dir[i]*lead);
   if(p>=.76&&!c.attackerKeepsBall)ball=lerp(B,defender,ease(Math.max(0,Math.min(1,(p-.76)/.15))));
@@ -170,19 +153,18 @@
    if(!state.active){
     const next=state.queue[0];
     const sourceTargets=next.enginePositions?structuredClone(next.enginePositions):{};
-    if(next.contest?.independent){const c=next.contest;sourceTargets[String(c.attackerId)]=[...c.attackerStart];sourceTargets[String(c.defenderId)]=[...c.defenderStart];}
     if(next.cutPresentation)sourceTargets[String(next.toId)]=[...next.cutPresentation.start];
     if(next.recoveryStarts)Object.assign(sourceTargets,structuredClone(next.recoveryStarts));
     if(next.headerShot)sourceTargets[String(next.headerShot.fromId)]=[...(next.headerShot.shooterStart||state.positions[String(next.headerShot.fromId)]||next.headerShot.fromPos)];
     if(isCarry(next)||next.type==='shot')sourceTargets[String(next.fromId)]=[...next.fromPos];
-    const transition=next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||next.contest?.independent||state.afterShot)?keyframeTransition(state,sourceTargets,next.contest?.independent?next.contest.attackerStart:next.headerIncoming?headerContact(next):next.fromPos,next.gameSecond):null;
+    const transition=next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||state.afterShot)?keyframeTransition(state,sourceTargets,next.headerIncoming?headerContact(next):next.fromPos,next.gameSecond):null;
     const placement=next.type==='kickoff'?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond,next.fromId,next.fromSide):null;
     if(placement){placement.sampleInterval={fromGameSecond:next.gameSecond,toGameSecond:next.gameSecond,phase:'restart-placement'};placement.carryId=null;placement.carrySide='none';placement.movementSource='derived-dead-ball-placement';}
     if(placement)state.active=placement;
     else if(transition)state.active=transition;
     else {state.active=state.queue.shift();state.afterShot=false;
      if(state.active.shotResult)state.queue=state.queue.filter(x=>x.eventId!==state.active.shotResult.eventId&&x.eventId!==state.active.consumedContinuationId);
-     if(state.active.contest){const c=state.active.contest;state.queue=state.queue.filter(x=>x.eventId!==c.press.eventId&&x.eventId!==c.tackle.eventId&&x.eventId!==c.result?.eventId);}
+     if(state.active.contest){const c=state.active.contest;state.queue=state.queue.filter(x=>x.eventId!==c.press.eventId&&x.eventId!==c.tackle.eventId);}
     }
     state.shotPreStatistics=structuredClone(state.eventStatistics);
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
@@ -244,16 +226,16 @@
     state.positions[String(c.attackerId)]=f.attacker;state.positions[String(c.defenderId)]=f.defender;state.ball=f.ball;
     state.carrier=won&&!c.attackerKeepsBall?c.defenderId:c.attackerId;state.side=won&&!c.attackerKeepsBall?c.defenderSide:c.attackerSide;
     if(won){state.carryMotion=null;state.eventStatistics=c.tackle.engineStatistics||state.eventStatistics;}
-    state.contestMotion={...c,phase:p<.65?'approach':p<.76?'reach':p<.91?'contact-result':'recovery',progress:p,clearanceMetres:f.clearance,event:won?(c.result||c.tackle):p<.65?e:c.press};
+    state.contestMotion={...c,phase:p<.65?'approach':p<.76?'reach':p<.91?'contact-result':'recovery',progress:p,clearanceMetres:f.clearance,event:won?c.tackle:p<.65?e:c.press};
    }
    // A non-ball event can still contain movement of the actual ball carrier.
    // Keep the owned ball on that recorded root rather than leave it behind.
-   if(!e.contest&&!pass&&e.type!=='enginePositionGap'&&animationPoint(e,p,state.eventStartBall)==null&&state.carrier!=null&&state.positions[String(state.carrier)])state.ball=[...state.positions[String(state.carrier)]];
+   if(!pass&&e.type!=='enginePositionGap'&&animationPoint(e,p,state.eventStartBall)==null&&state.carrier!=null&&state.positions[String(state.carrier)])state.ball=[...state.positions[String(state.carrier)]];
    state.ballState={...state.ballState,position:[...state.ball],ownerId:state.carrier,state:e.sampleInterval?.phase==='restart-placement'?'RESTART_SETUP':state.carrier==null?'LOOSE_BALL':'LIVE',height:aerialHeight(e,p),travelType:e.travelType||'ground',target:e.toPos||null,travelDuration:D};
    state.displayBallHeight=state.shotMotion?.height??(e.headerShot?.15+(1.704-.15)*Math.max(0,Math.min(1,(p-.19)/.81))+Math.sin(Math.PI*Math.max(0,Math.min(1,(p-.19)/.81)))*2.4:.15);
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(p>=1-1e-8){
-    if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
+    if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(state.shotMotion)state.afterShot=true;
     state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;
@@ -261,7 +243,7 @@
   }
   if(window.MatchView)window.MatchView.publish(state);
  }
- window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+ window.ManagerStoryLive3D={beginMotionSample,endMotionSample,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){enabled=true;if(M){const s=currentPitchState();for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration, togglePause(){if(!M)return;if(M.pause)resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}

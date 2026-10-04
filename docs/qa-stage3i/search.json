@@ -1,0 +1,5236 @@
+{
+  "limit": {
+    "seeds": 30,
+    "minutes": 35
+  },
+  "searched": [
+    {
+      "seed": 1,
+      "minute": 35,
+      "interceptions": 9,
+      "independent": 9
+    }
+  ],
+  "found": [
+    {
+      "seed": 1,
+      "eventId": 3,
+      "contest": {
+        "attackerId": 6,
+        "attackerSide": "user",
+        "defenderId": "o10",
+        "defenderSide": "opp",
+        "attackerStart": [
+          51.60634863603276,
+          46.31708598120823
+        ],
+        "point": [
+          51.60634863603276,
+          46.31708598120823
+        ],
+        "defenderStart": [
+          50.29731347691869,
+          49.033443025429925
+        ],
+        "decision": "actionMinute",
+        "defenderEnd": [
+          51.60634863603276,
+          46.31708598120823
+        ],
+        "press": {
+          "defenderId": "o10",
+          "fromId": 6,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 3,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "enginePositions": {
+            "0": [
+              10.897567340046276,
+              50
+            ],
+            "1": [
+              33.25108955441978,
+              15
+            ],
+            "2": [
+              29.279507897078798,
+              38
+            ],
+            "3": [
+              27.935040015772323,
+              62
+            ],
+            "5": [
+              34.380761363341165,
+              85
+            ],
+            "6": [
+              51.60634863603276,
+              46.31708598120823
+            ],
+            "7": [
+              50.29841537355456,
+              62.13897701988388
+            ],
+            "9": [
+              54.24879092360631,
+              81.35726651955983
+            ],
+            "10": [
+              55.013534410333,
+              18.83651704303099
+            ],
+            "11": [
+              49.721905031518794,
+              50.3262783171251
+            ],
+            "12": [
+              56.91601474151537,
+              52.54071098412777
+            ],
+            "o0": [
+              92,
+              50
+            ],
+            "o1": [
+              79.45727108262287,
+              15
+            ],
+            "o2": [
+              74.89275767639307,
+              39.022960689400065
+            ],
+            "o3": [
+              75.72838730031629,
+              61.07013265281711
+            ],
+            "o4": [
+              78.4349493493345,
+              85
+            ],
+            "o5": [
+              58.994674393679865,
+              35.48749264373538
+            ],
+            "o6": [
+              60.74393075796076,
+              62.896252753268556
+            ],
+            "o7": [
+              45.584813406788236,
+              15
+            ],
+            "o8": [
+              46.16796984368312,
+              48.26629169833936
+            ],
+            "o9": [
+              47.43877545235662,
+              85
+            ],
+            "o10": [
+              51.60634863603276,
+              46.31708598120823
+            ]
+          },
+          "sampleTime": {
+            "gameSecond": 60,
+            "stage": "event-after-position-update",
+            "sequence": 3
+          },
+          "engineStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              50,
+              50
+            ]
+          }
+        },
+        "tackle": {
+          "side": 1,
+          "defenderId": "o10",
+          "fromId": 6,
+          "toId": "o10",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": true,
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "type": "tackle",
+          "eventId": 4,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Rakip topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "enginePositions": {
+            "0": [
+              10.897567340046276,
+              50
+            ],
+            "1": [
+              33.25108955441978,
+              15
+            ],
+            "2": [
+              29.279507897078798,
+              38
+            ],
+            "3": [
+              27.935040015772323,
+              62
+            ],
+            "5": [
+              34.380761363341165,
+              85
+            ],
+            "6": [
+              51.60634863603276,
+              46.31708598120823
+            ],
+            "7": [
+              50.29841537355456,
+              62.13897701988388
+            ],
+            "9": [
+              54.24879092360631,
+              81.35726651955983
+            ],
+            "10": [
+              55.013534410333,
+              18.83651704303099
+            ],
+            "11": [
+              49.721905031518794,
+              50.3262783171251
+            ],
+            "12": [
+              56.91601474151537,
+              52.54071098412777
+            ],
+            "o0": [
+              92,
+              50
+            ],
+            "o1": [
+              79.45727108262287,
+              15
+            ],
+            "o2": [
+              74.89275767639307,
+              39.022960689400065
+            ],
+            "o3": [
+              75.72838730031629,
+              61.07013265281711
+            ],
+            "o4": [
+              78.4349493493345,
+              85
+            ],
+            "o5": [
+              58.994674393679865,
+              35.48749264373538
+            ],
+            "o6": [
+              60.74393075796076,
+              62.896252753268556
+            ],
+            "o7": [
+              45.584813406788236,
+              15
+            ],
+            "o8": [
+              46.16796984368312,
+              48.26629169833936
+            ],
+            "o9": [
+              47.43877545235662,
+              85
+            ],
+            "o10": [
+              51.60634863603276,
+              46.31708598120823
+            ]
+          },
+          "sampleTime": {
+            "gameSecond": 60,
+            "stage": "event-after-position-update",
+            "sequence": 4
+          },
+          "engineStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              50,
+              50
+            ]
+          }
+        },
+        "result": {
+          "fromId": 6,
+          "toId": "o10",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "type": "interception",
+          "eventId": 5,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Sarp Yıldız topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0,
+          "enginePositions": {
+            "0": [
+              10.897567340046276,
+              50
+            ],
+            "1": [
+              33.25108955441978,
+              15
+            ],
+            "2": [
+              29.279507897078798,
+              38
+            ],
+            "3": [
+              27.935040015772323,
+              62
+            ],
+            "5": [
+              34.380761363341165,
+              85
+            ],
+            "6": [
+              51.60634863603276,
+              46.31708598120823
+            ],
+            "7": [
+              50.29841537355456,
+              62.13897701988388
+            ],
+            "9": [
+              54.24879092360631,
+              81.35726651955983
+            ],
+            "10": [
+              55.013534410333,
+              18.83651704303099
+            ],
+            "11": [
+              49.721905031518794,
+              50.3262783171251
+            ],
+            "12": [
+              56.91601474151537,
+              52.54071098412777
+            ],
+            "o0": [
+              92,
+              50
+            ],
+            "o1": [
+              79.45727108262287,
+              15
+            ],
+            "o2": [
+              74.89275767639307,
+              39.022960689400065
+            ],
+            "o3": [
+              75.72838730031629,
+              61.07013265281711
+            ],
+            "o4": [
+              78.4349493493345,
+              85
+            ],
+            "o5": [
+              58.994674393679865,
+              35.48749264373538
+            ],
+            "o6": [
+              60.74393075796076,
+              62.896252753268556
+            ],
+            "o7": [
+              45.584813406788236,
+              15
+            ],
+            "o8": [
+              46.16796984368312,
+              48.26629169833936
+            ],
+            "o9": [
+              47.43877545235662,
+              85
+            ],
+            "o10": [
+              51.60634863603276,
+              46.31708598120823
+            ]
+          },
+          "sampleTime": {
+            "gameSecond": 60,
+            "stage": "event-after-position-update",
+            "sequence": 5
+          },
+          "engineStatistics": {
+            "shots": [
+              0,
+              0
+            ],
+            "xg": [
+              0,
+              0
+            ],
+            "possession": [
+              50,
+              50
+            ]
+          }
+        },
+        "independent": true,
+        "attackerKeepsBall": false,
+        "source": "captured-before-carrier-gain-placement; derived-approach-contact-recovery",
+        "contactProgress": 0.76
+      },
+      "events": [
+        {
+          "restartType": "KICK_OFF",
+          "restartPhase": "EXECUTE_RESTART",
+          "fromId": 6,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            50,
+            50
+          ],
+          "toPos": [
+            53,
+            50
+          ],
+          "type": "kickoff",
+          "eventId": 1,
+          "minute": 0,
+          "second": 0,
+          "gameSecond": 0,
+          "text": "0’ Anadolu Hisarı santra yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            47,
+            84
+          ],
+          "toPos": [
+            54.24879092360631,
+            81.35726651955983
+          ],
+          "carrierId": 6,
+          "type": "offBallRun",
+          "eventId": 2,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o10",
+          "fromId": 6,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 3,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o10",
+          "fromId": 6,
+          "toId": "o10",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": true,
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "type": "tackle",
+          "eventId": 4,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Rakip topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 6,
+          "toId": "o10",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "type": "interception",
+          "eventId": 5,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Sarp Yıldız topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o10",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "none",
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "success": false,
+          "type": "hold",
+          "eventId": 6,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Sarp Yıldız topu koruyamadı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "ballSide": "none",
+          "reason": "shield",
+          "type": "looseBall",
+          "eventId": 7,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Top sahipsiz kaldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toPos": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "toId": 6,
+          "toSide": "user",
+          "ballSide": "user",
+          "chaseSeconds": 0.4,
+          "startDistance": 0,
+          "contested": false,
+          "type": "recovery",
+          "eventId": 8,
+          "minute": 1,
+          "second": 60,
+          "gameSecond": 60,
+          "text": "1’ Burak dönen topu aldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 6,
+          "toId": 11,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            52.78011635887675,
+            40.9674865320675
+          ],
+          "toPos": [
+            57.69731612150198,
+            50.23574627599063
+          ],
+          "success": true,
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 10.491877438589706,
+          "passing": 77.97518482030748,
+          "type": "pass",
+          "eventId": 9,
+          "minute": 2,
+          "second": 120,
+          "gameSecond": 120,
+          "text": "2’ Burak pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 11,
+          "toId": 11,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            57.69731612150198,
+            50.23574627599063
+          ],
+          "toPos": [
+            57.69731612150198,
+            50.23574627599063
+          ],
+          "type": "firstTouch",
+          "eventId": 10,
+          "minute": 2,
+          "second": 120,
+          "gameSecond": 120,
+          "text": "2’ Aras topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            63.169382156493654,
+            78.85142689960159
+          ],
+          "toPos": [
+            71.9685782492058,
+            75.97514750655552
+          ],
+          "carrierId": 11,
+          "type": "offBallRun",
+          "eventId": 11,
+          "minute": 3,
+          "second": 180,
+          "gameSecond": 180,
+          "text": "3’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o6",
+          "fromId": 11,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            64.79550156018095,
+            53.855403750008875
+          ],
+          "toPos": [
+            64.79550156018095,
+            53.855403750008875
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 12,
+          "minute": 3,
+          "second": 180,
+          "gameSecond": 180,
+          "text": "3’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o6",
+          "fromId": 11,
+          "toId": "o6",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": true,
+          "fromPos": [
+            64.79550156018095,
+            53.855403750008875
+          ],
+          "toPos": [
+            64.79550156018095,
+            53.855403750008875
+          ],
+          "type": "tackle",
+          "eventId": 13,
+          "minute": 3,
+          "second": 180,
+          "gameSecond": 180,
+          "text": "3’ Rakip topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 11,
+          "toId": "o6",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            64.79550156018095,
+            53.855403750008875
+          ],
+          "toPos": [
+            64.79550156018095,
+            53.855403750008875
+          ],
+          "type": "interception",
+          "eventId": 14,
+          "minute": 3,
+          "second": 180,
+          "gameSecond": 180,
+          "text": "3’ Tuna Aksoy topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o6",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            64.79550156018095,
+            53.855403750008875
+          ],
+          "toPos": [
+            45.98966188589106,
+            11.655579148880834
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 46.200484869978006,
+          "passing": 85.63683185131696,
+          "type": "pass",
+          "eventId": 15,
+          "minute": 3,
+          "second": 180,
+          "gameSecond": 180,
+          "text": "3’ Tuna Aksoy pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            45.98966188589106,
+            11.655579148880834
+          ],
+          "toPos": [
+            45.98966188589106,
+            11.655579148880834
+          ],
+          "type": "firstTouch",
+          "eventId": 16,
+          "minute": 3,
+          "second": 180,
+          "gameSecond": 180,
+          "text": "3’ Yusuf Kurt topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o1",
+          "toId": "o1",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            91.76228184604152,
+            15.031507192926266
+          ],
+          "toPos": [
+            93.48413040948365,
+            15.031507192926266
+          ],
+          "carrierId": "o7",
+          "type": "offBallRun",
+          "eventId": 17,
+          "minute": 4,
+          "second": 240,
+          "gameSecond": 240,
+          "text": "4’ Cem Özkan boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            41.1558524577313,
+            15.491211211569714
+          ],
+          "toPos": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "success": true,
+          "type": "dribble",
+          "eventId": 18,
+          "minute": 4,
+          "second": 240,
+          "gameSecond": 240,
+          "text": "4’ Yusuf Kurt rakibini geçip topu taşıdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 1,
+          "fromId": "o7",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            35.75578708550576,
+            21.491211211569713
+          ],
+          "toPos": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 19,
+          "minute": 4,
+          "second": 240,
+          "gameSecond": 240,
+          "text": "4’ Berkay topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 1,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": false,
+          "fromPos": [
+            35.75578708550576,
+            21.491211211569713
+          ],
+          "toPos": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "type": "tackle",
+          "eventId": 20,
+          "minute": 4,
+          "second": 240,
+          "gameSecond": 240,
+          "text": "4’ Berkay müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": 1,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "toPos": [
+            22.35899075649909,
+            15.491211211569713
+          ],
+          "success": false,
+          "type": "dribble",
+          "eventId": 21,
+          "minute": 5,
+          "second": 300,
+          "gameSecond": 300,
+          "text": "5’ Yusuf Kurt müdahalede topu kaybetti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 1,
+          "fromId": "o7",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            22.35899075649909,
+            15.491211211569713
+          ],
+          "toPos": [
+            22.35899075649909,
+            15.491211211569713
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 22,
+          "minute": 5,
+          "second": 300,
+          "gameSecond": 300,
+          "text": "5’ Berkay topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 1,
+          "fromId": "o7",
+          "toId": 1,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": true,
+          "fromPos": [
+            22.35899075649909,
+            15.491211211569713
+          ],
+          "toPos": [
+            22.35899075649909,
+            15.491211211569713
+          ],
+          "type": "tackle",
+          "eventId": 23,
+          "minute": 5,
+          "second": 300,
+          "gameSecond": 300,
+          "text": "5’ Berkay topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            82.34089047732017,
+            77.43723152683995
+          ],
+          "toPos": [
+            91.12062017075554,
+            77.43723152683995
+          ],
+          "carrierId": 1,
+          "type": "offBallRun",
+          "eventId": 24,
+          "minute": 6,
+          "second": 360,
+          "gameSecond": 360,
+          "text": "6’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 1,
+          "fromId": 1,
+          "toId": 1,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            20.249084480373167,
+            13.116836239729246
+          ],
+          "toPos": [
+            29.145494194591503,
+            19.116836239729246
+          ],
+          "success": true,
+          "type": "ballCarry",
+          "eventId": 25,
+          "minute": 6,
+          "second": 360,
+          "gameSecond": 360,
+          "text": "6’ Berkay rakibini geçip topu taşıdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 1,
+          "toId": "o3",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            29.145494194591503,
+            19.116836239729246
+          ],
+          "toPos": [
+            76.22362872075364,
+            57.96686681680353
+          ],
+          "success": false,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 61.03831277405221,
+          "passing": 65.9235757931512,
+          "type": "pass",
+          "eventId": 26,
+          "minute": 6,
+          "second": 360,
+          "gameSecond": 360,
+          "text": "6’ Berkay pas verdi. Top rakibe geçti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            15.612977635228148,
+            11.188696989683597
+          ],
+          "toPos": [
+            19.638984992638783,
+            7.523846952949196
+          ],
+          "carrierId": "o3",
+          "type": "offBallRun",
+          "eventId": 27,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7’ Yusuf Kurt boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 11,
+          "fromId": "o3",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            78.19700984715168,
+            59.71494473332903
+          ],
+          "toPos": [
+            78.19700984715168,
+            59.71494473332903
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 28,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7’ Aras topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 11,
+          "fromId": "o3",
+          "toId": "o3",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": false,
+          "fromPos": [
+            78.19700984715168,
+            59.71494473332903
+          ],
+          "toPos": [
+            78.19700984715168,
+            59.71494473332903
+          ],
+          "type": "tackle",
+          "eventId": 29,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7’ Aras müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o3",
+          "toId": "o2",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            78.19700984715168,
+            59.71494473332903
+          ],
+          "toPos": [
+            81.09642811689741,
+            37.38392170941564
+          ],
+          "success": true,
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 22.518463881834506,
+          "passing": 57.817077711260644,
+          "type": "pass",
+          "eventId": 30,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7’ Emir Çelik pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o2",
+          "toId": "o2",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            81.09642811689741,
+            37.38392170941564
+          ],
+          "toPos": [
+            81.09642811689741,
+            37.38392170941564
+          ],
+          "type": "firstTouch",
+          "eventId": 31,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7’ Sarp Doğan topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o2",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            81.09642811689741,
+            37.38392170941564
+          ],
+          "toPos": [
+            63.52965731848578,
+            70.82120945420273
+          ],
+          "success": true,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 37.77093655195244,
+          "passing": 59.204353416543746,
+          "type": "pass",
+          "eventId": 32,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7’ Sarp Doğan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o6",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            63.52965731848578,
+            70.82120945420273
+          ],
+          "toPos": [
+            63.52965731848578,
+            70.82120945420273
+          ],
+          "type": "firstTouch",
+          "eventId": 33,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7’ Tuna Aksoy topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": "o9",
+          "type": "foul",
+          "eventId": 34,
+          "minute": 7,
+          "second": 420,
+          "gameSecond": 420,
+          "text": "7' Ormanşehir oyuncusu faul yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o4",
+          "toId": "o4",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            90.8414882534669,
+            86.43264650075706
+          ],
+          "toPos": [
+            85.21802752574011,
+            86.43264650075706
+          ],
+          "carrierId": "o6",
+          "type": "offBallRun",
+          "eventId": 35,
+          "minute": 8,
+          "second": 480,
+          "gameSecond": 480,
+          "text": "8’ Ali Şahin boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o6",
+          "toId": "o9",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            63.657216406205706,
+            71.41407114022452
+          ],
+          "toPos": [
+            18.019796245611857,
+            77.49037586528435
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 46.040152020017935,
+          "passing": 85.53708219307995,
+          "type": "pass",
+          "eventId": 36,
+          "minute": 8,
+          "second": 480,
+          "gameSecond": 480,
+          "text": "8’ Tuna Aksoy pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o9",
+          "toId": "o9",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            18.019796245611857,
+            77.49037586528435
+          ],
+          "toPos": [
+            18.019796245611857,
+            77.49037586528435
+          ],
+          "type": "firstTouch",
+          "eventId": 37,
+          "minute": 8,
+          "second": 480,
+          "gameSecond": 480,
+          "text": "8’ Cem Özer topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o9",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            18.019796245611857,
+            77.49037586528435
+          ],
+          "toPos": [
+            63.657216406205706,
+            71.41407114022452
+          ],
+          "success": true,
+          "passKind": "cross",
+          "travelType": "aerial",
+          "distance": 46.040152020017935,
+          "passing": 64.73678768239067,
+          "type": "cross",
+          "eventId": 38,
+          "minute": 8,
+          "second": 480,
+          "gameSecond": 480,
+          "text": "8’ Cem Özer orta yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o6",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            63.657216406205706,
+            71.41407114022452
+          ],
+          "toPos": [
+            63.657216406205706,
+            71.41407114022452
+          ],
+          "type": "firstTouch",
+          "eventId": 39,
+          "minute": 8,
+          "second": 480,
+          "gameSecond": 480,
+          "text": "8’ Tuna Aksoy topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            28.577083952884927,
+            8.864689432898997
+          ],
+          "toPos": [
+            30.21273481840156,
+            7.580183646956565
+          ],
+          "carrierId": "o6",
+          "type": "offBallRun",
+          "eventId": 40,
+          "minute": 9,
+          "second": 540,
+          "gameSecond": 540,
+          "text": "9’ Yusuf Kurt boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 7,
+          "fromId": "o6",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            56.43749188235248,
+            71.60080188057428
+          ],
+          "toPos": [
+            56.43749188235248,
+            71.60080188057428
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 41,
+          "minute": 9,
+          "second": 540,
+          "gameSecond": 540,
+          "text": "9’ Taylan topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 7,
+          "fromId": "o6",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": false,
+          "fromPos": [
+            56.43749188235248,
+            71.60080188057428
+          ],
+          "toPos": [
+            56.43749188235248,
+            71.60080188057428
+          ],
+          "type": "tackle",
+          "eventId": 42,
+          "minute": 9,
+          "second": 540,
+          "gameSecond": 540,
+          "text": "9’ Taylan müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o6",
+          "toId": "o8",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            56.43749188235248,
+            71.60080188057428
+          ],
+          "toPos": [
+            30.75649863895788,
+            48.56567067032555
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 34.49827073696092,
+          "passing": 85.51676891968259,
+          "type": "pass",
+          "eventId": 43,
+          "minute": 9,
+          "second": 540,
+          "gameSecond": 540,
+          "text": "9’ Tuna Aksoy pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o8",
+          "toId": "o8",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            30.75649863895788,
+            48.56567067032555
+          ],
+          "toPos": [
+            30.75649863895788,
+            48.56567067032555
+          ],
+          "type": "firstTouch",
+          "eventId": 44,
+          "minute": 9,
+          "second": 540,
+          "gameSecond": 540,
+          "text": "9’ Sinan Erdem topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 2,
+          "fromId": "o8",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "toPos": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 45,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Furkan topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 2,
+          "fromId": "o8",
+          "toId": 2,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": true,
+          "fromPos": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "toPos": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "type": "tackle",
+          "eventId": 46,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Furkan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o8",
+          "toId": 2,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "toPos": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "type": "interception",
+          "eventId": 47,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Furkan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 2,
+          "fromId": 2,
+          "toId": 2,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "toPos": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "success": true,
+          "type": "dribble",
+          "eventId": 48,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Furkan rakibini geçip topu taşıdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o8",
+          "fromId": 2,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            30.70032049770724,
+            49.10595148100712
+          ],
+          "toPos": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 49,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o8",
+          "fromId": 2,
+          "toId": 2,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": false,
+          "fromPos": [
+            30.70032049770724,
+            49.10595148100712
+          ],
+          "toPos": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "type": "tackle",
+          "eventId": 50,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Rakip müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 2,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "toPos": [
+            43.57678377614593,
+            42.7887482103897
+          ],
+          "success": true,
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 10.894891348506876,
+          "passing": 60.858904435619245,
+          "type": "pass",
+          "eventId": 51,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Furkan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 6,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            43.57678377614593,
+            42.7887482103897
+          ],
+          "toPos": [
+            43.57678377614593,
+            42.7887482103897
+          ],
+          "type": "firstTouch",
+          "eventId": 52,
+          "minute": 10,
+          "second": 600,
+          "gameSecond": 600,
+          "text": "10’ Burak topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            69.09731205169378,
+            83.39982253893625
+          ],
+          "toPos": [
+            67.09013906374847,
+            88.00663134015984
+          ],
+          "carrierId": 6,
+          "type": "offBallRun",
+          "eventId": 53,
+          "minute": 11,
+          "second": 660,
+          "gameSecond": 660,
+          "text": "11’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 6,
+          "toId": 10,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            48.578711845269716,
+            40.94446324952251
+          ],
+          "toPos": [
+            67.10663126904053,
+            7.436600956772161
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 38.28917123161148,
+          "passing": 77.82374781189884,
+          "type": "pass",
+          "eventId": 54,
+          "minute": 11,
+          "second": 660,
+          "gameSecond": 660,
+          "text": "11’ Burak pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 10,
+          "toId": 10,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            67.10663126904053,
+            7.436600956772161
+          ],
+          "toPos": [
+            67.10663126904053,
+            7.436600956772161
+          ],
+          "type": "firstTouch",
+          "eventId": 55,
+          "minute": 11,
+          "second": 660,
+          "gameSecond": 660,
+          "text": "11’ Okoro topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            67.10663126904053,
+            7.436600956772161
+          ],
+          "toPos": [
+            88.13756335688363,
+            53.33967769686938
+          ],
+          "ballSide": "none",
+          "reason": "aerial",
+          "type": "looseBall",
+          "eventId": 56,
+          "minute": 11,
+          "second": 660,
+          "gameSecond": 660,
+          "text": "11’ Top sahipsiz kaldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            88.13756335688363,
+            53.33967769686938
+          ],
+          "toPos": [
+            88.13756335688363,
+            53.33967769686938
+          ],
+          "toId": 12,
+          "toSide": "user",
+          "ballSide": "user",
+          "chaseSeconds": 0.4,
+          "startDistance": 0,
+          "contested": false,
+          "type": "recovery",
+          "eventId": 57,
+          "minute": 11,
+          "second": 660,
+          "gameSecond": 660,
+          "text": "11’ Mensah dönen topu aldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 10,
+          "toId": 12,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            67.10663126904053,
+            7.436600956772161
+          ],
+          "toPos": [
+            88.13756335688363,
+            53.33967769686938
+          ],
+          "success": false,
+          "passKind": "cross",
+          "travelType": "aerial",
+          "distance": 50.49150976838307,
+          "passing": 65.8537332421988,
+          "type": "cross",
+          "eventId": 58,
+          "minute": 11,
+          "second": 660,
+          "gameSecond": 660,
+          "text": "11’ Okoro orta yaptı. Havadaki mücadele ikinci topa düştü.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 10,
+          "type": "foul",
+          "eventId": 59,
+          "minute": 11,
+          "second": 660,
+          "gameSecond": 660,
+          "text": "11' Okoro faul yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o0",
+          "fromId": 12,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            92.75858217962973,
+            45.98957377646163
+          ],
+          "toPos": [
+            92.75858217962973,
+            45.98957377646163
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 60,
+          "minute": 12,
+          "second": 720,
+          "gameSecond": 720,
+          "text": "12’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o0",
+          "fromId": 12,
+          "toId": "o0",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": true,
+          "fromPos": [
+            92.75858217962973,
+            45.98957377646163
+          ],
+          "toPos": [
+            92.75858217962973,
+            45.98957377646163
+          ],
+          "type": "tackle",
+          "eventId": 61,
+          "minute": 12,
+          "second": 720,
+          "gameSecond": 720,
+          "text": "12’ Rakip topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 12,
+          "toId": "o0",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            92.75858217962973,
+            45.98957377646163
+          ],
+          "toPos": [
+            92.75858217962973,
+            45.98957377646163
+          ],
+          "type": "interception",
+          "eventId": 62,
+          "minute": 12,
+          "second": 720,
+          "gameSecond": 720,
+          "text": "12’ Sinan Arslan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o0",
+          "toId": "o8",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            92.75858217962973,
+            45.98957377646163
+          ],
+          "toPos": [
+            35.44605134701127,
+            48.818275218788244
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 57.38229467605545,
+          "passing": 64.62657290966486,
+          "type": "pass",
+          "eventId": 63,
+          "minute": 12,
+          "second": 720,
+          "gameSecond": 720,
+          "text": "12’ Sinan Arslan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o8",
+          "toId": "o8",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            35.44605134701127,
+            48.818275218788244
+          ],
+          "toPos": [
+            35.44605134701127,
+            48.818275218788244
+          ],
+          "type": "firstTouch",
+          "eventId": 64,
+          "minute": 12,
+          "second": 720,
+          "gameSecond": 720,
+          "text": "12’ Sinan Erdem topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            34.948558854203796,
+            12.691579238296105
+          ],
+          "toPos": [
+            36.47368792795704,
+            18.569103419240783
+          ],
+          "carrierId": "o8",
+          "type": "offBallRun",
+          "eventId": 65,
+          "minute": 13,
+          "second": 780,
+          "gameSecond": 780,
+          "text": "13’ Yusuf Kurt boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 2,
+          "fromId": "o8",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            35.698195486999076,
+            45.50124837631493
+          ],
+          "toPos": [
+            35.698195486999076,
+            45.50124837631493
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 66,
+          "minute": 13,
+          "second": 780,
+          "gameSecond": 780,
+          "text": "13’ Furkan topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 2,
+          "fromId": "o8",
+          "toId": 2,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": true,
+          "fromPos": [
+            35.698195486999076,
+            45.50124837631493
+          ],
+          "toPos": [
+            35.698195486999076,
+            45.50124837631493
+          ],
+          "type": "tackle",
+          "eventId": 67,
+          "minute": 13,
+          "second": 780,
+          "gameSecond": 780,
+          "text": "13’ Furkan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o8",
+          "toId": 2,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            35.698195486999076,
+            45.50124837631493
+          ],
+          "toPos": [
+            35.698195486999076,
+            45.50124837631493
+          ],
+          "type": "interception",
+          "eventId": 68,
+          "minute": 13,
+          "second": 780,
+          "gameSecond": 780,
+          "text": "13’ Furkan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 2,
+          "toId": 1,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            35.698195486999076,
+            45.50124837631493
+          ],
+          "toPos": [
+            35.04912818050257,
+            14.967454127952925
+          ],
+          "success": true,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 30.54069219205202,
+          "passing": 60.809213247262896,
+          "type": "pass",
+          "eventId": 69,
+          "minute": 13,
+          "second": 780,
+          "gameSecond": 780,
+          "text": "13’ Furkan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 1,
+          "toId": 1,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            35.04912818050257,
+            14.967454127952925
+          ],
+          "toPos": [
+            35.04912818050257,
+            14.967454127952925
+          ],
+          "type": "firstTouch",
+          "eventId": 70,
+          "minute": 13,
+          "second": 780,
+          "gameSecond": 780,
+          "text": "13’ Berkay topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            70.21572264290626,
+            85.12510817726724
+          ],
+          "toPos": [
+            75.32364819906627,
+            87.22948036240206
+          ],
+          "carrierId": 1,
+          "type": "offBallRun",
+          "eventId": 71,
+          "minute": 14,
+          "second": 840,
+          "gameSecond": 840,
+          "text": "14’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 1,
+          "toId": "o8",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            32.07069519537333,
+            9.726249885554196
+          ],
+          "toPos": [
+            34.65519283962224,
+            43.11168844289632
+          ],
+          "success": false,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 33.485327170854916,
+          "passing": 65.79750969092048,
+          "type": "pass",
+          "eventId": 72,
+          "minute": 14,
+          "second": 840,
+          "gameSecond": 840,
+          "text": "14’ Berkay pas verdi. Top rakibe geçti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            30.772261289259404,
+            21.606607494020526
+          ],
+          "toPos": [
+            23.193416273034675,
+            26.363981519516102
+          ],
+          "carrierId": "o8",
+          "type": "offBallRun",
+          "eventId": 73,
+          "minute": 15,
+          "second": 900,
+          "gameSecond": 900,
+          "text": "15’ Yusuf Kurt boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 2,
+          "fromId": "o8",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            29.786958648446635,
+            37.56438357386746
+          ],
+          "toPos": [
+            29.786958648446635,
+            37.56438357386746
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 74,
+          "minute": 15,
+          "second": 900,
+          "gameSecond": 900,
+          "text": "15’ Furkan topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 2,
+          "fromId": "o8",
+          "toId": 2,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": true,
+          "fromPos": [
+            29.786958648446635,
+            37.56438357386746
+          ],
+          "toPos": [
+            29.786958648446635,
+            37.56438357386746
+          ],
+          "type": "tackle",
+          "eventId": 75,
+          "minute": 15,
+          "second": 900,
+          "gameSecond": 900,
+          "text": "15’ Furkan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o8",
+          "toId": 2,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            29.786958648446635,
+            37.56438357386746
+          ],
+          "toPos": [
+            29.786958648446635,
+            37.56438357386746
+          ],
+          "type": "interception",
+          "eventId": 76,
+          "minute": 15,
+          "second": 900,
+          "gameSecond": 900,
+          "text": "15’ Furkan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 2,
+          "toId": 10,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            29.786958648446635,
+            37.56438357386746
+          ],
+          "toPos": [
+            86.44975978165878,
+            31.08751223659982
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 57.03177092271874,
+          "passing": 60.775085057659,
+          "type": "pass",
+          "eventId": 77,
+          "minute": 15,
+          "second": 900,
+          "gameSecond": 900,
+          "text": "15’ Furkan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 10,
+          "toId": 10,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            86.44975978165878,
+            31.08751223659982
+          ],
+          "toPos": [
+            86.44975978165878,
+            31.08751223659982
+          ],
+          "type": "firstTouch",
+          "eventId": 78,
+          "minute": 15,
+          "second": 900,
+          "gameSecond": 900,
+          "text": "15’ Okoro topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            83.32851934402575,
+            91.63079970371331
+          ],
+          "toPos": [
+            91.781397318763,
+            94
+          ],
+          "carrierId": 10,
+          "type": "offBallRun",
+          "eventId": 79,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o2",
+          "fromId": 10,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            85.15103438454072,
+            32.31723062118456
+          ],
+          "toPos": [
+            85.15103438454072,
+            32.31723062118456
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 80,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o2",
+          "fromId": 10,
+          "toId": "o2",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": true,
+          "fromPos": [
+            85.15103438454072,
+            32.31723062118456
+          ],
+          "toPos": [
+            85.15103438454072,
+            32.31723062118456
+          ],
+          "type": "tackle",
+          "eventId": 81,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Rakip topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 10,
+          "toId": "o2",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            85.15103438454072,
+            32.31723062118456
+          ],
+          "toPos": [
+            85.15103438454072,
+            32.31723062118456
+          ],
+          "type": "interception",
+          "eventId": 82,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Sarp Doğan topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o2",
+          "toId": "o1",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            85.15103438454072,
+            32.31723062118456
+          ],
+          "toPos": [
+            83.98452516116164,
+            14.706550378999488
+          ],
+          "success": true,
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 17.649272006536588,
+          "passing": 59.02173613565281,
+          "type": "pass",
+          "eventId": 83,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Sarp Doğan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o1",
+          "toId": "o1",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            83.98452516116164,
+            14.706550378999488
+          ],
+          "toPos": [
+            83.98452516116164,
+            14.706550378999488
+          ],
+          "type": "firstTouch",
+          "eventId": 84,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Cem Özkan topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o1",
+          "toId": "o8",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            83.98452516116164,
+            14.706550378999488
+          ],
+          "toPos": [
+            24.727442339874592,
+            31.358168998681613
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 61.55224014724579,
+          "passing": 71.19957709816815,
+          "type": "pass",
+          "eventId": 85,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Cem Özkan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o8",
+          "toId": "o8",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            24.727442339874592,
+            31.358168998681613
+          ],
+          "toPos": [
+            24.727442339874592,
+            31.358168998681613
+          ],
+          "type": "firstTouch",
+          "eventId": 86,
+          "minute": 16,
+          "second": 960,
+          "gameSecond": 960,
+          "text": "16’ Sinan Erdem topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o1",
+          "toId": "o1",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            83.98452516116164,
+            14.706550378999488
+          ],
+          "toPos": [
+            78.22569393664733,
+            14.706550378999488
+          ],
+          "carrierId": "o8",
+          "type": "offBallRun",
+          "eventId": 87,
+          "minute": 17,
+          "second": 1020,
+          "gameSecond": 1020,
+          "text": "17’ Cem Özkan boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o8",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            24.813707339863456,
+            30.060304342396183
+          ],
+          "toPos": [
+            4.917556094014465,
+            23.597234668291968
+          ],
+          "success": true,
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 20.919562710774425,
+          "passing": 81.68195882436558,
+          "type": "pass",
+          "eventId": 88,
+          "minute": 17,
+          "second": 1020,
+          "gameSecond": 1020,
+          "text": "17’ Sinan Erdem pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o10",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            4.917556094014465,
+            23.597234668291968
+          ],
+          "toPos": [
+            4.917556094014465,
+            23.597234668291968
+          ],
+          "type": "firstTouch",
+          "eventId": 89,
+          "minute": 17,
+          "second": 1020,
+          "gameSecond": 1020,
+          "text": "17’ Sarp Yıldız topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 12,
+          "type": "foul",
+          "eventId": 90,
+          "minute": 17,
+          "second": 1020,
+          "gameSecond": 1020,
+          "text": "17' Mensah faul yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 1,
+          "fromId": "o10",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            5.049808394393228,
+            28.2151655154031
+          ],
+          "toPos": [
+            5.049808394393228,
+            28.2151655154031
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 91,
+          "minute": 18,
+          "second": 1080,
+          "gameSecond": 1080,
+          "text": "18’ Berkay topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 1,
+          "fromId": "o10",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": false,
+          "fromPos": [
+            5.049808394393228,
+            28.2151655154031
+          ],
+          "toPos": [
+            5.049808394393228,
+            28.2151655154031
+          ],
+          "type": "tackle",
+          "eventId": 92,
+          "minute": 18,
+          "second": 1080,
+          "gameSecond": 1080,
+          "text": "18’ Berkay müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o10",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            5.049808394393228,
+            28.2151655154031
+          ],
+          "toPos": [
+            5.049808394393228,
+            28.2151655154031
+          ],
+          "type": "hold",
+          "eventId": 93,
+          "minute": 18,
+          "second": 1080,
+          "gameSecond": 1080,
+          "text": "18’ Sarp Yıldız topu koruyup destek bekledi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o10",
+          "toId": "o5",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            5.049808394393228,
+            28.2151655154031
+          ],
+          "toPos": [
+            63.43809937787877,
+            26.884660012139907
+          ],
+          "success": true,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 58.40344826177982,
+          "passing": 61.75986983632229,
+          "type": "pass",
+          "eventId": 94,
+          "minute": 18,
+          "second": 1080,
+          "gameSecond": 1080,
+          "text": "18’ Sarp Yıldız pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o5",
+          "toId": "o5",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            63.43809937787877,
+            26.884660012139907
+          ],
+          "toPos": [
+            63.43809937787877,
+            26.884660012139907
+          ],
+          "type": "firstTouch",
+          "eventId": 95,
+          "minute": 18,
+          "second": 1080,
+          "gameSecond": 1080,
+          "text": "18’ Bora Işık topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            27.851805677855843,
+            28.425615530925512
+          ],
+          "toPos": [
+            29.155670128700883,
+            23.515287257727238
+          ],
+          "carrierId": "o5",
+          "type": "offBallRun",
+          "eventId": 96,
+          "minute": 19,
+          "second": 1140,
+          "gameSecond": 1140,
+          "text": "19’ Yusuf Kurt boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o5",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            56.497430246282455,
+            27.637469598907188
+          ],
+          "toPos": [
+            5.9895615177006825,
+            34.48475821236158
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 50.96989469147048,
+          "passing": 88.55438506773595,
+          "type": "pass",
+          "eventId": 97,
+          "minute": 19,
+          "second": 1140,
+          "gameSecond": 1140,
+          "text": "19’ Bora Işık pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o10",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            5.9895615177006825,
+            34.48475821236158
+          ],
+          "toPos": [
+            5.9895615177006825,
+            34.48475821236158
+          ],
+          "type": "firstTouch",
+          "eventId": 98,
+          "minute": 19,
+          "second": 1140,
+          "gameSecond": 1140,
+          "text": "19’ Sarp Yıldız topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o10",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            5.647688263467274,
+            41.514539636625834
+          ],
+          "toPos": [
+            51.932333447390086,
+            69.81352695661181
+          ],
+          "success": true,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 54.25035541946574,
+          "passing": 61.720312015614844,
+          "type": "pass",
+          "eventId": 99,
+          "minute": 20,
+          "second": 1200,
+          "gameSecond": 1200,
+          "text": "20’ Sarp Yıldız pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o6",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            51.932333447390086,
+            69.81352695661181
+          ],
+          "toPos": [
+            51.932333447390086,
+            69.81352695661181
+          ],
+          "type": "firstTouch",
+          "eventId": 100,
+          "minute": 20,
+          "second": 1200,
+          "gameSecond": 1200,
+          "text": "20’ Tuna Aksoy topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            23.32764388665386,
+            17.328466351131432
+          ],
+          "toPos": [
+            22.553959416271496,
+            8.495061062409185
+          ],
+          "carrierId": "o6",
+          "type": "offBallRun",
+          "eventId": 101,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Yusuf Kurt boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o6",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            50.4002511695596,
+            76.87560279218287
+          ],
+          "toPos": [
+            41.04417050531575,
+            82.87560279218287
+          ],
+          "success": true,
+          "type": "ballCarry",
+          "eventId": 102,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Tuna Aksoy rakibini geçip topu taşıdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": null,
+          "fromId": "o6",
+          "fromSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            41.04417050531575,
+            82.87560279218287
+          ],
+          "toPos": [
+            2,
+            28
+          ],
+          "goalkeeperId": 0,
+          "xg": 0.08455686588783674,
+          "onTarget": false,
+          "outcome": "wide",
+          "frame": null,
+          "restartType": null,
+          "header": false,
+          "penalty": false,
+          "type": "shot",
+          "eventId": 103,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Tuna Aksoy şut çekti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": null,
+          "xg": 0.08455686588783674,
+          "onTarget": false,
+          "outcome": "wide",
+          "type": "chance",
+          "eventId": 104,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Tuna Aksoy şutunun sonucu: aut.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o6",
+          "fromSide": "opp",
+          "ballSide": "none",
+          "fromPos": [
+            41.04417050531575,
+            82.87560279218287
+          ],
+          "toPos": [
+            2,
+            28
+          ],
+          "type": "wide",
+          "eventId": 105,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Top auta çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "fromPos": [
+            -2,
+            28
+          ],
+          "toPos": [
+            -2,
+            28
+          ],
+          "ballSide": "none",
+          "type": "ballOut",
+          "eventId": 106,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Top oyun alanının dışında.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "fromPos": [
+            -2,
+            28
+          ],
+          "toPos": [
+            4.5,
+            44
+          ],
+          "fromId": 0,
+          "toId": 0,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "none",
+          "type": "restartPosition",
+          "eventId": 107,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Kale vuruşu hazırlanıyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "restartPosition": [
+            4.5,
+            44
+          ],
+          "fromId": 0,
+          "toId": 0,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "none",
+          "fromPos": [
+            4.5,
+            44
+          ],
+          "toPos": [
+            4.5,
+            44
+          ],
+          "type": "restartPlayers",
+          "eventId": 108,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Oyuncular yerlerini aldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "fromPos": [
+            4.5,
+            44
+          ],
+          "toPos": [
+            4.5,
+            44
+          ],
+          "ballSide": "none",
+          "type": "restartWait",
+          "eventId": 109,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Oyun yeniden başlayacak.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "restartPhase": "EXECUTE_RESTART",
+          "side": 0,
+          "fromId": 0,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            4.5,
+            44
+          ],
+          "toPos": [
+            40.57391530171551,
+            40.76593751922283
+          ],
+          "passKind": "medium",
+          "travelType": "ground",
+          "distance": 36.21859364090377,
+          "success": true,
+          "type": "goalKick",
+          "eventId": 110,
+          "minute": 21,
+          "second": 1260,
+          "gameSecond": 1260,
+          "text": "21’ Anadolu Hisarı kale vuruşunu kullandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            61.00538092483983,
+            87.32105588463838
+          ],
+          "toPos": [
+            66.39895393800157,
+            89.13489226572284
+          ],
+          "carrierId": 6,
+          "type": "offBallRun",
+          "eventId": 111,
+          "minute": 22,
+          "second": 1320,
+          "gameSecond": 1320,
+          "text": "22’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o5",
+          "fromId": 6,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            45.84260199246954,
+            41.59618044947855
+          ],
+          "toPos": [
+            45.84260199246954,
+            41.59618044947855
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 112,
+          "minute": 22,
+          "second": 1320,
+          "gameSecond": 1320,
+          "text": "22’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o5",
+          "fromId": 6,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": false,
+          "fromPos": [
+            45.84260199246954,
+            41.59618044947855
+          ],
+          "toPos": [
+            45.84260199246954,
+            41.59618044947855
+          ],
+          "type": "tackle",
+          "eventId": 113,
+          "minute": 22,
+          "second": 1320,
+          "gameSecond": 1320,
+          "text": "22’ Rakip müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 6,
+          "fromId": 6,
+          "toId": "o5",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            45.84260199246954,
+            41.59618044947855
+          ],
+          "toPos": [
+            54.195924963607716,
+            35.59618044947855
+          ],
+          "success": false,
+          "type": "dribble",
+          "eventId": 114,
+          "minute": 22,
+          "second": 1320,
+          "gameSecond": 1320,
+          "text": "22’ Burak müdahalede topu kaybetti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o5",
+          "fromId": 6,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            54.195924963607716,
+            35.59618044947855
+          ],
+          "toPos": [
+            54.195924963607716,
+            35.59618044947855
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 115,
+          "minute": 22,
+          "second": 1320,
+          "gameSecond": 1320,
+          "text": "22’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o5",
+          "fromId": 6,
+          "toId": "o5",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": true,
+          "fromPos": [
+            54.195924963607716,
+            35.59618044947855
+          ],
+          "toPos": [
+            54.195924963607716,
+            35.59618044947855
+          ],
+          "type": "tackle",
+          "eventId": 116,
+          "minute": 22,
+          "second": 1320,
+          "gameSecond": 1320,
+          "text": "22’ Rakip topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o1",
+          "toId": "o1",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            73.00248645312385,
+            14.643248659685254
+          ],
+          "toPos": [
+            74.72146525810965,
+            14.643248659685254
+          ],
+          "carrierId": "o5",
+          "type": "offBallRun",
+          "eventId": 117,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Cem Özkan boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 6,
+          "fromId": "o5",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            53.22940001286702,
+            31.62748041035672
+          ],
+          "toPos": [
+            53.22940001286702,
+            31.62748041035672
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 118,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Burak topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 6,
+          "fromId": "o5",
+          "toId": 6,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": true,
+          "fromPos": [
+            53.22940001286702,
+            31.62748041035672
+          ],
+          "toPos": [
+            53.22940001286702,
+            31.62748041035672
+          ],
+          "type": "tackle",
+          "eventId": 119,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Burak topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o5",
+          "toId": 6,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            53.22940001286702,
+            31.62748041035672
+          ],
+          "toPos": [
+            53.22940001286702,
+            31.62748041035672
+          ],
+          "type": "interception",
+          "eventId": 120,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Burak topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 6,
+          "toId": 3,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            53.22940001286702,
+            31.62748041035672
+          ],
+          "toPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "success": true,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 42.8584953935625,
+          "passing": 77.58835775243693,
+          "type": "pass",
+          "eventId": 121,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Burak pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 3,
+          "toId": 3,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "toPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "type": "firstTouch",
+          "eventId": 122,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Serkan topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 12,
+          "type": "foul",
+          "eventId": 123,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23' Mensah faul yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "FREE_KICK",
+          "fromPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "toPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "ballSide": "none",
+          "type": "ballOut",
+          "eventId": 124,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Top oyun alanının dışında.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "FREE_KICK",
+          "fromPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "toPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "fromId": "o10",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "none",
+          "type": "restartPosition",
+          "eventId": 125,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Serbest vuruş hazırlanıyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "FREE_KICK",
+          "restartPosition": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "fromId": "o10",
+          "toId": "o10",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "none",
+          "fromPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "toPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "type": "restartPlayers",
+          "eventId": 126,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Oyuncular yerlerini aldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "FREE_KICK",
+          "fromPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "toPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "ballSide": "none",
+          "type": "restartWait",
+          "eventId": 127,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Oyun yeniden başlayacak.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "FREE_KICK",
+          "restartPhase": "EXECUTE_RESTART",
+          "side": 1,
+          "fromId": "o10",
+          "toId": "o6",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            22.171495476192895,
+            61.16148103998451
+          ],
+          "toPos": [
+            46.202415913983835,
+            75.70820657287389
+          ],
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 28.090787828337145,
+          "success": true,
+          "type": "freeKick",
+          "eventId": 128,
+          "minute": 23,
+          "second": 1380,
+          "gameSecond": 1380,
+          "text": "23’ Sarp Yıldız serbest vuruşu kullandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o6",
+          "toId": "o3",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            52.75275589852658,
+            69.69768975272069
+          ],
+          "toPos": [
+            79.91178104425141,
+            61.92007898543228
+          ],
+          "success": true,
+          "passKind": "short",
+          "travelType": "ground",
+          "distance": 28.250732311102205,
+          "passing": 85.20020105591219,
+          "type": "pass",
+          "eventId": 129,
+          "minute": 24,
+          "second": 1440,
+          "gameSecond": 1440,
+          "text": "24’ Tuna Aksoy pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o3",
+          "toId": "o3",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            79.91178104425141,
+            61.92007898543228
+          ],
+          "toPos": [
+            79.91178104425141,
+            61.92007898543228
+          ],
+          "type": "firstTouch",
+          "eventId": 130,
+          "minute": 24,
+          "second": 1440,
+          "gameSecond": 1440,
+          "text": "24’ Emir Çelik topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o3",
+          "toId": "o3",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            79.91178104425141,
+            61.92007898543228
+          ],
+          "toPos": [
+            72.71614292800533,
+            67.92007898543228
+          ],
+          "success": true,
+          "type": "ballCarry",
+          "eventId": 131,
+          "minute": 24,
+          "second": 1440,
+          "gameSecond": 1440,
+          "text": "24’ Emir Çelik rakibini geçip topu taşıdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            22.633420186071472,
+            17.9381897744377
+          ],
+          "toPos": [
+            22.64736278946659,
+            26.74972261604335
+          ],
+          "carrierId": "o3",
+          "type": "offBallRun",
+          "eventId": 132,
+          "minute": 25,
+          "second": 1500,
+          "gameSecond": 1500,
+          "text": "25’ Yusuf Kurt boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o3",
+          "toId": 3,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            72.71614292800533,
+            67.92007898543228
+          ],
+          "toPos": [
+            13.094252143086631,
+            66.7340950435648
+          ],
+          "success": false,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 60.12848055824244,
+          "passing": 57.44567703711136,
+          "type": "pass",
+          "eventId": 133,
+          "minute": 25,
+          "second": 1500,
+          "gameSecond": 1500,
+          "text": "25’ Emir Çelik pas verdi. Top rakibe geçti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            71.95125286818038,
+            86.57096336433938
+          ],
+          "toPos": [
+            73.88955054521196,
+            90.52449235254379
+          ],
+          "carrierId": 3,
+          "type": "offBallRun",
+          "eventId": 134,
+          "minute": 26,
+          "second": 1560,
+          "gameSecond": 1560,
+          "text": "26’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 3,
+          "toId": "o5",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            15.474221762569373,
+            67.19682032459767
+          ],
+          "toPos": [
+            45.66575107888339,
+            39.94820630163457
+          ],
+          "success": false,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 40.44562470755943,
+          "passing": 66.38325430977491,
+          "type": "pass",
+          "eventId": 135,
+          "minute": 26,
+          "second": 1560,
+          "gameSecond": 1560,
+          "text": "26’ Serkan pas verdi. Top rakibe geçti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o5",
+          "toId": "o9",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            45.66575107888339,
+            39.94820630163457
+          ],
+          "toPos": [
+            21.423354430665878,
+            90.8301237237376
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 56.36189595639255,
+          "passing": 88.40945367081302,
+          "type": "pass",
+          "eventId": 136,
+          "minute": 26,
+          "second": 1560,
+          "gameSecond": 1560,
+          "text": "26’ Bora Işık pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": "o9",
+          "toId": "o9",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            21.423354430665878,
+            90.8301237237376
+          ],
+          "toPos": [
+            21.423354430665878,
+            90.8301237237376
+          ],
+          "type": "firstTouch",
+          "eventId": 137,
+          "minute": 26,
+          "second": 1560,
+          "gameSecond": 1560,
+          "text": "26’ Cem Özer topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o4",
+          "toId": "o4",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            78.552990894359,
+            85.61146958099911
+          ],
+          "toPos": [
+            79.55666387930917,
+            85.61146958099911
+          ],
+          "carrierId": "o9",
+          "type": "offBallRun",
+          "eventId": 138,
+          "minute": 27,
+          "second": 1620,
+          "gameSecond": 1620,
+          "text": "27’ Ali Şahin boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o9",
+          "toId": "o9",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            21.534616285943343,
+            83.4650508197366
+          ],
+          "toPos": [
+            12.628740387888849,
+            83.4650508197366
+          ],
+          "success": true,
+          "type": "dribble",
+          "eventId": 139,
+          "minute": 27,
+          "second": 1620,
+          "gameSecond": 1620,
+          "text": "27’ Cem Özer rakibini geçip topu taşıdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 5,
+          "fromId": "o9",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            16.628740387888847,
+            83.4650508197366
+          ],
+          "toPos": [
+            12.628740387888849,
+            83.4650508197366
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 140,
+          "minute": 27,
+          "second": 1620,
+          "gameSecond": 1620,
+          "text": "27’ Diallo topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 5,
+          "fromId": "o9",
+          "toId": "o9",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": false,
+          "fromPos": [
+            16.628740387888847,
+            83.4650508197366
+          ],
+          "toPos": [
+            12.628740387888849,
+            83.4650508197366
+          ],
+          "type": "tackle",
+          "eventId": 141,
+          "minute": 27,
+          "second": 1620,
+          "gameSecond": 1620,
+          "text": "27’ Diallo müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 1,
+          "type": "foul",
+          "eventId": 142,
+          "minute": 27,
+          "second": 1620,
+          "gameSecond": 1620,
+          "text": "27' Berkay faul yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 5,
+          "fromId": "o9",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            7.456181568879133,
+            81.38379859002279
+          ],
+          "toPos": [
+            7.456181568879133,
+            81.38379859002279
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 143,
+          "minute": 28,
+          "second": 1680,
+          "gameSecond": 1680,
+          "text": "28’ Diallo topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 5,
+          "fromId": "o9",
+          "toId": "o9",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": false,
+          "fromPos": [
+            7.456181568879133,
+            81.38379859002279
+          ],
+          "toPos": [
+            7.456181568879133,
+            81.38379859002279
+          ],
+          "type": "tackle",
+          "eventId": 144,
+          "minute": 28,
+          "second": 1680,
+          "gameSecond": 1680,
+          "text": "28’ Diallo müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o9",
+          "toId": 5,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            7.456181568879133,
+            81.38379859002279
+          ],
+          "toPos": [
+            6,
+            87.38379859002279
+          ],
+          "success": false,
+          "type": "dribble",
+          "eventId": 145,
+          "minute": 28,
+          "second": 1680,
+          "gameSecond": 1680,
+          "text": "28’ Cem Özer müdahalede topu kaybetti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 5,
+          "fromId": "o9",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            6,
+            87.38379859002279
+          ],
+          "toPos": [
+            6,
+            87.38379859002279
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 146,
+          "minute": 28,
+          "second": 1680,
+          "gameSecond": 1680,
+          "text": "28’ Diallo topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 5,
+          "fromId": "o9",
+          "toId": 5,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": true,
+          "fromPos": [
+            6,
+            87.38379859002279
+          ],
+          "toPos": [
+            6,
+            87.38379859002279
+          ],
+          "type": "tackle",
+          "eventId": 147,
+          "minute": 28,
+          "second": 1680,
+          "gameSecond": 1680,
+          "text": "28’ Diallo topu kazandı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            84.71120905658007,
+            90.33499067765622
+          ],
+          "toPos": [
+            79.75943043739068,
+            94
+          ],
+          "carrierId": 5,
+          "type": "offBallRun",
+          "eventId": 148,
+          "minute": 29,
+          "second": 1740,
+          "gameSecond": 1740,
+          "text": "29’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            9.209676305698041,
+            88.45153646525245
+          ],
+          "toPos": [
+            44.01107594256146,
+            65.47309279776408
+          ],
+          "ballSide": "none",
+          "reason": "pass",
+          "type": "looseBall",
+          "eventId": 149,
+          "minute": 29,
+          "second": 1740,
+          "gameSecond": 1740,
+          "text": "29’ Top sahipsiz kaldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            44.01107594256146,
+            65.47309279776408
+          ],
+          "toPos": [
+            44.01107594256146,
+            65.47309279776408
+          ],
+          "toId": 7,
+          "toSide": "user",
+          "ballSide": "user",
+          "chaseSeconds": 0.4,
+          "startDistance": 0,
+          "contested": false,
+          "type": "recovery",
+          "eventId": 150,
+          "minute": 29,
+          "second": 1740,
+          "gameSecond": 1740,
+          "text": "29’ Taylan dönen topu aldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 5,
+          "toId": 7,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            9.209676305698041,
+            88.45153646525245
+          ],
+          "toPos": [
+            44.01107594256146,
+            65.47309279776408
+          ],
+          "success": false,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 41.70307290913481,
+          "passing": 63.561351666032515,
+          "type": "pass",
+          "eventId": 151,
+          "minute": 29,
+          "second": 1740,
+          "gameSecond": 1740,
+          "text": "29’ Diallo pas verdi. Top rakibe geçti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 7,
+          "toId": 11,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            48.782264918223746,
+            63.09013515974635
+          ],
+          "toPos": [
+            75.9397049238681,
+            52.40909808482224
+          ],
+          "success": true,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 29.182376542291347,
+          "passing": 72.47455495529323,
+          "type": "pass",
+          "eventId": 152,
+          "minute": 30,
+          "second": 1800,
+          "gameSecond": 1800,
+          "text": "30’ Taylan pas verdi.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 11,
+          "toId": 11,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            75.9397049238681,
+            52.40909808482224
+          ],
+          "toPos": [
+            75.9397049238681,
+            52.40909808482224
+          ],
+          "type": "firstTouch",
+          "eventId": 153,
+          "minute": 30,
+          "second": 1800,
+          "gameSecond": 1800,
+          "text": "30’ Aras topu kontrol etti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            81.6976066801567,
+            92.39616746231458
+          ],
+          "toPos": [
+            90.51182778409368,
+            91.1291854212909
+          ],
+          "carrierId": 11,
+          "type": "offBallRun",
+          "eventId": 154,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Kerem boş alana koşuyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o0",
+          "fromId": 11,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "toPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 155,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Rakip topa baskıya çıktı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o0",
+          "fromId": 11,
+          "toId": 11,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "success": false,
+          "fromPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "toPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "type": "tackle",
+          "eventId": 156,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Rakip müdahaleyi kaçırdı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": null,
+          "fromId": "o0",
+          "fromSide": "opp",
+          "toId": 11,
+          "toSide": "user",
+          "fromPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "toPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "ballSide": "user",
+          "type": "foul",
+          "eventId": 157,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Sinan Arslan ceza sahasında faul yaptı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": "o0",
+          "fromSide": "opp",
+          "ballSide": "user",
+          "fromPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "toPos": [
+            89,
+            50
+          ],
+          "type": "penalty",
+          "eventId": 158,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Penaltı kararı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "PENALTY",
+          "fromPos": [
+            83.610270247147,
+            52.40909808482224
+          ],
+          "toPos": [
+            89,
+            50
+          ],
+          "fromId": 12,
+          "toId": 12,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "none",
+          "type": "restartPosition",
+          "eventId": 159,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Penaltı hazırlanıyor.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "PENALTY",
+          "restartPosition": [
+            89,
+            50
+          ],
+          "fromId": 12,
+          "toId": 12,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "none",
+          "fromPos": [
+            89,
+            50
+          ],
+          "toPos": [
+            89,
+            50
+          ],
+          "type": "restartPlayers",
+          "eventId": 160,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Oyuncular yerlerini aldı.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "PENALTY",
+          "fromPos": [
+            89,
+            50
+          ],
+          "toPos": [
+            89,
+            50
+          ],
+          "ballSide": "none",
+          "type": "restartWait",
+          "eventId": 161,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Oyun yeniden başlayacak.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 12,
+          "fromId": 12,
+          "fromSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            89,
+            50
+          ],
+          "toPos": [
+            98,
+            48.42636799439788
+          ],
+          "goalkeeperId": "o0",
+          "xg": 0.7012258284902559,
+          "onTarget": true,
+          "outcome": "goal",
+          "frame": null,
+          "restartType": "PENALTY",
+          "header": false,
+          "penalty": true,
+          "type": "shot",
+          "eventId": 162,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Mensah şut çekti.",
+          "homeGoals": 0,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 12,
+          "scorer": "Mensah",
+          "xg": 0.7012258284902559,
+          "fromId": 12,
+          "fromSide": "user",
+          "ballSide": "none",
+          "fromPos": [
+            98,
+            48.42636799439788
+          ],
+          "toPos": [
+            101.4,
+            48.42636799439788
+          ],
+          "inNet": true,
+          "penalty": true,
+          "header": false,
+          "type": "goal",
+          "eventId": 163,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "⚽ 31’ Mensah vurdu... GOL!",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "KICK_OFF",
+          "restartPhase": "EXECUTE_RESTART",
+          "fromId": "o5",
+          "toId": "o5",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            50,
+            50
+          ],
+          "toPos": [
+            47,
+            50
+          ],
+          "type": "kickoff",
+          "eventId": 164,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Ormanşehir santra yaptı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": null,
+          "fromId": "o5",
+          "fromSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            50,
+            50
+          ],
+          "toPos": [
+            2,
+            50.91915472224355
+          ],
+          "goalkeeperId": 0,
+          "xg": 0.031705434713571436,
+          "onTarget": true,
+          "outcome": "save",
+          "frame": null,
+          "restartType": null,
+          "header": false,
+          "penalty": false,
+          "type": "shot",
+          "eventId": 165,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Bora Işık şut çekti.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": null,
+          "xg": 0.031705434713571436,
+          "onTarget": true,
+          "outcome": "save",
+          "type": "chance",
+          "eventId": 166,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Bora Işık şutunun sonucu: kurtarış.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": 0,
+          "fromId": "o5",
+          "toId": 0,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            2,
+            50.91915472224355
+          ],
+          "toPos": [
+            10,
+            50
+          ],
+          "saveType": "CATCH",
+          "type": "save",
+          "eventId": 167,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31’ Onur kurtardı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 5,
+          "type": "foul",
+          "eventId": 168,
+          "minute": 31,
+          "second": 1860,
+          "gameSecond": 1860,
+          "text": "31' Diallo faul yaptı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            47,
+            84
+          ],
+          "toPos": [
+            89.21519883035856,
+            71.21889093677746
+          ],
+          "carrierId": 0,
+          "type": "offBallRun",
+          "eventId": 169,
+          "minute": 32,
+          "second": 1920,
+          "gameSecond": 1920,
+          "text": "32’ Kerem boş alana koşuyor.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 0,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            10.86201545266083,
+            50.00447906203485
+          ],
+          "toPos": [
+            42.61482336747792,
+            39.523009630853366
+          ],
+          "success": true,
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 33.43803241687618,
+          "passing": 56.48766060512926,
+          "type": "pass",
+          "eventId": 170,
+          "minute": 32,
+          "second": 1920,
+          "gameSecond": 1920,
+          "text": "32’ Onur pas verdi.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 6,
+          "toId": 6,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            42.61482336747792,
+            39.523009630853366
+          ],
+          "toPos": [
+            42.61482336747792,
+            39.523009630853366
+          ],
+          "type": "firstTouch",
+          "eventId": 171,
+          "minute": 32,
+          "second": 1920,
+          "gameSecond": 1920,
+          "text": "32’ Burak topu kontrol etti.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            42.60621410999502,
+            39.34077872015001
+          ],
+          "toPos": [
+            96,
+            63.37574005125478
+          ],
+          "ballSide": "none",
+          "reason": "aerial",
+          "type": "looseBall",
+          "eventId": 172,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Top sahipsiz kaldı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            96,
+            63.37574005125478
+          ],
+          "toPos": [
+            96,
+            63.37574005125478
+          ],
+          "toId": 12,
+          "toSide": "user",
+          "ballSide": "user",
+          "chaseSeconds": 0.4,
+          "startDistance": 0,
+          "contested": false,
+          "type": "recovery",
+          "eventId": 173,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Mensah dönen topu aldı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 6,
+          "toId": 12,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            42.60621410999502,
+            39.34077872015001
+          ],
+          "toPos": [
+            96,
+            63.37574005125478
+          ],
+          "success": false,
+          "passKind": "through",
+          "travelType": "aerial",
+          "distance": 58.55404117441764,
+          "passing": 77.376517942063,
+          "type": "pass",
+          "eventId": 174,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Burak pas verdi. Havadaki mücadele ikinci topa düştü.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 12,
+          "fromId": 12,
+          "fromSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            96,
+            63.37574005125478
+          ],
+          "toPos": [
+            98,
+            72
+          ],
+          "goalkeeperId": "o0",
+          "xg": 0.13133834341618245,
+          "onTarget": false,
+          "outcome": "wide",
+          "frame": null,
+          "restartType": null,
+          "header": false,
+          "penalty": false,
+          "type": "shot",
+          "eventId": 175,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Mensah şut çekti.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 12,
+          "xg": 0.13133834341618245,
+          "onTarget": false,
+          "outcome": "wide",
+          "type": "chance",
+          "eventId": 176,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Mensah şutunun sonucu: aut.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "fromId": 12,
+          "fromSide": "user",
+          "ballSide": "none",
+          "fromPos": [
+            96,
+            63.37574005125478
+          ],
+          "toPos": [
+            98,
+            72
+          ],
+          "type": "wide",
+          "eventId": 177,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Top auta çıktı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "fromPos": [
+            102,
+            72
+          ],
+          "toPos": [
+            102,
+            72
+          ],
+          "ballSide": "none",
+          "type": "ballOut",
+          "eventId": 178,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Top oyun alanının dışında.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "fromPos": [
+            102,
+            72
+          ],
+          "toPos": [
+            95.5,
+            56
+          ],
+          "fromId": "o0",
+          "toId": "o0",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "none",
+          "type": "restartPosition",
+          "eventId": 179,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Kale vuruşu hazırlanıyor.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "restartPosition": [
+            95.5,
+            56
+          ],
+          "fromId": "o0",
+          "toId": "o0",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "none",
+          "fromPos": [
+            95.5,
+            56
+          ],
+          "toPos": [
+            95.5,
+            56
+          ],
+          "type": "restartPlayers",
+          "eventId": 180,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Oyuncular yerlerini aldı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "fromPos": [
+            95.5,
+            56
+          ],
+          "toPos": [
+            95.5,
+            56
+          ],
+          "ballSide": "none",
+          "type": "restartWait",
+          "eventId": 181,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Oyun yeniden başlayacak.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "restartType": "GOAL_KICK",
+          "restartPhase": "EXECUTE_RESTART",
+          "side": 1,
+          "fromId": "o0",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            95.5,
+            56
+          ],
+          "toPos": [
+            40.51271886388248,
+            8.30668476942677
+          ],
+          "passKind": "long",
+          "travelType": "aerial",
+          "distance": 72.78910223670336,
+          "success": true,
+          "type": "goalKick",
+          "eventId": 182,
+          "minute": 33,
+          "second": 1980,
+          "gameSecond": 1980,
+          "text": "33’ Sinan Arslan kale vuruşunu kullandı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "playerId": null,
+          "fromId": "o8",
+          "toId": "o8",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            46.52787752747003,
+            48.42654372736712
+          ],
+          "toPos": [
+            40.0144291832972,
+            48.42654372736712
+          ],
+          "carrierId": "o7",
+          "type": "offBallRun",
+          "eventId": 183,
+          "minute": 34,
+          "second": 2040,
+          "gameSecond": 2040,
+          "text": "34’ Sinan Erdem boş alana koşuyor.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": 1,
+          "fromId": "o7",
+          "fromSide": "opp",
+          "toSide": "user",
+          "fromPos": [
+            31.831653365122946,
+            8.161285198543043
+          ],
+          "toPos": [
+            31.831653365122946,
+            8.161285198543043
+          ],
+          "ballSide": "opp",
+          "type": "press",
+          "eventId": 184,
+          "minute": 34,
+          "second": 2040,
+          "gameSecond": 2040,
+          "text": "34’ Berkay topa baskıya çıktı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "defenderId": 1,
+          "fromId": "o7",
+          "toId": "o7",
+          "fromSide": "opp",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": false,
+          "fromPos": [
+            31.831653365122946,
+            8.161285198543043
+          ],
+          "toPos": [
+            31.831653365122946,
+            8.161285198543043
+          ],
+          "type": "tackle",
+          "eventId": 185,
+          "minute": 34,
+          "second": 2040,
+          "gameSecond": 2040,
+          "text": "34’ Berkay müdahaleyi kaçırdı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "fromId": "o7",
+          "toId": 0,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            31.831653365122946,
+            8.161285198543043
+          ],
+          "toPos": [
+            4.0939669487825086,
+            43.91191493970278
+          ],
+          "success": false,
+          "passKind": "cross",
+          "travelType": "aerial",
+          "distance": 45.249163247741194,
+          "passing": 73.17197354410447,
+          "type": "cross",
+          "eventId": 186,
+          "minute": 34,
+          "second": 2040,
+          "gameSecond": 2040,
+          "text": "34’ Yusuf Kurt orta yaptı. Top rakibe geçti.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 0,
+          "playerId": 2,
+          "type": "foul",
+          "eventId": 187,
+          "minute": 34,
+          "second": 2040,
+          "gameSecond": 2040,
+          "text": "34' Furkan faul yaptı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "playerId": 9,
+          "fromId": 9,
+          "toId": 9,
+          "fromSide": "user",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            96,
+            68.31338427703577
+          ],
+          "toPos": [
+            91.2670344597986,
+            74.15874872507321
+          ],
+          "carrierId": 0,
+          "type": "offBallRun",
+          "eventId": 188,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Kerem boş alana koşuyor.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "defenderId": "o10",
+          "fromId": 0,
+          "fromSide": "user",
+          "toSide": "opp",
+          "fromPos": [
+            6.549400282508772,
+            43.849153807866976
+          ],
+          "toPos": [
+            6.549400282508772,
+            43.849153807866976
+          ],
+          "ballSide": "user",
+          "type": "press",
+          "eventId": 189,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Rakip topa baskıya çıktı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "defenderId": "o10",
+          "fromId": 0,
+          "toId": "o10",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "success": true,
+          "fromPos": [
+            6.549400282508772,
+            43.849153807866976
+          ],
+          "toPos": [
+            6.549400282508772,
+            43.849153807866976
+          ],
+          "type": "tackle",
+          "eventId": 190,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Rakip topu kazandı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "fromId": 0,
+          "toId": "o10",
+          "fromSide": "user",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            6.549400282508772,
+            43.849153807866976
+          ],
+          "toPos": [
+            6.549400282508772,
+            43.849153807866976
+          ],
+          "type": "interception",
+          "eventId": 191,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Sarp Yıldız topu kazandı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": null,
+          "fromId": "o10",
+          "fromSide": "opp",
+          "ballSide": "opp",
+          "fromPos": [
+            6.549400282508772,
+            43.849153807866976
+          ],
+          "toPos": [
+            2,
+            55.091442972421646
+          ],
+          "goalkeeperId": 0,
+          "xg": 0.15408092470287077,
+          "onTarget": true,
+          "outcome": "save",
+          "frame": null,
+          "restartType": null,
+          "header": false,
+          "penalty": false,
+          "type": "shot",
+          "eventId": 192,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Sarp Yıldız şut çekti.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": null,
+          "xg": 0.15408092470287077,
+          "onTarget": true,
+          "outcome": "save",
+          "type": "chance",
+          "eventId": 193,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Sarp Yıldız şutunun sonucu: kurtarış.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "side": 1,
+          "playerId": 0,
+          "fromId": "o10",
+          "toId": 0,
+          "fromSide": "opp",
+          "toSide": "user",
+          "ballSide": "user",
+          "fromPos": [
+            2,
+            55.091442972421646
+          ],
+          "toPos": [
+            10,
+            50
+          ],
+          "saveType": "PARRY",
+          "type": "save",
+          "eventId": 194,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Onur kurtardı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            2,
+            55.091442972421646
+          ],
+          "toPos": [
+            12,
+            60.091442972421646
+          ],
+          "ballSide": "none",
+          "reason": "parry",
+          "type": "looseBall",
+          "eventId": 195,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Top sahipsiz kaldı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        },
+        {
+          "fromPos": [
+            12,
+            60.091442972421646
+          ],
+          "toPos": [
+            12,
+            60.091442972421646
+          ],
+          "toId": "o10",
+          "toSide": "opp",
+          "ballSide": "opp",
+          "chaseSeconds": 4.8,
+          "startDistance": 17.13,
+          "contested": false,
+          "type": "recovery",
+          "eventId": 196,
+          "minute": 35,
+          "second": 2100,
+          "gameSecond": 2100,
+          "text": "35’ Sarp Yıldız dönen topu aldı.",
+          "homeGoals": 1,
+          "awayGoals": 0
+        }
+      ]
+    }
+  ]
+}

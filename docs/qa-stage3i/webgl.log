@@ -1,0 +1,11 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserType.launch: Failed to launch chromium because executable doesn't exist at /tmp/chromium
+    at /workspace/scratch/8bd0598b1055/ManagerStory-3I/tools/match3d-stage3i-webgl.mjs:8:25 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v24.19.0

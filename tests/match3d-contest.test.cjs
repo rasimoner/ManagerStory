@@ -11,7 +11,7 @@ test('contact geometry, clearance, speed and ownership use the single event cloc
  const settled=r.phases.at(-1);assert.ok(settled.clearance> (r.keepsBall?4:.9));}
 });
 test('pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle',async()=>{
- const {setup}=await import('../tools/match3d-minute-audit.mjs'),h=setup();h.run('M.rand=R(1)');let n=0;while(n++<15000){h.run(`ManagerStoryLive3D.step(.01,${n*10})`);if(h.run('pitchV73.contestMotion?.progress>.5'))break;}assert.ok(n<15000);
+ const {setup}=await import('../tools/match3d-minute-audit.mjs'),h=setup();h.run('M.rand=R(1)');let n=0;while(n++<15000){h.run(`ManagerStoryLive3D.step(.01,${n*10})`);if(h.run('pitchV73.contestMotion?.progress>.5&&!pitchV73.contestMotion.independent'))break;}assert.ok(n<15000);
  assert.equal(h.run('pitchV73.queue.some(e=>[19,20].includes(e.eventId))'),false);
  const held=h.run('JSON.stringify([pitchV73.positions,pitchV73.ball,pitchV73.carrier,pitchV73.progress,pitchV73.contestMotion,ManagerStoryLive3D.time])');
  h.run('M.pause=true;ManagerStoryLive3D.step(4,999999);setMatchSpeed(.5);setMatchSpeed(2);setMatchSpeed(1)');

@@ -1,0 +1,40 @@
+{
+  "programs": [],
+  "streams": [
+    {
+      "codec_name": "h264",
+      "codec_tag_string": "avc1",
+      "width": 390,
+      "height": 844,
+      "pix_fmt": "yuv420p"
+    }
+  ],
+  "format": {
+    "duration": "7.560000",
+    "size": "127645"
+  },
+  "atoms": [
+    {
+      "type": "ftyp",
+      "offset": 0,
+      "size": 32
+    },
+    {
+      "type": "moov",
+      "offset": 32,
+      "size": 1044
+    },
+    {
+      "type": "free",
+      "offset": 1076,
+      "size": 8
+    },
+    {
+      "type": "mdat",
+      "offset": 1084,
+      "size": 126561
+    }
+  ],
+  "fullDecodeExitCode": 0,
+  "faststart": true
+}
