@@ -1,0 +1,34 @@
+✔ view reads never initialize or mutate match/presentation/save state (93.360772ms)
+✔ copies are deeply frozen; presentation sync stays distinct from match events (47.424045ms)
+✔ observing a full match preserves seeded events/results and stops after unsubscribe (1232.210149ms)
+✔ pass description derives existing phase timing without changing engine or save state (51.69289ms)
+✔ seed 1 real carry route stays with player, limits speed and preserves engine events and statistics (3349.043127ms)
+✔ shared carry phase and ball do not restart under pause or speed selection (114.351246ms)
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (4646.950597ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.270405ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (154.971047ms)
+✔ seed 8800: selected real pass #11 and six consecutive passes meet root/contact/arrival tolerances (4722.509194ms)
+✔ derived transition moves actual roots with the owned ball and has a bounded peak speed at /4 (112.614814ms)
+✔ event queue owns its point arrays; pause and speed changes do not restart a transition (53.416197ms)
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (38.942836ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (148.189944ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (1326.868149ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (15.910611ms)
+✔ joining an already active legacy event preserves progress and stays finite (12.070185ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (84.875875ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (19.686583ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (2880.791569ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (44.27442ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (95.192319ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (4.76144ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.816032ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (6.240304ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (9.996824ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5016.715404

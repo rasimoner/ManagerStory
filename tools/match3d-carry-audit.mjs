@@ -8,10 +8,10 @@ export function audit(){
   if(e&&['dribble','ballCarry'].includes(e.type)){
    let r=rows.get(e.eventId);if(!r){r={eventId:e.eventId,type:e.type,success:e.success,fromId:e.fromId,toId:e.toId,from:e.fromPos,to:e.toPos,startWall:i*.01,duration:s.presentation.duration*4,maxRootBall:0,maxSpeed:0,maxLead:0,contacts:0};rows.set(e.eventId,r);}
    const root=s.players.find(p=>p.id===e.fromId).displayPosition,ball=s.ball.displayPosition,d=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68);
-   r.maxRootBall=Math.max(r.maxRootBall,d(root,ball));r.maxLead=Math.max(r.maxLead,s.presentation.carryMotion?.leadMetres||0);
-   if(prev?.id===e.eventId){r.maxSpeed=Math.max(r.maxSpeed,d(prev.root,root)/.01);maxCarrySpeed=Math.max(maxCarrySpeed,r.maxSpeed);if(prev.phase>.9&&s.presentation.carryMotion.touchPhase<.1)r.contacts++;}
+   if(s.ball.displayOwnerId===e.fromId)r.maxRootBall=Math.max(r.maxRootBall,d(root,ball));r.maxLead=Math.max(r.maxLead,s.presentation.carryMotion?.leadMetres||0);
+   if(prev?.id===e.eventId){r.maxSpeed=Math.max(r.maxSpeed,d(prev.root,root)/.01);maxCarrySpeed=Math.max(maxCarrySpeed,r.maxSpeed);if(prev.phase>.9&&(s.presentation.carryMotion?.touchPhase??1)<.1)r.contacts++;}
    else if(prev){maxCarryBoundary=Math.max(maxCarryBoundary,d(prev.ball,ball));}
-   prev={id:e.eventId,root,ball,phase:s.presentation.carryMotion.touchPhase};
+   prev={id:e.eventId,root,ball,phase:(s.presentation.carryMotion?.touchPhase??1)};
   }else {prev={id:null,ball:s.ball.displayPosition};}
   if(rows.size>=3&&[...rows.values()].some(r=>r.success===true)&&[...rows.values()].some(r=>r.success===false)&&!e)break;
   if(h.run('M.min')>=7)break;

@@ -48,6 +48,15 @@ export function createLivePoseSampler(){
     rightFoot=mix(rightFoot,contact,weight);
     gaps.push({id:player.id,kind:'derived-carry-touch',metres:Math.hypot(root[0]-ball[0],root[2]-ball[2]),phase,weight});
    }
+   const contest=P?.contestMotion;
+   let pelvisHeight=.935,lean=0;
+   if(contest&&player.id===contest.defenderId&&player.side===contest.defenderSide){
+    const targetYaw=Math.atan2(ball[0]-root[0],ball[2]-root[2]);yaw=angle(yaw,targetYaw,smooth((p-.5)/.15));
+    const reach=p<.76?smooth((p-.65)/.11):1-smooth((p-(contest.attackerKeepsBall?.76:.91))/.09);
+    const facing=[Math.sin(yaw),0,Math.cos(yaw)],contact=add(ball,mul(facing,-.30));contact[1]=.16;
+    rightFoot=mix(rightFoot,contact,reach);pelvisHeight-=.10*reach;lean=.10*reach;
+   }
+   if(contest&&player.id===contest.attackerId&&!contest.attackerKeepsBall&&p>=.76){lean=-.06*Math.sin(Math.PI*clamp((p-.76)/.24));}
    const touch=e?.type==='firstTouch'&&lastPass?.success===true&&lastPass.toId===e.toId;
    let receiveEventYaw=old?.receiveEventYaw,receiveEventId=old?.receiveEventId;
    const receiving=(pass&&p>.19&&player.id===e.toId&&player.side===e.toSide)||(touch&&player.id===e.toId&&player.side===e.toSide);
@@ -61,7 +70,7 @@ export function createLivePoseSampler(){
     if(gap<.6)rightFoot=mix(rightFoot,foot,pass?smooth((p-.65)/.11):1);
     gaps.push({id:player.id,kind:pass?(e.success?'receiver':'interceptor'):'firstTouch',metres:gap});
    }
-   poses.push({id:player.id,side:player.side,position:root,yaw,leftFoot:left,rightFoot,pelvisHeight:.935,armSwing:arm,lean:0});
+   poses.push({id:player.id,side:player.side,position:root,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean});
    previous.set(key,{root,travel,yaw,direction,feet,receiveEventId,receiveEventYaw});
   }
   const target=pass?(tracking?add(ball,mul(dir,len*.03*Math.sin(Math.PI*u))):mix(A,B,.5)):[...ball];target[1]=0;

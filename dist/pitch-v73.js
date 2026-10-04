@@ -566,6 +566,7 @@ function pitchDribble(from,side,opponent){
  const touchSkill=normalizeAttribute(playerAttribute(from,side,'technique',65)*.5+playerAttribute(from,side,'dribbling',65)*.5);
  const heavyTouch=!near&&M.rand()<clamp(.035-(touchSkill-.5)*.07,.004,.07);
  const success=!heavyTouch&&(!near||M.rand()<chance);
+ const contestStart=near&&window.ManagerStoryLive3D?.enabled?[...eventPoint(defender.id,defendingSide)]:null;
  M.dynamicPositions[String(from)]=end;
  if(heavyTouch){
   const st=side==='user'?M.playerStats[from]:null;if(st)st.dribblesAttempted++;
@@ -587,6 +588,7 @@ function pitchDribble(from,side,opponent){
   M.dynamicPositions[String(defender.id)]=success?
     [limitPitch(end[0]-dir*4,4,96),end[1]]:end;
   recordPitchTackle(defender.id,defendingSide,from,side,!success,end);
+  if(contestStart)window.ManagerStoryLive3D.linkDribbleContest({attackerId:from,attackerSide:side,defenderId:defender.id,defenderSide:defendingSide,attackerStart:[...start],point:[...end],defenderStart:contestStart,defenderEnd:[...M.dynamicPositions[String(defender.id)]],attackerKeepsBall:success});
   if(boxChallengePenalty(defender.id,defendingSide,from,side,end))return false; // stop the carry: a penalty is being taken
  }
  if(!success&&near){
