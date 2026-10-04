@@ -1,0 +1,21 @@
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (3475.611973ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.228337ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (147.260966ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (2450.085354ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (36.513857ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (65.992958ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (2.577565ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.422574ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (3.403344ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (7.099511ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (14994.895887ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (0.983743ms)
+✔ pause and speed changes do not restart shot or expose result early (92.338776ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15204.205974

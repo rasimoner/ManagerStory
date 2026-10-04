@@ -35,7 +35,7 @@
       },
       lastEvent: copy(M.events?.at(-1)),
       presentation: frame ? {
-        activeEvent: copy(frame.active), progress: frame.progress, carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion),
+        activeEvent: copy(frame.active), progress: frame.progress, carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion), shotMotion:copy(frame.shotMotion),
         source: ['presentationSync','enginePositionGap'].includes(frame.active?.type) ? 'presentation-catchup' : 'match-event',
         queuedEventIds: frame.queue.map(e => e.eventId ?? null),
         sampledAtMilliseconds: frame.lastTime,

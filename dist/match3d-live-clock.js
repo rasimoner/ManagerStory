@@ -5,6 +5,10 @@
  const isCarry=e=>['dribble','ballCarry','run'].includes(e.type);
  const duration=e=>{
   const base=eventAnimationTime(e);
+  if(e.type==='shot'&&e.shotResult){
+   const target=shotTarget(e),start=e.enginePositions[String(e.goalkeeperId)]||target;
+   return Math.max(.7,metres(e.fromPos,target)/22/.57,metres(start,keeperTarget(e))*1.5/24/.57);
+  }
   if(!isCarry(e))return base;
   const d=metres(e.fromPos,e.toPos),others=Math.max(0,...Object.entries(e.enginePositions||{}).map(([id,p])=>metres(currentPitchState().positions[id]||p,p)));
   return Math.max(base,d*1.5/(24*.57),others*1.5/24,e.contest?contestDuration(e):0);
@@ -33,6 +37,31 @@
  function contestDuration(e){
   let peak=0,last=contestFrame(e,0);for(let i=1;i<=500;i++){const frame=contestFrame(e,i/500);peak=Math.max(peak,metres(last.attacker,frame.attacker)*500,metres(last.defender,frame.defender)*500);last=frame;}
   return peak/24*1.02;
+ }
+ // Derived shot geometry. Raw percent goal mouth is wider than the real 7.32m goal.
+ // Preserve raw endpoints on e; remap only an already decided goal into the real net.
+ function shotTarget(e){return e.outcome==='goal'?[e.toPos[0]>50?102.1:-2.1,50+(e.toPos[1]-50)*.55]:e.outcome==='wide'?[e.toPos[0]>50?102:-2,e.toPos[1]]:[...e.toPos];}
+ function keeperTarget(e){const t=shotTarget(e),dir=e.toPos[0]>50?1:-1;
+  return [e.outcome==='wide'?e.toPos[0]:t[0]-dir*.55/1.05,['goal','wide'].includes(e.outcome)?50+(e.toPos[1]-50)*.25:t[1]];
+ }
+ function shotFrame(e,p){
+  const target=shotTarget(e),u=Math.max(0,Math.min(1,(p-.19)/.57)),dir=e.toPos[0]>50?1:-1;
+  let ball=lerp(e.fromPos,target,u),height=.15+(1.05-.15)*u+Math.sin(Math.PI*u)*.55;
+  const kStart=e.enginePositions[String(e.goalkeeperId)]||keeperTarget(e),kEnd=keeperTarget(e);
+  // Goal keeper cannot reach the ball; his attempt stays inside the field.
+  if(e.outcome==='goal')kEnd[0]=dir>0?98:2;
+  const keeper=lerp(kStart,kEnd,ease(u));
+  const cross=e.outcome==='goal'?( (dir>0?100:0)-e.fromPos[0])/(target[0]-e.fromPos[0]):null;
+  if(e.outcome==='goal'){height=.15+Math.sin(Math.PI*u)*1.15;if(p>.76)height=.15;}
+  if(e.outcome==='wide'){height=.15+Math.sin(Math.PI*u)*1.4;}
+  if(e.outcome==='save'&&p>=.76){
+   const r=ease(Math.max(0,Math.min(1,(p-.76)/.24)));
+   if(e.shotResult.saveType==='CATCH'){ball=lerp(target,keeper,r);height=1.05*(1-r)+.15*r;}
+   else height=1.05*(1-r)+.15*r;
+   // PARRY/DEFLECT keep the real result point: next existing loose-ball/restart owns continuation.
+  }
+  return {ball,keeper,height,contactProgress:.19,resultProgress:.76,lineCrossProgress:cross==null?null:.19+.57*cross,
+   goalCrossed:cross!=null&&u>=cross,source:'derived-shot-flight-and-keeper-reach',result:e.shotResult};
  }
  const positions=()=>Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
  function beginMotionSample(){if(!enabled)return;inPositionUpdate=true;motionSample={fromGameSecond:Math.max(0,M.min*60-60),toGameSecond:M.min*60,fromPositions:positions(),fromBall:[...M.ballState.position],fromOwner:M.ballOwner,fromSide:M.ballSide};}
@@ -94,19 +123,21 @@
    if(!state.active){
     const next=state.queue[0];
     const sourceTargets=next.enginePositions?structuredClone(next.enginePositions):{};
-    if(isCarry(next))sourceTargets[String(next.fromId)]=[...next.fromPos];
-    const transition=next.fromPos&&(['pass','cross'].includes(next.type)||isCarry(next))?keyframeTransition(state,sourceTargets,next.fromPos,next.gameSecond):null;
+    if(isCarry(next)||next.type==='shot')sourceTargets[String(next.fromId)]=[...next.fromPos];
+    const transition=next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||state.afterShot)?keyframeTransition(state,sourceTargets,next.fromPos,next.gameSecond):null;
     const placement=next.type==='kickoff'?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond,next.fromId,next.fromSide):null;
     if(placement){placement.sampleInterval={fromGameSecond:next.gameSecond,toGameSecond:next.gameSecond,phase:'restart-placement'};placement.carryId=null;placement.carrySide='none';placement.movementSource='derived-dead-ball-placement';}
     if(placement)state.active=placement;
     else if(transition)state.active=transition;
-    else {state.active=state.queue.shift();
+    else {state.active=state.queue.shift();state.afterShot=false;
+     if(state.active.shotResult)state.queue=state.queue.filter(x=>x.eventId!==state.active.shotResult.eventId);
      if(state.active.contest){const c=state.active.contest;state.queue=state.queue.filter(x=>x.eventId!==c.press.eventId&&x.eventId!==c.tackle.eventId);}
     }
+    state.shotPreStatistics=structuredClone(state.eventStatistics);
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
     state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/M.speed*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
    }
-   const e=state.active;state.carryMotion=null;state.contestMotion=null;
+   const e=state.active;state.carryMotion=null;state.contestMotion=null;state.shotMotion=null;
    if(Number.isFinite(e.homeGoals)&&Number.isFinite(e.awayGoals))state.eventScore=[e.homeGoals,e.awayGoals];
    if(e.engineStatistics)state.eventStatistics=e.engineStatistics;
    const D=state.activeDuration,take=Math.min(remaining,(1-state.progress)*D);
@@ -134,6 +165,15 @@
     const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/.76):p;
     state.positions[key]=lerp(start,target,ease(fraction));
    }
+   if(e.type==='shot'&&e.shotResult){
+    const f=shotFrame(e,p),result=e.shotResult;
+    if(p<.19)state.eventStatistics=state.shotPreStatistics;
+    state.ball=f.ball;state.positions[String(e.fromId)]=[...e.fromPos];state.positions[String(e.goalkeeperId)]=f.keeper;
+    state.carrier=p<.19?e.fromId:e.outcome==='save'&&result.saveType==='CATCH'&&p>=.76?e.goalkeeperId:null;
+    state.side=p<.19?e.fromSide:state.carrier==null?'none':result.toSide;
+    state.shotMotion={...f,progress:p,event:p>=.76||f.goalCrossed?result:e,phase:p<.19?'preparation':p<.76?'flight':'result'};
+    if(f.goalCrossed)state.eventScore=[result.homeGoals,result.awayGoals];
+   }
    if(e.contest){
     const c=e.contest,f=contestFrame(e,p),won=p>=c.contactProgress;
     state.positions[String(c.attackerId)]=f.attacker;state.positions[String(c.defenderId)]=f.defender;state.ball=f.ball;
@@ -147,9 +187,10 @@
    state.ballState={...state.ballState,position:[...state.ball],ownerId:state.carrier,state:e.sampleInterval?.phase==='restart-placement'?'RESTART_SETUP':state.carrier==null?'LOOSE_BALL':'LIVE',height:aerialHeight(e,p),travelType:e.travelType||'ground',target:e.toPos||null,travelDuration:D};
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(p>=1-1e-8){
-    if(e.type!=='enginePositionGap')finishPitchAction(state,e,now);else {state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
+    if(e.type!=='enginePositionGap'&&!state.shotMotion)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
-    state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;
+    if(state.shotMotion)state.afterShot=true;
+    state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;
    }
   }
   if(window.MatchView)window.MatchView.publish(state);

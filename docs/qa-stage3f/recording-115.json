@@ -1,0 +1,43 @@
+{
+  "environment": "Chromium 153.0.8010.0 / Linux SwiftShader /DPR1 /390x844",
+  "errors": [],
+  "external": [],
+  "start": {
+    "canonical": 106.45749999988209,
+    "eventId": 115,
+    "progress": 0.030077024549736382,
+    "speed": 1,
+    "tempo": 4
+  },
+  "end": {
+    "canonical": 110.74066049988222,
+    "progress": 0.08690375646309732,
+    "history": [
+      {
+        "key": "115:preparation",
+        "realMilliseconds": 61234.60000000009,
+        "canonical": 106.45749999988209,
+        "progress": 0.030077024549736382,
+        "owner": 6
+      },
+      {
+        "key": "115:flight",
+        "realMilliseconds": 63978.30000000028,
+        "canonical": 107.14081049988214,
+        "progress": 0.1963637770573102,
+        "owner": null
+      },
+      {
+        "key": "115:result",
+        "realMilliseconds": 73234.1000000001,
+        "canonical": 109.45738549988216,
+        "progress": 0.7601129565155988,
+        "owner": null
+      }
+    ]
+  },
+  "frames": 82,
+  "captureSeconds": 16.483724117279053,
+  "bytes": 189374,
+  "method": "Actual CDP screencast JPEGs encoded with actual capture timestamp differences; existing natural RAF during recording. Controlled seed8800 engine seek before recording only. Not a mobile FPS benchmark or iPhone recording."
+}

@@ -138,6 +138,11 @@ function enqueuePitchEvent(e) {
     // The old kickoff declares a 3-percent tap that the engine never commits.
     // Retain the raw declaration for diagnostics; present the actual restart spot.
     if(e.type==='kickoff'){copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';}
+    // Link immutable presentation copies only; engine events/save schema stay unchanged.
+    if(['goal','save','wide'].includes(copy.type)){
+      const shot=[...state.queue].reverse().find(x=>x.type==='shot'&&!x.header&&!x.shotResult&&x.fromId===copy.fromId&&x.gameSecond===copy.gameSecond&&x.outcome===copy.type);
+      if(shot)shot.shotResult=structuredClone({...copy,enginePositions});
+    }
     state.queue.push({...copy,enginePositions,sampleTime:{gameSecond:e.gameSecond,stage:window.ManagerStoryLive3D.inPositionUpdate?'during-position-update':'event-after-position-update',sequence:e.eventId},engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
   }else state.queue.push(e);
 }

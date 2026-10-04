@@ -1,0 +1,62 @@
+[
+  {
+    "file": "docs/qa-stage3f/shot-115-1x.mp4",
+    "decode": "passed",
+    "faststart": true,
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "codec_tag_string": "avc1",
+        "width": 390,
+        "height": 844,
+        "pix_fmt": "yuv420p"
+      }
+    ],
+    "format": {
+      "duration": "16.520000",
+      "size": "189374"
+    }
+  },
+  {
+    "file": "docs/qa-stage3f/shot-49-1x.mp4",
+    "decode": "passed",
+    "faststart": true,
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "codec_tag_string": "avc1",
+        "width": 390,
+        "height": 844,
+        "pix_fmt": "yuv420p"
+      }
+    ],
+    "format": {
+      "duration": "8.840000",
+      "size": "124248"
+    }
+  },
+  {
+    "file": "docs/qa-stage3f/shot-14-1x.mp4",
+    "decode": "passed",
+    "faststart": true,
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "profile": "Constrained Baseline",
+        "codec_tag_string": "avc1",
+        "width": 390,
+        "height": 844,
+        "pix_fmt": "yuv420p"
+      }
+    ],
+    "format": {
+      "duration": "14.280000",
+      "size": "170751"
+    }
+  }
+]
