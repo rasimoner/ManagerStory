@@ -1,0 +1,16 @@
+✔ existing side-camera keeps both approaching contest actors in both portrait fields (2243.752897ms)
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (3955.911039ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.311736ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (152.711902ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (3.691765ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.720711ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (4.649019ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (5.829103ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4230.201894

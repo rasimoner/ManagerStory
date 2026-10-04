@@ -73,8 +73,11 @@ export function createLivePoseSampler(){
    poses.push({id:player.id,side:player.side,position:root,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean});
    previous.set(key,{root,travel,yaw,direction,feet,receiveEventId,receiveEventYaw});
   }
-  const target=pass?(tracking?add(ball,mul(dir,len*.03*Math.sin(Math.PI*u))):mix(A,B,.5)):[...ball];target[1]=0;
-  const desired=pass&&!tracking?Math.max(12,len+4):12+3*Math.sin(Math.PI*u)**2;
+  let target=pass?(tracking?add(ball,mul(dir,len*.03*Math.sin(Math.PI*u))):mix(A,B,.5)):[...ball];target[1]=0;
+  let desired=pass&&!tracking?Math.max(12,len+4):12+3*Math.sin(Math.PI*u)**2;
+  // Existing side-camera framing: do not lose the approaching real defender off screen.
+  const contest=P?.contestMotion,defender=contest&&poses.find(p=>p.id===contest.defenderId&&p.side===contest.defenderSide);
+  if(defender){target=mix(ball,defender.position,.5);target[1]=0;desired=Math.max(12,Math.hypot(ball[0]-defender.position[0],ball[2]-defender.position[2])+4);}
   if(!focus){focus=[...target];span=desired;}
   else if(dt>0){focus=mix(focus,target,1-Math.exp(-dt*20));span+= (desired-span)*(1-Math.exp(-dt*4));}
   lastSignature=signature;lastSample={poses,ball,ballPercent:percent(ball),camera:{focus:[...focus],span},flightProgress:u,gaps,eventId:e?.eventId??null,type:e?.type??'idle',pass,estimatedHeight:aerial,ownerId:snapshot.ball.displayOwnerId,side:snapshot.ball.displaySide};return lastSample;

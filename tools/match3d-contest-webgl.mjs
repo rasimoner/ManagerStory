@@ -20,7 +20,7 @@ try{
   for(const id of [18,21])for(const phase of [.3,.76,.95]){
    await eventPhase(id,phase);
    if(phase===.76)await capture(`${width}-contest-${id}-contact`);
-   else measurements.push(await page.evaluate(({width,id,phase})=>({name:`${width}-contest-${id}-${phase}`,snapshot:MatchView.read(),view:ManagerStoryLiveSample}),{width,id,phase}));
+   else measurements.push(await page.evaluate(({width,id,phase})=>({name:`${width}-contest-${id}-${phase}`,snapshot:MatchView.read(),view:ManagerStoryLiveSample,screen:{attacker:ManagerStory3D.view.projectPoint(pitchV73.positions[String(pitchV73.contestMotion.attackerId)]),defender:ManagerStory3D.view.projectPoint(pitchV73.positions[String(pitchV73.contestMotion.defenderId)]),canvas:[ManagerStory3D.view.renderer.domElement.clientWidth,ManagerStory3D.view.renderer.domElement.clientHeight]}}),{width,id,phase}));
   }
  }
  const metrics={environment:`Chromium ${browser.version()} / Linux SwiftShader / DPR1 /390x844 and320x568`,errors,external,measurements,mode:'Controlled existing liveFrameStep, actual WebGL critical frames; static evidence is not fluidity proof'};

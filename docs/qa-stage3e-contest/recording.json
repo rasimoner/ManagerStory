@@ -1,0 +1,81 @@
+{
+  "environment": "Chromium 153.0.8010.0 / Linux SwiftShader /DPR1 /390x844",
+  "errors": [],
+  "external": [],
+  "start": {
+    "canonical": 10.277500000000213,
+    "eventId": 18,
+    "progress": 0.031158949727583363,
+    "speed": 1,
+    "tempo": 4
+  },
+  "end": {
+    "canonical": 14.385673500000216,
+    "progress": 0.9562124999999991,
+    "history": [
+      {
+        "key": "18:approach",
+        "realMilliseconds": 18116.700000000186,
+        "canonical": 10.277500000000213,
+        "progress": 0.031158949727583363,
+        "owner": "o7"
+      },
+      {
+        "key": "18:reach",
+        "realMilliseconds": 21356.600000000093,
+        "canonical": 11.08579850000021,
+        "progress": 0.7078534956249938,
+        "owner": "o7"
+      },
+      {
+        "key": "18:contact-result",
+        "realMilliseconds": 21761.100000000093,
+        "canonical": 11.18997350000021,
+        "progress": 0.79506713553508,
+        "owner": "o7"
+      },
+      {
+        "key": "18:recovery",
+        "realMilliseconds": 22349.299999999814,
+        "canonical": 11.33579850000021,
+        "progress": 0.9171494877298321,
+        "owner": "o7"
+      },
+      {
+        "key": "21:approach",
+        "realMilliseconds": 26394.899999999907,
+        "canonical": 12.256573500000213,
+        "progress": 0.06624790458686403,
+        "owner": "o7"
+      },
+      {
+        "key": "21:reach",
+        "realMilliseconds": 29420.200000000186,
+        "canonical": 13.014898500000214,
+        "progress": 0.7012940511685545,
+        "owner": "o7"
+      },
+      {
+        "key": "21:contact-result",
+        "realMilliseconds": 29747.399999999907,
+        "canonical": 13.098223500000215,
+        "progress": 0.7710731302756909,
+        "owner": 1
+      },
+      {
+        "key": "21:recovery",
+        "realMilliseconds": 30698.700000000186,
+        "canonical": 13.335723500000215,
+        "progress": 0.9699633947574785,
+        "owner": 1
+      }
+    ]
+  },
+  "frames": 38,
+  "captureSeconds": 13.964808940887451,
+  "bytes": 222971,
+  "method": "Actual CDP screencast JPEGs encoded with actual capture timestamp differences; existing natural RAF during recording. Controlled seed1 engine seek before recording only. Not a mobile FPS benchmark or iPhone recording.",
+  "encodedDurationSeconds": 14.0,
+  "flushBeforeCapture": true,
+  "capturedFramesAreGenerated": false
+}
