@@ -1,0 +1,142 @@
+[
+  {
+    "seed": 1,
+    "wall": 1787.9199999995337,
+    "duplicates": [],
+    "controls": [
+      {
+        "phase": 0.030000000000000002,
+        "earlyFinishBlocked": true,
+        "pauseFrozen": true,
+        "resumePreserved": true,
+        "rates": [
+          {
+            "speed": 0.5,
+            "advance": 0.00018750000000000017,
+            "expected": 0.0001875,
+            "durationPreserved": true
+          },
+          {
+            "speed": 1,
+            "advance": 0.00037500000000000033,
+            "expected": 0.000375,
+            "durationPreserved": true
+          },
+          {
+            "speed": 2,
+            "advance": 0.0007499999999999972,
+            "expected": 0.00075,
+            "durationPreserved": true
+          }
+        ],
+        "engineStillFinished": true
+      }
+    ],
+    "terminal": {
+      "phase": "complete",
+      "queue": [],
+      "settlement": false,
+      "active": null,
+      "owner": 11,
+      "score": [
+        1,
+        0
+      ],
+      "displayScore": [
+        1,
+        0
+      ],
+      "seconds": 5400,
+      "clock": 5400
+    },
+    "frozen": true,
+    "engineFrozen": true,
+    "narrativeFrozen": true,
+    "terminalRenders": 1,
+    "endCount": 1,
+    "finishButton": true,
+    "careerOnce": true,
+    "fixture": 1,
+    "enginePreserved": true,
+    "careerPreserved": true,
+    "expected": [
+      498,
+      499,
+      500,
+      501
+    ],
+    "missing": []
+  },
+  {
+    "seed": 8800,
+    "wall": 1858.6399999994694,
+    "duplicates": [],
+    "controls": [
+      {
+        "phase": 0.030000000000000002,
+        "earlyFinishBlocked": true,
+        "pauseFrozen": true,
+        "resumePreserved": true,
+        "rates": [
+          {
+            "speed": 0.5,
+            "advance": 0.00018750000000000017,
+            "expected": 0.0001875,
+            "durationPreserved": true
+          },
+          {
+            "speed": 1,
+            "advance": 0.00037500000000000033,
+            "expected": 0.000375,
+            "durationPreserved": true
+          },
+          {
+            "speed": 2,
+            "advance": 0.0007499999999999972,
+            "expected": 0.00075,
+            "durationPreserved": true
+          }
+        ],
+        "engineStillFinished": true
+      }
+    ],
+    "terminal": {
+      "phase": "complete",
+      "queue": [],
+      "settlement": false,
+      "active": null,
+      "owner": 0,
+      "score": [
+        2,
+        2
+      ],
+      "displayScore": [
+        2,
+        2
+      ],
+      "seconds": 5400,
+      "clock": 5400
+    },
+    "frozen": true,
+    "engineFrozen": true,
+    "narrativeFrozen": true,
+    "terminalRenders": 1,
+    "endCount": 1,
+    "finishButton": true,
+    "careerOnce": true,
+    "fixture": 1,
+    "enginePreserved": true,
+    "careerPreserved": true,
+    "expected": [
+      507,
+      508,
+      509,
+      510,
+      511,
+      513,
+      514,
+      515
+    ],
+    "missing": []
+  }
+]

@@ -27,7 +27,7 @@
       matchSeconds: M.matchElapsedSeconds, speed: M.speed,
       teams: { home: copy(resolveClubIdentity('goal',{teamId:M.home})), away: copy(resolveClubIdentity('goal',{teamId:M.away})), userHome: M.userHome },
       statistics: { shots: copy(M.shots), xg: copy(M.stats?.xg), possession: copy(matchPossession()) },
-      lifecycle: M.lifecycle, paused: M.pause, finished: M.finished,
+      lifecycle: M.lifecycle, paused: window.ManagerStoryLive3D?.enabled ? window.ManagerStoryLive3D.paused : M.pause, engineFinished:M.finished, finished: M.finished&&!window.ManagerStoryLive3D?.finishing,
       secondHalf: M.secondHalf, score: [M.hg, M.ag], players,
       ball: {
         presentationHeight:frame?.displayBallHeight??.15,
@@ -38,7 +38,7 @@
       },
       lastEvent: copy(M.events?.at(-1)),
       presentation: frame ? {
-        activeEvent: copy(frame.active), progress: frame.progress, holdMotion:copy(frame.holdMotion),visualOffsetSource:"derived-persistent-root-offset; radar-and-renderer-use-displayPosition; ball-unmodified",looseMotion:copy(frame.looseMotion), carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion), shotMotion:copy(frame.shotMotion),
+        terminalPhase:frame.terminalPhase||null, pendingMinuteSettlement:!!frame.batchEnd, activeEvent: copy(frame.active), progress: frame.progress, holdMotion:copy(frame.holdMotion),visualOffsetSource:"derived-persistent-root-offset; radar-and-renderer-use-displayPosition; ball-unmodified",looseMotion:copy(frame.looseMotion), carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion), shotMotion:copy(frame.shotMotion),
         source: ['presentationSync','enginePositionGap'].includes(frame.active?.type) ? 'presentation-catchup' : 'match-event',
         queuedEventIds: frame.queue.map(e => e.eventId ?? null),
         sampledAtMilliseconds: frame.lastTime,

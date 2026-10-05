@@ -143,7 +143,7 @@
  // Stage 3A braking curve, same contact/arrival boundaries and endpoint.
  const flight=u=>{if(u<.7)return u*1.15;const t=(u-.7)/.3;return (2*t*t*t-3*t*t+1)*.805+(t*t*t-2*t*t+t)*.345+(-2*t*t*t+3*t*t);};
  function step(dt,now){
-  if(!enabled||!M||M.pause||M.finished)return;
+  if(!enabled||!M||(M.finished?!finishing():M.pause)||paused())return;
   if(observedMatch!==M){observedMatch=M;presentationSeconds=0;wallSeconds=0;logs=[];wallOrigin=now-dt*1000;}
   wallSeconds+=dt;
   const state=currentPitchState(),delta=Math.max(0,dt)*M.speed/tempo;
@@ -163,7 +163,7 @@
     const tail=keyframeTransition(state,last.positions,last.ball,last.gameSecond,last.owner,last.side);
     if(tail){tail.sampleInterval={fromGameSecond:last.gameSecond,toGameSecond:last.gameSecond,phase:'post-event-settlement'};tail.homeGoals=last.score[0];tail.awayGoals=last.score[1];tail.engineStatistics=last.statistics;state.queue.push(tail);}else {state.eventScore=last.score;state.eventStatistics=last.statistics;}
    }
-   if(!state.queue.length){
+   if(!state.queue.length&&!M.finished){
     const start=matchSecond(),oldScore=state.eventScore||[M.hg,M.ag],oldStatistics=state.eventStatistics||{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};
     motionSample=null;advanceLive((60-start%60)/90/M.speed);
     if(motionSample?.toPositions){
@@ -282,11 +282,19 @@
     state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;state.holdMotion=null;
    }
   }
+  const completed=finishing()&&!state.active&&!state.queue.length&&!state.batchEnd;
+  if(completed){state.terminalPhase='complete';state.terminalPaused=false;state.displayMatchSeconds=5400;state.eventScore=[M.hg,M.ag];}
   if(window.MatchView)window.MatchView.publish(state);
+  if(completed)render();
  }
- window.ManagerStoryLive3D={beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+ const finishing=()=>enabled&&pitchV73?.match===M&&pitchV73.terminalPhase==='draining';
+ const paused=()=>finishing()?!!pitchV73.terminalPaused:!!M?.pause;
+ window.ManagerStoryLive3D={
+  get finishing(){return finishing()},get paused(){return paused()},
+  beginFinish(){const s=currentPitchState();s.terminalPhase='draining';s.terminalPaused=false;},
+  setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){enabled=true;if(M){const s=currentPitchState();for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
-  duration, togglePause(){if(!M)return;if(M.pause)resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
+  duration, togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
  };
 })();

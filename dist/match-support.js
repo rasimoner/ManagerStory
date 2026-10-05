@@ -155,6 +155,7 @@ function matchEvent(type, text, data = {}) {
   return event;
 }
 function liveCommentaryLines(){
+  if(livePresentationPending()){const s=currentPitchState(),e=s.shotMotion?.event||s.contestMotion?.event||s.looseMotion?.event||s.holdMotion?.event||s.active;return [e?.text||"Son aksiyonların sunumu tamamlanıyor."];}
   if(M.commentaryOpen)return M.story.slice().reverse().slice(0,80);
   const now=matchSecond();
   const recent=M.events.filter(e=>e.gameSecond!=null&&now-e.gameSecond>=0&&now-e.gameSecond<=90).slice(-2).reverse();

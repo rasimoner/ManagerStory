@@ -292,7 +292,7 @@ function paintLivePitch() {
   const frame=dev?state:pitchFrameState(dt,now);
   if(typeof window!=='undefined'&&window.MatchView)window.MatchView.publish(frame);
   const score=document.querySelector('#live-score');
-  if(score)score.textContent=[M.hg,M.ag].join('–');
+  if(score)score.textContent=(dev&&frame.eventScore||[M.hg,M.ag]).join('–');
   const pitch=document.querySelector('.livepitch');if(!pitch||!frame)return;
   const rect=pitch.getBoundingClientRect(),w=rect.width,h=rect.height;if(!w||!h)return;
   for(const node of pitch.querySelectorAll('[data-player]')) {

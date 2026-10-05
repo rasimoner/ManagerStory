@@ -52,13 +52,17 @@ function setMatchSpeed(speed) {
   if (!M || ![0.5, 1, 2].includes(Number(speed))) return;
   M.speed = Number(speed); save(); render();
 }
+const livePresentationPending = () => !!window.ManagerStoryLive3D?.finishing;
+const livePlaybackPaused = () => livePresentationPending() ? window.ManagerStoryLive3D.paused : M?.pause;
 function pauseLive(reason = 'manual') {
+  if(livePresentationPending()){window.ManagerStoryLive3D.setTerminalPaused(true);liveLastFrame=null;render();return;}
   if (!M || M.finished || M.reason === 'half') return;
   M.pause = true; M.reason = reason; M.lifecycle=reason==='half'?'HALF_TIME':'PAUSED';liveLastFrame = null;
   if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;
   save(); render();
 }
 function resumeLive() {
+  if(livePresentationPending()){window.ManagerStoryLive3D.setTerminalPaused(false);liveLastFrame=null;render();return;}
   if (!M || M.finished || M.reason === 'half') return;
   if (M.requiredSubstitution) resolveUnfillableSubstitution();
   if (M.requiredSubstitution && M.active.includes(M.requiredSubstitution.playerId)) {
@@ -71,7 +75,7 @@ function resumeLive() {
 }
 function liveFrameStep(now) {
   liveFrame = null;
-  if (!M || M.finished || M.lifecycle==='FINISHED' || M.pause) { liveLastFrame = null; return; }
+  if (!M || ((M.finished || M.lifecycle==='FINISHED')&&!livePresentationPending()) || livePlaybackPaused()) { liveLastFrame = null; return; }
   if(typeof document!=='undefined'&&document.hidden){pauseLive('background');return;}
   // Catch up clock time when Safari throttles frames; presentation retains its own .12s cap.
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
@@ -81,26 +85,29 @@ function liveFrameStep(now) {
   else if (!M.finished) advanceLive(dt);
   if (M.min !== oldMin || (M.pause && !M.finished)) render();
   else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
-  if (M && !M.pause && !M.finished && liveFrame === null)
+  if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);
 }
 function ensureLiveLoop() {
-  if (typeof requestAnimationFrame !== 'function' || !M || M.pause || M.finished || M.lifecycle==='FINISHED' || liveFrame !== null) return;
+  if (typeof requestAnimationFrame !== 'function' || !M || livePlaybackPaused() || ((M.finished || M.lifecycle==='FINISHED')&&!livePresentationPending()) || liveFrame !== null) return;
   liveLastFrame = null;
   liveFrame = requestAnimationFrame(liveFrameStep);
 }
 if(typeof document!=='undefined'&&typeof document.addEventListener==='function'){
   document.addEventListener('visibilitychange',()=>{
-    if(document.hidden&&M&&!M.pause&&!M.finished){pauseLive('background');}
+    if(document.hidden&&M&&!livePlaybackPaused()&&(!M.finished||livePresentationPending())){pauseLive('background');}
     else if(!document.hidden&&M&&M.reason==='background')render();
   });
 }
 function finalizeMatch(){
   if(!M||M.lifecycle==='FINISHED'||M.lifecycle==='FINISHING')return false;
   M.lifecycle='FINISHING';M.matchElapsedSeconds=5400;M.min=90;M.pause=true;M.reason='end';
-  if(liveFrame!==null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(liveFrame);
-  liveFrame=null;liveLastFrame=null;
-  if(typeof pitchV73!=='undefined'&&pitchV73){pitchV73.active=null;pitchV73.queue.length=0;pitchV73.progress=0;pitchV73.goalUntil=0;}
+  if(window.ManagerStoryLive3D?.enabled)window.ManagerStoryLive3D.beginFinish();
+  else {
+   if(liveFrame!==null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(liveFrame);
+   liveFrame=null;liveLastFrame=null;
+   if(typeof pitchV73!=='undefined'&&pitchV73){pitchV73.active=null;pitchV73.queue.length=0;pitchV73.progress=0;pitchV73.goalUntil=0;}
+  }
   M.finished=true;M.lifecycle='FINISHED';
   M.events.push({type:'end',minute:90,second:5400,gameSecond:5400,text:"🏁 90' Son düdük.",homeGoals:M.hg,awayGoals:M.ag});
   M.story.push("🏁 90' Son düdük.");save();return true;
