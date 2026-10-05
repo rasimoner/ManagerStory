@@ -293,6 +293,11 @@ function paintLivePitch() {
   if(typeof window!=='undefined'&&window.MatchView)window.MatchView.publish(frame);
   const score=document.querySelector('#live-score');
   if(score)score.textContent=(dev&&frame.eventScore||[M.hg,M.ag]).join('–');
+  if(dev){
+    if(clock)clock.textContent=clockFromSeconds(frame.displayMatchSeconds??matchSecond());
+    const commentary=document.querySelector('[data-live-commentary]');
+    if(commentary){commentary.replaceChildren(...liveCommentaryLines().map(text=>{const line=document.createElement('div');line.className='comment';line.textContent=text;return line;}));}
+  }
   const pitch=document.querySelector('.livepitch');if(!pitch||!frame)return;
   const rect=pitch.getBoundingClientRect(),w=rect.width,h=rect.height;if(!w||!h)return;
   for(const node of pitch.querySelectorAll('[data-player]')) {

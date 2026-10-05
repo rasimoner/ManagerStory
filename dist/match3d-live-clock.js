@@ -293,7 +293,7 @@
   get finishing(){return finishing()},get paused(){return paused()},
   beginFinish(){const s=currentPitchState();s.terminalPhase='draining';s.terminalPaused=false;},
   setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
-  enable(){enabled=true;if(M){const s=currentPitchState();for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
+  enable(){const joining=!enabled;enabled=true;if(M){const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration, togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
  };
