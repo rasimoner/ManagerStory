@@ -246,7 +246,7 @@ test('V7.2 career save is preserved and upgraded on load',()=>{
  const original=h.storage.get('msv4'),restored=harness(h.storage);
  assert.equal(restored.storage.get('msv4-v72-backup'),original);
  assert.equal(restored.run('S.budget'),7732100);
- assert.equal(restored.run('S.version'),'7.3.4');assert.equal(restored.run('S.v73.schema'),1);
+ assert.equal(restored.run('S.version'),'7.4.2');assert.equal(restored.run('S.v73.schema'),1);
 });
 test('goal kick begins in six-yard area and cannot fall back to kickoff',()=>{
  const h=harness();h.run('S=fresh();init();startMatch()');const before=h.run('M.events.filter(e=>e.type==="kickoff").length');
@@ -333,7 +333,7 @@ test('opponent roster identities, attributes, fatigue, evolution and V7.3 migrat
  h.run('S.version="7.3";save()');const original=h.storage.get('msv4');
  const reopened=harness(h.storage);
  assert.equal(reopened.storage.get('msv4-v73-backup'),original);
- assert.equal(reopened.run('S.version'),'7.3.4');
+ assert.equal(reopened.run('S.version'),'7.4.2');
  assert.equal(reopened.run('M.oppLineup.o9'),first);
 });
 test('one ball state tracks owners and restarts without extra kickoffs',()=>{
