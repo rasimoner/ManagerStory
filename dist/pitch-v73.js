@@ -80,7 +80,7 @@ function pitchInstructionTarget(id,side,ball,attacking) {
 function eventAnimationTime(e) {
   if(e.presentationDuration)return e.presentationDuration;
   const a=e.fromPos||[50,50],b=e.toPos||a,dist=Math.hypot(a[0]-b[0],a[1]-b[1]);
-  const viewing=M?.speed===.5?1.18:M?.speed===2?.85:1;
+  const viewing=typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled?1:M?.speed===.5?1.18:M?.speed===2?.85:1;
   if(e.type==='pass'||e.type==='cross') {
     const passing=playerAttribute(e.fromId,e.fromSide,'passing',69);
     const aerial=e.type==='cross'||e.travelType==='aerial'||e.passKind==='long'||dist>34;
@@ -116,7 +116,7 @@ function currentPitchState() {
 function enqueuePitchEvent(e) {
   if(!M||!PITCH_ACTIONS.has(e.type))return;
   const state=currentPitchState();
-  if(e.type==='goal'){
+  if(e.type==='goal'&&!(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled)){
     // Score/overlay are immediate, but an in-flight shot completes visually.
     state.queue.length=0;
     const scoringTeam=e.side===0?M.home:M.away;
@@ -126,12 +126,29 @@ function enqueuePitchEvent(e) {
     state.goalText=goalIdentity.name+' • '+(e.scorer||'Gol')+' • '+e.minute+'’';
     state.goalUntil=(typeof performance!=='undefined'?performance.now():0)+1700;
   }
-  if(state.queue.length>=36) {
+  if(state.queue.length>=36&&!(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled)) {
     const old=state.queue.findIndex(x=>!IMPORTANT_ACTIONS.has(x.type));
     if(old>=0)state.queue.splice(old,1);
     else if(!IMPORTANT_ACTIONS.has(e.type))return;
   }
-  state.queue.push(e);
+  if(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled){
+    // Transient read-only engine keyframes; never stored back in M.events or career saves.
+    const enginePositions=Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
+    const copy=structuredClone(e);
+    // The old kickoff declares a 3-percent tap that the engine never commits.
+    // Retain the raw declaration for diagnostics; present the actual restart spot.
+    if(e.type==='kickoff'){copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';}
+    // Link immutable presentation copies only; engine events/save schema stay unchanged.
+    if(['goal','save','wide','block','post'].includes(copy.type)){
+      const shot=[...state.queue].reverse().find(x=>x.type==='shot'&&!x.shotResult&&x.fromId===copy.fromId&&x.gameSecond===copy.gameSecond&&x.outcome===copy.type);
+      if(shot)shot.shotResult=structuredClone({...copy,enginePositions});
+    }
+    if(copy.type==='shot'&&copy.header){copy.text='Kafa vuruşu · gerçek korner topu';
+      const incoming=[...state.queue].reverse().find(x=>x.type==='corner'&&x.toId===copy.fromId&&x.gameSecond===copy.gameSecond);
+      if(incoming){copy.headerIncoming={eventId:incoming.eventId,fromPos:[...incoming.fromPos],toPos:[...incoming.toPos]};incoming.headerShot=structuredClone(copy);incoming.enginePositions[String(copy.fromId)]=[...copy.fromPos];}
+    }
+    state.queue.push({...copy,enginePositions,sampleTime:{gameSecond:e.gameSecond,stage:window.ManagerStoryLive3D.inPositionUpdate?'during-position-update':'event-after-position-update',sequence:e.eventId},engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
+  }else state.queue.push(e);
 }
 function pitchEventPhase(progress) {
   return progress<.19?'PREPARATION':progress<.76?'ACTION':progress<.91?'RESULT':'SETTLE';
@@ -270,10 +287,17 @@ function paintLivePitch() {
   const state=currentPitchState();
   const dt=state.lastTime==null?0:limitPitch((now-state.lastTime)/1000,0,.1);
   state.lastTime=now;
-  synchronizePitchPresentation(state);
-  const frame=pitchFrameState(dt,now);
+  const dev=window.ManagerStoryLive3D?.enabled;
+  if(!dev)synchronizePitchPresentation(state);
+  const frame=dev?state:pitchFrameState(dt,now);
+  if(typeof window!=='undefined'&&window.MatchView)window.MatchView.publish(frame);
   const score=document.querySelector('#live-score');
-  if(score)score.textContent=[M.hg,M.ag].join('–');
+  if(score)score.textContent=(dev&&frame.eventScore||[M.hg,M.ag]).join('–');
+  if(dev){
+    if(clock)clock.textContent=clockFromSeconds(frame.displayMatchSeconds??matchSecond());
+    const commentary=document.querySelector('[data-live-commentary]');
+    if(commentary){commentary.replaceChildren(...liveCommentaryLines().map(text=>{const line=document.createElement('div');line.className='comment';line.textContent=text;return line;}));}
+  }
   const pitch=document.querySelector('.livepitch');if(!pitch||!frame)return;
   const rect=pitch.getBoundingClientRect(),w=rect.width,h=rect.height;if(!w||!h)return;
   for(const node of pitch.querySelectorAll('[data-player]')) {
@@ -363,6 +387,7 @@ function nearestSet(side,point,count,filter){
 function evolvePitchPositions(){
  if(engineFrozen())return;
  M.dynamicPositions ??={};M.pitchMotion ??={};
+ window.ManagerStoryLive3D?.beginMotionSample?.();
  const ball=M.ballState?.position||[50,50],attacking=M.ballSide;
  const previous=M.previousPossessionSide;
  if(previous&&previous!==attacking&&attacking!=='none')M.regain={side:attacking,min:M.min};
@@ -468,6 +493,7 @@ function evolvePitchPositions(){
  if(M.ballOwner!=null&&M.ballSide!=='none'&&M.ballState?.state==='LIVE'){
   M.ballState.position=eventPoint(M.ballOwner,M.ballSide);
  }
+ window.ManagerStoryLive3D?.endMotionSample?.();
 }
 function passLanePressure(a,b,side){
  const others=side==='user'?M.oppIds:M.active;
@@ -554,11 +580,14 @@ function pitchDribble(from,side,opponent){
  const touchSkill=normalizeAttribute(playerAttribute(from,side,'technique',65)*.5+playerAttribute(from,side,'dribbling',65)*.5);
  const heavyTouch=!near&&M.rand()<clamp(.035-(touchSkill-.5)*.07,.004,.07);
  const success=!heavyTouch&&(!near||M.rand()<chance);
+ const touchPresentation=heavyTouch&&window.ManagerStoryLive3D?.enabled?{carrierId:from,carrierSide:side,start:[...start],land:[...end],gameSecond:matchSecond(),source:'captured-before-heavy-touch-carrier-placement'}:null;
+ const contestStart=near&&window.ManagerStoryLive3D?.enabled?[...eventPoint(defender.id,defendingSide)]:null;
  M.dynamicPositions[String(from)]=end;
  if(heavyTouch){
   const st=side==='user'?M.playerStats[from]:null;if(st)st.dribblesAttempted++;
   matchEvent('ballCarry',M.min+'’ '+(owner?.name||opponentName(from))+' topu açık bıraktı.',
    {playerId:side==='user'?from:null,fromId:from,toId:from,fromSide:side,toSide:side,ballSide:'none',fromPos:start,toPos:end,success:false});
+  if(touchPresentation)window.ManagerStoryLive3D.captureHeavyTouch?.(touchPresentation);
   makeLooseBall(start,end,'touch',defendingSide);
   return false;
  }
@@ -575,6 +604,7 @@ function pitchDribble(from,side,opponent){
   M.dynamicPositions[String(defender.id)]=success?
     [limitPitch(end[0]-dir*4,4,96),end[1]]:end;
   recordPitchTackle(defender.id,defendingSide,from,side,!success,end);
+  if(contestStart)window.ManagerStoryLive3D.linkDribbleContest({attackerId:from,attackerSide:side,defenderId:defender.id,defenderSide:defendingSide,attackerStart:[...start],point:[...end],defenderStart:contestStart,defenderEnd:[...M.dynamicPositions[String(defender.id)]],attackerKeepsBall:success});
   if(boxChallengePenalty(defender.id,defendingSide,from,side,end))return false; // stop the carry: a penalty is being taken
  }
  if(!success&&near){
@@ -599,6 +629,7 @@ function actionMinute(userPoss,effect,opponent){
   if(defender&&defender.d<reach){
    const press=(()=>{const P=tacticProfile(defSide).press;return P>0?.11:P<0?-.07:0;})();
    const success=M.rand()<tackleChance(defender.id,defSide,carrier,side,{distance:defender.d,press});
+   const gainStart=window.ManagerStoryLive3D?.enabled?{attackerId:carrier,attackerSide:side,defenderId:defender.id,defenderSide:defSide,attackerStart:[...point],point:[...point],defenderStart:[...eventPoint(defender.id,defSide)],decision:"actionMinute"}:null;
    M.dynamicPositions[String(defender.id)]=moveTowards(eventPoint(defender.id,defSide),point,defender.d);
    recordPitchTackle(defender.id,defSide,carrier,side,success,point);
    if(boxChallengePenalty(defender.id,defSide,carrier,side,point))return; // the penalty sequence owns the rest of this minute
@@ -607,6 +638,7 @@ function actionMinute(userPoss,effect,opponent){
     M.stats.possessionsWon[defSide==='user'?userSide():1-userSide()]++;
     matchEvent('interception',M.min+'’ '+(playerAtMarker(defender.id,defSide)?.name||'Rakip')+' topu kazandı.',
      {fromId:carrier,toId:defender.id,fromSide:side,toSide:defSide,ballSide:defSide,fromPos:point,toPos:point});
+    if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    }
   }
  }
@@ -641,12 +673,14 @@ function actionMinute(userPoss,effect,opponent){
    // shield lost: the ball runs loose and is contested for real
    matchEvent('hold',M.min+'’ '+(owner?.name||'Rakip')+' topu koruyamadı.',
     {fromId:from,toId:from,fromSide:side,toSide:side,ballSide:'none',fromPos:point,toPos:point,success:false});
+   window.ManagerStoryLive3D?.captureShield?.({attackerId:from,attackerSide:side,defenderId:nearby.id,defenderSide:side==='user'?'opp':'user',point:[...point],defenderStart:[...eventPoint(nearby.id,side==='user'?'opp':'user')]});
    makeLooseBall(point,point,'shield',side==='user'?'opp':'user');
    break;
   }
   if(choice.type==='hold'){
    matchEvent('hold',M.min+'’ '+(owner?.name||'Rakip')+' topu koruyup destek bekledi.',
     {fromId:from,toId:from,fromSide:side,toSide:side,ballSide:side,fromPos:point,toPos:point});
+   window.ManagerStoryLive3D?.captureShield?.({attackerId:from,attackerSide:side,defenderId:nearby?.id,defenderSide:side==='user'?'opp':'user',point:[...point],defenderStart:nearby?[...eventPoint(nearby.id,side==='user'?'opp':'user')]:null});
    continue;
   }
   if(choice.type==='carry'){
@@ -666,7 +700,7 @@ function actionMinute(userPoss,effect,opponent){
   const accuracy=passSuccessProbability(from,side,selected,{pressure,effect,risk:order==='riskPass',tempo:tacticProfile(side).tempo});
   const stat=side==='user'?M.playerStats[from]:null,index=side==='user'?userSide():1-userSide();
   M.stats.passes[index]++;if(stat)stat.passesAttempted++;
-  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null;
+  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null;
   const longBall=range>29||(['LW','RW'].includes(role)&&range>22&&forward>58);
   const contested=range>38||(['LW','RW'].includes(role)&&range>26&&forward>58);   // only genuinely high/long deliveries are contested
   if(success&&contested){
@@ -684,6 +718,7 @@ function actionMinute(userPoss,effect,opponent){
   }else{
    const defSide=side==='user'?'opp':'user',interceptor=nearestMarker(defSide,to);
    if(interceptor&&interceptor.d<18){
+    if(window.ManagerStoryLive3D?.enabled)cutPresentation={id:interceptor.id,side:defSide,start:[...eventPoint(interceptor.id,defSide)],intendedTarget:[...to]};
     const gain=moveTowards(eventPoint(interceptor.id,defSide),to,Math.min(interceptor.d,10));
     M.dynamicPositions[String(interceptor.id)]=gain;
     switchPitchOwner(interceptor.id,defSide);setBallState(gain,interceptor.id);
@@ -702,6 +737,7 @@ function actionMinute(userPoss,effect,opponent){
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
      passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
      distance:range,passing});
+  if(cutPresentation)window.ManagerStoryLive3D.linkPassCut?.(cutPresentation);
   if(success){
    const receiver=playerAtMarker(target,side);
    matchEvent('firstTouch',M.min+'’ '+(receiver?.name||'Rakip')+' topu kontrol etti.',
@@ -720,6 +756,7 @@ function chanceV73(user) {
     const spot=eventPoint(M.ballOwner,M.ballSide),defender=nearestMarker(sideName,spot);
     if(!defender||defender.d>19)return;
     const previous=M.ballOwner,previousSide=M.ballSide;
+    const gainStart=window.ManagerStoryLive3D?.enabled?{attackerId:previous,attackerSide:previousSide,defenderId:defender.id,defenderSide:sideName,attackerStart:[...spot],point:[...spot],defenderStart:[...eventPoint(defender.id,sideName)],decision:"chanceV73"}:null;
     M.dynamicPositions[String(defender.id)]=moveTowards(eventPoint(defender.id,sideName),spot,Math.min(10,defender.d));
     recordPitchTackle(defender.id,sideName,previous,previousSide,true,spot);
     switchPitchOwner(defender.id,sideName);
@@ -727,6 +764,7 @@ function chanceV73(user) {
     matchEvent('interception',M.min+'’ '+(playerAtMarker(defender.id,sideName)?.name||'Rakip')+' topu kazandı.',
       {fromId:previous,toId:defender.id,fromSide:previousSide,toSide:sideName,
        ballSide:sideName,fromPos:spot,toPos:eventPoint(defender.id,sideName)});
+    if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,sideName)]});
   }
   let carrier=M.ballOwner;
   const carrierSide=M.ballSide,dir=(user?1:-1)*userDirection();
@@ -797,6 +835,7 @@ function resolveShot(user,shooter,p,opts={}) {
   const dir=(user?1:-1)*userDirection();
   const defLine=tacticProfile(user?'opp':'user').line;
   switchPitchOwner(shooter,sideName);
+  const shotStart=window.ManagerStoryLive3D?.enabled?[...eventPoint(shooter,sideName)]:null;
   if(opts.source)M.dynamicPositions[String(shooter)]=[...opts.source];
   const source=opts.source?[...opts.source]:eventPoint(shooter,sideName);
   const destination=[dir>0?98:2,50+(M.rand()-.5)*16],opponentGK=keeperId(user?'opp':'user');
@@ -840,6 +879,7 @@ function resolveShot(user,shooter,p,opts={}) {
   matchEvent('shot',M.min+'’ '+p.name+' şut çekti.',{side,playerId:user?p.id:null,fromId:shooter,
     fromSide:user?'user':'opp',ballSide:user?'user':'opp',fromPos:source,toPos:destination,
     goalkeeperId:opponentGK,xg,onTarget:on,outcome,frame,restartType:opts.restartType||null,header:!!opts.header,penalty:!!opts.penalty});
+  if(shotStart)window.ManagerStoryLive3D.captureShotStart?.(shotStart);
   if(!goal)matchEvent('chance',M.min+'’ '+p.name+' şutunun sonucu: '+({save:'kurtarış',block:'blok',post:'direk',wide:'aut'}[outcome])+'.',
     {side,playerId:user?p.id:null,xg,onTarget:on,outcome});
   if(goal) {

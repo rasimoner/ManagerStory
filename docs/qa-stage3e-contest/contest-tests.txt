@@ -1,0 +1,11 @@
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (3562.266742ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.317229ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (164.262982ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3820.849777

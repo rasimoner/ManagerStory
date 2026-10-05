@@ -1,0 +1,11 @@
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (2301.905471ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (36.67722ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (76.473649ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2534.993977

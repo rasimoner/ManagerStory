@@ -1,0 +1,244 @@
+{
+  "modelHeightMeters": 1.7867368226011888,
+  "modelFootMinY": -0.0027367835005418515,
+  "weightsValid": true,
+  "blendedVertices": 4320,
+  "unitScaleAll": true,
+  "mode": "visual-test",
+  "fixture": "short",
+  "testEndpoints": [
+    [
+      57.2,
+      62
+    ],
+    [
+      65,
+      59
+    ]
+  ],
+  "players": 22,
+  "balls": 1,
+  "bones": 16,
+  "initMs": 1697.6999999997206,
+  "renderSubmissionMs": 6.600000000093132,
+  "calls": 154,
+  "triangles": 427702,
+  "canvas": [
+    585,
+    819
+  ],
+  "renderer": "WebKit WebGL",
+  "meanRenderCompletedMs": 3.5249999999456727,
+  "staticBenchmarkFrames": 12,
+  "staticBenchmarkFps": 57.85920925736956,
+  "rendererUnmasked": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "controls": [
+    {
+      "disabled": true,
+      "bottom": 818
+    },
+    {
+      "disabled": true,
+      "bottom": 818
+    },
+    {
+      "disabled": true,
+      "bottom": 818
+    }
+  ],
+  "viewport": [
+    390,
+    844
+  ],
+  "sceneGoals": 2,
+  "skeletons": [
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16,
+    16
+  ],
+  "initialRenderReadyMs": 1840.1969629999999,
+  "navigationThroughScreenshotAndBenchmarkMs": 5445.377029,
+  "browserVersion": "153.0.8010.0",
+  "environment": "Linux headless Chromium / SwiftShader software renderer / 390x844 CSS / DPR 1.5",
+  "framing": {
+    "short390": {
+      "viewport": [
+        390,
+        844
+      ],
+      "endpoints": [
+        [
+          -0.5231460766496747,
+          -0.04857264919665746,
+          0.9936173551916576
+        ],
+        [
+          0.4930894326051941,
+          0.04578197391041377,
+          0.994019981087692
+        ]
+      ],
+      "endpointsVisible": true,
+      "carrierHeightCssPx": 39.1012156427277,
+      "camera": [
+        11.655000000000005,
+        15.35220667249092,
+        32.23495321464862
+      ],
+      "focus": [
+        11.655000000000005,
+        0,
+        7.139999999999999
+      ],
+      "playerScale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "long390": {
+      "viewport": [
+        390,
+        844
+      ],
+      "endpoints": [
+        [
+          -0.8092443418692408,
+          -0.14470650995859816,
+          0.9983883102014571
+        ],
+        [
+          0.6848728069996133,
+          0.12246678603589906,
+          0.9987320936890723
+        ]
+      ],
+      "endpointsVisible": true,
+      "carrierHeightCssPx": 11.919894924363051,
+      "camera": [
+        9.555000000000003,
+        50.91167240556132,
+        80.50100297062907
+      ],
+      "focus": [
+        9.555000000000003,
+        0,
+        -2.7200000000000006
+      ],
+      "playerScale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "long320": {
+      "viewport": [
+        320,
+        568
+      ],
+      "endpoints": [
+        [
+          -0.860882981087217,
+          -0.2564957128823074,
+          0.9966602634778357
+        ],
+        [
+          0.6512531992838616,
+          0.19403758383774328,
+          0.997625746390641
+        ]
+      ],
+      "endpointsVisible": true,
+      "carrierHeightCssPx": 10.205459042816232,
+      "camera": [
+        9.555000000000003,
+        30.569731868517845,
+        47.24975401584647
+      ],
+      "focus": [
+        9.555000000000003,
+        0,
+        -2.7200000000000006
+      ],
+      "playerScale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "short320": {
+      "viewport": [
+        320,
+        568
+      ],
+      "endpoints": [
+        [
+          -0.4703074394755964,
+          -0.07275758200798252,
+          0.9901280634450724
+        ],
+        [
+          0.4309581945998092,
+          0.0666701683914881,
+          0.9910063277038896
+        ]
+      ],
+      "endpointsVisible": true,
+      "carrierHeightCssPx": 29.17107728278047,
+      "camera": [
+        11.655000000000005,
+        10.4,
+        24.14
+      ],
+      "focus": [
+        11.655000000000005,
+        0,
+        7.139999999999999
+      ],
+      "playerScale": [
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "compactControls": [
+    {
+      "bottom": 542,
+      "right": 100
+    },
+    {
+      "bottom": 542,
+      "right": 216
+    },
+    {
+      "bottom": 542,
+      "right": 314
+    }
+  ],
+  "offlineReload": true,
+  "closeReturnsToExistingApp": true,
+  "defaultEntryKeepsOriginalApp": true,
+  "errors": [],
+  "warnings": [],
+  "externalRequests": []
+}

@@ -1,5 +1,5 @@
 /* ManagerStory V7.2: additive migration and shared match state. */
-const GAME_VERSION = "7.3.4";
+const GAME_VERSION = "7.4.2";
 const MATCH_TACTICS = {
   mentality: ["Temkinli", "Dengeli", "Cesur"],
   press: ["Düşük", "Normal", "Yüksek"],
@@ -155,6 +155,12 @@ function matchEvent(type, text, data = {}) {
   return event;
 }
 function liveCommentaryLines(){
+  if(window.ManagerStoryLive3D?.enabled&&!(!livePresentationPending()&&M.finished)){
+    const s=currentPitchState(),e=s.shotMotion?.event||s.contestMotion?.event||s.looseMotion?.event||s.holdMotion?.event||s.active;
+    const text=e&&!['enginePositionGap','presentationSync'].includes(e.type)?e.text:null;
+    if(M.commentaryOpen){const boundary=e?.eventId??s.queue.find(x=>x.eventId!=null)?.eventId;const lines=M.events.filter(x=>x.eventId!=null&&(boundary==null||x.eventId<boundary)).slice(-79).reverse().map(x=>x.text);return [text||'Sahada oyun sürüyor.',...lines];}
+    return [text||(livePresentationPending()?"Son aksiyonların sunumu tamamlanıyor.":"Sahada oyun sürüyor.")];
+  }
   if(M.commentaryOpen)return M.story.slice().reverse().slice(0,80);
   const now=matchSecond();
   const recent=M.events.filter(e=>e.gameSecond!=null&&now-e.gameSecond>=0&&now-e.gameSecond<=90).slice(-2).reverse();

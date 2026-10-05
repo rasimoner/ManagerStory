@@ -1,0 +1,214 @@
+{
+  "checks": [
+    {
+      "name": "390-contest-18-0.3",
+      "eventId": 18,
+      "phase": "approach",
+      "owner": "o7",
+      "clearance": 11.897979501149278,
+      "toeBall": 11.783124963497475,
+      "screen": {
+        "attacker": [
+          336.9519671809712,
+          280.83408631511594
+        ],
+        "defender": [
+          50.899088915013074,
+          272.7844173489495
+        ],
+        "canvas": [
+          390,
+          546
+        ]
+      }
+    },
+    {
+      "name": "390-contest-18-contact",
+      "eventId": 18,
+      "phase": "contact-result",
+      "owner": "o7",
+      "clearance": 0.6200000000000002,
+      "toeBall": 0.13756816492197754
+    },
+    {
+      "name": "390-contest-18-0.95",
+      "eventId": 18,
+      "phase": "recovery",
+      "owner": "o7",
+      "clearance": 3.7030804754220057,
+      "toeBall": 3.778104952330147,
+      "screen": {
+        "attacker": [
+          151.00719525280493,
+          274.61314494581757
+        ],
+        "defender": [
+          268.8973360919359,
+          273.51936800514403
+        ],
+        "canvas": [
+          390,
+          546
+        ]
+      }
+    },
+    {
+      "name": "390-contest-21-0.3",
+      "eventId": 21,
+      "phase": "approach",
+      "owner": "o7",
+      "clearance": 4.943417882961819,
+      "toeBall": 5.249971368243815,
+      "screen": {
+        "attacker": [
+          249.07605064581762,
+          292.1773647425574
+        ],
+        "defender": [
+          114.36024377654763,
+          248.54102277479274
+        ],
+        "canvas": [
+          390,
+          546
+        ]
+      }
+    },
+    {
+      "name": "390-contest-21-contact",
+      "eventId": 21,
+      "phase": "contact-result",
+      "owner": 1,
+      "clearance": 0.6200000000000004,
+      "toeBall": 0.1375681649219772
+    },
+    {
+      "name": "390-contest-21-0.95",
+      "eventId": 21,
+      "phase": "recovery",
+      "owner": 1,
+      "clearance": 0.9098528946831381,
+      "toeBall": 0.08039743432883543,
+      "screen": {
+        "attacker": [
+          207.74844978351587,
+          287.1283940818846
+        ],
+        "defender": [
+          195.26289726609974,
+          272.5634624633343
+        ],
+        "canvas": [
+          390,
+          546
+        ]
+      }
+    },
+    {
+      "name": "320-contest-18-0.3",
+      "eventId": 18,
+      "phase": "approach",
+      "owner": "o7",
+      "clearance": 11.897979501149278,
+      "toeBall": 11.5734831586699,
+      "screen": {
+        "attacker": [
+          276.3682885637954,
+          144.92796825855666
+        ],
+        "defender": [
+          41.870066780649466,
+          138.32311167093295
+        ],
+        "canvas": [
+          320,
+          277
+        ]
+      }
+    },
+    {
+      "name": "320-contest-18-contact",
+      "eventId": 18,
+      "phase": "contact-result",
+      "owner": "o7",
+      "clearance": 0.6200000000000002,
+      "toeBall": 0.13756816492197754
+    },
+    {
+      "name": "320-contest-18-0.95",
+      "eventId": 18,
+      "phase": "recovery",
+      "owner": "o7",
+      "clearance": 3.7030804754220057,
+      "toeBall": 3.4343763184053993,
+      "screen": {
+        "attacker": [
+          123.9359179078812,
+          139.8236061093888
+        ],
+        "defender": [
+          220.5789880986934,
+          138.92614810678484
+        ],
+        "canvas": [
+          320,
+          277
+        ]
+      }
+    },
+    {
+      "name": "320-contest-21-0.3",
+      "eventId": 21,
+      "phase": "approach",
+      "owner": "o7",
+      "clearance": 4.943417882961819,
+      "toeBall": 5.244340805321351,
+      "screen": {
+        "attacker": [
+          204.3300476274517,
+          154.23527363491888
+        ],
+        "defender": [
+          93.89376274045227,
+          118.43109561008636
+        ],
+        "canvas": [
+          320,
+          277
+        ]
+      }
+    },
+    {
+      "name": "320-contest-21-contact",
+      "eventId": 21,
+      "phase": "contact-result",
+      "owner": 1,
+      "clearance": 0.6200000000000004,
+      "toeBall": 0.1375681649219772
+    },
+    {
+      "name": "320-contest-21-0.95",
+      "eventId": 21,
+      "phase": "recovery",
+      "owner": 1,
+      "clearance": 0.9098528946831381,
+      "toeBall": 0.10396059419537146,
+      "screen": {
+        "attacker": [
+          170.45082581531207,
+          150.09252847744375
+        ],
+        "defender": [
+          160.21551589267605,
+          138.14181535453073
+        ],
+        "canvas": [
+          320,
+          277
+        ]
+      }
+    }
+  ],
+  "consoleErrors": [],
+  "externalRequests": []
+}

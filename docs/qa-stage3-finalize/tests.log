@@ -1,0 +1,60 @@
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (45.047342ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (209.078642ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (1643.467539ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (23.632517ms)
+✔ joining an already active legacy event preserves progress and stays finite (26.564127ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (160.003659ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (28.237584ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (3531.153524ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (37.774407ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (71.933854ms)
+✖ real seed1 final batch drains once, engine/career unchanged, controls and terminal freeze (1773.438866ms)
+✖ real seed8800 final batch drains once, engine/career unchanged, controls and terminal freeze (1330.037671ms)
+✔ existing real seed1 goal stays on its visual result clock when finish is requested mid-shot (335.466017ms)
+✔ 3H real shots and continuations preserve previous complete engine events, score, statistics and RNG (4208.612367ms)
+✔ 3H actual boot, frame and forehead contacts; one shot/result and one rebound only (0.434375ms)
+✔ 3H preparation, flight and result pause and rate changes stay on the same phase (391.533317ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 14
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4725.634591
+
+✖ failing tests:
+
+test at tests/match3d-stage3-finalize.test.cjs:2:28
+✖ real seed1 final batch drains once, engine/career unchanged, controls and terminal freeze (1773.438866ms)
+  AssertionError [ERR_ASSERTION]: Values have same structure but are not reference-equal:
+  
+  []
+  
+      at TestContext.<anonymous> (/workspace/scratch/8bd0598b1055/ManagerStory-3-finalize/tests/match3d-stage3-finalize.test.cjs:3:306)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/match3d-stage3-finalize.test.cjs:2:28
+✖ real seed8800 final batch drains once, engine/career unchanged, controls and terminal freeze (1330.037671ms)
+  AssertionError [ERR_ASSERTION]: Values have same structure but are not reference-equal:
+  
+  []
+  
+      at TestContext.<anonymous> (/workspace/scratch/8bd0598b1055/ManagerStory-3-finalize/tests/match3d-stage3-finalize.test.cjs:3:306)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

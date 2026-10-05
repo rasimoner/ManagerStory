@@ -1,0 +1,30 @@
+2026-10-03 / Node 24.19.0 / npm test
+✔ PASSING STYLE decision: Direkt differs from Dengeli (not only from Kısa); execution still comes from Phase 2 (9017.817505ms)
+ℹ tests 127
+ℹ suites 0
+ℹ pass 127
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 165134.463951
+
+Final targeted checks after pose/metadata refinements:
+✔ view reads never initialize or mutate match/presentation/save state (101.734233ms)
+✔ copies are deeply frozen; presentation sync stays distinct from match events (41.635616ms)
+✔ observing a full match preserves seeded events/results and stops after unsubscribe (1143.024136ms)
+✔ pass description derives existing phase timing without changing engine or save state (38.970251ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (4.718408ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.713635ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (5.151723ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (8.520071ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1445.03271
+
+Real WebGL QA: tools/match3d-pass-qa.mjs; see metrics.json.

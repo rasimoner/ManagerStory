@@ -1,0 +1,17 @@
+PAGEERROR Cannot read properties of null (reading 'heavyTouch')
+CONSOLE 3D geliştirme sahnesi açılamadı TypeError: Cannot read properties of null (reading 'heavyTouch')
+    at paint (http://127.0.0.1:39113/match3d-dev.js:46:11)
+    at http://127.0.0.1:39113/match3d-dev.js:96:59
+PAGEERROR Cannot read properties of null (reading 'heavyTouch')
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 30000ms exceeded.
+    at reset (/workspace/scratch/5b445d27cc24/ManagerStory/tools/match3d-loose-webgl.mjs:11:76)
+    at async file:///workspace/scratch/5b445d27cc24/ManagerStory/tools/match3d-loose-webgl.mjs:19:46 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0

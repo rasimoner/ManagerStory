@@ -1,0 +1,29 @@
+✔ seed 1 real carry route stays with player, limits speed and preserves engine events and statistics (2537.627286ms)
+✔ shared carry phase and ball do not restart under pause or speed selection (197.532968ms)
+✔ existing side-camera keeps both approaching contest actors in both portrait fields (2171.686464ms)
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (4279.062724ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.431931ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (151.941688ms)
+✔ seed4 heavy touch has a visible free roll, genuine winner and bounded approach (7454.876676ms)
+✔ comparison with b351028 preserves complete real events, winners, statistics and RNG (6623.694053ms)
+✔ last touch, free roll and approach pause together and speed changes keep the same chain (376.77483ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (2736.102849ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (36.252675ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (74.889317ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (2.695836ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.436338ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (4.769339ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (4.644656ms)
+✔ 3H real shots and continuations preserve previous complete engine events, score, statistics and RNG (3526.758429ms)
+✔ 3H actual boot, frame and forehead contacts; one shot/result and one rebound only (0.427915ms)
+✔ 3H preparation, flight and result pause and rate changes stay on the same phase (322.15926ms)
+✔ real standalone gain has one contact, actual winner and continuous true continuation (1083.983657ms)
+✔ independent gain pause/rate, radar snapshot and narrative share immutable common clock (67.748201ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14545.828915

@@ -1,0 +1,119 @@
+{
+  "seed": 6,
+  "shot": {
+    "side": 1,
+    "playerId": null,
+    "fromId": "o10",
+    "fromSide": "opp",
+    "ballSide": "opp",
+    "fromPos": [
+      13.852007061762144,
+      40.35596081927701
+    ],
+    "toPos": [
+      2,
+      54.09042363520712
+    ],
+    "goalkeeperId": 0,
+    "xg": 0.14569344581341354,
+    "onTarget": false,
+    "outcome": "post",
+    "frame": "crossbar",
+    "restartType": null,
+    "header": false,
+    "penalty": false,
+    "type": "shot",
+    "eventId": 99,
+    "minute": 18,
+    "second": 1080,
+    "gameSecond": 1080,
+    "text": "18’ Sarp Yıldız şut çekti.",
+    "homeGoals": 1,
+    "awayGoals": 0
+  },
+  "following": [
+    {
+      "side": 1,
+      "playerId": null,
+      "xg": 0.14569344581341354,
+      "onTarget": false,
+      "outcome": "post",
+      "type": "chance",
+      "eventId": 100,
+      "minute": 18,
+      "second": 1080,
+      "gameSecond": 1080,
+      "text": "18’ Sarp Yıldız şutunun sonucu: direk.",
+      "homeGoals": 1,
+      "awayGoals": 0
+    },
+    {
+      "side": 1,
+      "fromId": "o10",
+      "fromSide": "opp",
+      "ballSide": "none",
+      "fromPos": [
+        2,
+        54.09042363520712
+      ],
+      "toPos": [
+        12,
+        56.74317260971293
+      ],
+      "frame": "crossbar",
+      "hitFrame": true,
+      "type": "post",
+      "eventId": 101,
+      "minute": 18,
+      "second": 1080,
+      "gameSecond": 1080,
+      "text": "18’ Şut üst direkten döndü!",
+      "homeGoals": 1,
+      "awayGoals": 0
+    },
+    {
+      "fromPos": [
+        2,
+        54.09042363520712
+      ],
+      "toPos": [
+        12,
+        56.74317260971293
+      ],
+      "ballSide": "none",
+      "reason": "crossbar",
+      "type": "looseBall",
+      "eventId": 102,
+      "minute": 18,
+      "second": 1080,
+      "gameSecond": 1080,
+      "text": "18’ Top sahipsiz kaldı.",
+      "homeGoals": 1,
+      "awayGoals": 0
+    },
+    {
+      "fromPos": [
+        12,
+        56.74317260971293
+      ],
+      "toPos": [
+        12,
+        56.74317260971293
+      ],
+      "toId": 0,
+      "toSide": "user",
+      "ballSide": "user",
+      "chaseSeconds": 2.8,
+      "startDistance": 5.16,
+      "contested": false,
+      "type": "recovery",
+      "eventId": 103,
+      "minute": 18,
+      "second": 1080,
+      "gameSecond": 1080,
+      "text": "18’ Onur dönen topu aldı.",
+      "homeGoals": 1,
+      "awayGoals": 0
+    }
+  ]
+}

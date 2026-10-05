@@ -1,0 +1,24 @@
+{
+  "38": {
+    "bytes": 114459,
+    "duration": "7.600000",
+    "codec": "h264",
+    "profile": "Constrained Baseline",
+    "pixelFormat": "yuv420p",
+    "tag": "avc1",
+    "moov": 36,
+    "mdat": 1080,
+    "fullDecode": true
+  },
+  "75": {
+    "bytes": 146651,
+    "duration": "11.920000",
+    "codec": "h264",
+    "profile": "Constrained Baseline",
+    "pixelFormat": "yuv420p",
+    "tag": "avc1",
+    "moov": 36,
+    "mdat": 1412,
+    "fullDecode": true
+  }
+}

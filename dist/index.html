@@ -6,7 +6,13 @@
 <meta name="apple-mobile-web-app-title" content="ManagerStory">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23071014'/%3E%3Cpath d='M14 47V17l18 19 18-19v30' fill='none' stroke='%2332df87' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>ManagerStory V7.4.0 — MatchEngine V2</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
-</head><body><div id="app"></div><script src="match-support.js?v=7.4.0"></script><script src="career-events.js?v=7.4.0"></script><script src="live-match.js?v=7.4.0"></script><script src="opponents-v731.js?v=7.4.0"></script><script src="pitch-v73.js?v=7.4.0"></script><script src="pitch-v731.js?v=7.4.0"></script><script src="app.js?v=7.4.0"></script>
-<script src="webmcp.js?v=7.4.0"></script>
+<title>ManagerStory V7.4.2 — MatchEngine V2</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css">
+</head><body><div id="app"></div><script src="match-support.js?v=7.4.2"></script><script src="career-events.js?v=7.4.2"></script><script src="live-match.js?v=7.4.2"></script><script src="opponents-v731.js?v=7.4.2"></script><script src="pitch-v73.js?v=7.4.2"></script><script src="pitch-v731.js?v=7.4.2"></script><script src="app.js?v=7.4.2"></script>
+<script src="webmcp.js?v=7.4.2"></script>
+<script src="match3d-live-clock.js"></script>
+<script src="match-view-adapter.js"></script>
+<script type="module">
+import './match3d-career.js';
+if(new URLSearchParams(location.search).get('dev3d')==='1')import('./match3d-dev.js').catch(error=>console.warn('3D hazırlığı yüklenemedi.',error));
+</script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(error=>console.warn("Çevrimdışı hazırlık tamamlanamadı.",error));</script></body></html>

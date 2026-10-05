@@ -1,0 +1,11 @@
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (15432.181832ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (0.955952ms)
+✔ pause and speed changes do not restart shot or expose result early (101.008999ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15665.643253

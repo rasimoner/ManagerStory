@@ -1,0 +1,571 @@
+[
+  {
+    "seed": 1,
+    "wall": 1777.4399999995433,
+    "frames": 22218,
+    "finished": true,
+    "minute": 90,
+    "lifecycle": "FINISHED",
+    "completed": true,
+    "maxQueue": 19,
+    "maxActiveSeconds": 115.60000000005914,
+    "counts": {
+      "kickoff": 3,
+      "press": 38,
+      "hold": 4,
+      "looseBall": 14,
+      "recovery": 15,
+      "pass": 71,
+      "firstTouch": 56,
+      "dribble": 8,
+      "ballCarry": 10,
+      "tackle": 16,
+      "cross": 14,
+      "shot": 17,
+      "ballOut": 9,
+      "restartPosition": 11,
+      "restartPlayers": 11,
+      "restartWait": 11,
+      "goalKick": 7,
+      "freeKick": 2,
+      "penalty": 2
+    },
+    "unsupported": {
+      "press": 16,
+      "tackle": 16,
+      "ballOut": 9,
+      "restartPosition": 11,
+      "restartPlayers": 11,
+      "restartWait": 11,
+      "goalKick": 7,
+      "freeKick": 2,
+      "penalty": 2
+    },
+    "ownerErrors": [],
+    "duplicates": [],
+    "stops": [
+      {
+        "minute": 45,
+        "reason": "half"
+      }
+    ],
+    "terminal": {
+      "active": {
+        "type": "enginePositionGap",
+        "p": 0.030000000000000002
+      },
+      "queued": [],
+      "batchEnd": true
+    },
+    "enginePreserved": true,
+    "rawTypeCounts": {
+      "kickoff": 3,
+      "offBallRun": 65,
+      "press": 47,
+      "tackle": 47,
+      "interception": 22,
+      "hold": 4,
+      "looseBall": 15,
+      "recovery": 15,
+      "pass": 73,
+      "firstTouch": 57,
+      "dribble": 8,
+      "ballCarry": 10,
+      "foul": 15,
+      "cross": 14,
+      "shot": 17,
+      "chance": 16,
+      "wide": 7,
+      "ballOut": 9,
+      "restartPosition": 11,
+      "restartPlayers": 11,
+      "restartWait": 11,
+      "goalKick": 7,
+      "freeKick": 2,
+      "penalty": 2,
+      "goal": 1,
+      "save": 8,
+      "half": 1,
+      "yellow": 2,
+      "block": 1,
+      "end": 1
+    },
+    "notPresented": [
+      {
+        "id": 34,
+        "type": "foul"
+      },
+      {
+        "id": 59,
+        "type": "foul"
+      },
+      {
+        "id": 90,
+        "type": "foul"
+      },
+      {
+        "id": 104,
+        "type": "chance"
+      },
+      {
+        "id": 123,
+        "type": "foul"
+      },
+      {
+        "id": 142,
+        "type": "foul"
+      },
+      {
+        "id": 157,
+        "type": "foul"
+      },
+      {
+        "id": 166,
+        "type": "chance"
+      },
+      {
+        "id": 168,
+        "type": "foul"
+      },
+      {
+        "id": 176,
+        "type": "chance"
+      },
+      {
+        "id": 187,
+        "type": "foul"
+      },
+      {
+        "id": 193,
+        "type": "chance"
+      },
+      {
+        "id": 227,
+        "type": "chance"
+      },
+      {
+        "id": 234,
+        "type": "foul"
+      },
+      {
+        "id": 263,
+        "type": "pass"
+      },
+      {
+        "id": 264,
+        "type": "firstTouch"
+      },
+      {
+        "id": 265,
+        "type": "half"
+      },
+      {
+        "id": 278,
+        "type": "chance"
+      },
+      {
+        "id": 322,
+        "type": "chance"
+      },
+      {
+        "id": 329,
+        "type": "foul"
+      },
+      {
+        "id": 330,
+        "type": "yellow"
+      },
+      {
+        "id": 363,
+        "type": "foul"
+      },
+      {
+        "id": 369,
+        "type": "chance"
+      },
+      {
+        "id": 373,
+        "type": "foul"
+      },
+      {
+        "id": 374,
+        "type": "yellow"
+      },
+      {
+        "id": 381,
+        "type": "chance"
+      },
+      {
+        "id": 383,
+        "type": "foul"
+      },
+      {
+        "id": 398,
+        "type": "foul"
+      },
+      {
+        "id": 403,
+        "type": "chance"
+      },
+      {
+        "id": 409,
+        "type": "chance"
+      },
+      {
+        "id": 425,
+        "type": "chance"
+      },
+      {
+        "id": 429,
+        "type": "foul"
+      },
+      {
+        "id": 434,
+        "type": "chance"
+      },
+      {
+        "id": 447,
+        "type": "chance"
+      },
+      {
+        "id": 469,
+        "type": "chance"
+      },
+      {
+        "id": 488,
+        "type": "chance"
+      },
+      {
+        "id": 498,
+        "type": "offBallRun"
+      },
+      {
+        "id": 499,
+        "type": "press"
+      },
+      {
+        "id": 500,
+        "type": "tackle"
+      },
+      {
+        "id": 501,
+        "type": "pass"
+      }
+    ]
+  },
+  {
+    "seed": 8800,
+    "wall": 1829.7599999994957,
+    "frames": 22872,
+    "finished": true,
+    "minute": 90,
+    "lifecycle": "FINISHED",
+    "completed": true,
+    "maxQueue": 13,
+    "maxActiveSeconds": 106.79999999990287,
+    "counts": {
+      "kickoff": 6,
+      "pass": 80,
+      "firstTouch": 55,
+      "cross": 10,
+      "shot": 26,
+      "ballOut": 13,
+      "restartPosition": 13,
+      "restartPlayers": 13,
+      "restartWait": 13,
+      "goalKick": 8,
+      "press": 32,
+      "looseBall": 11,
+      "recovery": 14,
+      "tackle": 16,
+      "dribble": 5,
+      "ballCarry": 4,
+      "freeKick": 3,
+      "corner": 2,
+      "interception": 1
+    },
+    "unsupported": {
+      "ballOut": 13,
+      "restartPosition": 13,
+      "restartPlayers": 13,
+      "restartWait": 13,
+      "goalKick": 8,
+      "press": 16,
+      "tackle": 16,
+      "freeKick": 3,
+      "corner": 2,
+      "interception": 1
+    },
+    "ownerErrors": [],
+    "duplicates": [],
+    "stops": [
+      {
+        "minute": 45,
+        "reason": "half"
+      }
+    ],
+    "terminal": {
+      "active": {
+        "type": "enginePositionGap",
+        "p": 0.030000000000000002
+      },
+      "queued": [],
+      "batchEnd": true
+    },
+    "enginePreserved": true,
+    "rawTypeCounts": {
+      "kickoff": 6,
+      "offBallRun": 64,
+      "pass": 82,
+      "firstTouch": 57,
+      "cross": 10,
+      "shot": 27,
+      "chance": 23,
+      "wide": 8,
+      "ballOut": 13,
+      "restartPosition": 13,
+      "restartPlayers": 13,
+      "restartWait": 13,
+      "goalKick": 8,
+      "press": 39,
+      "tackle": 39,
+      "interception": 18,
+      "save": 12,
+      "looseBall": 15,
+      "recovery": 15,
+      "foul": 14,
+      "dribble": 6,
+      "goal": 4,
+      "post": 1,
+      "ballCarry": 4,
+      "freeKick": 3,
+      "yellow": 3,
+      "half": 1,
+      "block": 2,
+      "corner": 2,
+      "end": 1
+    },
+    "notPresented": [
+      {
+        "id": 15,
+        "type": "chance"
+      },
+      {
+        "id": 32,
+        "type": "chance"
+      },
+      {
+        "id": 36,
+        "type": "foul"
+      },
+      {
+        "id": 50,
+        "type": "chance"
+      },
+      {
+        "id": 52,
+        "type": "foul"
+      },
+      {
+        "id": 62,
+        "type": "chance"
+      },
+      {
+        "id": 93,
+        "type": "foul"
+      },
+      {
+        "id": 100,
+        "type": "chance"
+      },
+      {
+        "id": 107,
+        "type": "chance"
+      },
+      {
+        "id": 124,
+        "type": "chance"
+      },
+      {
+        "id": 133,
+        "type": "foul"
+      },
+      {
+        "id": 150,
+        "type": "foul"
+      },
+      {
+        "id": 159,
+        "type": "foul"
+      },
+      {
+        "id": 160,
+        "type": "yellow"
+      },
+      {
+        "id": 178,
+        "type": "chance"
+      },
+      {
+        "id": 187,
+        "type": "chance"
+      },
+      {
+        "id": 202,
+        "type": "foul"
+      },
+      {
+        "id": 203,
+        "type": "yellow"
+      },
+      {
+        "id": 233,
+        "type": "foul"
+      },
+      {
+        "id": 234,
+        "type": "yellow"
+      },
+      {
+        "id": 242,
+        "type": "press"
+      },
+      {
+        "id": 243,
+        "type": "tackle"
+      },
+      {
+        "id": 244,
+        "type": "interception"
+      },
+      {
+        "id": 245,
+        "type": "dribble"
+      },
+      {
+        "id": 246,
+        "type": "press"
+      },
+      {
+        "id": 247,
+        "type": "tackle"
+      },
+      {
+        "id": 248,
+        "type": "half"
+      },
+      {
+        "id": 263,
+        "type": "foul"
+      },
+      {
+        "id": 278,
+        "type": "chance"
+      },
+      {
+        "id": 282,
+        "type": "foul"
+      },
+      {
+        "id": 298,
+        "type": "chance"
+      },
+      {
+        "id": 313,
+        "type": "chance"
+      },
+      {
+        "id": 369,
+        "type": "chance"
+      },
+      {
+        "id": 373,
+        "type": "foul"
+      },
+      {
+        "id": 378,
+        "type": "chance"
+      },
+      {
+        "id": 393,
+        "type": "foul"
+      },
+      {
+        "id": 405,
+        "type": "chance"
+      },
+      {
+        "id": 415,
+        "type": "chance"
+      },
+      {
+        "id": 428,
+        "type": "chance"
+      },
+      {
+        "id": 446,
+        "type": "chance"
+      },
+      {
+        "id": 456,
+        "type": "chance"
+      },
+      {
+        "id": 469,
+        "type": "chance"
+      },
+      {
+        "id": 473,
+        "type": "foul"
+      },
+      {
+        "id": 482,
+        "type": "foul"
+      },
+      {
+        "id": 491,
+        "type": "chance"
+      },
+      {
+        "id": 502,
+        "type": "chance"
+      },
+      {
+        "id": 507,
+        "type": "pass"
+      },
+      {
+        "id": 508,
+        "type": "firstTouch"
+      },
+      {
+        "id": 509,
+        "type": "pass"
+      },
+      {
+        "id": 510,
+        "type": "firstTouch"
+      },
+      {
+        "id": 511,
+        "type": "shot"
+      },
+      {
+        "id": 512,
+        "type": "chance"
+      },
+      {
+        "id": 513,
+        "type": "save"
+      },
+      {
+        "id": 514,
+        "type": "looseBall"
+      },
+      {
+        "id": 515,
+        "type": "recovery"
+      }
+    ]
+  }
+]

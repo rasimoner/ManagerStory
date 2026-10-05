@@ -1,0 +1,14 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Error: Missing shot phase
+    at eval (eval at evaluate (:311:30), <anonymous>:1:362)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at eventPhase (/workspace/scratch/8bd0598b1055/ManagerStory-3H/tools/match3d-stage3h-webgl.mjs:17:50)
+    at /workspace/scratch/8bd0598b1055/ManagerStory-3H/tools/match3d-stage3h-webgl.mjs:24:42 {
+  log: []
+}
+
+Node.js v24.19.0

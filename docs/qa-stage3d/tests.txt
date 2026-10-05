@@ -1,0 +1,29 @@
+✔ view reads never initialize or mutate match/presentation/save state (253.773433ms)
+✔ copies are deeply frozen; presentation sync stays distinct from match events (53.996404ms)
+✔ observing a full match preserves seeded events/results and stops after unsubscribe (2197.801327ms)
+✔ pass description derives existing phase timing without changing engine or save state (145.128242ms)
+✔ seed 8800: selected real pass #11 and six consecutive passes meet root/contact/arrival tolerances (10464.442482ms)
+✔ derived transition moves actual roots with the owned ball and has a bounded peak speed at /4 (161.113766ms)
+✔ event queue owns its point arrays; pause and speed changes do not restart a transition (77.487979ms)
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (63.51238ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (1050.625468ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (4200.832952ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (50.131231ms)
+✔ joining an already active legacy event preserves progress and stays finite (29.754431ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (196.842825ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (45.279105ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (3695.674189ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (49.258775ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (88.214016ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (3.101327ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.537066ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (3.985954ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (4.298084ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10953.966615

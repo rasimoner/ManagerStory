@@ -1,0 +1,76 @@
+{
+  "environment": "Chromium 153.0.8010.0 / Linux SwiftShader /DPR1 /390x844",
+  "errors": [],
+  "external": [],
+  "start": {
+    "canonical": 10.277500000000213,
+    "eventId": 18,
+    "progress": 0.031158949727583363,
+    "speed": 1,
+    "tempo": 4
+  },
+  "end": {
+    "canonical": 14.385675000000209,
+    "eventId": 25,
+    "progress": 0.018617182224719114,
+    "history": [
+      {
+        "key": "18:approach",
+        "realMilliseconds": 21867.899999999907,
+        "canonical": 10.277500000000213,
+        "progress": 0.031158949727583363,
+        "owner": "o7"
+      },
+      {
+        "key": "18:reach",
+        "realMilliseconds": 25059.899999999907,
+        "canonical": 11.073300000000211,
+        "progress": 0.6973899517957047,
+        "owner": "o7"
+      },
+      {
+        "key": "18:contact-result",
+        "realMilliseconds": 25434.299999999814,
+        "canonical": 11.16912500000021,
+        "progress": 0.777613105569489,
+        "owner": "o7"
+      },
+      {
+        "key": "21:approach",
+        "realMilliseconds": 29851.09999999986,
+        "canonical": 12.17327500000021,
+        "progress": 0.034886050250682574,
+        "owner": "o7"
+      },
+      {
+        "key": "21:reach",
+        "realMilliseconds": 32924.5,
+        "canonical": 12.939900000000211,
+        "progress": 0.6768828881805797,
+        "owner": "o7"
+      },
+      {
+        "key": "21:contact-result",
+        "realMilliseconds": 33706.19999999995,
+        "canonical": 13.13572500000021,
+        "progress": 0.8408731452001411,
+        "owner": 1
+      },
+      {
+        "key": "21:recovery",
+        "realMilliseconds": 34075.09999999986,
+        "canonical": 13.22737500000021,
+        "progress": 0.9176238514727969,
+        "owner": 1
+      }
+    ]
+  },
+  "frames": 37,
+  "captureSeconds": 16.43367290496826,
+  "bytes": 195271,
+  "method": "Actual CDP screencast JPEGs encoded with actual capture timestamp differences; existing natural RAF during recording. Controlled seed1 engine seek before recording only. Not a mobile FPS benchmark or iPhone recording.",
+  "encodedFrames": 36,
+  "excludedFrames": 1,
+  "exclusionReason": "First CDP frame was the cached surface from before the controlled engine seek; omit it, preserving remaining actual frame intervals.",
+  "encodedCaptureSeconds": 16.14705491065979
+}

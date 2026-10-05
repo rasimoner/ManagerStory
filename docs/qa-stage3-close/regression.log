@@ -1,0 +1,40 @@
+✔ seed 1 real carry route stays with player, limits speed and preserves engine events and statistics (4302.638629ms)
+✔ shared carry phase and ball do not restart under pause or speed selection (134.258378ms)
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (6480.636742ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.254093ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (197.229167ms)
+✔ seed4 heavy touch has a visible free roll, genuine winner and bounded approach (10535.119685ms)
+✔ comparison with b351028 preserves complete real events, winners, statistics and RNG (7923.088223ms)
+✔ last touch, free roll and approach pause together and speed changes keep the same chain (386.947764ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (3939.763541ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (50.691631ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (70.262798ms)
+✔ real seed1 gain/failed shield/loose/recovery separates roots without changing motor or ball endpoints (3763.630138ms)
+✖ hold/release/recovery offset and shared pose are frozen on pause, rates use one clock (67.173436ms)
+✔ 3H real shots and continuations preserve previous complete engine events, score, statistics and RNG (5022.003175ms)
+✔ 3H actual boot, frame and forehead contacts; one shot/result and one rebound only (0.644663ms)
+✔ 3H preparation, flight and result pause and rate changes stay on the same phase (453.800328ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 15
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18974.801573
+
+✖ failing tests:
+
+test at tests/match3d-stage3-close.test.cjs:8:1
+✖ hold/release/recovery offset and shared pose are frozen on pause, rates use one clock (67.173436ms)
+  evalmachine.<anonymous>:1
+  let guard=0;while(guard++<20000){if(pitchV73.active?.eventId===6&&pitchV73.progress>=0.85)break;wall+=.01;ManagerStoryLive3D.step(.01,wall*1000)}if(guard>=20000)throw Error('Missing phase')
+  ^
+  
+  SyntaxError: Identifier 'guard' has already been declared
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at Object.run (/workspace/scratch/8bd0598b1055/ManagerStory-3-close/tests/engine-harness.cjs:21:28)
+      at TestContext.<anonymous> (/workspace/scratch/8bd0598b1055/ManagerStory-3-close/tests/match3d-stage3-close.test.cjs:11:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

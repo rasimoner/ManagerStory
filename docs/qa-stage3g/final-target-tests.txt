@@ -1,0 +1,15 @@
+✔ seed4 genuine failed pass38 and heavy touch75→76→77 preserve all engine events, stats, RNG and transient-only metadata (6770.707249ms)
+✔ interceptor approaches from captured start and free ball remains unowned until real recovery contact (0.279963ms)
+✔ pause and speed changes retain a single recovery phase without restarting the chain (348.997376ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (2.625016ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.456454ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (2.827545ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (3.200305ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7203.541258

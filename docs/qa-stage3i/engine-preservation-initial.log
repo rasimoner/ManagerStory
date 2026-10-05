@@ -1,0 +1,28 @@
+✖ full searched 35-minute seed preserves old engine order/results/score/stats/RNG including both decision points (587.758119ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 687.893254
+
+✖ failing tests:
+
+test at tests/match3d-stage3i.test.cjs:14:1
+✖ full searched 35-minute seed preserves old engine order/results/score/stats/RNG including both decision points (587.758119ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(decisions.some(e=>e.decision==='chanceV73'))
+  
+      at TestContext.<anonymous> (/workspace/scratch/8bd0598b1055/ManagerStory-3I/tests/match3d-stage3i.test.cjs:19:67)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

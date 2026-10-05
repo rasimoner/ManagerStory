@@ -1,0 +1,40 @@
+{
+  "programs": [],
+  "streams": [
+    {
+      "codec_name": "h264",
+      "codec_tag_string": "avc1",
+      "width": 390,
+      "height": 844,
+      "pix_fmt": "yuv420p"
+    }
+  ],
+  "format": {
+    "duration": "16.040000",
+    "size": "223706"
+  },
+  "atoms": [
+    {
+      "type": "ftyp",
+      "offset": 0,
+      "size": 32
+    },
+    {
+      "type": "moov",
+      "offset": 32,
+      "size": 1156
+    },
+    {
+      "type": "free",
+      "offset": 1188,
+      "size": 8
+    },
+    {
+      "type": "mdat",
+      "offset": 1196,
+      "size": 222510
+    }
+  ],
+  "faststart": true,
+  "fullDecode": "Successful ffmpeg full decode performed once by the recording tool before successful return"
+}

@@ -1,0 +1,10 @@
+✔ real seed1 final batch drains once, engine/career unchanged, controls and terminal freeze (1419.173624ms)
+✔ real seed8800 final batch drains once, engine/career unchanged, controls and terminal freeze (1244.418315ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2779.697236

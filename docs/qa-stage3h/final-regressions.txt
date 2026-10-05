@@ -1,0 +1,35 @@
+✔ seed 1 real carry route stays with player, limits speed and preserves engine events and statistics (8840.381003ms)
+✔ shared carry phase and ball do not restart under pause or speed selection (647.434052ms)
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (12553.017073ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.406665ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (194.579716ms)
+✔ seed 8800: selected real pass #11 and six consecutive passes meet root/contact/arrival tolerances (6818.642885ms)
+✔ derived transition moves actual roots with the owned ball and has a bounded peak speed at /4 (152.103605ms)
+✔ event queue owns its point arrays; pause and speed changes do not restart a transition (101.854258ms)
+✔ seed4 heavy touch has a visible free roll, genuine winner and bounded approach (21044.215582ms)
+✔ comparison with b351028 preserves complete real events, winners, statistics and RNG (25389.427337ms)
+✔ last touch, free roll and approach pause together and speed changes keep the same chain (1430.026268ms)
+✔ seed4 genuine failed pass38 and heavy touch75→76→77 preserve all engine events, stats, RNG and transient-only metadata (11686.550572ms)
+✔ interceptor approaches from captured start and free ball remains unowned until real recovery contact (0.586106ms)
+✔ pause and speed changes retain a single recovery phase without restarting the chain (757.551468ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (5353.971092ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (73.29584ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (158.939308ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (6.056162ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.72106ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (9.924909ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (9.274667ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (47913.268963ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (1.86381ms)
+✔ pause and speed changes do not restart shot or expose result early (196.073956ms)
+✔ 3H real shots and continuations preserve previous complete engine events, score, statistics and RNG (5362.41127ms)
+✔ 3H actual boot, frame and forehead contacts; one shot/result and one rebound only (0.56315ms)
+✔ 3H preparation, flight and result pause and rate changes stay on the same phase (546.22536ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48544.210759

@@ -1,0 +1,22 @@
+✔ seed 1 real carry route stays with player, limits speed and preserves engine events and statistics (2760.69215ms)
+✔ shared carry phase and ball do not restart under pause or speed selection (139.464812ms)
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (4066.319289ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.245913ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (204.555218ms)
+✔ seed 8800: selected real pass #11 and six consecutive passes meet root/contact/arrival tolerances (4553.544822ms)
+✔ derived transition moves actual roots with the owned ball and has a bounded peak speed at /4 (92.624661ms)
+✔ event queue owns its point arrays; pause and speed changes do not restart a transition (50.831454ms)
+✔ seed4 genuine failed pass38 and heavy touch75→76→77 preserve all engine events, stats, RNG and transient-only metadata (7747.423595ms)
+✔ interceptor approaches from captured start and free ball remains unowned until real recovery contact (0.218733ms)
+✔ pause and speed changes retain a single recovery phase without restarting the chain (359.222356ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (16144.888785ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (1.16523ms)
+✔ pause and speed changes do not restart shot or expose result early (105.144429ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16400.041021

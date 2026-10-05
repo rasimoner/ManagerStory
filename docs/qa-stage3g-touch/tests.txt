@@ -1,0 +1,40 @@
+✔ seed 1 real carry route stays with player, limits speed and preserves engine events and statistics (3503.522101ms)
+✔ shared carry phase and ball do not restart under pause or speed selection (182.64904ms)
+✔ seed 8800: selected real pass #11 and six consecutive passes meet root/contact/arrival tolerances (5563.161797ms)
+✔ derived transition moves actual roots with the owned ball and has a bounded peak speed at /4 (125.102448ms)
+✔ event queue owns its point arrays; pause and speed changes do not restart a transition (71.614501ms)
+✔ seed4 heavy touch has a visible free roll, genuine winner and bounded approach (10601.856295ms)
+✔ comparison with b351028 preserves complete real events, winners, statistics and RNG (8312.530819ms)
+/workspace/scratch/5b445d27cc24/ManagerStory/tests/match3d-loose.test.cjs:5
+
+
+
+SyntaxError: Unexpected end of input
+    at wrapSafe (node:internal/modules/cjs/loader:1804:18)
+    at Module._compile (node:internal/modules/cjs/loader:1846:20)
+    at Object..js (node:internal/modules/cjs/loader:2003:10)
+    at Module.load (node:internal/modules/cjs/loader:1594:32)
+    at Module._load (node:internal/modules/cjs/loader:1396:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.19.0
+✖ tests/match3d-loose.test.cjs (135.809877ms)
+✔ seed 8800: kickoff plus four minute boundaries and six passes remove idle and endpoint jumps without changing results (2946.290718ms)
+✔ minute sample has an explicit before/after interval; pause and speed preserve the joint phase (44.79335ms)
+✔ no future minute prefetch: an input received during the committed batch is read by the next uncomputed minute (102.997616ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19351.545578
+
+✖ failing tests:
+
+test at tests/match3d-loose.test.cjs:1:1
+✖ tests/match3d-loose.test.cjs (135.809877ms)
+  'test failed'
