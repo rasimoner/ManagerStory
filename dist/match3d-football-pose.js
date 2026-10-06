@@ -45,6 +45,7 @@ export function poseFootballer(root,pose){
  }
  b.head.rotation.x=pose.headPitch||0;
  b.spine.rotation.x=pose.lean||0;b.leftShoulder.rotation.x=pose.armSwing||0;b.rightShoulder.rotation.x=-(pose.armSwing||0);
+ b.spine.rotation.z=pose.bodyRoll||0;b.spine.rotation.y=pose.bodyTwist||0;
  b.leftShoulder.rotation.z=-.07;b.rightShoulder.rotation.z=.07;b.leftElbow.rotation.x=-.32;b.rightElbow.rotation.x=-.32;
  leg(root,b,'leftHip','leftKnee','leftAnkle',pose.leftFoot);leg(root,b,'rightHip','rightKnee','rightAnkle',pose.rightFoot);
  if(pose.leftHand)arm(root,b,'leftShoulder','leftElbow','leftHand',pose.leftHand);

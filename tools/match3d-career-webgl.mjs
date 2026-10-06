@@ -17,10 +17,16 @@ let browser;try{
   for(const name of ['İstatistik','Detaylar','Saha'])await page.getByRole('tab',{name,exact:true}).click();
   await page.getByRole('button',{name:'0.5×',exact:true}).click();await page.getByRole('button',{name:'2×',exact:true}).click();await page.getByRole('button',{name:'1×',exact:true}).click();
   const checks=await page.evaluate(()=>({engine:M===qaEngine,scene:ManagerStoryCareer3D.view===qaView,unchanged:qaBefore===JSON.stringify([M.events,M.rand.state,pitchV73.active,pitchV73.queue,pitchV73.progress]),technical:!!document.querySelector('[data-fixture],.m3-badge,[data-status]'),overflow:document.documentElement.scrollWidth>innerWidth}));
+  const layout=await page.evaluate(()=>{
+   const buttons=[...document.querySelectorAll('.match-playback-options button')],bounds=buttons.map(b=>{const r=b.getBoundingClientRect();return {label:b.textContent,x:r.x,y:r.y,width:r.width,height:r.height};});
+   const field=document.querySelector('.career3d').getBoundingClientRect(),narrative=document.querySelector('[data-live-commentary]').getBoundingClientRect(),controls=document.querySelector('.matchcontrols').getBoundingClientRect();
+   return {bounds,fieldBottom:field.bottom,narrativeBottom:narrative.bottom,controlsTop:controls.top,height:innerHeight,removedCopy:!document.body.textContent.includes('Aksiyonlar tamamlanarak gösterilir')};
+  });
+  assert.deepEqual(layout.bounds.map(b=>b.label),['0.5×','1×','2×','2D','3D']);assert.ok(layout.bounds.every(b=>b.height>=44&&b.width>=44));assert.ok(layout.bounds.every(b=>Math.abs(b.y-layout.bounds[0].y)<1));assert.ok(layout.narrativeBottom<=layout.controlsTop&&layout.fieldBottom<=layout.narrativeBottom&&layout.controlsTop<layout.height);assert.equal(layout.removedCopy,true);
   assert.equal(first.players,22);assert.equal(first.tempo,1);assert.ok(first.canvas[0]>0&&first.bounds[0]>0);for(const k of ['engine','scene','unchanged'])assert.equal(checks[k],true);assert.equal(checks.technical,false);assert.equal(checks.overflow,false);
   await page.evaluate(()=>{resumeLive();});await page.waitForFunction(()=>ManagerStoryLive3D.time>.02);await page.evaluate(()=>pauseLive());
   const moving=await page.evaluate(()=>({time:ManagerStoryLive3D.time,paused:MatchView.read().paused,radar:document.querySelector('.career3d-radar').getContext('2d').getImageData(0,0,200,130).data.some(x=>x!==0)}));assert.equal(moving.paused,true);assert.equal(moving.radar,true);
-  await page.screenshot({path:`/tmp/ms4a-${width}.png`});assert.deepEqual(errors,[]);results.push({width,height,...first,...checks,...moving,errors});await page.close();
+  await page.screenshot({path:`/tmp/ms4a-${width}.png`});assert.deepEqual(errors,[]);results.push({width,height,...first,...checks,layout,...moving,errors});await page.close();
  }
  console.log(JSON.stringify({browser:browser.version(),environment:'Linux Chromium SwiftShader DPR1',results},null,2));
 }finally{await browser?.close();await new Promise(r=>server.close(r));}

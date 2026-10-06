@@ -16,7 +16,9 @@ function paint(snapshot){
    const players=snapshot.players.map((p,i)=>({...p,position:p.displayPosition||p.enginePosition,number:i%11+1,goalkeeper:p.role==='GK',kit:p.side==='user'?(userHome?home:away):(userHome?away:home)}));
    view=createMatchScene({canvas,home,away,players});roster=key;
   }
-  view.resize();const sample=sampler(snapshot);view.applyLiveSample(sample);view.render();
+  view.resize();const sample=sampler(snapshot,{aspect:canvas.clientWidth/Math.max(1,canvas.clientHeight)});view.applyLiveSample(sample);view.render();
+  const contact=view.projectPoint(sample.ballPercent),covered=Math.abs(contact[0]-canvas.clientWidth*.5)<52&&contact[1]>canvas.clientHeight-72;
+  canvas.style.opacity=sample.opacity;radar.style.opacity=sample.opacity*(covered?.18:.58);
   const c=radar.getContext('2d'),w=200,h=130;c.clearRect(0,0,w,h);c.strokeStyle='#d5e2cd';c.strokeRect(5,5,w-10,h-10);c.beginPath();c.moveTo(w/2,5);c.lineTo(w/2,h-5);c.stroke();
   for(const p of snapshot.players){const xy=p.displayPosition||p.enginePosition;if(!xy)continue;const team=p.side==='user'?(snapshot.teams.userHome?snapshot.teams.home:snapshot.teams.away):(snapshot.teams.userHome?snapshot.teams.away:snapshot.teams.home);c.fillStyle=team.primaryColor;c.beginPath();c.arc(5+xy[0]*1.9,5+xy[1]*1.2,2.5,0,Math.PI*2);c.fill();c.stroke();}
   const xy=snapshot.ball.displayPosition||snapshot.ball.engine.position;c.fillStyle='white';c.beginPath();c.arc(5+xy[0]*1.9,5+xy[1]*1.2,2,0,Math.PI*2);c.fill();status.hidden=true;

@@ -195,7 +195,11 @@
     if(isCarry(next)||next.type==='shot')sourceTargets[String(next.fromId)]=[...next.fromPos];
     const transition=next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||next.contest?.independent||state.afterShot)?keyframeTransition(state,sourceTargets,next.contest?.independent?next.contest.attackerStart:next.headerIncoming?headerContact(next):next.fromPos,next.gameSecond):null;
     const placement=next.type==='kickoff'?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond,next.fromId,next.fromSide):null;
-    if(placement){placement.sampleInterval={fromGameSecond:next.gameSecond,toGameSecond:next.gameSecond,phase:'restart-placement'};placement.carryId=null;placement.carrySide='none';placement.movementSource='derived-dead-ball-placement';}
+    if(placement){placement.sampleInterval={fromGameSecond:next.gameSecond,toGameSecond:next.gameSecond,phase:'restart-placement'};placement.carryId=null;placement.carrySide='none';placement.movementSource='derived-dead-ball-placement';
+     // Preserve this segment's original duration and common clock. Only the
+     // visible dead-ball relocation is replaced by a .30s fade to real setup.
+     if(state.afterGoal){placement.goalReset=true;placement.presentationDuration=duration(placement);state.afterGoal=false;}
+    }
     if(placement)state.active=placement;
     else if(transition)state.active=transition;
     else {state.active=state.queue.shift();state.afterShot=false;
@@ -227,13 +231,13 @@
     state.carryMotion={eventId:e.eventId,travelMetres:travel,touchPhase:phase,leadMetres:lead,source:'derived-distance-touches-on-engine-segment'};
    }
    else if(e.type==='looseBall'||e.type==='recovery'){state.ball=e.type==='recovery'?[...e.toPos]:(animationPoint(e,p,state.eventStartBall)||[...state.ball]);state.carrier=e.type==='recovery'&&p>=.76?e.toId:null;state.side=state.carrier==null?'none':e.toSide;state.looseMotion={phase:e.type==='recovery'?(p<.65?'approach':p<.76?'reach':'control'):'unowned',event:p<.76&&e.type==='recovery'?{...e,text:'Top sahipsiz · gerçek kazanım teması bekleniyor'}:e,source:'captured-chaser-starts; derived-interpolation-and-contact'};}
-   else if(e.type==='enginePositionGap'){state.ball=lerp(e.fromPos,e.toPos,ease(p));state.carrier=e.carryId;state.side=e.carrySide;}
+   else if(e.type==='enginePositionGap'){state.ball=e.goalReset?(p*D<.15?[...e.fromPos]:[...e.toPos]):lerp(e.fromPos,e.toPos,ease(p));state.carrier=e.carryId;state.side=e.carrySide;}
    else{const point=animationPoint(e,p,state.eventStartBall);if(point)state.ball=point;}
    const targets=e.enginePositions;
    if(targets)for(const [key,target] of Object.entries(targets)){
     const start=e.recoveryStarts?.[key]||state.startPositions[key]||target;
     const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/(e.headerShot?1:.76)):e.recoveryStarts?Math.min(1,p/.76):p;
-    state.positions[key]=lerp(start,target,ease(fraction));
+    state.positions[key]=e.goalReset?(p*D<.15?[...start]:[...target]):lerp(start,target,ease(fraction));
    }
    if(e.heavyGeometry){
     const g=e.heavyGeometry,key=String(g.carrierId);
@@ -279,6 +283,7 @@
     if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(state.shotMotion)state.afterShot=true;
+    if(state.shotMotion?.goalCrossed||e.type==='goal')state.afterGoal=true;
     state.active=null;state.progress=0;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;state.holdMotion=null;
    }
   }

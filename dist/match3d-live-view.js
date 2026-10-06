@@ -3,9 +3,9 @@ const add=(a,b)=>a.map((x,i)=>x+b[i]),mul=(v,k)=>v.map(x=>x*k),mix=(a,b,u)=>a.ma
 const angle=(a,b,u)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*u;
 // Pose state only. Every root and ball coordinate is read from the common MatchView frame.
 export function createLivePoseSampler(){
- const previous=new Map();let lastTime=null,focus=null,span=14,lastPass=null,lastSample=null,lastSignature=null;
- return snapshot=>{
-  const P=snapshot.presentation,e=P?.activeEvent,p=P?.progress||0,time=P?.seconds??0,signature=JSON.stringify([time,e?.eventId,e?.type,p,snapshot.matchSeconds,snapshot.ball.displayPosition]);
+ const previous=new Map();let lastTime=null,focus=null,span=11,lastPass=null,lastSample=null,lastSignature=null,zoomHold=0;
+ return (snapshot,{aspect=1}={})=>{
+  const P=snapshot.presentation,e=P?.activeEvent,p=P?.progress||0,time=P?.seconds??0,signature=JSON.stringify([time,e?.eventId,e?.type,p,snapshot.matchSeconds,snapshot.ball.displayPosition,aspect]);
   if(signature===lastSignature)return lastSample;
   const dt=lastTime==null?0:Math.max(0,time-lastTime);
   if(lastTime!=null&&time<lastTime){previous.clear();focus=null;lastPass=null;}lastTime=time;
@@ -16,27 +16,42 @@ export function createLivePoseSampler(){
   if(shot)ball[1]=shot.height;
   if(e?.headerShot){const v=clamp((p-.19)/.81);ball[1]=.15+(1.704-.15)*v+Math.sin(Math.PI*v)*2.4;}
   if(pass)lastPass=e;
+  const reset=e?.goalReset,resetTime=reset?p*P.duration:0,placed=reset&&resetTime>=.15;
+  if(placed&&lastSample?.resetPlaced!==true){previous.clear();focus=null;lastPass=null;}
   const poses=[],gaps=[];
   for(const player of snapshot.players){
    const key=`${player.side}:${player.id}`,root=metres(player.displayPosition||player.enginePosition),old=previous.get(key);
    const move=old?root.map((x,i)=>x-old.root[i]):[0,0,0],distance=Math.hypot(move[0],move[2]),travel=(old?.travel||0)+distance;
-   const moving=dt>0&&distance>1e-6,direction=moving?[move[0]/distance,0,move[2]/distance]:old?.direction||[player.attackDirection,0,0];
+   const speed=dt>0?distance/dt:0,moving=!reset&&dt>0&&distance>1e-6,direction=moving?[move[0]/distance,0,move[2]/distance]:old?.direction||[player.attackDirection,0,0];
    let yaw=old?.yaw??Math.atan2(direction[0],direction[2]);
    if(moving)yaw=angle(yaw,Math.atan2(direction[0],direction[2]),1-Math.exp(-dt*12));
    const forward=[Math.sin(yaw),0,Math.cos(yaw)],lateral=[forward[2],0,-forward[0]];
+   // Distance-driven stance anchors. Swing starts at the old plant and lands
+   // ahead of the moving root; turns replant an unreachable foot, never a root.
+   const stride=1.25,phase=(old?.gaitPhase||0)+(moving?distance/stride:0),run=clamp(speed/7);
    const feet=[-1,1].map((sign,i)=>{
-    const q=travel/1.25+i*.5,cycle=Math.floor(q),phase=q-cycle,plant=phase<.5;
-    let point=old?.feet[i]?.point;
-    if(!point||old.feet[i].cycle!==cycle||!old.feet[i].plant&&plant)point=add(add(root,mul(lateral,sign*.102)),mul(forward,.27));
-    if(!plant&&moving){point=add(add(root,mul(lateral,sign*.102)),mul(forward,(smooth((phase-.5)*2)-.5)*.54));point[1]=.09+Math.sin(Math.PI*(phase-.5)*2)*.13;}
-    else if(plant)point=[point[0],.09,point[2]];
-    return {point,cycle,plant};
+    const q=phase+i*.5,cycle=Math.floor(q),f=q-cycle,plant=!moving||f<.5;
+    const neutral=add(root,mul(lateral,sign*.102));neutral[1]=.09;
+    let point=old?.feet[i]?.point,launch=old?.feet[i]?.launch;
+    const unreachable=point&&Math.hypot(point[0]-root[0],point[2]-root[2])>.52;
+    if(!moving)point=neutral;
+    else if(!point||old.feet[i].cycle!==cycle||(!old.feet[i].plant&&plant)||unreachable)point=add(neutral,mul(forward,.25));
+    if(!plant){if(!launch||old?.feet[i]?.plant||old?.feet[i]?.cycle!==cycle)launch=[...point];
+     const swing=(f-.5)*2;point=mix(launch,add(neutral,mul(forward,.30)),smooth(swing));point[1]=.09+Math.sin(Math.PI*swing)*(.10+.08*run);
+    }else {point=[point[0],.09,point[2]];launch=null;}
+    return {point,cycle,plant,launch};
    });
-   let left=feet[0].point,rightFoot=feet[1].point,arm=moving?Math.sin(travel/1.25*Math.PI*2)*.24:0;
+   let left=feet[0].point,rightFoot=feet[1].point,arm=moving?Math.sin(phase*Math.PI*2)*(.16+.22*run):0;
+   const turn=old?Math.atan2(Math.sin(yaw-old.yaw),Math.cos(yaw-old.yaw)):0;
+   let pelvisHeight=.935-(moving?.025*run*Math.cos(phase*Math.PI*4):0),lean=moving?.07+.14*run:0,bodyRoll=moving?-.028*Math.sin(phase*Math.PI*2)-clamp(turn,-.10,.10):0,bodyTwist=moving?.035*Math.sin(phase*Math.PI*2):0,headPitch=0,leftHand=null,rightHand=null;
    if((kicking||e?.type==='kickoff')&&!shot?.header&&player.id===e.fromId&&player.side===e.fromSide){
     yaw=angle(yaw,Math.atan2(dir[0],dir[2]),smooth(p/.19));
     const contact=add(A,mul(dir,-.30));contact[1]=.16;
     const neutral=add(root,mul(right,.102));neutral[1]=.09;
+    left=add(add(root,mul(right,-.13)),mul(dir,.05));left[1]=.09;
+    const prepare=smooth(p/.19),follow=clamp((p-.19)/.81);
+    lean=p<.19?-.09*Math.sin(Math.PI*prepare):.16*Math.sin(Math.PI*follow);
+    bodyTwist=p<.19?-.13*Math.sin(Math.PI*prepare):.14*Math.sin(Math.PI*follow);bodyRoll=-.035*Math.sin(Math.PI*p);arm=-.20*Math.sin(Math.PI*p);
     if(p<=.19){const prep=smooth(p/.19);rightFoot=mix(neutral,contact,prep);rightFoot=add(rightFoot,mul(dir,-.28*Math.sin(Math.PI*prep)));rightFoot[1]+=.10*Math.sin(Math.PI*prep);}
     else{const follow=clamp((p-.19)/.81);rightFoot=mix(contact,neutral,smooth(follow));rightFoot=add(rightFoot,mul(dir,.25*Math.sin(Math.PI*follow)));rightFoot[1]+=.12*Math.sin(Math.PI*follow);}
     gaps.push({id:player.id,kind:'source-root-to-contact',metres:Math.hypot(root[0]-A[0],root[2]-A[2])});
@@ -59,7 +74,6 @@ export function createLivePoseSampler(){
     else{const neutral=add(root,mul([direction[2],0,-direction[0]],.102));neutral[1]=.09;rightFoot=mix(foot,neutral,smooth((p-.76)/.24));}
    }
    const contest=P?.contestMotion;
-   let pelvisHeight=.935,lean=0,headPitch=0,leftHand=null,rightHand=null;
    if(shot&&e.outcome!=='block'&&player.id===e.goalkeeperId){
     yaw=Math.atan2(A[0]-root[0],A[2]-root[2]);
     const ready=[Math.sin(yaw),0,Math.cos(yaw)],reach=shot.progress<.19?0:smooth((shot.progress-.19)/.57);
@@ -77,6 +91,7 @@ export function createLivePoseSampler(){
    }
    const headEvent=shot?.header?e:e?.headerShot;
    if(headEvent&&player.id===headEvent.fromId&&player.side===headEvent.fromSide){
+    lean=0;bodyRoll=0;bodyTwist=0;
     // New forehead is .054m higher in the standing rig. Crouch for the existing
     // incoming ball contact; do not move the ball or alter event timing.
     pelvisHeight-=.054;
@@ -123,25 +138,36 @@ export function createLivePoseSampler(){
     if(gap<.6)rightFoot=mix(rightFoot,foot,pass?smooth((p-.65)/.11):1);
     gaps.push({id:player.id,kind:pass?(e.success?'receiver':'interceptor'):'firstTouch',metres:gap});
    }
-   poses.push({id:player.id,side:player.side,position:root,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,headPitch,leftHand,rightHand});
-   previous.set(key,{root,travel,yaw,direction,feet,receiveEventId,receiveEventYaw});
+   poses.push({id:player.id,side:player.side,position:root,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,bodyTwist,headPitch,leftHand,rightHand,motionSource:'derived-from-common-display-roots-and-event-phase'});
+   previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw});
   }
-  let target=pass?(tracking?add(ball,mul(dir,len*.03*Math.sin(Math.PI*u))):mix(A,B,.5)):[...ball];target[1]=0;
-  let desired=pass&&!tracking?Math.max(12,len+4):12+3*Math.sin(Math.PI*u)**2;
-  // Existing side-camera framing: do not lose the approaching real defender off screen.
-  const contest=P?.contestMotion||P?.holdMotion,cut=pass&&e.cutPresentation&&p>.19?e.cutPresentation:null,defender=contest?poses.find(p=>p.id===contest.defenderId&&p.side===contest.defenderSide):cut?poses.find(p=>p.id===cut.id&&p.side===cut.side):null;
-  if(defender){target=mix(ball,defender.position,.5);target[1]=0;desired=Math.max(12,Math.hypot(ball[0]-defender.position[0],ball[2]-defender.position[2])+4);}
-  if(shot){
-   // Same outcome-blind anticipation for every shot. Keep source legible, then
-   // reveal the goal while the ball is still travelling; no whole-path fit.
-   const goal=metres([e.toPos[0]>50?100:0,50]),anticipation=smooth(u/.28);
-   const remaining=Math.abs(goal[0]-ball[0]),lead=Math.min(8,remaining*.5)*anticipation;
-   target=[ball[0]+Math.sign(goal[0]-ball[0])*lead,0,ball[2]+(goal[2]-ball[2])*.5*anticipation];
-   desired=14+(e.outcome==='post'?4:shot.header?6:12)*smooth(u/.30);
-   if(shot.blocker){const blocker=poses.find(x=>x.id===shot.result.toId);if(blocker){target=mix(ball,blocker.position,.5);target[1]=0;desired=14;}}
+  // Fit the action, not an isolated ball. No winner/save/goal outcome is read
+  // to choose the framing; all shots use the same source + goal rectangle.
+  let points=[ball],actors=[];
+  const source=poses.find(x=>x.id===e?.fromId&&x.side===e?.fromSide),receiver=poses.find(x=>x.id===e?.toId&&x.side===e?.toSide);
+  if(pass){points.push(A,B);if(source)actors.push(source);if(receiver)actors.push(receiver);}
+  else if(shot){const goal=metres([e.toPos[0]>50?100:0,50]);points.push(A,goal,...[-3.66,3.66].map(z=>[goal[0],2.44,z]));if(source)actors.push(source);}
+  else {
+   const owner=poses.find(x=>x.id===snapshot.ball.displayOwnerId&&x.side===snapshot.ball.displaySide);
+   if(owner)actors.push(owner);
+   const nearby=poses.filter(x=>x!==owner&&Math.hypot(x.position[0]-ball[0],x.position[2]-ball[2])<8).sort((a,b)=>Math.hypot(a.position[0]-ball[0],a.position[2]-ball[2])-Math.hypot(b.position[0]-ball[0],b.position[2]-ball[2]));
+   const defender=nearby.find(x=>x.side!==owner?.side),options=nearby.filter(x=>x.side===owner?.side).slice(0,2);if(defender)actors.push(defender);actors.push(...options);
   }
-  if(!focus){focus=[...target];span=desired;}
-  else if(dt>0){focus=mix(focus,target,1-Math.exp(-dt*20));span+= (desired-span)*(1-Math.exp(-dt*4));}
-  lastSignature=signature;lastSample={poses,ball,ballPercent:percent(ball),camera:{focus:[...focus],span},flightProgress:u,gaps,eventId:e?.eventId??null,type:e?.type??'idle',pass,estimatedHeight:aerial,ownerId:snapshot.ball.displayOwnerId,side:snapshot.ball.displaySide};return lastSample;
+  const contest=P?.contestMotion||P?.holdMotion;
+  if(contest)for(const id of [contest.attackerId,contest.defenderId]){const actor=poses.find(x=>x.id===id);if(actor)actors.push(actor);}
+  for(const actor of actors)points.push(actor.position,add(actor.position,[0,1.85,0]));
+  const min=axis=>Math.min(...points.map(v=>v[axis])),max=axis=>Math.max(...points.map(v=>v[axis]));
+  const target=[(min(0)+max(0))*.5,0,(min(2)+max(2))*.5];
+  if(!focus)focus=[...target];else if(dt>0){const next=mix(focus,target,1-Math.exp(-dt*7)),step=Math.hypot(next[0]-focus[0],next[2]-focus[2]);focus=mix(focus,next,Math.min(1,14*dt/(step||1)));}
+  const distance=Math.hypot(24,38),sin=24/distance,cos=38/distance;
+  let desired=10.5;
+  for(const point of points){const z=point[2]-focus[2],depth=Math.max(8,distance-point[1]*sin-z*cos),scale=distance/depth;
+   desired=Math.max(desired,2*Math.abs(point[0]-focus[0])*scale/.83,2*Math.abs(point[1]*cos-z*sin)*aspect*scale/.80);
+  }
+  if(lastSample==null||placed&&lastSample.resetPlaced!==true)span=desired;
+  else if(desired>span){span+=(desired-span)*(1-Math.exp(-dt*6));zoomHold=time+.9;}
+  else if(time>zoomHold&&!shot)span+=(desired-span)*(1-Math.exp(-dt*1.2));
+  const opacity=reset?(placed&&lastSample?.resetPlaced!==true?0:resetTime<.15?1-smooth(resetTime/.15):smooth((resetTime-.15)/.15)):1;
+  lastSignature=signature;lastSample={poses,ball,ballPercent:percent(ball),camera:{focus:[...focus],span},opacity,resetPlaced:!!placed,flightProgress:u,gaps,eventId:e?.eventId??null,type:e?.type??'idle',pass,estimatedHeight:aerial,ownerId:snapshot.ball.displayOwnerId,side:snapshot.ball.displaySide};return lastSample;
  };
 }
