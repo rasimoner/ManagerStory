@@ -5,7 +5,7 @@ test('seed 8800: kickoff plus four minute boundaries and six passes remove idle 
  assert.ok(before.technicalIdleSeconds>10);assert.ok(after.technicalIdleSeconds<.1);assert.ok(Math.abs(before.maxBoundaryJumpMetres-3.15)<1e-9);assert.ok(after.maxBoundaryJumpMetres<=.02);assert.ok(after.maxRootSpeed<=6.01);assert.ok(after.maxOwnedBallRootGapMetres<=.02);
  assert.ok(after.minutes.every(m=>m.rawLead<=60&&m.rawLead>=0));assert.ok(after.maxEngineLeadGameSeconds<=60);assert.ok(after.maxQueueAgeSeconds<14);assert.equal(after.maxQueue,before.maxQueue);
  assert.deepEqual(after.events,before.events);assert.deepEqual(after.finalStats,before.finalStats);
- const waiting=after.kickoff.filter(k=>k.type==='kickoff'&&k.progress<.19);assert.ok(waiting.length>0);assert.ok(waiting.every(k=>Math.hypot(k.ball[0]-50,k.ball[1]-50)<1e-9));assert.ok(after.kickoff.every(k=>Math.hypot(k.ball[0]-50,k.ball[1]-50)<1e-9));
+ const waiting=after.kickoff.filter(k=>k.type==='kickoff'&&k.progress<.55*.19);assert.ok(waiting.length>0);assert.ok(waiting.every(k=>Math.hypot(k.ball[0]-50,k.ball[1]-50)<1e-9));assert.ok(after.kickoff.some(k=>Math.hypot(k.ball[0]-50,k.ball[1]-50)>1));
 });
 test('minute sample has an explicit before/after interval; pause and speed preserve the joint phase',async()=>{
  const {setup}=await import('../tools/match3d-minute-audit.mjs'),h=setup();for(let n=1;n<2000;n++){h.run(`ManagerStoryLive3D.step(.01,${n*10})`);if(h.run("pitchV73.active?.sampleInterval?.phase==='after-position-update-before-action-decisions'"))break;}

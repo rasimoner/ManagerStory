@@ -5,18 +5,18 @@ const angle=(a,b,u)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*u;
 export function createLivePoseSampler(){
  const previous=new Map();let lastTime=null,focus=null,span=11,lastPass=null,lastSample=null,lastSignature=null;
  return (snapshot,{aspect=1}={})=>{
-  const P=snapshot.presentation,e=P?.activeEvent,p=P?.progress||0,time=P?.seconds??0,signature=JSON.stringify([time,e?.eventId,e?.type,p,snapshot.matchSeconds,snapshot.ball.displayPosition,aspect]);
+  const P=snapshot.presentation,raw=P?.activeEvent,k=P?.kickoffMotion,e=k?{...raw,type:'pass',...k,fromSide:raw.fromSide,toSide:raw.fromSide}:raw,p=k?.progress??P?.progress??0,time=P?.seconds??0,signature=JSON.stringify([time,e?.eventId,e?.type,p,snapshot.matchSeconds,snapshot.ball.displayPosition,aspect]);
   if(signature===lastSignature)return lastSample;
   const dt=lastTime==null?0:Math.max(0,time-lastTime);
   if(lastTime!=null&&time<lastTime){previous.clear();focus=null;lastPass=null;}lastTime=time;
-  const pass=e&&(['pass','cross'].includes(e.type)||!!e.headerShot),ball=metres(snapshot.ball.displayPosition||snapshot.ball.engine.position);
+  const pass=e&&(['pass','cross','corner','goalKick'].includes(e.type)||!!e.headerShot),ball=metres(snapshot.ball.displayPosition||snapshot.ball.engine.position);
   const shot=P?.shotMotion,kicking=pass||!!shot;
   const A=kicking||e?.type==='kickoff'?metres(e.fromPos):ball,B=pass?metres(e.toPos):shot?metres(shot.target||shot.result.fromPos):ball,len=Math.hypot(B[0]-A[0],B[2]-A[2]),u=clamp((p-.19)/.57),dir=len?[(B[0]-A[0])/len,0,(B[2]-A[2])/len]:[0,0,1],right=[dir[2],0,-dir[0]];
-  const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(!e?(snapshot.ball.presentationHeight??.15):.15)+(aerial?Math.sin(Math.PI*u)*clamp(len/12,1.2,3.8):0);
+  const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(!e||e.type==='enginePositionGap'?(snapshot.ball.presentationHeight??.15):.15)+(aerial?Math.sin(Math.PI*u)*clamp(len/12,1.2,3.8):0);
   if(shot)ball[1]=shot.height;
   if(e?.headerShot){const v=clamp((p-.19)/.81);ball[1]=.15+(1.704-.15)*v+Math.sin(Math.PI*v)*2.4;}
   if(pass)lastPass=e;
-  const reset=e?.goalReset,resetTime=reset?p*P.duration:0,placed=reset&&resetTime>=.15;
+  const reset=e?.goalReset||e?.restartReset,resetTime=reset?p*P.duration:0,placed=reset&&resetTime>=.15;
   if(placed&&lastSample?.resetPlaced!==true){previous.clear();focus=null;lastPass=null;}
   const poses=[],gaps=[];
   for(const player of snapshot.players){

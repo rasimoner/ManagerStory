@@ -134,10 +134,23 @@ function enqueuePitchEvent(e) {
   if(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled){
     // Transient read-only engine keyframes; never stored back in M.events or career saves.
     const enginePositions=Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
-    const copy=structuredClone(e);
+    const copy=structuredClone(e);copy.rawEnginePositions=structuredClone(enginePositions);copy.engineToPos=e.toPos?[...e.toPos]:null;copy.engineFromPos=e.fromPos?[...e.fromPos]:null;
     // The old kickoff declares a 3-percent tap that the engine never commits.
     // Retain the raw declaration for diagnostics; present the actual restart spot.
-    if(e.type==='kickoff'){copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';}
+    if(e.type==='kickoff'){
+      copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';
+      const ids=e.fromSide==='user'?M.active:M.oppIds,receiver=ids.filter(id=>id!==e.fromId&&!isKeeper(e.fromSide,id)).sort((a,b)=>pitchDistance(enginePositions[a],e.fromPos)-pitchDistance(enginePositions[b],e.fromPos))[0];
+      if(receiver!=null){const point=[...enginePositions[receiver]];
+       copy.kickoffExchange={receiverId:receiver,point,source:'derived-short-exchange-and-return; engine-has-no-receiver; no-new-pass-event-or-statistic'};enginePositions[String(receiver)]=point;}
+    }
+    // Raw restart coordinates are inset 2%; the visible ball is on the 1m arc.
+    if(e.restartType==='CORNER'&&['restartPosition','restartPlayers','restartWait','corner'].includes(e.type)){
+      copy.engineAnimationDuration=eventAnimationTime(e);
+      const raw=e.type==='restartPosition'?e.toPos:e.fromPos,dx=(raw[0]>50?-1:1)*Math.SQRT1_2/1.05,dy=(raw[1]>50?-1:1)*Math.SQRT1_2/.68,origin=[(raw[0]>50?100:0)+dx,(raw[1]>50?100:0)+dy];
+      copy.engineRestartPoint=[...raw];copy.restartDisplayPoint=origin;copy.restartMapping='derived-1m-corner-arc; immutable-engine-endpoints-and-outcome';
+      if(e.type==='restartPosition')copy.toPos=origin;else{copy.fromPos=origin;if(['restartPlayers','restartWait'].includes(e.type))copy.toPos=origin;}
+      if(e.fromId!=null)enginePositions[String(e.fromId)]=origin;
+    }
     // Link immutable presentation copies only; engine events/save schema stay unchanged.
     if(['goal','save','wide','block','post'].includes(copy.type)){
       const shot=[...state.queue].reverse().find(x=>x.type==='shot'&&!x.shotResult&&x.fromId===copy.fromId&&x.gameSecond===copy.gameSecond&&x.outcome===copy.type);
@@ -145,7 +158,7 @@ function enqueuePitchEvent(e) {
     }
     if(copy.type==='shot'&&copy.header){copy.text='Kafa vuruşu · gerçek korner topu';
       const incoming=[...state.queue].reverse().find(x=>x.type==='corner'&&x.toId===copy.fromId&&x.gameSecond===copy.gameSecond);
-      if(incoming){copy.headerIncoming={eventId:incoming.eventId,fromPos:[...incoming.fromPos],toPos:[...incoming.toPos]};incoming.headerShot=structuredClone(copy);incoming.enginePositions[String(copy.fromId)]=[...copy.fromPos];}
+      if(incoming){copy.headerIncoming={fromId:incoming.fromId,eventId:incoming.eventId,fromPos:[...incoming.fromPos],toPos:[...incoming.toPos]};enginePositions[String(incoming.fromId)]=[...incoming.fromPos];incoming.headerShot=structuredClone(copy);incoming.enginePositions[String(copy.fromId)]=[...copy.fromPos];}
     }
     state.queue.push({...copy,enginePositions,sampleTime:{gameSecond:e.gameSecond,stage:window.ManagerStoryLive3D.inPositionUpdate?'during-position-update':'event-after-position-update',sequence:e.eventId},engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
   }else state.queue.push(e);
@@ -299,6 +312,8 @@ function paintLivePitch() {
     if(commentary){commentary.replaceChildren(...liveCommentaryLines().map(text=>{const line=document.createElement('div');line.className='comment';line.textContent=text;return line;}));}
   }
   const pitch=document.querySelector('.livepitch');if(!pitch||!frame)return;
+  const reset=frame.active?.goalReset||frame.active?.restartReset,t=frame.progress*(frame.activeDuration||0),smooth=u=>{u=Math.max(0,Math.min(1,u));return u*u*(3-2*u);};
+  pitch.style.opacity=reset?(t<.15?1-smooth(t/.15):smooth((t-.15)/.15)):1;
   const rect=pitch.getBoundingClientRect(),w=rect.width,h=rect.height;if(!w||!h)return;
   for(const node of pitch.querySelectorAll('[data-player]')) {
     const xy=frame.positions[node.dataset.player];
