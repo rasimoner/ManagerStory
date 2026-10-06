@@ -1,5 +1,5 @@
 import * as T from './vendor/three/three.module.min.js';
-import { createFootballer } from './match3d-player.js';
+import { createFootballer, releaseFootballerResources } from './match3d-player.js';
 import { poseFootballer } from './match3d-football-pose.js';
 
 export const PITCH = Object.freeze({ length:105, width:68, goalWidth:7.32, goalHeight:2.44 });
@@ -198,7 +198,7 @@ export function createMatchScene({canvas,home,away,players}) {
   }
   function projectPoint(xy){const p=pitchToWorld(xy).project(camera);return [(p.x+1)*.5*canvas.clientWidth,(1-p.y)*.5*canvas.clientHeight];}
   function render(){renderer.render(scene,camera);return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}
-  function dispose({loseContext=true}={}){const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)o.skeleton.dispose();for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}});geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());renderer.dispose();if(loseContext)renderer.forceContextLoss();}
+  function dispose({loseContext=true}={}){const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)o.skeleton.dispose();for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}});geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());releaseFootballerResources();renderer.dispose();if(loseContext)renderer.forceContextLoss();}
   setCamera();resize();
   return {scene,camera,cameraRig,renderer,footballers,ball,resize,setCamera,framePoints,projectPoint,apply,applyPassSample,applyLiveSample,render,dispose};
 }

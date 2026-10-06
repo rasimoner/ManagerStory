@@ -77,6 +77,9 @@ export function createLivePoseSampler(){
    }
    const headEvent=shot?.header?e:e?.headerShot;
    if(headEvent&&player.id===headEvent.fromId&&player.side===headEvent.fromSide){
+    // New forehead is .054m higher in the standing rig. Crouch for the existing
+    // incoming ball contact; do not move the ball or alter event timing.
+    pelvisHeight-=.054;
     const end=shot?metres(shot.target||shot.result.fromPos):metres(headEvent.presentationTarget||headEvent.toPos),origin=metres(headEvent.fromPos);
     yaw=Math.atan2(end[0]-origin[0],end[2]-origin[2]);
     // Standing header: incoming arc and a small neck preparation are derived,

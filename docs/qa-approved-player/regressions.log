@@ -1,0 +1,35 @@
+Approved mesh CPU contacts [{"kind":"contest","markerDistance":0.13756816492197577,"meshSurfaceDistance":0.13252877112632824},{"kind":"pass","markerDistance":0.1375681659697994,"meshSurfaceDistance":0.1325287722256793},{"kind":"carry","markerDistance":0.13883990267194804,"meshSurfaceDistance":0.13384306885225994},{"kind":"shot","markerDistance":0.137568165449513,"meshSurfaceDistance":0.13252877167003022},{"kind":"save","markerDistance":0.10595149871867406,"meshSurfaceDistance":0.06105629634130334},{"kind":"header","markerDistance":0.12500000054359073,"meshSurfaceDistance":0.11618644769314011}]
+✔ approved geometry is shared across 22 identities; team kits, number and toon outlines are retained (199.54082ms)
+✔ side-plane knee bend and actual skinned sole remain anatomical for stance, lift, preparation and follow-through (92.409961ms)
+✔ real engine samples use the actual approved mesh: kick, carry, contest, header and goalkeeper contacts (13142.509995ms)
+normal tempo measurement 1 {"wall":451.7599999999787,"half":true,"finished":true,"pending":false,"direction":-1}
+normal tempo measurement 8800 {"wall":469.1999999999752,"half":true,"finished":true,"pending":false,"direction":-1}
+✔ career view and tab switches retain the engine, RNG, events and pending presentation (83.868863ms)
+✔ career normal tempo seed 1: same raw engine/RNG/career, half and single finish (1734.147973ms)
+✔ career normal tempo seed 8800: same raw engine/RNG/career, half and single finish (1615.57697ms)
+✔ seed 1 real carry route stays with player, limits speed and preserves engine events and statistics (4540.094516ms)
+✔ shared carry phase and ball do not restart under pause or speed selection (224.278188ms)
+✔ recorded passes keep exact release/arrival/end boundaries and ownership (3.83965ms)
+✔ 0.5/1/2 speed use one time; speed changes and pause do not restart a pose or camera (0.640355ms)
+✔ continuous ball and camera paths, failed pass never produces successful control (4.979133ms)
+✔ world-space stance targets stay planted; gait phase is travelled distance rather than wall time (6.597082ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (25613.84063ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (0.863615ms)
+✔ pause and speed changes do not restart shot or expose result early (104.906122ms)
+✔ real seed1 final batch drains once, engine/career unchanged, controls and terminal freeze (2194.941477ms)
+✔ real seed8800 final batch drains once, engine/career unchanged, controls and terminal freeze (1739.767304ms)
+✔ existing real seed1 goal stays on its visual result clock when finish is requested mid-shot (624.296557ms)
+✔ 3H real shots and continuations preserve previous complete engine events, score, statistics and RNG (5156.751065ms)
+✔ 3H actual boot, frame and forehead contacts; one shot/result and one rebound only (0.485997ms)
+✔ 3H preparation, flight and result pause and rate changes stay on the same phase (526.176576ms)
+✔ real standalone gain has one contact, actual winner and continuous true continuation (2210.925925ms)
+✔ independent gain pause/rate, radar snapshot and narrative share immutable common clock (76.193841ms)
+✔ full searched 35-minute seed preserves old engine order/results/score/stats/RNG with both original decision functions (555.319277ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25863.22468

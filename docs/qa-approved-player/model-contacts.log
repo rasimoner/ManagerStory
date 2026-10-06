@@ -1,0 +1,12 @@
+Approved mesh CPU contacts [{"kind":"contest","markerDistance":0.13756816492197577,"meshSurfaceDistance":0.13252877112632824},{"kind":"pass","markerDistance":0.1375681659697994,"meshSurfaceDistance":0.1325287722256793},{"kind":"carry","markerDistance":0.13883990267194804,"meshSurfaceDistance":0.13384306885225994},{"kind":"shot","markerDistance":0.137568165449513,"meshSurfaceDistance":0.13252877167003022},{"kind":"save","markerDistance":0.10595149871867406,"meshSurfaceDistance":0.06105629634130334},{"kind":"header","markerDistance":0.12500000054359073,"meshSurfaceDistance":0.11618644769314011}]
+✔ approved geometry is shared across 22 identities; team kits, number and toon outlines are retained (130.840605ms)
+✔ side-plane knee bend and actual skinned sole remain anatomical for stance, lift, preparation and follow-through (41.325679ms)
+✔ real engine samples use the actual approved mesh: kick, carry, contest, header and goalkeeper contacts (10684.08222ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10953.496728
