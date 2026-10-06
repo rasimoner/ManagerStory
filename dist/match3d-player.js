@@ -1,3 +1,4 @@
+import {keeperKit} from './match3d-keeper.js';
 import * as T from './vendor/three/three.module.min.js';
 // Geometry copied from approved study commit 33a2cda1cde1adda7f0a6027786921b2d8183faa.
 // Only model construction is adapted; study RAF, ball and animation are excluded.
@@ -78,14 +79,16 @@ const crest=mesh(new T.CircleGeometry(.021,5),red,torso,-.095,.43,.129,false);cr
  originals.forEach(g=>g.dispose());slots.forEach(m=>m.dispose());return geometry;
 }
 function labelTexture(text,large){const c=document.createElement('canvas');c.width=256;c.height=256;const ctx=c.getContext('2d');ctx.fillStyle='#f9eed3';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${large?190:42}px Arial`;ctx.fillText(String(text),128,128);return new T.CanvasTexture(c);}
-export function createFootballer({id,side,number,kit,goalkeeper=false,variant=0}){
+export function createFootballer({id,side,number,kit,goalkeeper=false,variant=0,opponentKit={}}){
  const root=new T.Group();root.name=`footballer:${side}:${id}`;
  const bones=JOINTS.map(([name,,x,y,z])=>{const b=new T.Bone();b.name=name;b.position.set(x,y,z);return b;});
  JOINTS.forEach(([,parent],i)=>(parent<0?root:bones[parent]).add(bones[i]));root.updateMatrixWorld(true);
- const primary=goalkeeper?'#'+new T.Color(kit.secondaryColor).lerp(new T.Color(kit.primaryColor),.35).getHexString():kit.primaryColor;
+ if(goalkeeper)kit=keeperKit(kit,opponentKit,side);
+ const primary=kit.primaryColor;
  const skin=['#bd805a','#a36e48','#77492f','#e2b896','#bd8a60'][variant%5],hair=['#271c18','#382a20','#6c5036','#151b1c'][variant%4];
  const key=JSON.stringify([primary,kit.secondaryColor,skin,hair,goalkeeper,number,kit.shortName||kit.name]);
- let materials=materialCache.get(key);if(!materials){materials=[primary,kit.secondaryColor,skin,hair,'#f1e8d5','#152224','#101b19','#f6f0df'].map(toon);materials.push(sharedOutline??=new T.MeshBasicMaterial({color:0x172020,side:T.BackSide}),toon(goalkeeper?'#f6f0df':skin),label(number,true),label(kit.shortName||kit.name||'',false));materials.push(toon(0x704134));materialCache.set(key,materials);}
+ let materials=materialCache.get(key);if(!materials){materials=[primary,kit.secondaryColor,skin,hair,'#f1e8d5','#152224','#101b19','#f6f0df'].map(toon);materials.push(sharedOutline??=new T.MeshBasicMaterial({color:0x172020,side:T.BackSide}),toon(goalkeeper?(kit.gloveColor||'#f5f6ed'):skin),label(number,true),label(kit.shortName||kit.name||'',false));materials.push(toon(0x704134));materialCache.set(key,materials);}
  sharedGeometry??=buildGeometry();const mesh=new T.SkinnedMesh(sharedGeometry,materials);root.add(mesh);mesh.bind(new T.Skeleton(bones));mesh.castShadow=true;mesh.receiveShadow=true;
- root.userData={id,side,number,bones:Object.fromEntries(bones.map(b=>[b.name,b])),model:'approved-player-33a2cda',contacts:MODEL_CONTACTS};return root;
+ if(goalkeeper){for(const index of [6,9]){const cuff=new T.Mesh(new T.CylinderGeometry(.036,.036,.065,10),toon(kit.secondaryColor));cuff.position.y=.025;bones[index].add(cuff);const palm=new T.Mesh(new T.SphereGeometry(1,12,8),toon(kit.gloveColor||'#f5f6ed'));palm.scale.set(.039,.058,.034);palm.position.z=.012;bones[index].add(palm);}}
+ root.userData={id,side,number,goalkeeper,kit,bones:Object.fromEntries(bones.map(b=>[b.name,b])),model:'approved-player-33a2cda',contacts:MODEL_CONTACTS};return root;
 }

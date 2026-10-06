@@ -1,9 +1,10 @@
+import {keeperPose} from './match3d-keeper.js';
 import { metres,percent,clamp,smooth } from './match3d-pass-timeline.js';
 const add=(a,b)=>a.map((x,i)=>x+b[i]),mul=(v,k)=>v.map(x=>x*k),mix=(a,b,u)=>a.map((x,i)=>x+(b[i]-x)*u);
 const angle=(a,b,u)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*u;
 // Pose state only. Every root and ball coordinate is read from the common MatchView frame.
 export function createLivePoseSampler(){
- const previous=new Map();let lastTime=null,focus=null,span=11,lastPass=null,lastSample=null,lastSignature=null;
+ const previous=new Map();let lastTime=null,focus=null,span=11,lastPass=null,lastSample=null,lastSignature=null,netImpact=null;
  return (snapshot,{aspect=1}={})=>{
   const P=snapshot.presentation,raw=P?.activeEvent,k=P?.kickoffMotion,e=k?{...raw,type:'pass',...k,fromSide:raw.fromSide,toSide:raw.fromSide}:raw,p=k?.progress??P?.progress??0,time=P?.seconds??0,signature=JSON.stringify([time,e?.eventId,e?.type,p,snapshot.matchSeconds,snapshot.ball.displayPosition,aspect]);
   if(signature===lastSignature)return lastSample;
@@ -74,15 +75,17 @@ export function createLivePoseSampler(){
     else{const neutral=add(root,mul([direction[2],0,-direction[0]],.102));neutral[1]=.09;rightFoot=mix(foot,neutral,smooth((p-.76)/.24));}
    }
    const contest=P?.contestMotion;
-   if(shot&&e.outcome!=='block'&&player.id===e.goalkeeperId){
-    yaw=Math.atan2(A[0]-root[0],A[2]-root[2]);
-    const ready=[Math.sin(yaw),0,Math.cos(yaw)],reach=shot.progress<.19?0:smooth((shot.progress-.19)/.57);
-    left=add(root,[-.16,.09,0]);rightFoot=add(root,[.16,.09,0]);
-    pelvisHeight=.90;lean=.12;
-    const neutral=add(root,mul(ready,.30));neutral[1]=1.05;
-    const handTarget=shot.result.type==='save'?[...ball]:add(root,mul(ready,.48));handTarget[1]=shot.result.type==='save'?Math.max(.7,ball[1]):1.1;
-    leftHand=mix(add(neutral,[0,0,-.08]),add(handTarget,[0,0,-.06]),reach);
-    rightHand=mix(add(neutral,[0,0,.08]),add(handTarget,[0,0,.06]),reach);
+   let keeperMotion=null,poseRoot=root;
+   if(player.role==='GK'&&!(kicking&&player.id===e.fromId&&player.side===e.fromSide)){
+    const active=shot&&e.outcome!=='block'&&player.id===e.goalkeeperId&&player.side!==e.fromSide;
+    const target=active?metres(shot.target||shot.result.fromPos):[...ball];if(active)target[1]=1.05;
+    const kp=keeperPose({root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:0,save:active&&shot.result.type==='save',catchBall:active&&shot.result.saveType==='CATCH',stance:active?[left,rightFoot]:null});
+    ({yaw,leftFoot:left,rightFoot,pelvisHeight,lean,bodyRoll,leftHand,rightHand,keeperMotion}=kp);poseRoot=kp.position;arm=0;
+    // Stand up on the same observed clock after the existing control/release.
+    if(!active&&old?.keeperRecovery){const q=smooth((time-old.keeperRecovery.time)/.65),r=old.keeperRecovery;
+     pelvisHeight=r.height+(pelvisHeight-r.height)*q;lean=r.lean+(lean-r.lean)*q;
+     leftHand=mix(r.left,leftHand,q);rightHand=mix(r.right,rightHand,q);
+    }
    }
    if(shot?.blocker&&player.id===shot.result.toId&&player.side===shot.result.toSide){
     const contact=metres(shot.target||shot.result.fromPos),face=[A[0]-contact[0],0,A[2]-contact[2]],n=Math.hypot(face[0],face[2])||1;face[0]/=n;face[2]/=n;
@@ -138,8 +141,8 @@ export function createLivePoseSampler(){
     if(gap<.6)rightFoot=mix(rightFoot,foot,pass?smooth((p-.65)/.11):1);
     gaps.push({id:player.id,kind:pass?(e.success?'receiver':'interceptor'):'firstTouch',metres:gap});
    }
-   poses.push({id:player.id,side:player.side,position:root,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,bodyTwist,headPitch,leftHand,rightHand,motionSource:'derived-from-common-display-roots-and-event-phase'});
-   previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw});
+   poses.push({id:player.id,side:player.side,position:poseRoot,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,bodyTwist,headPitch,leftHand,rightHand,keeperMotion,motionSource:'derived-from-common-display-roots-and-event-phase'});
+   previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw,keeperRecovery:keeperMotion&&shot&&player.id===e.goalkeeperId?{time,height:pelvisHeight,lean,left:leftHand,right:rightHand}:old?.keeperRecovery});
   }
   // Close broadcast framing follows only the current ball and nearby actors.
   // Never fit full pass endpoints, the old source or the source-to-goal rectangle.
@@ -168,6 +171,13 @@ export function createLivePoseSampler(){
   const distance=Math.hypot(24,38),safeAspect=Number.isFinite(aspect)&&aspect>0?aspect:1;
   span=Math.min(12,13,2*distance*Math.tan(22*Math.PI/180)*safeAspect);
   const opacity=reset?(placed&&lastSample?.resetPlaced!==true?0:resetTime<.15?1-smooth(resetTime/.15):smooth((resetTime-.15)/.15)):1;
-  lastSignature=signature;lastSample={poses,ball,ballPercent:percent(ball),camera:{focus:[...focus],span},opacity,resetPlaced:!!placed,flightProgress:u,gaps,eventId:e?.eventId??null,type:e?.type??'idle',pass,estimatedHeight:aerial,ownerId:snapshot.ball.displayOwnerId,side:snapshot.ball.displaySide};return lastSample;
+  if(lastSample&&time<lastSample.seconds)netImpact=null;
+  if(shot&&e.outcome==='goal'){
+   const source=metres(shot.sourcePoint||e.fromPos),target=metres(shot.target||e.toPos),dir=target[0]>0?1:-1;
+   const contact=dir*(54.8-.14),fraction=(contact-source[0])/(target[0]-source[0]);
+   const contactP=.19+.57*fraction;
+   if(p>=contactP&&fraction>=0&&fraction<=1&&netImpact?.eventId!==e.eventId){netImpact={dir,eventId:e.eventId,point:[dir*54.8,.15,source[2]+(target[2]-source[2])*fraction],seconds:time-(p-contactP)*P.duration,source:'derived-goal-ball/net-radius intersection'};}
+  }
+  lastSignature=signature;lastSample={poses,ball,seconds:time,netImpact,ballPercent:percent(ball),camera:{focus:[...focus],span},opacity,resetPlaced:!!placed,flightProgress:u,gaps,eventId:e?.eventId??null,type:e?.type??'idle',pass,estimatedHeight:aerial,ownerId:snapshot.ball.displayOwnerId,side:snapshot.ball.displaySide};return lastSample;
  };
 }
