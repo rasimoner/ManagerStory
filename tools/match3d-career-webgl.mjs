@@ -20,8 +20,10 @@ let browser;try{
   const layout=await page.evaluate(()=>{
    const buttons=[...document.querySelectorAll('.match-playback-options button')],bounds=buttons.map(b=>{const r=b.getBoundingClientRect();return {label:b.textContent,x:r.x,y:r.y,width:r.width,height:r.height};});
    const field=document.querySelector('.career3d').getBoundingClientRect(),narrative=document.querySelector('[data-live-commentary]').getBoundingClientRect(),controls=document.querySelector('.matchcontrols').getBoundingClientRect();
-   return {bounds,fieldBottom:field.bottom,narrativeBottom:narrative.bottom,controlsTop:controls.top,height:innerHeight,removedCopy:!document.body.textContent.includes('Aksiyonlar tamamlanarak gösterilir')};
+   const group=getComputedStyle(document.querySelector('.field-view-options')),selected=getComputedStyle(document.querySelector('.field-view-options button.active'));
+   return {divider:group.borderLeftWidth,viewBackground:selected.backgroundColor,bounds,fieldBottom:field.bottom,narrativeBottom:narrative.bottom,controlsTop:controls.top,height:innerHeight,removedCopy:!document.body.textContent.includes('Aksiyonlar tamamlanarak gösterilir')};
   });
+  assert.equal(layout.divider,'1px');assert.equal(layout.viewBackground,'rgb(36, 122, 197)');
   assert.deepEqual(layout.bounds.map(b=>b.label),['0.5×','1×','2×','2D','3D']);assert.ok(layout.bounds.every(b=>b.height>=44&&b.width>=44));assert.ok(layout.bounds.every(b=>Math.abs(b.y-layout.bounds[0].y)<1));assert.ok(layout.narrativeBottom<=layout.controlsTop&&layout.fieldBottom<=layout.narrativeBottom&&layout.controlsTop<layout.height);assert.equal(layout.removedCopy,true);
   assert.equal(first.players,22);assert.equal(first.tempo,1);assert.ok(first.canvas[0]>0&&first.bounds[0]>0);for(const k of ['engine','scene','unchanged'])assert.equal(checks[k],true);assert.equal(checks.technical,false);assert.equal(checks.overflow,false);
   await page.evaluate(()=>{resumeLive();});await page.waitForFunction(()=>ManagerStoryLive3D.time>.02);await page.evaluate(()=>pauseLive());

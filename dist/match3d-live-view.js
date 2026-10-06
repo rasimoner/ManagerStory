@@ -3,7 +3,7 @@ const add=(a,b)=>a.map((x,i)=>x+b[i]),mul=(v,k)=>v.map(x=>x*k),mix=(a,b,u)=>a.ma
 const angle=(a,b,u)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*u;
 // Pose state only. Every root and ball coordinate is read from the common MatchView frame.
 export function createLivePoseSampler(){
- const previous=new Map();let lastTime=null,focus=null,span=11,lastPass=null,lastSample=null,lastSignature=null,zoomHold=0;
+ const previous=new Map();let lastTime=null,focus=null,span=11,lastPass=null,lastSample=null,lastSignature=null;
  return (snapshot,{aspect=1}={})=>{
   const P=snapshot.presentation,e=P?.activeEvent,p=P?.progress||0,time=P?.seconds??0,signature=JSON.stringify([time,e?.eventId,e?.type,p,snapshot.matchSeconds,snapshot.ball.displayPosition,aspect]);
   if(signature===lastSignature)return lastSample;
@@ -141,32 +141,32 @@ export function createLivePoseSampler(){
    poses.push({id:player.id,side:player.side,position:root,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,bodyTwist,headPitch,leftHand,rightHand,motionSource:'derived-from-common-display-roots-and-event-phase'});
    previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw});
   }
-  // Fit the action, not an isolated ball. No winner/save/goal outcome is read
-  // to choose the framing; all shots use the same source + goal rectangle.
-  let points=[ball],actors=[];
-  const source=poses.find(x=>x.id===e?.fromId&&x.side===e?.fromSide),receiver=poses.find(x=>x.id===e?.toId&&x.side===e?.toSide);
-  if(pass){points.push(A,B);if(source)actors.push(source);if(receiver)actors.push(receiver);}
-  else if(shot){const goal=metres([e.toPos[0]>50?100:0,50]);points.push(A,goal,...[-3.66,3.66].map(z=>[goal[0],2.44,z]));if(source)actors.push(source);}
-  else {
-   const owner=poses.find(x=>x.id===snapshot.ball.displayOwnerId&&x.side===snapshot.ball.displaySide);
-   if(owner)actors.push(owner);
-   const nearby=poses.filter(x=>x!==owner&&Math.hypot(x.position[0]-ball[0],x.position[2]-ball[2])<8).sort((a,b)=>Math.hypot(a.position[0]-ball[0],a.position[2]-ball[2])-Math.hypot(b.position[0]-ball[0],b.position[2]-ball[2]));
-   const defender=nearby.find(x=>x.side!==owner?.side),options=nearby.filter(x=>x.side===owner?.side).slice(0,2);if(defender)actors.push(defender);actors.push(...options);
+  // Close broadcast framing follows only the current ball and nearby actors.
+  // Never fit full pass endpoints, the old source or the source-to-goal rectangle.
+  // A fixed bounded span prevents zoom pumping and protects player screen size.
+  const owner=poses.find(x=>x.id===snapshot.ball.displayOwnerId&&x.side===snapshot.ball.displaySide);
+  const gap=actor=>Math.hypot(actor.position[0]-ball[0],actor.position[2]-ball[2]);
+  let target=[...ball];target[1]=0;
+  if(owner&&gap(owner)<4)target=mix(target,owner.position,.25);
+  const actionSide=owner?.side||e?.fromSide;
+  const defender=poses.filter(x=>x.side!==actionSide&&gap(x)<4).sort((a,b)=>gap(a)-gap(b))[0];
+  if(defender)target=mix(target,defender.position,.12);
+  // Modest, outcome-blind lead in the CURRENT flight direction; no distant
+  // receiver or goal coordinate is fed into a bounding-box/zoom calculation.
+  if(pass&&p>.19&&p<.76){target=add(target,mul(dir,.65));}
+  if(shot&&p>.19&&p<.76){const goalDirection=e.toPos[0]>50?1:-1;target[0]+=goalDirection*.8;}
+  target[0]=clamp(target[0],-51,51);target[2]=clamp(target[2],-32,32);
+  if(!focus)focus=[...target];else if(dt>0){
+   // Follow the already-presented displacement, not an anticipated endpoint.
+   // Fast long passes must not outrun a camera speed limit and trigger widening.
+   if(lastSample){focus[0]+=ball[0]-lastSample.ball[0];focus[2]+=ball[2]-lastSample.ball[2];}
+   focus=mix(focus,target,1-Math.exp(-dt*10));
+   focus[0]=clamp(focus[0],-51,51);focus[2]=clamp(focus[2],-32,32);
   }
-  const contest=P?.contestMotion||P?.holdMotion;
-  if(contest)for(const id of [contest.attackerId,contest.defenderId]){const actor=poses.find(x=>x.id===id);if(actor)actors.push(actor);}
-  for(const actor of actors)points.push(actor.position,add(actor.position,[0,1.85,0]));
-  const min=axis=>Math.min(...points.map(v=>v[axis])),max=axis=>Math.max(...points.map(v=>v[axis]));
-  const target=[(min(0)+max(0))*.5,0,(min(2)+max(2))*.5];
-  if(!focus)focus=[...target];else if(dt>0){const next=mix(focus,target,1-Math.exp(-dt*7)),step=Math.hypot(next[0]-focus[0],next[2]-focus[2]);focus=mix(focus,next,Math.min(1,14*dt/(step||1)));}
-  const distance=Math.hypot(24,38),sin=24/distance,cos=38/distance;
-  let desired=10.5;
-  for(const point of points){const z=point[2]-focus[2],depth=Math.max(8,distance-point[1]*sin-z*cos),scale=distance/depth;
-   desired=Math.max(desired,2*Math.abs(point[0]-focus[0])*scale/.83,2*Math.abs(point[1]*cos-z*sin)*aspect*scale/.80);
-  }
-  if(lastSample==null||placed&&lastSample.resetPlaced!==true)span=desired;
-  else if(desired>span){span+=(desired-span)*(1-Math.exp(-dt*6));zoomHold=time+.9;}
-  else if(time>zoomHold&&!shot)span+=(desired-span)*(1-Math.exp(-dt*1.2));
+  // Fixed 12m horizontal coverage, hard 13m ceiling including all event phases.
+  // Also cap vertical FOV at44deg for unusually tall canvases: no sky/horizon.
+  const distance=Math.hypot(24,38),safeAspect=Number.isFinite(aspect)&&aspect>0?aspect:1;
+  span=Math.min(12,13,2*distance*Math.tan(22*Math.PI/180)*safeAspect);
   const opacity=reset?(placed&&lastSample?.resetPlaced!==true?0:resetTime<.15?1-smooth(resetTime/.15):smooth((resetTime-.15)/.15)):1;
   lastSignature=signature;lastSample={poses,ball,ballPercent:percent(ball),camera:{focus:[...focus],span},opacity,resetPlaced:!!placed,flightProgress:u,gaps,eventId:e?.eventId??null,type:e?.type??'idle',pass,estimatedHeight:aerial,ownerId:snapshot.ball.displayOwnerId,side:snapshot.ball.displaySide};return lastSample;
  };

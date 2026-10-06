@@ -1,4 +1,4 @@
-const CACHE = "managerstory-v7.4.2-normal-view-20261006";
+const CACHE = "managerstory-v7.4.2-close-camera-20261006";
 const ASSETS = [
   "./match3d-career.js", "./match3d-career.css", "./match3d-live-clock.js", "./match3d-live-view.js",
   "./match3d-pass-timeline.js", "./match3d-football-pose.js", "./match3d-pass-replay.js", "./match3d-pass-recordings.json",
