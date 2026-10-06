@@ -1,0 +1,751 @@
+{
+  "sourceCommit": "bd78b5e52ff24bb3d0247dcccae7ad67585c7038",
+  "environment": "CPU real MatchEngine and existing shared clock; no GPU or device FPS evidence",
+  "video": {
+    "file": "ScreenRecording_10-06-2026 23-55-56_1(1).mp4",
+    "observed": "15: Sinan Erdem loses → Taylan presses → wins; 16: Taylan pass; 17: Mensah pass",
+    "seedVerified": false
+  },
+  "before": {
+    "experiment": false,
+    "seed": 8800,
+    "eventIds": [
+      72,
+      73,
+      74
+    ],
+    "videoSeedVerified": false,
+    "attacker": "o8",
+    "defender": 7,
+    "start": [
+      49.50705562354697,
+      51.505476452707946
+    ],
+    "defenderStart": [
+      49.50705562354697,
+      51.505476452707946
+    ],
+    "end": [
+      40.835982988042005,
+      57.505476452707946
+    ],
+    "travelMetres": 9.977004533769081,
+    "duration": 26.600989550412297,
+    "profile": [
+      {
+        "phase": "preparation",
+        "seconds": 5.054188014578337,
+        "peakAttacker": 0,
+        "peakDefender": 470.5882348368352,
+        "peakBall": 0
+      },
+      {
+        "phase": "approach",
+        "seconds": 12.236455193189657,
+        "peakAttacker": 0.9870036587048072,
+        "peakDefender": 0.7079726566698091,
+        "peakBall": 1.4208977630209834
+      },
+      {
+        "phase": "reach",
+        "seconds": 2.9261088505453525,
+        "peakAttacker": 0.6146520323191474,
+        "peakDefender": 0.27220125437620557,
+        "peakBall": 0.6316098169501594
+      },
+      {
+        "phase": "contact/ownership",
+        "seconds": 3.990148432561845,
+        "peakAttacker": 0.17621520831224402,
+        "peakDefender": 0.12834779573634506,
+        "peakBall": 0.2753624396283968
+      },
+      {
+        "phase": "recovery",
+        "seconds": 2.394089059537106,
+        "peakAttacker": 0.16516504373184904,
+        "peakDefender": 0.10083723955451032,
+        "peakBall": 0.10083723955451032
+      }
+    ],
+    "resolution": [
+      {
+        "samples": 100,
+        "peakNormalizedDefender": 125.18112729585144,
+        "peakPhase": 0.01,
+        "derivedDuration": 5.320197910073686
+      },
+      {
+        "samples": 500,
+        "peakNormalizedDefender": 625.9056364802893,
+        "peakPhase": 0.002,
+        "derivedDuration": 26.600989550412297
+      },
+      {
+        "samples": 1000,
+        "peakNormalizedDefender": 1251.811272984342,
+        "peakPhase": 0.001,
+        "derivedDuration": 53.20197910183453
+      },
+      {
+        "samples": 10000,
+        "peakNormalizedDefender": 12518.112717441621,
+        "peakPhase": 0.0001,
+        "derivedDuration": 532.0197904912689
+      }
+    ],
+    "clips": [
+      {
+        "type": "dribble",
+        "id": 72,
+        "minute": 15,
+        "text": "15’ Sinan Erdem müdahalede topu kaybetti.",
+        "duration": 26.600989550412297,
+        "from": [
+          49.50705562354697,
+          51.505476452707946
+        ],
+        "to": [
+          40.835982988042005,
+          57.505476452707946
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.15,
+        "phase": "post-event-settlement",
+        "from": [
+          41.07745254425887,
+          58.337517458869485
+        ],
+        "to": [
+          41.43622803604078,
+          57.86562348150722
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.6666666666666666,
+        "phase": "after-position-update-before-action-decisions",
+        "from": [
+          41.43622803604078,
+          57.86562348150722
+        ],
+        "to": [
+          47.45933567547934,
+          59.33106078362718
+        ],
+        "hold": false
+      },
+      {
+        "type": "pass",
+        "id": 76,
+        "minute": 16,
+        "text": "16’ Taylan pas verdi.",
+        "duration": 0.7902079312164844,
+        "from": [
+          47.45933567547934,
+          59.33106078362718
+        ],
+        "to": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "hold": false
+      },
+      {
+        "type": "firstTouch",
+        "id": 77,
+        "minute": 16,
+        "text": "16’ Mensah topu kontrol etti.",
+        "duration": 0.5569579297804494,
+        "from": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "to": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.15,
+        "phase": "post-event-settlement",
+        "from": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "to": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.6666666666666666,
+        "phase": "after-position-update-before-action-decisions",
+        "from": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "to": [
+          96,
+          31.831305534927722
+        ],
+        "hold": false
+      },
+      {
+        "type": "press",
+        "id": 78,
+        "minute": 17,
+        "text": "17’ Rakip topa baskıya çıktı.",
+        "duration": 0.44,
+        "from": [
+          96,
+          31.831305534927722
+        ],
+        "to": [
+          96,
+          31.831305534927722
+        ],
+        "hold": false
+      },
+      {
+        "type": "tackle",
+        "id": 79,
+        "minute": 17,
+        "text": "17’ Rakip müdahaleyi kaçırdı.",
+        "duration": 0.44,
+        "from": [
+          96,
+          31.831305534927722
+        ],
+        "to": [
+          96,
+          31.831305534927722
+        ],
+        "hold": false
+      },
+      {
+        "type": "pass",
+        "id": 80,
+        "minute": 17,
+        "text": "17’ Mensah pas verdi.",
+        "duration": 0.7696850942558944,
+        "from": [
+          96,
+          31.831305534927722
+        ],
+        "to": [
+          50.92986652726517,
+          40.485109947394335
+        ],
+        "hold": false
+      }
+    ],
+    "passes": [
+      {
+        "eventId": 76,
+        "duration": 0.7902079312164844,
+        "preparation": 0.15013950693113204,
+        "flight": 0.45041852079339606,
+        "recovery": 0.18964990349195623,
+        "metres": 53.451296831612375,
+        "meanDisplayBallSpeed": 118.67029077192437
+      },
+      {
+        "eventId": 80,
+        "duration": 0.7696850942558944,
+        "preparation": 0.14624016790861993,
+        "flight": 0.43872050372585975,
+        "recovery": 0.18472442262141464,
+        "metres": 47.68810418615378,
+        "meanDisplayBallSpeed": 108.69814330800531
+      }
+    ]
+  },
+  "isolatedAlternative": {
+    "experiment": true,
+    "seed": 8800,
+    "eventIds": [
+      72,
+      73,
+      74
+    ],
+    "videoSeedVerified": false,
+    "attacker": "o8",
+    "defender": 7,
+    "start": [
+      49.50705562354697,
+      51.505476452707946
+    ],
+    "defenderStart": [
+      49.50705562354697,
+      51.505476452707946
+    ],
+    "end": [
+      40.835982988042005,
+      57.505476452707946
+    ],
+    "travelMetres": 9.977004533769081,
+    "duration": 1.115844612024967,
+    "profile": [
+      {
+        "phase": "preparation",
+        "seconds": 0.21201047628474373,
+        "peakAttacker": 0,
+        "peakDefender": 13.233026034909084,
+        "peakBall": 0
+      },
+      {
+        "phase": "approach",
+        "seconds": 0.5132885215314849,
+        "peakAttacker": 23.529507360150088,
+        "peakDefender": 17.64713083692912,
+        "peakBall": 33.87325272623145
+      },
+      {
+        "phase": "reach",
+        "seconds": 0.12274290732274636,
+        "peakAttacker": 14.652893523579145,
+        "peakDefender": 7.038724074861772,
+        "peakBall": 15.057155772019879
+      },
+      {
+        "phase": "contact/ownership",
+        "seconds": 0.16737669180374506,
+        "peakAttacker": 4.200852757115654,
+        "peakDefender": 3.059725643165605,
+        "peakBall": 6.56445646660265
+      },
+      {
+        "phase": "recovery",
+        "seconds": 0.100426015082247,
+        "peakAttacker": 3.9374242211298154,
+        "peakDefender": 2.4038923760308775,
+        "peakBall": 2.4038923760308775
+      }
+    ],
+    "resolution": [
+      {
+        "samples": 100,
+        "peakNormalizedDefender": 19.686910735782543,
+        "peakPhase": 0.39,
+        "derivedDuration": 0.8366937062707581
+      },
+      {
+        "samples": 500,
+        "peakNormalizedDefender": 19.691274493416103,
+        "peakPhase": 0.38,
+        "derivedDuration": 0.8368791659701844
+      },
+      {
+        "samples": 1000,
+        "peakNormalizedDefender": 19.69141086084196,
+        "peakPhase": 0.381,
+        "derivedDuration": 0.8368849615857832
+      },
+      {
+        "samples": 10000,
+        "peakNormalizedDefender": 19.691455862087004,
+        "peakPhase": 0.3801,
+        "derivedDuration": 0.8368868741386977
+      }
+    ],
+    "clips": [
+      {
+        "type": "dribble",
+        "id": 72,
+        "minute": 15,
+        "text": "15’ Sinan Erdem müdahalede topu kaybetti.",
+        "duration": 1.115844612024967,
+        "from": [
+          49.50705562354697,
+          51.505476452707946
+        ],
+        "to": [
+          40.835982988042005,
+          57.505476452707946
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.15,
+        "phase": "post-event-settlement",
+        "from": [
+          41.07745254425887,
+          58.337517458869485
+        ],
+        "to": [
+          41.43622803604078,
+          57.86562348150722
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.6666666666666666,
+        "phase": "after-position-update-before-action-decisions",
+        "from": [
+          41.43622803604078,
+          57.86562348150722
+        ],
+        "to": [
+          47.45933567547934,
+          59.33106078362718
+        ],
+        "hold": false
+      },
+      {
+        "type": "pass",
+        "id": 76,
+        "minute": 16,
+        "text": "16’ Taylan pas verdi.",
+        "duration": 0.7902079312164844,
+        "from": [
+          47.45933567547934,
+          59.33106078362718
+        ],
+        "to": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "hold": false
+      },
+      {
+        "type": "firstTouch",
+        "id": 77,
+        "minute": 16,
+        "text": "16’ Mensah topu kontrol etti.",
+        "duration": 0.5569579297804494,
+        "from": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "to": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.15,
+        "phase": "post-event-settlement",
+        "from": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "to": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "hold": false
+      },
+      {
+        "type": "enginePositionGap",
+        "duration": 0.6666666666666666,
+        "phase": "after-position-update-before-action-decisions",
+        "from": [
+          94.02848042063117,
+          27.58318761047419
+        ],
+        "to": [
+          96,
+          31.831305534927722
+        ],
+        "hold": false
+      },
+      {
+        "type": "press",
+        "id": 78,
+        "minute": 17,
+        "text": "17’ Rakip topa baskıya çıktı.",
+        "duration": 0.44,
+        "from": [
+          96,
+          31.831305534927722
+        ],
+        "to": [
+          96,
+          31.831305534927722
+        ],
+        "hold": false
+      },
+      {
+        "type": "tackle",
+        "id": 79,
+        "minute": 17,
+        "text": "17’ Rakip müdahaleyi kaçırdı.",
+        "duration": 0.44,
+        "from": [
+          96,
+          31.831305534927722
+        ],
+        "to": [
+          96,
+          31.831305534927722
+        ],
+        "hold": false
+      },
+      {
+        "type": "pass",
+        "id": 80,
+        "minute": 17,
+        "text": "17’ Mensah pas verdi.",
+        "duration": 0.7696850942558944,
+        "from": [
+          96,
+          31.831305534927722
+        ],
+        "to": [
+          50.92986652726517,
+          40.485109947394335
+        ],
+        "hold": false
+      }
+    ],
+    "passes": [
+      {
+        "eventId": 76,
+        "duration": 0.7902079312164844,
+        "preparation": 0.15013950693113204,
+        "flight": 0.45041852079339606,
+        "recovery": 0.18964990349195623,
+        "metres": 53.451296831612375,
+        "meanDisplayBallSpeed": 118.67029077192437
+      },
+      {
+        "eventId": 80,
+        "duration": 0.7696850942558944,
+        "preparation": 0.14624016790861993,
+        "flight": 0.43872050372585975,
+        "recovery": 0.18472442262141464,
+        "metres": 47.68810418615378,
+        "meanDisplayBallSpeed": 108.69814330800531
+      }
+    ]
+  },
+  "controls": [
+    {
+      "view": "2d",
+      "speed": 0.5,
+      "pauseFrozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.03999999999999915
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 2,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        }
+      ],
+      "hiddenDebtAfterDelay": -4.735795089416683e-16
+    },
+    {
+      "view": "2d",
+      "speed": 1,
+      "pauseFrozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.0799999999999983
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 2,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        }
+      ],
+      "hiddenDebtAfterDelay": -9.471590178833367e-16
+    },
+    {
+      "view": "2d",
+      "speed": 2,
+      "pauseFrozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.1599999999999966
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 2,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        }
+      ],
+      "hiddenDebtAfterDelay": -1.8943180357666733e-15
+    },
+    {
+      "view": "3d",
+      "speed": 0.5,
+      "pauseFrozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.03999999999999915
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 2,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        }
+      ],
+      "hiddenDebtAfterDelay": -4.735795089416683e-16
+    },
+    {
+      "view": "3d",
+      "speed": 1,
+      "pauseFrozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.0799999999999983
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 2,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        }
+      ],
+      "hiddenDebtAfterDelay": -9.471590178833367e-16
+    },
+    {
+      "view": "3d",
+      "speed": 2,
+      "pauseFrozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.1599999999999966
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 2,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        }
+      ],
+      "hiddenDebtAfterDelay": -1.8943180357666733e-15
+    }
+  ],
+  "fullMatches": [
+    {
+      "experiment": false,
+      "seed": 1,
+      "wall": 451.7599999999787,
+      "pending": false,
+      "finished": true,
+      "endCount": 1,
+      "engineEqual": true,
+      "careerEqual": true,
+      "singleCareerApply": true
+    },
+    {
+      "experiment": false,
+      "seed": 8800,
+      "wall": 469.1999999999752,
+      "pending": false,
+      "finished": true,
+      "endCount": 1,
+      "engineEqual": true,
+      "careerEqual": true,
+      "singleCareerApply": true
+    },
+    {
+      "experiment": true,
+      "seed": 1,
+      "wall": 343.2000000000003,
+      "pending": false,
+      "finished": true,
+      "endCount": 1,
+      "engineEqual": true,
+      "careerEqual": true,
+      "singleCareerApply": true
+    },
+    {
+      "experiment": true,
+      "seed": 8800,
+      "wall": 382.1599999999925,
+      "pending": false,
+      "finished": true,
+      "endCount": 1,
+      "engineEqual": true,
+      "careerEqual": true,
+      "singleCareerApply": true
+    }
+  ]
+}
