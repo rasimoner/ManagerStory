@@ -15,6 +15,7 @@ export function createLivePoseSampler(){
   const A=kicking||e?.type==='kickoff'?metres(e.fromPos):ball,B=pass?metres(e.toPos):shot?metres(shot.target||shot.result.fromPos):ball,len=Math.hypot(B[0]-A[0],B[2]-A[2]),u=clamp((p-.19)/.57),dir=len?[(B[0]-A[0])/len,0,(B[2]-A[2])/len]:[0,0,1],right=[dir[2],0,-dir[0]];
   const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(!e||e.type==='enginePositionGap'?(snapshot.ball.presentationHeight??.15):.15)+(aerial?Math.sin(Math.PI*u)*clamp(len/12,1.2,3.8):0);
   if(shot)ball[1]=shot.height;
+  if(P?.keeperControl||P?.keeperDistribution)ball[1]=snapshot.ball.presentationHeight;
   if(e?.headerShot){const v=clamp((p-.19)/.81);ball[1]=.15+(1.704-.15)*v+Math.sin(Math.PI*v)*2.4;}
   if(pass)lastPass=e;
   const reset=e?.goalReset||e?.restartReset,resetTime=reset?p*P.duration:0,placed=reset&&resetTime>=.15;
@@ -76,16 +77,14 @@ export function createLivePoseSampler(){
    }
    const contest=P?.contestMotion;
    let keeperMotion=null,poseRoot=root;
-   if(player.role==='GK'&&!(kicking&&player.id===e.fromId&&player.side===e.fromSide)){
-    const active=shot&&e.outcome!=='block'&&player.id===e.goalkeeperId&&player.side!==e.fromSide;
+   const control=P?.keeperControl?.id===player.id&&P.keeperControl.side===player.side?P.keeperControl:null;
+   const distribution=P?.keeperDistribution?.id===player.id&&P.keeperDistribution.side===player.side?P.keeperDistribution:null;
+   if(player.role==='GK'&&(!(kicking&&player.id===e.fromId&&player.side===e.fromSide)||distribution)){
+    const active=!!(shot&&e.outcome!=='block'&&player.id===e.goalkeeperId&&player.side!==e.fromSide);
     const target=active?metres(shot.target||shot.result.fromPos):[...ball];if(active)target[1]=1.05;
-    const kp=keeperPose({root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:0,save:active&&shot.result.type==='save',catchBall:active&&shot.result.saveType==='CATCH',stance:active?[left,rightFoot]:null});
+    const d=distribution?{...distribution,release:[...metres(distribution.release).slice(0,1),1.05,metres(distribution.release)[2]]}:null;
+    const kp=keeperPose({root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&shot.result.type==='save',catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d});
     ({yaw,leftFoot:left,rightFoot,pelvisHeight,lean,bodyRoll,leftHand,rightHand,keeperMotion}=kp);poseRoot=kp.position;arm=0;
-    // Stand up on the same observed clock after the existing control/release.
-    if(!active&&old?.keeperRecovery){const q=smooth((time-old.keeperRecovery.time)/.65),r=old.keeperRecovery;
-     pelvisHeight=r.height+(pelvisHeight-r.height)*q;lean=r.lean+(lean-r.lean)*q;
-     leftHand=mix(r.left,leftHand,q);rightHand=mix(r.right,rightHand,q);
-    }
    }
    if(shot?.blocker&&player.id===shot.result.toId&&player.side===shot.result.toSide){
     const contact=metres(shot.target||shot.result.fromPos),face=[A[0]-contact[0],0,A[2]-contact[2]],n=Math.hypot(face[0],face[2])||1;face[0]/=n;face[2]/=n;
@@ -142,7 +141,7 @@ export function createLivePoseSampler(){
     gaps.push({id:player.id,kind:pass?(e.success?'receiver':'interceptor'):'firstTouch',metres:gap});
    }
    poses.push({id:player.id,side:player.side,position:poseRoot,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,bodyTwist,headPitch,leftHand,rightHand,keeperMotion,motionSource:'derived-from-common-display-roots-and-event-phase'});
-   previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw,keeperRecovery:keeperMotion&&shot&&player.id===e.goalkeeperId?{time,height:pelvisHeight,lean,left:leftHand,right:rightHand}:old?.keeperRecovery});
+   previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw});
   }
   // Close broadcast framing follows only the current ball and nearby actors.
   // Never fit full pass endpoints, the old source or the source-to-goal rectangle.

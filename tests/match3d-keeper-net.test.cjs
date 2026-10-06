@@ -1,9 +1,9 @@
 const test=require('node:test'),assert=require('node:assert/strict');
-test('real save49→51 retains goalkeeper pass53 visible boot contact',async()=>{
+test('real save49→51 keeps captured ball at hand height until real pass53 release',async()=>{
  const {setup}=await import('../tools/match3d-minute-audit.mjs'),{createLivePoseSampler}=await import('../dist/match3d-live-view.js'),{createFootballer}=await import('../dist/match3d-player.js'),{poseFootballer}=await import('../dist/match3d-football-pose.js'),T=await import('../dist/vendor/three/three.module.min.js');
  const h=setup();h.run('M.rand=R(8800);ManagerStoryLive3D.setTempo(1);for(let i=0;i<20000;i++){ManagerStoryLive3D.step(.01,0);if(pitchV73.active?.eventId===53)break;}if(pitchV73.active?.eventId!==53)throw Error("No real goalkeeper pass53");ManagerStoryLive3D.step((.19-pitchV73.progress)*pitchV73.activeDuration,0);');
  const s=h.run('MatchView.read()'),e=s.presentation.activeEvent,v=createLivePoseSampler()(s),p=v.poses.find(p=>p.id===e.fromId&&p.side===e.fromSide);assert.equal(s.players.find(x=>x.id===e.fromId&&x.side===e.fromSide).role,'GK');
- global.document={createElement:()=>({width:256,height:256,getContext:()=>({fillText(){}})})};const m=createFootballer({id:p.id,side:p.side,number:1,kit:s.teams.home,goalkeeper:true});assert.ok(poseFootballer(m,p).rightToe.distanceTo(new T.Vector3(...v.ball))<.20);assert.equal(p.keeperMotion,null);
+ global.document={createElement:()=>({width:256,height:256,getContext:()=>({fillText(){}})})};const m=createFootballer({id:p.id,side:p.side,number:1,kit:s.teams.home,goalkeeper:true});assert.ok(s.presentation.keeperDistribution);assert.equal(s.presentation.keeperDistribution.height,1.05);assert.ok(p.keeperMotion);assert.ok(poseFootballer(m,p).rightHand.distanceTo(new T.Vector3(...v.ball))<.20);
 });
 test('keeper clothing honors supplied kit or deterministically contrasts with both field kits',async()=>{
  const {keeperKit}=await import('../dist/match3d-keeper.js');const kit={primaryColor:'#ffff00',secondaryColor:'#cc0022'},other={primaryColor:'#22aa44',secondaryColor:'#ffffff'};
