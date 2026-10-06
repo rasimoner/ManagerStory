@@ -1,6 +1,7 @@
 // Read-only product audit. The continuous-start alternative exists ONLY in this
 // isolated VM experiment: it is not loaded by the app or a second product clock.
 import fs from 'node:fs';
+import {execFileSync} from 'node:child_process';
 import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
 import assert from 'node:assert/strict';
@@ -8,7 +9,7 @@ const require=createRequire(import.meta.url),{harness,playToEnd}=require('../tes
 export const sourceCommit='bd78b5e52ff24bb3d0247dcccae7ad67585c7038';
 const distance=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68);
 export function setup(experiment=false,activate=true){
- const h=harness();let clock=fs.readFileSync('dist/match3d-live-clock.js','utf8');
+ const h=harness();let clock=execFileSync('git',['show',sourceCommit+':dist/match3d-live-clock.js'],{encoding:'utf8'});
  if(experiment){
   // Remove the coincident-root direction singularity to measure its cost.
   // This deliberately does NOT claim to solve boundary continuity or duration

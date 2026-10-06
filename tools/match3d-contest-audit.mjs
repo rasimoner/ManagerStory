@@ -2,12 +2,13 @@ import fs from 'node:fs';import {pathToFileURL} from 'node:url';
 import {setup} from './match3d-minute-audit.mjs';
 import {createLivePoseSampler} from '../dist/match3d-live-view.js';
 import * as T from '../dist/vendor/three/three.module.min.js';import {JOINTS} from '../dist/match3d-player.js';import {poseFootballer} from '../dist/match3d-football-pose.js';
+const phaseToClock=(P,p)=>{const t=P.contestMotion?.timing;if(!t)return p;for(let i=1;i<t.poseBoundaries.length;i++)if(p<=t.poseBoundaries[i])return t.boundaries[i-1]+(t.boundaries[i]-t.boundaries[i-1])*(p-t.poseBoundaries[i-1])/(t.poseBoundaries[i]-t.poseBoundaries[i-1]);return 1;};
 const distance=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68);
 function skeleton(){const root=new T.Group(),bones=JOINTS.map(([name,,x,y,z])=>{const b=new T.Bone();b.name=name;b.position.set(x,y,z);return b;});JOINTS.forEach(([,parent],i)=>(parent<0?root:bones[parent]).add(bones[i]));root.userData.bones=Object.fromEntries(bones.map(b=>[b.name,b]));return root;}
 export function audit(){const h=setup(),sample=createLivePoseSampler(),model=skeleton(),rows=new Map();h.run('M.rand=R(1)');let wall=0,old=null,lastContest=null;
  for(let i=0;i<30000;i++){
   const before=h.run('MatchView.read()'),e=before.presentation.activeEvent,p=before.presentation.progress;let dt=.01;
-  if(e?.contest){const boundary=[.65,.76,.91,.999999].find(x=>x>p+1e-8);if(boundary)dt=Math.min(dt,(boundary-p)*before.presentation.duration*4+1e-10);}
+  if(e?.contest){const boundary=[.65,.76,.91,.999999].find(x=>x>p+1e-8);if(boundary)dt=Math.min(dt,(phaseToClock(before.presentation,boundary)-(before.presentation.clockProgress??p))*before.presentation.duration*4+1e-10);}
   wall+=dt;h.run(`ManagerStoryLive3D.step(${dt},${wall*1000})`);const s=h.run('MatchView.read()'),P=s.presentation,c=P.contestMotion?.independent?null:P.contestMotion,poses=sample(s),root=id=>s.players.find(p=>p.id===id).displayPosition;
   if(c){let r=rows.get(P.activeEvent.eventId);if(!r){r={eventId:P.activeEvent.eventId,tackleId:c.tackle.eventId,keepsBall:c.attackerKeepsBall,defenderStart:c.defenderStart,defenderEnd:c.defenderEnd,startWall:wall,duration:P.duration*4,minClearance:Infinity,maxRootSpeed:0,maxBallStep:0,earlyOwnerChanges:0,maxWinnerBallGapAfterControl:0,phases:[]};rows.set(r.eventId,r);}
    r.minClearance=Math.min(r.minClearance,distance(root(c.attackerId),root(c.defenderId)));

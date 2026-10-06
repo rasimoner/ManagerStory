@@ -63,35 +63,62 @@
  }
  function captureShotStart(start){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(e?.type==='shot')e.shooterStart=[...start];}
  const xy=p=>[p[0]*1.05,p[1]*.68],pct=p=>[p[0]/1.05,p[1]/.68];
- function contestFrame(e,p){
-  const c=e.contest,A=xy(c.attackerStart),B=xy(c.point),S=xy(c.defenderStart),E=xy(c.defenderEnd),dx=B[0]-A[0],dy=B[1]-A[1],n=Math.hypot(dx,dy)||1,dir=[dx/n,dy/n];
-  const sign=((S[0]-B[0])*-dir[1]+(S[1]-B[1])*dir[0])<0?-1:1,normal=[-dir[1]*sign,dir[0]*sign];
-  const settledContact=B.map((v,i)=>v+normal[i]*.62);
-  // Existing side-view: bias only the derived contact offset toward screen x.
-  // Real starts/endpoints and the winner remain immutable.
-  if(Math.abs(normal[0])<.9){normal[0]=.9*Math.sign(normal[0]||S[0]-B[0]||1);normal[1]=Math.sqrt(1-.9**2)*Math.sign(normal[1]||1);}
-  const contact=B.map((v,i)=>v+normal[i]*.70);
-  const u=Math.max(0,Math.min(1,(p-.19)/.57)),t=ease(u),r=ease(Math.max(0,Math.min(1,(p-.76)/.24)));
-  if(c.independent){
-   const attacker=lerp(A,B,t),defender=p<.76?lerp(S,contact,ease(p/.76)):lerp(contact,E,r);
-   const ball=p<.76?lerp(A,B,t):lerp(B,defender,ease(Math.max(0,Math.min(1,(p-.76)/.15))));
-   return {attacker:pct(attacker),defender:pct(defender),ball:pct(ball),travel:Math.hypot(dx,dy)*t,phase:0,lead:0,clearance:Math.hypot(...defender.map((v,i)=>v-attacker[i]))};
+ const contestPaths=new WeakMap();
+ // Presentation placement is a short preparation movement, not a sampled
+ // zero-vector direction jump. Paths and timing use metre-space endpoints.
+ function relativePath(from,to){
+  const length=v=>Math.hypot(...v),a=length(from),b=length(to),angleB=Math.atan2(to[1],to[0]),angleA=a>1e-8?Math.atan2(from[1],from[0]):angleB;
+  const turn=Math.atan2(Math.sin(angleB-angleA),Math.cos(angleB-angleA)),v=to.map((x,i)=>x-from[i]),n=v[0]*v[0]+v[1]*v[1],q=n?Math.max(0,Math.min(1,-(from[0]*v[0]+from[1]*v[1])/n)):0;
+  const closest=Math.hypot(...from.map((x,i)=>x+v[i]*q));
+  // Use the straight relative segment unless it intersects the body clearance.
+  // A small polar detour has fixed endpoint bearings, never a live normalization.
+  const path={from,to,a,b,angle:angleA,turn,detour:closest<.62-1e-8};
+  if(path.detour&&Math.max(a,b)>1.2){
+   const chord=Math.hypot(...v)||1,side=(-v[1]*from[0]+v[0]*from[1])<0?-1:1,normal=[-v[1]/chord*side,v[0]/chord*side];
+   // A local quadratic bypass avoids sweeping a distant defender around a
+   // growing circle. Inspect the complete curve, with a derivative margin
+   // between samples; duration comes from its analytic control-polygon bound.
+   for(let radius=1.4;radius<12;radius*=1.25){const control=normal.map(x=>x*radius),bound=2*Math.max(Math.hypot(...control.map((x,i)=>x-from[i])),Math.hypot(...to.map((x,i)=>x-control[i])));let minimum=Infinity;
+    for(let i=0;i<=128;i++){const q=i/128;minimum=Math.min(minimum,Math.hypot(...from.map((x,j)=>(1-q)**2*x+2*(1-q)*q*control[j]+q*q*to[j])));}
+    if(minimum>=.62+bound/256){path.control=control;path.curveBound=bound;break;}
+   }
   }
-  const attacker=lerp(A,B,t).map((v,i)=>v-(c.attackerKeepsBall?0:dir[i]*.75*r));
-  let defender=p<.76?lerp(S,contact,ease(Math.max(0,Math.min(1,p/.76)))):c.attackerKeepsBall?lerp(contact,E,r):lerp(contact,settledContact,r);
-  // Body-root clearance only; immutable engine endpoints remain in c/enginePositions.
-  const vector=defender.map((v,i)=>v-attacker[i]),gap=Math.hypot(...vector);
-  const clearance=p<=.76?.70:.62;
-  if(gap<clearance)defender=attacker.map((v,i)=>v+(gap>1e-8?vector[i]/gap:normal[i])*clearance);
-  const travel=Math.hypot(dx,dy)*t,phase=travel/1.25%1,lead=.18*Math.sin(Math.PI*phase)**2*Math.sin(Math.PI*t)**2;
+  return path;
+ }
+ function relativeFrame(path,q){if(path.control)return path.from.map((x,i)=>(1-q)**2*x+2*(1-q)*q*path.control[i]+q*q*path.to[i]);if(!path.detour)return lerp(path.from,path.to,q);const r=path.a+(path.b-path.a)*q,a=path.angle+path.turn*q;return [r*Math.cos(a),r*Math.sin(a)];}
+ function relativeSpeedBound(path){return path.curveBound??(path.detour?Math.abs(path.b-path.a)+Math.max(path.a,path.b)*Math.abs(path.turn):Math.hypot(...path.to.map((v,i)=>v-path.from[i])));}
+ function contestPath(e){
+  const c=e.contest,signature=[...c.attackerStart,...c.point,...c.defenderStart,...c.defenderEnd,c.independent,c.attackerKeepsBall].join('|'),cached=contestPaths.get(c);if(cached?.signature===signature)return cached.path;
+  const A=xy(c.attackerStart),B=xy(c.point),S=xy(c.defenderStart),E=xy(c.defenderEnd),dx=B[0]-A[0],dy=B[1]-A[1],n=Math.hypot(dx,dy)||1,dir=[dx/n,dy/n];
+  const sign=((S[0]-B[0])*-dir[1]+(S[1]-B[1])*dir[0])<0?-1:1,normal=[-dir[1]*sign,dir[0]*sign],settled=B.map((v,i)=>v+normal[i]*.62);
+  const contactNormal=[...normal];if(Math.abs(contactNormal[0])<.9){contactNormal[0]=.9*Math.sign(contactNormal[0]||S[0]-B[0]||1);contactNormal[1]=Math.sqrt(1-.9**2)*Math.sign(contactNormal[1]||1);}
+  const startVector=S.map((v,i)=>v-A[i]),gap=Math.hypot(...startVector),bearing=gap>1e-8?startVector.map(v=>v/gap):normal;
+  if(contactNormal[0]*bearing[0]+contactNormal[1]*bearing[1]<0){contactNormal[0]*=-1;contactNormal[1]*=-1;}
+  const prepared=gap<.70?A.map((v,i)=>v+bearing[i]*.70):S,contact=B.map((v,i)=>v+contactNormal[i]*.70);
+  const attackerEnd=c.independent||c.attackerKeepsBall?B:B.map((v,i)=>v-dir[i]*.75),defenderEnd=c.independent||c.attackerKeepsBall?E:settled;
+  const approach=relativePath(prepared.map((v,i)=>v-A[i]),contact.map((v,i)=>v-B[i]));
+  const recovery=relativePath(contact.map((v,i)=>v-B[i]),defenderEnd.map((v,i)=>v-attackerEnd[i]));
+  const length=Math.hypot(dx,dy),defenderRun=approach.detour?length+relativeSpeedBound(approach):Math.hypot(...contact.map((v,i)=>v-prepared[i]));
+  const retreat=Math.hypot(...attackerEnd.map((v,i)=>v-B[i])),defenderRecovery=c.independent?Math.hypot(...E.map((v,i)=>v-contact[i])):recovery.detour?retreat+relativeSpeedBound(recovery):Math.hypot(...defenderEnd.map((v,i)=>v-contact[i]));
+  // Smoothstep peak is 1.5: six metres/second for running roots at normal
+  // career tempo, three for a placement sidestep. These are clip budgets,
+  // not clock multipliers; speed/pause/tempo still apply exactly once in step.
+  const preparation=Math.max(.18,Math.hypot(...prepared.map((v,i)=>v-S[i]))*1.5/3),movement=Math.max(.28,Math.max(length,defenderRun)*1.5/6),reach=movement*.11/.57,contactSeconds=.18,recoverySeconds=Math.max(.22,Math.max(retreat,defenderRecovery)*1.5/6);
+  const total=preparation+movement+contactSeconds+recoverySeconds;
+  const path={A,B,S,E,dir,prepared,contact,attackerEnd,defenderEnd,approach,recovery,length,timing:{preparation,approach:movement-reach,reach,contact:contactSeconds,recovery:recoverySeconds,total,boundaries:[0,preparation/total,(preparation+movement-reach)/total,(preparation+movement)/total,(preparation+movement+contactSeconds)/total,1],poseBoundaries:[0,.19,.65,.76,.91,1],source:'derived-continuous-duel-path; analytic-root-speed-bound; one-shared-clock'}};contestPaths.set(c,{signature,path});return path;
+ }
+ function contestPhase(e,p){const t=contestPath(e).timing;for(let i=1;i<t.boundaries.length;i++)if(p<=t.boundaries[i])return t.poseBoundaries[i-1]+(t.poseBoundaries[i]-t.poseBoundaries[i-1])*(p-t.boundaries[i-1])/(t.boundaries[i]-t.boundaries[i-1]);return 1;}
+ function contestFrame(e,p){
+  const c=e.contest,path=contestPath(e),{A,B,S,E,dir,contact}=path;
+  const prep=ease(Math.max(0,Math.min(1,p/.19))),u=Math.max(0,Math.min(1,(p-.19)/.57)),t=ease(u),r=ease(Math.max(0,Math.min(1,(p-.91)/.09)));
+  const attacker=p<.76?lerp(A,B,t):lerp(B,path.attackerEnd,r),relative=p<.76?relativeFrame(path.approach,t):relativeFrame(path.recovery,r);
+  const defender=p<.19?lerp(S,path.prepared,prep):p<.76?attacker.map((v,i)=>v+relative[i]):c.independent?lerp(contact,E,r):attacker.map((v,i)=>v+relative[i]);
+  const travel=path.length*t,phase=travel/1.25%1,lead=c.independent?0:.18*Math.sin(Math.PI*phase)**2*Math.sin(Math.PI*t)**2;
   let ball=lerp(A,B,t).map((v,i)=>v+dir[i]*lead);
   if(p>=.76&&!c.attackerKeepsBall)ball=lerp(B,defender,ease(Math.max(0,Math.min(1,(p-.76)/.15))));
   return {attacker:pct(attacker),defender:pct(defender),ball:pct(ball),travel,phase,lead,clearance:Math.hypot(...defender.map((v,i)=>v-attacker[i]))};
  }
- function contestDuration(e){
-  let peak=0,last=contestFrame(e,0);for(let i=1;i<=500;i++){const frame=contestFrame(e,i/500);peak=Math.max(peak,metres(last.attacker,frame.attacker)*500,metres(last.defender,frame.defender)*500);last=frame;}
-  return peak/24*1.02;
- }
+ function contestDuration(e){return contestPath(e).timing.total;}
  // Derived shot geometry. Raw percent goal mouth is wider than the real 7.32m goal.
  // Preserve raw endpoints on e; remap committed goal/post contacts into the real net/frame; never decide outcomes.
  function headerContact(e){const t=shotTarget(e),a=xy(e.fromPos),b=xy(t),n=Math.hypot(b[0]-a[0],b[1]-a[1])||1;return pct(a.map((v,i)=>v+(b[i]-a[i])/n*.227));}
@@ -255,7 +282,7 @@
    if(e.engineStatistics)state.eventStatistics=e.engineStatistics;
    const D=state.activeDuration,take=Math.min(remaining,(1-state.progress)*D);
    state.progress+=take/D;remaining-=take;
-   const p=state.progress;state.displayMatchSeconds=e.sampleInterval?e.sampleInterval.fromGameSecond+(e.sampleInterval.toGameSecond-e.sampleInterval.fromGameSecond)*p:(e.gameSecond??matchSecond());
+   const clockProgress=state.progress,p=e.contest?contestPhase(e,clockProgress):clockProgress;state.displayMatchSeconds=e.sampleInterval?e.sampleInterval.fromGameSecond+(e.sampleInterval.toGameSecond-e.sampleInterval.fromGameSecond)*clockProgress:(e.gameSecond??matchSecond());
    const pass=['pass','cross','corner','goalKick'].includes(e.type)||!!e.headerShot,u=p<.19?0:p<.76?(p-.19)/.57:1;
    if(pass){
     if(state.rateSegments.at(-1)?.speed!==M.speed||state.rateSegments.at(-1)?.tempo!==tempo)state.rateSegments.push({progress:p,speed:M.speed,tempo});
@@ -282,7 +309,7 @@
    const targets=e.enginePositions;
    if(targets)for(const [key,target] of Object.entries(targets)){
     const start=e.recoveryStarts?.[key]||state.startPositions[key]||target;
-    const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/(e.headerShot?1:.76)):e.recoveryStarts?Math.min(1,p/.76):p;
+    const fraction=isCarry(e)&&key===String(e.fromId)?u:pass&&key===String(e.fromId)?Math.min(1,p/.19):pass&&key===String(e.toId)?Math.min(1,p/(e.headerShot?1:.76)):e.recoveryStarts?Math.min(1,p/.76):clockProgress;
     state.positions[key]=(e.goalReset||e.restartReset)?(p*D<.15?[...start]:[...target]):lerp(start,target,ease(fraction));
    }
    if(e.kickoffExchange){state.positions[String(e.fromId)]=[...e.fromPos];state.positions[String(e.kickoffExchange.receiverId)]=[...e.kickoffExchange.point];}
@@ -313,7 +340,7 @@
     state.positions[String(c.attackerId)]=f.attacker;state.positions[String(c.defenderId)]=f.defender;state.ball=f.ball;
     state.carrier=won&&!c.attackerKeepsBall?c.defenderId:c.attackerId;state.side=won&&!c.attackerKeepsBall?c.defenderSide:c.attackerSide;
     if(won){state.carryMotion=null;state.eventStatistics=c.tackle.engineStatistics||state.eventStatistics;}
-    state.contestMotion={...c,phase:p<.65?'approach':p<.76?'reach':p<.91?'contact-result':'recovery',progress:p,clearanceMetres:f.clearance,event:won?(c.result||c.tackle):p<.65?e:c.press};
+    state.contestMotion={...c,phase:p<.19?'preparation':p<.65?'approach':p<.76?'reach':p<.91?'contact-result':'recovery',progress:p,clockProgress,timing:contestPath(e).timing,clearanceMetres:f.clearance,event:won?(c.result||c.tackle):p<.65?e:c.press};
    }
    if(e.type==='hold'){
     state.ball=[...e.fromPos];state.carrier=e.success===false&&p>=.76?null:e.fromId;state.side=state.carrier==null?'none':e.fromSide;
@@ -326,7 +353,7 @@
    state.ballState={...state.ballState,position:[...state.ball],ownerId:state.carrier,state:e.sampleInterval?.phase==='restart-placement'?'RESTART_SETUP':state.carrier==null?'LOOSE_BALL':'LIVE',height:aerialHeight(e,p),travelType:e.travelType||'ground',target:e.toPos||null,travelDuration:D};
    state.displayBallHeight=state.shotMotion?.height??(e.type==='enginePositionGap'?e.ballHeight??.15:null)??(e.headerShot?.15+(1.704-.15)*Math.max(0,Math.min(1,(p-.19)/.81))+Math.sin(Math.PI*Math.max(0,Math.min(1,(p-.19)/.81)))*2.4:.15);
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
-   if(p>=1-1e-8){
+   if(clockProgress>=1-1e-8){
     if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     // Coordinate references preserve the previous clip budgets; there is still
     // one clock and one queue. These are never rendered or engine positions.
@@ -354,6 +381,6 @@
   setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){const joining=!enabled;enabled=true;if(M){const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
-  duration, togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
+  duration,contestPhase,contestTiming:e=>structuredClone(contestPath(e).timing), togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
  };
 })();

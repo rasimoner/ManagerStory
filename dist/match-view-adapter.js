@@ -38,7 +38,7 @@
       },
       lastEvent: copy(M.events?.at(-1)),
       presentation: frame ? {
-        terminalPhase:frame.terminalPhase||null, pendingMinuteSettlement:!!frame.batchEnd, activeEvent: copy(frame.active), kickoffMotion:copy(frame.kickoffMotion), progress: frame.progress, holdMotion:copy(frame.holdMotion),visualOffsetSource:"derived-persistent-root-offset; radar-and-renderer-use-displayPosition; ball-unmodified",looseMotion:copy(frame.looseMotion), carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion), shotMotion:copy(frame.shotMotion),
+        terminalPhase:frame.terminalPhase||null, pendingMinuteSettlement:!!frame.batchEnd, activeEvent: copy(frame.active), kickoffMotion:copy(frame.kickoffMotion), progress: frame.contestMotion?.progress??frame.progress, clockProgress:frame.progress, holdMotion:copy(frame.holdMotion),visualOffsetSource:"derived-persistent-root-offset; radar-and-renderer-use-displayPosition; ball-unmodified",looseMotion:copy(frame.looseMotion), carryMotion:copy(frame.carryMotion), contestMotion:copy(frame.contestMotion), shotMotion:copy(frame.shotMotion),
         source: ['presentationSync','enginePositionGap'].includes(frame.active?.type) ? 'presentation-catchup' : 'match-event',
         queuedEventIds: frame.queue.map(e => e.eventId ?? null),
         sampledAtMilliseconds: frame.lastTime,

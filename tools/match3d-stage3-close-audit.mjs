@@ -1,5 +1,6 @@
 import fs from 'node:fs';import {execFileSync} from 'node:child_process';import {createRequire} from 'node:module';import {pathToFileURL} from 'node:url';import {setup} from './match3d-minute-audit.mjs';import {createLivePoseSampler} from '../dist/match3d-live-view.js';import {poseFootballer} from '../dist/match3d-football-pose.js';import * as T from '../dist/vendor/three/three.module.min.js';import {JOINTS} from '../dist/match3d-player.js';
 const require=createRequire(import.meta.url),{harness}=require('../tests/engine-harness.cjs');
+const phaseToClock=(P,p)=>{const t=P.contestMotion?.timing;if(!t)return p;for(let i=1;i<t.poseBoundaries.length;i++)if(p<=t.poseBoundaries[i])return t.boundaries[i-1]+(t.boundaries[i]-t.boundaries[i-1])*(p-t.poseBoundaries[i-1])/(t.poseBoundaries[i]-t.poseBoundaries[i-1]);return 1;};
 const distance=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68);
 function model(){const root=new T.Group(),bones=JOINTS.map(([name,,x,y,z])=>{const b=new T.Bone();b.name=name;b.position.set(x,y,z);return b;});JOINTS.forEach(([,parent],i)=>(parent<0?root:bones[parent]).add(bones[i]));root.userData.bones=Object.fromEntries(bones.map(b=>[b.name,b]));return root;}
 export function audit(baseline=false){
@@ -7,7 +8,7 @@ export function audit(baseline=false){
  h.run('M.rand=R(1)');const sample=createLivePoseSampler(),m=model(),phases=[],boundaries=[],visited=[],rows=[];let old,wall=0,maxSpeed=0,earlyOwnerChanges=0,metadataLeak=false,startGap=null,minSeparation=Infinity;
  for(let i=0;i<30000;i++){
   const before=h.run('MatchView.read()'),e=before.presentation.activeEvent,p=before.presentation.progress;let dt=.01;
-  if(e?.eventId>=3&&e.eventId<=13){const b=[.1,.65,.759999,.76,.91,.999999].find(x=>x>p+1e-8);if(b)dt=Math.min(dt,(b-p)*before.presentation.duration*4+1e-10);}
+  if(e?.eventId>=3&&e.eventId<=13){const b=[.1,.65,.759999,.76,.91,.999999].find(x=>x>p+1e-8);if(b)dt=Math.min(dt,(phaseToClock(before.presentation,b)-(before.presentation.clockProgress??p))*before.presentation.duration*4+1e-10);}
   if(e?.eventId>=3&&e.eventId<=13&&p>=.999999)dt=Math.min(dt,1e-6);
   wall+=dt;h.run(`ManagerStoryLive3D.step(${dt},${wall*1000})`);const s=h.run('MatchView.read()'),P=s.presentation,event=P.activeEvent,view=sample(s),roots=Object.fromEntries(s.players.map(p=>[String(p.id),p.displayPosition]));
   const f={id:event?.eventId,type:event?.type,p:P.progress,owner:s.ball.displayOwnerId,ball:s.ball.displayPosition,roots,wall};

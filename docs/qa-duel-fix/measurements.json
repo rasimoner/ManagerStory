@@ -1,0 +1,1950 @@
+{
+  "baseline": "03afaaa5c258f89df14c6d463890e579f7bb04eb",
+  "environment": "CPU presentation coordinates, real engine and one existing shared clock; video identity unverified; no GPU/device FPS evidence",
+  "examples": [
+    {
+      "before": {
+        "before": true,
+        "seed": 8800,
+        "eventId": 72,
+        "D": 26.600989550412297,
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 5.054188014578337,
+            "attackerMetres": 0,
+            "defenderMetres": 2.0427391968093342,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 495.35603760187445,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 12.236455193189657,
+            "attackerMetres": 9.005718282456538,
+            "defenderMetres": 7.54001879283397,
+            "ballMetres": 9.011580274678535,
+            "maxAttacker": 0.9870035578457126,
+            "maxDefender": 0.7079726071501378,
+            "maxBall": 1.4208837285478426
+          },
+          {
+            "name": "reach",
+            "seconds": 2.9261088505453525,
+            "attackerMetres": 0.971286251312532,
+            "defenderMetres": 0.5733869494434872,
+            "ballMetres": 0.9654242590905541,
+            "maxAttacker": 0.6147477534530393,
+            "maxDefender": 0.27220136129188865,
+            "maxBall": 0.6317283912516686
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 3.990148432561845,
+            "attackerMetres": 0.5126953125000029,
+            "defenderMetres": 0.35112799716660587,
+            "ballMetres": 0.6746293481224825,
+            "maxAttacker": 0.17621522616096164,
+            "maxDefender": 0.12834784923632006,
+            "maxBall": 0.2753625962212611
+          },
+          {
+            "name": "recovery",
+            "seconds": 2.394089059537106,
+            "attackerMetres": 0.23730468749999403,
+            "defenderMetres": 0.144880230588715,
+            "ballMetres": 0.144880230588715,
+            "maxAttacker": 0.16518526758894989,
+            "maxDefender": 0.10084958670152823,
+            "maxBall": 0.10084958670152823
+          }
+        ],
+        "attackerId": "o8",
+        "defenderId": 7,
+        "tackleId": 74,
+        "keepsBall": false,
+        "start": {
+          "attacker": [
+            49.50705562354697,
+            51.505476452707946
+          ],
+          "defender": [
+            50.10705562354697,
+            51.95418663807242
+          ],
+          "ball": [
+            49.50705562354697,
+            51.505476452707946
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 0.7000000000000007
+        },
+        "end": {
+          "attacker": [
+            41.487812347707724,
+            57.054439271681424
+          ],
+          "defender": [
+            41.07745254425887,
+            58.337517458869485
+          ],
+          "ball": [
+            41.07745254425887,
+            58.337517458869485
+          ],
+          "travel": 9.97700453376908,
+          "phase": 0.9816036270152635,
+          "lead": 9.006888332930868e-36,
+          "clearance": 0.9730878685915225
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0.7,
+        "infinitesimalDefenderStep": 1.251811271744162,
+        "boundary": {
+          "ball": 0.0000019740056275817535,
+          "roots": 0.0000032332967999227835
+        },
+        "nextPass": {
+          "id": 76,
+          "duration": 0.7902079312164844,
+          "from": [
+            47.45933567547934,
+            59.33106078362718
+          ],
+          "to": [
+            94.02848042063117,
+            27.58318761047419
+          ]
+        }
+      },
+      "after": {
+        "before": false,
+        "seed": 8800,
+        "eventId": 72,
+        "D": 3.664023596343858,
+        "timing": {
+          "preparation": 0.3499999999999981,
+          "approach": 2.0129044234797266,
+          "reach": 0.4813467099625433,
+          "contact": 0.18,
+          "recovery": 0.63977246290159,
+          "total": 3.664023596343858,
+          "boundaries": [
+            0,
+            0.0955234022917443,
+            0.6448933423457059,
+            0.7762644149673055,
+            0.8253907361459172,
+            1
+          ],
+          "poseBoundaries": [
+            0,
+            0.19,
+            0.65,
+            0.76,
+            0.91,
+            1
+          ],
+          "source": "derived-continuous-duel-path; analytic-root-speed-bound; one-shared-clock"
+        },
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.3499999999999981,
+            "attackerMetres": 0,
+            "defenderMetres": 0.6999999999999983,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 2.999999000000027,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 2.012904423479726,
+            "attackerMetres": 9.005718282456538,
+            "defenderMetres": 8.600676667148797,
+            "ballMetres": 9.011580274678535,
+            "maxAttacker": 5.99999914065442,
+            "maxDefender": 5.730142892938509,
+            "maxBall": 8.637558682022068
+          },
+          {
+            "name": "reach",
+            "seconds": 0.48134670996254325,
+            "attackerMetres": 0.971286251312532,
+            "defenderMetres": 0.9276016345147636,
+            "ballMetres": 0.9654242590905541,
+            "maxAttacker": 3.7370544038241964,
+            "maxDefender": 3.5689764666308443,
+            "maxBall": 3.8402797786363365
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.18000000000000033,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0.6999999999999998,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 5.833331388939461
+          },
+          {
+            "name": "recovery",
+            "seconds": 0.6397724629015902,
+            "attackerMetres": 0.7499999999999963,
+            "defenderMetres": 0.7606020542708453,
+            "ballMetres": 0.7606020542708453,
+            "maxAttacker": 1.75843708544847,
+            "maxDefender": 1.5897550660922999,
+            "maxBall": 1.5897550660922999
+          }
+        ],
+        "attackerId": "o8",
+        "defenderId": 7,
+        "tackleId": 74,
+        "keepsBall": false,
+        "start": {
+          "attacker": [
+            49.50705562354697,
+            51.505476452707946
+          ],
+          "defender": [
+            49.50705562354697,
+            51.505476452707946
+          ],
+          "ball": [
+            49.50705562354697,
+            51.505476452707946
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 0
+        },
+        "end": {
+          "attacker": [
+            41.487812347707724,
+            57.054439271681424
+          ],
+          "defender": [
+            41.07745254425887,
+            58.337517458869485
+          ],
+          "ball": [
+            41.07745254425887,
+            58.337517458869485
+          ],
+          "travel": 9.97700453376908,
+          "phase": 0.9816036270152635,
+          "lead": 9.006888332930868e-36,
+          "clearance": 0.9730878685915225
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 5.815133443562303e-7,
+        "boundary": {
+          "ball": 0.000003842882957831816,
+          "roots": 0.000003842882957831816
+        },
+        "nextPass": {
+          "id": 76,
+          "duration": 0.7902079312164844,
+          "from": [
+            47.45933567547934,
+            59.33106078362718
+          ],
+          "to": [
+            94.02848042063117,
+            27.58318761047419
+          ]
+        }
+      }
+    },
+    {
+      "before": {
+        "before": true,
+        "seed": 1,
+        "eventId": 48,
+        "D": 26.40058580113064,
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 5.016111302214822,
+            "attackerMetres": 0,
+            "defenderMetres": 1.9245885435791446,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 494.04447430451916,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 12.144269468520095,
+            "attackerMetres": 8.378190819149054,
+            "defenderMetres": 7.00343916599421,
+            "ballMetres": 8.388746697987418,
+            "maxAttacker": 0.9251983243353017,
+            "maxDefender": 0.6635000836626359,
+            "maxBall": 1.330045748997576
+          },
+          {
+            "name": "reach",
+            "seconds": 2.90406443812437,
+            "attackerMetres": 0.9036060532078649,
+            "defenderMetres": 0.5347383865613904,
+            "ballMetres": 0.8930501743695011,
+            "maxAttacker": 0.5762528279343976,
+            "maxDefender": 0.2569008769063883,
+            "maxBall": 0.5406515896779914
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 3.9600878701695965,
+            "attackerMetres": 0,
+            "defenderMetres": 2.449326994966468,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 0.8482328408918629,
+            "maxBall": 0
+          },
+          {
+            "name": "recovery",
+            "seconds": 2.3760527221017567,
+            "attackerMetres": 0,
+            "defenderMetres": 1.133688494813048,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 0.7951388302791486,
+            "maxBall": 0
+          }
+        ],
+        "attackerId": 2,
+        "defenderId": "o8",
+        "tackleId": 50,
+        "keepsBall": true,
+        "start": {
+          "attacker": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "defender": [
+            26.16033282488174,
+            43.5546616663716
+          ],
+          "ball": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 0.6999999999999991
+        },
+        "end": {
+          "attacker": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "defender": [
+            30.700320497707242,
+            49.10595148100712
+          ],
+          "ball": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "travel": 9.281796872356912,
+          "phase": 0.42543749788552976,
+          "lead": 2.5541299180259272e-33,
+          "clearance": 4.199999999999996
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0.6999999999999985,
+        "infinitesimalDefenderStep": 1.239091035119821,
+        "boundary": {
+          "ball": 0,
+          "roots": 0.000019814977729007786
+        },
+        "nextPass": {
+          "id": 51,
+          "duration": 0.36456925471233254,
+          "from": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "to": [
+            43.57678377614593,
+            42.7887482103897
+          ]
+        }
+      },
+      "after": {
+        "before": false,
+        "seed": 1,
+        "eventId": 48,
+        "D": 3.81610440632358,
+        "timing": {
+          "preparation": 0.3499999999999989,
+          "approach": 1.872643228633412,
+          "reach": 0.447805989455816,
+          "contact": 0.18,
+          "recovery": 0.895753872444879,
+          "total": 3.746203090534106,
+          "boundaries": [
+            0,
+            0.09342792997111604,
+            0.593305588330109,
+            0.7128415501116075,
+            0.7608901998110388,
+            1
+          ],
+          "poseBoundaries": [
+            0,
+            0.19,
+            0.65,
+            0.76,
+            0.91,
+            1
+          ],
+          "source": "derived-continuous-duel-path; analytic-root-speed-bound; one-shared-clock"
+        },
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.3565307352364668,
+            "attackerMetres": 0,
+            "defenderMetres": 0.6999999999999965,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 2.9450466572133074,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 1.9075853346864662,
+            "attackerMetres": 8.378190819149054,
+            "defenderMetres": 7.989606467888913,
+            "ballMetres": 8.388746697987418,
+            "maxAttacker": 5.890094434175287,
+            "maxDefender": 5.616909139889437,
+            "maxBall": 8.467476493753317
+          },
+          {
+            "name": "reach",
+            "seconds": 0.45616171046850346,
+            "attackerMetres": 0.9036060532078649,
+            "defenderMetres": 0.8616963880355215,
+            "ballMetres": 0.8930501743695011,
+            "maxAttacker": 3.668601082835588,
+            "maxDefender": 3.498449673927637,
+            "maxBall": 3.441952752647075
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.1833586638358977,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 0
+          },
+          {
+            "name": "recovery",
+            "seconds": 0.9124679620962457,
+            "attackerMetres": 0,
+            "defenderMetres": 3.5830154897795223,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 5.890093314411876,
+            "maxBall": 0
+          }
+        ],
+        "attackerId": 2,
+        "defenderId": "o8",
+        "tackleId": 50,
+        "keepsBall": true,
+        "start": {
+          "attacker": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "defender": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "ball": [
+            26.760332824881736,
+            43.10595148100712
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 0
+        },
+        "end": {
+          "attacker": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "defender": [
+            30.700320497707242,
+            49.10595148100712
+          ],
+          "ball": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "travel": 9.281796872356912,
+          "phase": 0.42543749788552976,
+          "lead": 2.5541299180259272e-33,
+          "clearance": 4.199999999999996
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 5.815133406729813e-7,
+        "boundary": {
+          "ball": 0,
+          "roots": 0.0007786041125065132
+        },
+        "nextPass": {
+          "id": 51,
+          "duration": 0.36456925471233254,
+          "from": [
+            34.70032049770724,
+            49.10595148100712
+          ],
+          "to": [
+            43.57678377614593,
+            42.7887482103897
+          ]
+        }
+      }
+    },
+    {
+      "before": {
+        "before": true,
+        "seed": 1,
+        "eventId": 21,
+        "D": 1.1941258191737583,
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.22688390564301408,
+            "attackerMetres": 0,
+            "defenderMetres": 1.0607182008288982,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 8.413882366784714,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 0.5492978768199288,
+            "attackerMetres": 9.637507414020988,
+            "defenderMetres": 5.415986751250361,
+            "ballMetres": 9.647695550898918,
+            "maxAttacker": 23.529504955739547,
+            "maxDefender": 11.612502139320735,
+            "maxBall": 34.180874090956785
+          },
+          {
+            "name": "reach",
+            "seconds": 0.13135384010911338,
+            "attackerMetres": 1.0394260795828287,
+            "defenderMetres": 0.4086823317529801,
+            "ballMetres": 1.029237942704881,
+            "maxAttacker": 14.655175451455252,
+            "maxDefender": 5.910422846440795,
+            "maxBall": 13.795519552781307
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.17911887287606376,
+            "attackerMetres": 0.5126953124999978,
+            "defenderMetres": 0.3709360672340129,
+            "ballMetres": 0.676856112753639,
+            "maxAttacker": 3.9254652352319717,
+            "maxDefender": 3.0559965254628243,
+            "maxBall": 6.2035629456712185
+          },
+          {
+            "name": "recovery",
+            "seconds": 0.10747132372563821,
+            "attackerMetres": 0.23730468749999895,
+            "defenderMetres": 0.15049764421472517,
+            "ballMetres": 0.15049764421472517,
+            "maxAttacker": 3.6797559407732567,
+            "maxDefender": 2.3336858879698292,
+            "maxBall": 2.3336858879698292
+          }
+        ],
+        "attackerId": "o7",
+        "defenderId": 1,
+        "tackleId": 23,
+        "keepsBall": false,
+        "start": {
+          "attacker": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "defender": [
+            29.035648272116447,
+            18.451724409585726
+          ],
+          "ball": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 3.5255413384918133
+        },
+        "end": {
+          "attacker": [
+            23.019067664440584,
+            15.912680541007402
+          ],
+          "defender": [
+            22.584630717503444,
+            14.648642452609096
+          ],
+          "ball": [
+            22.584630717503444,
+            14.648642452609096
+          ],
+          "travel": 10.676933493603798,
+          "phase": 0.5415467948830379,
+          "lead": 2.65383759321055e-33,
+          "clearance": 0.9730878685915261
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 3.525623779099215e-7,
+        "boundary": {
+          "ball": 0.000010890928625035382,
+          "roots": 0.000017172816404347196
+        },
+        "nextPass": {
+          "id": 26,
+          "duration": 0.79875565641797,
+          "from": [
+            29.145494194591503,
+            19.116836239729246
+          ],
+          "to": [
+            76.22362872075364,
+            57.96686681680353
+          ]
+        }
+      },
+      "after": {
+        "before": false,
+        "seed": 1,
+        "eventId": 21,
+        "D": 3.6581651341011803,
+        "timing": {
+          "preparation": 0.18,
+          "approach": 2.15411816099024,
+          "reach": 0.5151152124107097,
+          "contact": 0.18,
+          "recovery": 0.6289317607002307,
+          "total": 3.6581651341011803,
+          "boundaries": [
+            0,
+            0.04920499578382932,
+            0.6380570792804678,
+            0.778869534029664,
+            0.8280745298134934,
+            1
+          ],
+          "poseBoundaries": [
+            0,
+            0.19,
+            0.65,
+            0.76,
+            0.91,
+            1
+          ],
+          "source": "derived-continuous-duel-path; analytic-root-speed-bound; one-shared-clock"
+        },
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.18,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 2.1541181609902402,
+            "attackerMetres": 9.637507414020988,
+            "defenderMetres": 7.066896830684839,
+            "ballMetres": 9.647695550898918,
+            "maxAttacker": 5.999999140655444,
+            "maxDefender": 4.399620471319652,
+            "maxBall": 8.716087123735523
+          },
+          {
+            "name": "reach",
+            "seconds": 0.5151152124107095,
+            "attackerMetres": 1.0394260795828287,
+            "defenderMetres": 0.7621801521883719,
+            "ballMetres": 1.029237942704881,
+            "maxAttacker": 3.7370544038342492,
+            "maxDefender": 2.7402705687296605,
+            "maxBall": 3.517843049281511
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.18000000000000035,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0.6999999999999982,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 5.833331388913857
+          },
+          {
+            "name": "recovery",
+            "seconds": 0.6289317607002304,
+            "attackerMetres": 0.7499999999999964,
+            "defenderMetres": 1.3017491606270617,
+            "ballMetres": 1.3017491606270617,
+            "maxAttacker": 1.7887467215027841,
+            "maxDefender": 3.541415008030036,
+            "maxBall": 3.541415008030036
+          }
+        ],
+        "attackerId": "o7",
+        "defenderId": 1,
+        "tackleId": 23,
+        "keepsBall": false,
+        "start": {
+          "attacker": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "defender": [
+            29.035648272116447,
+            18.451724409585726
+          ],
+          "ball": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 3.5255413384918133
+        },
+        "end": {
+          "attacker": [
+            23.019067664440584,
+            15.912680541007402
+          ],
+          "defender": [
+            22.584630717503444,
+            14.648642452609096
+          ],
+          "ball": [
+            22.584630717503444,
+            14.648642452609096
+          ],
+          "travel": 10.676933493603798,
+          "phase": 0.5415467948830379,
+          "lead": 2.65383759321055e-33,
+          "clearance": 0.9730878685915261
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 0,
+        "boundary": {
+          "ball": 0.0003512334710354611,
+          "roots": 0.0003512334710354611
+        },
+        "nextPass": {
+          "id": 26,
+          "duration": 0.79875565641797,
+          "from": [
+            29.145494194591503,
+            19.116836239729246
+          ],
+          "to": [
+            76.22362872075364,
+            57.96686681680353
+          ]
+        }
+      }
+    },
+    {
+      "before": {
+        "before": true,
+        "seed": 1,
+        "eventId": 18,
+        "D": 2.121583380239195,
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.40310084224544707,
+            "attackerMetres": 0,
+            "defenderMetres": 1.1029176468879267,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 4.924129711322603,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 0.9759283549100297,
+            "attackerMetres": 9.640370680389452,
+            "defenderMetres": 5.55494868485061,
+            "ballMetres": 9.650444867880099,
+            "maxAttacker": 13.247434538124335,
+            "maxDefender": 6.566600286761945,
+            "maxBall": 19.245105108657842
+          },
+          {
+            "name": "reach",
+            "seconds": 0.23337417182631143,
+            "attackerMetres": 1.039734889071468,
+            "defenderMetres": 0.400806608344197,
+            "ballMetres": 1.0296607015808488,
+            "maxAttacker": 8.251065111806616,
+            "maxDefender": 3.250792545278632,
+            "maxBall": 7.767701055802779
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.3182375070358793,
+            "attackerMetres": 0,
+            "defenderMetres": 3.5875029629114437,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 23.757333618298482,
+            "maxBall": 0
+          },
+          {
+            "name": "recovery",
+            "seconds": 0.19094250422152748,
+            "attackerMetres": 0,
+            "defenderMetres": 1.53128857373289,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 13.364715681921961,
+            "maxBall": 0
+          }
+        ],
+        "attackerId": "o7",
+        "defenderId": 1,
+        "tackleId": 20,
+        "keepsBall": true,
+        "start": {
+          "attacker": [
+            41.1558524577313,
+            15.491211211569714
+          ],
+          "defender": [
+            27.555968575849906,
+            12.275783887607847
+          ],
+          "ball": [
+            41.1558524577313,
+            15.491211211569714
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 14.446302603865094
+        },
+        "end": {
+          "attacker": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "defender": [
+            35.75578708550576,
+            21.491211211569713
+          ],
+          "ball": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "travel": 10.68010556946093,
+          "phase": 0.5440844555687434,
+          "lead": 2.64811748675936e-33,
+          "clearance": 4.200000000000003
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 3.6658866534093826e-7,
+        "boundary": {
+          "ball": 0,
+          "roots": 0.0001942269486028082
+        },
+        "nextPass": {
+          "id": 26,
+          "duration": 0.79875565641797,
+          "from": [
+            29.145494194591503,
+            19.116836239729246
+          ],
+          "to": [
+            76.22362872075364,
+            57.96686681680353
+          ]
+        }
+      },
+      "after": {
+        "before": false,
+        "seed": 1,
+        "eventId": 18,
+        "D": 5.201349144000429,
+        "timing": {
+          "preparation": 0.18,
+          "approach": 2.1547581412070294,
+          "reach": 0.5152682511582027,
+          "contact": 0.18,
+          "recovery": 2.1713227516351963,
+          "total": 5.201349144000429,
+          "boundaries": [
+            0,
+            0.034606405956735975,
+            0.4488754891411376,
+            0.5479398351200162,
+            0.5825462410767522,
+            1
+          ],
+          "poseBoundaries": [
+            0,
+            0.19,
+            0.65,
+            0.76,
+            0.91,
+            1
+          ],
+          "source": "derived-continuous-duel-path; analytic-root-speed-bound; one-shared-clock"
+        },
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.18000000000000002,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 2.15475814120703,
+            "attackerMetres": 9.640370680389452,
+            "defenderMetres": 6.371493541094909,
+            "ballMetres": 9.650444867880099,
+            "maxAttacker": 5.999999140658921,
+            "maxDefender": 3.9655068294251206,
+            "maxBall": 8.716451006534793
+          },
+          {
+            "name": "reach",
+            "seconds": 0.5152682511582025,
+            "attackerMetres": 1.039734889071468,
+            "defenderMetres": 0.687179398987818,
+            "ballMetres": 1.0296607015808488,
+            "maxAttacker": 3.7370544038461033,
+            "maxDefender": 2.469886147121356,
+            "maxBall": 3.5181302104634455
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.1800000000000003,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 0
+          },
+          {
+            "name": "recovery",
+            "seconds": 2.1713227516351963,
+            "attackerMetres": 0,
+            "defenderMetres": 5.07305261800547,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 4.07562422947432,
+            "maxBall": 0
+          }
+        ],
+        "attackerId": "o7",
+        "defenderId": 1,
+        "tackleId": 20,
+        "keepsBall": true,
+        "start": {
+          "attacker": [
+            41.1558524577313,
+            15.491211211569714
+          ],
+          "defender": [
+            27.555968575849906,
+            12.275783887607847
+          ],
+          "ball": [
+            41.1558524577313,
+            15.491211211569714
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 14.446302603865094
+        },
+        "end": {
+          "attacker": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "defender": [
+            35.75578708550576,
+            21.491211211569713
+          ],
+          "ball": [
+            31.755787085505755,
+            21.491211211569713
+          ],
+          "travel": 10.68010556946093,
+          "phase": 0.5440844555687434,
+          "lead": 2.64811748675936e-33,
+          "clearance": 4.200000000000003
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 0,
+        "boundary": {
+          "ball": 0,
+          "roots": 0.000014683126532057852
+        },
+        "nextPass": {
+          "id": 26,
+          "duration": 0.79875565641797,
+          "from": [
+            29.145494194591503,
+            19.116836239729246
+          ],
+          "to": [
+            76.22362872075364,
+            57.96686681680353
+          ]
+        }
+      }
+    },
+    {
+      "before": {
+        "before": true,
+        "seed": 1,
+        "eventId": 3,
+        "D": 0.6613541666666667,
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.12565729166666667,
+            "attackerMetres": 0,
+            "defenderMetres": 0.26754929590748605,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 3.83191813275554,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 0.3042229166666667,
+            "attackerMetres": 0,
+            "defenderMetres": 1.3475372468902445,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 5.110075523088382,
+            "maxBall": 0
+          },
+          {
+            "name": "reach",
+            "seconds": 0.07274895833333332,
+            "attackerMetres": 0,
+            "defenderMetres": 0.09722895101020904,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 2.529740610129163,
+            "maxBall": 0
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.09920312500000002,
+            "attackerMetres": 0,
+            "defenderMetres": 0.47851562499999906,
+            "ballMetres": 0.42978100573081757,
+            "maxAttacker": 0,
+            "maxDefender": 6.615214133126268,
+            "maxBall": 7.231504785138004
+          },
+          {
+            "name": "recovery",
+            "seconds": 0.05952187499999998,
+            "attackerMetres": 0,
+            "defenderMetres": 0.2214843749999999,
+            "ballMetres": 0.2214843749999999,
+            "maxAttacker": 0,
+            "maxDefender": 6.201143570770721,
+            "maxBall": 6.201143570770721
+          }
+        ],
+        "attackerId": 6,
+        "defenderId": "o10",
+        "tackleId": 4,
+        "keepsBall": false,
+        "start": {
+          "attacker": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "defender": [
+            50.29731347691869,
+            49.033443025429925
+          ],
+          "ball": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 2.3024067596310487
+        },
+        "end": {
+          "attacker": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "defender": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "ball": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 0
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 8.892825617834016e-8,
+        "boundary": {
+          "ball": 0.0001323432699974044,
+          "roots": 0.0001323432699974044
+        },
+        "nextPass": {
+          "id": 9,
+          "duration": 0.34511125237454976,
+          "from": [
+            52.78011635887675,
+            40.9674865320675
+          ],
+          "to": [
+            57.69731612150198,
+            50.23574627599063
+          ]
+        }
+      },
+      "after": {
+        "before": false,
+        "seed": 1,
+        "eventId": 3,
+        "D": 1.229433040118651,
+        "timing": {
+          "preparation": 0.18,
+          "approach": 0.34546716103142605,
+          "reach": 0.0826117124205584,
+          "contact": 0.18,
+          "recovery": 0.22,
+          "total": 1.0080788734519843,
+          "boundaries": [
+            0,
+            0.17855745690178235,
+            0.5212559997731709,
+            0.6032056513293726,
+            0.7817631082311549,
+            1
+          ],
+          "poseBoundaries": [
+            0,
+            0.19,
+            0.65,
+            0.76,
+            0.91,
+            1
+          ],
+          "source": "derived-continuous-duel-path; analytic-root-speed-bound; one-shared-clock"
+        },
+        "phases": [
+          {
+            "name": "preparation",
+            "seconds": 0.21952443707461328,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 0
+          },
+          {
+            "name": "approach",
+            "seconds": 0.4213249114066031,
+            "attackerMetres": 0,
+            "defenderMetres": 1.5456173138666711,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 4.9197249277059205,
+            "maxBall": 0
+          },
+          {
+            "name": "reach",
+            "seconds": 0.10075160924940521,
+            "attackerMetres": 0,
+            "defenderMetres": 0.16669817994127184,
+            "ballMetres": 0,
+            "maxAttacker": 0,
+            "maxDefender": 3.0642137233382782,
+            "maxBall": 0
+          },
+          {
+            "name": "contact/ownership",
+            "seconds": 0.2195244370746132,
+            "attackerMetres": 0,
+            "defenderMetres": 0,
+            "ballMetres": 0.7000000000000008,
+            "maxAttacker": 0,
+            "maxDefender": 0,
+            "maxBall": 4.783064992678812
+          },
+          {
+            "name": "recovery",
+            "seconds": 0.2683076453134162,
+            "attackerMetres": 0,
+            "defenderMetres": 0.6999999999999992,
+            "ballMetres": 0.6999999999999992,
+            "maxAttacker": 0,
+            "maxDefender": 3.913416812191753,
+            "maxBall": 3.913416812191753
+          }
+        ],
+        "attackerId": 6,
+        "defenderId": "o10",
+        "tackleId": 4,
+        "keepsBall": false,
+        "start": {
+          "attacker": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "defender": [
+            50.29731347691869,
+            49.033443025429925
+          ],
+          "ball": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 2.3024067596310487
+        },
+        "end": {
+          "attacker": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "defender": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "ball": [
+            51.60634863603276,
+            46.31708598120823
+          ],
+          "travel": 0,
+          "phase": 0,
+          "lead": 0,
+          "clearance": 0
+        },
+        "startBoundaryAttacker": 0,
+        "startBoundaryDefender": 0,
+        "infinitesimalDefenderStep": 0,
+        "boundary": {
+          "ball": 0.0024869015054064087,
+          "roots": 0.0024869015054064087
+        },
+        "nextPass": {
+          "id": 9,
+          "duration": 0.34511125237454976,
+          "from": [
+            52.78011635887675,
+            40.9674865320675
+          ],
+          "to": [
+            57.69731612150198,
+            50.23574627599063
+          ]
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "view": "2d",
+      "speed": 0.5,
+      "frozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.03999999999999915
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 2,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        }
+      ],
+      "seen": [
+        72,
+        76
+      ],
+      "peakRoot": 2.9999975166877255,
+      "peakBall": 4.317765042505816,
+      "passDuration": 0.7902079312164844,
+      "owner": 12
+    },
+    {
+      "view": "2d",
+      "speed": 1,
+      "frozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.0799999999999983
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 2,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        }
+      ],
+      "seen": [
+        72,
+        76
+      ],
+      "peakRoot": 5.999975891468752,
+      "peakBall": 8.634494445671402,
+      "passDuration": 0.7902079312164844,
+      "owner": 12
+    },
+    {
+      "view": "2d",
+      "speed": 2,
+      "frozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.1599999999999966
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 2,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        }
+      ],
+      "seen": [
+        72,
+        76
+      ],
+      "peakRoot": 11.999900846005689,
+      "peakBall": 17.196175811750663,
+      "passDuration": 0.7902079312164844,
+      "owner": 12
+    },
+    {
+      "view": "3d",
+      "speed": 0.5,
+      "frozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.03999999999999915
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 2,
+          "advance": 0.060000000000002274
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.00833333333333286
+        }
+      ],
+      "seen": [
+        72,
+        76
+      ],
+      "peakRoot": 2.9999975166877255,
+      "peakBall": 4.317765042505816,
+      "passDuration": 0.7902079312164844,
+      "owner": 12
+    },
+    {
+      "view": "3d",
+      "speed": 1,
+      "frozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.0799999999999983
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 2,
+          "advance": 0.11999999999999744
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.01666666666666572
+        }
+      ],
+      "seen": [
+        72,
+        76
+      ],
+      "peakRoot": 5.999975891468752,
+      "peakBall": 8.634494445671402,
+      "passDuration": 0.7902079312164844,
+      "owner": 12
+    },
+    {
+      "view": "3d",
+      "speed": 2,
+      "frozen": true,
+      "frames": [
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        },
+        {
+          "dt": 0.08,
+          "advance": 0.1599999999999966
+        },
+        {
+          "dt": 0.12,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 2,
+          "advance": 0.240000000000002
+        },
+        {
+          "dt": 0.016666666666666666,
+          "advance": 0.03333333333333144
+        }
+      ],
+      "seen": [
+        72,
+        76
+      ],
+      "peakRoot": 11.999900846005689,
+      "peakBall": 17.196175811750663,
+      "passDuration": 0.7902079312164844,
+      "owner": 12
+    }
+  ],
+  "matches": [
+    {
+      "seed": 1,
+      "before": {
+        "before": true,
+        "seed": 1,
+        "wall": 451.7599999999787,
+        "pending": false,
+        "finished": true,
+        "endCount": 1,
+        "engineEqual": true,
+        "careerEqual": true,
+        "singleCareerApply": true,
+        "clipCount": 483,
+        "clipSeconds": 447.7762010729291
+      },
+      "after": {
+        "before": false,
+        "seed": 1,
+        "wall": 395.4399999999899,
+        "pending": false,
+        "finished": true,
+        "endCount": 1,
+        "engineEqual": true,
+        "careerEqual": true,
+        "singleCareerApply": true,
+        "clipCount": 483,
+        "clipSeconds": 391.6662435234546
+      },
+      "changed": [
+        {
+          "id": 3,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.229433040118651
+        },
+        {
+          "id": 12,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.8372467092022156
+        },
+        {
+          "id": 18,
+          "type": "dribble",
+          "contest": true,
+          "before": 2.121583380239195,
+          "after": 5.201349144000429
+        },
+        {
+          "id": 21,
+          "type": "dribble",
+          "contest": true,
+          "before": 1.1941258191737583,
+          "after": 3.6581651341011803
+        },
+        {
+          "id": 45,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.9150170019757462
+        },
+        {
+          "id": 48,
+          "type": "dribble",
+          "contest": true,
+          "before": 26.40058580113064,
+          "after": 3.81610440632358
+        },
+        {
+          "id": 60,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.7691142865972571
+        },
+        {
+          "id": 66,
+          "type": "press",
+          "contest": true,
+          "before": 0.6718031867098759,
+          "after": 2.1438812894417434
+        },
+        {
+          "id": 74,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.598963260165929
+        },
+        {
+          "id": 80,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.685115503113828
+        },
+        {
+          "id": 114,
+          "type": "dribble",
+          "contest": true,
+          "before": 12.033825299449877,
+          "after": 3.2793152923276323
+        },
+        {
+          "id": 118,
+          "type": "press",
+          "contest": true,
+          "before": 0.7281662596480498,
+          "after": 2.311866901077631
+        },
+        {
+          "id": 139,
+          "type": "dribble",
+          "contest": true,
+          "before": 1.045850213127536,
+          "after": 4.8691151748745
+        },
+        {
+          "id": 145,
+          "type": "dribble",
+          "contest": true,
+          "before": 19.295991906739932,
+          "after": 1.8392719013061385
+        },
+        {
+          "id": 189,
+          "type": "press",
+          "contest": true,
+          "before": 0.6775399428962866,
+          "after": 2.1362569298580962
+        },
+        {
+          "id": 198,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 2.051399820053014
+        },
+        {
+          "id": 213,
+          "type": "press",
+          "contest": true,
+          "before": 1.0557780466308664,
+          "after": 3.2882875173845068
+        },
+        {
+          "id": 219,
+          "type": "press",
+          "contest": true,
+          "before": 0.805560511984664,
+          "after": 2.4743580640541576
+        },
+        {
+          "id": 243,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.9953352616079687
+        },
+        {
+          "id": 246,
+          "type": "dribble",
+          "contest": true,
+          "before": 28.93597088034518,
+          "after": 3.8699717397957705
+        },
+        {
+          "id": 250,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.0813541666666666
+        },
+        {
+          "id": 256,
+          "type": "press",
+          "contest": true,
+          "before": 1.1374471515855333,
+          "after": 3.531695724785798
+        },
+        {
+          "id": 268,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 2.002620965890194
+        },
+        {
+          "id": 299,
+          "type": "press",
+          "contest": true,
+          "before": 0.7542943843868838,
+          "after": 2.2884497222149363
+        },
+        {
+          "id": 351,
+          "type": "press",
+          "contest": true,
+          "before": 1.0444357861102427,
+          "after": 3.254482820948312
+        },
+        {
+          "id": 354,
+          "type": "dribble",
+          "contest": true,
+          "before": 26.83364871677328,
+          "after": 4.11360222292432
+        },
+        {
+          "id": 412,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.6639820071372933
+        },
+        {
+          "id": 418,
+          "type": "press",
+          "contest": true,
+          "before": 0.7357953874799882,
+          "after": 2.3346049037848027
+        },
+        {
+          "id": 479,
+          "type": "press",
+          "contest": true,
+          "before": 0.8083866566614738,
+          "after": 2.5509573508244636
+        },
+        {
+          "id": 493,
+          "type": "press",
+          "contest": true,
+          "before": 0.7638701620940974,
+          "after": 2.418279514469598
+        }
+      ],
+      "clipDelta": -56.10995754947447,
+      "wallDelta": -56.319999999988795,
+      "frameBoundaryRoundingDelta": -0.21004245051432235
+    },
+    {
+      "seed": 8800,
+      "before": {
+        "before": true,
+        "seed": 8800,
+        "wall": 469.1999999999752,
+        "pending": false,
+        "finished": true,
+        "endCount": 1,
+        "engineEqual": true,
+        "careerEqual": true,
+        "singleCareerApply": true,
+        "clipCount": 510,
+        "clipSeconds": 465.3137269428201
+      },
+      "after": {
+        "before": false,
+        "seed": 8800,
+        "wall": 412.63999999998646,
+        "pending": false,
+        "finished": true,
+        "endCount": 1,
+        "engineEqual": true,
+        "careerEqual": true,
+        "singleCareerApply": true,
+        "clipCount": 510,
+        "clipSeconds": 408.9210684503132
+      },
+      "changed": [
+        {
+          "id": 23,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 2.09180079064924
+        },
+        {
+          "id": 46,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.2084315808380073
+        },
+        {
+          "id": 72,
+          "type": "dribble",
+          "contest": true,
+          "before": 26.600989550412297,
+          "after": 3.664023596343858
+        },
+        {
+          "id": 138,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.76552663812865
+        },
+        {
+          "id": 167,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.8309405623566695
+        },
+        {
+          "id": 174,
+          "type": "dribble",
+          "contest": true,
+          "before": 2.121583380239029,
+          "after": 5.10067136117579
+        },
+        {
+          "id": 214,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.8861123040482184
+        },
+        {
+          "id": 218,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.468700157900658
+        },
+        {
+          "id": 230,
+          "type": "dribble",
+          "contest": true,
+          "before": 26.468443852369045,
+          "after": 3.570349124953753
+        },
+        {
+          "id": 236,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.5345897870896954
+        },
+        {
+          "id": 239,
+          "type": "dribble",
+          "contest": true,
+          "before": 11.80666078683279,
+          "after": 3.4955344850139407
+        },
+        {
+          "id": 284,
+          "type": "press",
+          "contest": true,
+          "before": 1.0376381519998565,
+          "after": 3.2342230184892586
+        },
+        {
+          "id": 309,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.7429726743347158
+        },
+        {
+          "id": 347,
+          "type": "press",
+          "contest": true,
+          "before": 0.8055397442547548,
+          "after": 2.542472357069535
+        },
+        {
+          "id": 356,
+          "type": "press",
+          "contest": true,
+          "before": 0.6746124784637713,
+          "after": 2.152254157863726
+        },
+        {
+          "id": 359,
+          "type": "dribble",
+          "contest": true,
+          "before": 26.735622927984114,
+          "after": 4.037148210712276
+        },
+        {
+          "id": 363,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.3319171615125494
+        },
+        {
+          "id": 395,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.2599802252672918
+        },
+        {
+          "id": 417,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.9478502527428043
+        },
+        {
+          "id": 465,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.5091839335583388
+        },
+        {
+          "id": 484,
+          "type": "press",
+          "contest": true,
+          "before": 0.6613541666666667,
+          "after": 1.0813541666666666
+        }
+      ],
+      "clipDelta": -56.39265849250688,
+      "wallDelta": -56.55999999998875,
+      "frameBoundaryRoundingDelta": -0.16734150748186494
+    }
+  ]
+}
