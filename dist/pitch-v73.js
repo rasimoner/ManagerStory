@@ -647,9 +647,10 @@ function actionMinute(userPoss,effect,opponent){
    const gainStart=window.ManagerStoryLive3D?.enabled?{attackerId:carrier,attackerSide:side,defenderId:defender.id,defenderSide:defSide,attackerStart:[...point],point:[...point],defenderStart:[...eventPoint(defender.id,defSide)],decision:"actionMinute"}:null;
    M.dynamicPositions[String(defender.id)]=moveTowards(eventPoint(defender.id,defSide),point,defender.d);
    recordPitchTackle(defender.id,defSide,carrier,side,success,point);
+   // Capture every committed attempt before a possible penalty boundary. A later
+   // real interception upgrades this copied pair to a gain; no winner is inferred.
+   if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    if(boxChallengePenalty(defender.id,defSide,carrier,side,point))return; // the penalty sequence owns the rest of this minute
-   // Link only copied presentation events; the failed engine attempt and owner stay intact.
-   if(!success&&gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    if(success){
     switchPitchOwner(defender.id,defSide);setBallState(point,defender.id);
     M.stats.possessionsWon[defSide==='user'?userSide():1-userSide()]++;

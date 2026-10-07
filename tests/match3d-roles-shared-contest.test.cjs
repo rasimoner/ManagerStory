@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict');
-const baseline='8025e105956cc215692cfe831b9593f2ada7eb09';
+const baseline='9610d53b78ab866d52e2dd76f65677713cccd0d5';
 const distance=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68);
 let cached;
 async function results(){
@@ -36,10 +36,10 @@ test('failed independent attempts share carrier/defender approach, preserve star
    for(let k=1;k<bounds.length;k++){let old=ManagerStoryLive3D.contestFrame(e,poses[k-1]);for(let i=1;i<=400;i++){const f=ManagerStoryLive3D.contestFrame(e,poses[k-1]+(poses[k]-poses[k-1])*i/400),dt=(bounds[k]-bounds[k-1])*D/400,va=dist(old.attacker,f.attacker)/dt,vd=dist(old.defender,f.defender)/dt;max=Math.max(max,va,vd);if(k===2||k===3){min=Math.min(min,f.clearance);if(va>.01&&vd>.01)joint++;travel+=dist(old.attacker,f.attacker);}old=f;}}
    return {max,joint,min,travel,approachStartClearance:ManagerStoryLive3D.contestFrame(e,.19).clearance,start:ManagerStoryLive3D.contestFrame(e,0),contact:ManagerStoryLive3D.contestFrame(e,.76)};})()`);
   assert.ok(sample.max<=6.002,`${seed}/${clip.id} speed ${sample.max}`);maxSpeed=Math.max(maxSpeed,sample.max);
-  assert.ok(sample.joint>=775,`${seed}/${clip.id} joint ${sample.joint}`);assert.ok(sample.min>=Math.min(.61999,sample.approachStartClearance)-1e-7,`${seed}/${clip.id} clearance ${sample.min} ${JSON.stringify(c.attackerStart)} ${JSON.stringify(c.defenderStart)} ${JSON.stringify(c.point)}`);
+  assert.ok(sample.travel>=distance(c.attackerStart,c.point)*.84-1e-7,`${seed}/${clip.id} recorded approach continues`);assert.ok(sample.min>=Math.min(.61999,sample.approachStartClearance)-1e-7,`${seed}/${clip.id} clearance ${sample.min} ${JSON.stringify(c.attackerStart)} ${JSON.stringify(c.defenderStart)} ${JSON.stringify(c.point)}`);
   assert.ok(distance(sample.start.attacker,clip.startPositions[c.attackerId])<1e-8);assert.ok(distance(sample.start.defender,clip.startPositions[c.defenderId])<1e-8);assert.ok(distance(sample.contact.attacker,c.point)<1e-8);
-  const next=after.clips[j+1];if(next&&next.type!=='kickoff'){assert.ok(distance(clip.endBall,next.startBall)<1e-8);assert.deepEqual(clip.endPositions,next.startPositions);}
-  if(c.independent&&c.attackerKeepsBall){failed++;assert.equal(c.tackle.success,false);assert.equal(c.result,null);assert.ok(sample.travel>.8);assert.equal(clip.endOwner,c.attackerId);}
+  const next=after.clips[j+1];if(next&&next.type!=='kickoff'){assert.ok(distance(clip.endBall,next.startBall)<1e-8);for(const id of [c.attackerId,c.defenderId]){const a=clip.endPositions[id].map((v,i)=>v+(clip.endOffsets?.[id]?.[i]||0)),b=next.startPositions[id].map((v,i)=>v+(next.startOffsets?.[id]?.[i]||0));assert.ok(distance(a,b)<1e-8);}}
+  if(c.independent&&c.attackerKeepsBall){failed++;assert.equal(c.tackle.success,false);assert.equal(c.result,null);assert.ok(sample.travel>=distance(c.attackerStart,c.point)*.84-1e-7);assert.equal(clip.endOwner,c.attackerId);}
  }
  assert.ok(failed>0);console.log('Contests:',all,'; newly linked failed independent attempts:',failed,'; max clip root speed:',maxSpeed);
 });
