@@ -188,7 +188,7 @@ function finishPitchAction(state,e,now) {
     state.carrier=null;
   }
   state.ballState.ownerId=state.carrier;state.ballState.state=state.carrier==null?'LOOSE_BALL':'LIVE';
-  state.label=e.type==='corner'?'KORNER':e.type==='throwIn'?'TAÇ':e.type==='goalKick'?'KALE VURUŞU':e.type==='shot'?'ŞUT':e.type==='save'?'KURTARIŞ':e.type==='block'?'BLOK':e.type==='post'?'DİREK':e.type==='goal'?'GOL':'';
+  state.label=e.type==='corner'?'KORNER':e.type==='throwIn'?'TAÇ':e.type==='goalKick'?'KALE VURUŞU':e.type==='shot'?'ŞUT':e.type==='save'?'KURTARIŞ':e.type==='block'?(presentationEvent(e).presentationLabel||'BLOK'):e.type==='post'?'DİREK':e.type==='goal'?'GOL':'';
 }
 function advancePitchPresentation(dt,now) {
   const state=currentPitchState();if(!state||M.pause||M.finished||M.lifecycle==='FINISHED'||M.reason==='half')return state;

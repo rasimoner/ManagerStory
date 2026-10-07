@@ -154,17 +154,36 @@ function matchEvent(type, text, data = {}) {
   if (typeof enqueuePitchEvent === 'function') enqueuePitchEvent(event);
   return event;
 }
+// Read-only actor classification. Generic engine blocks can be keeper contacts.
+function shotInterventionActor(e){
+ if(!e||!['block','save'].includes(e.type))return {kind:'unknown',id:null,side:null};
+ const id=e.toId,side=e.toSide,player=id==null||!['user','opp'].includes(side)?null:playerAtMarker(id,side);
+ const role=side==='user'?M?.matchRoles?.[id]:player?.position;
+ return {kind:player&&role?(role==='GK'?'keeper':'field'):'unknown',id,side,name:player?.name||null,role:role||null};
+}
+function presentationEvent(e){
+ if(!e)return e;
+ if(e.type==='chance'&&e.outcome==='block'){
+  const result=M.events.find(x=>x.type==='block'&&x.gameSecond===e.gameSecond&&x.side===e.side);
+  const actor=shotInterventionActor(result);
+  return {...e,text:(e.minute??M.min)+'’ Şutun sonucu: '+(actor.kind==='keeper'?'kaleci müdahalesi':actor.kind==='field'?'oyuncu bloğu':'engellendi')+'.'};
+ }
+ if(e.type!=='block'&&!(e.type==='save'&&e.saveType==='DEFLECT_CORNER'))return e;
+ const actor=shotInterventionActor(e),corner=e.saveType==='DEFLECT_CORNER'||M.events.some(x=>x.gameSecond===e.gameSecond&&x.restartType==='CORNER');
+ const text=actor.kind==='keeper'?(actor.name||'Kaleci')+(corner?' şutu çelerek kornere gönderdi.':' şutu çeldi.'):actor.kind==='field'?(actor.name||'Oyuncu')+' şutu engelledi.':'Şut engellendi.';
+ return {...e,text:(e.minute??M.min)+'’ '+text,presentationActor:actor,presentationLabel:actor.kind==='keeper'?'KURTARIŞ':actor.kind==='field'?'BLOK':'MÜDAHALE'};
+}
 function liveCommentaryLines(){
   if(window.ManagerStoryLive3D?.enabled&&!(!livePresentationPending()&&M.finished)){
     const s=currentPitchState(),e=s.shotMotion?.event||s.contestMotion?.event||s.looseMotion?.event||s.holdMotion?.event||s.active;
-    const text=e&&!['enginePositionGap','presentationSync'].includes(e.type)?e.text:null;
-    if(M.commentaryOpen){const boundary=e?.eventId??s.queue.find(x=>x.eventId!=null)?.eventId;const lines=M.events.filter(x=>x.eventId!=null&&(boundary==null||x.eventId<boundary)).slice(-79).reverse().map(x=>x.text);return [text||'Sahada oyun sürüyor.',...lines];}
+    const text=e&&!['enginePositionGap','presentationSync'].includes(e.type)?presentationEvent(e).text:null;
+    if(M.commentaryOpen){const boundary=e?.eventId??s.queue.find(x=>x.eventId!=null)?.eventId;const lines=M.events.filter(x=>x.eventId!=null&&(boundary==null||x.eventId<boundary)).slice(-79).reverse().map(x=>presentationEvent(x).text);return [text||'Sahada oyun sürüyor.',...lines];}
     return [text||(livePresentationPending()?"Son aksiyonların sunumu tamamlanıyor.":"Sahada oyun sürüyor.")];
   }
-  if(M.commentaryOpen)return M.story.slice().reverse().slice(0,80);
+  if(M.commentaryOpen){const events=M.events.slice();return M.story.slice(-80).reverse().map(text=>{const i=events.findLastIndex(e=>e.text===text);if(i<0)return text;const event=events[i];events.length=i;return presentationEvent(event).text;});}
   const now=matchSecond();
   const recent=M.events.filter(e=>e.gameSecond!=null&&now-e.gameSecond>=0&&now-e.gameSecond<=90).slice(-2).reverse();
-  return recent.length?recent.map(e=>e.text):['Sahada oyun sürüyor.'];
+  return recent.length?recent.map(e=>presentationEvent(e).text):['Sahada oyun sürüyor.'];
 }
 function recordMatchFoul() {
   const side = M.rand() < .5 ? 0 : 1;
@@ -321,7 +340,7 @@ function matchStatsUI() {
 function matchDetailsUI() {
   const labels = { goal: "Gol", yellow: "Sarı kart", red: "Kırmızı kart", sub: "Değişiklik", chance: "Pozisyon", injury: "Sakatlık", half: "Devre arası", end: "Son düdük", tactic: "Taktik", order: "Talimat", corner: "Korner", penalty: "Penaltı", freeKick: "Serbest vuruş", offside:"Ofsayt",save: "Kurtarış", block: "Blok", post: "Direk", wide: "Aut", throwIn: "Taç", goalKick: "Kale vuruşu", tackle: "Müdahale" };
   const events = M.events.filter(e => labels[e.type]).slice().reverse();
-  return `<section class="matchdetails"><h2>${M.min}' • ${M.home} ${M.hg}–${M.ag} ${M.away}</h2><ol>${events.map(e => `<li class="event-${e.type}"><span>${e.minute}' · ${labels[e.type]}</span><p>${escapeHTML(e.text)}</p></li>`).join("") || "<li>Henüz önemli bir olay yaşanmadı.</li>"}</ol></section>`;
+  return `<section class="matchdetails"><h2>${M.min}' • ${M.home} ${M.hg}–${M.ag} ${M.away}</h2><ol>${events.map(e => `<li class="event-${e.type}"><span>${e.minute}' · ${presentationEvent(e).presentationLabel||labels[e.type]}</span><p>${escapeHTML(presentationEvent(e).text)}</p></li>`).join("") || "<li>Henüz önemli bir olay yaşanmadı.</li>"}</ol></section>`;
 }
 function assistHint(target, key) {
   if (target !== "match" || typeof assistantAdvice !== "function") return "";

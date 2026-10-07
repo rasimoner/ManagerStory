@@ -1,0 +1,45 @@
+normal tempo measurement 1 {"wall":393.3599999999903,"half":true,"finished":true,"pending":false,"direction":-1}
+normal tempo measurement 8800 {"wall":429.27999999998315,"half":true,"finished":true,"pending":false,"direction":-1}
+✔ career view and tab switches retain the engine, RNG, events and pending presentation (155.808266ms)
+✔ career normal tempo seed 1: same raw engine/RNG/career, half and single finish (3839.524393ms)
+✔ career normal tempo seed 8800: same raw engine/RNG/career, half and single finish (2792.933027ms)
+✔ captured control uses selected clock rates for normal/delayed frames; failed real distribution links to its loose ball (6475.076372ms)
+✔ real catches49/99 retain raised ball through recovery and existing distribution in both views/rates (19417.741339ms)
+✔ neutral keeper hands do not reuse save targets; both world directions bend the approved rig toward the ball (4.27175ms)
+Real keeper contacts [{"seed":8800,"id":31,"result":33,"type":"PARRY","dir":-1,"gap":0.06499999999999717},{"seed":8800,"id":49,"result":51,"type":"CATCH","dir":-1,"gap":0.06500000000000107},{"seed":8800,"id":99,"result":101,"type":"CATCH","dir":1,"gap":0.06499999999999664},{"seed":8800,"id":106,"result":108,"type":"PARRY","dir":-1,"gap":0.06499999999999896}]
+✔ real save49→51 keeps captured ball at hand height until real pass53 release (2083.353613ms)
+✔ keeper clothing honors supplied kit or deterministically contrasts with both field kits (1.968262ms)
+✔ both goal directions use actual engine saves and fixed anatomical bones, not rear-facing hands (5222.875067ms)
+✔ local net bends only after actual goal contact, damps, leaves opposite net and posts fixed (0.652474ms)
+Kariyer 3D sahası Error: context unavailable
+    at window.createMatchScene (evalmachine.<anonymous>:7:134)
+    at paint (evalmachine.<anonymous>:16:9)
+    at Object.mount (evalmachine.<anonymous>:33:24)
+    at render (evalmachine.<anonymous>:149:243)
+    at startMatch (evalmachine.<anonymous>:249:1524)
+    at evalmachine.<anonymous>:1:13
+    at Script.runInContext (node:vm:149:12)
+    at Object.runInContext (node:vm:301:6)
+    at Object.run (/workspace/scratch/f433ccac80e0/ManagerStory/tests/engine-harness.cjs:21:28)
+    at TestContext.<anonymous> (/workspace/scratch/f433ccac80e0/ManagerStory/tests/match3d-round1.test.cjs:53:4)
+✔ two complete matches retain all real events, RNG, scores, stats and single career results while each real flight remains unique (8130.69931ms)
+✔ real failed field pass, keeper distribution and parry chains continue from the visible endpoints (3.454549ms)
+✔ loose ownership remains null until .76 actual recovery contact; view/rate/pause switches never restart the same event (1233.520467ms)
+✔ same-page two career matches recreate scene safely, reset event IDs and clock, keep one RAF and automatically fall back to 2D (18994.378319ms)
+✔ real keeper routes on both goals include whole-body dive/landing/recovery, preserve bones, and distinguish catch from corner (13212.162827ms)
+✔ round2 two full matches preserve raw engine/RNG/career, finish final actions once and retain round1 boundaries (5486.76997ms)
+✔ all real shared duel approaches start at visible roots, move both actors, cap root speed and failed reaches follow forwards (589.514931ms)
+✔ real block actors drive neutral/field/keeper narration without changing raw events or assigning catches (4281.17179ms)
+✔ derived keeper body has support/push/flight/landing/recovery in both directions, with close contacts staying grounded (176.291447ms)
+✔ failed and keeper chains keep one clock through both views, all three speeds and pause (10931.681684ms)
+✔ real seed8800 shots link one real result; RNG, events, statistics and score preserved (45218.388422ms)
+✔ release, real keeper contact, net bounds and score threshold share one clock (1.069513ms)
+✔ pause and speed changes do not restart shot or expose result early (137.124805ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45598.179684

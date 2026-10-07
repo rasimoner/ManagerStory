@@ -10,9 +10,10 @@ function leg(root,bones,hipName,kneeName,ankleName,point){
  let bend=new T.Vector3(0,0,1).addScaledVector(axis,-axis.z);if(bend.length()<.01)bend=new T.Vector3(1,0,0);bend.normalize();
  const along=(L1*L1-L2*L2+dist*dist)/(2*dist),height=Math.sqrt(Math.max(0,L1*L1-along*along));
  const kneeVector=axis.clone().multiplyScalar(along).addScaledVector(bend,height),endVector=axis.clone().multiplyScalar(dist).sub(kneeVector);
- hip.quaternion.setFromUnitVectors(down,kneeVector.clone().normalize());
- knee.quaternion.setFromUnitVectors(down,endVector.normalize().applyQuaternion(hip.quaternion.clone().invert()));
- ankle.quaternion.copy(hip.quaternion).multiply(knee.quaternion).invert();
+ const parent=hip.parent.getWorldQuaternion(new T.Quaternion()),worldRoot=root.getWorldQuaternion(new T.Quaternion()),parentLocal=worldRoot.invert().multiply(parent);
+ hip.quaternion.copy(parentLocal.clone().invert()).multiply(new T.Quaternion().setFromUnitVectors(down,kneeVector.clone().normalize()));
+ knee.quaternion.setFromUnitVectors(down,endVector.normalize().applyQuaternion(parentLocal.clone().multiply(hip.quaternion).invert()));
+ ankle.quaternion.copy(parentLocal).multiply(hip.quaternion).multiply(knee.quaternion).invert();
 }
 function arm(root,bones,shoulderName,elbowName,handName,point,keeper=false){
  const shoulder=bones[shoulderName],elbow=bones[elbowName],hand=bones[handName];root.updateMatrixWorld(true);
@@ -37,7 +38,8 @@ export function poseFootballer(root,pose){
  root.position.set(...pose.position);root.rotation.set(0,pose.yaw,0);
  // Lower the hips only when a world-space foot target would overextend a leg.
  // This keeps planted soles above the pitch without changing roots or targets.
- if(approved){root.updateMatrixWorld(true);const inv=root.matrixWorld.clone().invert();
+ b.pelvis.rotation.z=pose.pelvisRoll||0;
+ if(approved&&!pose.pelvisRoll){root.updateMatrixWorld(true);const inv=root.matrixWorld.clone().invert();
   for(const [hip,knee,ankle,target] of [[b.leftHip,b.leftKnee,b.leftAnkle,pose.leftFoot],[b.rightHip,b.rightKnee,b.rightAnkle,pose.rightFoot]]){
    const t=new T.Vector3(...target).applyMatrix4(inv),reach=Math.abs(knee.position.y)+Math.abs(ankle.position.y)-.0001;
    const horizontal=Math.hypot(t.x-hip.position.x,t.z-hip.position.z);
