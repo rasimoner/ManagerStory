@@ -1,0 +1,120 @@
+normal tempo measurement 1 {"wall":804.4000000001163,"half":true,"finished":true,"pending":false,"direction":-1}
+normal tempo measurement 8800 {"wall":862.480000000146,"half":true,"finished":true,"pending":false,"direction":-1}
+✔ career view and tab switches retain the engine, RNG, events and pending presentation (66.83547ms)
+✔ career normal tempo seed 1: same raw engine/RNG/career, half and single finish (1698.245591ms)
+✔ career normal tempo seed 8800: same raw engine/RNG/career, half and single finish (1462.468915ms)
+✔ close side-camera keeps nearby contest actors in both portrait fields (13247.922ms)
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (25406.261468ms)
+✖ contact geometry, clearance, speed and ownership use the single event clock (0.959901ms)
+✖ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (400.616247ms)
+✔ captured control uses selected clock rates for normal/delayed frames; failed real distribution links to its loose ball (4651.965631ms)
+✔ real catches49/99 retain raised ball through recovery and existing distribution in both views/rates (24972.308314ms)
+✔ neutral keeper hands do not reuse save targets; both world directions bend the approved rig toward the ball (3.258646ms)
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (44.036066ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (166.868931ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (2695.208953ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (32.15848ms)
+✔ joining an already active legacy event preserves progress and stays finite (12.782063ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (90.037136ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (19.467975ms)
+✔ real goal returns behind a common-clock fade to exact engine kickoff placement, with frozen pause (18224.175707ms)
+✔ normal pass follows the current ball at close scale without moving any actor root (2990.88366ms)
+✔ distant actors and stale event endpoints cannot widen or pull the camera (0.781642ms)
+✔ real career RAF drains half, preserves manual pause/overlays, starts second half and finishes two consecutive matches once (5643.067617ms)
+✔ every stationary and dribbling contest overlaps both approaches with bounded roots and immutable contact/result (4408.542282ms)
+✔ actual keeper catches/parries retain their visible roots and held/loose ownership into the next real action (0.948564ms)
+✔ real goal kicks in both directions start behind the placed ball and release only after foot contact (1455.735618ms)
+✔ real pass source and recipient remain readable in both mobile frustums with bounded zoom and no grey panels (1303.764929ms)
+Kariyer 3D sahası Error: context unavailable
+    at window.createMatchScene (evalmachine.<anonymous>:7:134)
+    at paint (evalmachine.<anonymous>:16:9)
+    at Object.mount (evalmachine.<anonymous>:33:24)
+    at render (evalmachine.<anonymous>:149:243)
+    at startMatch (evalmachine.<anonymous>:249:1524)
+    at evalmachine.<anonymous>:1:13
+    at Script.runInContext (node:vm:149:12)
+    at Object.runInContext (node:vm:301:6)
+    at Object.run (/workspace/scratch/f433ccac80e0/ManagerStory/tests/engine-harness.cjs:21:28)
+    at TestContext.<anonymous> (/workspace/scratch/f433ccac80e0/ManagerStory/tests/match3d-round1.test.cjs:53:4)
+✔ two complete matches retain all real events, RNG, scores, stats and single career results while each real flight remains unique (4013.596718ms)
+✔ real failed field pass, keeper distribution and parry chains continue from the visible endpoints (1.222427ms)
+✔ loose ownership remains null until .76 actual recovery contact; view/rate/pause switches never restart the same event (1293.971754ms)
+✔ same-page two career matches recreate scene safely, reset event IDs and clock, keep one RAF and automatically fall back to 2D (15378.76553ms)
+✖ real keeper routes on both goals include whole-body dive/landing/recovery, preserve bones, and distinguish catch from corner (11172.451995ms)
+✔ round2 two full matches preserve raw engine/RNG/career, finish final actions once and retain round1 boundaries (4071.217038ms)
+✔ all real shared duel approaches start at visible roots, move both actors, cap root speed and failed reaches follow forwards (570.660896ms)
+✔ real block actors drive neutral/field/keeper narration without changing raw events or assigning catches (5974.347377ms)
+✔ derived keeper body has support/push/flight/landing/recovery in both directions, with close contacts staying grounded (176.848304ms)
+✔ failed and keeper chains keep one clock through both views, all three speeds and pause (13070.590734ms)
+✔ bounded shot framing follows the current ball without fitting distant goal posts (25852.263239ms)
+✔ three UI rates use exactly half the former common-clock delta in both views, delayed frames and pause (539.974236ms)
+✔ legacy RAF clock also runs at half the former wall rate without changing deterministic advanceLive API (44.141229ms)
+✔ two full slowed matches retain exact engine, RNG, career, final drain and single result (4177.713393ms)
+✔ real seed1 gain/failed shield/loose/recovery separates roots without changing motor or ball endpoints (11966.686919ms)
+✔ hold/release/recovery offset and shared pose are frozen on pause, rates use one clock (179.992786ms)
+✔ real standalone gain has one contact, actual winner and continuous true continuation (5476.186107ms)
+✔ independent gain pause/rate, radar snapshot and narrative share immutable common clock (109.474785ms)
+✔ full searched 35-minute seed preserves old engine order/results/score/stats/RNG with both original decision functions (411.10082ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 41
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39351.574313
+
+✖ failing tests:
+
+test at tests/match3d-contest.test.cjs:8:1
+✖ contact geometry, clearance, speed and ownership use the single event clock (0.959901ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'o7' !== 1
+  
+      at TestContext.<anonymous> (/workspace/scratch/f433ccac80e0/ManagerStory/tests/match3d-contest.test.cjs:10:97)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'o7',
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/match3d-contest.test.cjs:13:1
+✖ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (400.616247ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(Math.abs(h.run('pitchV73.progress')-p-.005/D)<1e-9)
+  
+      at TestContext.<anonymous> (/workspace/scratch/f433ccac80e0/ManagerStory/tests/match3d-contest.test.cjs:19:165)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/match3d-round2-motion.test.cjs:2:1
+✖ real keeper routes on both goals include whole-body dive/landing/recovery, preserve bones, and distinguish catch from corner (11172.451995ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'lateral-dive'
+  - 'body'
+  
+      at TestContext.<anonymous> (/workspace/scratch/f433ccac80e0/ManagerStory/tests/match3d-round2-motion.test.cjs:7:53)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'lateral-dive',
+    expected: 'body',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,74 @@
+[
+  {
+    "seed": 8800,
+    "shot": 31,
+    "result": 33,
+    "actor": 0,
+    "type": "PARRY",
+    "endRoot": [
+      1.8924044089271295,
+      53.34386044945308
+    ],
+    "nextRoot": [
+      1.8924044089271295,
+      53.34386044945308
+    ],
+    "nextType": "looseBall",
+    "startOwner": null,
+    "endOwner": null
+  },
+  {
+    "seed": 8800,
+    "shot": 49,
+    "result": 51,
+    "actor": 0,
+    "type": "CATCH",
+    "endRoot": [
+      1.9855975999629951,
+      42.85334273215239
+    ],
+    "nextRoot": [
+      1.9855975999629951,
+      42.85334273215239
+    ],
+    "nextType": "enginePositionGap",
+    "startOwner": 0,
+    "endOwner": 0
+  },
+  {
+    "seed": 8800,
+    "shot": 99,
+    "result": 101,
+    "actor": "o0",
+    "type": "CATCH",
+    "endRoot": [
+      98.09550732276259,
+      44.361845005701184
+    ],
+    "nextRoot": [
+      98.09550732276259,
+      44.36184500570119
+    ],
+    "nextType": "enginePositionGap",
+    "startOwner": "o0",
+    "endOwner": "o0"
+  },
+  {
+    "seed": 8800,
+    "shot": 427,
+    "result": 429,
+    "actor": 0,
+    "type": "DEFLECT_CORNER",
+    "endRoot": [
+      97.7866406911378,
+      49.086617712304985
+    ],
+    "nextRoot": [
+      97.78664069113779,
+      49.086617712304985
+    ],
+    "nextType": "enginePositionGap",
+    "startOwner": null,
+    "endOwner": null
+  }
+]

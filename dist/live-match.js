@@ -84,10 +84,13 @@ function liveFrameStep(now) {
   // Catch up clock time when Safari throttles frames; presentation retains its own .12s cap.
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
   liveLastFrame = now;
-  const oldMin = M.min;
+  const oldMin = M.min, wasPlaybackPaused = livePlaybackPaused();
   if(window.ManagerStoryLive3D?.enabled){window.ManagerStoryLive3D.step(dt,now);}
   else if (!M.finished) advanceLive(dt * MATCH_PLAYBACK_SCALE);
-  if (M.min !== oldMin || (M.pause && !M.finished)) render();
+  // A draining half has M.pause=true but its presentation is still running.
+  // Re-rendering every frame resets liveLastFrame through ensureLiveLoop, so
+  // the following RAF receives dt=0 forever. Render only a state transition.
+  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused) render();
   else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);

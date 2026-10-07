@@ -1,0 +1,12 @@
+✔ real seed1 chains capture pre-placement defender, coalesce duplicated events and preserve outcomes/statistics (21205.550583ms)
+✔ contact geometry, clearance, speed and ownership use the single event clock (0.232592ms)
+✔ pause and .5/1/2 changes preserve linked approach and contact without replaying press/tackle (359.032315ms)
+✔ real keeper routes on both goals include whole-body dive/landing/recovery, preserve bones, and distinguish catch from corner (8749.855936ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21696.914834

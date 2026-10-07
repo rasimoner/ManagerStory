@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 test('close side-camera keeps nearby contest actors in both portrait fields',async()=>{
  const {setup}=await import('../tools/match3d-minute-audit.mjs'),{createLivePoseSampler}=await import('../dist/match3d-live-view.js'),T=await import('../dist/vendor/three/three.module.min.js');const h=setup(),sample=createLivePoseSampler(),checked=new Set();h.run('M.rand=R(1)');
- for(let n=1;n<14000;n++){
+ for(let n=1;n<30000;n++){
   h.run(`ManagerStoryLive3D.step(.01,${n*10})`);const s=h.run('MatchView.read()'),pose=sample(s),c=s.presentation.contestMotion;if(!c||c.independent||s.presentation.progress<.3||checked.has(s.presentation.activeEvent.eventId))continue;
   const actors=[c.attackerId,c.defenderId].map(id=>pose.poses.find(p=>p.id===id));if(Math.hypot(actors[0].position[0]-actors[1].position[0],actors[0].position[2]-actors[1].position[2])>3)continue;
   for(const aspect of [390/540,320/280]){

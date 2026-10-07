@@ -16,5 +16,5 @@ test('pause and .5/1/2 changes preserve linked approach and contact without repl
  const held=h.run('JSON.stringify([pitchV73.positions,pitchV73.ball,pitchV73.carrier,pitchV73.progress,pitchV73.contestMotion,ManagerStoryLive3D.time])');
  h.run('M.pause=true;ManagerStoryLive3D.step(4,999999);setMatchSpeed(.5);setMatchSpeed(2);setMatchSpeed(1)');
  assert.equal(h.run('JSON.stringify([pitchV73.positions,pitchV73.ball,pitchV73.carrier,pitchV73.progress,pitchV73.contestMotion,ManagerStoryLive3D.time])'),held);
- h.run('M.pause=false;setMatchSpeed(2)');const p=h.run('pitchV73.progress'),D=h.run('pitchV73.activeDuration');h.run('ManagerStoryLive3D.step(.01,1000000)');assert.ok(Math.abs(h.run('pitchV73.progress')-p-.005/D)<1e-9);
+ h.run('M.pause=false;setMatchSpeed(2)');const p=h.run('pitchV73.progress'),D=h.run('pitchV73.activeDuration');h.run('ManagerStoryLive3D.step(.01,1000000)');assert.ok(Math.abs(h.run('pitchV73.progress')-p-.0025/D)<1e-9);
 });

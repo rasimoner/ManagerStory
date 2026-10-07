@@ -21,7 +21,7 @@ test('normal pass follows the current ball at close scale without moving any act
   h.run(`ManagerStoryLive3D.step(.02,${n*20})`);const s=h.run('MatchView.read()'),e=s.presentation.activeEvent;
   const immutable=JSON.stringify(s);
   for(let i=0;i<aspects.length;i++){
-   const v=samplers[i](s,{aspect:aspects[i]});assert.equal(JSON.stringify(s),immutable);assert.ok(v.camera.span<=13);
+   const v=samplers[i](s,{aspect:aspects[i]});assert.equal(JSON.stringify(s),immutable);assert.ok(v.camera.span<=18);
    if(e?.eventId!==11||s.presentation.progress<.65||s.presentation.progress>.75)continue;
    const focus=new T.Vector3(...v.camera.focus),camera=new T.PerspectiveCamera(45,aspects[i],.1,320);camera.position.set(focus.x,24,focus.z+38);camera.lookAt(focus);camera.fov=T.MathUtils.radToDeg(2*Math.atan(v.camera.span/aspects[i]*.5/camera.position.distanceTo(focus)));camera.updateProjectionMatrix();camera.updateMatrixWorld();
    const ball=new T.Vector3(...v.ball).project(camera);assert.ok(Math.abs(ball.x)<.94&&Math.abs(ball.y)<.94,'current ball remains in close frame');

@@ -1,0 +1,30 @@
+{
+  "baseline": "a2211d851d955c9ffe2baecd23b20c8fdafccfc6",
+  "environment": "CPU real engine/common clock; native RAF regression separately; visual approval pending",
+  "matches": [
+    {
+      "seed": 1,
+      "preserved": true,
+      "beforeSeconds": 782.4800000001051,
+      "afterSeconds": 804.4000000001163,
+      "beforeClips": 475,
+      "afterClips": 480,
+      "events": 502,
+      "clipSeconds": 399.9559243121891,
+      "singleResult": true,
+      "drained": true
+    },
+    {
+      "seed": 8800,
+      "preserved": true,
+      "beforeSeconds": 854.4800000001419,
+      "afterSeconds": 862.480000000146,
+      "beforeClips": 502,
+      "afterClips": 507,
+      "events": 516,
+      "clipSeconds": 428.5997337266558,
+      "singleResult": true,
+      "drained": true
+    }
+  ]
+}

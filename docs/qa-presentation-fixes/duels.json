@@ -1,0 +1,42 @@
+[
+  {
+    "seed": 1,
+    "id": 3,
+    "independent": true,
+    "attacker": 6,
+    "defender": "o10",
+    "maxRootSpeed": 3.806377008659481,
+    "jointSamples": 399,
+    "approachTravel": 1.1000000000000043
+  },
+  {
+    "seed": 1,
+    "id": 12,
+    "independent": true,
+    "attacker": 11,
+    "defender": "o6",
+    "maxRootSpeed": 3.7893377229132224,
+    "jointSamples": 396,
+    "approachTravel": 1.1434101294747854
+  },
+  {
+    "seed": 1,
+    "id": 48,
+    "independent": false,
+    "attacker": 2,
+    "defender": "o8",
+    "maxRootSpeed": 5.8651277900196455,
+    "jointSamples": 400,
+    "approachTravel": 9.131796872356913
+  },
+  {
+    "seed": 8800,
+    "id": 72,
+    "independent": false,
+    "attacker": "o8",
+    "defender": 7,
+    "maxRootSpeed": 5.999950000000517,
+    "jointSamples": 400,
+    "approachTravel": 9.827004533769086
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "seed": 8800,
+    "id": 11,
+    "aspect": 1.0746169954810978,
+    "sourceAndArrivalReadable": true,
+    "greyPanelsOutside": true,
+    "maxHorizontalSpan": 18
+  },
+  {
+    "seed": 8800,
+    "id": 53,
+    "aspect": 1.0746169954810978,
+    "sourceAndArrivalReadable": true,
+    "greyPanelsOutside": true,
+    "maxHorizontalSpan": 18
+  },
+  {
+    "seed": 8800,
+    "id": 11,
+    "aspect": 1.3101867016049786,
+    "sourceAndArrivalReadable": true,
+    "greyPanelsOutside": true,
+    "maxHorizontalSpan": 18
+  },
+  {
+    "seed": 8800,
+    "id": 53,
+    "aspect": 1.3101867016049786,
+    "sourceAndArrivalReadable": true,
+    "greyPanelsOutside": true,
+    "maxHorizontalSpan": 18
+  }
+]

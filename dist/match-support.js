@@ -393,7 +393,7 @@ function switchMatchTab(tab) {
   if (tab === 'tactics' && !M.pause && !M.finished) { M.pause = true; M.reason = 'manual'; }
   render();
 }
-function beginMatchOverlay() { if (M && !M.finished) { M.pause = true; M.reason ||= 'manual'; liveLastFrame = null; save(); } }
+function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())window.ManagerStoryLive3D.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} liveLastFrame = null; save(); } }
 function closeMatchOverlay() {
   if (M) delete M.uiOverlay;
   render();

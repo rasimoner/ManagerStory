@@ -50,11 +50,11 @@ export function createLivePoseSampler(){
     yaw=angle(yaw,Math.atan2(dir[0],dir[2]),smooth(p/.19));
     const contact=add(A,mul(dir,-.30));contact[1]=.16;
     const neutral=add(root,mul(right,.102));neutral[1]=.09;
-    left=add(add(root,mul(right,-.13)),mul(dir,.05));left[1]=.09;
+    const support=add(add(e.goalKickRunUp?metres(e.goalKickRunUp.contact):root,mul(right,-.13)),mul(dir,.05));support[1]=.09;left=e.goalKickRunUp&&p<.19?mix(left,support,smooth((p-.10)/.09)):support;
     const prepare=smooth(p/.19),follow=clamp((p-.19)/.81);
     lean=p<.19?-.09*Math.sin(Math.PI*prepare):.16*Math.sin(Math.PI*follow);
     bodyTwist=p<.19?-.13*Math.sin(Math.PI*prepare):.14*Math.sin(Math.PI*follow);bodyRoll=-.035*Math.sin(Math.PI*p);arm=-.20*Math.sin(Math.PI*p);
-    if(p<=.19){const prep=smooth(p/.19);rightFoot=mix(neutral,contact,prep);rightFoot=add(rightFoot,mul(dir,-.28*Math.sin(Math.PI*prep)));rightFoot[1]+=.10*Math.sin(Math.PI*prep);}
+    if(p<=.19){const prep=smooth(p/.19);const strike=mix(neutral,contact,prep);const windup=add(strike,mul(dir,-.28*Math.sin(Math.PI*prep)));windup[1]+=.10*Math.sin(Math.PI*prep);rightFoot=e.goalKickRunUp?mix(rightFoot,windup,smooth((p-.10)/.09)):windup;}
     else{const follow=clamp((p-.19)/.81);rightFoot=mix(contact,neutral,smooth(follow));rightFoot=add(rightFoot,mul(dir,.25*Math.sin(Math.PI*follow)));rightFoot[1]+=.12*Math.sin(Math.PI*follow);}
     gaps.push({id:player.id,kind:'source-root-to-contact',metres:Math.hypot(root[0]-A[0],root[2]-A[2])});
    }
@@ -148,9 +148,9 @@ export function createLivePoseSampler(){
    poses.push({id:player.id,side:player.side,position:poseRoot,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,pelvisRoll,bodyTwist,headPitch,leftHand,rightHand,keeperMotion,motionSource:'derived-from-common-display-roots-and-event-phase'});
    previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw});
   }
-  // Close broadcast framing follows only the current ball and nearby actors.
-  // Never fit full pass endpoints, the old source or the source-to-goal rectangle.
-  // A fixed bounded span prevents zoom pumping and protects player screen size.
+  // Read the kick and arrival beside the live ball. Long passes do not fit
+  // both distant endpoints at once: retain the local source early, then the
+  // actual visible receiver on approach. Camera still uses this shared time.
   const owner=poses.find(x=>x.id===snapshot.ball.displayOwnerId&&x.side===snapshot.ball.displaySide);
   const gap=actor=>Math.hypot(actor.position[0]-ball[0],actor.position[2]-ball[2]);
   let target=[...ball];target[1]=0;
@@ -158,22 +158,27 @@ export function createLivePoseSampler(){
   const actionSide=owner?.side||e?.fromSide;
   const defender=poses.filter(x=>x.side!==actionSide&&gap(x)<4).sort((a,b)=>gap(a)-gap(b))[0];
   if(defender)target=mix(target,defender.position,.12);
-  // Modest, outcome-blind lead in the CURRENT flight direction; no distant
-  // receiver or goal coordinate is fed into a bounding-box/zoom calculation.
-  if(pass&&p>.19&&p<.76){target=add(target,mul(dir,.65));}
+  let desiredSpan=12,context=null,contextWeight=0;
+  if(pass){
+   const source=poses.find(x=>x.id===e.fromId&&x.side===e.fromSide),receiver=poses.find(x=>x.id===e.toId&&x.side===e.toSide);
+   context=p<.48?source:p>.50?receiver:null;
+   if(context){const d=gap(context),local=1-smooth((d-6)/3),phase=p<.48?1-smooth((p-.32)/.16):smooth((p-.50)/.15);contextWeight=local*phase;
+    if(contextWeight>0){target=mix(target,context.position,.45*contextWeight);target[1]=0;desiredSpan=Math.min(18,12+d*.55*contextWeight);}
+   }
+  }
   if(shot&&p>.19&&p<.76){const goalDirection=e.toPos[0]>50?1:-1;target[0]+=goalDirection*.8;}
-  target[0]=clamp(target[0],-51,51);target[2]=clamp(target[2],-32,32);
+  const distance=Math.hypot(24,38),safeAspect=Number.isFinite(aspect)&&aspect>0?aspect:1;
+  span=shot?12:lastSample?span+(desiredSpan-span)*(1-Math.exp(-dt*5)):desiredSpan;
+  span=Math.min(span,shot?13:18,2*distance*Math.tan(22*Math.PI/180)*safeAspect);
   if(!focus)focus=[...target];else if(dt>0){
-   // Follow the already-presented displacement, not an anticipated endpoint.
-   // Fast long passes must not outrun a camera speed limit and trigger widening.
    if(lastSample){focus[0]+=ball[0]-lastSample.ball[0];focus[2]+=ball[2]-lastSample.ball[2];}
    focus=mix(focus,target,1-Math.exp(-dt*10));
-   focus[0]=clamp(focus[0],-51,51);focus[2]=clamp(focus[2],-32,32);
   }
-  // Fixed 12m horizontal coverage, hard 13m ceiling including all event phases.
-  // Also cap vertical FOV at44deg for unusually tall canvases: no sky/horizon.
-  const distance=Math.hypot(24,38),safeAspect=Number.isFinite(aspect)&&aspect>0?aspect:1;
-  span=Math.min(12,13,2*distance*Math.tan(22*Math.PI/180)*safeAspect);
+  // Constrain the actual oblique frustum, rather than just its centre. Keep
+  // far touchline advertising/grey stands outside these close pass frames.
+  const tangent=span/(2*distance*safeAspect),far=distance*distance*tangent/(24-38*tangent),near=distance*distance*tangent/(24+38*tangent),halfWidth=span*.5*(1+far*38/(distance*distance));
+  focus[0]=clamp(focus[0],-57.3+halfWidth,57.3-halfWidth);
+  focus[2]=clamp(focus[2],-35.8+far,36-near);
   const opacity=reset?(placed&&lastSample?.resetPlaced!==true?0:resetTime<.15?1-smooth(resetTime/.15):smooth((resetTime-.15)/.15)):1;
   if(lastSample&&time<lastSample.seconds)netImpact=null;
   if(shot&&e.outcome==='goal'){
