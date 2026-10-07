@@ -163,6 +163,13 @@ function shotInterventionActor(e){
 }
 function presentationEvent(e){
  if(!e)return e;
+ if(['press','tackle','interception'].includes(e.type)){
+  const id=e.type==='interception'?e.toId:e.defenderId,side=e.type==='tackle'?(e.fromSide==='user'?'opp':e.fromSide==='opp'?'user':null):e.toSide;
+  const player=id==null||!['user','opp'].includes(side)?null:playerAtMarker(id,side),role=side==='user'?M?.matchRoles?.[id]:player?.position;
+  const actor={id,side,name:player?.name||null,role:role||null,kind:player&&role?(role==='GK'?'keeper':'field'):'unknown'};
+  const name=player?(role==='GK'?'Kaleci ':'')+player.name:'Oyuncu',action=e.type==='press'?' topa baskıya çıktı.':e.type==='interception'||e.success?' topu kazandı.':' müdahaleyi kaçırdı.';
+  return {...e,text:(e.minute??M.min)+'’ '+name+action,presentationActor:actor};
+ }
  if(e.type==='chance'&&e.outcome==='block'){
   const result=M.events.find(x=>x.type==='block'&&x.gameSecond===e.gameSecond&&x.side===e.side);
   const actor=shotInterventionActor(result);

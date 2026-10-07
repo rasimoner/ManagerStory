@@ -27,7 +27,7 @@
   const zero=(id,b=.76)=>{if(id!=null&&state.visualOffsets[String(id)]?.some(v=>Math.abs(v)>1e-9))set(id,[0,0],0,b);};
   const away=(a,b)=>{const A=xy(a),B=xy(b),dx=A[0]-B[0],dy=A[1]-B[1],n=Math.hypot(dx,dy)||1;return pct([dx/n*.85,dy/n*.85]);};
   if(e.contest)zero(e.contest.defenderId);
-  if(e.contest?.independent){const c=e.contest,f=contestFrame(e,.76);set(c.attackerId,away(f.attacker,f.defender),.76,1);zero(c.defenderId);}
+  if(e.contest?.independent&&!e.contest.attackerKeepsBall){const c=e.contest,f=contestFrame(e,.76);set(c.attackerId,away(f.attacker,f.defender),.76,1);zero(c.defenderId);}
   if(e.shield&&e.success===false){const c=e.shield,other=e.enginePositions[String(c.defenderId)]||c.defenderStart||[c.point[0]+1,c.point[1]],off=state.visualOffsets[String(c.defenderId)]||[0,0];set(c.attackerId,away(c.point,other.map((v,i)=>v+off[i])),.76,1);}
   if(e.type==='recovery'||e.type==='interception'||['pass','cross','corner'].includes(e.type))zero(e.toId);
   if(isCarry(e)||['pass','cross','shot','hold'].includes(e.type))zero(e.fromId,.19);
@@ -44,9 +44,11 @@
   carry.contest=structuredClone({...data,press,tackle,source:'captured-before-defender-placement; derived-approach-and-contact',contactProgress:.76});
  }
  function linkCarrierGain(data){
-  if(!enabled)return;const q=currentPitchState().queue,[press,tackle,result]=q.slice(-3);
-  if(press?.type!=='press'||tackle?.type!=='tackle'||result?.type!=='interception'||!tackle.success||press.contest||tackle.defenderId!==data.defenderId||result.toId!==data.defenderId||result.fromId!==data.attackerId||press.gameSecond!==result.gameSecond)return;
-  press.contest=structuredClone({...data,press,tackle,result,independent:true,attackerKeepsBall:false,source:'captured-before-carrier-gain-placement; derived-approach-contact-recovery',contactProgress:.76});
+  if(!enabled)return;const q=currentPitchState().queue,failed=q.at(-1)?.type==='tackle'&&q.at(-1).success===false;
+  const [press,tackle,result]=failed?[...q.slice(-2),null]:q.slice(-3);
+  if(press?.type!=='press'||tackle?.type!=='tackle'||press.contest||tackle.defenderId!==data.defenderId||tackle.fromId!==data.attackerId||press.gameSecond!==tackle.gameSecond)return;
+  if(!failed&&(result?.type!=='interception'||!tackle.success||result.toId!==data.defenderId||result.fromId!==data.attackerId||press.gameSecond!==result.gameSecond))return;
+  press.contest=structuredClone({...data,press,tackle,result,independent:true,attackerKeepsBall:failed,source:'captured-before-carrier-challenge-placement; shared-approach-contact-recovery',contactProgress:.76});
  }
  // All links live on copied presentation events, never M.events or saved state.
  function linkPassCut(data){if(!enabled)return;const e=currentPitchState().queue.at(-1);if(['pass','cross'].includes(e?.type)&&!e.success&&e.toId===data.id)e.cutPresentation=structuredClone(data);}
@@ -96,7 +98,7 @@
   const startVector=S.map((v,i)=>v-A[i]),gap=Math.hypot(...startVector),bearing=gap>1e-8?startVector.map(v=>v/gap):normal;
   if(contactNormal[0]*bearing[0]+contactNormal[1]*bearing[1]<0){contactNormal[0]*=-1;contactNormal[1]*=-1;}
   const prepA=A.map((v,i)=>v+dir[i]*Math.min(.15,Math.hypot(dx,dy)*.05)),prepared=gap<.70?prepA.map((v,i)=>v+bearing[i]*.70):S,contact=B.map((v,i)=>v+contactNormal[i]*.70);
-  const attackerEnd=c.independent||c.attackerKeepsBall?[...B]:B.map((v,i)=>v-dir[i]*.75),defenderEnd=c.independent?E:c.attackerKeepsBall?contact.map((v,i)=>v+dir[i]*.60):settled;
+  const attackerEnd=c.independent||c.attackerKeepsBall?[...B]:B.map((v,i)=>v-dir[i]*.75),defenderEnd=c.attackerKeepsBall?contact.map((v,i)=>v+dir[i]*.60):c.independent?E:settled;
   if(c.attackerKeepsBall)for(let i=0;i<2;i++)attackerEnd[i]=B[i]+dir[i]*.60;
   const approach=relativePath(prepared.map((v,i)=>v-prepA[i]),contact.map((v,i)=>v-B[i]));
   const recovery=relativePath(contact.map((v,i)=>v-B[i]),defenderEnd.map((v,i)=>v-attackerEnd[i]));
@@ -105,7 +107,7 @@
   // return to the committed contact, rather than wait there for the defender.
   const directLength=Math.hypot(...B.map((v,i)=>v-prepA[i])),footworkRadius=Math.max(0,1-directLength/1.5)*Math.min(1.5,Math.max(.55,gap*.12));
   const length=directLength+Math.PI*footworkRadius,defenderRun=approach.detour?length+relativeSpeedBound(approach):Math.hypot(...contact.map((v,i)=>v-prepared[i]))+Math.PI*footworkRadius;
-  const retreat=Math.hypot(...attackerEnd.map((v,i)=>v-B[i])),defenderRecovery=c.independent?Math.hypot(...E.map((v,i)=>v-contact[i])):recovery.detour?retreat+relativeSpeedBound(recovery):Math.hypot(...defenderEnd.map((v,i)=>v-contact[i]));
+  const retreat=Math.hypot(...attackerEnd.map((v,i)=>v-B[i])),defenderRecovery=c.independent&&!c.attackerKeepsBall?Math.hypot(...E.map((v,i)=>v-contact[i])):recovery.detour?retreat+relativeSpeedBound(recovery):Math.hypot(...defenderEnd.map((v,i)=>v-contact[i]));
   // Smoothstep peak is 1.5: six metres/second for running roots at normal
   // career tempo, three for a placement sidestep. These are clip budgets,
   // not clock multipliers; speed/pause/tempo still apply exactly once in step.
@@ -119,7 +121,7 @@
   const prep=ease(Math.max(0,Math.min(1,p/.19))),u=Math.max(0,Math.min(1,(p-.19)/.57)),t=ease(u),r=ease(Math.max(0,Math.min(1,(p-.91)/.09)));
   const follow=c.attackerKeepsBall?ease(Math.max(0,Math.min(1,(p-.76)/.24))):r;
   const attacker=p<.19?lerp(A,path.prepA,prep):p<.76?lerp(path.prepA,B,t).map((v,i)=>v-path.normal[i]*path.footworkRadius*Math.sin(Math.PI*t)):lerp(B,path.attackerEnd,follow),relative=p<.76?relativeFrame(path.approach,t):relativeFrame(path.recovery,follow);
-  const defender=p<.19?lerp(S,path.prepared,prep):p<.76?attacker.map((v,i)=>v+relative[i]):c.independent?lerp(contact,E,r):attacker.map((v,i)=>v+relative[i]);
+  const defender=p<.19?lerp(S,path.prepared,prep):p<.76?attacker.map((v,i)=>v+relative[i]):c.independent&&!c.attackerKeepsBall?lerp(contact,E,r):attacker.map((v,i)=>v+relative[i]);
   const travel=path.length*t,phase=travel/1.25%1,lead=c.independent?0:.18*Math.sin(Math.PI*phase)**2*Math.sin(Math.PI*t)**2;
   let ball=(p<.76||c.attackerKeepsBall?[...attacker]:[...B]).map((v,i)=>v+dir[i]*lead);
   if(p>=.76&&!c.attackerKeepsBall)ball=lerp(B,defender,ease(Math.max(0,Math.min(1,(p-.76)/.15))));

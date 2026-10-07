@@ -648,6 +648,8 @@ function actionMinute(userPoss,effect,opponent){
    M.dynamicPositions[String(defender.id)]=moveTowards(eventPoint(defender.id,defSide),point,defender.d);
    recordPitchTackle(defender.id,defSide,carrier,side,success,point);
    if(boxChallengePenalty(defender.id,defSide,carrier,side,point))return; // the penalty sequence owns the rest of this minute
+   // Link only copied presentation events; the failed engine attempt and owner stay intact.
+   if(!success&&gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    if(success){
     switchPitchOwner(defender.id,defSide);setBallState(point,defender.id);
     M.stats.possessionsWon[defSide==='user'?userSide():1-userSide()]++;
