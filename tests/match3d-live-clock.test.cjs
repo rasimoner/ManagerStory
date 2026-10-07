@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('fs');
 const {harness,playToEnd}=require('./engine-harness.cjs');
-function setup(live=false){const h=harness();h.run(fs.readFileSync('dist/match3d-live-clock.js','utf8'));h.run(fs.readFileSync('dist/match-view-adapter.js','utf8'));h.run('S=fresh();init();'+(live?'ManagerStoryLive3D.enable();':'')+'startMatch();resumeLive()');return h;}
+function setup(live=false){const h=harness();if(!live)h.run('S=fresh();init();startMatch();resumeLive()');h.run(fs.readFileSync('dist/match3d-live-clock.js','utf8'));h.run(fs.readFileSync('dist/match-view-adapter.js','utf8'));if(live)h.run('S=fresh();init();ManagerStoryLive3D.enable();startMatch();resumeLive()');return h;}
 test('common scheduler uses speed once and freezes clock, positions, ball and event phase on pause',()=>{
  const h=setup(true);h.run('ManagerStoryLive3D.step(.1,100)');assert.equal(h.run('ManagerStoryLive3D.time'),.025);
  h.run('setMatchSpeed(2);ManagerStoryLive3D.step(.1,200)');assert.equal(h.run('ManagerStoryLive3D.time'),.07500000000000001);

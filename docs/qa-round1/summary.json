@@ -1,0 +1,456 @@
+{
+  "baseline": "2bad70b599c6ebd8733ed9adc10d4c1254ee87e5",
+  "environment": "CPU actual engine and presentation; no WebGL or iPhone visual approval",
+  "matches": [
+    {
+      "seed": 1,
+      "preserved": true,
+      "beforeSeconds": 397.8399999999894,
+      "afterSeconds": 379.51999999999305,
+      "beforeClipSeconds": 393.4239782929477,
+      "afterClipSeconds": 374.93686829619736,
+      "singleResult": true,
+      "finished": true,
+      "pending": false,
+      "events": 502,
+      "clips": 475,
+      "causalDeliveries": [
+        {
+          "id": 58,
+          "loose": 56,
+          "from": [
+            67.10663126904053,
+            7.436600956772161
+          ],
+          "to": [
+            88.13756335688363,
+            53.33967769686938
+          ]
+        },
+        {
+          "id": 151,
+          "loose": 149,
+          "from": [
+            9.209676305698041,
+            88.45153646525245
+          ],
+          "to": [
+            44.01107594256146,
+            65.47309279776408
+          ]
+        },
+        {
+          "id": 174,
+          "loose": 172,
+          "from": [
+            42.60621410999502,
+            39.34077872015001
+          ],
+          "to": [
+            96,
+            63.37574005125478
+          ]
+        },
+        {
+          "id": 276,
+          "loose": 274,
+          "from": [
+            36.76329436784117,
+            19.26669301015791
+          ],
+          "to": [
+            38.121136295361424,
+            81.02063959810981
+          ]
+        },
+        {
+          "id": 307,
+          "loose": 305,
+          "from": [
+            58.45921810145172,
+            34.42512437388986
+          ],
+          "to": [
+            29.936087380648146,
+            83.74154106592307
+          ]
+        },
+        {
+          "id": 310,
+          "loose": 308,
+          "from": [
+            22.532108292909754,
+            88.15611085706249
+          ],
+          "to": [
+            78.0765070666187,
+            61.68618678060822
+          ]
+        },
+        {
+          "id": 401,
+          "loose": 399,
+          "from": [
+            76.42546333549546,
+            41.63853230347799
+          ],
+          "to": [
+            94.9976241982045,
+            70.8741324140263
+          ]
+        },
+        {
+          "id": 475,
+          "loose": 476,
+          "from": [
+            95.5,
+            56
+          ],
+          "to": [
+            34.77657452862807,
+            15.485088426347676
+          ]
+        }
+      ],
+      "duplicateRepresentedEventIds": 0,
+      "missingBallActionIds": []
+    },
+    {
+      "seed": 8800,
+      "preserved": true,
+      "beforeSeconds": 413.0399999999864,
+      "afterSeconds": 403.5199999999883,
+      "beforeClipSeconds": 408.6072729176652,
+      "afterClipSeconds": 398.8247185910806,
+      "singleResult": true,
+      "finished": true,
+      "pending": false,
+      "events": 516,
+      "clips": 502,
+      "causalDeliveries": [
+        {
+          "id": 89,
+          "loose": 90,
+          "from": [
+            92.71800153042736,
+            54.86018280372675
+          ],
+          "to": [
+            58.408683389888125,
+            28.6345980931195
+          ]
+        },
+        {
+          "id": 92,
+          "loose": 90,
+          "from": [
+            58.408683389888125,
+            28.6345980931195
+          ],
+          "to": [
+            85.42580187313658,
+            56.081090854909576
+          ]
+        },
+        {
+          "id": 105,
+          "loose": 103,
+          "from": [
+            93.61655587658106,
+            43.194254869217
+          ],
+          "to": [
+            33.08668928011323,
+            17.470704087916562
+          ]
+        },
+        {
+          "id": 131,
+          "loose": 129,
+          "from": [
+            12.883602900558989,
+            49.89977302030207
+          ],
+          "to": [
+            62.39518841585766,
+            80.84106801093239
+          ]
+        },
+        {
+          "id": 149,
+          "loose": 147,
+          "from": [
+            87.01891080393979,
+            48.37170435771523
+          ],
+          "to": [
+            57.78120879606045,
+            20.727286133333344
+          ]
+        },
+        {
+          "id": 172,
+          "loose": 170,
+          "from": [
+            14.388222810749692,
+            36.27998832487966
+          ],
+          "to": [
+            70.51394881694603,
+            48.95431317885532
+          ]
+        },
+        {
+          "id": 209,
+          "loose": 207,
+          "from": [
+            80.63911636397907,
+            63.984078278769104
+          ],
+          "to": [
+            62.10691740879918,
+            86.93862999192517
+          ]
+        },
+        {
+          "id": 223,
+          "loose": 221,
+          "from": [
+            29.07454184152114,
+            30.852262624446436
+          ],
+          "to": [
+            9.833772194107427,
+            27.955099681402395
+          ]
+        },
+        {
+          "id": 434,
+          "loose": 435,
+          "from": [
+            99.32656497029852,
+            1.0398629135096287
+          ],
+          "to": [
+            86,
+            50.1
+          ]
+        }
+      ],
+      "duplicateRepresentedEventIds": 0,
+      "missingBallActionIds": [],
+      "examples": [
+        {
+          "type": "shot",
+          "id": 31,
+          "linked": [
+            33
+          ],
+          "looseResultId": null,
+          "source": null,
+          "startBall": [
+            28.939043860804034,
+            36.06918628335425
+          ],
+          "endBall": [
+            2,
+            52.566064447164536
+          ],
+          "startOwner": "o8",
+          "endOwner": null
+        },
+        {
+          "type": "looseBall",
+          "id": 34,
+          "linked": [],
+          "looseResultId": null,
+          "source": "derived-visible-endpoint-to-recorded-loose-land; no-engine-velocity",
+          "startBall": [
+            2,
+            52.566064447164536
+          ],
+          "endBall": [
+            12,
+            57.566064447164536
+          ],
+          "startOwner": null,
+          "endOwner": null
+        },
+        {
+          "type": "recovery",
+          "id": 35,
+          "linked": [],
+          "looseResultId": null,
+          "source": null,
+          "startBall": [
+            12,
+            57.566064447164536
+          ],
+          "endBall": [
+            12,
+            57.566064447164536
+          ],
+          "startOwner": null,
+          "endOwner": 0
+        },
+        {
+          "type": "shot",
+          "id": 49,
+          "linked": [
+            51
+          ],
+          "looseResultId": null,
+          "source": null,
+          "startBall": [
+            25.817387084220154,
+            18.999167335206682
+          ],
+          "endBall": [
+            1.9354487436825816,
+            42.120807740951236
+          ],
+          "startOwner": "o7",
+          "endOwner": 0
+        },
+        {
+          "type": "pass",
+          "id": 53,
+          "linked": [],
+          "looseResultId": null,
+          "source": null,
+          "startBall": [
+            4.429114166588537,
+            43.14772720248379
+          ],
+          "endBall": [
+            27.074597989085426,
+            62.40933137000996
+          ],
+          "startOwner": 0,
+          "endOwner": 3
+        },
+        {
+          "type": "pass",
+          "id": 92,
+          "linked": [],
+          "looseResultId": 90,
+          "source": null,
+          "startBall": [
+            58.408683389888125,
+            28.6345980931195
+          ],
+          "endBall": [
+            85.42580187313658,
+            56.081090854909576
+          ],
+          "startOwner": null,
+          "endOwner": null
+        },
+        {
+          "type": "looseBall",
+          "id": 90,
+          "linked": [],
+          "looseResultId": null,
+          "source": "derived-visible-endpoint-to-recorded-loose-land; no-engine-velocity",
+          "startBall": [
+            85.42580187313658,
+            56.081090854909576
+          ],
+          "endBall": [
+            85.42580187313658,
+            56.081090854909576
+          ],
+          "startOwner": null,
+          "endOwner": null
+        },
+        {
+          "type": "recovery",
+          "id": 91,
+          "linked": [],
+          "looseResultId": null,
+          "source": null,
+          "startBall": [
+            85.42580187313658,
+            56.081090854909576
+          ],
+          "endBall": [
+            85.42580187313658,
+            56.081090854909576
+          ],
+          "startOwner": null,
+          "endOwner": 12
+        },
+        {
+          "type": "shot",
+          "id": 99,
+          "linked": [
+            101
+          ],
+          "looseResultId": null,
+          "source": null,
+          "startBall": [
+            82.60492151638103,
+            33.48766034160775
+          ],
+          "endBall": [
+            98.07013147574578,
+            43.626271436461955
+          ],
+          "startOwner": 11,
+          "endOwner": "o0"
+        },
+        {
+          "type": "pass",
+          "id": 105,
+          "linked": [],
+          "looseResultId": 103,
+          "source": null,
+          "startBall": [
+            93.6298664730934,
+            43.135221528977226
+          ],
+          "endBall": [
+            33.08668928011323,
+            17.470704087916562
+          ],
+          "startOwner": "o0",
+          "endOwner": null
+        },
+        {
+          "type": "looseBall",
+          "id": 103,
+          "linked": [],
+          "looseResultId": null,
+          "source": "derived-visible-endpoint-to-recorded-loose-land; no-engine-velocity",
+          "startBall": [
+            33.08668928011323,
+            17.470704087916562
+          ],
+          "endBall": [
+            33.08668928011323,
+            17.470704087916562
+          ],
+          "startOwner": null,
+          "endOwner": null
+        },
+        {
+          "type": "recovery",
+          "id": 104,
+          "linked": [],
+          "looseResultId": null,
+          "source": null,
+          "startBall": [
+            33.08668928011323,
+            17.470704087916562
+          ],
+          "endBall": [
+            33.08668928011323,
+            17.470704087916562
+          ],
+          "startOwner": null,
+          "endOwner": "o7"
+        }
+      ]
+    }
+  ]
+}

@@ -13,10 +13,10 @@ for(const seed of [1,8800])test(`career normal tempo seed ${seed}: same raw engi
  const h=setup();h.run(`M.rand=R(${seed});setMatchView("3d");`);
  const sub=fs.readFileSync('tests/engine-harness.cjs','utf8').match(/const SUBSTITUTE = '([^\n]+)';/)[1];h.run(`window.qaSub=${JSON.stringify(sub)}`);
  const measured=h.run(`(()=>{let wall=0,half=false;for(let i=0;i<120000;i++){if(M.reason==='half'){half=true;startSecondHalf();}else if(M.reason==='injury')eval(qaSub);else if(M.pause&&!M.finished)resumeLive();wall+=.08;ManagerStoryLive3D.step(.08,wall*1000);if(M.finished&&!ManagerStoryLive3D.finishing)break;}return {wall,half,finished:M.finished,pending:ManagerStoryLive3D.finishing,direction:attackDirection('user')};})()`);
- assert.ok(Math.abs(measured.wall-(seed===1?397.84:413.04))<1e-6,'keeper carry connections use the existing shared clock without hidden waits');
+ assert.ok(Math.abs(measured.wall-(seed===1?379.52:403.52))<1e-6,'causal deliveries and parry continuation remove repeated flight without transferring time into waits');
  assert.equal(measured.finished,true);assert.equal(measured.pending,false);assert.equal(measured.half,true);assert.equal(measured.direction,-1);
  const raw='JSON.stringify({events:M.events,score:[M.hg,M.ag],stats:M.stats,shots:M.shots,players:M.playerStats,rng:M.rand.state})';
- const base=setup();base.run(`M.rand=R(${seed})`);playToEnd(base);assert.equal(h.run(raw),base.run(raw));assert.equal(h.run('M.events.filter(e=>e.type==="end").length'),1);
+ const base=harness();base.run('S=fresh();init();startMatch();resumeLive()');base.run(`M.rand=R(${seed})`);playToEnd(base);assert.equal(h.run(raw),base.run(raw));assert.equal(h.run('M.events.filter(e=>e.type==="end").length'),1);
  h.run('finishMatch()');base.run('finishMatch()');assert.equal(h.run('JSON.stringify(S)'),base.run('JSON.stringify(S)'));const career=h.run('JSON.stringify(S)');h.run('finishMatch()');assert.equal(h.run('JSON.stringify(S)'),career);
  console.log('normal tempo measurement',seed,JSON.stringify(measured));
 });

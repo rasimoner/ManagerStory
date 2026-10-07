@@ -207,7 +207,7 @@ test('shouts have a ten-minute effect cooldown and tactical state survives pause
  h.run('resumeLive();advanceLive(8)');assert.ok(h.run('M.events.some(e=>e.type==="shout")'));
 });
 test('horizontal goals, keeper placement, halftime reversal and instruction offsets are physical coordinates',()=>{
- const h=harness();h.run('S=fresh();init();startMatch()');
+ const h=harness();h.run('S=fresh();init();startMatch()');assert.equal(h.run('M.fieldView'),'3d');h.run('setMatchView("2d")');
  assert.match(h.app.innerHTML,/pitch-goal-left.*pitch-goal-right/);
  assert.ok(h.run("basePitchPosition(0,'user')[0]")<15);
  assert.ok(h.run("basePitchPosition('o0','opp')[0]")>85);

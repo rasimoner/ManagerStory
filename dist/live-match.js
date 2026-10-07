@@ -20,6 +20,7 @@ function ensureLiveState() {
   });}
   M.min=Math.floor(M.matchElapsedSeconds/60);
   M.speed = [0.5, 1, 2].includes(M.speed) ? M.speed : 1;
+  M.fieldView ??= '3d';
   M.minuteEvents ??= [];
   M.assistantNote ??= '';
   M.shoutLast ??= {};
@@ -52,7 +53,7 @@ function setMatchSpeed(speed) {
   if (!M || ![0.5, 1, 2].includes(Number(speed))) return;
   M.speed = Number(speed); save(); render();
 }
-const livePresentationPending = () => !!window.ManagerStoryLive3D?.finishing;
+const livePresentationPending = () => !!(window.ManagerStoryLive3D?.finishing||window.ManagerStoryLive3D?.halfPending);
 const livePlaybackPaused = () => livePresentationPending() ? window.ManagerStoryLive3D.paused : M?.pause;
 function pauseLive(reason = 'manual') {
   if(livePresentationPending()){window.ManagerStoryLive3D.setTerminalPaused(true);liveLastFrame=null;render();return;}

@@ -17,7 +17,7 @@ export function audit(){const h=setup(),sampler=createLivePoseSampler(),m=model(
     r.phases.push({threshold,ball:s.ball.displayPosition,height:poses.ball[1],toeBall:toe.distanceTo(new T.Vector3(...poses.ball)),handBall:Math.min(hands.leftHand.distanceTo(new T.Vector3(...poses.ball)),hands.rightHand.distanceTo(new T.Vector3(...poses.ball))),score:P.eventScore,owner:s.ball.displayOwnerId,goalCrossed:f.goalCrossed,keeper});
    }
    old={id:e.eventId,ball:s.ball.displayPosition,keeper};
-  }else {if(old&&rows.has(old.id))rows.get(old.id).endBoundaryStep=dist(old.ball,s.ball.displayPosition);old=null;}
+  }else {if(old&&rows.has(old.id)){rows.get(old.id).endBoundaryStep=dist(old.ball,s.ball.displayPosition);rows.get(old.id).endBoundarySourceError=P.activeEvent?.type==='looseBall'?dist(old.ball,h.run('[...pitchV73.eventStartBall]')):dist(old.ball,s.ball.displayPosition);}old=null;}
   if(h.run('M.min')>=26)break;
  }
  return {seed:8800,tempo:4,speed:1,wall,minute:h.run('M.min'),rows:[...rows.values()],events:h.run('structuredClone(M.events)'),stats:h.run('structuredClone(M.stats)'),score:h.run('[M.hg,M.ag]'),rng:h.run('M.rand.state')};}

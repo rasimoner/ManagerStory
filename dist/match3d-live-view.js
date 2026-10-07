@@ -129,7 +129,7 @@ export function createLivePoseSampler(){
    }
    const touch=e?.type==='firstTouch'&&lastPass?.success===true&&lastPass.toId===e.toId;
    let receiveEventYaw=old?.receiveEventYaw,receiveEventId=old?.receiveEventId;
-   const receiving=(!e?.headerShot&&pass&&p>.19&&player.id===e.toId&&player.side===e.toSide)||(touch&&player.id===e.toId&&player.side===e.toSide);
+   const receiving=(!e?.headerShot&&!e?.looseResultId&&pass&&p>.19&&player.id===e.toId&&player.side===e.toSide)||(touch&&player.id===e.toId&&player.side===e.toSide);
    if(receiving){
     const target=pass?B:metres(e.toPos),d=pass?dir:metres(lastPass.toPos).map((x,i)=>x-metres(lastPass.fromPos)[i]);
     const n=Math.hypot(d[0],d[2])||1,incoming=[-d[0]/n,0,-d[2]/n],gap=Math.hypot(root[0]-target[0],root[2]-target[2]);

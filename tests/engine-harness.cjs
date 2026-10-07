@@ -7,7 +7,7 @@ const base = path.resolve(__dirname, '../dist');
 const FILES = ['match-support.js', 'career-events.js', 'live-match.js', 'opponents-v731.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js'];
 const sources = FILES.map(f => fs.readFileSync(path.join(base, f), 'utf8'));
 
-function harness(existing = new Map()) {
+function harness(existing = new Map(), sourceOverride = sources) {
   const app = { innerHTML: '', classList: { toggle() {} }, insertAdjacentHTML(_w, html) { this.innerHTML += html; } };
   const ctx = {
     console, structuredClone, AbortController, URL, Blob, setTimeout, clearTimeout, Math,
@@ -17,7 +17,7 @@ function harness(existing = new Map()) {
   };
   ctx.window = ctx; ctx.window.scrollTo = () => {};
   vm.createContext(ctx);
-  for (const s of sources) vm.runInContext(s, ctx);
+  for (const s of sourceOverride) vm.runInContext(s, ctx);
   return { run: code => vm.runInContext(code, ctx), app, storage: existing };
 }
 

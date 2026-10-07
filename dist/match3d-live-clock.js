@@ -1,6 +1,7 @@
 /* Opt-in presentation scheduler on the EXISTING liveFrameStep. No RNG or second engine. */
 (() => {
  let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
+ function syncMatch(now=0,dt=0){if(observedMatch===M)return;observedMatch=M;presentationSeconds=0;wallSeconds=0;logs=[];wallOrigin=now-dt*1000;inPositionUpdate=false;motionSample=null;}
  const lerp=(a,b,u)=>a.map((v,i)=>v+(b[i]-v)*u),ease=u=>u*u*(3-2*u);
  const isCarry=e=>['dribble','ballCarry','run'].includes(e.type);
  const baseDuration=e=>{
@@ -182,8 +183,8 @@
  // Stage 3A braking curve, same contact/arrival boundaries and endpoint.
  const flight=u=>{if(u<.7)return u*1.15;const t=(u-.7)/.3;return (2*t*t*t-3*t*t+1)*.805+(t*t*t-2*t*t+t)*.345+(-2*t*t*t+3*t*t);};
  function step(dt,now){
-  if(!enabled||!M||(M.finished?!finishing():M.pause)||paused())return;
-  if(observedMatch!==M){observedMatch=M;presentationSeconds=0;wallSeconds=0;logs=[];wallOrigin=now-dt*1000;}
+  if(!enabled||!M||(M.finished?!finishing():M.pause&&!halfPending())||paused())return;
+  syncMatch(now,dt);
   wallSeconds+=dt;
   // The existing RAF allows 2s engine catch-up. Presentation never repays that
   // wall-time debt with a burst: use its documented .12s frame cap, no backlog.
@@ -204,7 +205,7 @@
     const tail=keyframeTransition(state,anchorTargets(state,structuredClone(last.positions)),anchored(state,last.owner,last.ball),last.gameSecond,last.owner,last.side,last.positions,last.ball);
     if(tail){tail.controlMapped=true;tail.sampleInterval={fromGameSecond:last.gameSecond,toGameSecond:last.gameSecond,phase:'post-event-settlement'};tail.homeGoals=last.score[0];tail.awayGoals=last.score[1];tail.engineStatistics=last.statistics;state.queue.push(tail);}else {state.eventScore=last.score;state.eventStatistics=last.statistics;}
    }
-   if(!state.queue.length&&!M.finished){
+   if(!state.queue.length&&!M.finished&&!M.pause){
     const start=matchSecond(),oldScore=state.eventScore||[M.hg,M.ag],oldStatistics=state.eventStatistics||{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};
     motionSample=null;advanceLive((60-start%60)/90/M.speed);
     if(motionSample?.toPositions){
@@ -227,13 +228,19 @@
   }
   while(remaining>1e-9&&(state.active||state.queue.length)){
    if(!state.active){
-    // Some committed aerial-pass consequences are recorded before their pass.
-    // Present ONLY the exactly endpoint-linked keeper distribution causally;
-    // raw M.events order, IDs, decisions and outcomes remain unchanged.
-    if(state.keeperControl&&state.queue[0]?.type==='looseBall'){
-     const loose=state.queue[0],i=state.queue.findIndex(x=>x.type==='pass'&&x.fromId===state.keeperControl.id&&x.gameSecond===loose.gameSecond&&x.fromPos?.every((v,j)=>Math.abs(v-loose.fromPos[j])<1e-8)&&x.toPos?.every((v,j)=>Math.abs(v-loose.toPos[j])<1e-8));
-     if(i>0){const distribution=state.queue.splice(i,1)[0];distribution.keeperLooseResult=loose.eventId;loose.keeperDistributionArrival=true;state.queue.unshift(distribution);}
+    // Failed deliveries may be logged AFTER their committed loose/recovery
+    // consequences. Link only an exact same-minute source and landing pair.
+    // Reorder the presentation copies; never re-run or delete an engine action.
+    if(state.queue[0]?.type==='looseBall'){
+     const loose=state.queue[0],i=state.queue.findIndex(x=>['pass','cross'].includes(x.type)&&x.success===false&&x.gameSecond===loose.gameSecond&&x.fromPos?.every((v,j)=>Math.abs(v-loose.fromPos[j])<1e-8)&&x.toPos?.every((v,j)=>Math.abs(v-loose.toPos[j])<1e-8));
+     if(i>0){const delivery=state.queue.splice(i,1)[0];delivery.looseResultId=loose.eventId;loose.deliveryArrivalId=delivery.eventId;delivery.enginePositions=structuredClone(loose.enginePositions);delivery.preRecoveryPositions=true;
+      if(state.keeperControl?.id===delivery.fromId){delivery.keeperLooseResult=loose.eventId;loose.keeperDistributionArrival=true;}
+      state.queue.unshift(delivery);
+     }
     }
+    const delivery=state.queue[0],consequence=state.queue[1];
+    if(['pass','cross','corner','goalKick'].includes(delivery?.type)&&consequence?.type==='looseBall'&&delivery.gameSecond===consequence.gameSecond&&
+     (consequence.fromPos?.every((v,j)=>Math.abs(v-delivery.toPos[j])<1e-8)||consequence.fromPos?.every((v,j)=>Math.abs(v-delivery.fromPos[j])<1e-8)&&consequence.toPos?.every((v,j)=>Math.abs(v-delivery.toPos[j])<1e-8)))delivery.looseResultId=consequence.eventId;
     const next=state.queue[0],rawTargets=structuredClone(next.timingTargets||next.rawEnginePositions||next.enginePositions||{}),rawFrom=next.engineFromPos||next.fromPos;
     if(next.type!=='enginePositionGap'&&next.timingDuration==null){
      const reference={...next,fromPos:rawFrom,toPos:next.type==='kickoff'?next.toPos:next.engineToPos||next.toPos,enginePositions:rawTargets,timingDuration:undefined,engineAnimationDuration:undefined};
@@ -247,7 +254,9 @@
      next.controlMapped=true;next.controlMapping='derived-from-visible-control; immutable-engine-source';
     }
     // Out-of-play is already the shot endpoint; do not fly back to an old source.
-    if(next.keeperDistributionArrival)next.fromPos=[...state.ball];
+    if(next.type==='looseBall'&&!next.heavyGeometry){
+     next.fromPos=[...state.ball];next.continuitySource='derived-visible-endpoint-to-recorded-loose-land; no-engine-velocity';
+    }
     if(next.type==='ballOut'){next.fromPos=[...state.ball];next.toPos=[...state.ball];}
     if(next.type==='restartPosition'&&!next.restartReset){
      next.fromPos=[...state.ball];next.restartReset=true;
@@ -264,7 +273,7 @@
     if(next.headerShot)sourceTargets[String(next.headerShot.fromId)]=[...(next.headerShot.shooterStart||state.positions[String(next.headerShot.fromId)]||next.headerShot.fromPos)];
     if(isCarry(next)||next.type==='shot')rawTargets[String(next.fromId)]=[...rawFrom];
     if(isCarry(next)||next.type==='shot')sourceTargets[String(next.fromId)]=[...next.fromPos];
-    let transition=!next.sourcePrepared&&next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||next.contest?.independent||state.afterShot)?keyframeTransition(state,sourceTargets,next.contest?.independent?next.contest.attackerStart:next.headerIncoming?headerContact(next):next.fromPos,next.gameSecond,state.carrier,state.side,rawTargets,next.contest?.independent?(next.timingContest||next.contest).attackerStart:next.headerIncoming?headerContact(next):rawFrom):null;
+    let transition=!next.sourcePrepared&&next.fromPos&&(['pass','cross','shot'].includes(next.type)||isCarry(next)||next.contest?.independent||(state.afterShot&&!['looseBall','recovery'].includes(next.type)))?keyframeTransition(state,sourceTargets,next.contest?.independent?next.contest.attackerStart:next.headerIncoming?headerContact(next):next.fromPos,next.gameSecond,state.carrier,state.side,rawTargets,next.contest?.independent?(next.timingContest||next.contest).attackerStart:next.headerIncoming?headerContact(next):rawFrom):null;
     const placement=next.type==='kickoff'?keyframeTransition(state,next.enginePositions,next.fromPos,next.gameSecond,next.fromId,next.fromSide):null;
     if(placement){placement.sampleInterval={fromGameSecond:next.gameSecond,toGameSecond:next.gameSecond,phase:'restart-placement'};placement.carryId=null;placement.carrySide='none';placement.movementSource='derived-dead-ball-placement';
      // Preserve this segment's original duration and common clock. Only the
@@ -290,6 +299,7 @@
      if(state.active.shotResult)state.queue=state.queue.filter(x=>x.eventId!==state.active.shotResult.eventId&&x.eventId!==state.active.consumedContinuationId);
      if(state.active.contest){const c=state.active.contest;state.queue=state.queue.filter(x=>x.eventId!==c.press.eventId&&x.eventId!==c.tackle.eventId&&x.eventId!==c.result?.eventId);}
     }
+    if(state.active.recoveryStarts){state.active.capturedRecoveryStarts=structuredClone(state.active.recoveryStarts);for(const id of Object.keys(state.active.recoveryStarts))state.active.recoveryStarts[id]=[...(state.positions[id]||state.active.recoveryStarts[id])];}
     state.shotPreStatistics=structuredClone(state.eventStatistics);
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
     if(state.active.shotResult)state.active.keeperStart=[...(state.positions[String(state.active.goalkeeperId)]||state.active.enginePositions[String(state.active.goalkeeperId)])];
@@ -306,7 +316,7 @@
     if(state.rateSegments.at(-1)?.speed!==M.speed||state.rateSegments.at(-1)?.tempo!==tempo)state.rateSegments.push({progress:p,speed:M.speed,tempo});
     if(p>=.19&&state.contactObserved==null)state.contactObserved=now;
     if(p>=.76&&state.arrivalObserved==null)state.arrivalObserved=now;
-    state.ball=e.headerShot?lerp(e.fromPos,headerContact(e.headerShot),Math.max(0,Math.min(1,(p-.19)/.81))):lerp(e.fromPos,e.toPos,flight(u));state.carrier=p<.19?e.fromId:e.headerShot?null:p<.76?null:e.toId;state.side=state.carrier==null?'none':p<.19?e.fromSide:e.toSide;}
+    state.ball=e.headerShot?lerp(e.fromPos,headerContact(e.headerShot),Math.max(0,Math.min(1,(p-.19)/.81))):lerp(e.fromPos,e.toPos,flight(u));state.carrier=p<.19?e.fromId:e.headerShot||e.looseResultId?null:p<.76?null:e.toId;state.side=state.carrier==null?'none':p<.19?e.fromSide:e.toSide;}
    else if(isCarry(e)){
     // Derived touches on the recorded segment, not new decisions or physical engine data.
     const t=ease(u),d=metres(e.fromPos,e.toPos),travel=d*t,phase=(travel/1.25)%1;
@@ -315,7 +325,7 @@
     state.ball=lerp(e.fromPos,e.toPos,ballT);state.carrier=e.heavyTouch&&p>=.76?null:e.fromId;state.side=state.carrier==null?'none':e.fromSide;
     state.carryMotion={eventId:e.eventId,travelMetres:travel,touchPhase:phase,leadMetres:lead,source:'derived-distance-touches-on-engine-segment'};
    }
-   else if(e.type==='looseBall'||e.type==='recovery'){state.ball=e.type==='recovery'?[...e.toPos]:(animationPoint(e,p,state.eventStartBall)||[...state.ball]);state.carrier=e.type==='recovery'&&p>=.76?e.toId:null;state.side=state.carrier==null?'none':e.toSide;state.looseMotion={phase:e.type==='recovery'?(p<.65?'approach':p<.76?'reach':'control'):'unowned',event:p<.76&&e.type==='recovery'?{...e,text:'Top sahipsiz · gerçek kazanım teması bekleniyor'}:e,source:'captured-chaser-starts; derived-interpolation-and-contact'};}
+   else if(e.type==='looseBall'||e.type==='recovery'){state.ball=e.type==='recovery'?lerp(state.eventStartBall,e.toPos,ease(Math.min(1,p/.76))):e.heavyGeometry?[...state.ball]:lerp(state.eventStartBall,e.toPos,p);state.carrier=e.type==='recovery'&&p>=.76?e.toId:null;state.side=state.carrier==null?'none':e.toSide;state.looseMotion={phase:e.type==='recovery'?(p<.65?'approach':p<.76?'reach':'control'):'unowned',event:p<.76&&e.type==='recovery'?{...e,text:'Top sahipsiz · gerçek kazanım teması bekleniyor'}:e,source:'captured-chaser-starts; derived-interpolation-and-contact'};}
    else if(e.type==='enginePositionGap'){state.ball=e.goalReset?(p*D<.15?[...e.fromPos]:[...e.toPos]):lerp(e.fromPos,e.toPos,ease(p));state.carrier=e.carryId;state.side=e.carrySide;}
    else if(e.restartReset){state.ball=p*D<.15?[...e.fromPos]:[...e.toPos];state.carrier=null;state.side='none';}
    else if(e.kickoffExchange){const k=e.kickoffExchange,back=p>=.55,a=back?k.point:e.fromPos,b=back?e.fromPos:k.point,q=back?(p-.55)/.45:p/.55,t=q<.19?0:q<.76?(q-.19)/.57:1;
@@ -399,7 +409,7 @@
     state.durationBall=e.timingContest?[...contestFrame({...e,contest:e.timingContest},1).ball]:e.timingTo?[...e.timingTo]:e.restartDisplayPoint||e.restartReset?[...(e.engineToPos||e.toPos)]:e.controlMapped&&!state.shotMotion&&!e.headerShot?(animationPoint(e,1,state.durationBall)?[...(e.engineToPos||e.toPos||state.ball)]:state.durationPositions[String(state.carrier)]||[...state.ball]):[...state.ball];
     if(e.outcome==='save'&&e.shotResult?.saveType==='CATCH')state.durationBall=keeperTarget(e);
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
-    if(e.keeperLooseResult){state.carrier=null;state.side='none';state.ballState.ownerId=null;}
+    if(e.looseResultId||e.keeperLooseResult){state.carrier=null;state.side='none';state.ballState.ownerId=null;}
     if(state.shotMotion)state.afterShot=true;
     if(state.shotMotion&&e.outcome==='save'&&e.shotResult.saveType==='CATCH'){state.anchorSettled=false;state.controlAnchor={id:e.goalkeeperId,side:e.shotResult.toSide,engine:[...e.shotResult.toPos],display:[...state.positions[String(e.goalkeeperId)]]};}
     if(state.shotMotion?.goalCrossed||e.type==='goal')state.afterGoal=true;
@@ -409,16 +419,17 @@
   const completed=finishing()&&!state.active&&!state.queue.length&&!state.batchEnd;
   if(completed){state.terminalPhase='complete';state.terminalPaused=false;state.displayMatchSeconds=5400;state.eventScore=[M.hg,M.ag];}
   if(window.MatchView)window.MatchView.publish(state);
-  if(completed)render();
+  if(completed||M.reason==='half'&&!halfPending())render();
  }
  const finishing=()=>enabled&&pitchV73?.match===M&&pitchV73.terminalPhase==='draining';
- const paused=()=>finishing()?!!pitchV73.terminalPaused:!!M?.pause;
+ const halfPending=()=>enabled&&M?.reason==='half'&&pitchV73?.match===M&&!!(pitchV73.active||pitchV73.queue.length||pitchV73.batchEnd);
+ const paused=()=>finishing()?!!pitchV73.terminalPaused:halfPending()?!!pitchV73.halfPaused:!!M?.pause;
  window.ManagerStoryLive3D={
-  get finishing(){return finishing()},get paused(){return paused()},
+  get finishing(){return finishing()},get halfPending(){return halfPending()},get paused(){return paused()},
   beginFinish(){const s=currentPitchState();s.terminalPhase='draining';s.terminalPaused=false;},
-  setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
-  enable(){const joining=!enabled;enabled=true;if(M){const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
-  disable(){enabled=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
+  setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;else if(halfPending())pitchV73.halfPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+  enable(){const joining=!enabled;syncMatch();enabled=true;if(M){const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
+  disable(){enabled=false;observedMatch=null;presentationSeconds=0;wallSeconds=0;logs=[];motionSample=null;inPositionUpdate=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration,contestPhase,contestTiming:e=>structuredClone(contestPath(e).timing), togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
  };
 })();

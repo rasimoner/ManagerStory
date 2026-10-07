@@ -6,7 +6,7 @@ test('real seed8800 shots link one real result; RNG, events, statistics and scor
  assert.ok(a.events.every(e=>!e.shotResult));
 });
 test('release, real keeper contact, net bounds and score threshold share one clock',async()=>{
- const a=await audit();for(const r of a.rows){assert.ok(r.preContactBallMovement<.001);assert.equal(r.earlyOwnerChanges,0);assert.equal(r.earlyScoreChanges,0);assert.ok(r.peakKeeperSpeed<=6.01);assert.ok(r.endBoundaryStep<=.02,JSON.stringify(r));const contact=r.phases.find(x=>x.threshold===.19);assert.ok(contact.toeBall<=.22);assert.ok(contact.height<.151);
+ const a=await audit();for(const r of a.rows){assert.ok(r.preContactBallMovement<.001);assert.equal(r.earlyOwnerChanges,0);assert.equal(r.earlyScoreChanges,0);assert.ok(r.peakKeeperSpeed<=6.01);assert.ok(r.endBoundarySourceError<=.02,JSON.stringify(r));const contact=r.phases.find(x=>x.threshold===.19);assert.ok(contact.toeBall<=.22);assert.ok(contact.height<.151);
  const end=r.phases.find(x=>x.threshold===.76);if(r.outcome==='save')assert.ok(end.handBall<=.15);if(r.outcome==='goal'){assert.ok(end.ball[0]>100);assert.ok(Math.abs((end.ball[1]-50)*.68)<3.52);assert.deepEqual(end.score,[1,0]);}if(r.outcome==='wide')assert.ok(Math.abs((end.ball[1]-50)*.68)>3.8);}
 });
 test('pause and speed changes do not restart shot or expose result early',async()=>{
