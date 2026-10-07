@@ -193,12 +193,12 @@
   wallSeconds+=dt;
   // The existing RAF allows 2s engine catch-up. Presentation never repays that
   // wall-time debt with a burst: use its documented .12s frame cap, no backlog.
-  const state=currentPitchState(),delta=Math.min(.12,Math.max(0,dt))*M.speed/tempo;
+  const state=currentPitchState(),delta=Math.min(.12,Math.max(0,dt))*matchPlaybackRate()/tempo;
   presentationSeconds+=delta;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
   // Drain only the current atomic engine minute. Never produce a future minute behind a queue.
   if(state.active&&state.durationEvent!==state.active){
    planOffsets(state,state.active);state.activeDuration=duration(state.active);state.durationEvent=state.active;state.startPositions=structuredClone(state.positions);
-   state.clipStartTimestamp=now-state.progress*state.activeDuration*tempo/M.speed*1000;
+   state.clipStartTimestamp=now-state.progress*state.activeDuration*tempo/matchPlaybackRate()*1000;
    state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
   }
   let remaining=delta;
@@ -330,7 +330,7 @@
      e.timingDuration=Math.max(duration(e),metres(e.keeperStart,contact)*1.5/6/.57);
      e.keeperTimingSource='visible-root-to-derived-contact; smoothstep peak <=6m/s at tempo1';
     }
-    planOffsets(state,state.active);state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/M.speed*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
+    planOffsets(state,state.active);state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/matchPlaybackRate()*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
    }
    const e=state.active;state.carryMotion=null;state.contestMotion=null;state.shotMotion=null;state.looseMotion=null;state.holdMotion=null;state.kickoffMotion=null;
    if(Number.isFinite(e.homeGoals)&&Number.isFinite(e.awayGoals))state.eventScore=[e.homeGoals,e.awayGoals];
@@ -340,7 +340,7 @@
    const clockProgress=state.progress,p=e.contest?contestPhase(e,clockProgress):clockProgress;state.displayMatchSeconds=e.sampleInterval?e.sampleInterval.fromGameSecond+(e.sampleInterval.toGameSecond-e.sampleInterval.fromGameSecond)*clockProgress:(e.gameSecond??matchSecond());
    const pass=['pass','cross','corner','goalKick'].includes(e.type)||!!e.headerShot,u=p<.19?0:p<.76?(p-.19)/.57:1;
    if(pass){
-    if(state.rateSegments.at(-1)?.speed!==M.speed||state.rateSegments.at(-1)?.tempo!==tempo)state.rateSegments.push({progress:p,speed:M.speed,tempo});
+    if(state.rateSegments.at(-1)?.speed!==M.speed||state.rateSegments.at(-1)?.tempo!==tempo)state.rateSegments.push({progress:p,speed:M.speed,effectiveSpeed:matchPlaybackRate(),tempo});
     if(p>=.19&&state.contactObserved==null)state.contactObserved=now;
     if(p>=.76&&state.arrivalObserved==null)state.arrivalObserved=now;
     state.ball=e.headerShot?lerp(e.fromPos,headerContact(e.headerShot),Math.max(0,Math.min(1,(p-.19)/.81))):lerp(e.fromPos,e.toPos,flight(u));state.carrier=p<.19?e.fromId:e.headerShot||e.looseResultId?null:p<.76?null:e.toId;state.side=state.carrier==null?'none':p<.19?e.fromSide:e.toSide;}
@@ -441,7 +441,7 @@
     if(e.duelRootMapped&&!e.shotResult&&!e.contest)state.durationBall=[...(e.engineToPos||state.durationPositions[String(state.carrier)]||state.ball)];
     if(e.contest?.attackerKeepsBall)state.durationBall=[...(e.engineToPos||(e.timingContest||e.contest).point)];
     if(e.outcome==='save'&&e.shotResult?.saveType==='CATCH')state.durationBall=keeperTarget(e);
-    if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,screenDurationAtConstantSpeed:D*tempo/M.speed,screenFlightAtConstantSpeed:D*.57*tempo/M.speed,actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
+    if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:D*.57,tempo,speed:M.speed,effectiveSpeed:matchPlaybackRate(),screenDurationAtConstantSpeed:D*tempo/matchPlaybackRate(),screenFlightAtConstantSpeed:D*.57*tempo/matchPlaybackRate(),actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(e.looseResultId||e.keeperLooseResult){state.carrier=null;state.side='none';state.ballState.ownerId=null;}
     if(state.shotMotion)state.afterShot=true;
     if(state.shotMotion&&e.outcome==='save'&&e.shotResult.saveType==='CATCH'){state.anchorSettled=false;state.controlAnchor={id:e.goalkeeperId,side:e.shotResult.toSide,engine:[...e.shotResult.toPos],display:[...state.positions[String(e.goalkeeperId)]]};}

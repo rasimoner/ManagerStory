@@ -1,5 +1,8 @@
 /* V7.2 live clock and event renderer. Simulation time is never derived from frame count. */
 const MATCH_MINUTE_MS = 30000 / 45;
+// UI labels stay .5 / 1 / 2; each now plays at half its former rate.
+const MATCH_PLAYBACK_SCALE = .5;
+const matchPlaybackRate = () => (M?.speed || 1) * MATCH_PLAYBACK_SCALE;
 let liveFrame = null, liveLastFrame = null, liveLastPaint = 0, liveTickBusy = false;
 const matchSecond = () => Math.min(5400,Math.max(0,Number.isFinite(M?.matchElapsedSeconds)?M.matchElapsedSeconds:0));
 const clockFromSeconds = seconds => {
@@ -83,7 +86,7 @@ function liveFrameStep(now) {
   liveLastFrame = now;
   const oldMin = M.min;
   if(window.ManagerStoryLive3D?.enabled){window.ManagerStoryLive3D.step(dt,now);}
-  else if (!M.finished) advanceLive(dt);
+  else if (!M.finished) advanceLive(dt * MATCH_PLAYBACK_SCALE);
   if (M.min !== oldMin || (M.pause && !M.finished)) render();
   else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)

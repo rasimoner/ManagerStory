@@ -1,0 +1,51 @@
+normal tempo measurement 1 {"wall":782.4800000001051,"half":true,"finished":true,"pending":false,"direction":-1}
+normal tempo measurement 8800 {"wall":854.4800000001419,"half":true,"finished":true,"pending":false,"direction":-1}
+✔ career view and tab switches retain the engine, RNG, events and pending presentation (59.469417ms)
+✔ career normal tempo seed 1: same raw engine/RNG/career, half and single finish (1867.117187ms)
+✔ career normal tempo seed 8800: same raw engine/RNG/career, half and single finish (1636.486967ms)
+✔ captured control uses selected clock rates for normal/delayed frames; failed real distribution links to its loose ball (4728.86548ms)
+✔ real catches49/99 retain raised ball through recovery and existing distribution in both views/rates (24309.483378ms)
+✔ neutral keeper hands do not reuse save targets; both world directions bend the approved rig toward the ball (2.149968ms)
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (37.458784ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (200.388134ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (2328.858407ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (22.54102ms)
+✔ joining an already active legacy event preserves progress and stays finite (29.195565ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (111.884461ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (32.510739ms)
+Kariyer 3D sahası Error: context unavailable
+    at window.createMatchScene (evalmachine.<anonymous>:7:134)
+    at paint (evalmachine.<anonymous>:16:9)
+    at Object.mount (evalmachine.<anonymous>:33:24)
+    at render (evalmachine.<anonymous>:149:243)
+    at startMatch (evalmachine.<anonymous>:249:1524)
+    at evalmachine.<anonymous>:1:13
+    at Script.runInContext (node:vm:149:12)
+    at Object.runInContext (node:vm:301:6)
+    at Object.run (/workspace/scratch/f433ccac80e0/ManagerStory/tests/engine-harness.cjs:21:28)
+    at TestContext.<anonymous> (/workspace/scratch/f433ccac80e0/ManagerStory/tests/match3d-round1.test.cjs:53:4)
+✔ two complete matches retain all real events, RNG, scores, stats and single career results while each real flight remains unique (4700.261562ms)
+✔ real failed field pass, keeper distribution and parry chains continue from the visible endpoints (1.150868ms)
+✔ loose ownership remains null until .76 actual recovery contact; view/rate/pause switches never restart the same event (1202.440229ms)
+✔ same-page two career matches recreate scene safely, reset event IDs and clock, keep one RAF and automatically fall back to 2D (14364.896414ms)
+✔ round2 two full matches preserve raw engine/RNG/career, finish final actions once and retain round1 boundaries (4645.155571ms)
+✔ all real shared duel approaches start at visible roots, move both actors, cap root speed and failed reaches follow forwards (586.435499ms)
+✔ real block actors drive neutral/field/keeper narration without changing raw events or assigning catches (4867.185176ms)
+✔ derived keeper body has support/push/flight/landing/recovery in both directions, with close contacts staying grounded (136.221735ms)
+✔ failed and keeper chains keep one clock through both views, all three speeds and pause (13429.063337ms)
+✔ three UI rates use exactly half the former common-clock delta in both views, delayed frames and pause (613.271711ms)
+✔ legacy RAF clock also runs at half the former wall rate without changing deterministic advanceLive API (53.871535ms)
+✔ two full slowed matches retain exact engine, clips, RNG, career, final drain and single result (4715.352751ms)
+✔ real seed1 gain/failed shield/loose/recovery separates roots without changing motor or ball endpoints (10988.785829ms)
+✔ hold/release/recovery offset and shared pose are frozen on pause, rates use one clock (175.091872ms)
+✔ real standalone gain has one contact, actual winner and continuous true continuation (4886.247256ms)
+✔ independent gain pause/rate, radar snapshot and narrative share immutable common clock (84.074769ms)
+✔ full searched 35-minute seed preserves old engine order/results/score/stats/RNG with both original decision functions (372.745815ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29160.651689

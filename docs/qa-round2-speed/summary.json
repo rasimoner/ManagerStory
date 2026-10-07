@@ -1,0 +1,34 @@
+{
+  "baseline": "37c04c37ad43c1eada3a43309fbf7da9ac087f86",
+  "mapping": {
+    "1": 0.5,
+    "2": 1,
+    ".5": 0.25
+  },
+  "matches": [
+    {
+      "seed": 1,
+      "previous1xSeconds": 393.36,
+      "new1xSeconds": 782.4800000001051,
+      "events": 502,
+      "clips": 475,
+      "clipDurationSeconds": 389.0294257599888,
+      "clipPathsBoundariesAndOwnersEqual": true,
+      "rawEngineRngCareerEqual": true,
+      "singleResult": true,
+      "terminalDrained": true
+    },
+    {
+      "seed": 8800,
+      "previous1xSeconds": 429.28,
+      "new1xSeconds": 854.4800000001419,
+      "events": 516,
+      "clips": 502,
+      "clipDurationSeconds": 424.7911169780597,
+      "clipPathsBoundariesAndOwnersEqual": true,
+      "rawEngineRngCareerEqual": true,
+      "singleResult": true,
+      "terminalDrained": true
+    }
+  ]
+}

@@ -8,7 +8,7 @@ export function audit(baseline=false){
  h.run('M.rand=R(1)');const sample=createLivePoseSampler(),m=model(),phases=[],boundaries=[],visited=[],rows=[];let old,wall=0,maxSpeed=0,earlyOwnerChanges=0,metadataLeak=false,startGap=null,minSeparation=Infinity;
  for(let i=0;i<30000;i++){
   const before=h.run('MatchView.read()'),e=before.presentation.activeEvent,p=before.presentation.progress;let dt=.01;
-  if(e?.eventId>=3&&e.eventId<=13){const b=[.1,.65,.759999,.76,.91,.999999].find(x=>x>p+1e-8);if(b)dt=Math.min(dt,(phaseToClock(before.presentation,b)-(before.presentation.clockProgress??p))*before.presentation.duration*4+1e-10);}
+  if(e?.eventId>=3&&e.eventId<=13){const b=[.1,.65,.759999,.76,.91,.999999].find(x=>x>p+1e-8);if(b)dt=Math.min(dt,(phaseToClock(before.presentation,b)-(before.presentation.clockProgress??p))*before.presentation.duration*h.run(baseline?"ManagerStoryLive3D.tempo/M.speed":"ManagerStoryLive3D.tempo/matchPlaybackRate()")+1e-10);}
   if(e?.eventId>=3&&e.eventId<=13&&p>=.999999)dt=Math.min(dt,1e-6);
   wall+=dt;h.run(`ManagerStoryLive3D.step(${dt},${wall*1000})`);const s=h.run('MatchView.read()'),P=s.presentation,event=P.activeEvent,view=sample(s),roots=Object.fromEntries(s.players.map(p=>[String(p.id),p.displayPosition]));
   const f={id:event?.eventId,type:event?.type,p:P.progress,owner:s.ball.displayOwnerId,ball:s.ball.displayPosition,roots,wall};

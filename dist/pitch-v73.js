@@ -302,7 +302,7 @@ function paintLivePitch() {
   state.lastTime=now;
   const dev=window.ManagerStoryLive3D?.enabled;
   if(!dev)synchronizePitchPresentation(state);
-  const frame=dev?state:pitchFrameState(dt,now);
+  const frame=dev?state:pitchFrameState(dt*MATCH_PLAYBACK_SCALE,now);
   if(typeof window!=='undefined'&&window.MatchView)window.MatchView.publish(frame);
   const score=document.querySelector('#live-score');
   if(score)score.textContent=(dev&&frame.eventScore||[M.hg,M.ag]).join('–');
