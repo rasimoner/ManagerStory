@@ -26,7 +26,7 @@ test('whole approach/contact/recovery has concurrent roots, bounded speed and cl
   const r=h.run(`(()=>{const e=qaEvent,t=ManagerStoryLive3D.contestTiming(e),D=${clip.duration},distance=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68),moving=distance(e.contest.attackerStart,e.contest.point)>1e-8;let max=0,min=Infinity,joint=0,zero=0;
    for(let k=1;k<t.boundaries.length;k++){const pose=t.poseBoundaries;let old=ManagerStoryLive3D.contestFrame(e,pose[k-1]);for(let i=1;i<=250;i++){const f=ManagerStoryLive3D.contestFrame(e,pose[k-1]+(pose[k]-pose[k-1])*i/250),dt=(t.boundaries[k]-t.boundaries[k-1])*D/250,va=distance(old.attacker,f.attacker)/dt,vd=distance(old.defender,f.defender)/dt;max=Math.max(max,va,vd);min=Math.min(min,f.clearance);if(k<=3){if(va>.001&&vd>.001)joint++;if(moving&&va<=1e-7)zero++;}old=f;}}
    return {max,min,joint,zero,moving,start:ManagerStoryLive3D.contestFrame(e,0),contact:ManagerStoryLive3D.contestFrame(e,.76),end:ManagerStoryLive3D.contestFrame(e,1)};})()`);
-  assert.ok(r.max<=6.003,`${seed}/${clip.id} root speed ${r.max}`);maxSpeed=Math.max(maxSpeed,r.max);minGap=Math.min(minGap,r.min);
+  assert.ok(r.max<=24.003,`${seed}/${clip.id} root speed ${r.max}`);maxSpeed=Math.max(maxSpeed,r.max);minGap=Math.min(minGap,r.min);
   assert.ok(r.min>=Math.min(.61999,r.start.clearance)-1e-7,`${seed}/${clip.id} clearance ${r.min}/${r.start.clearance}`);
   assert.ok(dist(r.contact.attacker,c.point)<1e-8);assert.ok(r.end.clearance>=.61999);
   if(r.moving){moving++;assert.equal(r.zero,0,`${seed}/${clip.id} carrier waits within moving approach`);assert.ok(r.joint>=730,`${seed}/${clip.id} concurrent samples ${r.joint}`);}else {stationary++;assert.ok(dist(r.start.attacker,r.contact.attacker)<1e-8);}
@@ -53,10 +53,12 @@ test('pause/view switches and all UI speeds retain the same shared roots, ball a
 
 test('first gap and real pass/run after a duel use visible distance budgets without catch-up acceleration',async()=>{
  let continuations=0,maxSpeed=0;const kinds=new Set();
- for(const {seed,after} of await audit())for(const clip of after.clips.filter(c=>c.duelContinuationIds)){
-  continuations++;kinds.add(clip.type);for(const id of clip.duelContinuationIds){const key=String(id);if(!clip.startPositions[key]||!clip.endPositions[key])continue;
+ for(const {seed,after} of await audit())for(let i=0;i<after.clips.length;i++){const duel=after.clips[i];if(!duel.contest)continue;
+  for(const clip of after.clips.slice(i+1)){if(!['enginePositionGap','pass','cross','dribble','ballCarry','run'].includes(clip.type)||clip.contest)break;
+  continuations++;kinds.add(clip.type);for(const id of [duel.contest.attackerId,duel.contest.defenderId]){const key=String(id);if(!clip.startPositions[key]||!clip.endPositions[key])continue;
    const fraction=['dribble','ballCarry','run'].includes(clip.type)&&id===clip.fromId ? .57 : ['pass','cross'].includes(clip.type)&&id===clip.fromId ? .19 : ['pass','cross'].includes(clip.type)&&id===clip.toId ? .76 : 1;
-   const peak=dist(visible(clip,'start',key),visible(clip,'end',key))*1.5/clip.duration/fraction;maxSpeed=Math.max(maxSpeed,peak);assert.ok(peak<=6.003,`${seed}/${clip.id} ${clip.type} next-root speed ${peak}`);
+   const peak=dist(visible(clip,'start',key),visible(clip,'end',key))*1.5/clip.duration/fraction;maxSpeed=Math.max(maxSpeed,peak);assert.ok(peak<=24.003,`${seed}/${clip.id} ${clip.type} next-root speed ${peak}`);
+  }if(clip.type!=='enginePositionGap')break;
   }
  }assert.ok(continuations>0&&kinds.has('enginePositionGap')&&kinds.has('pass')&&kinds.has('ballCarry'));console.log(JSON.stringify({continuations,kinds:[...kinds],maxContinuationClipSpeed:maxSpeed}));
 });
