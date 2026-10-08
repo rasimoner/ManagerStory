@@ -43,7 +43,7 @@ test('direct catches still retain the ball until actual distribution in both goa
  for(const m of await audit())for(const dir of [-1,1]){
   const shot=m.after.clips.find(c=>{if(c.result?.saveType!=='CATCH'||Math.sign(c.to[0]-50)!==dir)return false;for(const x of m.after.clips.slice(m.after.clips.indexOf(c)+1)){if(['pass','cross'].includes(x.type)&&x.fromId===c.result.toId)return true;if(x.endOwner!==c.result.toId)return false;}return false;});
   assert.ok(shot);const {frames:fs}=await frames(m.seed,shot),sampler=createLivePoseSampler();let release=false;
-  for(const f of fs){const p=f.presentation,e=p.activeEvent;sampler(f);if(p.keeperControl){assert.equal(f.ball.displayOwnerId,shot.result.toId);assert.equal(f.ball.presentationHeight,1.05);}if(e?.keeperDistribution&&p.progress>=.19){assert.equal(p.keeperControl,null);assert.equal(f.ball.displayOwnerId,null);release=true;}}
+  for(const f of fs){const p=f.presentation,e=p.activeEvent;sampler(f);if(p.keeperControl){assert.equal(f.ball.displayOwnerId,shot.result.toId);assert.equal(f.ball.presentationHeight,p.activeEvent?.keeperDistribution?.handMotion?.height??1.05);}if(e?.keeperDistribution&&p.progress>=.19){assert.equal(p.keeperControl,null);assert.equal(f.ball.displayOwnerId,null);release=true;}}
   assert.ok(release);checked++;
  }console.log(JSON.stringify({directCatchDistributionChains:checked}));
 });

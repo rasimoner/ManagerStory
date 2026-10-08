@@ -48,7 +48,7 @@ test('real catches retain ball and actual rig hand contact until the real distri
  for(const {seed,c} of await examples('CATCH')){
   const {snapshots}=await frames(seed,c),sampler=createLivePoseSampler(),model=createFootballer({id:c.result.toId,side:c.result.toSide,number:1,kit:{primaryColor:'#222222',secondaryColor:'#aaaaaa'},goalkeeper:true});let old,sawHeld=false;
   for(let i=0;i<snapshots.length;i++){const f=snapshots[i],p=f.presentation,e=p.activeEvent,s=sampler(f),pose=s.poses.find(x=>x.id===c.result.toId&&x.side===c.result.toSide);
-   if(p.keeperControl){assert.equal(f.ball.displayOwnerId,c.result.toId);assert.equal(f.ball.presentationHeight,1.05);sawHeld=true;held++;
+   if(p.keeperControl){assert.equal(f.ball.displayOwnerId,c.result.toId);assert.equal(f.ball.presentationHeight,p.activeEvent?.keeperDistribution?.handMotion?.height??1.05);sawHeld=true;held++;
     if(i%10===0&&(!p.shotMotion||p.progress>.94)){const contacts=poseFootballer(model,pose),gap=Math.min(world(contacts.leftHand.toArray(),s.ball),world(contacts.rightHand.toArray(),s.ball));maxHandGap=Math.max(maxHandGap,gap);assert.ok(gap<.15,`actual rig contact ${gap}`);}
    }
    if(e?.keeperDistribution){const held=e.keeperDistribution.timing?p.clockProgress*p.duration<e.keeperDistribution.timing.releaseAt:p.progress<.19;if(held){assert.ok(p.keeperControl);assert.equal(f.ball.displayOwnerId,c.result.toId);}else{assert.equal(p.keeperControl,null);if(p.progress<.76)assert.equal(f.ball.displayOwnerId,null);if(old&&(e.keeperDistribution.timing?old.p.clockProgress*old.p.duration<e.keeperDistribution.timing.releaseAt:old.p.progress<.19))releases++;}}

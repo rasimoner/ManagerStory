@@ -53,6 +53,7 @@ export function poseFootballer(root,pose){
  leg(root,b,'leftHip','leftKnee','leftAnkle',pose.leftFoot);leg(root,b,'rightHip','rightKnee','rightAnkle',pose.rightFoot);
  if(pose.leftHand)arm(root,b,'leftShoulder','leftElbow','leftHand',pose.leftHand,!!pose.keeperMotion);
  if(pose.rightHand)arm(root,b,'rightShoulder','rightElbow','rightHand',pose.rightHand,!!pose.keeperMotion);
+ b.rightHand.rotation.x=pose.rightWristPitch||0;
  root.updateMatrixWorld(true);
  return {leftHand:b.leftHand.getWorldPosition(new T.Vector3()),rightHand:b.rightHand.getWorldPosition(new T.Vector3()),leftAnkle:b.leftAnkle.getWorldPosition(new T.Vector3()),rightAnkle:b.rightAnkle.getWorldPosition(new T.Vector3()),
   forehead:b.head.localToWorld(new T.Vector3(...(root.userData.contacts?.forehead||[0,.139,.087]))),rightToe:b.rightAnkle.localToWorld(new T.Vector3(...(root.userData.contacts?.toe||[0,-.055,.17])))};

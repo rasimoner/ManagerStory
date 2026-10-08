@@ -38,6 +38,24 @@
   const flightSeconds=Math.max(.18,rolling+(air-rolling)*blend,receiverRun-preparation,others-preparation-control);
   return {preparation,flight:flightSeconds,control,arc,total:preparation+flightSeconds+control,kickPreparation:.12,kickFollow:.18,source:'arc-flight-budget; release-relative-kick; one-clock'};
  }
+ function keeperThrowFrame(e,seconds){
+  const d=e.keeperDistribution,t=d.handTiming,f=d.forward,side=[f[2],0,-f[0]];
+  const point=(front,lateral,height)=>[d.root[0]+(f[0]*front+side[0]*lateral)/1.05,d.root[1]+(f[2]*front+side[2]*lateral)/.68,height];
+  const a=Math.atan2(d.initialForward[0],d.initialForward[2]),b=Math.atan2(f[0],f[2]),turn=Math.atan2(Math.sin(b-a),Math.cos(b-a));
+  const heldSide=sec=>{const yaw=a+turn*ease(Math.min(1,sec/t.releaseAt));return [Math.cos(yaw),0,-Math.sin(yaw)];};
+  const heldPoint=sec=>{const yaw=a+turn*ease(Math.min(1,sec/t.releaseAt));return [d.root[0]+Math.sin(yaw)*.32/1.05,d.root[1]+Math.cos(yaw)*.32/.68,1.05];};
+  const start=heldPoint(t.startAt),windup=point(-.12,.20,.94),release=[...d.release,1.05],neutral=point(.07,.24,.94),support=point(.07,-.24,.94);
+  const dx=(e.toPos[0]-d.release[0])*1.05,dz=(e.toPos[1]-d.release[1])*.68,n=Math.hypot(dx,dz)||1,flightDirection=[dx/n,0,dz/n];
+  const endControl=[release[0]-flightDirection[0]*.12/1.05,release[1]-flightDirection[2]*.12/.68,release[2]+.03];
+  const bezier=(u)=>windup.map((v,i)=>(1-u)**3*v+3*(1-u)**2*u*windup[i]+3*(1-u)*u*u*endControl[i]+u**3*release[i]);
+  let ball,hand,phase,wrist=0;const bodySide=heldSide(seconds),startSide=heldSide(t.startAt);const gather=Math.max(0,Math.min(1,(seconds-t.startAt)/t.preparation));
+  if(seconds<t.startAt){ball=heldPoint(seconds);hand=[ball[0]+bodySide[0]*.065/1.05,ball[1]+bodySide[2]*.065/.68,ball[2]];phase='hand-held';}
+  else if(seconds<t.startAt+t.preparation){ball=lerp(start,windup,ease(gather));hand=[ball[0]+startSide[0]*.065*(1-ease(gather))/1.05,ball[1]+startSide[2]*.065*(1-ease(gather))/.68,ball[2]];phase='hand-prepare';wrist=-.12*ease(gather);}
+  else if(seconds<t.releaseAt){const q=Math.min(1,(seconds-t.startAt-t.preparation)/t.throw);ball=bezier(q);hand=[...ball];phase='hand-throw';wrist=-.12+.22*ease(q);}
+  else {const after=seconds-t.releaseAt,tip=[release[0]+flightDirection[0]*.06/1.05,release[1]+flightDirection[2]*.06/.68,1.08];hand=after<t.follow?lerp(release,tip,ease(after/t.follow)):lerp(tip,neutral,ease(Math.min(1,(after-t.follow)/t.recover)));ball=release;phase=after<t.follow?'hand-follow':after<t.follow+t.recover?'hand-recover':'hand-idle';wrist=.10*(1-ease(Math.min(1,after/(t.follow+t.recover))));}
+  const held=heldPoint(Math.min(seconds,t.startAt)),leftSide=heldSide(Math.min(seconds,t.startAt)),leftStart=[held[0]-leftSide[0]*.065/1.05,held[1]-leftSide[2]*.065/.68,held[2]];
+  return {ball:ball.slice(0,2),height:ball[2],throwHand:hand,supportHand:lerp(leftStart,support,ease(gather)),wrist,phase,flightDirection,source:'one shared-clock hand path; real pass release; engine handedness absent, right arm presentation'};
+ }
  function keeperDistributionPhase(e,q){const t=e.keeperDistribution.timing,sec=q*t.total;return sec<t.contactAt?.19*sec/t.contactAt:sec<t.contactAt+t.flight?.19+.57*(sec-t.contactAt)/t.flight:.76+.24*Math.min(1,(sec-t.contactAt-t.flight)/t.control);}
  function deliveryPhase(e,q){const t=e.deliveryTiming,sec=q*t.total;return sec<t.preparation ? .19*sec/t.preparation : sec<t.preparation+t.flight ? .19+.57*(sec-t.preparation)/t.flight : .76+.24*Math.min(1,(sec-t.preparation-t.flight)/t.control);}
  function deliveryFlight(u,seconds){const w=Math.min(.25,.08/seconds),a=1-w,v=u<=a?u:u-(u-a)**2/(2*w);return v/(1-w/2);}
@@ -361,7 +379,8 @@
       const release=[root[0]+forward[0]*.32/1.05,root[1]+forward[2]*.32/.68];
       const distance=metres(root,state.active.toPos),kind=['long','cross','lofted'].includes(state.active.passKind)||state.active.passKind!=='short'&&distance>=30?'punt':'throw';
       state.active.keeperDistribution={kind,distance,id:a.id,side:a.side,root,forward,initialForward:[...a.forward],release:[...release],height:1.05,source:'real-pass-kind; otherwise 30m visible-target rule; engine has no hand/foot style'};
-      state.active.fromPos=release;state.active.enginePositions[String(a.id)]=root;
+      if(kind==='throw'){const lateral=[forward[2],0,-forward[0]];state.active.keeperDistribution.release=[root[0]+(forward[0]*.35+lateral[0]*.20)/1.05,root[1]+(forward[2]*.35+lateral[2]*.20)/.68];}
+      state.active.fromPos=[...state.active.keeperDistribution.release];state.active.enginePositions[String(a.id)]=root;
      }
      if(state.controlAnchor&&(isCarry(state.active)||['pass','cross','shot','goalKick','corner','throwIn','kickoff','restartPosition'].includes(state.active.type)))state.controlAnchor=null;
      if(state.active.shotResult)state.queue=state.queue.filter(x=>x.eventId!==state.active.shotResult.eventId&&x.eventId!==state.active.consumedContinuationId);
@@ -429,6 +448,7 @@
      d.timing={releaseAt:.22,contactAt:.22+drop,flight:old*.57,control:old*.24,kickPreparation:.12,kickFollow:.18,total:.22+drop+old*.81};
      e.fromPos=[...d.release];e.enginePositions[String(d.id)]=[...d.kickRoot];e.timingDuration=d.timing.total;
     }
+    if(state.active.keeperDistribution?.kind==='throw'){const d=state.active.keeperDistribution,releaseAt=duration(state.active)*.19,scale=Math.min(1,releaseAt/.30);d.handTiming={releaseAt,startAt:Math.max(0,releaseAt-.30),preparation:.12*scale,throw:.18*scale,follow:.16,recover:.20};}
     planOffsets(state,state.active);state.activeDuration=duration(state.active);
     if(state.active.type==='shot'&&state.active.outcome==='save'&&state.active.shotResult?.saveType==='PARRY'){
      const e=state.active,next=state.queue[0];
@@ -526,11 +546,12 @@
      if(state.keeperControl)state.keeperControl.forward=f;
      state.ball=[root[0]+f[0]*.32/1.05,root[1]+f[2]*.32/.68];
     }else {state.keeperControl=null;if(t&&sec<t.contactAt){state.ball=[...d.release];state.carrier=null;state.side='none';}if(e.keeperLooseResult&&p>=.76){state.carrier=null;state.side='none';}}
+    if(d.kind==='throw'){d.handMotion=keeperThrowFrame(e,sec);if(held)state.ball=[...d.handMotion.ball];}
    }
    if(e.type==='looseBall'&&e.parryFlight){const t=e.parryFlight,f=parryFrame(t,t.tail+Math.min(clockProgress*D,t.loose));state.ball=f.ball;state.carrier=null;state.side='none';}
    const controlled=state.keeperControl;
    if(controlled&&!state.shotMotion){
-    if(state.carrier===controlled.id){const root=state.positions[String(controlled.id)];state.ball=e.looseCollection?[...e.looseCollection.land]:[root[0]+controlled.forward[0]*.32/1.05,root[1]+controlled.forward[2]*.32/.68];}
+    if(state.carrier===controlled.id){const root=state.positions[String(controlled.id)];state.ball=e.looseCollection?[...e.looseCollection.land]:e.keeperDistribution?.handMotion?[...e.keeperDistribution.handMotion.ball]:[root[0]+controlled.forward[0]*.32/1.05,root[1]+controlled.forward[2]*.32/.68];}
     else if(!e.keeperDistribution)state.keeperControl=null;
    }
    // A non-ball event can still contain movement of the actual ball carrier.
@@ -540,7 +561,7 @@
    state.displayBallHeight=state.shotMotion?.height??(e.type==='enginePositionGap'?e.ballHeight??.15:null)??(e.headerShot?.15+(1.704-.15)*Math.max(0,Math.min(1,(p-.19)/.81))+Math.sin(Math.PI*Math.max(0,Math.min(1,(p-.19)/.81)))*2.4:.15);
    if(e.type==='looseBall'&&!e.heavyGeometry)state.displayBallHeight=e.parryFlight?parryFrame(e.parryFlight,e.parryFlight.tail+Math.min(clockProgress*D,e.parryFlight.loose)).height:(e.looseStartHeight??.15)*(1-ease(clockProgress))+.15*ease(clockProgress);
    if(state.keeperControl&&!state.shotMotion)state.displayBallHeight=e.looseCollection?state.collectionHeight:1.05;
-   if(e.keeperDistribution){const t=e.keeperDistribution.timing,sec=clockProgress*D;state.displayBallHeight=t?(sec<t.releaseAt?1.05:sec<t.contactAt?1.05-4.905*(sec-t.releaseAt)**2:.24*(1-u)+.15*u+Math.sin(Math.PI*u)*Math.min(3.8,metres(e.fromPos,e.toPos)/12)):(p<.19?1.05:1.05*(1-u)+.15*u+(e.travelType==='aerial'?Math.sin(Math.PI*u)*Math.min(3.8,metres(e.fromPos,e.toPos)/12):0));if(t)state.ballState.travelType='aerial';}
+   if(e.keeperDistribution){const t=e.keeperDistribution.timing,sec=clockProgress*D;state.displayBallHeight=t?(sec<t.releaseAt?1.05:sec<t.contactAt?1.05-4.905*(sec-t.releaseAt)**2:.24*(1-u)+.15*u+Math.sin(Math.PI*u)*Math.min(3.8,metres(e.fromPos,e.toPos)/12)):(p<.19?(e.keeperDistribution.handMotion?.height??1.05):1.05*(1-u)+.15*u+(e.travelType==='aerial'?Math.sin(Math.PI*u)*Math.min(3.8,metres(e.fromPos,e.toPos)/12):0));if(t)state.ballState.travelType='aerial';}
    if(state.keeperControl||e.keeperDistribution||e.parryFlight||e.type==='looseBall')state.ballState.height=state.displayBallHeight;
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(clockProgress>=1-1e-8){
