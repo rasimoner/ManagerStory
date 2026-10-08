@@ -142,7 +142,7 @@ export function createLivePoseSampler(){
     yaw=touch?Math.atan2(incoming[0],incoming[2]):angle(receiveEventYaw,Math.atan2(incoming[0],incoming[2]),smooth((p-.35)/.41));
     const foot=add(target,mul(incoming,-.30));foot[1]=.16-(touch?.025*Math.sin(Math.PI*p):0);
     // No invented receiver path or success: reach only from actual root, otherwise report mismatch.
-    if(gap<.6)rightFoot=mix(rightFoot,foot,pass?smooth((p-.65)/.11):1);
+    if(gap<.6)rightFoot=mix(rightFoot,foot,pass?(p<.76?smooth((p-.65)/.11):e.deliveryTiming?1-smooth((p-.76)/.24):1):1);
     gaps.push({id:player.id,kind:pass?(e.success?'receiver':'interceptor'):'firstTouch',metres:gap});
    }
    poses.push({id:player.id,side:player.side,position:poseRoot,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,pelvisRoll,bodyTwist,headPitch,leftHand,rightHand,keeperMotion,motionSource:'derived-from-common-display-roots-and-event-phase'});

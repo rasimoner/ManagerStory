@@ -56,7 +56,7 @@ test('first gap and real pass/run after a duel use visible distance budgets with
  for(const {seed,after} of await audit())for(let i=0;i<after.clips.length;i++){const duel=after.clips[i];if(!duel.contest)continue;
   for(const clip of after.clips.slice(i+1)){if(!['enginePositionGap','pass','cross','dribble','ballCarry','run'].includes(clip.type)||clip.contest)break;
   continuations++;kinds.add(clip.type);for(const id of [duel.contest.attackerId,duel.contest.defenderId]){const key=String(id);if(!clip.startPositions[key]||!clip.endPositions[key])continue;
-   const fraction=['dribble','ballCarry','run'].includes(clip.type)&&id===clip.fromId ? .57 : ['pass','cross'].includes(clip.type)&&id===clip.fromId ? .19 : ['pass','cross'].includes(clip.type)&&id===clip.toId ? .76 : 1;
+   const fraction=['dribble','ballCarry','run'].includes(clip.type)&&id===clip.fromId ? (clip.carryFromControl?1:.57) : ['pass','cross'].includes(clip.type)&&id===clip.fromId ? (clip.deliveryTiming?.preparation/clip.duration||.19) : ['pass','cross'].includes(clip.type)&&id===clip.toId ? (clip.deliveryTiming?(clip.deliveryTiming.preparation+clip.deliveryTiming.flight)/clip.duration:.76) : 1;
    const peak=dist(visible(clip,'start',key),visible(clip,'end',key))*1.5/clip.duration/fraction;maxSpeed=Math.max(maxSpeed,peak);assert.ok(peak<=24.003,`${seed}/${clip.id} ${clip.type} next-root speed ${peak}`);
   }if(clip.type!=='enginePositionGap')break;
   }

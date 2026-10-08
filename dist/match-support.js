@@ -182,7 +182,7 @@ function presentationEvent(e){
 }
 function liveCommentaryLines(){
   if(window.ManagerStoryLive3D?.enabled&&!(!livePresentationPending()&&M.finished)){
-    const s=currentPitchState(),e=s.shotMotion?.event||s.contestMotion?.event||s.looseMotion?.event||s.holdMotion?.event||s.active;
+    const s=currentPitchState(),e=s.controlMotion?.event||s.shotMotion?.event||s.contestMotion?.event||s.looseMotion?.event||s.holdMotion?.event||s.active;
     const text=e&&!['enginePositionGap','presentationSync'].includes(e.type)?presentationEvent(e).text:null;
     if(M.commentaryOpen){const boundary=e?.eventId??s.queue.find(x=>x.eventId!=null)?.eventId;const lines=M.events.filter(x=>x.eventId!=null&&(boundary==null||x.eventId<boundary)).slice(-79).reverse().map(x=>presentationEvent(x).text);return [text||'Sahada oyun sürüyor.',...lines];}
     return [text||(livePresentationPending()?"Son aksiyonların sunumu tamamlanıyor.":"Sahada oyun sürüyor.")];

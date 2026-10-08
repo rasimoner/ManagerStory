@@ -17,11 +17,11 @@ test('duels and keeper-limited shots share the existing movement rate; following
  for(const {seed,before,after} of await audit()){
   for(const c of after.clips){if(c.contest){duels++;const old=before.clips.find(x=>x.id===c.id&&x.contest);assert.ok(c.duration<=old.duration+1e-8);coverage.add(`duel/${c.contest.attackerKeepsBall}/${c.contest.press.minute>45?2:1}`);}
    if(c.result){shots++;coverage.add(`${c.result.type}/${c.to[0]>50?1:-1}`);const old=before.clips.find(x=>x.id===c.id&&x.result);if(c.result.type==='save')assert.ok(c.duration<=old.duration+1e-8);}
-   if(['pass','cross'].includes(c.type)){const speed=distance(c.from,c.to)*1.5/(c.duration*.57);passPeak=Math.max(passPeak,speed);assert.ok(speed<=22.00001,`${seed}/${c.id} flight ${speed}`);}
+   if(['pass','cross'].includes(c.type)){const speed=distance(c.from,c.to)*(c.deliveryTiming?1/(1-Math.min(.25,.08/c.deliveryTiming.flight)/2):1.5)/(c.deliveryTiming?.flight??c.duration*.57);passPeak=Math.max(passPeak,speed);assert.ok(speed<=22.00001,`${seed}/${c.id} flight ${speed}`);}
   }
   for(let i=0;i<after.clips.length;i++){const a=after.clips[i];if(!a.contest&&!a.result)continue;
    for(const b of after.clips.slice(i+1)){if(!['enginePositionGap','pass','cross','ballCarry','dribble','run'].includes(b.type)||b.contest)break;next++;
-    for(const [id,end] of Object.entries(b.endPositions)){const fraction=['ballCarry','dribble','run'].includes(b.type)&&id===String(b.fromId) ? .57 : ['pass','cross'].includes(b.type)&&id===String(b.fromId) ? .19 : ['pass','cross'].includes(b.type)&&id===String(b.toId) ? .76 : 1;
+    for(const [id,end] of Object.entries(b.endPositions)){const fraction=['ballCarry','dribble','run'].includes(b.type)&&id===String(b.fromId) ? (b.carryFromControl?1:.57) : ['pass','cross'].includes(b.type)&&id===String(b.fromId) ? (b.deliveryTiming?.preparation/b.duration||.19) : ['pass','cross'].includes(b.type)&&id===String(b.toId) ? (b.deliveryTiming?(b.deliveryTiming.preparation+b.deliveryTiming.flight)/b.duration:.76) : 1;
      const speed=distance(b.startPositions[id],end)*1.5/(b.duration*fraction);assert.ok(speed<=24.003,`${seed}/${a.id}→${b.id} ${id} root ${speed}`);
     }if(b.type!=='enginePositionGap')break;
    }
