@@ -94,7 +94,8 @@ export function createLivePoseSampler(){
     let recoveryFacing=null;
     if(!active&&recovery&&old&&!control&&!distribution){const dx=ball[0]-root[0],dz=ball[2]-root[2],targetYaw=Math.hypot(dx,dz)>.1?Math.atan2(dx,dz):old.yaw,a=angle(old.yaw,targetYaw,1-Math.exp(-dt*12));recoveryFacing=[Math.sin(a),0,Math.cos(a)];}
     const d=distribution?{...distribution,release:[...metres(distribution.release).slice(0,1),1.05,metres(distribution.release)[2]]}:null;
-    const kp=keeperPose({root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&shot.keeperIntervention,catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d,handoff:recovery?{...recovery,root:metres(recovery.root),contact:metres(recovery.contact),weight:1-smooth((time-recovery.startedAt)/recovery.duration)}:null,dive:shot?.dive,forwardHint:active?shot.keeperForward:recoveryFacing});
+    const collection=e?.looseCollection?.keeper&&e.toId===player.id&&e.toSide===player.side?e.looseCollection:null;
+    const kp=keeperPose({collection,root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&shot.keeperIntervention,catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d,handoff:recovery?{...recovery,root:metres(recovery.root),contact:metres(recovery.contact),weight:1-smooth((time-recovery.startedAt)/recovery.duration)}:null,dive:shot?.dive,forwardHint:active?shot.keeperForward:recoveryFacing});
     ({yaw,leftFoot:left,rightFoot,pelvisHeight,lean,bodyRoll,pelvisRoll,leftHand,rightHand,keeperMotion}=kp);poseRoot=kp.position;arm=0;
    }
    if(shot?.blocker&&player.id===shot.result.toId&&player.side===shot.result.toSide){
@@ -136,7 +137,7 @@ export function createLivePoseSampler(){
     const hands=add(root,mul(facing,.10));hands[1]=1.1;
     leftHand=add(hands,mul(side,-(.12+.25*weight)));rightHand=add(hands,mul(side,.12+.25*weight));
    }
-   if(e?.type==='recovery'&&player.id===e.toId&&player.side===e.toSide){
+   if(e?.type==='recovery'&&!e.looseCollection?.keeper&&player.id===e.toId&&player.side===e.toSide){
     const gap=Math.hypot(root[0]-ball[0],root[2]-ball[2]);
     if(player.role!=='GK'||!recovery)yaw=angle(yaw,Math.atan2(ball[0]-root[0],ball[2]-root[2]),smooth((p-.5)/.26));
     const facing=[Math.sin(yaw),0,Math.cos(yaw)],foot=add(ball,mul(facing,-.30));foot[1]=.16;
