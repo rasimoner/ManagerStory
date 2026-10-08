@@ -51,7 +51,7 @@ export function createLivePoseSampler(){
    let pelvisHeight=.935-(moving?.025*run*Math.cos(phase*Math.PI*4):0),lean=moving?.07+.14*run:0,bodyRoll=moving?-.028*Math.sin(phase*Math.PI*2)-clamp(turn,-.10,.10):0,bodyTwist=moving?.035*Math.sin(phase*Math.PI*2):0,headPitch=0,leftHand=null,rightHand=null;
    const kickTiming=e?.deliveryTiming,elapsed=(P?.clockProgress??p)*(P?.duration||0),kickStart=kickTiming?Math.max(0,kickTiming.preparation-kickTiming.kickPreparation):0;
    const kickP=kickTiming?(elapsed<kickTiming.preparation ? .19*clamp((elapsed-kickStart)/kickTiming.kickPreparation) : .19+.81*clamp((elapsed-kickTiming.preparation)/kickTiming.kickFollow)):p;
-   if((kicking||e?.type==='kickoff')&&!shot?.header&&player.id===e.fromId&&player.side===e.fromSide&&(!kickTiming||elapsed>=kickStart&&elapsed<=kickTiming.preparation+kickTiming.kickFollow)){
+   if((kicking||e?.type==='kickoff')&&!e?.keeperDistribution&&!shot?.header&&player.id===e.fromId&&player.side===e.fromSide&&(!kickTiming||elapsed>=kickStart&&elapsed<=kickTiming.preparation+kickTiming.kickFollow)){
     const p=kickP;
     yaw=angle(yaw,Math.atan2(dir[0],dir[2]),smooth(p/.19));
     const contact=add(A,mul(dir,-.30));contact[1]=.16;
@@ -93,7 +93,7 @@ export function createLivePoseSampler(){
     // of snapping to attackDirection when a recovered ball reaches the root.
     let recoveryFacing=null;
     if(!active&&recovery&&old&&!control&&!distribution){const dx=ball[0]-root[0],dz=ball[2]-root[2],targetYaw=Math.hypot(dx,dz)>.1?Math.atan2(dx,dz):old.yaw,a=angle(old.yaw,targetYaw,1-Math.exp(-dt*12));recoveryFacing=[Math.sin(a),0,Math.cos(a)];}
-    const d=distribution?{...distribution,release:[...metres(distribution.release).slice(0,1),1.05,metres(distribution.release)[2]]}:null;
+    const d=distribution?{...distribution,release:[...metres(distribution.release).slice(0,1),1.05,metres(distribution.release)[2]],elapsed:(P.clockProgress??p)*P.duration}:null;
     const collection=e?.looseCollection?.keeper&&e.toId===player.id&&e.toSide===player.side?e.looseCollection:null;
     const kp=keeperPose({collection,root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&shot.keeperIntervention,catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d,handoff:recovery?{...recovery,root:metres(recovery.root),contact:metres(recovery.contact),weight:1-smooth((time-recovery.startedAt)/recovery.duration)}:null,dive:shot?.dive,forwardHint:active?shot.keeperForward:recoveryFacing});
     ({yaw,leftFoot:left,rightFoot,pelvisHeight,lean,bodyRoll,pelvisRoll,leftHand,rightHand,keeperMotion}=kp);poseRoot=kp.position;arm=0;

@@ -51,7 +51,7 @@ test('real catches retain ball and actual rig hand contact until the real distri
    if(p.keeperControl){assert.equal(f.ball.displayOwnerId,c.result.toId);assert.equal(f.ball.presentationHeight,1.05);sawHeld=true;held++;
     if(i%10===0&&(!p.shotMotion||p.progress>.94)){const contacts=poseFootballer(model,pose),gap=Math.min(world(contacts.leftHand.toArray(),s.ball),world(contacts.rightHand.toArray(),s.ball));maxHandGap=Math.max(maxHandGap,gap);assert.ok(gap<.15,`actual rig contact ${gap}`);}
    }
-   if(e?.keeperDistribution){if(p.progress<.19){assert.ok(p.keeperControl);assert.equal(f.ball.displayOwnerId,c.result.toId);}else{assert.equal(p.keeperControl,null);if(p.progress<.76)assert.equal(f.ball.displayOwnerId,null);if(old?.p.progress<.19)releases++;}}
+   if(e?.keeperDistribution){const held=e.keeperDistribution.timing?p.clockProgress*p.duration<e.keeperDistribution.timing.releaseAt:p.progress<.19;if(held){assert.ok(p.keeperControl);assert.equal(f.ball.displayOwnerId,c.result.toId);}else{assert.equal(p.keeperControl,null);if(p.progress<.76)assert.equal(f.ball.displayOwnerId,null);if(old&&(e.keeperDistribution.timing?old.p.clockProgress*old.p.duration<e.keeperDistribution.timing.releaseAt:old.p.progress<.19))releases++;}}
    if(old&&old.p.activeEvent?.type!==e?.type){assert.ok(world(old.s.ball,s.ball)<.12);assert.ok(world(old.pose.position,pose.position)<.08);}
    old={p,s,pose};
   }assert.ok(sawHeld&&snapshots.some(f=>f.presentation.activeEvent?.keeperDistribution));
