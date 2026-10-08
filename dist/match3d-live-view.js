@@ -13,7 +13,7 @@ export function createLivePoseSampler(){
   const pass=e&&(['pass','cross','corner','goalKick'].includes(e.type)||!!e.headerShot),ball=metres(snapshot.ball.displayPosition||snapshot.ball.engine.position);
   const shot=P?.shotMotion,kicking=pass||!!shot;
   const A=kicking||e?.type==='kickoff'?metres(e.fromPos):ball,B=pass?metres(e.toPos):shot?metres(shot.target||shot.result.fromPos):ball,len=Math.hypot(B[0]-A[0],B[2]-A[2]),u=clamp((p-.19)/.57),dir=len?[(B[0]-A[0])/len,0,(B[2]-A[2])/len]:[0,0,1],right=[dir[2],0,-dir[0]];
-  const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(!e||e.type==='enginePositionGap'?(snapshot.ball.presentationHeight??.15):.15)+(aerial?Math.sin(Math.PI*u)*(e.deliveryTiming?.arc??clamp(len/12,1.2,3.8)):0);
+  const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(snapshot.ball.presentationHeight??.15)+(aerial?Math.sin(Math.PI*u)*(e.deliveryTiming?.arc??clamp(len/12,1.2,3.8)):0);
   if(shot)ball[1]=shot.height;
   if(P?.keeperControl||P?.keeperDistribution)ball[1]=snapshot.ball.presentationHeight;
   if(e?.headerShot){const v=clamp((p-.19)/.81);ball[1]=.15+(1.704-.15)*v+Math.sin(Math.PI*v)*2.4;}
@@ -84,12 +84,17 @@ export function createLivePoseSampler(){
    const contest=P?.contestMotion;
    let keeperMotion=null,pelvisRoll=0,poseRoot=root;
    const control=P?.keeperControl?.id===player.id&&P.keeperControl.side===player.side?P.keeperControl:null;
+   const recovery=P?.keeperRecovery?.id===player.id&&P.keeperRecovery.side===player.side?P.keeperRecovery:null;
    const distribution=P?.keeperDistribution?.id===player.id&&P.keeperDistribution.side===player.side?P.keeperDistribution:null;
    if(player.role==='GK'&&(!(kicking&&player.id===e.fromId&&player.side===e.fromSide)||distribution)){
     const active=!!(shot&&shot.keeperIntervention&&player.id===e.goalkeeperId&&player.side!==e.fromSide);
     const target=active?metres(shot.target||shot.result.fromPos):[...ball];if(active)target[1]=shot.contactHeight;
+    // After a save, idle/recovery must keep the last visible facing instead
+    // of snapping to attackDirection when a recovered ball reaches the root.
+    let recoveryFacing=null;
+    if(!active&&recovery&&old&&!control&&!distribution){const dx=ball[0]-root[0],dz=ball[2]-root[2],targetYaw=Math.hypot(dx,dz)>.1?Math.atan2(dx,dz):old.yaw,a=angle(old.yaw,targetYaw,1-Math.exp(-dt*12));recoveryFacing=[Math.sin(a),0,Math.cos(a)];}
     const d=distribution?{...distribution,release:[...metres(distribution.release).slice(0,1),1.05,metres(distribution.release)[2]]}:null;
-    const kp=keeperPose({root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&shot.keeperIntervention,catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d,dive:shot?.dive,forwardHint:active?shot.keeperForward:null});
+    const kp=keeperPose({root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&shot.keeperIntervention,catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d,handoff:recovery?{...recovery,root:metres(recovery.root),contact:metres(recovery.contact),weight:1-smooth((time-recovery.startedAt)/recovery.duration)}:null,dive:shot?.dive,forwardHint:active?shot.keeperForward:recoveryFacing});
     ({yaw,leftFoot:left,rightFoot,pelvisHeight,lean,bodyRoll,pelvisRoll,leftHand,rightHand,keeperMotion}=kp);poseRoot=kp.position;arm=0;
    }
    if(shot?.blocker&&player.id===shot.result.toId&&player.side===shot.result.toSide){
@@ -133,7 +138,7 @@ export function createLivePoseSampler(){
    }
    if(e?.type==='recovery'&&player.id===e.toId&&player.side===e.toSide){
     const gap=Math.hypot(root[0]-ball[0],root[2]-ball[2]);
-    yaw=angle(yaw,Math.atan2(ball[0]-root[0],ball[2]-root[2]),smooth((p-.5)/.26));
+    if(player.role!=='GK'||!recovery)yaw=angle(yaw,Math.atan2(ball[0]-root[0],ball[2]-root[2]),smooth((p-.5)/.26));
     const facing=[Math.sin(yaw),0,Math.cos(yaw)],foot=add(ball,mul(facing,-.30));foot[1]=.16;
     if(gap<.6)rightFoot=mix(rightFoot,foot,p<.76?smooth((p-.65)/.11):1-smooth((p-.91)/.09));
     gaps.push({id:player.id,kind:'recovery-contact',metres:gap});

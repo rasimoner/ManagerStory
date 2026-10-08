@@ -12,9 +12,12 @@ export function keeperKit(kit,opponent={},side='user'){
  const primaryColor=ordered.reduce((best,c)=>{const score=x=>Math.min(...colors.map(v=>Math.hypot(...rgb(x).map((n,i)=>n-v[i]))));return score(c)>score(best)?c:best;});
  return {...kit,primaryColor,secondaryColor:'#172534',gloveColor:'#f5f6ed',source:'deterministic-contrast-palette'};
 }
-export function keeperPose({root,source,target,ball,p,save,catchBall,stance,active=false,control=null,distribution=null,dive=null,forwardHint=null}){
+export function keeperPose({root,source,target,ball,p,save,catchBall,stance,active=false,control=null,distribution=null,handoff=null,dive=null,forwardHint=null}){
  const dx=source[0]-root[0],dz=source[2]-root[2],n=Math.hypot(dx,dz)||1;
- const forward=control?.forward||distribution?.forward||forwardHint||[dx/n,0,dz/n],side=[forward[2],0,-forward[0]];
+ let forward=control?.forward||distribution?.forward||forwardHint||[dx/n,0,dz/n];
+ const recovering=!active&&!control&&!distribution&&handoff?.weight>0;
+ if(recovering){const a=Math.atan2(handoff.forward[0],handoff.forward[2]),b=Math.atan2(forward[0],forward[2]),turn=Math.atan2(Math.sin(b-a),Math.cos(b-a)),yaw=a+turn*(1-handoff.weight);forward=[Math.sin(yaw),0,Math.cos(yaw)];}
+ const side=[forward[2],0,-forward[0]];
  const reach=active?smooth((p-.38)/.38)*smooth((1.5-Math.hypot(target[0]-root[0],target[2]-root[2]))/.9):0,recovery=smooth((p-.76)/.24);
  const kind=target[1]<.65?'low':target[1]>1.55?'high':'body',crouch=kind==='low'?.48:kind==='high'?.88:.68;
  const holding=!!control&&!active,throwing=!!distribution;
@@ -31,7 +34,8 @@ export function keeperPose({root,source,target,ball,p,save,catchBall,stance,acti
  const push=smooth((p-.52)/.12),flight=push*(1-smooth((p-.84)/.16)),landing=smooth((p-.76)/.08)*(1-smooth((p-.88)/.12));
  const diveWeight=amount*flight,pelvisRoll=-sign*1.0*diveWeight;
  const feet=(base,i)=>amount?mix(base,[root[0]+side[0]*(-sign*.18+(i?1:-1)*.12),.09+.28*diveWeight,root[2]+side[2]*(-sign*.18+(i?1:-1)*.12)],diveWeight):base;
- const spread=holding||throwing?.065:active?.22-(.22-.065)*reach:.24;
+ const endReach=recovering?smooth((1.5-Math.hypot(handoff.contact[0]-handoff.root[0],handoff.contact[2]-handoff.root[2]))/.9):0;
+ const spread=holding||throwing?.065:active?.22-(.22-.065)*reach:recovering?.24+(.22-(.22-.065)*endReach-.24)*handoff.weight:.24;
  return {position:root,yaw:Math.atan2(forward[0],forward[2]),pelvisHeight:pelvisHeight+(.70-pelvisHeight)*diveWeight-.08*amount*landing,pelvisRoll,lean,bodyRoll:active&&save?-.08*reach*(1-recovery)*Math.sign(target[2]-root[2]):0,
  leftFoot:feet(stance?.[0]||[root[0]-side[0]*.18,.09,root[2]-side[2]*.18],0),rightFoot:feet(stance?.[1]||[root[0]+side[0]*.18,.09,root[2]+side[2]*.18],1),
  leftHand:hands.map((v,i)=>v-side[i]*spread),rightHand:hands.map((v,i)=>v+side[i]*spread),

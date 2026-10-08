@@ -180,14 +180,19 @@
    const r=ease(Math.max(0,Math.min(1,(p-.76)/.24)));
    if(e.shotResult.saveType==='CATCH'){ball=lerp(target,[keeper[0]+keeperForward[0]*.32/1.05,keeper[1]+keeperForward[2]*.32/.68],r);height=1.05;}
    else height=1.05*(1-r)+.15*r;
-   // PARRY/DEFLECT keep the real result point: next existing loose-ball/restart owns continuation.
+   // DEFLECT_CORNER has no recorded flight endpoint before the restart.
   }
+  if(e.parryFlight&&p>=.76){const f=parryFrame(e.parryFlight,(p-.76)/.24*e.parryFlight.tail);ball=f.ball;height=f.height;}
   if(['block','post'].includes(e.outcome)&&p>=.76&&e.continuation){const u=Math.max(0,Math.min(1,(p-.76)/.24)),r=e.outcome==='post'?u+.6*u*(1-u):u;
    ball=lerp(target,e.continuation.toPos,r);height=targetHeight*(1-r)+.15*r+(e.outcome==='post'?.18*Math.sin(Math.PI*u)*(1-u):0);
   }
   return {ball,keeper,keeperForward,height,target,sourcePoint:source,header:!!(e.header&&e.headerIncoming),keeperIntervention:keeperIntervention(e),dive:{amount:dive,sign:diveSign,lateralMetres:lateral,source:'derived-lateral-contact-route; engine height/dive telemetry absent'},keeperStart:[...kStart],contactHeight:targetHeight,blocker:e.outcome==='block'&&shotInterventionActor(e.shotResult).kind==='field'?lerp(e.enginePositions[String(e.shotResult.toId)]||blockRoot(e),blockRoot(e),ease(Math.min(1,p/.76))):null,contactProgress:.19,resultProgress:.76,lineCrossProgress:cross==null?null:.19+.57*cross,
    goalCrossed:cross!=null&&u>=cross,source:'derived-shot-flight-and-keeper-reach',result:e.shotResult};
  }
+ // The recorded loose event keeps its ID and its own clip. Its route starts
+ // at save contact and crosses the boundary once, rather than dropping in
+ // place and restarting the same flight. No new event or possession is added.
+ function parryFrame(track,elapsed){const u=Math.max(0,Math.min(1,elapsed/(track.tail+track.loose))),q=ease(u);return {ball:lerp(track.contact,track.land,q),height:1.05*(1-q)+.15*q};}
  const positions=()=>Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
  function beginMotionSample(){if(!enabled)return;inPositionUpdate=true;motionSample={fromGameSecond:Math.max(0,M.min*60-60),toGameSecond:M.min*60,fromPositions:positions(),fromBall:[...M.ballState.position],fromOwner:M.ballOwner,fromSide:M.ballSide};}
  function endMotionSample(){if(!enabled||!motionSample)return;inPositionUpdate=false;Object.assign(motionSample,{toPositions:positions(),toBall:[...M.ballState.position],toOwner:M.ballOwner,toSide:M.ballSide,phase:'after-position-update-before-action-decisions'});}
@@ -271,7 +276,7 @@
     const delivery=state.queue[0],consequence=state.queue[1];
     if(['pass','cross','corner','goalKick'].includes(delivery?.type)&&consequence?.type==='looseBall'&&delivery.gameSecond===consequence.gameSecond&&
      (consequence.fromPos?.every((v,j)=>Math.abs(v-delivery.toPos[j])<1e-8)||consequence.fromPos?.every((v,j)=>Math.abs(v-delivery.fromPos[j])<1e-8)&&consequence.toPos?.every((v,j)=>Math.abs(v-delivery.toPos[j])<1e-8)))delivery.looseResultId=consequence.eventId;
-    const next=state.queue[0];if(['kickoff','restartPosition'].includes(next.type)){state.keeperRootAnchors=null;state.controlAnchor=null;state.keeperControl=null;}const rawTargets=structuredClone(next.timingTargets||next.rawEnginePositions||next.enginePositions||{}),rawFrom=next.engineFromPos||next.fromPos;
+    const next=state.queue[0];if(['kickoff','restartPosition'].includes(next.type)){state.keeperRootAnchors=null;state.controlAnchor=null;state.keeperControl=null;state.parryFlight=null;state.keeperRecovery=null;}const rawTargets=structuredClone(next.timingTargets||next.rawEnginePositions||next.enginePositions||{}),rawFrom=next.engineFromPos||next.fromPos;
     if(next.type!=='enginePositionGap'&&next.timingDuration==null){
      const reference={...next,fromPos:rawFrom,toPos:next.type==='kickoff'?next.toPos:next.engineToPos||next.toPos,enginePositions:rawTargets,timingDuration:undefined,engineAnimationDuration:undefined};
      planOffsets(state,reference);next.timingDuration=duration(reference);
@@ -367,6 +372,11 @@
     }
     state.shotPreStatistics=structuredClone(state.eventStatistics);
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
+    if(state.active.type==='looseBall'&&!state.active.heavyGeometry){
+     state.active.looseStartHeight=state.displayBallHeight??.15;
+     if(state.parryFlight?.eventId===state.active.eventId)state.active.parryFlight={...structuredClone(state.parryFlight),continuation:true};
+     state.parryFlight=null;
+    }
     if(state.active.type==='goalKick'&&state.active.goalKickSetup){const g=state.active.goalKickSetup;state.active.goalKickRunUp={...structuredClone(g),start:[...(state.positions[String(g.id)]||g.behind)]};state.active.timingDuration=Math.max(duration(state.active),metres(state.active.goalKickRunUp.start,g.contact)*1.5/6/.19);}
     if(state.active.shotResult)state.active.keeperStart=[...(state.positions[String(state.active.goalkeeperId)]||state.active.enginePositions[String(state.active.goalkeeperId)])];
     if(state.active.shotResult){
@@ -399,7 +409,13 @@
     if(state.active.controlStart){const e=state.active,id=String(e.controlStart.id),start=state.positions[id],end=e.enginePositions?.[id];
      if(start&&end){const travel=metres(start,end);e.timingDuration=Math.max(duration(e),travel*1.5/rootRate,Math.sqrt(6*travel/(rootRate*2)));}
     }
-    planOffsets(state,state.active);state.activeDuration=duration(state.active);state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/matchPlaybackRate()*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
+    planOffsets(state,state.active);state.activeDuration=duration(state.active);
+    if(state.active.type==='shot'&&state.active.outcome==='save'&&state.active.shotResult?.saveType==='PARRY'){
+     const e=state.active,next=state.queue[0];
+     if(next?.type==='looseBall'&&next.reason==='parry'&&next.gameSecond===e.gameSecond&&next.fromPos?.every((v,i)=>Math.abs(v-e.shotResult.fromPos[i])<1e-8)){
+      e.parryFlight={eventId:next.eventId,contact:shotTarget(e),land:[...next.toPos],tail:state.activeDuration*.24,loose:duration(next),source:'real-parry-to-real-loose-route; one-clock-cross-clip-flight'};
+     }
+    }state.durationEvent=state.active;state.clipStart=presentationSeconds-remaining;state.clipStartTimestamp=now-remaining*tempo/matchPlaybackRate()*1000;state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
    }
    const e=state.active;state.carryMotion=null;state.contestMotion=null;state.shotMotion=null;state.looseMotion=null;state.holdMotion=null;state.kickoffMotion=null;
    if(Number.isFinite(e.homeGoals)&&Number.isFinite(e.awayGoals))state.eventScore=[e.homeGoals,e.awayGoals];
@@ -474,7 +490,7 @@
    state.controlMotion=e.controlEvent&&p>=.76?{event:e.controlEvent,progress:(p-.76)/.24}:null;
    applyOffsets(state,e,p);
    if(e.type==='shot'&&e.outcome==='save'&&e.shotResult.saveType==='CATCH'&&p>=.76){
-    state.keeperControl??={id:e.goalkeeperId,side:e.shotResult.toSide,forward:[...state.shotMotion.keeperForward],caughtAt:state.clipStart+.76*D,eventId:e.eventId,source:'derived-visible-catch-control; engine has no carried-ball height'};
+    if(state.keeperControl?.eventId!==e.eventId)state.keeperControl={id:e.goalkeeperId,side:e.shotResult.toSide,forward:[...state.shotMotion.keeperForward],caughtAt:state.clipStart+.76*D,eventId:e.eventId,source:'derived-visible-catch-control; engine has no carried-ball height'};
    }
    if(e.keeperDistribution){
     const d=e.keeperDistribution;state.positions[String(d.id)]=[...d.root];
@@ -483,6 +499,7 @@
      state.ball=[d.root[0]+f[0]*.32/1.05,d.root[1]+f[2]*.32/.68];
     }else {state.keeperControl=null;if(e.keeperLooseResult&&p>=.76){state.carrier=null;state.side='none';}}
    }
+   if(e.type==='looseBall'&&e.parryFlight){const t=e.parryFlight,f=parryFrame(t,t.tail+Math.min(clockProgress*D,t.loose));state.ball=f.ball;state.carrier=null;state.side='none';}
    const controlled=state.keeperControl;
    if(controlled&&!state.shotMotion){
     if(state.carrier===controlled.id){const root=state.positions[String(controlled.id)];state.ball=[root[0]+controlled.forward[0]*.32/1.05,root[1]+controlled.forward[2]*.32/.68];}
@@ -493,9 +510,10 @@
    if(!state.keeperControl&&!e.contest&&!pass&&e.type!=='enginePositionGap'&&animationPoint(e,p,state.eventStartBall)==null&&state.carrier!=null&&state.positions[String(state.carrier)])state.ball=[...state.positions[String(state.carrier)]];
    state.ballState={...state.ballState,position:[...state.ball],ownerId:state.carrier,state:e.sampleInterval?.phase==='restart-placement'||e.goalKickSetup&&(e.type!=='goalKick'||p<.19)?'RESTART_SETUP':state.carrier==null?'LOOSE_BALL':'LIVE',height:aerialHeight(e,p),travelType:e.travelType||'ground',target:e.toPos||null,travelDuration:D};
    state.displayBallHeight=state.shotMotion?.height??(e.type==='enginePositionGap'?e.ballHeight??.15:null)??(e.headerShot?.15+(1.704-.15)*Math.max(0,Math.min(1,(p-.19)/.81))+Math.sin(Math.PI*Math.max(0,Math.min(1,(p-.19)/.81)))*2.4:.15);
+   if(e.type==='looseBall'&&!e.heavyGeometry)state.displayBallHeight=e.parryFlight?parryFrame(e.parryFlight,e.parryFlight.tail+Math.min(clockProgress*D,e.parryFlight.loose)).height:(e.looseStartHeight??.15)*(1-ease(clockProgress))+.15*ease(clockProgress);
    if(state.keeperControl&&!state.shotMotion)state.displayBallHeight=1.05;
    if(e.keeperDistribution){state.displayBallHeight=p<.19?1.05:1.05*(1-u)+.15*u+(e.travelType==='aerial'?Math.sin(Math.PI*u)*Math.min(3.8,metres(e.fromPos,e.toPos)/12):0);}
-   if(state.keeperControl||e.keeperDistribution)state.ballState.height=state.displayBallHeight;
+   if(state.keeperControl||e.keeperDistribution||e.parryFlight||e.type==='looseBall')state.ballState.height=state.displayBallHeight;
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(clockProgress>=1-1e-8){
     if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
@@ -516,6 +534,11 @@
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:e.deliveryTiming?.flight??D*.57,tempo,speed:M.speed,effectiveSpeed:matchPlaybackRate(),screenDurationAtConstantSpeed:D*tempo/matchPlaybackRate(),screenFlightAtConstantSpeed:(e.deliveryTiming?.flight??D*.57)*tempo/matchPlaybackRate(),actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(e.looseResultId||e.keeperLooseResult||e.type==='goalKick'&&e.success===false){state.carrier=null;state.side='none';state.ballState.ownerId=null;}
     if(state.shotMotion)state.afterShot=true;
+    if(e.type==='shot'&&e.outcome==='save'&&state.shotMotion){
+     const f=state.shotMotion;
+     state.keeperRecovery={id:e.goalkeeperId,side:e.shotResult.toSide,forward:[...f.keeperForward],root:[...f.keeper],contact:[...f.target],startedAt:state.clipStart+D,duration:.25,source:'visible-save-end-pose-on-common-clock'};
+     if(e.parryFlight)state.parryFlight=structuredClone(e.parryFlight);
+    }
     if(state.shotMotion?.keeperIntervention){
      // The engine result ball point is not the goalkeeper's recorded root.
      // Anchor to that actual root sample, and retain its recorded increments
