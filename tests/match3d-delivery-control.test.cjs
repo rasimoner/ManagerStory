@@ -15,14 +15,14 @@ test('two real matches preserve raw events/results/RNG/career, single result and
 });
 test('flight is steady outside a brief contact brake; receiver approach overlaps flight and phase boundaries keep ownership/positions',async()=>{
  const {setup,seek}=await import('../tools/match3d-round2-audit.mjs');let checked=0,minCruiseRatio=Infinity;
- for(const {seed,clip} of await examples()){
+ for(const {seed,clip,raw} of await examples()){
   const h=setup();seek(h,seed,clip.id);h.run(`window.qaDeliveryId=${clip.id};window.qaReceiver=${JSON.stringify(clip.toId)}`);
   const frames=h.run(`(()=>{const a=[];for(let i=0;i<30000&&pitchV73.active?.eventId===qaDeliveryId;i++){ManagerStoryLive3D.step(.001,0);if(pitchV73.active?.eventId!==qaDeliveryId)break;a.push({sec:pitchV73.progress*pitchV73.activeDuration,p:pitchV73.actionProgress,ball:[...pitchV73.ball],root:[...pitchV73.positions[String(qaReceiver)]],owner:pitchV73.carrier});}return a;})()`);
   const t=clip.deliveryTiming,release=t.preparation,contact=release+t.flight;
   const near=sec=>frames.reduce((a,b)=>Math.abs(a.sec-sec)<Math.abs(b.sec-sec)?a:b);
   const velocity=sec=>{const a=near(sec-.001),b=near(sec+.001);return distance(a.ball,b.ball)/(b.sec-a.sec);};
   const cruise=velocity(release+t.flight*.5),late=velocity(release+t.flight*.7);minCruiseRatio=Math.min(minCruiseRatio,late/cruise);assert.ok(late/cruise>.999&&late/cruise<1.001);
-  assert.ok(velocity(contact-.0006)<.4,`${seed}/${clip.id} contact velocity`);assert.ok(cruise<=22.00001);
+  assert.ok(velocity(contact-.0006)<.4,`${seed}/${clip.id} contact velocity`);assert.ok(cruise<=(clip.deliveryTiming&&distance(clip.from,clip.to)>22&&clip.deliveryTiming.arc&&raw.travelType==='aerial'?60:22)+.00001);
   const before=near(contact-.001),at=near(contact+.001);assert.equal(before.owner,null);assert.equal(at.owner,clip.toId);assert.ok(distance(at.ball,clip.to)<1e-8);assert.ok(distance(at.root,clip.endPositions[String(clip.toId)])<1e-8);
   assert.ok(distance(before.ball,at.ball)<.001);assert.ok(clip.deliveryTiming.control<.13);checked++;
   if(distance(clip.startPositions[String(clip.toId)],clip.endPositions[String(clip.toId)])>.01){assert.ok(distance(near(release).root,near(contact-.1*t.flight).root)>.001);}

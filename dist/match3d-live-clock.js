@@ -30,8 +30,13 @@
   const preparation=Math.max(.12,metres(source,e.enginePositions[String(e.fromId)]||source)*1.5/rootRate);
   const control=.12,receiverRun=metres(receiver,e.enginePositions[String(e.toId)]||receiver)*1.5/rootRate;
   const others=Math.max(0,...Object.entries(e.enginePositions||{}).filter(([id])=>id!==String(e.fromId)&&id!==String(e.toId)).map(([id,end])=>metres(state.positions[id]||end,end)*1.5/rootRate));
-  const flightSeconds=Math.max(.18,metres(e.fromPos,e.toPos)*1.15/flightRate,receiverRun-preparation,others-preparation-control);
-  return {preparation,flight:flightSeconds,control,total:preparation+flightSeconds+control,source:'release-flight-contact-control; one-clock; no-proportional-tail'};
+  const distance=metres(e.fromPos,e.toPos),arc=Math.max(1.2,Math.min(3.8,distance/12));
+  // A firm aerial delivery has a flight budget from its visible arc, rather
+  // than the ground-pass rolling rate. Blend continuously beyond short range.
+  const blend=e.travelType==='aerial'?ease(Math.max(0,Math.min(1,(distance-22)/16))):0;
+  const rolling=distance*1.15/flightRate,air=Math.max(Math.sqrt(8*arc/9.81),distance/60+.04);
+  const flightSeconds=Math.max(.18,rolling+(air-rolling)*blend,receiverRun-preparation,others-preparation-control);
+  return {preparation,flight:flightSeconds,control,arc,total:preparation+flightSeconds+control,kickPreparation:.12,kickFollow:.18,source:'arc-flight-budget; release-relative-kick; one-clock'};
  }
  function deliveryPhase(e,q){const t=e.deliveryTiming,sec=q*t.total;return sec<t.preparation ? .19*sec/t.preparation : sec<t.preparation+t.flight ? .19+.57*(sec-t.preparation)/t.flight : .76+.24*Math.min(1,(sec-t.preparation-t.flight)/t.control);}
  function deliveryFlight(u,seconds){const w=Math.min(.25,.08/seconds),a=1-w,v=u<=a?u:u-(u-a)**2/(2*w);return v/(1-w/2);}
@@ -353,10 +358,12 @@
     if(state.active.recoveryStarts){state.active.capturedRecoveryStarts=structuredClone(state.active.recoveryStarts);for(const id of Object.keys(state.active.recoveryStarts))state.active.recoveryStarts[id]=[...(state.positions[id]||state.active.recoveryStarts[id])];}
     if(state.controlContinuation){
      const e=state.active,c=state.controlContinuation;
-     if((isCarry(e)&&!e.contest&&!e.heavyTouch&&e.fromId===c.id&&e.fromSide===c.side)||e.type==='enginePositionGap'){
+     if(!e.contest&&!e.heavyTouch&&state.carrier===c.id&&state.side===c.side&&(isCarry(e)&&e.fromId===c.id&&e.fromSide===c.side||e.type==='enginePositionGap')){
       e.controlStart=structuredClone(c);e.carryFromControl=isCarry(e);
      }
-     if(e.type!=='enginePositionGap')state.controlContinuation=null;
+     // Preserve the receiver's movement profile through every same-owner clip.
+     // A real possession change, restart or contested contact ends this link.
+     if(state.carrier!==c.id||state.side!==c.side||e.contest||e.heavyTouch||e.restartType)state.controlContinuation=null;
     }
     state.shotPreStatistics=structuredClone(state.eventStatistics);
     state.progress=0;state.eventStartBall=[...state.ball];state.startPositions=structuredClone(state.positions);
@@ -381,7 +388,12 @@
     }
     if(fieldDelivery(state.active)){
      const e=state.active,touch=state.queue[0];
-     if(e.success&&touch?.type==='firstTouch'&&touch.toId===e.toId&&touch.toSide===e.toSide&&touch.gameSecond===e.gameSecond&&touch.fromPos?.every((v,i)=>Math.abs(v-e.toPos[i])<1e-8))e.controlEvent=state.queue.shift();
+     if(e.success&&touch?.type==='firstTouch'&&touch.toId===e.toId&&touch.toSide===e.toSide&&touch.gameSecond===e.gameSecond&&touch.fromPos?.every((v,i)=>Math.abs(v-(e.engineToPos||e.toPos)[i])<1e-8)){
+      e.controlEvent=state.queue.shift();
+      // Compare original engine coordinates for identity; the shared display
+      // mapping can legitimately put the same real contact at another root.
+      e.controlEvent={...e.controlEvent,fromPos:[...e.toPos],toPos:[...e.toPos]};
+     }
      e.deliveryTiming=deliveryPlan(state,e);e.timingDuration=e.deliveryTiming.total;
     }
     if(state.active.controlStart){const e=state.active,id=String(e.controlStart.id),start=state.positions[id],end=e.enginePositions?.[id];

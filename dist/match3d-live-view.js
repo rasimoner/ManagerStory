@@ -13,7 +13,7 @@ export function createLivePoseSampler(){
   const pass=e&&(['pass','cross','corner','goalKick'].includes(e.type)||!!e.headerShot),ball=metres(snapshot.ball.displayPosition||snapshot.ball.engine.position);
   const shot=P?.shotMotion,kicking=pass||!!shot;
   const A=kicking||e?.type==='kickoff'?metres(e.fromPos):ball,B=pass?metres(e.toPos):shot?metres(shot.target||shot.result.fromPos):ball,len=Math.hypot(B[0]-A[0],B[2]-A[2]),u=clamp((p-.19)/.57),dir=len?[(B[0]-A[0])/len,0,(B[2]-A[2])/len]:[0,0,1],right=[dir[2],0,-dir[0]];
-  const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(!e||e.type==='enginePositionGap'?(snapshot.ball.presentationHeight??.15):.15)+(aerial?Math.sin(Math.PI*u)*clamp(len/12,1.2,3.8):0);
+  const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(!e||e.type==='enginePositionGap'?(snapshot.ball.presentationHeight??.15):.15)+(aerial?Math.sin(Math.PI*u)*(e.deliveryTiming?.arc??clamp(len/12,1.2,3.8)):0);
   if(shot)ball[1]=shot.height;
   if(P?.keeperControl||P?.keeperDistribution)ball[1]=snapshot.ball.presentationHeight;
   if(e?.headerShot){const v=clamp((p-.19)/.81);ball[1]=.15+(1.704-.15)*v+Math.sin(Math.PI*v)*2.4;}
@@ -30,23 +30,29 @@ export function createLivePoseSampler(){
    const forward=[Math.sin(yaw),0,Math.cos(yaw)],lateral=[forward[2],0,-forward[0]];
    // Distance-driven stance anchors. Swing starts at the old plant and lands
    // ahead of the moving root; turns replant an unreachable foot, never a root.
-   const stride=1.25,phase=(old?.gaitPhase||0)+(moving?distance/stride:0),run=clamp(speed/7);
+   // At sprint speed a fixed 1.25m cycle produced machine-like cadence.
+   // Lengthen the distance cycle, and shorten stance to the reachable ground
+   // distance; planted feet remain world anchors rather than sliding with root.
+   const stride=player.role==='GK'?1.25:Math.max(1.25,speed/6),stance=player.role==='GK'?.5:Math.min(.5,.70/stride),phase=(old?.gaitPhase||0)+(moving?distance/stride:0),run=clamp(speed/7);
    const feet=[-1,1].map((sign,i)=>{
-    const q=phase+i*.5,cycle=Math.floor(q),f=q-cycle,plant=!moving||f<.5;
+    const q=phase+i*.5,cycle=Math.floor(q),f=q-cycle,plant=!moving||f<stance;
     const neutral=add(root,mul(lateral,sign*.102));neutral[1]=.09;
     let point=old?.feet[i]?.point,launch=old?.feet[i]?.launch;
     const unreachable=point&&Math.hypot(point[0]-root[0],point[2]-root[2])>.52;
     if(!moving)point=neutral;
-    else if(!point||old.feet[i].cycle!==cycle||(!old.feet[i].plant&&plant)||unreachable)point=add(neutral,mul(forward,.25));
+    else if(!point||old.feet[i].cycle!==cycle||(!old.feet[i].plant&&plant)||unreachable)point=add(neutral,mul(forward,player.role==='GK'?.25:.35));
     if(!plant){if(!launch||old?.feet[i]?.plant||old?.feet[i]?.cycle!==cycle)launch=[...point];
-     const swing=(f-.5)*2;point=mix(launch,add(neutral,mul(forward,.30)),smooth(swing));point[1]=.09+Math.sin(Math.PI*swing)*(.10+.08*run);
+     const swing=(f-stance)/(1-stance);point=mix(launch,add(neutral,mul(forward,player.role==='GK'?.30:.35)),smooth(swing));point[1]=.09+Math.sin(Math.PI*swing)*(.10+.08*run);
     }else {point=[point[0],.09,point[2]];launch=null;}
     return {point,cycle,plant,launch};
    });
    let left=feet[0].point,rightFoot=feet[1].point,arm=moving?Math.sin(phase*Math.PI*2)*(.16+.22*run):0;
    const turn=old?Math.atan2(Math.sin(yaw-old.yaw),Math.cos(yaw-old.yaw)):0;
    let pelvisHeight=.935-(moving?.025*run*Math.cos(phase*Math.PI*4):0),lean=moving?.07+.14*run:0,bodyRoll=moving?-.028*Math.sin(phase*Math.PI*2)-clamp(turn,-.10,.10):0,bodyTwist=moving?.035*Math.sin(phase*Math.PI*2):0,headPitch=0,leftHand=null,rightHand=null;
-   if((kicking||e?.type==='kickoff')&&!shot?.header&&player.id===e.fromId&&player.side===e.fromSide){
+   const kickTiming=e?.deliveryTiming,elapsed=(P?.clockProgress??p)*(P?.duration||0),kickStart=kickTiming?Math.max(0,kickTiming.preparation-kickTiming.kickPreparation):0;
+   const kickP=kickTiming?(elapsed<kickTiming.preparation ? .19*clamp((elapsed-kickStart)/kickTiming.kickPreparation) : .19+.81*clamp((elapsed-kickTiming.preparation)/kickTiming.kickFollow)):p;
+   if((kicking||e?.type==='kickoff')&&!shot?.header&&player.id===e.fromId&&player.side===e.fromSide&&(!kickTiming||elapsed>=kickStart&&elapsed<=kickTiming.preparation+kickTiming.kickFollow)){
+    const p=kickP;
     yaw=angle(yaw,Math.atan2(dir[0],dir[2]),smooth(p/.19));
     const contact=add(A,mul(dir,-.30));contact[1]=.16;
     const neutral=add(root,mul(right,.102));neutral[1]=.09;
@@ -145,7 +151,7 @@ export function createLivePoseSampler(){
     if(gap<.6)rightFoot=mix(rightFoot,foot,pass?(p<.76?smooth((p-.65)/.11):e.deliveryTiming?1-smooth((p-.76)/.24):1):1);
     gaps.push({id:player.id,kind:pass?(e.success?'receiver':'interceptor'):'firstTouch',metres:gap});
    }
-   poses.push({id:player.id,side:player.side,position:poseRoot,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,pelvisRoll,bodyTwist,headPitch,leftHand,rightHand,keeperMotion,motionSource:'derived-from-common-display-roots-and-event-phase'});
+   poses.push({id:player.id,side:player.side,position:poseRoot,yaw,leftFoot:left,rightFoot,pelvisHeight,armSwing:arm,lean,bodyRoll,pelvisRoll,bodyTwist,headPitch,leftHand,rightHand,keeperMotion,gait:{phase,stride,stance,speed,cyclesPerSecond:moving?speed/stride:0},motionSource:'derived-from-common-display-roots-and-event-phase'});
    previous.set(key,{root,travel,yaw,direction,feet,gaitPhase:phase,receiveEventId,receiveEventYaw});
   }
   // Read the kick and arrival beside the live ball. Long passes do not fit
