@@ -182,7 +182,11 @@ export function createLivePoseSampler(){
   if(shot&&p>.19&&p<.76){const goalDirection=e.toPos[0]>50?1:-1;target[0]+=goalDirection*.8;}
   const distance=Math.hypot(24,38),safeAspect=Number.isFinite(aspect)&&aspect>0?aspect:1;
   span=shot?12:lastSample?span+(desiredSpan-span)*(1-Math.exp(-dt*5)):desiredSpan;
-  span=Math.min(span,shot?13:18,2*distance*Math.tan(22*Math.PI/180)*safeAspect);
+  // The old fov cap could still make near/far ground limits cross on tall
+  // mobile canvases. Bound their combined depth before clamping the focus.
+  const depth=71.8,a=24,b=38,D=distance*distance;
+  const groundTangent=depth*a/(D+Math.sqrt(D*D+depth*depth*b*b));
+  span=Math.min(span,shot?13:18,2*distance*groundTangent*safeAspect);
   if(!focus)focus=[...target];else if(dt>0){
    if(lastSample){focus[0]+=ball[0]-lastSample.ball[0];focus[2]+=ball[2]-lastSample.ball[2];}
    focus=mix(focus,target,1-Math.exp(-dt*10));
