@@ -293,12 +293,28 @@ function synchronizePitchPresentation(state){
     state.ballState.height=0;
   }
 }
+const pitchGoalPhotoCache=new Map();
+function preparePitchGoalPhotos(){
+ if(typeof Image!=='function'||!M)return;
+ for(const team of [M.home,M.away]){const src=fanPhoto(team);if(pitchGoalPhotoCache.has(src))continue;const image=new Image();pitchGoalPhotoCache.set(src,image);image.onload=()=>{image.decode?.().catch(()=>{});};image.src=src;}
+}
 function paintPitchGoalFeedback(overlay,feedback){
  if(!overlay)return;overlay.hidden=!feedback?.visible;if(!feedback)return;
  const colors=feedback.colors;overlay.style.setProperty('--goal-primary',colors[0]);overlay.style.setProperty('--goal-secondary',colors[1]);
- if(overlay.dataset.team!==feedback.team||overlay.dataset.variant!==String(feedback.variant)){overlay.dataset.team=feedback.team;overlay.dataset.variant=String(feedback.variant);const img=overlay.querySelector('img');if(img)img.src=fanPhoto(feedback.team);}
+ overlay.dataset.team=feedback.team;overlay.dataset.variant=String(feedback.variant);
  const text=overlay.querySelector('small');if(text)text.textContent=feedback.text;
+ const img=overlay.querySelector('img');if(!img)return;
+ // The actual displayed element, not only a preload, must be decoded before
+ // the common frame callback starts the two real seconds. Ignore stale loads.
+ if(img.__goalMatch===M&&img.__goalEvent===feedback.eventId)return;
+ const match=M,eventId=feedback.eventId,request={};img.__goalMatch=match;img.__goalEvent=eventId;img.__goalRequest=request;
+ let fallback=false,done=false;
+ const acknowledge=failed=>{if(done||img.__goalRequest!==request)return;done=true;window.ManagerStoryLive3D?.goalImageReady(match,eventId,failed);};
+ const ready=()=>{if(!img.complete||!img.naturalWidth)return;const decode=typeof img.decode==='function'?img.decode():Promise.resolve();decode.then(()=>acknowledge(false),()=>{if(img.naturalWidth)acknowledge(false);else acknowledge(true);});};
+ img.onload=ready;img.onerror=()=>{if(img.__goalRequest!==request)return;if(!fallback){fallback=true;img.src='assets/atmosphere/fans-neutral.webp';}else acknowledge(true);};
+ img.src=fanPhoto(feedback.team);ready();
 }
+
 function paintLivePitch() {
   if(!M||typeof document==='undefined')return;
   const clock=document.querySelector('#live-clock');if(clock)clock.textContent=matchClock();

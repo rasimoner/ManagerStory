@@ -234,8 +234,8 @@
  const flight=u=>{if(u<.7)return u*1.15;const t=(u-.7)/.3;return (2*t*t*t-3*t*t+1)*.805+(t*t*t-2*t*t+t)*.345+(-2*t*t*t+3*t*t);};
  function startGoalFeedback(state,now){
   const g=state.goalPresentation.goal,identity=resolveClubIdentity('goal',{teamId:g.side===0?M.home:M.away});
-  state.goalPresentation.stage='overlay';state.goalPresentation.until=now+2000;
-  state.goalFeedback={visible:true,team:identity.id,colors:[identity.primaryColor,identity.secondaryColor],variant:Math.abs(Math.floor(Number(g.gameSecond)||0))%4,text:identity.name+' • '+(g.scorer||'Gol')+' • '+g.minute+'’'};
+  const needsImage=typeof Image==='function';state.goalPresentation.stage=needsImage?'image':'overlay';state.goalPresentation.until=needsImage?null:now+2000;
+  state.goalFeedback={eventId:g.eventId,visible:!needsImage,team:identity.id,colors:[identity.primaryColor,identity.secondaryColor],variant:Math.abs(Math.floor(Number(g.gameSecond)||0))%4,text:identity.name+' • '+(g.scorer||'Gol')+' • '+g.minute+'’'};
  }
  function step(dt,now){
   if(!enabled||!M||(M.finished?!finishing():M.pause&&!halfPending())||paused())return;
@@ -248,6 +248,7 @@
   if(state.goalPresentation){
    const g=state.goalPresentation;state.presentationDelta=0;
    if(g.stage==='net'){const take=Math.min(delta,Math.max(0,g.netUntil-presentationSeconds));presentationSeconds+=take;state.presentationSeconds=presentationSeconds;state.presentationDelta=take;if(presentationSeconds>=g.netUntil-1e-9)startGoalFeedback(state,now);}
+   else if(g.stage==='image'){if(g.imageReady){g.stage='overlay';g.until=now+2000;state.goalFeedback.visible=true;}else if(g.imageFailed){state.goalPresentation=null;state.goalFeedback.visible=false;state.goalImageError='Team and existing fallback image unavailable';}}
    else if(now>=g.until){state.goalPresentation=null;state.goalFeedback.visible=false;}
    if(window.MatchView)window.MatchView.publish(state);return;
   }
@@ -659,9 +660,10 @@
  const paused=()=>finishing()?!!pitchV73.terminalPaused:halfPending()?!!pitchV73.halfPaused:!!M?.pause;
  window.ManagerStoryLive3D={
   get finishing(){return finishing()},get halfPending(){return halfPending()},get paused(){return paused()},
+  goalImageReady(match,eventId,failed=false){if(match!==M)return;const g=currentPitchState().goalPresentation;if(g?.stage==='image'&&g.goal.eventId===eventId){g.imageReady=!failed;g.imageFailed=failed;}},
   beginFinish(){const s=currentPitchState();s.terminalPhase='draining';s.terminalPaused=false;},
   setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;else if(halfPending())pitchV73.halfPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
-  enable(){const joining=!enabled;syncMatch();enabled=true;if(M){const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
+  enable(){const joining=!enabled;syncMatch();enabled=true;if(M){if(joining&&typeof preparePitchGoalPhotos==='function')preparePitchGoalPhotos();const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;observedMatch=null;presentationSeconds=0;wallSeconds=0;logs=[];motionSample=null;inPositionUpdate=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration,contestPhase,contestTiming:e=>structuredClone(contestPath(e).timing), togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
  };
