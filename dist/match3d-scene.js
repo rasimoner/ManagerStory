@@ -68,7 +68,7 @@ function stadium(scene,home) {
   const concrete=surface('#929894'),dark=surface('#263a34'),roof=surface('#667d76');
   for(const z of [-1,1]) {
     for(let row=0;row<12;row++)box(stadium,[123,.34,1.1],[0,1+row*.48,z*(42+row*1.0)],concrete);
-    box(stadium,[124,.18,14],[0,9,z*49],roof);
+    const canopy=box(stadium,[124,.18,14],[0,9,z*49],roof);if(z===1){canopy.name='near-touchline-canopy';stadium.userData.nearCanopy=canopy;}
     for(let x=-59;x<=60;x+=15)tube(stadium,[x,0,z*54],[x,9,z*54],.17,dark);
     tube(stadium,[-61,1.8,z*40],[61,1.8,z*40],.055,surface('#c7d0ca'));
   }
@@ -99,6 +99,12 @@ function stadium(scene,home) {
     const board=new T.Mesh(new T.PlaneGeometry(29,1.5),new T.MeshStandardMaterial({map:texture,roughness:.9,side:T.DoubleSide}));
     board.position.set((i-1.5)*30,1,-38.1);stadium.add(board);
   });
+  return stadium;
+}
+// The fixed broadcast camera sits behind this roof at the near touchline.
+// Its overhang can occlude the pitch even while ground-frustum limits are valid.
+export function setLiveStadiumVisibility(stadium,liveBroadcast){
+  if(stadium.userData.nearCanopy)stadium.userData.nearCanopy.visible=!liveBroadcast;
 }
 export function createMatchScene({canvas,home,away,players}) {
   const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
@@ -125,7 +131,7 @@ export function createMatchScene({canvas,home,away,players}) {
   // Broad, subtle mowing strips, not a two-dimensional checkerboard.
   const stripe=new T.MeshBasicMaterial({color:'#d4dfb3',opacity:.035,transparent:true,depthWrite:false});
   for(let i=0;i<10;i+=2){const s=new T.Mesh(new T.PlaneGeometry(10.5,68),stripe);s.rotation.x=-Math.PI/2;s.position.set(-47.25+i*10.5,.006,0);scene.add(s);}
-  fieldPaint(scene);const nets=[goal(scene,-1),goal(scene,1)];stadium(scene,home);
+  fieldPaint(scene);const nets=[goal(scene,-1),goal(scene,1)],stadiumShell=stadium(scene,home);
   for(const x of [-52.5,52.5])for(const z of [-34,34]){
     tube(scene,[x,0,z],[x,1.5,z],.025,surface('#f1f1dc'));
     const flag=new T.Mesh(new T.PlaneGeometry(.38,.24),new T.MeshStandardMaterial({color:home.primaryColor,side:T.DoubleSide}));flag.position.set(x+.18,1.36,z);scene.add(flag);
@@ -161,6 +167,7 @@ export function createMatchScene({canvas,home,away,players}) {
   }
   let previousBall=null;
   function applyLiveSample(sample){
+    setLiveStadiumVisibility(stadiumShell,cameraRig.mode==='broadcast');
     for(const net of nets){const a=net.geometry.attributes.position,{rest,dir}=net.userData;
      for(let i=0;i<a.count;i++){const point=Array.from(rest.slice(i*3,i*3+3));a.setX(i,point[0]+netDisplacement(point,sample.netImpact,sample.seconds,dir));}a.needsUpdate=true;
     }
@@ -190,7 +197,7 @@ export function createMatchScene({canvas,home,away,players}) {
     cameraRig.focus.copy(center);cameraRig.position.copy(center).add(new T.Vector3(0,distance*.52,distance*.85));cameraRig.framePoints=points.map(p=>p.clone());
   }
   function setCamera(mode='broadcast',playerKey=null) {
-    cameraRig.mode=mode;
+    cameraRig.mode=mode;setLiveStadiumVisibility(stadiumShell,false);
     if(mode==='model') {const p=players.filter(p=>!p.goalkeeper&&p.side==='user')[8]||players.find(p=>!p.goalkeeper&&p.side==='user'),m=footballers.get(playerKey||`${p.side}:${p.id}`);camera.position.copy(m.position).add(new T.Vector3(3.3,1.5,1.8).applyQuaternion(m.quaternion));camera.lookAt(m.position.clone().add(new T.Vector3(0,.94,0)));camera.fov=35;}
     else if(mode==='overview'){camera.position.set(0,86,98);camera.lookAt(0,0,0);camera.fov=56;}
     else {camera.position.copy(cameraRig.position);camera.lookAt(cameraRig.focus);camera.fov=42;}
