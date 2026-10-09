@@ -10,7 +10,7 @@ export function createLivePoseSampler(){
   if(signature===lastSignature)return lastSample;
   const dt=lastTime==null?0:Math.max(0,time-lastTime);
   if(lastTime!=null&&time<lastTime){previous.clear();focus=null;lastPass=null;}lastTime=time;
-  const pass=e&&(['pass','cross','corner','goalKick'].includes(e.type)||!!e.headerShot),ball=metres(snapshot.ball.displayPosition||snapshot.ball.engine.position);
+  const pass=e&&(['pass','cross','corner','goalKick','freeKick'].includes(e.type)||!!e.headerShot),ball=metres(snapshot.ball.displayPosition||snapshot.ball.engine.position);
   const shot=P?.shotMotion,kicking=pass||!!shot;
   const A=kicking||e?.type==='kickoff'?metres(e.fromPos):ball,B=pass?metres(e.toPos):shot?metres(shot.target||shot.result.fromPos):ball,len=Math.hypot(B[0]-A[0],B[2]-A[2]),u=clamp((p-.19)/.57),dir=len?[(B[0]-A[0])/len,0,(B[2]-A[2])/len]:[0,0,1],right=[dir[2],0,-dir[0]];
   const aerial=pass&&e.travelType==='aerial',tracking=pass&&(aerial||len>18);ball[1]=(snapshot.ball.presentationHeight??.15)+(aerial?Math.sin(Math.PI*u)*(e.deliveryTiming?.arc??clamp(len/12,1.2,3.8)):0);
@@ -87,7 +87,7 @@ export function createLivePoseSampler(){
    const recovery=P?.keeperRecovery?.id===player.id&&P.keeperRecovery.side===player.side?P.keeperRecovery:null;
    const distribution=P?.keeperDistribution?.id===player.id&&P.keeperDistribution.side===player.side?P.keeperDistribution:null;
    if(player.role==='GK'&&(!(kicking&&player.id===e.fromId&&player.side===e.fromSide)||distribution)){
-    const active=!!(shot&&shot.keeperIntervention&&player.id===e.goalkeeperId&&player.side!==e.fromSide);
+    const active=!!(shot&&(shot.keeperIntervention||shot.penaltyAttempt)&&player.id===e.goalkeeperId&&player.side!==e.fromSide);
     const target=active?metres(shot.target||shot.result.fromPos):[...ball];if(active)target[1]=shot.contactHeight;
     // After a save, idle/recovery must keep the last visible facing instead
     // of snapping to attackDirection when a recovered ball reaches the root.
@@ -96,7 +96,7 @@ export function createLivePoseSampler(){
     const d=distribution?{...distribution,release:[...metres(distribution.release).slice(0,1),1.05,metres(distribution.release)[2]],elapsed:(P.clockProgress??p)*P.duration}:null;
     if(d?.handMotion){const convert=p=>{const v=metres(p);v[1]=p[2];return v;};d.handMotion={...d.handMotion,throwHand:convert(d.handMotion.throwHand),supportHand:convert(d.handMotion.supportHand)};}
     const collection=e?.looseCollection?.keeper&&e.toId===player.id&&e.toSide===player.side?e.looseCollection:null;
-    const kp=keeperPose({collection,root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&shot.keeperIntervention,catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d,handoff:recovery?{...recovery,root:metres(recovery.root),contact:metres(recovery.contact),weight:1-smooth((time-recovery.startedAt)/recovery.duration)}:null,dive:shot?.dive,forwardHint:active?shot.keeperForward:recoveryFacing});
+    const kp=keeperPose({collection,root,source:active?A:(Math.hypot(ball[0]-root[0],ball[2]-root[2])<.1?add(root,[player.attackDirection,0,0]):ball),target,ball,p:active?shot.progress:p,active,save:active&&(shot.keeperIntervention||shot.penaltyAttempt),catchBall:active&&shot.result.saveType==='CATCH',stance:moving?[left,rightFoot]:null,control,distribution:d,handoff:recovery?{...recovery,root:metres(recovery.root),contact:metres(recovery.contact),weight:1-smooth((time-recovery.startedAt)/recovery.duration)}:null,dive:shot?.dive,forwardHint:active?shot.keeperForward:recoveryFacing});
     ({yaw,leftFoot:left,rightFoot,pelvisHeight,lean,bodyRoll,pelvisRoll,leftHand,rightHand,rightWristPitch,keeperMotion}=kp);poseRoot=kp.position;arm=0;
    }
    if(shot?.blocker&&player.id===shot.result.toId&&player.side===shot.result.toSide){

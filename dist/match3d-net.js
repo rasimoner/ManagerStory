@@ -7,5 +7,5 @@ export function netDisplacement(point,impact,seconds,dir){
  const back=dir*54.8,depth=Math.max(0,Math.min(1,(point[0]-dir*52.5)/(back-dir*52.5)));
  const edge=Math.max(0,Math.min(1,(2.3-point[1])/.35,point[1]/.12,(3.66-Math.abs(point[2]))/.35));
  if(depth===0||edge===0)return 0;
- return dir*.23*Math.sin(t*22)*Math.exp(-t*4.8)*Math.exp(-radius*radius/1.3)*depth*edge;
+ return dir*.48*Math.sin(t*22)*Math.exp(-t*4.8)*Math.exp(-radius*radius/1.3)*depth*edge;
 }
