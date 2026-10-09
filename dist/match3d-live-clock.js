@@ -232,6 +232,11 @@
  }
  // Stage 3A braking curve, same contact/arrival boundaries and endpoint.
  const flight=u=>{if(u<.7)return u*1.15;const t=(u-.7)/.3;return (2*t*t*t-3*t*t+1)*.805+(t*t*t-2*t*t+t)*.345+(-2*t*t*t+3*t*t);};
+ function startGoalFeedback(state,now){
+  const g=state.goalPresentation.goal,identity=resolveClubIdentity('goal',{teamId:g.side===0?M.home:M.away});
+  state.goalPresentation.stage='overlay';state.goalPresentation.until=now+2000;
+  state.goalFeedback={visible:true,team:identity.id,colors:[identity.primaryColor,identity.secondaryColor],variant:Math.abs(Math.floor(Number(g.gameSecond)||0))%4,text:identity.name+' • '+(g.scorer||'Gol')+' • '+g.minute+'’'};
+ }
  function step(dt,now){
   if(!enabled||!M||(M.finished?!finishing():M.pause&&!halfPending())||paused())return;
   syncMatch(now,dt);
@@ -239,6 +244,13 @@
   // The existing RAF allows 2s engine catch-up. Presentation never repays that
   // wall-time debt with a burst: use its documented .12s frame cap, no backlog.
   const state=currentPitchState(),delta=Math.min(.12,Math.max(0,dt))*matchPlaybackRate()/tempo;
+  // Same frame callback and queue. Wall time of the image is never clip debt.
+  if(state.goalPresentation){
+   const g=state.goalPresentation;state.presentationDelta=0;
+   if(g.stage==='net'){const take=Math.min(delta,Math.max(0,g.netUntil-presentationSeconds));presentationSeconds+=take;state.presentationSeconds=presentationSeconds;state.presentationDelta=take;if(presentationSeconds>=g.netUntil-1e-9)startGoalFeedback(state,now);}
+   else if(now>=g.until){state.goalPresentation=null;state.goalFeedback.visible=false;}
+   if(window.MatchView)window.MatchView.publish(state);return;
+  }
   presentationSeconds+=delta;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
   // Drain only the current atomic engine minute. Never produce a future minute behind a queue.
   if(state.active&&state.durationEvent!==state.active){
@@ -542,6 +554,10 @@
     state.side=p<.19&&!f.header?e.fromSide:state.carrier==null?'none':result.toSide;
     state.shotMotion={...f,progress:p,event:p>=.76||f.goalCrossed?presentationEvent(result):presentationEvent(e),phase:p<.19?'preparation':p<.76?'flight':'result'};
     if(f.goalCrossed)state.eventScore=[result.homeGoals,result.awayGoals];
+    if(e.outcome==='goal'&&state.netImpact?.eventId!==e.eventId){
+     const a=(e.fromPos[0]-50)*1.05,b=(f.target[0]-50)*1.05,dir=b>0?1:-1,fraction=(dir*(54.8-.14)-a)/(b-a),contactP=.19+.57*fraction;
+     if(p>=contactP&&fraction>=0&&fraction<=1)state.netImpact={dir,eventId:e.eventId,point:[dir*54.8,.15,(e.fromPos[1]+(f.target[1]-e.fromPos[1])*fraction-50)*.68],seconds:state.clipStart+contactP*D,source:'shared-shot/net intersection; retained across delayed frames'};
+    }
    }
    if(e.contest){
     const c=e.contest,f=contestFrame(e,p),won=p>=c.contactProgress;
@@ -628,16 +644,18 @@
      if(e.outcome==='save'&&e.shotResult.saveType==='CATCH'){state.anchorSettled=false;state.controlAnchor=structuredClone(state.keeperRootAnchors[String(id)]);}
     }
     if(state.shotMotion?.goalCrossed||e.type==='goal')state.afterGoal=true;
+    const goal=e.type==='shot'&&e.outcome==='goal'?e.shotResult:e.type==='goal'?e:null;
+    if(goal&&state.lastGoalFeedbackId!==goal.eventId){state.lastGoalFeedbackId=goal.eventId;presentationSeconds-=remaining;state.presentationSeconds=presentationSeconds;remaining=0;state.goalPresentation={stage:'net',goal:structuredClone(goal),netUntil:Math.max(presentationSeconds,(state.netImpact?.seconds??presentationSeconds)+.35)};if(state.goalPresentation.netUntil<=presentationSeconds+1e-9)startGoalFeedback(state,now);}
     state.active=null;state.progress=0;state.actionProgress=0;state.controlMotion=null;state.contestMotion=null;state.carryMotion=null;state.shotMotion=null;state.looseMotion=null;state.holdMotion=null;state.kickoffMotion=null;
    }
   }
-  const completed=finishing()&&!state.active&&!state.queue.length&&!state.batchEnd;
+  const completed=finishing()&&!state.goalPresentation&&!state.active&&!state.queue.length&&!state.batchEnd;
   if(completed){state.terminalPhase='complete';state.terminalPaused=false;state.displayMatchSeconds=5400;state.eventScore=[M.hg,M.ag];}
   if(window.MatchView)window.MatchView.publish(state);
   if(completed||M.reason==='half'&&!halfPending())render();
  }
  const finishing=()=>enabled&&pitchV73?.match===M&&pitchV73.terminalPhase==='draining';
- const halfPending=()=>enabled&&M?.reason==='half'&&pitchV73?.match===M&&!!(pitchV73.active||pitchV73.queue.length||pitchV73.batchEnd);
+ const halfPending=()=>enabled&&M?.reason==='half'&&pitchV73?.match===M&&!!(pitchV73.active||pitchV73.queue.length||pitchV73.batchEnd||pitchV73.goalPresentation);
  const paused=()=>finishing()?!!pitchV73.terminalPaused:halfPending()?!!pitchV73.halfPaused:!!M?.pause;
  window.ManagerStoryLive3D={
   get finishing(){return finishing()},get halfPending(){return halfPending()},get paused(){return paused()},

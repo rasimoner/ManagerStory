@@ -194,6 +194,7 @@ export function createLivePoseSampler(){
   focus[2]=clamp(focus[2],-35.8+far,36-near);
   const opacity=reset?(placed&&lastSample?.resetPlaced!==true?0:resetTime<.15?1-smooth(resetTime/.15):smooth((resetTime-.15)/.15)):1;
   if(lastSample&&time<lastSample.seconds)netImpact=null;
+  if(P?.netImpact)netImpact=P.netImpact;
   if(shot&&e.outcome==='goal'){
    const source=metres(shot.sourcePoint||e.fromPos),target=metres(shot.target||e.toPos),dir=target[0]>0?1:-1;
    const contact=dir*(54.8-.14),fraction=(contact-source[0])/(target[0]-source[0]);

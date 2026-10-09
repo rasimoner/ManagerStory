@@ -1,14 +1,15 @@
 import { createMatchScene } from './match3d-scene.js';
 import { createLivePoseSampler } from './match3d-live-view.js';
 const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./match3d-career.css',import.meta.url);document.head.append(link);
-const surface=document.createElement('div');surface.className='career3d';
-surface.innerHTML='<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><p role="status" hidden></p>';
+const surface=document.createElement('div');surface.className='career3d v73pitch';
+surface.innerHTML='<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
 const canvas=surface.querySelector('.career3d-scene'),radar=surface.querySelector('.career3d-radar'),status=surface.querySelector('[role=status]');
 let match=null,view=null,sampler=createLivePoseSampler(),roster='',failed=false;
 function dispose(){view?.dispose({loseContext:false});view=null;roster='';failed=false;sampler=createLivePoseSampler();}
 function paint(snapshot){
  if(failed||!snapshot||match!==M||M?.fieldView!=="3d"||!surface.isConnected||!canvas.clientWidth)return;
  try{
+  window.paintPitchGoalFeedback(surface.querySelector('.pitch-goal-overlay'),snapshot.presentation?.goalFeedback);
   const key=JSON.stringify(snapshot.players.map(p=>[p.side,p.id,p.role]));
   if(key!==roster){
    view?.dispose({loseContext:false});sampler=createLivePoseSampler();

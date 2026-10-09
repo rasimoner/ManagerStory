@@ -293,6 +293,12 @@ function synchronizePitchPresentation(state){
     state.ballState.height=0;
   }
 }
+function paintPitchGoalFeedback(overlay,feedback){
+ if(!overlay)return;overlay.hidden=!feedback?.visible;if(!feedback)return;
+ const colors=feedback.colors;overlay.style.setProperty('--goal-primary',colors[0]);overlay.style.setProperty('--goal-secondary',colors[1]);
+ if(overlay.dataset.team!==feedback.team||overlay.dataset.variant!==String(feedback.variant)){overlay.dataset.team=feedback.team;overlay.dataset.variant=String(feedback.variant);const img=overlay.querySelector('img');if(img)img.src=fanPhoto(feedback.team);}
+ const text=overlay.querySelector('small');if(text)text.textContent=feedback.text;
+}
 function paintLivePitch() {
   if(!M||typeof document==='undefined')return;
   const clock=document.querySelector('#live-clock');if(clock)clock.textContent=matchClock();
@@ -334,6 +340,7 @@ function paintLivePitch() {
   if(banner){banner.textContent=frame.label;banner.hidden=!frame.label||frame.goalUntil>now;}
   const overlay=pitch.querySelector('.pitch-goal-overlay');
   if(overlay){
+    if(dev){paintPitchGoalFeedback(overlay,frame.goalFeedback);return;}
     overlay.hidden=!(frame.goalUntil>now);
     const colors=frame.goalColors||['#55646b','#d8dedc'];
     overlay.style.setProperty('--goal-primary',colors[0]);overlay.style.setProperty('--goal-secondary',colors[1]);
