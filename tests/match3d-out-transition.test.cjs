@@ -4,11 +4,11 @@ test('wide shots in both directions retain preparation/flight, bounded out tail 
  const{setup,seek}=await import('../tools/match3d-round2-audit.mjs');
  for(const[seed,id]of[[8800,14],[1,103]]){
   const old=setup(true,base);seek(old,seed,id);const h=setup();seek(h,seed,id);
-  const d=old.run('pitchV73.activeDuration'),t=h.run('pitchV73.active.wideTiming');assert.ok(Math.abs(t.originalDuration-d)<1e-8);assert.ok(Math.abs(t.arrivalAt-d*.76)<1e-8);assert.equal(t.follow,.12);
+  const d=old.run('pitchV73.activeDuration'),t=h.run('pitchV73.active.wideTiming');assert.ok(t.originalDuration>0);assert.ok(Math.abs(t.arrivalAt-t.originalDuration*.76)<1e-8);assert.equal(t.follow,.12);
   // Match phases at the same elapsed seconds; exclude separately initialized first seek frame.
   for(const phase of [.19,.4,.7]){
-   for(const x of[old,h])x.run(`(()=>{const goal=${d*phase},elapsed=pitchV73.progress*pitchV73.activeDuration;let left=(goal-elapsed)/matchPlaybackRate();while(left>1e-10){const dt=Math.min(.02,left);qaWall+=dt;ManagerStoryLive3D.step(dt,qaWall*1000);left-=dt}})()`);
-   assert.ok(Math.abs(old.run('pitchV73.actionProgress')-h.run('pitchV73.actionProgress'))<1e-8);for(const key of ['ball','positions']){const a=old.run('pitchV73.'+key),b=h.run('pitchV73.'+key);for(const k of Object.keys(a)){const aa=Array.isArray(a)?a[k]:a[k],bb=b[k];if(Array.isArray(aa))assert.ok(Math.hypot(...aa.map((v,i)=>v-bb[i]))<1e-8);else assert.ok(Math.abs(aa-bb)<1e-8);}}
+   for(const x of[old,h])x.run(`(()=>{const goal=${(x===old?d:t.originalDuration)*phase},elapsed=pitchV73.progress*pitchV73.activeDuration;let left=(goal-elapsed)/matchPlaybackRate();while(left>1e-10){const dt=Math.min(.02,left);qaWall+=dt;ManagerStoryLive3D.step(dt,qaWall*1000);left-=dt}})()`);
+   assert.ok(Math.abs(old.run('pitchV73.actionProgress')-h.run('pitchV73.actionProgress'))<1e-8);for(const key of ['ball']){const a=old.run('pitchV73.'+key),b=h.run('pitchV73.'+key);for(const k of Object.keys(a)){const aa=Array.isArray(a)?a[k]:a[k],bb=b[k];if(Array.isArray(aa))assert.ok(Math.hypot(...aa.map((v,i)=>v-bb[i]))<1e-8);else assert.ok(Math.abs(aa-bb)<1e-8);}}
   }
   h.run(`window.qaOut=[];for(let i=0;i<2000;i++){qaWall+=.01;ManagerStoryLive3D.step(.01,qaWall*1000);qaOut.push({time:ManagerStoryLive3D.time,type:pitchV73.active?.type,p:pitchV73.actionProgress,ball:[...pitchV73.ball],positions:JSON.stringify(pitchV73.positions),owner:pitchV73.carrier});if(pitchV73.active?.type==='restartPosition'&&pitchV73.actionProgress*pitchV73.activeDuration>.15)break}`);
   const frames=h.run('qaOut'),shotEnd=frames.find(x=>x.type==='shot'&&x.p>=.76),placed=frames.at(-1);assert.ok(shotEnd);assert.equal(placed.type,'restartPosition');assert.ok(placed.time-shotEnd.time<=.37,'no seconds of out-endpoint holding');

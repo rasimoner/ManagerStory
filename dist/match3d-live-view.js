@@ -49,7 +49,7 @@ export function createLivePoseSampler(){
    let left=feet[0].point,rightFoot=feet[1].point,arm=moving?Math.sin(phase*Math.PI*2)*(.16+.22*run):0;
    const turn=old?Math.atan2(Math.sin(yaw-old.yaw),Math.cos(yaw-old.yaw)):0;
    let pelvisHeight=.935-(moving?.025*run*Math.cos(phase*Math.PI*4):0),lean=moving?.07+.14*run:0,bodyRoll=moving?-.028*Math.sin(phase*Math.PI*2)-clamp(turn,-.10,.10):0,bodyTwist=moving?.035*Math.sin(phase*Math.PI*2):0,headPitch=0,leftHand=null,rightHand=null,rightWristPitch=0;
-   const kickTiming=e?.deliveryTiming,elapsed=(P?.clockProgress??p)*(P?.duration||0),kickStart=kickTiming?Math.max(0,kickTiming.preparation-kickTiming.kickPreparation):0;
+   const kickTiming=e?.deliveryTiming||e?.shotKickTiming,elapsed=(P?.clockProgress??p)*(P?.duration||0),kickStart=kickTiming?Math.max(0,kickTiming.preparation-kickTiming.kickPreparation):0;
    const kickP=kickTiming?(elapsed<kickTiming.preparation ? .19*clamp((elapsed-kickStart)/kickTiming.kickPreparation) : .19+.81*clamp((elapsed-kickTiming.preparation)/kickTiming.kickFollow)):p;
    if((kicking||e?.type==='kickoff')&&!e?.keeperDistribution&&!shot?.header&&player.id===e.fromId&&player.side===e.fromSide&&(!kickTiming||elapsed>=kickStart&&elapsed<=kickTiming.preparation+kickTiming.kickFollow)){
     const p=kickP;

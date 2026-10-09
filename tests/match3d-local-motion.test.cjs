@@ -1,0 +1,26 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const baseline='7a4bd2aa605872f253d57efeffd5f11d28bbde49',d=(a,b)=>Math.hypot((a[0]-b[0])*1.05,(a[1]-b[1])*.68);let cache;
+async function matches(){if(cache)return cache;const{setup,full}=await import('../tools/match3d-round2-audit.mjs');return cache=[1,8800,2].map(seed=>({seed,old:full(setup(true,baseline),seed),now:full(setup(),seed)}));}
+test('local presentation preserves complete real engine/career/RNG and once-only linked identities',async()=>{
+ for(const m of await matches()){assert.equal(m.now.raw,m.old.raw);assert.equal(m.now.career,m.old.career);assert.ok(m.now.finished&&!m.now.pending&&m.now.singleResult);const ids=m.now.clips.flatMap(c=>[...new Set([c.id,...c.linked,c.controlEvent?.eventId])]).filter(x=>x!=null);for(const e of m.now.events.filter(e=>['pass','cross','firstTouch','recovery','shot','post','save'].includes(e.type)))assert.equal(ids.filter(id=>id===e.eventId).length,1,`${m.seed}/${e.eventId}`);console.log(JSON.stringify({seed:m.seed,events:m.now.events.length,motorEqual:true,singleResult:true,seconds:m.now.wall}));}
+});
+test('real delivery support is continuous, contacts unchanged, near teammates and pressure can move in both directions',async()=>{
+ const{setup,seek}=await import('../tools/match3d-round2-audit.mjs');let count=0,local=0,maxStep=0;
+ for(const sign of[-1,1]){const m=(await matches()).find(m=>m.now.clips.some(c=>c.deliveryTiming&&Math.sign(c.to[0]-c.from[0])===sign)),c=m.now.clips.find(c=>c.deliveryTiming&&Math.sign(c.to[0]-c.from[0])===sign);const h=setup();seek(h,m.seed,c.id);
+ const frames=h.run(`(()=>{const a=[],e=pitchV73.active;for(let i=0;i<12000&&pitchV73.active===e;i++){ManagerStoryLive3D.step(.004,0);if(pitchV73.active===e)a.push(MatchView.read());}return a})()`);assert.ok(frames.length>10);const e=frames[0].presentation.activeEvent;assert.ok(e.offsetTracks[String(e.fromId)]);const source=f=>f.players.find(p=>p.id===c.fromId).displayPosition;
+ const after=frames.find(f=>f.presentation.progress>.76),end=frames.at(-1);assert.ok(d(source(after),source(end))>.001,'giver supports after release');
+ for(const id of Object.keys(e.offsetTracks))if(id!==String(c.fromId)&&id!==String(c.toId))local++;
+ let old;for(const f of frames){assert.equal(f.ball.presentationHeight,.15);if(old)for(const p of f.players){const q=old.players.find(x=>x.id===p.id);maxStep=Math.max(maxStep,d(p.displayPosition,q.displayPosition));}old=f;}
+ assert.ok(maxStep<.08);h.run('pauseLive()');const state='JSON.stringify([ManagerStoryLive3D.time,pitchV73.positions,pitchV73.ball,pitchV73.visualOffsets,pitchV73.carrier])',frozen=h.run(state);h.run('ManagerStoryLive3D.step(2,0);setMatchView("2d");setMatchView("3d")');assert.equal(h.run(state),frozen);count++;
+ }assert.ok(local>0);console.log(JSON.stringify({directions:count,nearbyTracks:local,maxStep}));
+});
+test('recorded post winner approaches before the ball stops; derived long shot arcs retain exact contact and pause/rate',async()=>{
+ const{setup,seek}=await import('../tools/match3d-round2-audit.mjs'),{createLivePoseSampler}=await import('../dist/match3d-live-view.js');let posts=0,air=0;
+ for(const sign of[-1,1]){let choice;for(const m of await matches()){const c=m.now.clips.find(c=>c.result?.type==='post'&&Math.sign(c.to[0]-c.from[0])===sign);if(c){choice={m,c};break;}}assert.ok(choice);const{m,c}=choice,h=setup();seek(h,m.seed,c.id);const chase=h.run('pitchV73.active.reboundChase');assert.ok(chase,'linked real recovery');
+ const frames=h.run(`(()=>{const a=[];for(let i=0;i<15000;i++){ManagerStoryLive3D.step(.004,0);a.push(MatchView.read());if(pitchV73.active?.type==='recovery'&&pitchV73.actionProgress>.80)break;}return a})()`);
+ const bounce=frames.filter(f=>f.presentation.activeEvent?.eventId===c.id&&f.presentation.progress>=.76);assert.ok(bounce.length>5);const root=f=>f.players.find(p=>p.id===chase.id).displayPosition;assert.ok(d(root(bounce[0]),root(bounce.at(-1)))>.1);assert.ok(bounce.every(f=>f.ball.displayOwnerId==null));const speeds=bounce.slice(1).map((f,i)=>d(f.ball.displayPosition,bounce[i].ball.displayPosition)/(f.presentation.seconds-bounce[i].presentation.seconds));assert.ok(speeds[0]>speeds.at(-1));
+ const contact=frames.find(f=>f.presentation.activeEvent?.type==='recovery'&&f.presentation.progress>=.76);assert.ok(contact);assert.equal(contact.ball.displayOwnerId,chase.id);assert.ok(d(contact.ball.displayPosition,root(contact))<=.33);posts++;
+ }
+ for(const m of await matches()){const c=m.now.clips.find(c=>c.result?.type==='goal'&&d(c.from,c.to)>30);if(!c)continue;const h=setup();seek(h,m.seed,c.id);const e=h.run('pitchV73.active');assert.ok(e.shotFlight.arc>1.15);const sample=createLivePoseSampler(),frames=h.run(`(()=>{const e=pitchV73.active,a=[];for(let i=0;i<15000&&pitchV73.active===e;i++){ManagerStoryLive3D.step(.004,0);if(pitchV73.active===e)a.push(MatchView.read());}return a})()`);let peak=0;for(const f of frames){const v=sample(f);peak=Math.max(peak,v.ball[1]);if(f.presentation.progress<.19)assert.ok(d(f.ball.displayPosition,e.fromPos)<1e-8);}assert.ok(peak>1.5);air++;break;}
+ assert.ok(air);console.log(JSON.stringify({postDirections:posts,derivedAirborneGoal:air}));
+});

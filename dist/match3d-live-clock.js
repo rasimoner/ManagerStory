@@ -74,9 +74,34 @@
   // Keep separation across zero-distance continuations; fade only when the real
   // next segment actually separates the bodies, or this player must contact ball.
   for(const [id,off] of Object.entries(state.visualOffsets))if(!tracks[id]&&off.some(v=>Math.abs(v)>1e-9)&&e.enginePositions?.[id]&&e.toPos&&metres(e.enginePositions[id],e.toPos)>1.4)set(id,[0,0]);
+  // Use the existing persistent visual offsets for local support/spacing.
+  // Contacts stay on their real actors; no ball or motor target is displaced.
+  if(e.deliveryTiming){
+   const receiver=e.enginePositions[String(e.toId)]||e.toPos;
+   const sameSide=id=>M.active.some(x=>String(x)===id)?e.toSide==='user':e.toSide==='opp';
+   for(const [id,point] of Object.entries(e.enginePositions||{})){
+    if(id===String(e.toId)||fieldRole(M.active.find(x=>String(x)===id)??id,M.active.some(x=>String(x)===id)?'user':'opp')==='GK')continue;
+    const distance=metres(point,receiver),giver=id===String(e.fromId);
+    if(!giver&&(distance>12||metres(state.positions[id]||point,point)>2))continue;
+    const dx=(point[0]-receiver[0])*1.05,dz=(point[1]-receiver[1])*.68,n=Math.hypot(dx,dz);
+    const px=(receiver[0]-e.fromPos[0])*1.05,pz=(receiver[1]-e.fromPos[1])*.68,pn=Math.hypot(px,pz)||1;
+    const direction=n>.01?[dx/n,dz/n]:[-pz/pn,px/pn];
+    // The giver supports toward the receiver; close teammates open the lane.
+    // Opponents close pressure without pretending to make a tackle/contact.
+    const toward=giver&&distance>3||!sameSide(id)&&distance>2.4,step=giver?Math.min(1.2,distance*.15):sameSide(id)?Math.min(.8,Math.max(.25,2.4-distance)):distance>2.4?Math.min(.9,distance-2.4):Math.min(.6,Math.max(0,.85-distance));
+    if(!step)continue;
+    const total=e.deliveryTiming.total,begin=giver?(e.deliveryTiming.preparation+e.deliveryTiming.kickFollow)/total:0,available=Math.max(0,total*(1-begin));
+    const amount=Math.min(step,available*3/1.5,available*available*12/6);
+    if(amount<.01)continue;
+    const end=pct(direction.map(v=>v*amount*(toward?-1:1)));
+    if(point.some((v,i)=>v+end[i]<1||v+end[i]>99))continue;
+    const start=state.visualOffsets[id]||[0,0],after=Math.min(1,begin);
+    tracks[id]={start:[...start],end,startProgress:after,endProgress:1,clockBased:true,contactProgress:giver?e.deliveryTiming.preparation/total:null,source:'derived-local-support-and-pressure-from-recorded-pass-layout; persistent-common-roots'};
+   }
+  }
   e.offsetTracks=tracks;
  }
- function applyOffsets(state,e,p){for(const [id,t] of Object.entries(e.offsetTracks||{})){const u=Math.max(0,Math.min(1,(p-t.startProgress)/(t.endProgress-t.startProgress)));state.visualOffsets[id]=lerp(t.start,t.end,ease(u));}}
+ function applyOffsets(state,e,p){for(const [id,t] of Object.entries(e.offsetTracks||{})){const progress=t.clockBased?state.progress:p;const u=Math.max(0,Math.min(1,(progress-t.startProgress)/(t.endProgress-t.startProgress)));state.visualOffsets[id]=t.contactProgress!=null?(progress<t.contactProgress?lerp(t.start,[0,0],ease(progress/t.contactProgress)):lerp([0,0],t.end,ease(u))):lerp(t.start,t.end,ease(u));}}
  // Presentation-only linkage of three already committed engine events.
  function linkDribbleContest(data){
   if(!enabled)return;const q=currentPitchState().queue,[carry,press,tackle]=q.slice(-3);
@@ -184,7 +209,7 @@
   // use a monotone presentation profile with an explicit loss at frame contact.
   const reboundDistance=e.continuation?metres(target,e.continuation.toPos):0,incidentDistance=metres(source,target),impactSlope=e.outcome==='post'&&incidentDistance?Math.max(1,1.6*reboundDistance*.57/(incidentDistance*.24*.7)):1;
   const flightProgress=e.outcome==='post'?Math.pow(u,impactSlope):u;
-  let ball=lerp(source,target,flightProgress),height=sourceHeight+(targetHeight-sourceHeight)*u+Math.sin(Math.PI*u)*.55;
+  let ball=lerp(source,target,flightProgress),height=sourceHeight+(targetHeight-sourceHeight)*u+Math.sin(Math.PI*u)*(e.shotFlight?.arc??.55);
   const kStart=e.keeperStart||e.enginePositions[String(e.goalkeeperId)]||keeperTarget(e),kEnd=keeperTarget(e);
   const fx=(source[0]-target[0])*1.05,fz=(source[1]-target[1])*.68,fn=Math.hypot(fx,fz)||1,keeperForward=[fx/fn,0,fz/fn];
   const keeperSide=[keeperForward[2],0,-keeperForward[0]],lateral=(target[0]-kStart[0])*1.05*keeperSide[0]+(target[1]-kStart[1])*.68*keeperSide[2];
@@ -194,8 +219,8 @@
   if(e.outcome==='goal')kEnd[0]=dir>0?98:2;
   const keeper=e.outcome==='block'&&!keeperIntervention(e)?[...kStart]:lerp(kStart,kEnd,ease(u));
   const cross=e.outcome==='goal'?( (dir>0?100:0)-e.fromPos[0])/(target[0]-e.fromPos[0]):null;
-  if(e.outcome==='goal'){height=sourceHeight*(1-u)+.15*u+Math.sin(Math.PI*u)*1.15;if(p>.76)height=.15;}
-  if(e.outcome==='wide'){height=sourceHeight*(1-u)+.15*u+Math.sin(Math.PI*u)*1.4;}
+  if(e.outcome==='goal'){height=sourceHeight*(1-u)+.15*u+Math.sin(Math.PI*u)*(e.shotFlight?.arc??1.15);if(p>.76)height=.15;}
+  if(e.outcome==='wide'){height=sourceHeight*(1-u)+.15*u+Math.sin(Math.PI*u)*(e.shotFlight?.arc??1.4);}
   if(e.outcome==='save'&&p>=.76){
    const r=ease(Math.max(0,Math.min(1,(p-.76)/.24)));
    if(e.shotResult.saveType==='CATCH'){ball=lerp(target,[keeper[0]+keeperForward[0]*.32/1.05,keeper[1]+keeperForward[2]*.32/.68],r);height=1.05;}
@@ -212,6 +237,20 @@
  // The recorded loose event keeps its ID and its own clip. Its route starts
  // at save contact and crosses the boundary once, rather than dropping in
  // place and restarting the same flight. No new event or possession is added.
+ function planReboundChase(state){
+  if(state.active.reboundChase){
+     const e=state.active,c=e.reboundChase;c.tracks={};
+     for(const id of new Set([...c.chasers,String(c.id)])){
+      const start=state.positions[id]||c.targets[id];if(!start)continue;
+      const target=e.enginePositions[id]||start,impact=String(e.goalkeeperId)===id?shotFrame(e,.76).keeper:lerp(start,target,ease(.76));
+      const end=id===String(c.id)?c.approach:c.targets[id]||impact,distance=metres(impact,end);
+      // Start the recorded chase concurrently without stretching the shot to
+      // force an early arrival. The real recovery completes the remaining run.
+      const fraction=distance?Math.min(id===String(c.id)?1:.65,state.activeDuration*.24*rootRate/1.5/distance):0;
+      c.tracks[id]={impact,end:lerp(impact,end,fraction)};
+     }
+    }
+ }
  function parryFrame(track,elapsed){const u=Math.max(0,Math.min(1,elapsed/(track.tail+track.loose))),q=ease(u);return {ball:lerp(track.contact,track.land,q),height:1.05*(1-q)+.15*q};}
  const positions=()=>Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
  function beginMotionSample(){if(!enabled)return;inPositionUpdate=true;motionSample={fromGameSecond:Math.max(0,M.min*60-60),toGameSecond:M.min*60,fromPositions:positions(),fromBall:[...M.ballState.position],fromOwner:M.ballOwner,fromSide:M.ballSide};}
@@ -256,7 +295,9 @@
   presentationSeconds+=delta;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
   // Drain only the current atomic engine minute. Never produce a future minute behind a queue.
   if(state.active&&state.durationEvent!==state.active){
-   planOffsets(state,state.active);state.activeDuration=duration(state.active);state.durationEvent=state.active;state.startPositions=structuredClone(state.positions);
+   planOffsets(state,state.active);state.activeDuration=duration(state.active);
+    if(state.active.shotKickTiming)state.active.shotKickTiming.preparation=state.activeDuration*.19;
+    planReboundChase(state);state.durationEvent=state.active;state.startPositions=structuredClone(state.positions);
    state.clipStartTimestamp=now-state.progress*state.activeDuration*tempo/matchPlaybackRate()*1000;
    state.contactObserved=null;state.arrivalObserved=null;state.rateSegments=[];
   }
@@ -459,6 +500,16 @@
      const e=state.active,contact=shotFrame(e,.76).keeper;
      e.timingDuration=Math.max(duration(e),metres(e.keeperStart,contact)*1.5/rootRate/.57);
      e.keeperTimingSource='visible-root-to-derived-contact; same root-rate scale as live movement';
+     e.shotKickTiming={preparation:e.timingDuration*.19,kickPreparation:.12,kickFollow:.18,source:'release-relative strike; flight does not stretch foot follow-through'};
+     const distance=metres(e.fromPos,shotTarget(e)),blend=ease(Math.max(0,Math.min(1,(distance-22)/20)));
+     e.shotFlight={arc:(e.outcome==='goal'?1.15:e.outcome==='wide'?1.4:.55)+(['goal','wide','save'].includes(e.outcome)?blend*(e.outcome==='save'?.9:1.4):0),source:'derived-from-visible-shot-distance-and-committed-result; engine has no height/type telemetry'};
+     if(e.outcome==='post'&&e.continuation?.type==='looseBall'){
+      const recovery=state.queue.find(x=>x.type==='recovery'&&x.gameSecond===e.gameSecond&&x.fromPos?.every((v,i)=>Math.abs(v-e.continuation.toPos[i])<1e-8));
+      if(recovery){const id=String(recovery.toId),start=state.positions[id]||recovery.toPos,land=[...e.continuation.toPos],dx=(land[0]-start[0])*1.05,dz=(land[1]-start[1])*.68,n=Math.hypot(dx,dz)||1;
+       const approach=[land[0]-dx/n*.8/1.05,land[1]-dz/n*.8/.68];
+       e.reboundChase={id:recovery.toId,side:recovery.toSide,land,approach,targets:structuredClone(recovery.enginePositions),chasers:Object.keys(recovery.recoveryStarts||{}),source:'recorded-recovery-chasers approach during real rebound; winner unchanged'};
+      }
+     }
     }
     // Budget the rendered segment, including mapped roots, rather than its
     // stale engine timing reference. Long passes cannot finish in a tiny clip.
@@ -494,6 +545,8 @@
     }
     if(state.active.keeperDistribution?.kind==='throw'){const d=state.active.keeperDistribution,releaseAt=duration(state.active)*.19,scale=Math.min(1,releaseAt/.30);d.handTiming={releaseAt,startAt:Math.max(0,releaseAt-.30),preparation:.12*scale,throw:.18*scale,follow:.16,recover:.20};}
     planOffsets(state,state.active);state.activeDuration=duration(state.active);
+    if(state.active.shotKickTiming)state.active.shotKickTiming.preparation=state.activeDuration*.19;
+    planReboundChase(state);
     if(state.active.type==='shot'&&state.active.outcome==='wide'){
      const e=state.active,original=state.activeDuration;
      e.wideTiming={originalDuration:original,arrivalAt:original*.76,follow:Math.min(.12,original*.24)};
@@ -560,6 +613,7 @@
     if(p<.19)state.eventStatistics=state.shotPreStatistics;
     state.ball=f.ball;state.positions[String(e.fromId)]=e.goalKickRunUp?lerp(e.goalKickRunUp.start,e.goalKickRunUp.contact,ease(Math.min(1,p/.19))):[...e.fromPos];state.positions[String(e.goalkeeperId)]=f.keeper;
     if(f.blocker)state.positions[String(result.toId)]=f.blocker;
+    if(e.reboundChase&&p>=.76)for(const [id,t] of Object.entries(e.reboundChase.tracks))state.positions[id]=lerp(t.impact,t.end,ease((p-.76)/.24));
     state.carrier=p<.19&&!f.header?e.fromId:e.outcome==='save'&&result.saveType==='CATCH'&&p>=.76?e.goalkeeperId:null;
     state.side=p<.19&&!f.header?e.fromSide:state.carrier==null?'none':result.toSide;
     state.shotMotion={...f,progress:p,event:p>=.76||f.goalCrossed?presentationEvent(result):presentationEvent(e),phase:p<.19?'preparation':p<.76?'flight':'result'};
@@ -615,7 +669,7 @@
    if(e.type==='looseBall'&&!e.heavyGeometry)state.displayBallHeight=e.parryFlight?parryFrame(e.parryFlight,e.parryFlight.tail+Math.min(clockProgress*D,e.parryFlight.loose)).height:(e.looseStartHeight??.15)*(1-ease(clockProgress))+.15*ease(clockProgress);
    if(state.keeperControl&&!state.shotMotion)state.displayBallHeight=e.looseCollection?state.collectionHeight:1.05;
    if(e.keeperDistribution){const t=e.keeperDistribution.timing,sec=clockProgress*D;state.displayBallHeight=t?(sec<t.releaseAt?1.05:sec<t.contactAt?1.05-4.905*(sec-t.releaseAt)**2:.24*(1-u)+.15*u+Math.sin(Math.PI*u)*Math.min(3.8,metres(e.fromPos,e.toPos)/12)):(p<.19?(e.keeperDistribution.handMotion?.height??1.05):1.05*(1-u)+.15*u+(e.travelType==='aerial'?Math.sin(Math.PI*u)*Math.min(3.8,metres(e.fromPos,e.toPos)/12):0));if(t)state.ballState.travelType='aerial';}
-   if(state.keeperControl||e.keeperDistribution||e.parryFlight||e.type==='looseBall')state.ballState.height=state.displayBallHeight;
+   if(state.keeperControl||e.keeperDistribution||e.parryFlight||e.type==='looseBall'||state.shotMotion)state.ballState.height=state.displayBallHeight;
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(clockProgress>=1-1e-8){
     if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
@@ -636,6 +690,7 @@
     if(pass){const metres=Math.hypot((e.toPos[0]-e.fromPos[0])*1.05,(e.toPos[1]-e.fromPos[1])*.68);logs.push({eventId:e.eventId,gameSecond:e.gameSecond,metres,duration:D,flight:e.deliveryTiming?.flight??D*.57,tempo,speed:M.speed,effectiveSpeed:matchPlaybackRate(),screenDurationAtConstantSpeed:D*tempo/matchPlaybackRate(),screenFlightAtConstantSpeed:(e.deliveryTiming?.flight??D*.57)*tempo/matchPlaybackRate(),actualWallEnd:(now-wallOrigin)/1000,actualScreenDuration:(now-state.clipStartTimestamp)/1000,presentationEnd:presentationSeconds,observedFlightScreenDuration:(state.arrivalObserved-state.contactObserved)/1000,rateSegments:structuredClone(state.rateSegments),success:e.success,toId:e.toId,queue:state.queue.length,clock:'existing liveFrameStep → shared presentation seconds; atomic-minute backpressure'});}
     if(e.looseResultId||e.keeperLooseResult||['goalKick','freeKick'].includes(e.type)&&e.success===false){state.carrier=null;state.side='none';state.ballState.ownerId=null;}
     if(state.shotMotion)state.afterShot=true;
+    if(e.reboundChase){state.parryLooseLand={gameSecond:e.gameSecond,point:[...state.ball]};state.keeperControl=null;}
     if(e.keeperDistribution?.timing){const d=e.keeperDistribution,a=state.keeperRootAnchors?.[String(d.id)];if(a)a.display=a.display.map((v,i)=>v+d.kickRoot[i]-d.root[i]);}
     if(e.type==='looseBall'&&e.parryFlight){state.parryLooseLand={gameSecond:e.gameSecond,point:[...state.ball]};state.keeperControl=null;}
     if(e.looseCollection&&state.duelRootLinks)delete state.duelRootLinks[String(e.toId)];
