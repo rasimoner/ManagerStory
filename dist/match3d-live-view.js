@@ -33,7 +33,7 @@ export function createLivePoseSampler(){
    // At sprint speed a fixed 1.25m cycle produced machine-like cadence.
    // Lengthen the distance cycle, and shorten stance to the reachable ground
    // distance; planted feet remain world anchors rather than sliding with root.
-   const stride=player.role==='GK'?1.25:Math.max(1.25,speed/6),stance=player.role==='GK'?.5:Math.min(.5,.70/stride),phase=(old?.gaitPhase||0)+(moving?distance/stride:0),run=clamp(speed/7);
+   const stride=player.role==='GK'?1.25:Math.max(1.25,speed/4),stance=player.role==='GK'?.5:Math.min(.5,.70/stride),phase=(old?.gaitPhase||0)+(moving?distance/stride:0),run=clamp(speed/7);
    const feet=[-1,1].map((sign,i)=>{
     const q=phase+i*.5,cycle=Math.floor(q),f=q-cycle,plant=!moving||f<stance;
     const neutral=add(root,mul(lateral,sign*.102));neutral[1]=.09;

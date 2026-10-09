@@ -338,13 +338,14 @@ function paintLivePitch() {
   pitch.style.opacity=reset?(t<.15?1-smooth(t/.15):smooth((t-.15)/.15)):1;
   const rect=pitch.getBoundingClientRect(),w=rect.width,h=rect.height;if(!w||!h)return;
   for(const node of pitch.querySelectorAll('[data-player]')) {
-    const xy=frame.positions[node.dataset.player];
+    const base=frame.positions[node.dataset.player],offset=frame.visualOffsets?.[node.dataset.player]||[0,0];
+    const xy=base?.map((v,i)=>v+offset[i]);
     if(!xy)continue;
     node.style.transform='translate3d('+(xy[0]/100*w-12)+'px,'+(xy[1]/100*h-12)+'px,0)';
     const e=frame.active,id=node.dataset.player;
     const visualCarrier=frame.active&&pitchEventPhase(frame.progress)==='ACTION'&&['pass','cross','shot'].includes(e.type)?e.fromId:frame.carrier;
     node.classList.toggle('carrier',id===String(visualCarrier)&&node.dataset.side===frame.side);
-    const moving=!!e&&[e.fromId,e.toId,e.defenderId,e.playerId].some(x=>x!=null&&String(x)===id);
+    const moving=dev?Math.hypot(...(frame.flowVelocity?.[id]||[0,0]))>.15:!!e&&[e.fromId,e.toId,e.defenderId,e.playerId].some(x=>x!=null&&String(x)===id);
     node.classList.toggle('moving',moving);
     node.style.setProperty('--move-dir',e?.toPos&&e?.fromPos&&e.toPos[0]<e.fromPos[0]?'-1':'1');
   }

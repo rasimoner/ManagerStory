@@ -1,4 +1,4 @@
-const CACHE = "managerstory-v7.4.2-local-motion-20261009";
+const CACHE = "managerstory-v7.4.2-team-flow-20261010";
 const ASSETS = [
   "./match3d-career.js", "./match3d-career.css", "./match3d-live-clock.js", "./match3d-live-view.js",
   "./match3d-pass-timeline.js", "./match3d-football-pose.js", "./match3d-keeper.js", "./match3d-net.js", "./match3d-pass-replay.js", "./match3d-pass-recordings.json",
