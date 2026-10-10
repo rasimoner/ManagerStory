@@ -16,16 +16,22 @@ async function examples(kind){const a=[];for(const m of await audit())for(const 
  }
  const dir=Math.sign(c.to[0]-50);if(!a.some(x=>x.seed===m.seed&&x.dir===dir))a.push({seed:m.seed,dir,c});}for(const seed of [1,8800])for(const dir of [-1,1])assert.ok(a.some(x=>x.seed===seed&&x.dir===dir));return a;}
 async function frames(seed,c){const {setup,seek}=await import('../tools/match3d-round2-audit.mjs');const h=setup();seek(h,seed,c.id);const snapshots=h.run(`(()=>{const a=[];let recovered=null,tail=0;for(let i=0;i<18000;i++){ManagerStoryLive3D.step(.004,0);a.push(MatchView.read());if(pitchV73.active?.type==='recovery')recovered=pitchV73.active.eventId;if(recovered!=null&&pitchV73.active?.eventId!==recovered&&++tail>10||pitchV73.active?.keeperDistribution&&pitchV73.progress>.4)break;}return a;})()`);return {h,snapshots};}
-test('save chains preserve real events/RNG/career, single result and the delivered tempo budgets',async()=>{
+test('save chains preserve real events/RNG/career, single result and contact windows',async()=>{
  let saves=0;
  for(const m of await audit()){
   assert.equal(m.after.raw,m.before.raw);assert.equal(m.after.career,m.before.career);assert.ok(m.after.finished&&!m.after.pending&&m.after.singleResult);
   const ids=m.after.clips.flatMap(c=>[...new Set([c.id,...c.linked,c.controlEvent?.eventId])]).filter(x=>x!=null);
   for(const e of m.after.events.filter(e=>['shot','save','looseBall','recovery','pass','cross','firstTouch'].includes(e.type)))assert.equal(ids.filter(x=>x===e.eventId).length,1,`${m.seed}/${e.eventId} exactly once`);
-  for(const c of m.after.clips.filter(c=>c.deliveryTiming)){const old=m.before.clips.find(x=>x.id===c.id);assert.deepEqual(c.deliveryTiming,old.deliveryTiming);}
-  for(const c of m.after.clips.filter(c=>c.result?.type==='save')){saves++;assert.equal(c.duration,m.before.clips.find(x=>x.id===c.id).duration);}
+  for(const c of m.after.clips.filter(c=>c.deliveryTiming)){const old=m.before.clips.find(x=>x.id===c.id),t=c.deliveryTiming;
+   // Whole-team roots legitimately change the visible distance, not the release/control windows.
+   for(const key of ['control','kickFollow','kickPreparation'])assert.equal(t[key],old.deliveryTiming[key]);
+   assert.ok(t.preparation>=.12&&t.flight>=.18);assert.ok(Math.abs(t.total-t.preparation-t.flight-t.control)<1e-8);
+   const peak=distance(c.from,c.to)/(t.flight*(1-Math.min(.25,.08/t.flight)/2));
+   assert.ok(peak<=60.00001,`real delivery ${m.seed}/${c.id} ${peak}`);
+  }
+  for(const c of m.after.clips.filter(c=>c.result?.type==='save')){saves++;const old=m.before.clips.find(x=>x.id===c.id);assert.equal(c.result.eventId,old.result.eventId);assert.equal(c.result.saveType,old.result.saveType);}
   console.log(JSON.stringify({seed:m.seed,events:m.after.events.length,engineRngCareerEqual:true,oldSeconds:m.before.wall,newSeconds:m.after.wall}));
- }console.log(JSON.stringify({realSaves:saves,tempoBudgetsUnchanged:true}));
+ }console.log(JSON.stringify({realSaves:saves,contactWindowsPreserved:true}));
 });
 test('parry starts leaving at contact and crosses the actual loose event without position/height/pose reset',async()=>{
  const {createLivePoseSampler}=await import('../dist/match3d-live-view.js');let boundaries=0,maxYawStep=0,maxHandStep=0,maxBallStep=0;
@@ -64,6 +70,6 @@ test('pause/view switches and normal/delayed frames retain save-flight/control a
   a.run('while(pitchV73.active?.eventId==='+c.id+'&&pitchV73.progress<.8)ManagerStoryLive3D.step(.004,0)');b.run('while(pitchV73.active?.eventId==='+c.id+'&&pitchV73.progress<.8)ManagerStoryLive3D.step(.004,0)');
   a.run('pauseLive()');const state='JSON.stringify([ManagerStoryLive3D.time,pitchV73.positions,pitchV73.ball,pitchV73.displayBallHeight,pitchV73.carrier,pitchV73.keeperControl,pitchV73.keeperRecovery,pitchV73.active,pitchV73.progress,M.events,M.rand.state])',frozen=a.run(state);
   a.run('setMatchView("2d");ManagerStoryLive3D.step(2,0);setMatchView("3d")');assert.equal(a.run(state),frozen);a.run('resumeLive()');
-  for(let i=0;i<160;i++){const dt=i%3===0?.016:.12;a.run(`ManagerStoryLive3D.step(${dt},0)`);b.run(`ManagerStoryLive3D.step(${dt===.12?2:dt},0)`);assert.equal(a.run(state),b.run(state));const takes=a.run('qaFrameTakes');assert.ok(takes.reduce((n,x)=>n+x.take,0)<=dt/2+1e-8);if(takes.length>1)crossings++;}checked++;
+  for(let i=0;i<160;i++){const dt=i%3===0?.016:.12,start=a.run('ManagerStoryLive3D.time');a.run(`ManagerStoryLive3D.step(${dt},0)`);b.run(`ManagerStoryLive3D.step(${dt===.12?2:dt},0)`);assert.equal(a.run(state),b.run(state));const delta=a.run('ManagerStoryLive3D.time')-start,takes=delta>0?a.run('qaFrameTakes'):[];assert.ok(delta<=dt/2+1e-8);assert.ok(takes.reduce((n,x)=>n+x.take,0)<=delta+1e-8);if(takes.length>1)crossings++;}checked++;
  }assert.ok(crossings>0);console.log(JSON.stringify({normalDelayedChains:checked,crossingFrames:crossings,pauseViewsPreserved:true}));
 });
