@@ -30,21 +30,21 @@ export function createLivePoseSampler(){
    const forward=[Math.sin(yaw),0,Math.cos(yaw)],lateral=[forward[2],0,-forward[0]];
    // Distance-driven stance anchors. Swing starts at the old plant and lands
    // ahead of the moving root; turns replant an unreachable foot, never a root.
-   // At sprint speed a fixed 1.25m cycle produced machine-like cadence.
-   // Lengthen the distance cycle, and shorten stance to the reachable ground
-   // distance; planted feet remain world anchors rather than sliding with root.
-   const stride=player.role==='GK'?1.25:Math.max(1.25,speed/4),stance=player.role==='GK'?.5:Math.min(.5,.70/stride),phase=(old?.gaitPhase||0)+(moving?distance/stride:0),run=clamp(speed/7);
+   // Slow travel gets a short cycle and short reach. At sprint speed the cycle
+   // lengthens to retain the four-cycle ceiling. Stance consumes only reachable
+   // ground distance; stopping keeps planted soles and settles an airborne foot.
+   const stride=player.role==='GK'?1.25:Math.max(.20,Math.min(1.25,speed*.32),speed/4),reach=player.role==='GK'?.25:Math.min(.30,stride*.24),stance=player.role==='GK'?.5:Math.min(.5,reach*2/stride),phase=(old?.gaitPhase||0)+(moving?distance/stride:0),run=clamp(speed/7);
    const feet=[-1,1].map((sign,i)=>{
     const q=phase+i*.5,cycle=Math.floor(q),f=q-cycle,plant=!moving||f<stance;
     const neutral=add(root,mul(lateral,sign*.102));neutral[1]=.09;
     let point=old?.feet[i]?.point,launch=old?.feet[i]?.launch;
-    const unreachable=point&&Math.hypot(point[0]-root[0],point[2]-root[2])>.52;
-    if(!moving)point=neutral;
-    else if(!point||old.feet[i].cycle!==cycle||(!old.feet[i].plant&&plant)||unreachable)point=add(neutral,mul(forward,player.role==='GK'?.25:.35));
+    const unreachable=point&&Math.hypot(point[0]-root[0],point[2]-root[2])>(player.role==='GK'?.52:.42);
+    if(!moving)point=player.role==='GK'||!point?neutral:old.feet[i].plant?point:mix(point,neutral,1-Math.exp(-dt*12));
+    else if(!point||old.feet[i].cycle!==cycle||(!old.feet[i].plant&&plant)||unreachable)point=add(neutral,mul(forward,reach));
     if(!plant){if(!launch||old?.feet[i]?.plant||old?.feet[i]?.cycle!==cycle)launch=[...point];
-     const swing=(f-stance)/(1-stance);point=mix(launch,add(neutral,mul(forward,player.role==='GK'?.30:.35)),smooth(swing));point[1]=.09+Math.sin(Math.PI*swing)*(.10+.08*run);
-    }else {point=[point[0],.09,point[2]];launch=null;}
-    return {point,cycle,plant,launch};
+     const swing=(f-stance)/(1-stance);point=mix(launch,add(neutral,mul(forward,player.role==='GK'?.30:reach)),smooth(swing));point[1]=.09+Math.sin(Math.PI*swing)*(player.role==='GK'?(.10+.08*run):(.025+.12*run));
+    }else {point=[point[0],moving||player.role==='GK'?.09:point[1],point[2]];launch=null;}
+    return {point,cycle,plant:moving||player.role==='GK'?plant:point[1]<=.091,launch};
    });
    let left=feet[0].point,rightFoot=feet[1].point,arm=moving?Math.sin(phase*Math.PI*2)*(.16+.22*run):0;
    const turn=old?Math.atan2(Math.sin(yaw-old.yaw),Math.cos(yaw-old.yaw)):0;
