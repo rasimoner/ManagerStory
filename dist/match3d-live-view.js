@@ -68,9 +68,10 @@ export function createLivePoseSampler(){
    if(carry&&player.id===e.fromId&&player.side===e.fromSide&&(!carry.heavyContact||p<.65)){
     // Reach only near a derived touch; intervening frames keep the distance-based gait.
     const phase=carry.touchPhase,weight=1-smooth(Math.min(phase,1-phase)/.12);
-    const pathA=metres(e.fromPos),pathB=metres(e.toPos),n=Math.hypot(pathB[0]-pathA[0],pathB[2]-pathA[2])||1;
-    const touchDir=[(pathB[0]-pathA[0])/n,0,(pathB[2]-pathA[2])/n];
-    const contact=add(ball,mul(touchDir,-.30));contact[1]=.16;
+    // The ankle remains aligned to the rendered body while it turns. Place
+    // the contact behind the ball in that same frame, not the future path frame.
+    const touchDir=[Math.sin(yaw),0,Math.cos(yaw)];
+    const contact=add(ball,mul(touchDir,-.32));contact[1]=.16;
     rightFoot=mix(rightFoot,contact,weight);
     gaps.push({id:player.id,kind:'derived-carry-touch',metres:Math.hypot(root[0]-ball[0],root[2]-ball[2]),phase,weight});
    }

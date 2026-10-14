@@ -29,7 +29,16 @@ test('real engine samples use the actual approved mesh: kick, carry, contest, he
   const h=setup();h.run(`M.rand=R(${seed})`);const sampler=createLivePoseSampler(),models=new Map();
   // Existing deterministic presentation protocol, no new decisions or scheduler.
   for(let i=0;i<12000;i++){
-   h.run(`(()=>{let dt=.04;const e=pitchV73.active,p=pitchV73.progress;const boundary=[.19,.76].find(x=>x>p+1e-8);if(e&&boundary)dt=Math.min(dt,(boundary-p)*pitchV73.activeDuration*4+1e-10);ManagerStoryLive3D.step(dt,0);})()`);const s=h.run('MatchView.read()'),e=s.presentation.activeEvent;if(!e)continue;
+   // Sample semantic contacts through their actual clock boundaries and current
+   // playback rate. The old fixed *4 conversion skipped contacts after timing changes.
+   h.run(`(()=>{let dt=.04;const P=MatchView.read().presentation,e=P.activeEvent,p=P.progress;
+    const boundary=[.19,.76].find(x=>x>p+1e-8);let q=boundary;
+    const t=P.contestMotion?.timing,d=e?.deliveryTiming;
+    if(t&&boundary!=null){for(let j=1;j<t.poseBoundaries.length;j++)if(boundary<=t.poseBoundaries[j]){q=t.boundaries[j-1]+(t.boundaries[j]-t.boundaries[j-1])*(boundary-t.poseBoundaries[j-1])/(t.poseBoundaries[j]-t.poseBoundaries[j-1]);break;}}
+    else if(d&&boundary!=null)q=(boundary<=.19?d.preparation*boundary/.19:d.preparation+d.flight*(boundary-.19)/.57)/d.total;
+    if(e?.wideTiming&&boundary!=null){const w=e.wideTiming;q=(boundary<=.76?boundary*w.originalDuration:w.arrivalAt+(boundary-.76)/.24*w.follow)/P.duration;}
+    if(e&&q!=null)dt=Math.min(dt,Math.max(0,q-P.clockProgress)*P.duration*ManagerStoryLive3D.tempo/matchPlaybackRate()+1e-10);
+    ManagerStoryLive3D.step(dt,0);})()`);const s=h.run('MatchView.read()'),e=s.presentation.activeEvent;if(!e)continue;
    const view=sampler(s),p=s.presentation.progress,shot=s.presentation.shotMotion;
    for(const pose of view.poses){const key=`${pose.side}:${pose.id}`;if(!models.has(key))models.set(key,createFootballer({id:pose.id,side:pose.side,number:7,kit}));const model=models.get(key),c=poseFootballer(model,pose);
     if(pose.id===e.fromId&&pose.side===e.fromSide&&Math.abs(p-.19)<1e-7){
