@@ -12,7 +12,7 @@
 <script src="match3d-live-clock.js"></script>
 <script src="match-view-adapter.js"></script>
 <script type="module">
-import './match3d-career.js';
+import('./match3d-career.js').catch(error=>{console.warn('3D saha yüklenemedi.',error);if(M){M.fieldView='2d';render();}});
 if(new URLSearchParams(location.search).get('dev3d')==='1')import('./match3d-dev.js').catch(error=>console.warn('3D hazırlığı yüklenemedi.',error));
 </script>
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(error=>console.warn("Çevrimdışı hazırlık tamamlanamadı.",error));</script></body></html>

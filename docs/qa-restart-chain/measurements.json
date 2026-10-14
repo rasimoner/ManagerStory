@@ -1,0 +1,284 @@
+{
+  "baseline": "097d4e5024c841a0f1b2c7e8f038d92e6e1a1434",
+  "environment": "CPU real engine/common clock; no WebGL",
+  "burst": {
+    "before": [
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "2d",
+        "speed": 0.5,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 1,
+        "nextAdvance": 0.009999999999999787,
+        "ballStep": 1.0296607015808832,
+        "rootStep": 5.085518453272153,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "2d",
+        "speed": 1,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 2,
+        "nextAdvance": 0.019999999999999574,
+        "ballStep": 1.0296607015808596,
+        "rootStep": 5.085518453272152,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "2d",
+        "speed": 2,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 4,
+        "nextAdvance": 0.03999999999999915,
+        "ballStep": 1.02966070158085,
+        "rootStep": 5.085518453272147,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "3d",
+        "speed": 0.5,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 1,
+        "nextAdvance": 0.009999999999999787,
+        "ballStep": 1.0296607015808832,
+        "rootStep": 5.085518453272153,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "3d",
+        "speed": 1,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 2,
+        "nextAdvance": 0.019999999999999574,
+        "ballStep": 1.0296607015808596,
+        "rootStep": 5.085518453272152,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "3d",
+        "speed": 2,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 4,
+        "nextAdvance": 0.03999999999999915,
+        "ballStep": 1.02966070158085,
+        "rootStep": 5.085518453272147,
+        "viewBallGap": 0
+      }
+    ],
+    "after": [
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "2d",
+        "speed": 0.5,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 0.0600000000000005,
+        "nextAdvance": 0.009999999999999787,
+        "ballStep": 0.434287043764172,
+        "rootStep": 0.4441183191189311,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "2d",
+        "speed": 1,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 0.11999999999999922,
+        "nextAdvance": 0.019999999999999574,
+        "ballStep": 0.7664585675725737,
+        "rootStep": 0.7757215405636686,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "2d",
+        "speed": 2,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 0.2400000000000002,
+        "nextAdvance": 0.03999999999999915,
+        "ballStep": 1.02966070158085,
+        "rootStep": 1.039734889071467,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "3d",
+        "speed": 0.5,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 0.0600000000000005,
+        "nextAdvance": 0.009999999999999787,
+        "ballStep": 0.434287043764172,
+        "rootStep": 0.4441183191189311,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "3d",
+        "speed": 1,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 0.11999999999999922,
+        "nextAdvance": 0.019999999999999574,
+        "ballStep": 0.7664585675725737,
+        "rootStep": 0.7757215405636686,
+        "viewBallGap": 0
+      },
+      {
+        "seed": 1,
+        "eventId": 18,
+        "view": "3d",
+        "speed": 2,
+        "duration": 2.121583380239195,
+        "pauseFrozen": true,
+        "advance": 0.2400000000000002,
+        "nextAdvance": 0.03999999999999915,
+        "ballStep": 1.02966070158085,
+        "rootStep": 1.039734889071467,
+        "viewBallGap": 0
+      }
+    ]
+  },
+  "save": {
+    "before": {
+      "seed": 8800,
+      "shot": 49,
+      "result": 51,
+      "control": [
+        2.523809523782242,
+        42.0583115182817
+      ],
+      "maxIdleTravel": 12.115169562765143,
+      "action": {
+        "id": 53,
+        "from": [
+          12.493665422905956,
+          51.02691946153255
+        ]
+      }
+    },
+    "after": {
+      "seed": 8800,
+      "shot": 49,
+      "result": 51,
+      "control": [
+        2.523809523782242,
+        42.0583115182817
+      ],
+      "maxIdleTravel": 2.709643075743351,
+      "action": {
+        "id": 53,
+        "from": [
+          5.017474946715479,
+          43.08523097981424
+        ],
+        "rawFrom": [
+          12.493665422905956,
+          51.02691946153255
+        ],
+        "mapping": "derived-from-visible-control; immutable-engine-source"
+      }
+    }
+  },
+  "post": {
+    "seed": 2,
+    "shot": 19,
+    "result": 21,
+    "recovery": 23,
+    "duration": 2.531448726608384,
+    "incoming": 43.849088204041664,
+    "outgoing": 30.69224005038676,
+    "late": 12.465874650943208,
+    "endpoint": [
+      92.00001300801782,
+      32.427840759214746
+    ],
+    "expected": [
+      92,
+      32.42782044271007
+    ],
+    "winner": "o1"
+  },
+  "restarts": {
+    "corner": {
+      "seed": 10,
+      "eventId": 40,
+      "arc": 1.0000000000000047,
+      "from": [
+        99.32656497029852,
+        1.0398629135096287
+      ],
+      "engineFrom": [
+        98,
+        2
+      ],
+      "toeGap": 0.13756816492196972
+    },
+    "kickoff": {
+      "seed": 1,
+      "eventId": 1,
+      "duration": 0.8,
+      "preBall": [
+        50,
+        50
+      ],
+      "contactBall": [
+        50,
+        50
+      ],
+      "receiver": 12,
+      "receiverGap": 0,
+      "toeGap": 0.1375681649219761,
+      "returnToeGap": 0.13756816492197635,
+      "end": [
+        50,
+        50
+      ],
+      "motorReceiverMissing": true
+    },
+    "wide": {
+      "seed": 8800,
+      "shot": 14,
+      "result": 16,
+      "placement": 18,
+      "duration": 0.44,
+      "before": [
+        102,
+        72
+      ],
+      "after": [
+        95.5,
+        56
+      ],
+      "engineRestart": [
+        95.5,
+        56
+      ],
+      "opacity": 0
+    }
+  }
+}

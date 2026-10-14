@@ -1,0 +1,355 @@
+{
+  "baseline": "0e6edecc7d3de3a518eee0e64bdf7ba815a61380",
+  "environment": "CPU real engine/shared clock; motion visually awaiting user approval",
+  "matches": [
+    {
+      "seed": 1,
+      "preserved": true,
+      "beforeSeconds": 379.51999999999305,
+      "afterSeconds": 393.3599999999903,
+      "beforeClipSeconds": 374.93686829619736,
+      "afterClipSeconds": 389.0294257599888,
+      "singleResult": true,
+      "finished": true,
+      "pending": false,
+      "events": 502,
+      "clips": 475,
+      "interventions": [
+        {
+          "id": 165,
+          "result": 167,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 192,
+          "result": 194,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 277,
+          "result": 279,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 368,
+          "result": 370,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 380,
+          "result": 382,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 402,
+          "result": 404,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 408,
+          "result": 410,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 424,
+          "result": 426,
+          "type": "block",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 487,
+          "result": 489,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        }
+      ]
+    },
+    {
+      "seed": 8800,
+      "preserved": true,
+      "beforeSeconds": 403.5199999999883,
+      "afterSeconds": 429.27999999998315,
+      "beforeClipSeconds": 398.8247185910806,
+      "afterClipSeconds": 424.7911169780597,
+      "singleResult": true,
+      "finished": true,
+      "pending": false,
+      "events": 516,
+      "clips": 502,
+      "interventions": [
+        {
+          "id": 31,
+          "result": 33,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 49,
+          "result": 51,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 99,
+          "result": 101,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 106,
+          "result": 108,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 277,
+          "result": 279,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 297,
+          "result": 299,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 312,
+          "result": 314,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 368,
+          "result": 370,
+          "type": "block",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 414,
+          "result": 416,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 427,
+          "result": 429,
+          "type": "save",
+          "saveType": "DEFLECT_CORNER",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": true
+        },
+        {
+          "id": 455,
+          "result": 457,
+          "type": "save",
+          "saveType": "DEFLECT_CORNER",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": true
+        },
+        {
+          "id": 468,
+          "result": 470,
+          "type": "block",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 501,
+          "result": 503,
+          "type": "save",
+          "saveType": "CATCH",
+          "actor": {
+            "kind": "keeper",
+            "id": "o0",
+            "side": "opp",
+            "name": "Sinan Arslan",
+            "role": "GK"
+          },
+          "corner": false
+        },
+        {
+          "id": 511,
+          "result": 513,
+          "type": "save",
+          "saveType": "PARRY",
+          "actor": {
+            "kind": "keeper",
+            "id": 0,
+            "side": "user",
+            "name": "Onur",
+            "role": "GK"
+          },
+          "corner": false
+        }
+      ]
+    }
+  ]
+}

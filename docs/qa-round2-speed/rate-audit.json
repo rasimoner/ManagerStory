@@ -1,0 +1,25 @@
+{
+  "round2Parent": "0e6edecc7d3de3a518eee0e64bdf7ba815a61380",
+  "round2Commit": "37c04c37ad43c1eada3a43309fbf7da9ac087f86",
+  "globalRateBefore": "M.speed / tempo",
+  "globalRateAfterRound2": "M.speed / tempo",
+  "legacyLiveClockUnchangedInRound2": true,
+  "round2OnlyClipBudgetsChanged": true,
+  "previousFullMatchSeconds": [
+    393.36,
+    429.28
+  ],
+  "earlierFullMatchSeconds": [
+    379.52,
+    403.52
+  ],
+  "subjectiveSpeedCauseEstablished": false,
+  "newEffectiveRates": {
+    "0.5": 0.25,
+    "1": 0.5,
+    "2": 1
+  },
+  "newRateAppliedOnce": "shared clock delta; legacy RAF wall dt",
+  "unchanged": "clip duration/path, engine minute API and atomic queue, tempo, model, camera, setpieces",
+  "visualValidation": "pending; existing Chromium absence preserved, no installation retry"
+}

@@ -134,10 +134,23 @@ function enqueuePitchEvent(e) {
   if(typeof window!=='undefined'&&window.ManagerStoryLive3D?.enabled){
     // Transient read-only engine keyframes; never stored back in M.events or career saves.
     const enginePositions=Object.fromEntries([...M.active,...M.oppIds].map(id=>[String(id),eventPoint(id,typeof id==='string'?'opp':'user')]));
-    const copy=structuredClone(e);
+    const copy=structuredClone(e);copy.rawEnginePositions=structuredClone(enginePositions);copy.engineToPos=e.toPos?[...e.toPos]:null;copy.engineFromPos=e.fromPos?[...e.fromPos]:null;
     // The old kickoff declares a 3-percent tap that the engine never commits.
     // Retain the raw declaration for diagnostics; present the actual restart spot.
-    if(e.type==='kickoff'){copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';}
+    if(e.type==='kickoff'){
+      copy.declaredTarget=[...e.toPos];copy.toPos=[...(enginePositions[String(e.toId)]||e.fromPos)];copy.targetSource='actual-engine-restart-position';
+      const ids=e.fromSide==='user'?M.active:M.oppIds,receiver=ids.filter(id=>id!==e.fromId&&!isKeeper(e.fromSide,id)).sort((a,b)=>pitchDistance(enginePositions[a],e.fromPos)-pitchDistance(enginePositions[b],e.fromPos))[0];
+      if(receiver!=null){const point=[...enginePositions[receiver]];
+       copy.kickoffExchange={receiverId:receiver,point,source:'derived-short-exchange-and-return; engine-has-no-receiver; no-new-pass-event-or-statistic'};enginePositions[String(receiver)]=point;}
+    }
+    // Raw restart coordinates are inset 2%; the visible ball is on the 1m arc.
+    if(e.restartType==='CORNER'&&['restartPosition','restartPlayers','restartWait','corner'].includes(e.type)){
+      copy.engineAnimationDuration=eventAnimationTime(e);
+      const raw=e.type==='restartPosition'?e.toPos:e.fromPos,dx=(raw[0]>50?-1:1)*Math.SQRT1_2/1.05,dy=(raw[1]>50?-1:1)*Math.SQRT1_2/.68,origin=[(raw[0]>50?100:0)+dx,(raw[1]>50?100:0)+dy];
+      copy.engineRestartPoint=[...raw];copy.restartDisplayPoint=origin;copy.restartMapping='derived-1m-corner-arc; immutable-engine-endpoints-and-outcome';
+      if(e.type==='restartPosition')copy.toPos=origin;else{copy.fromPos=origin;if(['restartPlayers','restartWait'].includes(e.type))copy.toPos=origin;}
+      if(e.fromId!=null)enginePositions[String(e.fromId)]=origin;
+    }
     // Link immutable presentation copies only; engine events/save schema stay unchanged.
     if(['goal','save','wide','block','post'].includes(copy.type)){
       const shot=[...state.queue].reverse().find(x=>x.type==='shot'&&!x.shotResult&&x.fromId===copy.fromId&&x.gameSecond===copy.gameSecond&&x.outcome===copy.type);
@@ -145,7 +158,7 @@ function enqueuePitchEvent(e) {
     }
     if(copy.type==='shot'&&copy.header){copy.text='Kafa vuruşu · gerçek korner topu';
       const incoming=[...state.queue].reverse().find(x=>x.type==='corner'&&x.toId===copy.fromId&&x.gameSecond===copy.gameSecond);
-      if(incoming){copy.headerIncoming={eventId:incoming.eventId,fromPos:[...incoming.fromPos],toPos:[...incoming.toPos]};incoming.headerShot=structuredClone(copy);incoming.enginePositions[String(copy.fromId)]=[...copy.fromPos];}
+      if(incoming){copy.headerIncoming={fromId:incoming.fromId,eventId:incoming.eventId,fromPos:[...incoming.fromPos],toPos:[...incoming.toPos]};enginePositions[String(incoming.fromId)]=[...incoming.fromPos];incoming.headerShot=structuredClone(copy);incoming.enginePositions[String(copy.fromId)]=[...copy.fromPos];}
     }
     state.queue.push({...copy,enginePositions,sampleTime:{gameSecond:e.gameSecond,stage:window.ManagerStoryLive3D.inPositionUpdate?'during-position-update':'event-after-position-update',sequence:e.eventId},engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
   }else state.queue.push(e);
@@ -175,7 +188,7 @@ function finishPitchAction(state,e,now) {
     state.carrier=null;
   }
   state.ballState.ownerId=state.carrier;state.ballState.state=state.carrier==null?'LOOSE_BALL':'LIVE';
-  state.label=e.type==='corner'?'KORNER':e.type==='throwIn'?'TAÇ':e.type==='goalKick'?'KALE VURUŞU':e.type==='shot'?'ŞUT':e.type==='save'?'KURTARIŞ':e.type==='block'?'BLOK':e.type==='post'?'DİREK':e.type==='goal'?'GOL':'';
+  state.label=e.type==='corner'?'KORNER':e.type==='throwIn'?'TAÇ':e.type==='goalKick'?'KALE VURUŞU':e.type==='shot'?'ŞUT':e.type==='save'?'KURTARIŞ':e.type==='block'?(presentationEvent(e).presentationLabel||'BLOK'):e.type==='post'?'DİREK':e.type==='goal'?'GOL':'';
 }
 function advancePitchPresentation(dt,now) {
   const state=currentPitchState();if(!state||M.pause||M.finished||M.lifecycle==='FINISHED'||M.reason==='half')return state;
@@ -280,6 +293,28 @@ function synchronizePitchPresentation(state){
     state.ballState.height=0;
   }
 }
+const pitchGoalPhotoCache=new Map();
+function preparePitchGoalPhotos(){
+ if(typeof Image!=='function'||!M)return;
+ for(const team of [M.home,M.away]){const src=fanPhoto(team);if(pitchGoalPhotoCache.has(src))continue;const image=new Image();pitchGoalPhotoCache.set(src,image);image.onload=()=>{image.decode?.().catch(()=>{});};image.src=src;}
+}
+function paintPitchGoalFeedback(overlay,feedback){
+ if(!overlay)return;overlay.hidden=!feedback?.visible;if(!feedback)return;
+ const colors=feedback.colors;overlay.style.setProperty('--goal-primary',colors[0]);overlay.style.setProperty('--goal-secondary',colors[1]);
+ overlay.dataset.team=feedback.team;overlay.dataset.variant=String(feedback.variant);
+ const text=overlay.querySelector('small');if(text)text.textContent=feedback.text;
+ const img=overlay.querySelector('img');if(!img)return;
+ // The actual displayed element, not only a preload, must be decoded before
+ // the common frame callback starts the two real seconds. Ignore stale loads.
+ if(img.__goalMatch===M&&img.__goalEvent===feedback.eventId)return;
+ const match=M,eventId=feedback.eventId,request={};img.__goalMatch=match;img.__goalEvent=eventId;img.__goalRequest=request;
+ let fallback=false,done=false;
+ const acknowledge=failed=>{if(done||img.__goalRequest!==request)return;done=true;window.ManagerStoryLive3D?.goalImageReady(match,eventId,failed);};
+ const ready=()=>{if(!img.complete||!img.naturalWidth)return;const decode=typeof img.decode==='function'?img.decode():Promise.resolve();decode.then(()=>acknowledge(false),()=>{if(img.naturalWidth)acknowledge(false);else acknowledge(true);});};
+ img.onload=ready;img.onerror=()=>{if(img.__goalRequest!==request)return;if(!fallback){fallback=true;img.src='assets/atmosphere/fans-neutral.webp';}else acknowledge(true);};
+ img.src=fanPhoto(feedback.team);ready();
+}
+
 function paintLivePitch() {
   if(!M||typeof document==='undefined')return;
   const clock=document.querySelector('#live-clock');if(clock)clock.textContent=matchClock();
@@ -289,7 +324,7 @@ function paintLivePitch() {
   state.lastTime=now;
   const dev=window.ManagerStoryLive3D?.enabled;
   if(!dev)synchronizePitchPresentation(state);
-  const frame=dev?state:pitchFrameState(dt,now);
+  const frame=dev?state:pitchFrameState(dt*MATCH_PLAYBACK_SCALE,now);
   if(typeof window!=='undefined'&&window.MatchView)window.MatchView.publish(frame);
   const score=document.querySelector('#live-score');
   if(score)score.textContent=(dev&&frame.eventScore||[M.hg,M.ag]).join('–');
@@ -299,15 +334,18 @@ function paintLivePitch() {
     if(commentary){commentary.replaceChildren(...liveCommentaryLines().map(text=>{const line=document.createElement('div');line.className='comment';line.textContent=text;return line;}));}
   }
   const pitch=document.querySelector('.livepitch');if(!pitch||!frame)return;
+  const reset=frame.active?.goalReset||frame.active?.restartReset,t=frame.progress*(frame.activeDuration||0),smooth=u=>{u=Math.max(0,Math.min(1,u));return u*u*(3-2*u);};
+  pitch.style.opacity=reset?(t<.15?1-smooth(t/.15):smooth((t-.15)/.15)):1;
   const rect=pitch.getBoundingClientRect(),w=rect.width,h=rect.height;if(!w||!h)return;
   for(const node of pitch.querySelectorAll('[data-player]')) {
-    const xy=frame.positions[node.dataset.player];
+    const base=frame.positions[node.dataset.player],offset=frame.visualOffsets?.[node.dataset.player]||[0,0];
+    const xy=base?.map((v,i)=>v+offset[i]);
     if(!xy)continue;
     node.style.transform='translate3d('+(xy[0]/100*w-12)+'px,'+(xy[1]/100*h-12)+'px,0)';
     const e=frame.active,id=node.dataset.player;
     const visualCarrier=frame.active&&pitchEventPhase(frame.progress)==='ACTION'&&['pass','cross','shot'].includes(e.type)?e.fromId:frame.carrier;
     node.classList.toggle('carrier',id===String(visualCarrier)&&node.dataset.side===frame.side);
-    const moving=!!e&&[e.fromId,e.toId,e.defenderId,e.playerId].some(x=>x!=null&&String(x)===id);
+    const moving=dev?Math.hypot(...(frame.flowVelocity?.[id]||[0,0]))>.15:!!e&&[e.fromId,e.toId,e.defenderId,e.playerId].some(x=>x!=null&&String(x)===id);
     node.classList.toggle('moving',moving);
     node.style.setProperty('--move-dir',e?.toPos&&e?.fromPos&&e.toPos[0]<e.fromPos[0]?'-1':'1');
   }
@@ -319,6 +357,7 @@ function paintLivePitch() {
   if(banner){banner.textContent=frame.label;banner.hidden=!frame.label||frame.goalUntil>now;}
   const overlay=pitch.querySelector('.pitch-goal-overlay');
   if(overlay){
+    if(dev){paintPitchGoalFeedback(overlay,frame.goalFeedback);return;}
     overlay.hidden=!(frame.goalUntil>now);
     const colors=frame.goalColors||['#55646b','#d8dedc'];
     overlay.style.setProperty('--goal-primary',colors[0]);overlay.style.setProperty('--goal-secondary',colors[1]);
@@ -632,6 +671,9 @@ function actionMinute(userPoss,effect,opponent){
    const gainStart=window.ManagerStoryLive3D?.enabled?{attackerId:carrier,attackerSide:side,defenderId:defender.id,defenderSide:defSide,attackerStart:[...point],point:[...point],defenderStart:[...eventPoint(defender.id,defSide)],decision:"actionMinute"}:null;
    M.dynamicPositions[String(defender.id)]=moveTowards(eventPoint(defender.id,defSide),point,defender.d);
    recordPitchTackle(defender.id,defSide,carrier,side,success,point);
+   // Capture every committed attempt before a possible penalty boundary. A later
+   // real interception upgrades this copied pair to a gain; no winner is inferred.
+   if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    if(boxChallengePenalty(defender.id,defSide,carrier,side,point))return; // the penalty sequence owns the rest of this minute
    if(success){
     switchPitchOwner(defender.id,defSide);setBallState(point,defender.id);

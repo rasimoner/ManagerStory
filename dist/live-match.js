@@ -1,5 +1,8 @@
 /* V7.2 live clock and event renderer. Simulation time is never derived from frame count. */
 const MATCH_MINUTE_MS = 30000 / 45;
+// UI labels stay .5 / 1 / 2; each now plays at half its former rate.
+const MATCH_PLAYBACK_SCALE = .5;
+const matchPlaybackRate = () => (M?.speed || 1) * MATCH_PLAYBACK_SCALE;
 let liveFrame = null, liveLastFrame = null, liveLastPaint = 0, liveTickBusy = false;
 const matchSecond = () => Math.min(5400,Math.max(0,Number.isFinite(M?.matchElapsedSeconds)?M.matchElapsedSeconds:0));
 const clockFromSeconds = seconds => {
@@ -20,6 +23,7 @@ function ensureLiveState() {
   });}
   M.min=Math.floor(M.matchElapsedSeconds/60);
   M.speed = [0.5, 1, 2].includes(M.speed) ? M.speed : 1;
+  M.fieldView ??= '3d';
   M.minuteEvents ??= [];
   M.assistantNote ??= '';
   M.shoutLast ??= {};
@@ -52,7 +56,7 @@ function setMatchSpeed(speed) {
   if (!M || ![0.5, 1, 2].includes(Number(speed))) return;
   M.speed = Number(speed); save(); render();
 }
-const livePresentationPending = () => !!window.ManagerStoryLive3D?.finishing;
+const livePresentationPending = () => !!(window.ManagerStoryLive3D?.finishing||window.ManagerStoryLive3D?.halfPending);
 const livePlaybackPaused = () => livePresentationPending() ? window.ManagerStoryLive3D.paused : M?.pause;
 function pauseLive(reason = 'manual') {
   if(livePresentationPending()){window.ManagerStoryLive3D.setTerminalPaused(true);liveLastFrame=null;render();return;}
@@ -80,10 +84,13 @@ function liveFrameStep(now) {
   // Catch up clock time when Safari throttles frames; presentation retains its own .12s cap.
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
   liveLastFrame = now;
-  const oldMin = M.min;
+  const oldMin = M.min, wasPlaybackPaused = livePlaybackPaused();
   if(window.ManagerStoryLive3D?.enabled){window.ManagerStoryLive3D.step(dt,now);}
-  else if (!M.finished) advanceLive(dt);
-  if (M.min !== oldMin || (M.pause && !M.finished)) render();
+  else if (!M.finished) advanceLive(dt * MATCH_PLAYBACK_SCALE);
+  // A draining half has M.pause=true but its presentation is still running.
+  // Re-rendering every frame resets liveLastFrame through ensureLiveLoop, so
+  // the following RAF receives dt=0 forever. Render only a state transition.
+  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused) render();
   else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);

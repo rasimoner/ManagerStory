@@ -10,7 +10,7 @@ test('hold/release/recovery offset and shared pose are frozen on pause, rates us
  for(const [id,target] of [[6,.65],[6,.85],[7,.5],[8,.65],[8,.85]]){
   h.run(`{let guard=0;while(guard++<20000){if(pitchV73.active?.eventId===${id}&&pitchV73.progress>=${target})break;wall+=.01;ManagerStoryLive3D.step(.01,wall*1000)}if(guard>=20000)throw Error('Missing phase')}`);
   const expr='JSON.stringify([MatchView.read().players,MatchView.read().ball,MatchView.read().presentation.holdMotion,pitchV73.progress,ManagerStoryLive3D.time])',held=h.run(expr);h.run('M.pause=true');for(const speed of [.5,1,2]){h.run(`setMatchSpeed(${speed});ManagerStoryLive3D.step(1,999999)`);assert.equal(h.run(expr),held);}h.run('M.pause=false');
-  for(const speed of [.5,1,2]){h.run(`setMatchSpeed(${speed})`);const p=h.run('pitchV73.progress'),D=h.run('pitchV73.activeDuration');h.run('wall+=.001;ManagerStoryLive3D.step(.001,wall*1000)');assert.ok(Math.abs(h.run('pitchV73.progress')-p-.001*speed/4/D)<1e-8);}h.run('setMatchSpeed(1)');
+  for(const speed of [.5,1,2]){h.run(`setMatchSpeed(${speed})`);const p=h.run('pitchV73.progress'),D=h.run('pitchV73.activeDuration');h.run('wall+=.001;ManagerStoryLive3D.step(.001,wall*1000)');assert.ok(Math.abs(h.run('pitchV73.progress')-p-.001*speed/8/D)<1e-8);}h.run('setMatchSpeed(1)');
  }
  assert.equal(h.run('M.events.some(e=>e.shield||e.offsetTracks||e.visualOffsets)'),false);
  assert.equal(h.run('Object.isFrozen(MatchView.read().players[0].visualOffset)'),true);

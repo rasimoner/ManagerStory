@@ -8,7 +8,7 @@ export function audit(seed){const h=setup();h.run(`M.rand=R(${seed});window.qaSu
  const signature=()=>JSON.stringify([pitchV73.active,pitchV73.queue,pitchV73.batchEnd,pitchV73.positions,pitchV73.ball,pitchV73.carrier,pitchV73.progress,ManagerStoryLive3D.time]);
  const raw=()=>JSON.stringify({events:M.events,score:[M.hg,M.ag],stats:M.stats,shots:M.shots,players:M.playerStats,rng:M.rand.state});
  for(let i=0;i<120000;i++){
-  if(M.reason==='half'&&!half){half=true;startSecondHalf();}else if(M.reason==='injury')eval(qaSub);else if(M.pause&&!M.finished)resumeLive();
+  if(M.reason==='half'&&!half){startSecondHalf();half=M.secondHalf;}else if(M.reason==='injury')eval(qaSub);else if(M.pause&&!M.finished)resumeLive();
   if(M.finished&&!control){
    engineAtEnd=raw();control=true;const current=signature(),phase=pitchV73.progress,fixture=S.fixture;finishMatch();const earlyFinishBlocked=S.fixture===fixture&&!!M;
    pauseLive();const paused=signature();ManagerStoryLive3D.step(2,wall*1000+2000);const pauseFrozen=signature()===paused;resumeLive();

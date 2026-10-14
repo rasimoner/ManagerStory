@@ -1,0 +1,37 @@
+{
+  "baseline": "a2211d851d955c9ffe2baecd23b20c8fdafccfc6",
+  "uniqueRelevantChecks": 44,
+  "initialPassed": 41,
+  "initialFailed": 3,
+  "repairedChecksPassed": 4,
+  "repairedChecksFailed": 0,
+  "finalUnresolvedFailures": 0,
+  "rerunScope": "Only contest phase/rate QA and real keeper motion checks rerun after correcting stale speed assumptions and updating route classification from actual visible start; broad package not rerun",
+  "fullSuiteRerun": false,
+  "webgl": {
+    "chromiumExecutablePresent": false,
+    "installationAttempted": false,
+    "sizes": [
+      {
+        "width": 390,
+        "height": 844
+      },
+      {
+        "width": 320,
+        "height": 568
+      }
+    ],
+    "visualApproval": false
+  },
+  "speedMapping": {
+    "0.5": 0.25,
+    "1": 0.5,
+    "2": 1
+  },
+  "references": {
+    "half": "ScreenRecording_10-07-2026 21-23-48_1.mp4",
+    "motion": "ScreenRecording_10-07-2026 21-10-52_1.mp4",
+    "referenceFramesInspected": true,
+    "phoneEventIdsAvailable": false
+  }
+}

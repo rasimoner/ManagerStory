@@ -1,0 +1,25 @@
+normal tempo measurement 1 {"wall":451.7599999999787,"half":true,"finished":true,"pending":false,"direction":-1}
+normal tempo measurement 8800 {"wall":469.1999999999752,"half":true,"finished":true,"pending":false,"direction":-1}
+✔ career view and tab switches retain the engine, RNG, events and pending presentation (90.479363ms)
+✔ career normal tempo seed 1: same raw engine/RNG/career, half and single finish (1625.936933ms)
+✔ career normal tempo seed 8800: same raw engine/RNG/career, half and single finish (1216.501703ms)
+✔ close side-camera keeps nearby contest actors in both portrait fields (3608.005029ms)
+✔ common scheduler uses speed once and freezes clock, positions, ball and event phase on pause (39.321421ms)
+✔ one engine minute drains before another is generated; real snapshots do not enter saved events (166.926181ms)
+✔ readable tempo and speed preserve the same seeded decisions and scores through a complete match (1514.536093ms)
+✔ live poses keep real adapter roots and reuse identical pose/camera while paused (30.471939ms)
+✔ joining an already active legacy event preserves progress and stays finite (18.2457ms)
+✔ presentation score/statistics are real event snapshots, without changing the atomic engine result (108.591361ms)
+✔ actual recipient faces the incoming ball by arrival, without a synthetic root trajectory (22.935695ms)
+✔ real goal returns behind a common-clock fade to exact engine kickoff placement, with frozen pause (9274.178432ms)
+✔ normal pass follows the current ball at close scale without moving any actor root (2129.19786ms)
+✔ distant actors and stale event endpoints cannot widen or pull the camera (1.052827ms)
+✔ bounded shot framing follows the current ball without fitting distant goal posts (15153.267992ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15268.030128

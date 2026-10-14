@@ -1,0 +1,211 @@
+[
+  {
+    "kind": "keeper",
+    "seed": 1,
+    "id": 426,
+    "actor": {
+      "kind": "keeper",
+      "id": "o0",
+      "side": "opp",
+      "name": "Sinan Arslan",
+      "role": "GK"
+    },
+    "text": "79’ Sinan Arslan şutu çeldi.",
+    "next": [
+      {
+        "id": 427,
+        "type": "looseBall",
+        "gameSecond": 4740
+      },
+      {
+        "id": 428,
+        "type": "recovery",
+        "gameSecond": 4740
+      },
+      {
+        "id": 429,
+        "type": "foul",
+        "gameSecond": 4740
+      },
+      {
+        "id": 430,
+        "type": "offBallRun",
+        "gameSecond": 4800
+      },
+      {
+        "id": 431,
+        "type": "pass",
+        "gameSecond": 4800
+      },
+      {
+        "id": 432,
+        "type": "firstTouch",
+        "gameSecond": 4800
+      },
+      {
+        "id": 433,
+        "type": "shot",
+        "restartType": null,
+        "gameSecond": 4800
+      }
+    ],
+    "corner": false
+  },
+  {
+    "kind": "keeper-corner",
+    "seed": 2,
+    "id": 64,
+    "actor": {
+      "kind": "keeper",
+      "id": "o0",
+      "side": "opp",
+      "name": "Sinan Arslan",
+      "role": "GK"
+    },
+    "text": "15’ Sinan Arslan şutu çelerek kornere gönderdi.",
+    "next": [
+      {
+        "id": 65,
+        "type": "ballOut",
+        "restartType": "CORNER",
+        "gameSecond": 900
+      },
+      {
+        "id": 66,
+        "type": "restartPosition",
+        "restartType": "CORNER",
+        "gameSecond": 900
+      },
+      {
+        "id": 67,
+        "type": "restartPlayers",
+        "restartType": "CORNER",
+        "gameSecond": 900
+      },
+      {
+        "id": 68,
+        "type": "restartWait",
+        "restartType": "CORNER",
+        "gameSecond": 900
+      },
+      {
+        "id": 69,
+        "type": "corner",
+        "restartType": "CORNER",
+        "gameSecond": 900
+      },
+      {
+        "id": 70,
+        "type": "looseBall",
+        "gameSecond": 900
+      },
+      {
+        "id": 71,
+        "type": "recovery",
+        "gameSecond": 900
+      }
+    ],
+    "corner": true
+  },
+  {
+    "kind": "field-corner",
+    "seed": 24,
+    "id": 358,
+    "actor": {
+      "kind": "field",
+      "id": "o2",
+      "side": "opp",
+      "name": "Sarp Doğan",
+      "role": "CB"
+    },
+    "text": "69’ Sarp Doğan şutu engelledi.",
+    "next": [
+      {
+        "id": 359,
+        "type": "ballOut",
+        "restartType": "CORNER",
+        "gameSecond": 4140
+      },
+      {
+        "id": 360,
+        "type": "restartPosition",
+        "restartType": "CORNER",
+        "gameSecond": 4140
+      },
+      {
+        "id": 361,
+        "type": "restartPlayers",
+        "restartType": "CORNER",
+        "gameSecond": 4140
+      },
+      {
+        "id": 362,
+        "type": "restartWait",
+        "restartType": "CORNER",
+        "gameSecond": 4140
+      },
+      {
+        "id": 363,
+        "type": "corner",
+        "restartType": "CORNER",
+        "gameSecond": 4140
+      },
+      {
+        "id": 364,
+        "type": "interception",
+        "gameSecond": 4140
+      },
+      {
+        "id": 365,
+        "type": "foul",
+        "gameSecond": 4140
+      }
+    ],
+    "corner": true
+  },
+  {
+    "kind": "field",
+    "seed": 24,
+    "id": 445,
+    "actor": {
+      "kind": "field",
+      "id": "o4",
+      "side": "opp",
+      "name": "Ali Şahin",
+      "role": "RB"
+    },
+    "text": "89’ Ali Şahin şutu engelledi.",
+    "next": [
+      {
+        "id": 446,
+        "type": "looseBall",
+        "gameSecond": 5340
+      },
+      {
+        "id": 447,
+        "type": "recovery",
+        "gameSecond": 5340
+      },
+      {
+        "id": 448,
+        "type": "dribble",
+        "gameSecond": 5400
+      },
+      {
+        "id": 449,
+        "type": "press",
+        "gameSecond": 5400
+      },
+      {
+        "id": 450,
+        "type": "tackle",
+        "gameSecond": 5400
+      },
+      {
+        "type": "end",
+        "gameSecond": 5400
+      }
+    ],
+    "corner": false
+  }
+]

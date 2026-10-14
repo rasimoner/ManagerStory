@@ -1,0 +1,32 @@
+[
+  {
+    "seed": 1,
+    "beforeWall": 395.4399999999899,
+    "afterWall": 397.8399999999894,
+    "beforeClipSeconds": 391.6662435234546,
+    "afterClipSeconds": 394.0906449596144,
+    "beforeClipCount": 483,
+    "afterClipCount": 483,
+    "engineEqual": true,
+    "careerEqual": true,
+    "singleCareerApply": true,
+    "pending": false,
+    "endCount": 1,
+    "finished": true
+  },
+  {
+    "seed": 8800,
+    "beforeWall": 412.63999999998646,
+    "afterWall": 413.0399999999864,
+    "beforeClipSeconds": 408.9210684503132,
+    "afterClipSeconds": 409.2752979391012,
+    "beforeClipCount": 510,
+    "afterClipCount": 509,
+    "engineEqual": true,
+    "careerEqual": true,
+    "singleCareerApply": true,
+    "pending": false,
+    "endCount": 1,
+    "finished": true
+  }
+]

@@ -1,0 +1,13 @@
+✔ real career RAF drains half, preserves manual pause/overlays, starts second half and finishes two consecutive matches once (4077.318834ms)
+✔ every stationary and dribbling contest overlaps both approaches with bounded roots and immutable contact/result (3726.933351ms)
+✔ actual keeper catches/parries retain their visible roots and held/loose ownership into the next real action (0.85438ms)
+✔ real goal kicks in both directions start behind the placed ball and release only after foot contact (993.845674ms)
+✔ real pass source and recipient remain readable in both mobile frustums with bounded zoom and no grey panels (894.587014ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9800.324758

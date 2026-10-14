@@ -1,5 +1,6 @@
+import {netDisplacement} from './match3d-net.js';
 import * as T from './vendor/three/three.module.min.js';
-import { createFootballer } from './match3d-player.js';
+import { createFootballer, releaseFootballerResources } from './match3d-player.js';
 import { poseFootballer } from './match3d-football-pose.js';
 
 export const PITCH = Object.freeze({ length:105, width:68, goalWidth:7.32, goalHeight:2.44 });
@@ -55,19 +56,19 @@ function goal(parent,dir) {
   }
   tube(group,[x,2.44,-3.66],[x,2.44,3.66],.065,white);
   tube(group,[back,2.3,-3.66],[back,2.3,3.66],.035,white);
-  const vertices=[],seg=(a,b)=>vertices.push(...a,...b);
+  const vertices=[],seg=(a,b)=>{const steps=Math.ceil(Math.hypot(...a.map((v,i)=>b[i]-v))/.22);for(let j=0;j<steps;j++)for(const u of [j/steps,(j+1)/steps])vertices.push(...a.map((v,i)=>v+(b[i]-v)*u));};
   for(let z=-3.66;z<=3.67;z+=.22){seg([back,0,z],[back,2.3,z]);seg([x,2.44,z],[back,2.3,z]);}
   for(let y=0;y<=2.31;y+=.22){seg([back,y,-3.66],[back,y,3.66]);for(const z of [-3.66,3.66])seg([x,y,z],[back,y,z]);}
   for(let d=0;d<=2.31;d+=.22){const xx=x+dir*d;seg([xx,2.44-d*.06,-3.66],[xx,2.44-d*.06,3.66]);for(const z of [-3.66,3.66])seg([xx,0,z],[xx,2.44-d*.06,z]);}
   const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(vertices,3));
-  group.add(new T.LineSegments(g,new T.LineBasicMaterial({color:'#d7e0db',transparent:true,opacity:.6})));
+  const net=new T.LineSegments(g,new T.LineBasicMaterial({color:'#d7e0db',transparent:true,opacity:.6}));net.name='goal-net';group.add(net);net.userData={dir,rest:new Float32Array(g.attributes.position.array)};return net;
 }
 function stadium(scene,home) {
   const stadium=new T.Group();stadium.name='stadium';scene.add(stadium);
   const concrete=surface('#929894'),dark=surface('#263a34'),roof=surface('#667d76');
   for(const z of [-1,1]) {
     for(let row=0;row<12;row++)box(stadium,[123,.34,1.1],[0,1+row*.48,z*(42+row*1.0)],concrete);
-    box(stadium,[124,.18,14],[0,9,z*49],roof);
+    const canopy=box(stadium,[124,.18,14],[0,9,z*49],roof);if(z===1){canopy.name='near-touchline-canopy';stadium.userData.nearCanopy=canopy;}
     for(let x=-59;x<=60;x+=15)tube(stadium,[x,0,z*54],[x,9,z*54],.17,dark);
     tube(stadium,[-61,1.8,z*40],[61,1.8,z*40],.055,surface('#c7d0ca'));
   }
@@ -98,6 +99,12 @@ function stadium(scene,home) {
     const board=new T.Mesh(new T.PlaneGeometry(29,1.5),new T.MeshStandardMaterial({map:texture,roughness:.9,side:T.DoubleSide}));
     board.position.set((i-1.5)*30,1,-38.1);stadium.add(board);
   });
+  return stadium;
+}
+// The fixed broadcast camera sits behind this roof at the near touchline.
+// Its overhang can occlude the pitch even while ground-frustum limits are valid.
+export function setLiveStadiumVisibility(stadium,liveBroadcast){
+  if(stadium.userData.nearCanopy)stadium.userData.nearCanopy.visible=!liveBroadcast;
 }
 export function createMatchScene({canvas,home,away,players}) {
   const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
@@ -124,7 +131,7 @@ export function createMatchScene({canvas,home,away,players}) {
   // Broad, subtle mowing strips, not a two-dimensional checkerboard.
   const stripe=new T.MeshBasicMaterial({color:'#d4dfb3',opacity:.035,transparent:true,depthWrite:false});
   for(let i=0;i<10;i+=2){const s=new T.Mesh(new T.PlaneGeometry(10.5,68),stripe);s.rotation.x=-Math.PI/2;s.position.set(-47.25+i*10.5,.006,0);scene.add(s);}
-  fieldPaint(scene);goal(scene,-1);goal(scene,1);stadium(scene,home);
+  fieldPaint(scene);const nets=[goal(scene,-1),goal(scene,1)],stadiumShell=stadium(scene,home);
   for(const x of [-52.5,52.5])for(const z of [-34,34]){
     tube(scene,[x,0,z],[x,1.5,z],.025,surface('#f1f1dc'));
     const flag=new T.Mesh(new T.PlaneGeometry(.38,.24),new T.MeshStandardMaterial({color:home.primaryColor,side:T.DoubleSide}));flag.position.set(x+.18,1.36,z);scene.add(flag);
@@ -134,7 +141,7 @@ export function createMatchScene({canvas,home,away,players}) {
   const footballers=new Map();
   players.forEach((p,i)=>{
     const kit=p.kit||(p.side==='user'?home:away);
-    const player=createFootballer({id:p.id,side:p.side,number:p.number??i%11+1,kit,goalkeeper:p.goalkeeper,variant:i});
+    const player=createFootballer({id:p.id,side:p.side,number:p.number??i%11+1,kit,goalkeeper:p.goalkeeper,opponentKit:kit===home?away:home,variant:i});
     const contact=new T.Mesh(new T.PlaneGeometry(.62,.48),contactMaterial);contact.rotation.x=-Math.PI/2;contact.position.set(0,.012,.04);player.add(contact);
     player.position.copy(pitchToWorld(p.position));player.rotation.y=p.attackDirection>0?Math.PI/2:-Math.PI/2;scene.add(player);footballers.set(`${p.side}:${p.id}`,player);
   });
@@ -158,9 +165,16 @@ export function createMatchScene({canvas,home,away,players}) {
     return {sourceToeDistance:source?.rightToe.distanceTo(ball.position),receiverToeDistance:receiver?.rightToe.distanceTo(ball.position),sourceSupportError:source?.leftAnkle.distanceTo(new T.Vector3(...s.source.leftFoot)),
       receiverFootErrors:receiver?[receiver.leftAnkle.distanceTo(new T.Vector3(...s.receiver.leftFoot)),receiver.rightAnkle.distanceTo(new T.Vector3(...s.receiver.rightFoot))]:[]};
   }
+  let previousBall=null;
   function applyLiveSample(sample){
+    setLiveStadiumVisibility(stadiumShell,cameraRig.mode==='broadcast');
+    for(const net of nets){const a=net.geometry.attributes.position,{rest,dir}=net.userData;
+     for(let i=0;i<a.count;i++){const point=Array.from(rest.slice(i*3,i*3+3));a.setX(i,point[0]+netDisplacement(point,sample.netImpact,sample.seconds,dir));}a.needsUpdate=true;
+    }
     const contacts=[];
     for(const pose of sample.poses){const m=footballers.get(`${pose.side}:${pose.id}`);if(m){const r=poseFootballer(m,pose);contacts.push({id:pose.id,side:pose.side,toe:r.rightToe.toArray(),forehead:r.forehead.toArray(),leftHand:r.leftHand.toArray(),rightHand:r.rightHand.toArray()});}}
+    if(previousBall&&sample.opacity===1){const dx=sample.ball[0]-previousBall[0],dz=sample.ball[2]-previousBall[2],d=Math.hypot(dx,dz);if(d>1e-8&&d<2)ball.rotateOnWorldAxis(new T.Vector3(dz/d,0,-dx/d),d/.14);}
+    previousBall=[...sample.ball];
     ball.position.set(...sample.ball);ballShadow.position.set(sample.ball[0],.02,sample.ball[2]);ballShadow.scale.setScalar(1+(sample.ball[1]-.15)*.18);ballShadow.material.opacity=.85/(1+(sample.ball[1]-.15)*.22);
     if(cameraRig.mode==='broadcast'){
       cameraRig.framePoints=null;const focus=new T.Vector3(...sample.camera.focus);cameraRig.focus.copy(focus);
@@ -183,7 +197,7 @@ export function createMatchScene({canvas,home,away,players}) {
     cameraRig.focus.copy(center);cameraRig.position.copy(center).add(new T.Vector3(0,distance*.52,distance*.85));cameraRig.framePoints=points.map(p=>p.clone());
   }
   function setCamera(mode='broadcast',playerKey=null) {
-    cameraRig.mode=mode;
+    cameraRig.mode=mode;setLiveStadiumVisibility(stadiumShell,false);
     if(mode==='model') {const p=players.filter(p=>!p.goalkeeper&&p.side==='user')[8]||players.find(p=>!p.goalkeeper&&p.side==='user'),m=footballers.get(playerKey||`${p.side}:${p.id}`);camera.position.copy(m.position).add(new T.Vector3(3.3,1.5,1.8).applyQuaternion(m.quaternion));camera.lookAt(m.position.clone().add(new T.Vector3(0,.94,0)));camera.fov=35;}
     else if(mode==='overview'){camera.position.set(0,86,98);camera.lookAt(0,0,0);camera.fov=56;}
     else {camera.position.copy(cameraRig.position);camera.lookAt(cameraRig.focus);camera.fov=42;}
@@ -198,7 +212,7 @@ export function createMatchScene({canvas,home,away,players}) {
   }
   function projectPoint(xy){const p=pitchToWorld(xy).project(camera);return [(p.x+1)*.5*canvas.clientWidth,(1-p.y)*.5*canvas.clientHeight];}
   function render(){renderer.render(scene,camera);return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles};}
-  function dispose({loseContext=true}={}){const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)o.skeleton.dispose();for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}});geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());renderer.dispose();if(loseContext)renderer.forceContextLoss();}
+  function dispose({loseContext=true}={}){const geometries=new Set(),materials=new Set(),textures=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.skeleton)o.skeleton.dispose();for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v);}});geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose());releaseFootballerResources();renderer.dispose();if(loseContext)renderer.forceContextLoss();}
   setCamera();resize();
   return {scene,camera,cameraRig,renderer,footballers,ball,resize,setCamera,framePoints,projectPoint,apply,applyPassSample,applyLiveSample,render,dispose};
 }

@@ -1,0 +1,18 @@
+[
+  {
+    "seed": 8800,
+    "halfDrainSeconds": 14.4,
+    "maxRAF": 1,
+    "endCount": 1,
+    "engineRngStatsCareerEqual": true,
+    "singleResult": true
+  },
+  {
+    "seed": 8897,
+    "halfDrainSeconds": 6.88,
+    "maxRAF": 1,
+    "endCount": 1,
+    "engineRngStatsCareerEqual": true,
+    "singleResult": true
+  }
+]

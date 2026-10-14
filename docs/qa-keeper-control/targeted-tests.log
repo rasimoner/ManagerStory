@@ -1,0 +1,11 @@
+✔ captured control uses selected clock rates for normal/delayed frames; failed real distribution links to its loose ball (2408.245867ms)
+✔ real catches49/99 retain raised ball through recovery and existing distribution in both views/rates (9917.07027ms)
+✔ neutral keeper hands do not reuse save targets; both world directions bend the approved rig toward the ball (2.896567ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12463.672153
