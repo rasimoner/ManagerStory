@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "node tools/run-tests.cjs"
+    "test": "node --test tests/*.test.cjs"
   },
   "devDependencies": {
     "vite": "8.0.13"
