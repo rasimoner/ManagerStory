@@ -1,0 +1,192 @@
+// Keyframed football actions layered over the recorded locomotion.
+// All skeleton bones share the world axes in the bind pose, so angles read directly:
+//   UpLeg x: − thigh forward / + back · z: Left + out, Right − out · y: Left + toes out, Right − toes out
+//   Leg x: + knee bend · Foot x: + toes down
+//   Spine x: + lean forward · y: + turn to own left · z: + bend to own right
+//   Arm z: Left −80 / Right +80 hangs the arm, Left +80 / Right −80 raises it · x: − swings forward
+//   ForeArm y: Left −, Right + bends the elbow · Head x: + look down
+import * as THREE from '../vendor/three/three.module.min.js';
+
+const D2R = Math.PI / 180;
+const BASE = {
+  Hips: [0, 0, 0], Spine: [0, 0, 0], Spine1: [0, 0, 0], Spine2: [0, 0, 0], Neck: [0, 0, 0], Head: [0, 0, 0],
+  LeftArm: [0, 0, -76], RightArm: [0, 0, 76], LeftForeArm: [0, -22, 0], RightForeArm: [0, 22, 0],
+  LeftUpLeg: [0, 0, 0], RightUpLeg: [0, 0, 0], LeftLeg: [0, 0, 0], RightLeg: [0, 0, 0], LeftFoot: [0, 0, 0], RightFoot: [0, 0, 0],
+};
+
+// t: normalised time · p: bone angles (degrees) · missing bones fall back to BASE
+export const ACTIONS = {
+  pass: {
+    dur: 0.62, contact: 0.36, mask: 'all',
+    keys: [
+      { t: 0, p: { RightUpLeg: [22, -40, 0], RightLeg: [60, 0, 0], LeftUpLeg: [-12, 0, 0], LeftLeg: [24, 0, 0], Spine: [8, 12, 0], LeftArm: [-12, 0, -48], RightArm: [18, 0, 62], LeftForeArm: [0, -32, 0], RightForeArm: [0, 30, 0], Head: [18, 0, 0] } },
+      { t: 0.36, p: { RightUpLeg: [-30, -48, 4], RightLeg: [14, 0, 0], RightFoot: [-8, 0, 0], LeftUpLeg: [-14, 0, 0], LeftLeg: [24, 0, 0], Spine: [12, -6, 0], LeftArm: [-20, 0, -45], RightArm: [12, 0, 58], LeftForeArm: [0, -30, 0], RightForeArm: [0, 30, 0], Head: [22, 0, 0] } },
+      { t: 0.62, p: { RightUpLeg: [-46, -38, 2], RightLeg: [26, 0, 0], LeftUpLeg: [-10, 0, 0], LeftLeg: [20, 0, 0], Spine: [10, -10, 0], LeftArm: [-10, 0, -55], RightArm: [5, 0, 62], Head: [12, 0, 0] } },
+      { t: 1, p: { RightUpLeg: [-15, 0, 0], RightLeg: [30, 0, 0], Spine: [6, 0, 0] } },
+    ],
+  },
+  shot: {
+    dur: 0.9, contact: 0.42, mask: 'all',
+    keys: [
+      { t: 0, p: { RightUpLeg: [8, 0, 0], RightLeg: [35, 0, 0], LeftUpLeg: [-15, 0, 0], LeftLeg: [20, 0, 0], Spine: [10, 0, 0] } },
+      { t: 0.27, p: { RightUpLeg: [42, -8, 0], RightLeg: [108, 0, 0], RightFoot: [35, 0, 0], LeftUpLeg: [-22, 0, 8], LeftLeg: [32, 0, 0], LeftFoot: [-10, 0, 0], Spine: [2, 22, -8], LeftArm: [-40, 0, -22], RightArm: [30, 0, 48], LeftForeArm: [0, -20, 0], RightForeArm: [0, 25, 0], Head: [22, 0, 0] } },
+      { t: 0.42, p: { RightUpLeg: [-42, -4, 0], RightLeg: [12, 0, 0], RightFoot: [48, 0, 0], LeftUpLeg: [-28, 0, 6], LeftLeg: [34, 0, 0], Spine: [16, -8, 0], LeftArm: [-30, 0, -28], RightArm: [-8, 0, 46], LeftForeArm: [0, -25, 0], RightForeArm: [0, 25, 0], Head: [26, 0, 0] } },
+      { t: 0.62, p: { RightUpLeg: [-88, 0, -4], RightLeg: [22, 0, 0], RightFoot: [40, 0, 0], LeftUpLeg: [-18, 0, 4], LeftLeg: [22, 0, 0], Spine: [20, -22, 0], LeftArm: [-10, 0, -40], RightArm: [-30, 0, 50], Head: [10, 0, 0] } },
+      { t: 1, p: { RightUpLeg: [-22, 0, 0], RightLeg: [40, 0, 0], LeftLeg: [18, 0, 0], Spine: [8, 0, 0] } },
+    ],
+  },
+  // drop the shoulder, sweep the right leg across the ball, plant and lean: sells the move to the outside
+  feint: {
+    dur: 0.78, mask: 'all',
+    keys: [
+      { t: 0, p: { RightUpLeg: [-20, 0, 0], RightLeg: [40, 0, 0], LeftLeg: [25, 0, 0], Spine: [10, 0, 0] } },
+      { t: 0.28, p: { RightUpLeg: [-62, 14, -18], RightLeg: [92, 0, 0], RightFoot: [20, 0, 0], LeftUpLeg: [-14, 0, 4], LeftLeg: [42, 0, 0], Spine: [14, 24, -14], LeftArm: [0, 0, -34], RightArm: [-30, 0, 36], Head: [20, 0, 0] } },
+      { t: 0.5, p: { RightUpLeg: [-42, 0, 46], RightLeg: [50, 0, 0], RightFoot: [10, 0, 0], LeftUpLeg: [-4, 0, 6], LeftLeg: [46, 0, 0], Spine: [16, 36, -22], LeftArm: [14, 0, -26], RightArm: [-34, 0, 30], Head: [16, -14, 0] } },
+      { t: 0.72, p: { RightUpLeg: [-8, 0, 30], RightLeg: [30, 0, 0], LeftUpLeg: [16, 0, 4], LeftLeg: [56, 0, 0], Spine: [18, 26, -24], LeftArm: [14, 0, -24], RightArm: [-22, 0, 38], Head: [14, -14, 0] } },
+      { t: 1, p: { RightUpLeg: [-10, 0, 0], RightLeg: [30, 0, 0], Spine: [10, 0, 6] } },
+    ],
+  },
+  // explosive change of direction after the feint
+  cut: {
+    dur: 0.45, mask: 'upper',
+    keys: [
+      { t: 0, p: { Spine: [16, -10, 18], LeftArm: [-30, 0, -42], RightArm: [10, 0, 55] } },
+      { t: 1, p: { Spine: [10, 0, 4] } },
+    ],
+  },
+  // defender's stance while showing the attacker outside
+  jockey: {
+    loop: true, mask: 'jockey',
+    keys: [{ t: 0, p: { LeftUpLeg: [-28, 0, 6], RightUpLeg: [-28, 0, -6], LeftLeg: [48, 0, 0], RightLeg: [48, 0, 0], LeftFoot: [-14, 0, 0], RightFoot: [-14, 0, 0], Spine: [24, 0, 0], Head: [-14, 0, 0], LeftArm: [-12, 0, -52], RightArm: [-12, 0, 52], LeftForeArm: [0, -38, 0], RightForeArm: [0, 38, 0] } }],
+  },
+  // defender buys the feint and lunges to his right with the right leg
+  lunge: {
+    dur: 0.95, mask: 'all',
+    keys: [
+      { t: 0, p: { LeftUpLeg: [-28, 0, 6], RightUpLeg: [-28, 0, -6], LeftLeg: [48, 0, 0], RightLeg: [48, 0, 0], Spine: [24, 0, 0] } },
+      { t: 0.35, p: { RightUpLeg: [-48, -20, -38], RightLeg: [8, 0, 0], RightFoot: [-20, 0, 0], LeftUpLeg: [-22, 0, 14], LeftLeg: [70, 0, 0], LeftFoot: [-18, 0, 0], Spine: [30, -10, 22], LeftArm: [10, 0, -30], RightArm: [-40, 0, 32], Head: [-10, 0, 0] } },
+      { t: 0.65, p: { RightUpLeg: [-40, -20, -34], RightLeg: [14, 0, 0], LeftUpLeg: [-20, 0, 12], LeftLeg: [66, 0, 0], Spine: [32, -14, 26], LeftArm: [10, 0, -30], RightArm: [-30, 0, 36] } },
+      { t: 1, p: { RightUpLeg: [-15, 0, 0], RightLeg: [30, 0, 0], LeftLeg: [30, 0, 0], Spine: [14, 0, 6] } },
+    ],
+  },
+  keeperReady: {
+    loop: true, mask: 'all',
+    keys: [{ t: 0, p: { LeftUpLeg: [-34, 0, 13], RightUpLeg: [-34, 0, -13], LeftLeg: [58, 0, 0], RightLeg: [58, 0, 0], LeftFoot: [-18, 0, 0], RightFoot: [-18, 0, 0], Spine: [28, 0, 0], Head: [-22, 0, 0], LeftArm: [-48, 0, -40], RightArm: [-48, 0, 40], LeftForeArm: [0, -48, 0], RightForeArm: [0, 48, 0] } }],
+  },
+  // dive to the keeper's right; the root roll and launch are driven separately
+  diveRight: {
+    dur: 1.0, contact: 0.3, mask: 'all',
+    keys: [
+      { t: 0, p: { LeftUpLeg: [-34, 0, 13], RightUpLeg: [-34, 0, -13], LeftLeg: [58, 0, 0], RightLeg: [58, 0, 0], Spine: [28, 0, 0], LeftArm: [-48, 0, -40], RightArm: [-48, 0, 40], LeftForeArm: [0, -48, 0], RightForeArm: [0, 48, 0] } },
+      { t: 0.3, p: { LeftUpLeg: [-6, 0, 18], LeftLeg: [10, 0, 0], RightUpLeg: [-30, 0, -6], RightLeg: [45, 0, 0], Spine: [4, 0, 14], Head: [0, 0, 10], LeftArm: [-8, 0, 112], RightArm: [-10, 0, -62], LeftForeArm: [0, -6, 0], RightForeArm: [0, 6, 0] } },
+      { t: 0.6, p: { LeftUpLeg: [-10, 0, 14], LeftLeg: [24, 0, 0], RightUpLeg: [-34, 0, -4], RightLeg: [60, 0, 0], Spine: [10, 0, 12], LeftArm: [-16, 0, 100], RightArm: [-20, 0, -60], LeftForeArm: [0, -30, 0], RightForeArm: [0, 30, 0] } },
+      { t: 1, p: { LeftUpLeg: [-20, 0, 10], LeftLeg: [50, 0, 0], RightUpLeg: [-40, 0, -4], RightLeg: [70, 0, 0], Spine: [16, 0, 8], LeftArm: [-30, 0, 20], RightArm: [-30, 0, -20], LeftForeArm: [0, -60, 0], RightForeArm: [0, 60, 0] } },
+    ],
+  },
+  celebrate: {
+    dur: 1.6, mask: 'upper',
+    keys: [
+      { t: 0, p: {} },
+      { t: 0.3, p: { LeftArm: [-20, 0, 60], RightArm: [-20, 0, -60], LeftForeArm: [0, -20, 0], RightForeArm: [0, 20, 0], Head: [-20, 0, 0], Spine: [-8, 0, 0] } },
+      { t: 0.8, p: { LeftArm: [-20, 0, 66], RightArm: [-20, 0, -66], Head: [-24, 0, 0], Spine: [-10, 0, 0] } },
+      { t: 1, p: {} },
+    ],
+  },
+};
+
+// throw-in: ball taken behind the head with both hands, released over it
+ACTIONS.throwIn = {
+  dur: 1.0, contact: 0.55, mask: 'upper',
+  keys: [
+    { t: 0, p: { LeftArm: [-55, 0, -70], RightArm: [-55, 0, 70], LeftForeArm: [0, -95, 0], RightForeArm: [0, 95, 0] } },
+    { t: 0.35, p: { LeftArm: [20, 0, 132], RightArm: [20, 0, -132], LeftForeArm: [0, -95, 0], RightForeArm: [0, 95, 0], Spine: [-14, 0, 0], Head: [-10, 0, 0] } },
+    { t: 0.55, p: { LeftArm: [-35, 0, 118], RightArm: [-35, 0, -118], LeftForeArm: [0, -10, 0], RightForeArm: [0, 10, 0], Spine: [14, 0, 0] } },
+    { t: 1, p: {} },
+  ],
+};
+// waiting at the touchline with the ball held at the chest
+ACTIONS.throwHold = { loop: true, mask: 'upper', keys: [{ t: 0, p: { LeftArm: [-55, 0, -70], RightArm: [-55, 0, 70], LeftForeArm: [0, -95, 0], RightForeArm: [0, 95, 0] } }] };
+// mirror an action left <-> right (angles about y and z flip sign)
+function mirror(src) {
+  const swap = n => n.startsWith('Left') ? 'Right' + n.slice(4) : n.startsWith('Right') ? 'Left' + n.slice(5) : n;
+  return { ...src, keys: src.keys.map(k => ({ t: k.t, p: Object.fromEntries(Object.entries(k.p).map(([b, a]) => [swap(b), [a[0], -a[1], -a[2]]])) })) };
+}
+ACTIONS.diveLeft = mirror(ACTIONS.diveRight);
+ACTIONS.passLeft = mirror(ACTIONS.pass);
+
+const MASKS = {
+  all: null,
+  upper: ['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'],
+};
+// per-bone strength for the jockey stance: crouch the legs a little, own the upper body
+const JOCKEY_LEGS = { LeftUpLeg: .45, RightUpLeg: .45, LeftLeg: .55, RightLeg: .55, LeftFoot: .4, RightFoot: .4 };
+
+const qCache = new Map();
+function quatFor(a) {
+  const key = a.join(',');
+  let q = qCache.get(key);
+  if (!q) { q = new THREE.Quaternion().setFromEuler(new THREE.Euler(a[0] * D2R, a[1] * D2R, a[2] * D2R, 'XZY')); qCache.set(key, q); }
+  return q;
+}
+// complete every key with BASE so missing bones interpolate towards a neutral stance
+for (const act of Object.values(ACTIONS)) {
+  act.full = act.keys.map(k => ({ t: k.t, q: Object.fromEntries(Object.keys(BASE).map(b => [b, quatFor(k.p[b] || BASE[b])])) , has: new Set(Object.keys(k.p)) }));
+  act.bones = Object.keys(BASE).filter(b => !MASKS[act.mask] || MASKS[act.mask].includes(b));
+  if (act.mask === 'jockey') act.bones = Object.keys(BASE).filter(b => b !== 'Hips' && b !== 'Spine1' && b !== 'Spine2' && b !== 'Neck');
+}
+
+export function rigOf(model) {
+  const bones = {};
+  model.traverse(o => { if (o.isBone) bones[o.name] = o; });
+  return bones;
+}
+
+const tmpQ = new THREE.Quaternion();
+const ease = x => x * x * (3 - 2 * x);
+function sample(act, u, bone, out) {
+  const F = act.full;
+  if (F.length === 1 || u <= 0) return out.copy(F[0].q[bone]);
+  for (let i = 0; i < F.length - 1; i++) {
+    if (u <= F[i + 1].t) {
+      const s = ease((u - F[i].t) / (F[i + 1].t - F[i].t));
+      return out.copy(F[i].q[bone]).slerp(F[i + 1].q[bone], s);
+    }
+  }
+  return out.copy(F.at(-1).q[bone]);
+}
+
+// Blend an action over the current (locomotion) pose. weight 0..1.
+export function applyAction(bones, name, u, weight) {
+  const act = ACTIONS[name];
+  if (!act || weight <= 0) return;
+  for (const b of act.bones) {
+    const bone = bones[b]; if (!bone) continue;
+    let w = weight;
+    if (act.mask === 'jockey' && JOCKEY_LEGS[b] !== undefined) w *= JOCKEY_LEGS[b];
+    if (b === 'Hips') continue;               // the root keeps the clip's pelvis motion
+    sample(act, u, b, tmpQ);
+    bone.quaternion.slerp(tmpQ, w);
+  }
+}
+
+// Lowest point of the boots in model space; the model is lowered or raised so a crouch keeps the
+// feet on the grass instead of floating or sinking.
+const gv = new THREE.Vector3();
+export function footClearance(bones) {
+  let y = Infinity;
+  for (const s of ['Left', 'Right']) {
+    const toe = bones[s + 'ToeBase'], foot = bones[s + 'Foot'];
+    if (toe) { toe.getWorldPosition(gv); y = Math.min(y, gv.y - 0.004); }
+    if (foot) { foot.getWorldPosition(gv); y = Math.min(y, gv.y - 0.074); }
+  }
+  return y;
+}
+
+// Envelope for one-shot actions: fade in quickly, hold, fade out.
+export function envelope(act, elapsed) {
+  if (act.loop) return 1;
+  const T = act.dur, inT = Math.min(0.12, T * 0.2), outT = Math.min(0.2, T * 0.3);
+  if (elapsed < inT) return elapsed / inT;
+  if (elapsed > T - outT) return Math.max(0, (T - elapsed) / outT);
+  return 1;
+}
