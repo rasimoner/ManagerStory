@@ -571,10 +571,13 @@ test('SET-PIECE RECOVERY: players pulled into the box for a corner run back to s
     const prev = Object.fromEntries(inBox.map(id => [id, h.run(`[...eventPoint(${id},'user')]`)]));
     let moved = 0;
     for (let m = 0; m < 3; m++) {
+      const n0 = h.run('M.events.length');
       if (minute(h)) moved++;
+      // a goal sends everybody to their own half for the kickoff: that reset is by the laws, not a run
+      const kickoff = h.run(`M.events.slice(${n0}).some(e=>e.type==='kickoff')`);
       for (const id of inBox) {
         const p = h.run(`[...eventPoint(${id},'user')]`);
-        assert.ok(Math.hypot(p[0] - prev[id][0], p[1] - prev[id][1]) <= 60, 'a recovery run is fast, not a teleport across the pitch');
+        if (!kickoff) assert.ok(Math.hypot(p[0] - prev[id][0], p[1] - prev[id][1]) <= 60, 'a recovery run is fast, not a teleport across the pitch');
         prev[id] = p;
       }
     }

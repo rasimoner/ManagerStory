@@ -274,11 +274,13 @@ test('corner and throw-in use their own touchline coordinates and ordered restar
   ['ballOut','restartPosition','restartPlayers','restartWait','throwIn']);
 });
 test('goal alone restarts at the centre and a missed shot performs a goal kick',()=>{
- const goal=harness();goal.run('S=fresh();init();startMatch();M.rand=()=>0;chanceV73(true)');
+ // V7.6: chances are shot from realistic positions, so the carrier starts at the edge of the box
+ const edge="M.dynamicPositions[String(M.ballOwner)]=[userDirection()>0?86:14,50];";
+ const goal=harness();goal.run('S=fresh();init();startMatch();'+edge+'M.rand=()=>0;chanceV73(true)');
  assert.ok(goal.run('M.events.some(e=>e.type==="goal")'));
  assert.equal(goal.run('M.events.at(-1).type'),'kickoff');
  assert.deepEqual(Array.from(goal.run('M.events.at(-1).fromPos')),[50,50]);
- const wide=harness();wide.run('S=fresh();init();startMatch();M.rand=()=>.99;chanceV73(true)');
+ const wide=harness();wide.run('S=fresh();init();startMatch();'+edge+'M.rand=()=>.99;chanceV73(true)');
  assert.equal(wide.run('M.events.findLast(e=>e.type==="goalKick").restartType'),'GOAL_KICK');
  assert.equal(wide.run('M.events.filter(e=>e.type==="kickoff").length'),1);
 });
@@ -503,7 +505,10 @@ test('halftime and fulltime lock the single clock and stop all later football ev
  const h=harness();h.run('S=fresh();init();startMatch();advanceLive(30)');
  assert.equal(h.run('M.matchElapsedSeconds'),2700);assert.equal(h.run('M.lifecycle'),'HALF_TIME');
  const halfCount=h.run('M.events.length');h.run('advanceLive(40)');assert.equal(h.run('M.events.length'),halfCount);
- h.run('startSecondHalf();advanceLive(30)');assert.equal(h.run('M.matchElapsedSeconds'),5400);assert.equal(h.run('M.lifecycle'),'FINISHED');
+ h.run('startSecondHalf();advanceLive(30)');
+ // an injury stop pauses the clock until the substitution is made; resolve it the way a manager would
+ for(let g=0;g<5&&h.run("M.reason==='injury'");g++)h.run("(function(){const out=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);if(out)S.players.find(p=>p.id===out).injury=0;M.requiredSubstitution=null;resumeLive();advanceLive(30)})()");
+ assert.equal(h.run('M.matchElapsedSeconds'),5400);assert.equal(h.run('M.lifecycle'),'FINISHED');
  const fullCount=h.run('M.events.length');h.run('advanceLive(40);matchEvent("goal","GOL",{side:0})');
  assert.equal(h.run('M.events.length'),fullCount);assert.equal(h.run('M.matchElapsedSeconds'),5400);
  assert.equal(h.run('matchSyncDebug().invariant'),true);

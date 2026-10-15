@@ -328,6 +328,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
         break;
       }
       case 'ballOut': {
+        if (e.restartType === 'FREE_KICK' || e.restartType === 'PENALTY') {
+          // a whistle (foul, offside), not the ball leaving the pitch: play stops where it is
+          ball.owner = null; ball.v.multiplyScalar(0.3); S.dead = true; hooks.whistle();
+          if (RESTART_LABEL[e.restartType]) hooks.banner(e.restartType === 'FREE_KICK' && events[i - 1]?.type === 'offside' ? 'OFSAYT' : RESTART_LABEL[e.restartType], 1500);
+          yield* wait(0.7);
+          break;
+        }
         ball.allowOut = true;
         const outW = toWorld(e.fromPos || e.toPos || [50, 50]);
         if (!ball.out && !ball.held) {

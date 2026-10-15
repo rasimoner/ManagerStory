@@ -324,7 +324,7 @@ function tick(){
  const r=currentOpponent(),u=strength(),opp=(r[3]+r[4]+r[5])/3*(M.oppIds.length/11),userPoss=M.rand()<u/(u+opp);
  actionMinute(userPoss,effect,r);
  for(const id of M.active){const p=S.players.find(p=>p.id===id);if(p&&!p.debutDone&&!M.debutShown.includes(id)){M.debutShown.push(id);p.debutDone=true;p.morale=Math.min(100,p.morale+5);matchEvent('debut',`🌱 ${M.min}' ${p.name} profesyonel futboldaki ilk resmi maçına çıkıyor.`,{playerId:id});}}
- if(!M.minuteShot&&M.ballOwner!=null&&M.rand()<clamp(.16*effect.frequency,.08,.28))chanceV73(M.ballSide==="user");
+ if(!M.minuteShot&&M.ballOwner!=null&&M.rand()<clamp(.34*effect.frequency,.17,.5))chanceV73(M.ballSide==="user");
  enforceBallInvariants();
  if(M.rand()<.20)recordMatchFoul();
  if(M.min<90&&M.rand()<.0015){const ps=S.players.filter(p=>M.active.includes(p.id)&&p.pos!=="GK");if(ps.length){const p=ps[Math.floor(M.rand()*ps.length)];p.injury=1;matchEvent('injury',`🩹 ${M.min}' ${p.name} yerde kaldı. Sağlık ekibi değişiklik öneriyor.`,{playerId:p.id});M.requiredSubstitution={playerId:p.id,reason:'injury',state:'SUBSTITUTION_REQUIRED'};M.pause=true;M.reason='injury';M.lifecycle='PAUSED';M.lastStop=M.min}}
