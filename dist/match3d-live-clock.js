@@ -318,7 +318,8 @@
   wallSeconds+=dt;
   // The existing RAF allows 2s engine catch-up. Presentation never repays that
   // wall-time debt with a burst: use its documented .12s frame cap, no backlog.
-  const state=currentPitchState(),delta=Math.min(.12,Math.max(0,dt))*matchPlaybackRate()/tempo;
+  // New 3D view (V7.5.0): this clock follows the view, holding an event until the view has started it.
+  const state=currentPitchState(),viewGate=window.ManagerStoryNewView?.gate?.(state),delta=Math.min(.12,Math.max(0,dt))*matchPlaybackRate()/tempo*(viewGate??1);
   // Same frame callback and queue. Wall time of the image is never clip debt.
   if(state.goalPresentation){
    const g=state.goalPresentation;state.presentationDelta=0;
@@ -345,7 +346,7 @@
     const tail=keyframeTransition(state,anchorTargets(state,structuredClone(last.positions)),anchored(state,last.owner,last.ball),last.gameSecond,last.owner,last.side,last.positions,last.ball);
     if(tail){tail.controlMapped=true;tail.sampleInterval={fromGameSecond:last.gameSecond,toGameSecond:last.gameSecond,phase:'post-event-settlement'};tail.homeGoals=last.score[0];tail.awayGoals=last.score[1];tail.engineStatistics=last.statistics;state.queue.push(tail);}else {state.eventScore=last.score;state.eventStatistics=last.statistics;}
    }
-   if(!state.queue.length&&!M.finished&&!M.pause){
+   if(!state.queue.length&&!M.finished&&!M.pause&&!window.ManagerStoryNewView?.busy){
     const start=matchSecond(),oldScore=state.eventScore||[M.hg,M.ag],oldStatistics=state.eventStatistics||{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};
     motionSample=null;advanceLive((60-start%60)/90/M.speed);
     if(motionSample?.toPositions){
