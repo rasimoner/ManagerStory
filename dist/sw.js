@@ -1,11 +1,11 @@
-const CACHE = "managerstory-v7.5.0-dev-20261015-newview";
+const CACHE = "managerstory-v7.5.0-release-20261015";
 const ASSETS = [
   "./match3d-career.js", "./match3d-career.css", "./match3d-live-clock.js", "./match3d-live-view.js",
   "./match3d-pass-timeline.js", "./match3d-football-pose.js", "./match3d-keeper.js", "./match3d-net.js", "./match3d-pass-replay.js", "./match3d-pass-recordings.json",
   "./match3d-scene.js", "./match3d-player.js", "./match3d-dev.css",
   "./match-view-adapter.js", "./match3d-dev.js", "./vendor/three/three.module.min.js", "./vendor/three/three.core.min.js",
   "./match3d-newview.js", "./newview/runtime.js", "./newview/director.js", "./newview/actions.js", "./newview/footballer.js", "./newview/stadium.js", "./newview/rig.js", "./assets/models/footballer-rig.json", "./vendor/three/addons/effects/OutlineEffect.js",
-  "./", "./index.html", "./style.css", "./app.js?v=7.4.3", "./match-support.js?v=7.4.3", "./career-events.js?v=7.4.3", "./live-match.js?v=7.4.3", "./pitch-v73.js?v=7.4.3", "./pitch-v731.js?v=7.4.3", "./opponents-v731.js?v=7.4.3", "./manifest.json", "./webmcp.js?v=7.4.3",
+  "./", "./index.html", "./style.css", "./app.js?v=7.5.0", "./match-support.js?v=7.5.0", "./career-events.js?v=7.5.0", "./live-match.js?v=7.5.0", "./pitch-v73.js?v=7.5.0", "./pitch-v731.js?v=7.5.0", "./opponents-v731.js?v=7.5.0", "./manifest.json", "./webmcp.js?v=7.5.0",
   "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png",
   "./assets/stadium.jpg", "./assets/training.jpg", "./assets/office.jpg",
   "./assets/fans.jpg", "./assets/press.jpg",
