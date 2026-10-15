@@ -1,7 +1,6 @@
 // Shared pitch runtime: footballers, ball physics, locomotion, actions and keeper dives.
 // Used by the real-match director. No DOM.
 import * as THREE from '../vendor/three/three.module.min.js';
-import * as SkeletonUtils from '../vendor/three/addons/utils/SkeletonUtils.js';
 import { buildFootballerGeometry, buildNumberGeometry } from './footballer.js';
 import { ACTIONS, applyAction, envelope, rigOf, footClearance } from './actions.js';
 
@@ -15,8 +14,8 @@ export const toWorld = p => V((p[0] / 100 - 0.5) * 105, 0, (p[1] / 100 - 0.5) * 
 export function analyseGait(source, clip) {
   const mixer = new THREE.AnimationMixer(source);
   const act = mixer.clipAction(clip); act.play();
-  const toe = source.getObjectByName('mixamorigLeftToeBase') || source.getObjectByName('mixamorig:LeftToeBase');
-  const fallback = clip.name === 'run' ? 3.6 : 1.7;
+  const toe = source.getObjectByName('LeftToeBase');
+  const fallback = { walk: 1.6, run: 3.4, sprint: 6.5 }[clip.name] ?? 2;
   if (!toe) { act.stop(); return { speed: fallback, dur: clip.duration, off: 0, dist: fallback * clip.duration }; }
   const N = 90, smp = [], w = V();
   for (let i = 0; i <= N; i++) {
@@ -59,39 +58,39 @@ const HAIR_STYLES = ['short', 'buzz', 'short', 'long', 'short', 'bald', 'buzz', 
 // stable per-player look from the player id
 const hash = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
 
-export function createRuntime({ scene, source, clips, gait, ramp, numberTexture }) {
-  let srcMesh; source.traverse(o => { if (o.isSkinnedMesh && !srcMesh) srcMesh = o; });
+export function createRuntime({ scene, rig, gait, ramp, numberTexture }) {
+  const clips = rig.clips;
+  const template = rig.newInstance();
   const geoCache = new Map();
   const geometryFor = style => {
     const key = JSON.stringify(style);
-    if (!geoCache.has(key)) geoCache.set(key, buildFootballerGeometry(srcMesh.skeleton, style));
+    if (!geoCache.has(key)) geoCache.set(key, buildFootballerGeometry(template.skeleton, style));
     return geoCache.get(key);
   };
-  const numberGeo = buildNumberGeometry(srcMesh.skeleton);
+  const numberGeo = buildNumberGeometry(template.skeleton);
   const players = [];
   const S = { t: 0 };
   // allowOut: only the engine may put the ball out of play (wide shot, goal, ballOut event)
   const ball = { p: V(0, BALL_R, 0), v: V(), owner: null, allowOut: false, out: false, keptIn: 0 };
 
   function addPlayer(d) {
-    const model = SkeletonUtils.clone(source);
-    let skinned; model.traverse(o => { if (o.isSkinnedMesh) { o.visible = false; skinned ??= o; } });
+    const inst = rig.newInstance(), model = inst.group, identity = new THREE.Matrix4();
     const h = hash(d.key);
     const style = { hair: HAIR_STYLES[h % HAIR_STYLES.length], build: 0.95 + (h >> 4) % 4 * 0.035, keeper: !!d.keeper };
     const body = new THREE.SkinnedMesh(geometryFor(style), kitMaterial(d.kit, SKINS[(h >> 8) % SKINS.length], HAIRS[(h >> 12) % HAIRS.length], ramp));
     body.castShadow = true; body.frustumCulled = false; body.layers.enable(1);
-    skinned.parent.add(body); body.bind(skinned.skeleton, skinned.bindMatrix);
+    model.add(body); body.bind(inst.skeleton, identity);
     if (numberTexture) {
       const nm = new THREE.MeshBasicMaterial({ map: numberTexture(d.no, d.kit), transparent: true, alphaTest: .4, depthWrite: false });
       nm.userData.outlineParameters = { visible: false };
       const num = new THREE.SkinnedMesh(numberGeo, nm); num.frustumCulled = false;
-      skinned.parent.add(num); num.bind(skinned.skeleton, skinned.bindMatrix);
+      model.add(num); num.bind(inst.skeleton, identity);
     }
     scene.add(model);
     const mixer = new THREE.AnimationMixer(model), A = {};
-    for (const k of ['idle', 'walk', 'run']) { A[k] = mixer.clipAction(clips[k]); A[k].play(); A[k].setEffectiveWeight(0); }
+    for (const k of ['idle', 'walk', 'run', 'sprint']) { A[k] = mixer.clipAction(clips[k]); A[k].play(); A[k].setEffectiveWeight(0); }
     const p = Object.assign({
-      model, mixer, A, bones: rigOf(model), body,
+      model, mixer, A, bones: inst.bones, body,
       pos: V(), vel: V(), heading: 0, target: V(), want: 0, face: null, faceLock: false,
       phase: (h % 1000) / 1000, idleT: (h % 300) / 100, lean: 0, lastTouch: -9,
       act: null, loops: { jockey: 0, keeperReady: 0, throwHold: 0 }, loopsWant: { jockey: 0, keeperReady: 0, throwHold: 0 },
@@ -108,7 +107,7 @@ export function createRuntime({ scene, source, clips, gait, ramp, numberTexture 
     const at = (name, u, bones) => {
       const m = probe.model, sp = m.position.clone(), sr = m.rotation.clone();
       m.position.set(0, 0, 0); m.rotation.set(0, 0, 0);
-      probe.A.idle.time = 0; probe.A.idle.setEffectiveWeight(1); probe.A.walk.setEffectiveWeight(0); probe.A.run.setEffectiveWeight(0);
+      probe.A.idle.time = 0; probe.A.idle.setEffectiveWeight(1); probe.A.walk.setEffectiveWeight(0); probe.A.run.setEffectiveWeight(0); probe.A.sprint.setEffectiveWeight(0);
       probe.mixer.update(0); applyAction(probe.bones, name, u, 1); m.updateMatrixWorld(true);
       const out = V(); bones.forEach(b => out.add(probe.bones[b].getWorldPosition(V()))); out.multiplyScalar(1 / bones.length);
       out.y -= footClearance(probe.bones);
@@ -263,18 +262,25 @@ export function createRuntime({ scene, source, clips, gait, ramp, numberTexture 
   }
 
   function pose(p, dt) {
-    const sp = p.vel.length(), Wk = gait.walk, R = gait.run;
+    const sp = p.vel.length(), Wk = gait.walk, R = gait.run, Sp = gait.sprint;
     const along = sp > 0.05 ? (p.vel.x * Math.sin(p.heading) + p.vel.z * Math.cos(p.heading)) / sp : 1;
     const dirSign = along < -0.25 ? -1 : 1;       // moving against the facing plays the cycle backwards
     const wIdle = 1 - smooth(sp, 0.1, 0.65);
-    const r = clamp((sp - Wk.speed * 1.05) / (R.speed * 0.95 - Wk.speed * 1.05), 0, 1) * (dirSign < 0 ? 0 : 1);
-    const cycle = lerp(Wk.dist, R.dist, r);
+    const fwd = dirSign < 0 ? 0 : 1;
+    // the open (CC0) jog clip is a long-striding run: full weight from ~3 m/s, cadence kept
+    // natural at football speeds by shortening its stride up to 30% (a little foot slip, no shuffle)
+    const r = clamp((sp - 1.4) / 1.8, 0, 1) * fwd;
+    const r2 = clamp((sp - 6.2) / 1.6, 0, 1) * fwd;
+    const runDist = R.dist * clamp(sp / R.speed, 0.7, 1), sprintDist = Sp.dist * clamp(sp / Sp.speed, 0.75, 1);
+    const cycle = lerp(lerp(Wk.dist, runDist, r), sprintDist, r2);
     if (sp > 0.05) p.phase = ((p.phase + dirSign * dt * sp / cycle) % 1 + 1) % 1;
     p.idleT += dt;
     p.A.idle.time = p.idleT % clips.idle.duration;
     p.A.walk.time = ((p.phase + Wk.off) % 1) * Wk.dur;
     p.A.run.time = ((p.phase + R.off) % 1) * R.dur;
-    p.A.idle.setEffectiveWeight(wIdle); p.A.walk.setEffectiveWeight((1 - wIdle) * (1 - r)); p.A.run.setEffectiveWeight((1 - wIdle) * r);
+    p.A.sprint.time = ((p.phase + Sp.off) % 1) * Sp.dur;
+    const m = 1 - wIdle;
+    p.A.idle.setEffectiveWeight(wIdle); p.A.walk.setEffectiveWeight(m * (1 - r)); p.A.run.setEffectiveWeight(m * r * (1 - r2)); p.A.sprint.setEffectiveWeight(m * r * r2);
     p.mixer.update(0);
     let groundW = 0;
     for (const k of ['jockey', 'keeperReady', 'throwHold']) {

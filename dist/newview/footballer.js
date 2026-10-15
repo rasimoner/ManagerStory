@@ -1,4 +1,4 @@
-// Stylized footballer mesh, generated in the bind (T-pose) space of the Mixamo
+// Stylized footballer mesh, generated in the bind (T-pose) space of our own
 // skeleton so the recorded clips drive it directly. One geometry, one draw call;
 // a per-vertex "part" id selects skin / shirt / shorts / socks / boots / hair.
 import * as THREE from '../vendor/three/three.module.min.js';
@@ -9,7 +9,7 @@ const SEG = 14;
 
 export function boneIndex(skeleton) {
   const map = {};
-  skeleton.bones.forEach((b, i) => { map[b.name.replace(/^mixamorig:?/, '')] = i; });
+  skeleton.bones.forEach((b, i) => { map[b.name] = i; });
   return map;
 }
 
@@ -17,7 +17,7 @@ export function bindPositions(skeleton) {
   const out = {}, m = new THREE.Matrix4();
   skeleton.bones.forEach((b, i) => {
     m.copy(skeleton.boneInverses[i]).invert();
-    out[b.name.replace(/^mixamorig:?/, '')] = new THREE.Vector3().setFromMatrixPosition(m);
+    out[b.name] = new THREE.Vector3().setFromMatrixPosition(m);
   });
   return out;
 }

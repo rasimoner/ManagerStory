@@ -4,10 +4,10 @@
 // (window.ManagerStoryNewView.gate) and the next engine minute is generated only after this view
 // has played the current one (window.ManagerStoryNewView.busy).
 import * as THREE from './vendor/three/three.module.min.js';
-import { GLTFLoader } from './vendor/three/addons/loaders/GLTFLoader.js';
 import { OutlineEffect } from './vendor/three/addons/effects/OutlineEffect.js';
 import { buildStadium } from './newview/stadium.js';
 import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js';
+import { loadRig } from './newview/rig.js';
 import { createDirector } from './newview/director.js';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
@@ -17,13 +17,95 @@ css.textContent = `.nv-banner{position:absolute;left:50%;top:30%;transform:trans
 .nv-who{position:absolute;left:8px;bottom:8px;display:flex;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.04em;text-transform:uppercase;border-radius:5px;overflow:hidden;pointer-events:none;box-shadow:0 2px 8px #0006}
 .nv-who b{padding:4px 6px;color:#fff;font-variant-numeric:tabular-nums}
 .nv-who span{padding:4px 8px;background:#0d1117c8;color:#f3f5f7}
-.nv-loading{position:absolute;inset:0;display:grid;place-items:center;color:#cfe0d3;font:600 14px -apple-system,BlinkMacSystemFont,sans-serif;background:#10251a}`;
+.nv-loading{position:absolute;inset:0;display:grid;place-items:center;color:#cfe0d3;font:600 14px -apple-system,BlinkMacSystemFont,sans-serif;background:#10251a}
+.nv-fs{position:absolute;top:8px;right:8px;width:36px;height:36px;display:grid;place-items:center;border:1px solid #ffffff38;border-radius:9px;background:#0d1117b0;color:#f3f5f7;font:700 18px/1 -apple-system,BlinkMacSystemFont,sans-serif;padding:0;cursor:pointer;touch-action:manipulation;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.nv-fs:focus-visible,.nv-hud button:focus-visible{outline:2px solid #f4c430;outline-offset:2px}
+.nv-hud{display:none}
+html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:none}
+.career3d.nv-full{position:fixed;inset:0;z-index:1000;width:100%;height:100%;border-radius:0;background:#0d1117}
+.nv-full .nv-fs{top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);width:44px;height:44px;font-size:20px}
+.nv-full .nv-hud{display:flex;flex-direction:column;justify-content:space-between;position:absolute;inset:0;pointer-events:none;padding:calc(env(safe-area-inset-top,0px) + 10px) max(10px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 10px) max(10px,env(safe-area-inset-left,0px));font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif}
+.nv-bug{display:flex;align-self:flex-start;border-radius:6px;overflow:hidden;box-shadow:0 2px 10px #0006;font-weight:800;letter-spacing:.02em}
+.nv-bug span{display:flex;align-items:center;padding:6px 9px;font-size:16px;line-height:1}
+.nv-bug .sc{background:#fff;color:#0d1117;font-variant-numeric:tabular-nums}
+.nv-bug .clk{background:#0d1117;color:#f3f5f7;font-weight:600;font-variant-numeric:tabular-nums}
+.nv-bottom{display:flex;flex-direction:column;align-items:center;gap:8px}
+.nv-comm{max-width:min(560px,100%);text-align:center;color:#f3f5f7;font-size:15px;font-weight:500;line-height:1.35;text-shadow:0 1px 3px #000c;min-height:1.35em}
+.nv-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:100%}
+.nv-seg{display:flex;background:#0d1117c4;border:1px solid #ffffff24;border-radius:10px;padding:3px;pointer-events:auto;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.nv-seg button,.nv-pill{font:700 14px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.03em;color:#c3ccd6;background:transparent;border:0;border-radius:7px;padding:10px 11px;min-height:40px;cursor:pointer;touch-action:manipulation}
+.nv-seg button[aria-pressed=true]{background:#fff;color:#0d1117}
+.nv-pill{pointer-events:auto;background:#0d1117c4;border:1px solid #ffffff24;color:#f3f5f7;border-radius:10px;padding:10px 14px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.nv-pill.go{background:#2fd17a;border-color:#2fd17a;color:#062012}
+.nv-full .career3d-radar{top:calc(env(safe-area-inset-top,0px) + 64px);bottom:auto;left:auto;right:max(10px,env(safe-area-inset-right,0px));transform:none;width:110px;height:72px}
+.nv-full .nv-who{left:max(10px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 50px);bottom:auto}
+.nv-full .nv-banner{top:34%}
+@media (orientation:landscape) and (max-height:520px){.nv-bottom{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 8px}.nv-comm{flex-basis:100%;font-size:14px}.nv-row{flex-wrap:nowrap}.nv-seg button,.nv-pill{min-height:36px;padding:8px 10px}}
+@media (prefers-reduced-motion:reduce){.nv-banner{transition:none}}`;
 document.head.append(css);
 
 const surface = document.createElement('div'); surface.className = 'career3d v73pitch';
-surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
+surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><button class="nv-fs" type="button" aria-label="Tam ekran" title="Tam ekran">⤢</button><div class="nv-hud"><div class="nv-bug" aria-label="Skor"><span class="t1"></span><span class="sc"></span><span class="t2"></span><span class="clk"></span></div><div class="nv-bottom"><div class="nv-comm" aria-live="polite"></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Kamera"><button type="button" data-cam="auto" aria-pressed="true">Otomatik</button><button type="button" data-cam="tv" aria-pressed="false">Yayın</button><button type="button" data-cam="close" aria-pressed="false">Yakın</button><button type="button" data-cam="stand" aria-pressed="false">Tribün</button></div></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Hız"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button></div><button type="button" class="nv-pill" data-act="pause">Duraklat</button><button type="button" class="nv-pill go" data-act="intervene">Müdahale</button></div></div></div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 const bannerEl = surface.querySelector('.nv-banner'), whoEl = surface.querySelector('.nv-who'), loadingEl = surface.querySelector('.nv-loading'), status = surface.querySelector('[role=status]');
+const fsBtn = surface.querySelector('.nv-fs'), hud = surface.querySelector('.nv-hud'), commEl = surface.querySelector('.nv-comm');
+const bugT1 = hud.querySelector('.t1'), bugT2 = hud.querySelector('.t2'), bugSc = hud.querySelector('.sc'), bugClk = hud.querySelector('.clk'), pauseBtn = hud.querySelector('[data-act=pause]');
+
+// ---------- fullscreen broadcast mode ----------
+// iPhone Safari has no element fullscreen, so the view covers the screen itself; where the
+// Fullscreen API exists it is used as well. The surface lives on <body> while full, so the
+// match screen can keep re-rendering underneath.
+let full = false, camMode = 'auto';
+function setFull(on) {
+  if (on === full) return;
+  full = on;
+  surface.classList.toggle('nv-full', on); document.documentElement.classList.toggle('nv-lock', on);
+  fsBtn.textContent = on ? '⤡' : '⤢'; fsBtn.setAttribute('aria-label', on ? 'Küçült' : 'Tam ekran'); fsBtn.title = on ? 'Küçült' : 'Tam ekran';
+  if (on) {
+    document.body.append(surface);
+    try { const r = document.documentElement.requestFullscreen?.({ navigationUI: 'hide' }); r?.catch?.(() => {}); } catch (e) { /* optional */ }
+  } else {
+    camMode = 'auto'; syncButtons();
+    try { if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {}); } catch (e) { /* optional */ }
+    surface.remove();
+    if (typeof render === 'function' && typeof M !== 'undefined' && M) render(); else window.ManagerStoryCareer3D.mount();
+  }
+  cut = true;
+}
+fsBtn.addEventListener('click', () => setFull(!full));
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && full) setFull(false); });
+function syncButtons() {
+  for (const b of hud.querySelectorAll('[data-cam]')) b.setAttribute('aria-pressed', String(b.dataset.cam === camMode));
+  for (const b of hud.querySelectorAll('[data-speed]')) b.setAttribute('aria-pressed', String(Number(b.dataset.speed) === (M?.speed || 1)));
+  const p = typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : !!M?.pause;
+  pauseBtn.textContent = p ? 'Devam' : 'Duraklat';
+}
+hud.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || !M) return;
+  if (b.dataset.cam) { camMode = b.dataset.cam; cut = true; }
+  else if (b.dataset.speed) setMatchSpeed(Number(b.dataset.speed));
+  else if (b.dataset.act === 'pause') { const p = typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : M.pause; if (p) resumeLive(); else pauseLive(); }
+  else if (b.dataset.act === 'intervene') { setFull(false); if (typeof openDecisionSheet === 'function') openDecisionSheet(); }
+  syncButtons();
+});
+function paintHud() {
+  const t = teams(), st = typeof currentPitchState === 'function' ? currentPitchState() : null;
+  bugT1.textContent = t.home.shortName || t.home.name.slice(0, 3); bugT2.textContent = t.away.shortName || t.away.name.slice(0, 3);
+  bugT1.style.background = t.home.primaryColor; bugT1.style.color = t.home.secondaryColor;
+  bugT2.style.background = t.away.primaryColor; bugT2.style.color = t.away.secondaryColor;
+  bugSc.textContent = (st?.eventScore || [M.hg, M.ag]).join('–');
+  bugClk.textContent = typeof clockFromSeconds === 'function' ? clockFromSeconds(st?.displayMatchSeconds ?? matchSecond()) : M.min + "'";
+  const line = typeof liveCommentaryLines === 'function' ? liveCommentaryLines()[0] : '';
+  if (commEl.textContent !== line) commEl.textContent = line || '';
+  syncButtons();
+}
+// leave the broadcast view when the match needs the manager's screen
+function shouldLeaveFull() {
+  if (!M) return true;
+  const halfReady = M.reason === 'half' && !window.ManagerStoryLive3D?.halfPending;
+  const done = M.finished && !(typeof livePresentationPending === 'function' && livePresentationPending()) && !director?.busy;
+  return halfReady || done || M.reason === 'injury' || !!M.requiredSubstitution;
+}
 
 let renderer, outline, scene, camera, stadium, assets = null, assetsPromise = null, failed = false;
 let match = null, rt = null, director = null, snaps = [], crowd = [], rosterKey = '', lastEvents = 0, wasActive = false, needResync = false;
@@ -47,13 +129,10 @@ function initRenderer() {
 }
 
 function loadAssets() {
-  assetsPromise ??= fetch(new URL('./assets/models/xbot.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('model ' + r.status); return r.json(); }).then(j => {
-    const bin = atob(j.glb), bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return new Promise((res, rej) => new GLTFLoader().parse(bytes.buffer, './', res, rej));
-  }).then(gltf => {
-    const clips = {}; for (const c of gltf.animations) clips[c.name] = c;
-    assets = { source: gltf.scene, clips, gait: { walk: analyseGait(gltf.scene, clips.walk), run: analyseGait(gltf.scene, clips.run) } };
+  assetsPromise ??= fetch(new URL('./assets/models/footballer-rig.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('rig ' + r.status); return r.json(); }).then(data => {
+    const rig = loadRig(data), gait = {};
+    for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
+    assets = { rig, gait };
     return assets;
   });
   return assetsPromise;
@@ -106,7 +185,7 @@ function startMatchView() {
   for (const m of crowd) scene.remove(m);
   const t = teams();
   crowd = stadium.buildCrowd(t.home.primaryColor, t.home.secondaryColor, t.away.primaryColor, t.away.secondaryColor) || [];
-  rt = createRuntime({ scene, source: assets.source, clips: assets.clips, gait: assets.gait, ramp: stadium.toonRamp, numberTexture });
+  rt = createRuntime({ scene, rig: assets.rig, gait: assets.gait, ramp: stadium.toonRamp, numberTexture });
   snaps = [{ n: M.events.length, pl: enginePositions() }];
   const roster = rosterList();
   rosterKey = JSON.stringify(roster.map(r => [r.side, r.id]));
@@ -139,20 +218,30 @@ function shot(mode, aspect) {
     const side = new THREE.Vector3(-g.z, 0, g.x); if (side.z < 0) side.negate();
     wantPos.copy(a.pos).addScaledVector(g, -5.4).addScaledVector(side, 1.6).setY(2.0); wantLook.copy(a.pos).addScaledVector(g, 9).setY(1.0); wantFov = tall ? 54 : 42;
   } else if (mode === 'stand') {
-    const sx = Math.sign(b.x || 1), sz = Math.sign(b.z || -1);
-    wantPos.set(sx * 68, 24, sz * 56); wantLook.set(sx * 50.5, 1, sz * 31); wantFov = tall ? 46 : 36;
+    // high angle from the pitch side, the crowd wall behind the ball (corner and touchline views)
+    const sz = Math.sign(b.z || -1), sx = Math.abs(b.x) > 36 ? Math.sign(b.x) : 0;
+    const back = new THREE.Vector3(-sx * 0.8, 0, -sz).normalize();
+    wantPos.copy(b).addScaledVector(back, tall ? 20 : 24).setY(tall ? 17 : 15);
+    wantPos.x = Math.max(-56, Math.min(56, wantPos.x)); wantPos.z = Math.max(-36, Math.min(36, wantPos.z));
+    wantLook.set(b.x + sx * 4, 2, b.z + sz * 6); wantFov = tall ? 50 : 38;
   } else {
     const back = tall ? 19 : 30, z = Math.min(b.z + back, 45), lift = b.z + back - z;
     wantPos.set(b.x - 2, (tall ? 10.5 : 14) + lift * 0.9, z); wantLook.set(b.x + 2, 0, b.z - 2); wantFov = tall ? 46 : 34;
   }
 }
 function updateCamera(dtReal, aspect) {
+  const saved = autoCam;
+  if (full && camMode !== 'auto') {
+    const b = rt.ball.p, near = rt.ball.owner || rt.players.filter(p => !p.offPitch).reduce((m, p) => (!m || p.pos.distanceTo(b) < m.pos.distanceTo(b) ? p : m), null);
+    autoCam = { mode: camMode === 'close' ? 'close' : camMode, a: camMode === 'close' ? near : null, b: null };
+  }
   shot(autoCam.mode, aspect);
   const k = 1 - Math.exp(-dtReal * (autoCam.mode === 'stand' ? 1.8 : autoCam.mode === 'shot' ? 2.4 : 3));
   if (cut || camPos.distanceTo(wantPos) > 30) { camPos.copy(wantPos); camLook.copy(wantLook); camera.fov = wantFov; cut = false; }
   else { camPos.lerp(wantPos, k); camLook.lerp(wantLook, k); camera.fov += (wantFov - camera.fov) * k; }
   camera.aspect = aspect; camera.updateProjectionMatrix();
   camera.position.copy(camPos); camera.lookAt(camLook);
+  autoCam = saved;
   stadium.sun.target.position.copy(camLook); stadium.sun.position.copy(camLook).add(new THREE.Vector3(-30, 60, 40));
 }
 
@@ -172,9 +261,10 @@ const ballAxis = new THREE.Vector3();
 const TEST_SCALE = Math.min(20, Math.max(1, Number(new URLSearchParams(location.search).get('nvtest')) || 1));
 let last = 0, frameNo = 0, rafId = null;
 const paused = () => typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : !!M?.pause;
-function isActive() { return !failed && !!assets && !!M && M.fieldView === '3d' && surface.isConnected && canvas.clientWidth > 0; }
+function isActive() { return !failed && !!assets && !!M && (M.fieldView === '3d' || full) && surface.isConnected && canvas.clientWidth > 0; }
 function frame(now) {
   rafId = requestAnimationFrame(frame);
+  if (full && shouldLeaveFull()) setFull(false);
   const active = isActive();
   if (!active) { if (wasActive) needResync = true; wasActive = false; last = now; return; }
   if (match !== M) { startMatchView(); needResync = false; }
@@ -214,6 +304,7 @@ function frame(now) {
   renderer.render(scene, camera);
   camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
   if (frameNo++ % 3 === 0) drawRadar();
+  if (full && frameNo % 6 === 0) paintHud();
 }
 
 // ---------- the live presentation clock follows this view ----------
@@ -237,10 +328,14 @@ window.MatchView?.subscribe?.(snapshot => {
 });
 
 window.ManagerStoryCareer3D = {
-  detach() { surface.remove(); },
+  // the app re-renders its screen often; a fullscreen view stays where it is
+  detach() { if (!full) surface.remove(); },
+  get fullscreen() { return full; },
+  setFullscreen(on) { setFull(!!on); },
   mount() {
     if (failed && M?.fieldView === '3d') { M.fieldView = '2d'; render(); return; }
     if (M?.fieldView === '3d' && window.ManagerStoryLive3D && !window.ManagerStoryLive3D.enabled) { window.ManagerStoryLive3D.enable(); window.ManagerStoryLive3D.setTempo(1); }
+    if (full) { if (!M) setFull(false); return; }
     const host = document.querySelector('#career-3d-host'); if (!host) return;
     host.append(surface);
     if (!renderer) { try { initRenderer(); makeBall(); } catch (e) { fail(e); return; } }

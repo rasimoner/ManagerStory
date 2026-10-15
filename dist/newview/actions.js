@@ -137,7 +137,7 @@ for (const act of Object.values(ACTIONS)) {
 
 export function rigOf(model) {
   const bones = {};
-  model.traverse(o => { if (o.isBone) bones[o.name.replace(/^mixamorig:?/, '')] = o; });
+  model.traverse(o => { if (o.isBone) bones[o.name] = o; });
   return bones;
 }
 
