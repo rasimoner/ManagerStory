@@ -185,7 +185,7 @@ function startMatchView() {
   for (const m of crowd) scene.remove(m);
   const t = teams();
   crowd = stadium.buildCrowd(t.home.primaryColor, t.home.secondaryColor, t.away.primaryColor, t.away.secondaryColor) || [];
-  rt = createRuntime({ scene, rig: assets.rig, gait: assets.gait, ramp: stadium.toonRamp, numberTexture, cadence: CADENCE });
+  rt = createRuntime({ scene, rig: assets.rig, gait: assets.gait, ramp: stadium.toonRamp, numberTexture, cadence: CADENCE, stride: STRIDE });
   snaps = [{ n: M.events.length, pl: enginePositions() }];
   const roster = rosterList();
   rosterKey = JSON.stringify(roster.map(r => [r.side, r.id]));
@@ -260,6 +260,8 @@ const ballAxis = new THREE.Vector3();
 // automated checks only (?nvtest=N): play N times faster and draw every 10th frame
 // running step rate; `?adim=1.05` tries a different one (the preview offers a few to compare)
 const CADENCE = Math.min(1.3, Math.max(0.9, Number(new URLSearchParams(location.search).get('adim')) || 1));
+// leg opening at jogging pace; `?bacak=0.75` tries a more compact one (the preview offers a few to compare)
+const STRIDE = Math.min(1, Math.max(0.5, Number(new URLSearchParams(location.search).get('bacak')) || 1));
 const TEST_SCALE = Math.min(20, Math.max(1, Number(new URLSearchParams(location.search).get('nvtest')) || 1));
 let last = 0, frameNo = 0, rafId = null;
 const paused = () => typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : !!M?.pause;

@@ -67,9 +67,27 @@ const HAIR_STYLES = ['short', 'buzz', 'short', 'long', 'short', 'bald', 'buzz', 
 const hash = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
 
 // cadence: step-rate multiplier while running (1 = the recorded clips' natural rate)
-export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence = 1 }) {
+// stride: how far the legs open at jogging pace (1 = the recorded jog, which opens wider than the
+// sprint; smaller is more compact). Full sprint keeps the recorded opening.
+export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence = 1, stride = 1 }) {
   const clips = rig.clips;
   const template = rig.newInstance();
+  // the jog cycle's average pose per limb bone: a compact stride swings less far either side of it
+  const COMPACT = { LeftUpLeg: 1, RightUpLeg: 1, LeftLeg: 0.6, RightLeg: 0.6, LeftArm: 0.6, RightArm: 0.6, LeftForeArm: 0.5, RightForeArm: 0.5 };
+  const jogMean = {};
+  if (stride < 1) {
+    const m = new THREE.AnimationMixer(template.group), a = m.clipAction(clips.run); a.play();
+    const acc = Object.fromEntries(Object.keys(COMPACT).map(b => [b, new THREE.Vector4()]));
+    for (let i = 0; i < 60; i++) {
+      m.setTime(clips.run.duration * i / 60);
+      for (const b in COMPACT) {
+        const q = template.bones[b].quaternion, v = acc[b], s = v.x * q.x + v.y * q.y + v.z * q.z + v.w * q.w < 0 ? -1 : 1;
+        v.x += s * q.x; v.y += s * q.y; v.z += s * q.z; v.w += s * q.w;
+      }
+    }
+    for (const b in COMPACT) jogMean[b] = new THREE.Quaternion(acc[b].x, acc[b].y, acc[b].z, acc[b].w).normalize();
+    a.stop(); m.uncacheRoot(template.group);
+  }
   const geoCache = new Map();
   const geometryFor = style => {
     const key = JSON.stringify(style);
@@ -345,7 +363,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     p.lean = lerp(p.lean, clamp(-turn / Math.max(dt, 1e-4) * sp * 0.012, -0.16, 0.16), Math.min(1, dt * 6));
   }
 
-  const qNod = new THREE.Quaternion(), xAxis = V(1, 0, 0);
+  const qNod = new THREE.Quaternion(), qTmp = new THREE.Quaternion(), xAxis = V(1, 0, 0);
   function pose(p, dt) {
     const sp = p.vel.length(), Wk = gait.walk, R = gait.run, Sp = gait.sprint;
     const along = sp > 0.05 ? (p.vel.x * Math.sin(p.heading) + p.vel.z * Math.cos(p.heading)) / sp : 1;
@@ -379,6 +397,12 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const lw = 1 - mw;
     p.A.idle.setEffectiveWeight(lw * wIdle); p.A.walk.setEffectiveWeight(lw * m * (1 - r)); p.A.run.setEffectiveWeight(lw * m * r * (1 - r2)); p.A.sprint.setEffectiveWeight(lw * m * r * r2);
     p.mixer.update(0);
+    // compact stride at jogging pace: only the jog clip's share is reined in, the sprint stays open
+    const compact = stride < 1 ? lw * m * r * (1 - r2) * (1 - stride) * (1 - smooth(sp, 5.5, 7.8)) : 0;
+    if (compact > 0.005) for (const b in COMPACT) {
+      const k = 1 - compact * COMPACT[b];
+      p.bones[b].quaternion.copy(qTmp.copy(jogMean[b]).slerp(p.bones[b].quaternion, k));
+    }
     let lift = 0;
     if (p.motion?.name === 'header' && mw > 0) {
       const H = MOTIONS.header, u = clamp((mel - H.takeoff) / (H.land - H.takeoff), 0, 1);
@@ -411,6 +435,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     }
     p.model.updateMatrixWorld(true);
     if (groundW > 0.01) p.ground = lerp(p.ground, -footClearance(p.bones) * groundW, Math.min(1, dt * 12));
+    else if (compact > 0.005) p.ground = lerp(p.ground, Math.max(0, -footClearance(p.bones)), Math.min(1, dt * 12));   // a straighter leg would dig in
     else p.ground = lerp(p.ground, 0, Math.min(1, dt * 8));
     if (Math.abs(p.ground) > 1e-4) { p.model.position.y += p.ground; p.model.updateMatrixWorld(true); }
   }
