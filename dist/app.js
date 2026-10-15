@@ -169,9 +169,21 @@ ${e.kind=="press"||e.kind=="postpress"?`<div class=eventvisual><img src="assets/
 ${S.v732?.feedback?`<section class="card conversation-feedback" role="status"><small>🧠 TAKIM TEPKİSİ</small><p>${escapeHTML(S.v732.feedback.text)}</p></section>`:""}
 ${e.kind==='matchday'?`<div class="atmosphere-locker"><img src="assets/atmosphere/locker-club-base.webp" alt="Soyunma odası">${clubProps('career',{kind:'locker'})}<span>SOYUNMA ODASI</span></div>`:''}
 ${e.kind==='office'?`<div class="atmosphere-locker atmosphere-office"><img src="${officePhoto(managedClubName())}" alt="Kulüp yönetim odası">${clubProps('career',{kind:'office'})}<span>KULÜP YÖNETİMİ</span></div>`:''}
-<section class="card decision actions focuscard"><small>${S.clock} • ${escapeHTML(e.title)}</small><p>${e.speaker?`<b>${escapeHTML(e.speaker)}</b> • `:""}${escapeHTML(e.text)}</p>${e.choices.map(c=>`<button onclick="choose('${c[1]}')">${c[0]}</button>`).join("")}${e.kind=="office"?`<button class=goldbtn onclick="completeOfficeDay()">Günü Tamamla</button>`:""}</section>
 <section class=card><div class="row between"><div><small>GELEN KUTUSU</small><h3>${S.inbox.length?S.inbox.length+" mesaj":"Yeni mesaj yok"}</h3></div><button class=ghost onclick="showInbox()">Tümünü Aç</button></div>${inbox.map(m=>`<div class=minimsg><b>${m.from}</b><span>${m.title}</span></div>`).join("")}</section>
-</main>${bottomNav("home")}`}
+</main>${decisionTray(e)}${bottomNav("home")}`}
+/* V7.6: today's decision stays on screen in a tray above the navigation; no scrolling to reach it. */
+function decisionTray(e){
+ if(typeof queueMicrotask==='function')queueMicrotask(syncDecisionTray);
+ const collapsed=S.ui?.trayCollapsed;
+ return `<section class="card decision actions focuscard decisiontray${collapsed?' collapsed':''}" aria-label="Bugünün kararı"><button class=traytoggle aria-expanded="${!collapsed}" onclick="toggleDecisionTray()"><small>${S.clock} • ${escapeHTML(e.title)}</small><i aria-hidden="true">${collapsed?'▴':'▾'}</i></button><div class=traybody><p>${e.speaker?`<b>${escapeHTML(e.speaker)}</b> • `:""}${escapeHTML(e.text)}</p><div class=traychoices>${e.choices.map(c=>`<button onclick="choose('${c[1]}')">${c[0]}</button>`).join("")}${e.kind=="office"?`<button class=goldbtn onclick="completeOfficeDay()">Günü Tamamla</button>`:""}</div></div></section>`;
+}
+function toggleDecisionTray(){S.ui??={};S.ui.trayCollapsed=!S.ui.trayCollapsed;save();render();}
+function syncDecisionTray(){
+ if(typeof document==='undefined'||!document.querySelector)return;
+ const tray=document.querySelector('.decisiontray'),main=document.querySelector('.appcontent');
+ if(!tray||!main)return;
+ main.style.paddingBottom=(tray.offsetHeight+16)+'px';
+}
 
 function showInbox(){modal=null;$("#app").innerHTML=`${header()}<button class=secondary onclick=render()>‹ Geri</button><div class="row between"><h1>Gelen Kutusu</h1>${S.inbox.length?`<button class=warn onclick="clearInbox()">Tümünü Sil</button>`:""}</div>${S.inbox.length?S.inbox.map((m,i)=>`<div class="card inboxmsg ${m.tone}"><small>${m.time} • HAFTA ${m.week}</small><h3>${m.from} — ${m.title}</h3><p>${m.text}</p><button class=ghost onclick="deleteInbox(${i})">Sil</button></div>`).join(""):"<div class=card><p>Gelen kutusu boş.</p></div>"}`;decorateMainScreen("home");}
 function deleteInbox(i){S.inbox.splice(i,1);save();showInbox()}
