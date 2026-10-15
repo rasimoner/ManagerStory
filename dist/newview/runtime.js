@@ -66,7 +66,8 @@ const HAIR_STYLES = ['short', 'buzz', 'short', 'long', 'short', 'bald', 'buzz', 
 // stable per-player look from the player id
 const hash = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
 
-export function createRuntime({ scene, rig, gait, ramp, numberTexture }) {
+// cadence: step-rate multiplier while running (1 = the recorded clips' natural rate)
+export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence = 1 }) {
   const clips = rig.clips;
   const template = rig.newInstance();
   const geoCache = new Map();
@@ -356,7 +357,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture }) {
     const r = clamp((sp - 1.4) / 1.8, 0, 1) * fwd;
     const r2 = clamp((sp - 6.2) / 1.6, 0, 1) * fwd;
     const runDist = R.dist * clamp(sp / R.speed, 0.7, 1), sprintDist = Sp.dist * clamp(sp / Sp.speed, 0.75, 1);
-    const cycle = lerp(lerp(Wk.dist, runDist, r), sprintDist, r2);
+    const cycle = lerp(lerp(Wk.dist, runDist, r), sprintDist, r2) / (1 + (cadence - 1) * r);
     if (sp > 0.05) p.phase = ((p.phase + dirSign * dt * sp / cycle) % 1 + 1) % 1;
     p.idleT += dt;
     p.A.idle.time = p.idleT % clips.idle.duration;

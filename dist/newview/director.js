@@ -498,7 +498,19 @@ export function createDirector(rt, data, hooks, opts = {}) {
       case 'yellow': hooks.banner('SARI KART', 1400); yield* wait(1.2); break;
       case 'red': hooks.banner('KIRMIZI KART', 1600); yield* wait(1.4); break;
       case 'half': hooks.banner('DEVRE ARASI', 2600); yield* wait(2.8); break;
-      case 'end': hooks.banner('MAÇ SONU', 99999); hooks.finished(); break;
+      case 'end': {
+        // final whistle: play stops where it is, everyone eases up instead of freezing mid-stride
+        hooks.whistle(); hooks.banner('MAÇ SONU', 99999); hooks.cam('tv');
+        S.dead = true; ball.owner = null; ball.held = null; ball.v.multiplyScalar(0.25);
+        for (const p of rt.players) {
+          if (p.offPitch || p.dive) continue;
+          p.busy = true; p.runUntil = 0; p.loopsWant.jockey = 0;
+          p.target.copy(p.pos).addScaledVector(p.vel, 0.5); p.want = 1.2; p.face = null; p.faceLock = false;
+        }
+        yield* wait(2.4);
+        hooks.finished();
+        break;
+      }
       default: break;
     }
   }

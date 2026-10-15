@@ -824,6 +824,23 @@ function concedeCorner(side,point){
  M.ballOwner=null;M.ballSide='none';M.looseBall=null;
  startPitchRestart('CORNER',side,cornerOff(side,point));
 }
+/* V7.6 full time: the referee does not blow in the middle of a promising attack. When the 90th
+   minute ends with an attacker on the ball in the final third and no shot came that minute, the
+   move is finished first (one more chance step: a shot, or the final ball being cut out). */
+function playLastAttack(){
+ if(M.minuteShot)return;
+ // a few steps at most: a carry or a lay-off keeps the move alive, a shot or a turnover ends it
+ for(let step=0;step<5;step++){
+  if(M.pause||M.ballOwner==null||M.ballSide==='none'||M.looseBall)return;
+  if(M.restart&&M.restart.restartPhase!=='LIVE')return;
+  if(deepFor(M.ballSide,eventPoint(M.ballOwner,M.ballSide))<70)return;
+  const n=M.events.length,owner=M.ballOwner,at=[...eventPoint(M.ballOwner,M.ballSide)];
+  chanceV73(M.ballSide==='user');
+  if(M.events.slice(n).some(e=>e.type==='shot')){M.minuteShot=true;return;}
+  // shielding it by the corner flag: nothing more is coming, the referee can blow
+  if(M.ballOwner===owner&&M.ballOwner!=null&&pitchDistance(eventPoint(M.ballOwner,M.ballSide),at)<1)return;
+ }
+}
 /* V7.6 decisions ---------------------------------------------------------------------------
    What a shot from a point is worth, on a realistic distance/angle curve (about .33 at 6 m,
    .17 at 11 m, .07 at 18 m, .03 at 25 m). Used only to DECIDE; the shot outcome model is unchanged.

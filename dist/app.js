@@ -330,6 +330,7 @@ function tick(){
  if(M.min<90&&M.rand()<.0015){const ps=S.players.filter(p=>M.active.includes(p.id)&&p.pos!=="GK");if(ps.length){const p=ps[Math.floor(M.rand()*ps.length)];p.injury=1;matchEvent('injury',`🩹 ${M.min}' ${p.name} yerde kaldı. Sağlık ekibi değişiklik öneriyor.`,{playerId:p.id});M.requiredSubstitution={playerId:p.id,reason:'injury',state:'SUBSTITUTION_REQUIRED'};M.pause=true;M.reason='injury';M.lifecycle='PAUSED';M.lastStop=M.min}}
  // cards/injuries above may have removed the ball owner or stacked players on a restart spot
  enforceBallInvariants();settleShape();
+ if(M.min>=90)playLastAttack();
  if(M.min===45||M.min>=90)settlePlay();
  if(M.min===45){matchEvent('half',"⏸ 45' Devre sona erdi. Oyuncular soyunma odasına yöneliyor.");M.pause=true;M.reason='half';M.lifecycle='HALF_TIME'}
  if(M.min>=90)finalizeMatch();
