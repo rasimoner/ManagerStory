@@ -25,7 +25,7 @@ test('real engine samples use the actual approved mesh: kick, carry, contest, he
  const {T,createFootballer,poseFootballer,createLivePoseSampler}=await modules();const {setup}=await import('../tools/match3d-minute-audit.mjs');
  const kinds=new Set(),measurements=[];
  function surfaceDistance(model,ball,boneNames,near=null){const mesh=model.children.find(x=>x.isSkinnedMesh),g=mesh.geometry;mesh.skeleton.update();const ids=boneNames.map(n=>mesh.skeleton.bones.indexOf(model.userData.bones[n]));let closest=Infinity;for(let i=0;i<g.attributes.position.count;i++){if(!ids.includes(g.attributes.skinIndex.getX(i)))continue;const vertex=mesh.localToWorld(mesh.getVertexPosition(i,new T.Vector3()));if(near&&vertex.distanceTo(near)>.035)continue;closest=Math.min(closest,vertex.distanceTo(new T.Vector3(...ball)));}assert.ok(Number.isFinite(closest));return closest;}
- // V7.6: shot choices changed the random path; keep sampling further seeds until a header occurs
+ // V7.6: shot choices and corners changed the random path; keep sampling further seeds until a header (and a save) occurs
  for(const seed of [1,10,2,3,4,5,6,7,8,9]){
   if(['pass','shot','carry','save','contest','header'].every(x=>kinds.has(x)))break;
   const h=setup();h.run(`M.rand=R(${seed})`);
@@ -54,7 +54,7 @@ test('real engine samples use the actual approved mesh: kick, carry, contest, he
     if(s.presentation.contestMotion&&pose.id===s.presentation.contestMotion.defenderId&&p>=.76&&p<.78&&!kinds.has('contest')){const d=c.rightToe.distanceTo(new T.Vector3(...view.ball));assert.ok(d<.24,`contest ${d}`);kinds.add('contest');measurements.push({kind:'contest',markerDistance:d,meshSurfaceDistance:surfaceDistance(model,view.ball,['rightAnkle'])});}
    }
    if(seed===1&&['pass','shot','carry','save','contest'].every(x=>kinds.has(x)))break;
-   if(seed!==1&&kinds.has('header'))break;
+   if(seed!==1&&kinds.has('header')&&kinds.has('save'))break;
   }
  }
  assert.ok(kinds.has('pass'));assert.ok(kinds.has('shot'));assert.ok(kinds.has('carry'));assert.ok(kinds.has('header'));assert.ok(kinds.has('save'));assert.ok(kinds.has('contest'));console.log('Approved mesh CPU contacts',JSON.stringify(measurements));

@@ -196,7 +196,7 @@ function startMatchView() {
     score() {}, minute() {},
     cam: (mode, a = null, b = null, hard = false) => { autoCam = { mode, a, b }; if (hard) cut = true; },
     slow: s => { simSlow = s; }, whistle() {}, finished() {},
-  }, { startIndex: fresh ? 0 : M.events.length });
+  }, { startIndex: fresh ? 0 : M.events.length, debug: TEST_SCALE > 1 || /[?&]nvdebug/.test(location.search) });
   if (!fresh) director.resync(M.ballOwner, M.ballSide, M.ballState?.position);
   lastEvents = M.events.length; match = M; cut = true;
 }
@@ -276,7 +276,8 @@ function frame(now) {
   if (M.events.length !== lastEvents) { snaps.push({ n: M.events.length, pl: enginePositions() }); if (snaps.length > 40) snaps.splice(1, snaps.length - 40); lastEvents = M.events.length; }
   const roster = rosterList(), key = JSON.stringify(roster.map(r => [r.side, r.id]));
   if (key !== rosterKey) { director.syncRoster(roster); rosterKey = key; }
-  const hold = paused() || (M.finished && !window.ManagerStoryLive3D?.finishing && !director.busy);
+  // after the final whistle the view still plays the match's last actions, unless the drain is paused
+  const hold = M.finished ? !director.busy || (!!window.ManagerStoryLive3D?.finishing && paused()) : paused();
   const dt = hold ? 0 : dtReal * (M.speed || 1) * simSlow * TEST_SCALE;
   if (dt > 0) {
     const n = Math.max(1, Math.ceil(dt / (1 / 120)));
@@ -320,6 +321,7 @@ window.ManagerStoryNewView = {
     return id > director.progressId ? 0 : FAST;
   },
   get director() { return director; },
+  get simTime() { return rt?.S.t ?? 0; },
 };
 
 window.MatchView?.subscribe?.(snapshot => {

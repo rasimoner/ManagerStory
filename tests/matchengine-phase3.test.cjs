@@ -596,7 +596,8 @@ test('PASSING STYLE decision: Direkt differs from Dengeli (not only from Kısa);
   const measure = style => {
     let n = 0, prog = 0, long = 0, dist = 0;
     for (let f = 0; f < 6; f++) {
-      const h = harness(); h.run(`S=fresh();init();S.fixture=${f};startMatch();M.passingStyle='${style}';resumeLive();advanceLive(10)`);
+      // the same match state for every style (play the opening with one style, then switch), so only the decision differs
+      const h = harness(); h.run(`S=fresh();init();S.fixture=${f};startMatch();M.passingStyle='Dengeli';resumeLive();advanceLive(10);M.passingStyle='${style}'`);
       const r = h.run(`(function(){let n=0,prog=0,long=0,dist=0;M.rand=R(55);
         for(const from of M.active){if(M.matchRoles[from]==='GK')continue;
           for(let k=0;k<120;k++){const o=weightedPitchChoice(passOptions('user',from));n++;if(o.progress>12)prog++;if(o.range>29)long++;dist+=o.range;}}

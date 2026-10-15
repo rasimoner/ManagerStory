@@ -1,7 +1,7 @@
 // Plays a real MatchEngine event log on the pitch runtime.
 // The engine decides who does what and where; this file only decides how it looks.
 import * as THREE from '../vendor/three/three.module.min.js';
-import { V, clamp, toWorld, GOAL_X, BALL_R } from './runtime.js';
+import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
 
 const SKIP_TEXT = new Set(['offBallRun', 'press', 'chance', 'restartPlayers', 'restartWait', 'restartPosition', 'firstTouch', 'looseBall']);
@@ -48,6 +48,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }
   }
   function faceBall(p) { p.heading = Math.atan2(ball.p.x - p.pos.x, ball.p.z - p.pos.z); }
+  // stable per-event choice in [0,1): the same match always looks the same
+  const pick = (e, salt = 0) => (((e?.eventId ?? 0) * 9301 + 49297 + salt * 7919) % 233280) / 233280;
+  const headingOf = (a, b) => Math.atan2(a.x + b.x, a.z + b.z);
 
   // ---- off-ball movement: everyone not involved heads for his engine position ----
   function shape() {
@@ -70,6 +73,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // give the ball to p, the way football would: a teammate passes it, otherwise he goes and gets it
   function* ensureOwner(p) {
     if (ball.owner === p) return;
+    if (p.motion) yield* until(() => !p.motion, 2.2);      // back on his feet first
     const o = ball.owner;
     if (o && o.side === p.side && o !== p && o.pos.distanceTo(p.pos) > 2.5 && !o.dive) {
       yield* pass(o, p, p.pos.clone(), 'ground', true);
@@ -89,6 +93,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     from.busy = true;
     const dir = V(toW.x - ball.p.x, 0, toW.z - ball.p.z);
     const throwIn = opts.throwIn;
+    let flight = 0;
     if (throwIn) {
       from.heading = Math.atan2(dir.x, dir.z); from.target.copy(from.pos); from.want = 0;
       rt.startAction(from, 'throwIn'); from.loopsWant.throwHold = 0; from.loops.throwHold = 0;
@@ -100,10 +105,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const name = 'pass';
       rt.startAction(from, name); rt.kickWarp(from, name, dir);
       yield* until(() => rt.actionAtContact(from), 2);
-      if (travel === 'aerial') rt.kickAir(V(toW.x, 0.25, toW.z), Math.max(0.7, dir.length() / 17));
+      if (travel === 'aerial') { flight = Math.max(0.7, dir.length() / 17); rt.kickAir(V(toW.x, opts.height ?? 0.25, toW.z), flight); }
       else rt.kickGround(toW, opts.arrive ?? 3);
     }
     from.lastPass = S.t; from.busy = false;
+    if (opts.meet) { opts.meet(S.t + flight); return; }      // met in the air: the next event plays the contact
     if (!to) { yield* until(() => ball.v.length() < 2 || ball.p.distanceTo(V(toW.x, BALL_R, toW.z)) < 1.5, 4); return; }
     to.busy = true;
     let ok = yield* until(() => rt.receive(to, toW), Math.max(4.5, dir.length() / 7));
@@ -130,11 +136,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
 
   // a defender closes the carrier down and commits; success decides who gets the ball
-  function* tackle(def, car, success, closeUp) {
+  function* tackle(def, car, success, closeUp, slide) {
     if (!def || !car) return;
     if (ball.owner !== car) yield* ensureOwner(car);
+    if (def.motion) yield* until(() => !def.motion, 2);
     def.busy = car.busy = true;
     if (closeUp) hooks.cam('close', car, def);
+    if (slide && (yield* slideTackle(def, car, success)) !== false) { if (closeUp) hooks.cam('tv'); return; }
     // carrier keeps going while the defender arrives goal-side
     const carGoal = car.pos.clone().add(V(Math.sin(car.heading) * 6, 0, Math.cos(car.heading) * 6));
     yield* until(() => {
@@ -168,6 +176,87 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (closeUp) hooks.cam('tv');
   }
 
+  // a sliding tackle: the defender goes to ground from a few metres; the boot arrives on the contact frame
+  function* slideTackle(def, car, success) {
+    const c = MOTIONS.tackle.contact;
+    const carGoal = car.pos.clone().add(V(Math.sin(car.heading) * 8, 0, Math.cos(car.heading) * 8));
+    yield* until(() => {
+      rt.dribble(car, carGoal, 3);
+      def.target.copy(car.pos).add(V(Math.sin(car.heading) * 2, 0, Math.cos(car.heading) * 2));
+      def.want = 6.5; def.face = car.pos; def.faceLock = false;
+      // go to ground when the boot can reach where the ball will be, at about running pace
+      return def.pos.distanceTo(ball.p.clone().addScaledVector(V(car.vel.x, 0, car.vel.z), c)) < rt.slideReach + 4.5 * 0.33;
+    }, 3.5);
+    if (def.pos.distanceTo(ball.p) > 4.5) return false;     // never got close enough to go to ground
+    // on a won tackle he steers onto the ball as the carrier runs on; a beaten one goes where it was
+    const fixed = ball.p.clone().addScaledVector(V(car.vel.x, 0, car.vel.z), c * 0.6);
+    rt.slideAt(def, success ? t => ball.p.clone().addScaledVector(V(car.vel.x, 0, car.vel.z), t) : fixed);
+    if (success) {
+      yield* until(() => { rt.dribble(car, carGoal, 2.4); return rt.motionAtContact(def); }, 1.2);
+      // the leg stays out as he slides on: the poke comes where the boot passes closest to the ball
+      let best = Infinity;
+      yield* until(() => {
+        const cp = rt.contactPoint(def), d = cp ? Math.hypot(cp.x - ball.p.x, cp.z - ball.p.z) : 0;
+        if (d < 0.15 || d > best + 0.01) return true;
+        best = Math.min(best, d); return false;
+      }, 0.45);
+      // the boot pokes it away from the carrier; the defender collects it when he is back up
+      const m = def.motion?.dir || V(Math.sin(def.heading), 0, Math.cos(def.heading));
+      const side = V(-m.z, 0, m.x).multiplyScalar((pick(def.lastEvent, 3) - 0.5) * 0.8);
+      noteContact('slide', def);
+      ball.owner = null; ball.p.y = BALL_R; ball.v.copy(m).add(side).normalize().multiplyScalar(2.6);
+      def.lastTouch = S.t; car.vel.multiplyScalar(0.3); car.want = 0; car.target.copy(car.pos);
+      rt.startAction(car, 'feint');
+    } else {
+      // the carrier sees him coming and knocks it past the sliding leg
+      yield* until(() => { rt.dribble(car, carGoal, 2.8); return S.t - def.motion?.t0 > c * 0.45; }, 1);
+      const m = def.motion?.dir || V(Math.sin(def.heading), 0, Math.cos(def.heading));
+      const fwd = V(Math.sin(car.heading), 0, Math.cos(car.heading));
+      let out = V(-m.z, 0, m.x); if (out.dot(V(car.pos.x - def.pos.x, 0, car.pos.z - def.pos.z)) < 0) out.negate();
+      out = fwd.multiplyScalar(0.8).add(out.multiplyScalar(0.6));
+      if (Math.abs(car.pos.z) > 28 && out.z * Math.sign(car.pos.z) > 0) out.z *= -0.4;
+      if (Math.abs(car.pos.x) > 46 && out.x * Math.sign(car.pos.x) > 0) out.x *= -0.4;
+      out.normalize();
+      ball.owner = car; ball.v.copy(out).multiplyScalar(5.2); car.lastTouch = S.t;
+      rt.startAction(car, 'cut');
+    }
+    yield* wait(0.5);
+    def.busy = car.busy = false; def.faceLock = false;
+    return true;
+  }
+
+  // a cross met in the air (corners): the target and the nearest marker both go up for it
+  function rivalFor(p, spot) {
+    const other = p.side === 'user' ? 'opp' : 'user';
+    return rt.players.filter(q => q.side === other && q.role !== 'GK' && !q.offPitch).sort((a, b) => a.pos.distanceTo(spot) - b.pos.distanceTo(spot))[0];
+  }
+  function jumpFor(p, spot, heading, tArr, late = 0, short = 0) {
+    const H = MOTIONS.header;
+    // a beaten jumper arrives a touch late and a little short of the ball
+    const at = spot.clone().add(V(Math.sin(heading) * -short, 0, Math.cos(heading) * -short));
+    p.runUntil = tArr + 1.2; p.target.copy(at).setY(0); p.want = 6;
+    rt.headerAt(p, at, heading, Math.max(0, tArr - H.contact - S.t + late));
+  }
+  function planAerial(e, receiver, target, tArr, hs, lb) {
+    const spot = V(target.x, rt.headHeight, target.z);
+    const rival = rivalFor(receiver, spot);
+    const inc = V(-ball.v.x, 0, -ball.v.z).normalize();
+    if (hs) {
+      S.headerCross = { p: receiver, spot, tArr };
+      receiver.busy = true; receiver.target.copy(spot).setY(0); receiver.want = 6; receiver.runUntil = tArr + 1;
+      if (rival) jumpFor(rival, spot.clone().add(V(-Math.sign(spot.x) * 0.7, 0, 0.35)), headingOf(inc, V(0, 0, 0)), tArr, 0.1, 0.25);
+      return;
+    }
+    // won by the marker (a clearance) or flicked on by whoever got the faintest touch (a scramble)
+    const to = toWorld(lb.toPos || lb.fromPos || [50, 50]);
+    const winner = lb.reason === 'clearance' || pick(e, 5) < 0.5 ? rival : receiver, loser = winner === rival ? receiver : rival;
+    if (!winner) return;
+    const out = V(to.x - spot.x, 0, to.z - spot.z).normalize();
+    jumpFor(winner, spot, headingOf(inc, out), tArr);
+    if (loser) jumpFor(loser, spot.clone().add(V(0.45, 0, -0.45)), headingOf(inc, V(0, 0, 0)), tArr, 0.08, 0.3);
+    S.aerial = { at: tArr, to, winner };
+  }
+
   // ---- shot: aim from the engine outcome, keeper dives, outcome plays out physically ----
   function* shot(e, i) {
     const sh = P(e.fromId, e.fromSide); if (!sh) return;
@@ -187,14 +276,25 @@ export function createDirector(rt, data, hooks, opts = {}) {
     else if (outcome === 'block') aim = V(lineX, 0.6, clamp(tz, -3, 3));
     else { const z = Math.abs(tz) < 3.9 ? (tz >= 0 ? 4.6 : -4.6) : tz; aim = V(lineX, Math.abs(tz) < 3.9 && rnd > .5 ? 2.9 : 0.5 + rnd, z); }
 
+    const hc = e.header && S.headerCross?.p === sh ? S.headerCross : null;
+    S.headerCross = null;
     if (e.penalty) { rt.place(sh, toWorld(e.fromPos).add(V(-goalSide * 1.2, 0, 0)), goalSide > 0 ? Math.PI / 2 : -Math.PI / 2); ball.p.copy(toWorld(e.fromPos)).setY(BALL_R); ball.v.set(0, 0, 0); ball.owner = sh; }
-    yield* ensureOwner(sh);
+    if (!hc) yield* ensureOwner(sh);
     sh.busy = true; if (gk) gk.busy = true;
     hooks.cam('shot', sh, gk);
     if (gk) { gk.loopsWant.keeperReady = 1; gk.face = ball.p; gk.target.copy(gk.pos); gk.want = 0; }
-    const dir = V(aim.x - ball.p.x, 0, aim.z - ball.p.z);
-    rt.startAction(sh, 'shot'); rt.kickWarp(sh, 'shot', dir);
-    yield* until(() => rt.actionAtContact(sh), 2);
+    if (hc) {
+      // header: he times his jump so the forehead meets the cross, and nods it towards the aim
+      const out = V(aim.x - hc.spot.x, 0, aim.z - hc.spot.z).normalize(), inc = V(-ball.v.x, 0, -ball.v.z).normalize();
+      if (!sh.motion) rt.headerAt(sh, hc.spot, headingOf(out.clone().multiplyScalar(1.6), inc), Math.max(0, hc.tArr - MOTIONS.header.contact - S.t));
+      yield* until(() => S.t >= hc.tArr, 3);
+      noteContact('header', sh);
+      ball.owner = null; sh.lastTouch = S.t;
+    } else {
+      const dir = V(aim.x - ball.p.x, 0, aim.z - ball.p.z);
+      rt.startAction(sh, 'shot'); rt.kickWarp(sh, 'shot', dir);
+      yield* until(() => rt.actionAtContact(sh), 2);
+    }
     const dist = aim.distanceTo(ball.p), flight = Math.max(0.35, dist / (e.header ? 14 : 24));
     // a blocker steps into the line first
     let blocker = null;
@@ -254,7 +354,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const mates = rt.players.filter(p => p.side === scorer.side && p !== scorer && p.role !== 'GK').sort((a, b) => a.pos.distanceTo(scorer.pos) - b.pos.distanceTo(scorer.pos)).slice(0, 3);
     for (const m of mates) { m.busy = true; m.target.copy(flag); m.want = 5.5; }
     yield* wait(1.8);
-    rt.startAction(scorer, 'celebrate');
+    scorer.target.copy(scorer.pos); scorer.want = 0;
+    if (!rt.startMotion(scorer, 'cheer')) rt.startAction(scorer, 'celebrate');
     yield* wait(2.2);
     scorer.busy = false; for (const m of mates) m.busy = false;
     hooks.cam('tv');
@@ -289,7 +390,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const car = from && ball.owner && ball.owner.side === from.side ? ball.owner : from;
         const won = e.success === true || (e.toId != null && e.toId !== e.fromId);
         const finalThird = Math.abs(ball.p.x) > 26;
-        yield* tackle(d, car, won, finalThird && stats.closeUps++ % 2 === 0);
+        // about two in five challenges go to ground; a challenge that ends in a foul usually does
+        const fouled = events.slice(i + 1, i + 3).some(x => x.type === 'foul');
+        const slide = !!d && d.role !== 'GK' && pick(e, 1) < (fouled ? 0.7 : 0.38);
+        if (d) d.lastEvent = e;
+        yield* tackle(d, car, won, finalThird && stats.closeUps++ % 2 === 0, slide);
         break;
       }
       case 'interception': {
@@ -305,12 +410,28 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (e.type === 'corner') hooks.cam('tv');
         const target = toWorld(e.toPos);
         const receiver = to && to !== from ? to : null;
-        yield* pass(from, receiver, target, e.travelType === 'aerial' || e.type === 'cross' || e.type === 'corner' ? 'aerial' : 'ground', false, { throwIn: e.type === 'throwIn' || e.restartType === 'THROW_IN' });
+        const popts = { throwIn: e.type === 'throwIn' || e.restartType === 'THROW_IN' };
+        if (receiver && (e.type === 'corner' || e.type === 'cross')) {
+          const nx = events[i + 1];
+          const hs = nx?.type === 'shot' && nx.header && nx.fromId === e.toId ? nx : null;
+          const lb = !hs && e.type === 'corner' && nx?.type === 'looseBall' && (nx.reason === 'clearance' || nx.reason === 'aerial') ? nx : null;
+          if (hs || lb) { popts.height = rt.headHeight; popts.meet = tArr => planAerial(e, receiver, target, tArr, hs, lb); }
+        }
+        yield* pass(from, receiver, target, e.travelType === 'aerial' || e.type === 'cross' || e.type === 'corner' ? 'aerial' : 'ground', false, popts);
         if (e.restartType) ball.allowOut = false;
         break;
       }
       case 'firstTouch': if (from && ball.owner !== from) yield* ensureOwner(from); break;
       case 'looseBall': {
+        if (S.aerial) {
+          // headed away (or flicked on) at the top of the jump
+          const a = S.aerial; S.aerial = null;
+          yield* until(() => S.t >= a.at, 3);
+          noteContact('aerial', a.winner);
+          ball.owner = null; a.winner.lastTouch = S.t;
+          rt.kickAir(V(a.to.x, BALL_R, a.to.z), Math.max(0.7, ball.p.distanceTo(a.to) / 15));
+          break;
+        }
         if (!ball.owner && ball.v.length() > 1) break;     // already loose from the previous action
         const tgt = toWorld(e.toPos);
         if (ball.owner) { ball.owner = null; }
@@ -383,7 +504,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
 
   // ---- driver ----
-  const stats = { fixes: 0, implicitPasses: 0, closeUps: 0, stalls: 0, fixLog: [] };
+  const stats = { fixes: 0, implicitPasses: 0, closeUps: 0, stalls: 0, fixLog: [], stallLog: [], contacts: {} };
+  // how far the boot / forehead was from the ball when the recorded motion met it (diagnostics)
+  function noteContact(kind, p) {
+    const c = rt.contactPoint(p), list = (stats.contacts[kind] ||= []);
+    list.push(c ? +c.distanceTo(ball.p).toFixed(2) : -1);
+    if (opts.debug) (stats.contactLog ||= []).push({ kind, t: +S.t.toFixed(2), m: p.motion && { name: p.motion.name, el: +(S.t - p.motion.t0).toFixed(3), to: p.motion.to?.toArray().map(v => +v.toFixed(2)) }, pos: p.pos.toArray().map(v => +v.toFixed(2)), c: c?.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)), h: +p.heading.toFixed(2) });
+  }
   let idx = opts.startIndex ?? 0, task = null;
   function nextTask() {
     while (idx < events.length) {
@@ -400,7 +527,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     while (task && guard++ < 40) {
       const r = task.gen.next();
       if (!r.done) {
-        if (S.t - task.started > 14) { stats.stalls++; task = nextTask(); continue; }   // safety: never freeze the match
+        if (S.t - task.started > 14) { stats.stalls++; stats.stallLog.push(events[task.i]?.type); task = nextTask(); continue; }   // safety: never freeze the match
         break;
       }
       task = nextTask();

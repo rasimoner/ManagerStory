@@ -654,6 +654,7 @@ function pitchDribble(from,side,opponent){
   recordPitchTackle(defender.id,defendingSide,from,side,!success,end);
   if(contestStart)window.ManagerStoryLive3D.linkDribbleContest({attackerId:from,attackerSide:side,defenderId:defender.id,defenderSide:defendingSide,attackerStart:[...start],point:[...end],defenderStart:contestStart,defenderEnd:[...M.dynamicPositions[String(defender.id)]],attackerKeepsBall:success});
   if(boxChallengePenalty(defender.id,defendingSide,from,side,end))return false; // stop the carry: a penalty is being taken
+  if(!success&&deepFor(side,end)>80&&M.rand()<.4){concedeCorner(side,end);return false;}   // won, but off the line
  }
  if(!success&&near){
   switchPitchOwner(defender.id,defendingSide);
@@ -684,6 +685,7 @@ function actionMinute(userPoss,effect,opponent){
    // real interception upgrades this copied pair to a gain; no winner is inferred.
    if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    if(boxChallengePenalty(defender.id,defSide,carrier,side,point))return; // the penalty sequence owns the rest of this minute
+   if(success&&deepFor(side,point)>80&&M.rand()<.35){concedeCorner(side,point);return;}
    if(success){
     switchPitchOwner(defender.id,defSide);setBallState(point,defender.id);
     M.stats.possessionsWon[defSide==='user'?userSide():1-userSide()]++;
@@ -757,7 +759,7 @@ function actionMinute(userPoss,effect,opponent){
   const accuracy=passSuccessProbability(from,side,selected,{pressure,effect,risk:order==='riskPass',tempo:tacticProfile(side).tempo});
   const stat=side==='user'?M.playerStats[from]:null,index=side==='user'?userSide():1-userSide();
   M.stats.passes[index]++;if(stat)stat.passesAttempted++;
-  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null;
+  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null,pendingCorner=false;
   const longBall=range>29||(['LW','RW'].includes(role)&&range>22&&forward>58);
   const contested=range>38||(['LW','RW'].includes(role)&&range>26&&forward>58);   // only genuinely high/long deliveries are contested
   if(success&&contested){
@@ -767,14 +769,20 @@ function actionMinute(userPoss,effect,opponent){
     if(M.rand()>aerialWinProbability(target,side,rival.id,side==='user'?'opp':'user')){success=false;aerialLost=true;}
    }
   }
-  if(aerialLost){
+  const crossing=['LW','RW'].includes(role)&&range>22&&forward>58,boxBall=deepFor(side,to)>(crossing?70:80)&&Math.abs(to[1]-50)<34;
+  if(aerialLost&&boxBall&&M.rand()<.3){
+   pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');   // headed behind
+  }else if(aerialLost){
    makeLooseBall(point,to,'aerial',side);
   }else if(success){
    M.stats.completedPasses[index]++;if(stat){stat.passesCompleted++;if(selected.forward&&range>20)stat.keyPasses++;}
    switchPitchOwner(target,side);setBallState(to,target);
   }else{
    const defSide=side==='user'?'opp':'user',interceptor=nearestMarker(defSide,to);
-   if(interceptor&&interceptor.d<18){
+   if(interceptor&&interceptor.d<18&&boxBall&&M.rand()<(crossing?.6:.35)){
+    // cut out at full stretch: the touch takes it behind
+    pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');
+   }else if(interceptor&&interceptor.d<18){
     if(window.ManagerStoryLive3D?.enabled)cutPresentation={id:interceptor.id,side:defSide,start:[...eventPoint(interceptor.id,defSide)],intendedTarget:[...to]};
     const gain=moveTowards(eventPoint(interceptor.id,defSide),to,Math.min(interceptor.d,10));
     M.dynamicPositions[String(interceptor.id)]=gain;
@@ -790,7 +798,7 @@ function actionMinute(userPoss,effect,opponent){
   const landing=newOwner==null?[...(M.ballState?.position||to)]:eventPoint(newOwner,newSide);
   const cross=wing&&range>22&&forward>58;
   matchEvent(cross?'cross':'pass',M.min+'’ '+(passer?.name||'Rakip')+(cross?' orta yaptı.':' pas verdi.')+
-    (success?'':aerialLost?' Havadaki mücadele ikinci topa düştü.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
+    (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
      passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
      distance:range,passing});
@@ -801,8 +809,20 @@ function actionMinute(userPoss,effect,opponent){
     {fromId:target,toId:target,fromSide:side,toSide:side,ballSide:side,fromPos:to,toPos:to});
   }
   if(pendingThrow)startPitchRestart('THROW_IN',pendingThrowSide,pendingThrow);
+  if(pendingCorner){concedeCorner(side,to);break;}
  }
  if(M.ballSide==='user')M.userPossTicks++;else M.oppPossTicks++;
+}
+/* V7.6 corners -----------------------------------------------------------------------------
+   Most real corners come from defenders, not keepers: a cross or a ball into the box cut out
+   under pressure, or a challenge won on the byline, often only finds the safe touch behind.
+   `deepFor` is how far into the attacking end a point is for the attacking side (0..100). */
+function deepFor(side,point){const dir=(side==='user'?1:-1)*userDirection();return dir>0?point[0]:100-point[0];}
+function cornerOff(side,point){return[deepFor(side,[100,50])>50?102:-2,point[1]<50?-3:103];}
+function concedeCorner(side,point){
+ M.stats.corners[side==='user'?userSide():1-userSide()]++;
+ M.ballOwner=null;M.ballSide='none';M.looseBall=null;
+ startPitchRestart('CORNER',side,cornerOff(side,point));
 }
 /* V7.6 decisions ---------------------------------------------------------------------------
    What a shot from a point is worth, on a realistic distance/angle curve (about .33 at 6 m,
@@ -1067,10 +1087,13 @@ function resolveShot(user,shooter,p,opts={}) {
       fromSide:user?'user':'opp',ballSide:'none',fromPos:destination,toPos:rebound,frame,hitFrame:true});
     makeLooseBall(destination,rebound,frame||'post',user?'opp':'user');
   } else {
-    matchEvent('wide',M.min+'’ Top auta çıktı.',{side,fromId:shooter,
-      fromSide:user?'user':'opp',ballSide:'none',fromPos:source,toPos:destination});
-    const keeperSide=user?'opp':'user';
-    startPitchRestart('GOAL_KICK',keeperSide,[dir>0?102:-2,destination[1]]);
+    // a shot through a crowded area that misses usually took a touch off someone on the way: corner
+    const keeperSide=user?'opp':'user',marker=nearestMarker(keeperSide,source);
+    const deflected=!opts.penalty&&marker&&marker.d<7&&M.rand()<.4*(1-marker.d/9);
+    matchEvent('wide',M.min+'’ '+(deflected?'Şut savunmadan sekip auta çıktı.':'Top auta çıktı.'),{side,fromId:shooter,
+      fromSide:user?'user':'opp',ballSide:'none',fromPos:source,toPos:destination,deflected:!!deflected});
+    if(deflected){M.stats.corners[side]++;startPitchRestart('CORNER',user?'user':'opp',[dir>0?102:-2,destination[1]<50?-3:103]);}
+    else startPitchRestart('GOAL_KICK',keeperSide,[dir>0?102:-2,destination[1]]);
   }
   if(user&&outcome==='save')M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+.05,1,10);
   if(user&&outcome!=='save'&&xg>=.18)M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating-.11,1,10);
