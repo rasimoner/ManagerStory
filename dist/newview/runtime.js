@@ -500,7 +500,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   }
 
   function contacts() {
-    const fast = ball.v.length() > 10 || ball.p.y > 1.2;
+    const fast = ball.v.length() > 10 || ball.p.y > 1.2 || ball.through > S.t;     // (a shot on its way to the keeper's gloves)
     for (const p of players) {
       if (p.dive || fast || p.warp || ball.held || S.dead) continue;   // kick approaches reach the ball; a dead ball is not kicked about
       const dx = ball.p.x - p.pos.x, dz = ball.p.z - p.pos.z, d = Math.hypot(dx, dz);

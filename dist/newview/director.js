@@ -192,10 +192,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
   function* carry(p, goalW, speed = 5) {
     yield* ensureOwner(p);
-    p.busy = true; speed = carrySpeed(p, speed);
-    const end = S.t + p.pos.distanceTo(goalW) / Math.max(2, speed - 1) + 2;
+    p.busy = true;
+    // he slows down only while a man is near him; a long run with the ball ends after ~11 s wherever he is
+    const end = S.t + Math.min(11, p.pos.distanceTo(goalW) / Math.max(2, carrySpeed(p, speed) - 1) + 2);
     while (S.t < end && ball.owner === p) {
-      rt.dribble(p, goalW, speed);
+      rt.dribble(p, goalW, carrySpeed(p, speed));
       if (Math.hypot(ball.p.x - goalW.x, ball.p.z - goalW.z) < 1.4) break;
       yield;
     }
@@ -414,6 +415,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       aim.set(g.x, Math.max(0.2, g.y), g.z);
     }
     rt.kickAir(aim, flight);
+    if (gk && outcome === 'save') ball.through = S.t + flight + 0.05;
     hooks.slow(0.45);
     const tArrive = outcome === 'save' ? flight : flight * Math.max(0.2, (Math.abs(gk ? gk.pos.x : lineX) - Math.abs(ball.p.x)) / Math.max(0.5, Math.abs(lineX - ball.p.x)));
     if (gk && outcome === 'save') { /* planned above */ }
