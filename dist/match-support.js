@@ -16,12 +16,22 @@ let loadError = "", saveWarning = false;
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+// V7.8: every match gets its own dice. A career made in the app carries a salt that is drawn anew at
+// each kickoff, so a new career's first match (or a fixture replayed from an older save) is a new
+// match, not a rerun. Without a salt (automated checks) the seed is the fixture's, as before.
+function newMatchSalt() {
+  try { if (globalThis.crypto?.getRandomValues) return (globalThis.crypto.getRandomValues(new Uint32Array(1))[0] % 2147483646) + 1; } catch (e) { /* fall through */ }
+  return 1 + Math.floor(Math.random() * 2147483646);
+}
+function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0); }
+function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
 function loadCareer() {
   try {
     const raw = localStorage.getItem("msv4");
     if (!raw) return null;
     const state = JSON.parse(raw);
     if (!state || !Array.isArray(state.players) || !Array.isArray(state.xi)) throw new Error("Kayıt biçimi tanınamadı.");
+    if (state.matchSalt == null) state.matchSalt = newMatchSalt();
     if (!state.v71 && !localStorage.getItem("msv4-v70-backup")) localStorage.setItem("msv4-v70-backup", raw);
     if (state.v71 && state.version !== GAME_VERSION && !localStorage.getItem("msv4-v71-backup")) localStorage.setItem("msv4-v71-backup", raw);
     if (state.version === "7.2" && !localStorage.getItem("msv4-v72-backup")) localStorage.setItem("msv4-v72-backup", raw);
@@ -84,7 +94,7 @@ function persistCareer() {
 function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
   M = structuredClone(S.activeMatchV71);
-  M.rand = R(M.rngState ?? (8800 + S.fixture * 97));
+  M.rand = R(M.rngState ?? matchSeed());
   delete M.uiOverlay;
   ensureMatchState();
   ensureLiveState();
