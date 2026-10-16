@@ -88,9 +88,15 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const gk = p.role === 'GK';
       const fl = S.restartHomes ? 0 : 1;      // a restart arrangement is exact
       const h = (p.home || p.pos).clone().add(V(flow.x * (gk ? 0.12 : 0.45) * fl, 0, flow.z * (gk ? 0.08 : 0.3) * fl));
+      // around the ball: the side without it squeezes towards the ball (more across, a little along),
+      // the side with it offers short options; the engine's shape stays the base
+      if (!gk && !S.restartHomes && !S.dead) {
+        const defending = ball.owner ? ball.owner.side !== p.side : false, k = defending ? 0.3 : 0.12;
+        h.z += (ball.p.z - h.z) * k; h.x += (ball.p.x - h.x) * k * 0.5;
+      }
       h.x = clamp(h.x, -51, 51); h.z = clamp(h.z, -33, 33);
       const d = h.distanceTo(p.pos);
-      p.target.copy(h); p.want = gaitFor(p, d, S.dead ? 2 : gk ? 3 : 4); p.face = ball.p; p.faceLock = false;
+      p.target.copy(h); p.want = gaitFor(p, d, S.dead ? (S.restartHomes && d > 10 ? 3 : 2) : gk ? 3 : 4); p.face = ball.p; p.faceLock = false;
       if (p.role === 'GK') {
         const own = Math.sign(p.home?.x || p.pos.x) * GOAL_X;
         p.loopsWant.keeperReady = Math.abs(ball.p.x - own) < 30 ? 1 : 0;
@@ -185,6 +191,16 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }
     from.lastPass = S.t; from.busy = false;
     if (opts.meet) { if (DEBUG) (stats.crossLog ||= []).push({ t: +S.t.toFixed(2), toW: toW.toArray().map(v => +v.toFixed(2)), flight: +flight.toFixed(2), v: ball.v.toArray().map(v => +v.toFixed(2)), p: ball.p.toArray().map(v => +v.toFixed(2)) }); opts.meet(S.t + flight); return; }      // met in the air: the next event plays the contact
+    // a ball played into space is contested: the nearest opponent to where it is going sets off after it too
+    // (he arrives late — the engine has decided who gets it — but nobody jogs past a ball in play)
+    if (to && !opts.throwIn && !opts.meet) {
+      const gap = Math.hypot(toW.x - to.pos.x, toW.z - to.pos.z), len = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
+      if (gap > 4 || len > 18) {
+        const rival = rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== from.side && q.role !== 'GK')
+          .reduce((m, q) => (!m || q.pos.distanceTo(toW) < m.pos.distanceTo(toW) ? q : m), null);
+        if (rival && rival.pos.distanceTo(toW) < 22) { rival.target.copy(toW).setY(0); rival.want = 6.8; rival.gait = 4; rival.runUntil = S.t + Math.min(3, 0.6 + len / 14); rival.face = null; }
+      }
+    }
     // a ball played into space is contested: the nearest opponent to where it is going sets off after it too
     // (he arrives late — the engine has decided who gets it — but nobody jogs past a ball in play)
     if (to && !opts.throwIn && !opts.meet) {
@@ -502,7 +518,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (e.homeGoals != null) hooks.score(e.homeGoals, e.awayGoals);
     hooks.minute(e.minute);
     if (!SKIP_TEXT.has(e.type) && !handled.has(i)) hooks.say(e.text);
-    if (e.type === 'restartPlayers' && e.arranged) S.restartHomes = e.arranged;
+    // as soon as the ball is out, players head for the arrangement of the coming restart
+    const ahead = e.type === 'ballOut' || e.type === 'restartPosition' || e.type === 'restartPlayers' ? events.slice(i, i + 3).find(x => x.type === 'restartPlayers' && x.arranged) : null;
+    if (ahead) S.restartHomes = ahead.arranged;
     else if (!e.restartType && !['foul', 'yellow', 'red', 'sub', 'offside', 'injury'].includes(e.type)) S.restartHomes = null;
     layout(i, false);
     const from = P(e.fromId, e.fromSide), to = P(e.toId, e.toSide);
@@ -667,7 +685,12 @@ export function createDirector(rt, data, hooks, opts = {}) {
         break;
       }
       case 'restartPlayers': yield* wait(0.8); break;
-      case 'restartWait': yield* wait(0.4); if (e.restartType !== 'CORNER') hooks.cam('tv'); break;
+      case 'restartWait': {
+        // the restart is taken once the players are (nearly) in place for it — a real pause, short for a throw-in
+        const far = () => S.restartHomes ? rt.players.filter(p => { const q = S.restartHomes[p.side + ':' + p.id]; return q && !p.offPitch && !p.busy && toWorld(q).distanceTo(p.pos) > 3; }).length : 0;
+        yield* until(() => far() <= 2, e.restartType === 'THROW_IN' ? 1.2 : e.restartType === 'CORNER' ? 4.5 : 3);
+        yield* wait(0.4); if (e.restartType !== 'CORNER') hooks.cam('tv'); break;
+      }
       case 'foul': hooks.whistle(); yield* wait(0.7); break;
       case 'yellow': hooks.banner('SARI KART', 1400); yield* wait(1.2); break;
       case 'red': hooks.banner('KIRMIZI KART', 1600); yield* wait(1.4); break;

@@ -47,10 +47,7 @@ function pitchInstructionTarget(id,side,ball,attacking) {
   // V7.6: the formation block moves up and down the pitch with the ball and stays compact instead of
   // spanning goal line to goal line, so team-mates are close enough for short passes. Tactical and
   // individual offsets below are added on top unchanged.
-  x=50+(ball[0]-50)*.45+(q[0]-50)*.62;
-  // V7.8: the block also shifts across towards the ball's side and narrows when defending, so the
-  // ball is surrounded by players instead of the team standing spread over the full width
-  {const defending=attacking!==side;y=50+(y-50)*(defending?.8:.92)+(ball[1]-50)*(defending?.3:.18);}
+  x=50+(ball[0]-50)*.45+(q[0]-50)*.73;
   // The team block and individual offsets share one target; movement remains interpolated.
   {
     const T=tacticProfile(side);
