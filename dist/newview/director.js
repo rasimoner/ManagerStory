@@ -685,7 +685,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         }
         break;
       }
-      case 'restartPlayers': yield* wait(0.8); break;
+      case 'restartPlayers': yield* wait(e.restartType === 'FREE_KICK' || e.restartType === 'THROW_IN' ? 0.4 : 0.8); break;
       case 'restartWait': {
         // the restart is taken once the players are (nearly) in place for it — a real pause, short for a throw-in
         const far = () => S.restartHomes ? rt.players.filter(p => { const q = S.restartHomes[p.side + ':' + p.id]; return q && !p.offPitch && !p.busy && toWorld(q).distanceTo(p.pos) > 3; }).length : 0;
@@ -723,14 +723,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
             if (ball.owner === car) rt.dribble(car, goal, 3.2); else { car.target.copy(goal); car.want = 3.2; }
             def.target.copy(car.pos).add(V(Math.sin(car.heading) * 0.8, 0, Math.cos(car.heading) * 0.8)); def.want = 7; def.face = car.pos; def.faceLock = false;
             return def.pos.distanceTo(car.pos) < 1.3;
-          }, 3);
+          }, 1.6);
           rt.startAction(def, 'lunge');
           if (!e.advantage) { rt.startAction(car, 'feint'); car.vel.multiplyScalar(0.2); car.want = 0; car.target.copy(car.pos); if (ball.owner === car) { ball.owner = null; ball.v.multiplyScalar(0.25); } }
           yield* wait(0.35);
           def.busy = car.busy = false;
         }
         if (e.advantage) hooks.banner('AVANTAJ', 1300); else hooks.whistle();
-        yield* wait(0.7); break;
+        yield* wait(0.5); break;
       }
       case 'yellow': { const who = P(e.playerId, e.side === (meta.userHome ? 0 : 1) ? 'user' : 'opp'); hooks.banner('SARI KART' + (who?.name ? ' · ' + who.name : ''), 1600); if (who) hooks.cam('close', who, null); yield* wait(1.3); hooks.cam('tv'); break; }
       case 'red': { const who = P(e.playerId, e.side === (meta.userHome ? 0 : 1) ? 'user' : 'opp'); hooks.banner('KIRMIZI KART' + (who?.name ? ' · ' + who.name : ''), 1800); if (who) hooks.cam('close', who, null); yield* wait(1.5); hooks.cam('tv'); break; }
