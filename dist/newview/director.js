@@ -41,6 +41,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function snapFor(i) { for (const s of snaps) if (s.n > i) return s; return snaps.at(-1); }
   function layout(i, teleport) {
     const s = snapFor(i);
+    if (s.ball) S.snapBall = toWorld(s.ball);
     for (const [id, side, pos] of s.pl) {
       const p = P(id, side); if (!p) continue;
       p.home = toWorld(pos);
@@ -52,13 +53,34 @@ export function createDirector(rt, data, hooks, opts = {}) {
   const pick = (e, salt = 0) => (((e?.eventId ?? 0) * 9301 + 49297 + salt * 7919) % 233280) / 233280;
   const headingOf = (a, b) => Math.atan2(a.x + b.x, a.z + b.z);
 
-  // ---- off-ball movement: everyone not involved heads for his engine position ----
+  // ---- off-ball movement ----
+  // The engine gives positions once a minute (where everyone stands after it, for the ball's
+  // position then). In between, the block slides with the ball as it actually moves, so players
+  // keep drifting at a walk instead of standing and then all jogging to new spots at once.
+  // Speed comes from how far a player has to go: stand, walk, jog, run, sprint, with hysteresis.
+  const GAIT = [0, 1.5, 3.3, 5.2, 7.4], GAIT_AT = [0.8, 5, 13, 24];
+  const flow = V();
+  function gaitFor(p, d, cap = 4) {
+    let lvl = 0; while (lvl < 4 && d > GAIT_AT[lvl]) lvl++;
+    const cur = p.gait ?? 0;
+    if (lvl < cur && d > GAIT_AT[lvl] * 0.7) lvl = cur;          // keep going until clearly there
+    p.gait = Math.min(lvl, cap);
+    return GAIT[p.gait];
+  }
   function shape() {
+    // smoothed ball offset from where it was when the engine took the positions
+    if (S.snapBall) {
+      const dx = clamp(ball.p.x - S.snapBall.x, -20, 20), dz = clamp(ball.p.z - S.snapBall.z, -16, 16);
+      flow.x += (dx - flow.x) * 0.012; flow.z += (dz - flow.z) * 0.012;
+    }
     for (const p of rt.players) {
       if (p.busy || p.dive || p.offPitch) continue;
       if (p.runUntil > S.t) continue;
-      const h = p.home || p.pos; const d = h.distanceTo(p.pos);
-      p.target.copy(h); p.want = S.dead ? (d > 12 ? 4 : 2.2) : d > 9 ? 6 : d > 3 ? 4.6 : 2.6; p.face = ball.p; p.faceLock = false;
+      const gk = p.role === 'GK';
+      const h = (p.home || p.pos).clone().add(V(flow.x * (gk ? 0.12 : 0.45), 0, flow.z * (gk ? 0.08 : 0.3)));
+      h.x = clamp(h.x, -51, 51); h.z = clamp(h.z, -33, 33);
+      const d = h.distanceTo(p.pos);
+      p.target.copy(h); p.want = gaitFor(p, d, S.dead ? 2 : gk ? 3 : 4); p.face = ball.p; p.faceLock = false;
       if (p.role === 'GK') {
         const own = Math.sign(p.home?.x || p.pos.x) * GOAL_X;
         p.loopsWant.keeperReady = Math.abs(ball.p.x - own) < 30 ? 1 : 0;
@@ -123,9 +145,15 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (implicit) stats.implicitPasses++;
   }
 
+  // with the ball: drive into open grass, slow down and keep it close with a man nearby
+  function carrySpeed(p, base) {
+    const other = p.side === 'user' ? 'opp' : 'user';
+    let near = Infinity; for (const q of rt.players) if (q.side === other && !q.offPitch) near = Math.min(near, q.pos.distanceTo(p.pos));
+    return near > 12 ? Math.max(base, 6.4) : near < 5 ? Math.min(base, 3.8) : base;
+  }
   function* carry(p, goalW, speed = 5) {
     yield* ensureOwner(p);
-    p.busy = true;
+    p.busy = true; speed = carrySpeed(p, speed);
     const end = S.t + p.pos.distanceTo(goalW) / Math.max(2, speed - 1) + 2;
     while (S.t < end && ball.owner === p) {
       rt.dribble(p, goalW, speed);
@@ -350,7 +378,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     hooks.cam('close', scorer);
     scorer.busy = true;
     const flag = V(Math.sign(scorer.pos.x) * 44, 0, Math.sign(scorer.pos.z || 1) * 30);
-    scorer.target.copy(flag); scorer.want = 6.5; scorer.face = null;
+    scorer.target.copy(flag); scorer.want = GAIT[4]; scorer.face = null;
     const mates = rt.players.filter(p => p.side === scorer.side && p !== scorer && p.role !== 'GK').sort((a, b) => a.pos.distanceTo(scorer.pos) - b.pos.distanceTo(scorer.pos)).slice(0, 3);
     for (const m of mates) { m.busy = true; m.target.copy(flag); m.want = 5.5; }
     yield* wait(1.8);
@@ -379,10 +407,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* wait(0.8);
         break;
       }
-      case 'offBallRun': if (from && !from.busy && ball.owner !== from) { from.target.copy(toWorld(e.toPos)); from.want = 6.2; from.runUntil = S.t + 2.5; from.face = null; } break;
+      case 'offBallRun': if (from && !from.busy && ball.owner !== from) { from.target.copy(toWorld(e.toPos)); from.want = GAIT[4]; from.gait = 4; from.runUntil = S.t + 2.5; from.face = null; } break;
       case 'press': {
         const d = P(e.defenderId, e.toSide || (e.fromSide === 'user' ? 'opp' : 'user'));
-        if (d && !d.busy) { d.target.copy(ball.p); d.want = 5.5; d.runUntil = S.t + 1.5; d.face = ball.p; }
+        if (d && !d.busy) { d.target.copy(ball.p); d.want = d.pos.distanceTo(ball.p) > 10 ? GAIT[4] : 6; d.gait = 3; d.runUntil = S.t + 1.5; d.face = ball.p; }
         break;
       }
       case 'tackle': {

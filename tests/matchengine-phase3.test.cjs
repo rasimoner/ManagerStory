@@ -569,12 +569,14 @@ test('SET-PIECE RECOVERY: players pulled into the box for a corner run back to s
     if (!inBox.length) continue;                                  // corner ended with nobody left forward
     const start = Object.fromEntries(inBox.map(id => [id, rel(id)]));
     const prev = Object.fromEntries(inBox.map(id => [id, h.run(`[...eventPoint(${id},'user')]`)]));
-    let moved = 0;
+    let moved = 0, anotherCorner = false;
     for (let m = 0; m < 3; m++) {
       const n0 = h.run('M.events.length');
       if (minute(h)) moved++;
-      // a goal sends everybody to their own half for the kickoff: that reset is by the laws, not a run
-      const kickoff = h.run(`M.events.slice(${n0}).some(e=>e.type==='kickoff')`);
+      // a goal sends everybody to their own half for the kickoff, and a new corner sends the big men up:
+      // those placements are by the laws, not a run
+      const kickoff = h.run(`M.events.slice(${n0}).some(e=>e.type==='kickoff'||(e.type==='restartPlayers'&&e.restartType==='CORNER'))`);
+      if (h.run(`M.events.slice(${n0}).some(e=>e.type==='restartPlayers'&&e.restartType==='CORNER')`)) anotherCorner = true;
       for (const id of inBox) {
         const p = h.run(`[...eventPoint(${id},'user')]`);
         if (!kickoff) assert.ok(Math.hypot(p[0] - prev[id][0], p[1] - prev[id][1]) <= 60, 'a recovery run is fast, not a teleport across the pitch');
@@ -582,6 +584,7 @@ test('SET-PIECE RECOVERY: players pulled into the box for a corner run back to s
       }
     }
     assert.equal(moved, 3, 'the clock advanced three football minutes');
+    if (anotherCorner) continue;                                  // a new corner sent them up again: a different sample
     for (const id of inBox) assert.ok(rel(id) < start[id] - 15 || rel(id) < 70, `CB ${id} back from ${start[id].toFixed(1)} to ${rel(id).toFixed(1)}`);
     same(h.run(PROBES).problems, []);
     checked++;

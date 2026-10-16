@@ -260,8 +260,8 @@ const ballAxis = new THREE.Vector3();
 // automated checks only (?nvtest=N): play N times faster and draw every 10th frame
 // running step rate; `?adim=1.05` tries a different one (the preview offers a few to compare)
 const CADENCE = Math.min(1.3, Math.max(0.9, Number(new URLSearchParams(location.search).get('adim')) || 1));
-// leg opening at jogging pace; `?bacak=0.75` tries a more compact one (the preview offers a few to compare)
-const STRIDE = Math.min(1, Math.max(0.5, Number(new URLSearchParams(location.search).get('bacak')) || 1));
+// leg opening at jogging pace: 25% more compact than the recorded jog (`?bacak=1` shows the recorded one)
+const STRIDE = Math.min(1, Math.max(0.5, Number(new URLSearchParams(location.search).get('bacak')) || 0.75));
 const TEST_SCALE = Math.min(20, Math.max(1, Number(new URLSearchParams(location.search).get('nvtest')) || 1));
 let last = 0, frameNo = 0, rafId = null;
 const paused = () => typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : !!M?.pause;
@@ -277,7 +277,7 @@ function frame(now) {
   wasActive = true;
   const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
   // the engine generated a minute: record where everyone stands after it
-  if (M.events.length !== lastEvents) { snaps.push({ n: M.events.length, pl: enginePositions() }); if (snaps.length > 40) snaps.splice(1, snaps.length - 40); lastEvents = M.events.length; }
+  if (M.events.length !== lastEvents) { snaps.push({ n: M.events.length, pl: enginePositions(), ball: [...(M.ballState?.position || [50, 50])] }); if (snaps.length > 40) snaps.splice(1, snaps.length - 40); lastEvents = M.events.length; }
   const roster = rosterList(), key = JSON.stringify(roster.map(r => [r.side, r.id]));
   if (key !== rosterKey) { director.syncRoster(roster); rosterKey = key; }
   // after the final whistle the view still plays the match's last actions, unless the drain is paused

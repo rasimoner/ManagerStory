@@ -266,7 +266,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const toBall = Math.hypot(ball.p.x - p.pos.x, ball.p.z - p.pos.z);
     const slowBall = Math.hypot(ball.v.x, ball.v.z) < 1.5 && ball.p.y < 0.5;
     const meet = toBall < 10 || slowBall || !spot ? ball.p.clone().addScaledVector(ball.v, Math.min(0.5, toBall / 12)) : spot;
-    p.target.set(meet.x, 0, meet.z); p.want = toBall < 6 ? 4 : 6; p.face = ball.p;
+    p.target.set(meet.x, 0, meet.z); p.want = toBall < 6 ? 4 : toBall < 16 ? 6 : 7.4; p.face = ball.p;
     if (ball.p.y > 1.6 || ball.out) return false;
     const touch = toeNear(p, 0.48);
     if (touch || toBall < 0.55) {

@@ -44,6 +44,10 @@ function pitchInstructionTarget(id,side,ball,attacking) {
     x=limitPitch(q[0]+dir*advanced,4,96);
     return [x,limitPitch(50+(ball[1]-50)*.07,38,62)];
   }
+  // V7.6: the formation block moves up and down the pitch with the ball and stays compact instead of
+  // spanning goal line to goal line, so team-mates are close enough for short passes. Tactical and
+  // individual offsets below are added on top unchanged.
+  x=50+(ball[0]-50)*.45+(q[0]-50)*.73;
   // The team block and individual offsets share one target; movement remains interpolated.
   {
     const T=tacticProfile(side);
@@ -519,6 +523,7 @@ function evolvePitchPositions(){
   const turn=recovering?1:limitPitch(playerAttribute(id,side,'acceleration',70)/105, .35,.9);
   motion.vx=limitPitch(motion.vx+limitPitch(ax,-turn*speed,turn*speed),-speed,speed);
   motion.vy=limitPitch(motion.vy+limitPitch(ay,-turn*speed,turn*speed),-speed,speed);
+  if(recovering){const v=Math.hypot(motion.vx,motion.vy);if(v>speed){motion.vx*=speed/v;motion.vy*=speed/v;}}   // a diagonal recovery run is no faster than a straight one
   const next=[limitPitch(here[0]+motion.vx,4,96),limitPitch(here[1]+motion.vy,6,94)];
   if(length<1.5){motion.vx*=.45;motion.vy*=.45;}
   M.dynamicPositions[key]=next;M.pitchMotion[key]=motion;
@@ -602,6 +607,8 @@ function passOptions(side,from,style){
   const oneTwoDone=memory.length>=2&&memory.at(-1).from===memory.at(-2).to&&memory.at(-1).to===memory.at(-2).from;
   if(id===lastPasser)weight*=oneTwoDone?(pressureNow?.35:.02):(pressureNow?.55:.18);
   else if(memory.slice(-3).some(m=>m.from===id&&m.to===from))weight*=.5;
+  // V7.6: the nearer option is the easier one to see and play; long balls need a reason (vision, style)
+  weight*=1/(1+Math.pow(range/(22*(1+.25*ve)*(style==='Direkt'?1.35:style==='Kısa'?.8:1)),2));
   return {id,point:target,range,lane,space,weight:Math.max(.02,weight),forward,progress};
  });
  // prefer forward options when a usable one exists
