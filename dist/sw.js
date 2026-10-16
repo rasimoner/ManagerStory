@@ -1,8 +1,8 @@
-const CACHE = "managerstory-v7.7.0-dev-20261016";
+const CACHE = "managerstory-v7.7.0-dev-20261016b";
 const ASSETS = [
   "./match3d-career.css", "./match3d-live-clock.js",
   "./match-view-adapter.js", "./vendor/three/three.module.min.js", "./vendor/three/three.core.min.js",
-  "./match3d-newview.js", "./newview/runtime.js", "./newview/director.js", "./newview/actions.js", "./newview/footballer.js", "./newview/stadium.js", "./newview/rig.js", "./assets/models/footballer-rig.json", "./vendor/three/addons/effects/OutlineEffect.js",
+  "./match3d-newview.js", "./newview/runtime.js", "./newview/director.js", "./newview/actions.js", "./newview/footballer.js", "./newview/stadium.js", "./newview/rig.js", "./newview/camera.js", "./assets/models/footballer-rig.json", "./vendor/three/addons/effects/OutlineEffect.js",
   "./", "./index.html", "./style.css", "./app.js?v=7.6.0", "./match-support.js?v=7.6.0", "./career-events.js?v=7.6.0", "./live-match.js?v=7.6.0", "./pitch-v73.js?v=7.6.0", "./pitch-v731.js?v=7.6.0", "./opponents-v731.js?v=7.6.0", "./manifest.json", "./webmcp.js?v=7.6.0",
   "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png",
   "./assets/stadium.jpg", "./assets/training.jpg", "./assets/office.jpg",

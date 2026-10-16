@@ -172,7 +172,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       rt.startAction(from, name); rt.kickWarp(from, name, dir);
       yield* until(() => rt.actionAtContact(from), 2);
       if (travel === 'aerial' || dir.length() > 30) { flight = Math.max(0.7, dir.length() / 17); rt.kickAir(V(toW.x, opts.height ?? 0.25, toW.z), flight); }   // a long ball goes in the air
-      else rt.kickGround(toW, opts.arrive ?? 3);
+      else rt.kickGround(toW, opts.arrive ?? 4.5, 0.7);     // a played pass reaches its man at a receivable pace
     }
     from.lastPass = S.t; from.busy = false;
     if (opts.meet) { if (DEBUG) (stats.crossLog ||= []).push({ t: +S.t.toFixed(2), toW: toW.toArray().map(v => +v.toFixed(2)), flight: +flight.toFixed(2), v: ball.v.toArray().map(v => +v.toFixed(2)), p: ball.p.toArray().map(v => +v.toFixed(2)) }); opts.meet(S.t + flight); return; }      // met in the air: the next event plays the contact
@@ -617,8 +617,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
           taker.busy = true;
           // throw-in: taker behind the line; corner/free kick: a short run-up behind the ball
           const outward = type === 'THROW_IN' ? V(0, 0, Math.sign(spot.z) * 0.45) : V(spot.x, 0, spot.z).setY(0).normalize().multiplyScalar(0.7);
-          taker.target.copy(spot).add(outward).setY(0); taker.want = taker.pos.distanceTo(spot) > 12 ? 6.5 : 4.5; taker.face = V(0, 0, 0); taker.faceLock = false;
-          yield* until(() => taker.pos.distanceTo(taker.target) < 0.2 && taker.vel.length() < 0.3, taker.pos.distanceTo(taker.target) / 3.5 + 2);   // the mover settles ~0.12 m short
+          taker.target.copy(spot).add(outward).setY(0); taker.want = taker.pos.distanceTo(spot) > 8 ? 7 : 4.5; taker.face = V(0, 0, 0); taker.faceLock = false;
+          yield* until(() => taker.pos.distanceTo(taker.target) < 0.6, taker.pos.distanceTo(taker.target) / 5 + 2);
+          // the last step onto the spot (at walking pace, no jump)
+          const from0 = taker.pos.clone(), t0 = S.t, step = Math.max(0.15, from0.distanceTo(taker.target) / 2.2);
+          yield* until(() => { const k = Math.min(1, (S.t - t0) / Math.max(1e-3, step)); taker.pos.lerpVectors(from0, taker.target, k * k * (3 - 2 * k)); taker.vel.multiplyScalar(0.8); return k >= 1; }, step + 0.1);
           taker.heading = Math.atan2(-taker.pos.x * (type === 'THROW_IN' ? 0.3 : 1), -taker.pos.z);
           if (type === 'THROW_IN') { taker.loopsWant.throwHold = 1; taker.loops.throwHold = 1; ball.held = rt.pickUp(() => rt.handsOf(taker), 0.5); }
           ball.owner = taker; S.restartTaker = taker;     // he stays on the ball until the restart is taken

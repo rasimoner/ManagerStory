@@ -9,6 +9,7 @@ import { buildStadium } from './newview/stadium.js';
 import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js';
 import { loadRig } from './newview/rig.js';
 import { createDirector } from './newview/director.js';
+import { createBroadcastCamera } from './newview/camera.js';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');
@@ -202,56 +203,17 @@ function startMatchView() {
 }
 
 // ---------- camera ----------
-const camPos = new THREE.Vector3(-8, 12, 26), camLook = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
-let wantFov = 46;
-function shot(mode, aspect) {
-  const b = rt.ball.p, tall = aspect < 1.25, { a, b: o } = autoCam;
-  if (mode === 'close' && a && o) {
-    const d = o.pos.clone().sub(a.pos).setY(0); if (d.lengthSq() < 1e-4) d.set(1, 0, 0); d.normalize();
-    const side = new THREE.Vector3(-d.z, 0, d.x); if (side.z < 0) side.negate();
-    wantPos.copy(a.pos).addScaledVector(d, -4.8).addScaledVector(side, 2.6).setY(2.0);
-    wantLook.copy(a.pos).lerp(o.pos, 0.55).setY(0.8); wantFov = tall ? 52 : 40;
-  } else if (mode === 'close' && a) {
-    wantPos.copy(a.pos).add(new THREE.Vector3(-Math.sign(a.pos.x || 1) * 4.5, 2.6, 6.5)); wantLook.copy(a.pos).setY(1.1); wantFov = tall ? 50 : 38;
-  } else if (mode === 'shot' && a) {
-    const gx = Math.sign(o ? o.pos.x : a.pos.x || 1) * 52.5, g = new THREE.Vector3(gx, 0, 0).sub(a.pos).setY(0).normalize();
-    const side = new THREE.Vector3(-g.z, 0, g.x); if (side.z < 0) side.negate();
-    wantPos.copy(a.pos).addScaledVector(g, -5.4).addScaledVector(side, 1.6).setY(2.0); wantLook.copy(a.pos).addScaledVector(g, 9).setY(1.0); wantFov = tall ? 54 : 42;
-  } else if (mode === 'stand') {
-    // high angle from the pitch side, the crowd wall behind the ball (corner and touchline views)
-    const sz = Math.sign(b.z || -1), sx = Math.abs(b.x) > 36 ? Math.sign(b.x) : 0;
-    const back = new THREE.Vector3(-sx * 0.8, 0, -sz).normalize();
-    wantPos.copy(b).addScaledVector(back, tall ? 20 : 24).setY(tall ? 17 : 15);
-    wantPos.x = Math.max(-56, Math.min(56, wantPos.x)); wantPos.z = Math.max(-36, Math.min(36, wantPos.z));
-    wantLook.set(b.x + sx * 4, 2, b.z + sz * 6); wantFov = tall ? 50 : 38;
-  } else {
-    const back = tall ? 19 : 30, z = Math.min(b.z + back, 45), lift = b.z + back - z;
-    wantPos.set(b.x - 2, (tall ? 10.5 : 14) + lift * 0.9, z); wantLook.set(b.x + 2, 0, b.z - 2); wantFov = tall ? 46 : 34;
-  }
-}
-const ndc = new THREE.Vector3();
-function updateCamera(dtReal, aspect, dtSim = 0) {
-  const saved = autoCam;
+let broadcast = null;
+function updateCamera(dtReal, aspect) {
+  let cam = autoCam;
   if (full && camMode !== 'auto') {
     const b = rt.ball.p, near = rt.ball.owner || rt.players.filter(p => !p.offPitch).reduce((m, p) => (!m || p.pos.distanceTo(b) < m.pos.distanceTo(b) ? p : m), null);
-    autoCam = { mode: camMode === 'close' ? 'close' : camMode, a: camMode === 'close' ? near : null, b: null };
+    cam = { mode: camMode === 'close' ? 'close' : camMode, a: camMode === 'close' ? near : null, b: null };
   }
-  shot(autoCam.mode, aspect);
-  // the camera follows in match time (at 2x it pans twice as fast), and never lets the ball leave the frame
-  const k = 1 - Math.exp(-Math.max(dtReal, dtSim) * (autoCam.mode === 'stand' ? 1.8 : autoCam.mode === 'shot' ? 2.4 : 3));
-  if (cut || camPos.distanceTo(wantPos) > 30) { camPos.copy(wantPos); camLook.copy(wantLook); camera.fov = wantFov; cut = false; }
-  else { camPos.lerp(wantPos, k); camLook.lerp(wantLook, k); camera.fov += (wantFov - camera.fov) * k; }
-  camera.aspect = aspect; camera.updateProjectionMatrix();
-  for (let i = 0; i < 7; i++) {
-    camera.position.copy(camPos); camera.lookAt(camLook); camera.updateMatrixWorld();
-    ndc.copy(rt.ball.p).project(camera);
-    if (ndc.z < 1 && Math.abs(ndc.x) < 0.72 && Math.abs(ndc.y) < 0.8) break;
-    // towards the planned shot first; if the plan itself leaves the ball out (a close-up after the ball has gone), turn to the ball
-    if (i < 2) { camPos.lerp(wantPos, 0.4); camLook.lerp(wantLook, 0.4); } else camLook.lerp(rt.ball.p, 0.35);
-  }
-  camera.position.copy(camPos); camera.lookAt(camLook);
-  autoCam = saved;
-  stadium.sun.target.position.copy(camLook); stadium.sun.position.copy(camLook).add(new THREE.Vector3(-30, 60, 40));
+  broadcast ||= createBroadcastCamera(camera);
+  if (cut) { broadcast.cut(); cut = false; }
+  broadcast.update(rt, cam, dtReal, aspect);
+  stadium.sun.target.position.copy(broadcast.look); stadium.sun.position.copy(broadcast.look).add(new THREE.Vector3(-30, 60, 40));
 }
 
 // ---------- radar ----------
@@ -314,7 +276,7 @@ function frame(now) {
   stadium.crowdMat.uniforms.uTime.value = now3; stadium.flagMat.uniforms.uTime.value = now3;
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
-  updateCamera(dtReal, w / Math.max(1, h), dt / TEST_SCALE);
+  updateCamera(dtReal, w / Math.max(1, h));
   renderer.render(scene, camera);
   camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
   if (frameNo++ % 3 === 0) drawRadar();
@@ -335,11 +297,11 @@ window.ManagerStoryNewView = {
   },
   get director() { return director; },
   get simTime() { return rt?.S.t ?? 0; },
-  // where the ball is on screen (-1..1 inside the frame), for the framing check
+  // where the ball is on screen (-1..1 inside the frame) and where the camera looks: for measuring the camera
   get framing() {
-    if (!camera || !rt) return null;
-    const v = rt.ball.p.clone().project(camera);
-    return { x: v.x, y: v.y, front: v.z < 1, mode: autoCam.mode, out: !!rt.ball.out };
+    if (!camera || !rt || !broadcast) return null;
+    const v = rt.ball.p.clone().project(camera), d = broadcast.look.clone().sub(broadcast.pos);
+    return { x: v.x, y: v.y, front: v.z < 1, mode: autoCam.mode, out: !!rt.ball.out, yaw: Math.atan2(d.x, d.z), pitch: Math.atan2(d.y, Math.hypot(d.x, d.z)), cam: broadcast.pos.toArray() };
   },
 };
 

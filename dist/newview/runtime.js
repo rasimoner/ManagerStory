@@ -222,7 +222,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   function actionAtContact(p) { const a = ACTIONS[p.act?.name]; return a && S.t - p.act.t0 >= a.dur * (a.contact ?? 0.5); }
 
   function predictBall(t) {
-    const f = (1 - Math.exp(-ROLL_K * t)) / ROLL_K;
+    const k = rollK(), f = (1 - Math.exp(-k * t)) / k;
     return V(ball.p.x + ball.v.x * f, BALL_R, ball.p.z + ball.v.z * f);
   }
   // move the root so the kicking toe meets the ball at the action's contact frame
@@ -254,10 +254,12 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     }
     return best;
   }
-  function kickGround(to, arrive = 3) {
+  function kickGround(to, arrive = 3, k = ROLL_K) {
     const d = Math.hypot(to.x - ball.p.x, to.z - ball.p.z);
+    // a struck pass skims over the grass (k), a touch or a loose ball drags (ROLL_K);
     // a driven pass, not a cannon shot: past ~26 m/s it simply arrives slower
-    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(Math.min(26, arrive + ROLL_K * d));
+    ball.rollK = k;
+    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(Math.min(26, arrive + k * d));
     ball.owner = null;          // a bouncing ball played on keeps its height and drops
   }
   // a ball taken into the hands travels there over a moment instead of popping into them
@@ -265,7 +267,10 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const from = ball.p.clone(), t0 = S.t;
     return () => { const h = hands(), k = smooth(S.t - t0, 0, blend); return from.clone().lerp(h, k); };
   }
+  // a struck pass rolls on its own drag until someone has it or it has died down
+  function rollK() { if (ball.owner || ball.held || Math.hypot(ball.v.x, ball.v.z) < 1.5) ball.rollK = null; return ball.rollK || ROLL_K; }
   function kickAir(to, flight) {
+    ball.rollK = null;
     // air drag (see stepBall) is allowed for, so the ball really arrives at `to` after `flight` s
     const k = AIR_K, f = k / (1 - Math.exp(-k * flight));
     ball.v.set((to.x - ball.p.x) * f, (to.y - ball.p.y + G * flight / k) * f - G / k, (to.z - ball.p.z) * f);
@@ -527,7 +532,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       if (ball.p.y < BALL_R) { ball.p.y = BALL_R; ball.v.y = ball.v.y < -1.2 ? -ball.v.y * 0.5 : 0; ball.v.x *= 0.8; ball.v.z *= 0.8; }
     } else {
       ball.p.y = BALL_R; ball.v.y = 0;
-      const k = Math.exp(-ROLL_K * dt); ball.v.x *= k; ball.v.z *= k;
+      const k = Math.exp(-rollK() * dt); ball.v.x *= k; ball.v.z *= k;
     }
     if (!ball.allowOut) keepIn(dt);
     if (Math.abs(ball.p.x) > 57) { ball.p.x = Math.sign(ball.p.x) * 57; ball.v.x *= -0.2; }
