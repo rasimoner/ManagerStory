@@ -536,7 +536,10 @@ function runRestart(type,side,outPosition){
  if(visible)matchEvent('restartPosition',M.min+'’ '+label+' hazırlanıyor.',{restartType:type,fromPos:op,toPos:pos,fromId:taker,toId:taker,fromSide:side,toSide:side,ballSide:'none'});
  restartStep(R,'POSITION_PLAYERS');
  placeRestartPlayers(type,side,pos,taker);
- if(visible)matchEvent('restartPlayers',M.min+'’ Oyuncular yerlerini aldı.',{restartType:type,restartPosition:pos,fromId:taker,toId:taker,fromSide:side,toSide:side,ballSide:'none',fromPos:pos,toPos:pos});
+ // V7.8: the arrangement for the restart travels with the event, so a view between the minute
+ // keyframes can show it (corner: the box filled; throw-in: team-mates come short; goal kick: box cleared)
+ const arranged=Object.fromEntries([...M.active.map(id=>['user',id]),...M.oppIds.map(id=>['opp',id])].map(([s,id])=>{const q=eventPoint(id,s);return [s+':'+id,[Math.round(q[0]*10)/10,Math.round(q[1]*10)/10]];}));
+ if(visible)matchEvent('restartPlayers',M.min+'’ Oyuncular yerlerini aldı.',{restartType:type,restartPosition:pos,fromId:taker,toId:taker,fromSide:side,toSide:side,ballSide:'none',fromPos:pos,toPos:pos,arranged});
  restartStep(R,'WAIT_FOR_RESTART');
  if(visible)matchEvent('restartWait',M.min+'’ Oyun yeniden başlayacak.',{restartType:type,fromPos:pos,toPos:pos,ballSide:'none'});
  restartStep(R,'EXECUTE_RESTART');

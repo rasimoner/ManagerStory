@@ -40,14 +40,22 @@ export function createDirector(rt, data, hooks, opts = {}) {
 
   // ---- engine positions: the snapshot taken right after the tick that produced event i ----
   function snapFor(i) { for (const s of snaps) if (s.n > i) return s; return snaps.at(-1); }
+  // the engine gives where everyone stands at the end of each minute; within the minute the shape
+  // moves from the last keyframe to the next one as the minute's events are played, instead of
+  // everybody heading for where they will be a minute later
   function layout(i, teleport) {
-    const s = snapFor(i);
-    if (s.ball) S.snapBall = toWorld(s.ball);
+    const s = snapFor(i), k = snaps.indexOf(s), prev = k > 0 ? snaps[k - 1] : null;
+    const u = teleport || !prev || s.n <= prev.n ? 1 : clamp((i - prev.n + 1) / (s.n - prev.n), 0, 1);
+    const before = new Map(prev ? prev.pl.map(([id, side, pos]) => [side + ':' + id, pos]) : []);
+    const mix = (a, b) => (a ? [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u] : b);
+    if (s.ball) S.snapBall = toWorld(mix(prev?.ball, s.ball));
     for (const [id, side, pos] of s.pl) {
       const p = P(id, side); if (!p) continue;
-      p.home = toWorld(pos);
+      p.home = toWorld(mix(before.get(side + ':' + id), pos));
       if (teleport) { rt.place(p, p.home); faceBall(p); }
     }
+    // a restart in progress: players take up the engine's arrangement for it until it is taken
+    if (S.restartHomes) for (const p of rt.players) { const q = S.restartHomes[p.side + ':' + p.id]; if (q) p.home = toWorld(q); }
   }
   function faceBall(p) { p.heading = Math.atan2(ball.p.x - p.pos.x, ball.p.z - p.pos.z); }
   // stable per-event choice in [0,1): the same match always looks the same
@@ -78,7 +86,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (p.busy || p.dive || p.offPitch) continue;
       if (p.runUntil > S.t) continue;
       const gk = p.role === 'GK';
-      const h = (p.home || p.pos).clone().add(V(flow.x * (gk ? 0.12 : 0.45), 0, flow.z * (gk ? 0.08 : 0.3)));
+      const fl = S.restartHomes ? 0 : 1;      // a restart arrangement is exact
+      const h = (p.home || p.pos).clone().add(V(flow.x * (gk ? 0.12 : 0.45) * fl, 0, flow.z * (gk ? 0.08 : 0.3) * fl));
       h.x = clamp(h.x, -51, 51); h.z = clamp(h.z, -33, 33);
       const d = h.distanceTo(p.pos);
       p.target.copy(h); p.want = gaitFor(p, d, S.dead ? 2 : gk ? 3 : 4); p.face = ball.p; p.faceLock = false;
@@ -176,6 +185,16 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }
     from.lastPass = S.t; from.busy = false;
     if (opts.meet) { if (DEBUG) (stats.crossLog ||= []).push({ t: +S.t.toFixed(2), toW: toW.toArray().map(v => +v.toFixed(2)), flight: +flight.toFixed(2), v: ball.v.toArray().map(v => +v.toFixed(2)), p: ball.p.toArray().map(v => +v.toFixed(2)) }); opts.meet(S.t + flight); return; }      // met in the air: the next event plays the contact
+    // a ball played into space is contested: the nearest opponent to where it is going sets off after it too
+    // (he arrives late — the engine has decided who gets it — but nobody jogs past a ball in play)
+    if (to && !opts.throwIn && !opts.meet) {
+      const gap = Math.hypot(toW.x - to.pos.x, toW.z - to.pos.z), len = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
+      if (gap > 4 || len > 18) {
+        const rival = rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== from.side && q.role !== 'GK')
+          .reduce((m, q) => (!m || q.pos.distanceTo(toW) < m.pos.distanceTo(toW) ? q : m), null);
+        if (rival && rival.pos.distanceTo(toW) < 22) { rival.target.copy(toW).setY(0); rival.want = 6.8; rival.gait = 4; rival.runUntil = S.t + Math.min(3, 0.6 + len / 14); rival.face = null; }
+      }
+    }
     if (!to) { yield* until(() => ball.v.length() < 2 || ball.p.distanceTo(V(toW.x, BALL_R, toW.z)) < 1.5, 4); return; }
     to.busy = true;
     const ok = yield* chase(to, toW);
@@ -483,6 +502,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (e.homeGoals != null) hooks.score(e.homeGoals, e.awayGoals);
     hooks.minute(e.minute);
     if (!SKIP_TEXT.has(e.type) && !handled.has(i)) hooks.say(e.text);
+    if (e.type === 'restartPlayers' && e.arranged) S.restartHomes = e.arranged;
+    else if (!e.restartType && !['foul', 'yellow', 'red', 'sub', 'offside', 'injury'].includes(e.type)) S.restartHomes = null;
     layout(i, false);
     const from = P(e.fromId, e.fromSide), to = P(e.toId, e.toSide);
     switch (e.type) {
