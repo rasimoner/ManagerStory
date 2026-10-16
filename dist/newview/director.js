@@ -189,6 +189,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (travel === 'aerial' || dir.length() > 30) { flight = Math.max(0.7, dir.length() / 17); rt.kickAir(V(toW.x, opts.height ?? 0.25, toW.z), flight); }   // a long ball goes in the air
       else rt.kickGround(toW, opts.arrive ?? 4.5, 0.7);     // a played pass reaches its man at a receivable pace
     }
+    if (opts.restart) { const outside = () => Math.abs(ball.p.z) > 34 + BALL_R || Math.abs(ball.p.x) > GOAL_X + BALL_R; if (outside()) yield* until(() => !outside(), 0.6); ball.allowOut = false; }      // once the restart is taken (and back over the line) the ball is in play
     from.lastPass = S.t; from.busy = false;
     if (opts.meet) { if (DEBUG) (stats.crossLog ||= []).push({ t: +S.t.toFixed(2), toW: toW.toArray().map(v => +v.toFixed(2)), flight: +flight.toFixed(2), v: ball.v.toArray().map(v => +v.toFixed(2)), p: ball.p.toArray().map(v => +v.toFixed(2)) }); opts.meet(S.t + flight); return; }      // met in the air: the next event plays the contact
     // a ball played into space is contested: the nearest opponent to where it is going sets off after it too
@@ -575,7 +576,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (e.type === 'corner') hooks.cam('tv');
         const target = toWorld(e.toPos);
         const receiver = to && to !== from ? to : null;
-        const popts = { throwIn: e.type === 'throwIn' || e.restartType === 'THROW_IN' };
+        const popts = { throwIn: e.type === 'throwIn' || e.restartType === 'THROW_IN', restart: !!e.restartType };
         if (receiver && (e.type === 'corner' || e.type === 'cross')) {
           const nx = events[i + 1];
           const hs = nx?.type === 'shot' && nx.header && nx.fromId === e.toId ? nx : null;

@@ -319,6 +319,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   // keeper dive: roll towards the ball's side so the gloves reach where it crosses his line
   function planDive(gk, at, tArrive, save) {
     const reaction = 0.12;
+    // still down from a dive a moment ago: the new one starts from where his body is, not from where he took off
+    if (gk.dive?.cur) { const c = gk.dive.cur, r0 = V(-Math.cos(gk.heading), 0, Math.sin(gk.heading)); gk.pos.copy(c.base).addScaledVector(r0, c.slide).setY(0); }
     const h0 = gk.heading, R = V(-Math.cos(h0), 0, Math.sin(h0)), F = V(Math.sin(h0), 0, Math.cos(h0));
     const rel = at.clone().sub(gk.pos);
     let d = rel.dot(R); const side = d >= 0 ? 1 : -1; d = Math.abs(d);
