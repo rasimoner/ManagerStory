@@ -242,11 +242,12 @@ function updateCamera(dtReal, aspect, dtSim = 0) {
   if (cut || camPos.distanceTo(wantPos) > 30) { camPos.copy(wantPos); camLook.copy(wantLook); camera.fov = wantFov; cut = false; }
   else { camPos.lerp(wantPos, k); camLook.lerp(wantLook, k); camera.fov += (wantFov - camera.fov) * k; }
   camera.aspect = aspect; camera.updateProjectionMatrix();
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 7; i++) {
     camera.position.copy(camPos); camera.lookAt(camLook); camera.updateMatrixWorld();
     ndc.copy(rt.ball.p).project(camera);
     if (ndc.z < 1 && Math.abs(ndc.x) < 0.72 && Math.abs(ndc.y) < 0.8) break;
-    camPos.lerp(wantPos, 0.4); camLook.lerp(wantLook, 0.4);
+    // towards the planned shot first; if the plan itself leaves the ball out (a close-up after the ball has gone), turn to the ball
+    if (i < 2) { camPos.lerp(wantPos, 0.4); camLook.lerp(wantLook, 0.4); } else camLook.lerp(rt.ball.p, 0.35);
   }
   camera.position.copy(camPos); camera.lookAt(camLook);
   autoCam = saved;
