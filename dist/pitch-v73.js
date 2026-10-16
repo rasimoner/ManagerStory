@@ -44,6 +44,10 @@ function pitchInstructionTarget(id,side,ball,attacking) {
     x=limitPitch(q[0]+dir*advanced,4,96);
     return [x,limitPitch(50+(ball[1]-50)*.07,38,62)];
   }
+  // V7.6: the formation block moves up and down the pitch with the ball and stays compact instead of
+  // spanning goal line to goal line, so team-mates are close enough for short passes. Tactical and
+  // individual offsets below are added on top unchanged.
+  x=50+(ball[0]-50)*.45+(q[0]-50)*.73;
   // The team block and individual offsets share one target; movement remains interpolated.
   {
     const T=tacticProfile(side);
@@ -501,6 +505,15 @@ function evolvePitchPositions(){
     }
    }
   }
+  // V7.6: attackers wait on the offside line (level with the second-last defender, or the ball if it
+  // is further forward); good movers hold it tightly, poor ones drift into offside now and then
+  if(attacking===side&&role!=='GK'&&id!==M.ballOwner&&!setPieceRecovering()){
+   const prog=p=>dir>0?p[0]:100-p[0],unprog=v=>dir>0?v:100-v;
+   const defSide=side==='user'?'opp':'user';
+   const line=(defSide==='user'?M.active:M.oppIds).map(o=>prog(eventPoint(o,defSide))).sort((a,b)=>b-a)[1]??100;
+   const allowed=Math.max(line,prog(ball))-.6+(1-normalizeAttribute(intelligence))*2.4;
+   if(prog(target)>allowed)target=[unprog(allowed),target[1]];
+  }
   target=anchorLeash(isKeeper(side,id)?'GK':(role||'CM'),basePitchPosition(id,side),target);
   // after a corner/penalty the displaced players make a real recovery run (bounded by their own pace)
   const recovering=setPieceRecovering()&&pitchDistance(here,target)>14;
@@ -510,6 +523,7 @@ function evolvePitchPositions(){
   const turn=recovering?1:limitPitch(playerAttribute(id,side,'acceleration',70)/105, .35,.9);
   motion.vx=limitPitch(motion.vx+limitPitch(ax,-turn*speed,turn*speed),-speed,speed);
   motion.vy=limitPitch(motion.vy+limitPitch(ay,-turn*speed,turn*speed),-speed,speed);
+  if(recovering){const v=Math.hypot(motion.vx,motion.vy);if(v>speed){motion.vx*=speed/v;motion.vy*=speed/v;}}   // a diagonal recovery run is no faster than a straight one
   const next=[limitPitch(here[0]+motion.vx,4,96),limitPitch(here[1]+motion.vy,6,94)];
   if(length<1.5){motion.vx*=.45;motion.vy*=.45;}
   M.dynamicPositions[key]=next;M.pitchMotion[key]=motion;
@@ -593,6 +607,8 @@ function passOptions(side,from,style){
   const oneTwoDone=memory.length>=2&&memory.at(-1).from===memory.at(-2).to&&memory.at(-1).to===memory.at(-2).from;
   if(id===lastPasser)weight*=oneTwoDone?(pressureNow?.35:.02):(pressureNow?.55:.18);
   else if(memory.slice(-3).some(m=>m.from===id&&m.to===from))weight*=.5;
+  // V7.6: the nearer option is the easier one to see and play; long balls need a reason (vision, style)
+  weight*=1/(1+Math.pow(range/(22*(1+.25*ve)*(style==='Direkt'?1.35:style==='Kısa'?.8:1)),2));
   return {id,point:target,range,lane,space,weight:Math.max(.02,weight),forward,progress};
  });
  // prefer forward options when a usable one exists
@@ -645,6 +661,7 @@ function pitchDribble(from,side,opponent){
   recordPitchTackle(defender.id,defendingSide,from,side,!success,end);
   if(contestStart)window.ManagerStoryLive3D.linkDribbleContest({attackerId:from,attackerSide:side,defenderId:defender.id,defenderSide:defendingSide,attackerStart:[...start],point:[...end],defenderStart:contestStart,defenderEnd:[...M.dynamicPositions[String(defender.id)]],attackerKeepsBall:success});
   if(boxChallengePenalty(defender.id,defendingSide,from,side,end))return false; // stop the carry: a penalty is being taken
+  if(!success&&deepFor(side,end)>80&&M.rand()<.4){concedeCorner(side,end);return false;}   // won, but off the line
  }
  if(!success&&near){
   switchPitchOwner(defender.id,defendingSide);
@@ -675,6 +692,7 @@ function actionMinute(userPoss,effect,opponent){
    // real interception upgrades this copied pair to a gain; no winner is inferred.
    if(gainStart)window.ManagerStoryLive3D.linkCarrierGain?.({...gainStart,defenderEnd:[...eventPoint(defender.id,defSide)]});
    if(boxChallengePenalty(defender.id,defSide,carrier,side,point))return; // the penalty sequence owns the rest of this minute
+   if(success&&deepFor(side,point)>80&&M.rand()<.35){concedeCorner(side,point);return;}
    if(success){
     switchPitchOwner(defender.id,defSide);setBallState(point,defender.id);
     M.stats.possessionsWon[defSide==='user'?userSide():1-userSide()]++;
@@ -699,14 +717,19 @@ function actionMinute(userPoss,effect,opponent){
   const best=options.slice().sort((a,b)=>b.weight-a.weight)[0];
   const order=orderFor(from,side);
   const attitude=[.8,1,1.25][tacticProfile(side).mentality+1];
-  const actions=[{type:'pass',weight:Math.max(.4,3-pressure*.7+(best?.weight||0)*.22)},
+  // V7.6: a good shooting position is used, not passed backwards out of
+  const sv=role==='GK'?0:shotValueAt(from,side,point);
+  if(sv>=.1)for(const o of options)if(o.progress<-6)o.weight*=.3;
+  const readsLine=attributeEdge(playerAttribute(from,side,'vision',68));
+  for(const o of options)if(offsideAt(o.point,point,side))o.weight*=clamp(.12-readsLine*.08,.03,.2);
+  const actions=[{type:'pass',weight:Math.max(.4,3-pressure*.7+(best?.weight||0)*.22)*clamp(1.2-sv*5,.35,1)},
    {type:'carry',weight:role==='GK'?.03:Math.max(.08,(playerAttribute(from,side,'dribbling',65)-45)*.027*attitude+
        (order==='inside'||order==='wide'?.45:0)-pressure*.2)},
    {type:'hold',weight:pressure>.45&&(role==='ST'||order==='holdUp')?(.28+(playerAttribute(from,side,'strength',70)-50)*.015):.04},
-   {type:'shoot',weight:forward>68&&role!=='GK'?Math.max(.1,(forward-65)*.045+
-      (playerAttribute(from,side,'finishing',65)-55)*.008+
+   {type:'shoot',weight:forward>62&&role!=='GK'?(sv>=.05?3.2*sv/(sv+.05)+(order==='shoot'?.65:0):
+      Math.max(.05,((forward-65)*.045+(playerAttribute(from,side,'finishing',65)-55)*.008+
       (playerAttribute(from,side,'vision',65)*.5+playerAttribute(from,side,'composure',65)*.5-65)*.012-
-      pitchSpace(point,side).danger*.14+(order==='shoot'?.65:0))*attitude:.0}];
+      pitchSpace(point,side).danger*.14+(order==='shoot'?.65:0))*.5))*attitude:.0}];
   if(order==='riskPass')actions[0].weight*=1.18;
   if(order==='stay')actions[1].weight*=.6;
   const choice=weightedPitchChoice(actions);
@@ -735,6 +758,7 @@ function actionMinute(userPoss,effect,opponent){
   }
   if(!options.length)break;
   const selected=weightedPitchChoice(options),target=selected.id,to=selected.point;
+  if(offsideFlag(target,to,point,side)){callOffside(target,side,to,from);break;}
   M.passMemory??=[];if(M.passMemory.at(-1)&&M.passMemory.at(-1).side!==side)M.passMemory.length=0;
   M.passMemory.push({side,from,to:target});if(M.passMemory.length>8)M.passMemory.shift();
   const passer=playerAtMarker(from,side),range=selected.range;
@@ -742,7 +766,7 @@ function actionMinute(userPoss,effect,opponent){
   const accuracy=passSuccessProbability(from,side,selected,{pressure,effect,risk:order==='riskPass',tempo:tacticProfile(side).tempo});
   const stat=side==='user'?M.playerStats[from]:null,index=side==='user'?userSide():1-userSide();
   M.stats.passes[index]++;if(stat)stat.passesAttempted++;
-  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null;
+  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null,pendingCorner=false;
   const longBall=range>29||(['LW','RW'].includes(role)&&range>22&&forward>58);
   const contested=range>38||(['LW','RW'].includes(role)&&range>26&&forward>58);   // only genuinely high/long deliveries are contested
   if(success&&contested){
@@ -752,14 +776,20 @@ function actionMinute(userPoss,effect,opponent){
     if(M.rand()>aerialWinProbability(target,side,rival.id,side==='user'?'opp':'user')){success=false;aerialLost=true;}
    }
   }
-  if(aerialLost){
+  const crossing=['LW','RW'].includes(role)&&range>22&&forward>58,boxBall=deepFor(side,to)>(crossing?70:80)&&Math.abs(to[1]-50)<34;
+  if(aerialLost&&boxBall&&M.rand()<.3){
+   pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');   // headed behind
+  }else if(aerialLost){
    makeLooseBall(point,to,'aerial',side);
   }else if(success){
    M.stats.completedPasses[index]++;if(stat){stat.passesCompleted++;if(selected.forward&&range>20)stat.keyPasses++;}
    switchPitchOwner(target,side);setBallState(to,target);
   }else{
    const defSide=side==='user'?'opp':'user',interceptor=nearestMarker(defSide,to);
-   if(interceptor&&interceptor.d<18){
+   if(interceptor&&interceptor.d<18&&boxBall&&M.rand()<(crossing?.6:.35)){
+    // cut out at full stretch: the touch takes it behind
+    pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');
+   }else if(interceptor&&interceptor.d<18){
     if(window.ManagerStoryLive3D?.enabled)cutPresentation={id:interceptor.id,side:defSide,start:[...eventPoint(interceptor.id,defSide)],intendedTarget:[...to]};
     const gain=moveTowards(eventPoint(interceptor.id,defSide),to,Math.min(interceptor.d,10));
     M.dynamicPositions[String(interceptor.id)]=gain;
@@ -775,7 +805,7 @@ function actionMinute(userPoss,effect,opponent){
   const landing=newOwner==null?[...(M.ballState?.position||to)]:eventPoint(newOwner,newSide);
   const cross=wing&&range>22&&forward>58;
   matchEvent(cross?'cross':'pass',M.min+'’ '+(passer?.name||'Rakip')+(cross?' orta yaptı.':' pas verdi.')+
-    (success?'':aerialLost?' Havadaki mücadele ikinci topa düştü.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
+    (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
      passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
      distance:range,passing});
@@ -786,9 +816,83 @@ function actionMinute(userPoss,effect,opponent){
     {fromId:target,toId:target,fromSide:side,toSide:side,ballSide:side,fromPos:to,toPos:to});
   }
   if(pendingThrow)startPitchRestart('THROW_IN',pendingThrowSide,pendingThrow);
+  if(pendingCorner){concedeCorner(side,to);break;}
  }
  if(M.ballSide==='user')M.userPossTicks++;else M.oppPossTicks++;
 }
+/* V7.6 corners -----------------------------------------------------------------------------
+   Most real corners come from defenders, not keepers: a cross or a ball into the box cut out
+   under pressure, or a challenge won on the byline, often only finds the safe touch behind.
+   `deepFor` is how far into the attacking end a point is for the attacking side (0..100). */
+function deepFor(side,point){const dir=(side==='user'?1:-1)*userDirection();return dir>0?point[0]:100-point[0];}
+function cornerOff(side,point){return[deepFor(side,[100,50])>50?102:-2,point[1]<50?-3:103];}
+function concedeCorner(side,point){
+ M.stats.corners[side==='user'?userSide():1-userSide()]++;
+ M.ballOwner=null;M.ballSide='none';M.looseBall=null;
+ startPitchRestart('CORNER',side,cornerOff(side,point));
+}
+/* V7.6 full time: the referee does not blow in the middle of a promising attack. When the 90th
+   minute ends with an attacker on the ball in the final third and no shot came that minute, the
+   move is finished first (one more chance step: a shot, or the final ball being cut out). */
+function playLastAttack(){
+ if(M.minuteShot)return;
+ // a few steps at most: a carry or a lay-off keeps the move alive, a shot or a turnover ends it
+ for(let step=0;step<5;step++){
+  if(M.pause||M.ballOwner==null||M.ballSide==='none'||M.looseBall)return;
+  if(M.restart&&M.restart.restartPhase!=='LIVE')return;
+  if(deepFor(M.ballSide,eventPoint(M.ballOwner,M.ballSide))<70)return;
+  const n=M.events.length,owner=M.ballOwner,at=[...eventPoint(M.ballOwner,M.ballSide)];
+  chanceV73(M.ballSide==='user');
+  if(M.events.slice(n).some(e=>e.type==='shot')){M.minuteShot=true;return;}
+  // shielding it by the corner flag: nothing more is coming, the referee can blow
+  if(M.ballOwner===owner&&M.ballOwner!=null&&pitchDistance(eventPoint(M.ballOwner,M.ballSide),at)<1)return;
+ }
+}
+/* V7.6 decisions ---------------------------------------------------------------------------
+   What a shot from a point is worth, on a realistic distance/angle curve (about .33 at 6 m,
+   .17 at 11 m, .07 at 18 m, .03 at 25 m). Used only to DECIDE; the shot outcome model is unchanged.
+   Pure: reads positions and attributes, never the RNG. */
+function shotValueAt(id,side,point){
+ const dir=(side==='user'?1:-1)*userDirection();
+ const dx=(dir>0?100-point[0]:point[0])*1.05,dy=Math.abs(point[1]-50)*.68;
+ if(dx<=0)return 0;
+ const d=Math.hypot(dx,dy),mouth=Math.atan2(7.32*dx,dx*dx+dy*dy-13.4);
+ const finN=normalizeAttribute(playerAttribute(id,side,'finishing',65));
+ const pressure=pitchSpace(point,side).danger;
+ return clamp(.75*Math.exp(-.135*d)*clamp(mouth/.35,.25,1.3)*(.75+.5*finN)*(1-Math.min(.55,pressure*.14)),0,.8);
+}
+/* Offside at the moment of the pass: in the opponent half, ahead of the ball and beyond the
+   second-last defender (goalkeeper included). Engine positions are where a player is heading
+   during the minute, so a forward up to OFFSIDE_RUN beyond the line is read as a run timed from
+   an onside start; only a run that is clearly early is flagged. */
+const OFFSIDE_RUN=1.4;
+function offsideMargin(receiverPoint,ballPoint,side){
+ const dir=(side==='user'?1:-1)*userDirection(),prog=p=>dir>0?p[0]:100-p[0];
+ const r=prog(receiverPoint);
+ if(r<=50||r<=prog(ballPoint))return -99;
+ const defSide=side==='user'?'opp':'user';
+ const line=(defSide==='user'?M.active:M.oppIds).map(id=>prog(eventPoint(id,defSide))).sort((a,b)=>b-a);
+ return r-(line[1]??100);
+}
+function offsideAt(receiverPoint,ballPoint,side){return offsideMargin(receiverPoint,ballPoint,side)>OFFSIDE_RUN;}
+/* Is the pass flagged? Only a receiver who IS beyond the line at the pass can be. The engine moves
+   players a minute at a time, so how early the run started is uncertain: the further beyond the
+   line, and the poorer his movement, the likelier the flag. */
+function offsideFlag(receiverId,receiverPoint,ballPoint,side){
+ const margin=offsideMargin(receiverPoint,ballPoint,side);
+ if(margin<=OFFSIDE_RUN)return false;
+ const offBall=normalizeAttribute(playerAttribute(receiverId,side,'offBall',65));
+ const t=clamp((margin-OFFSIDE_RUN)/5,0,1),p=t*t*(3-2*t)*clamp(1.15-offBall*.7,.35,1);
+ return M.rand()<p;
+}
+function callOffside(receiverId,receiverSide,receiverPoint,passerId){
+ const user=receiverSide==='user',player=playerAtMarker(receiverId,receiverSide);
+ const name=player?.name||(user?'Oyuncumuz':'Rakip forvet');
+ matchEvent('offside',`${M.min}’ ${name} pas çıktığı anda son savunmacının gerisindeydi; ofsayt.`,
+  {side:user?userSide():1-userSide(),playerId:user?receiverId:receiverId,fromId:passerId,toId:receiverId,fromSide:receiverSide,toSide:receiverSide,fromPos:[...receiverPoint],toPos:[...receiverPoint]});
+ startPitchRestart('FREE_KICK',user?'opp':'user',[...receiverPoint]);
+}
+
 function chanceV73(user) {
   if(engineFrozen())return;
   const r=currentOpponent(),side=user?userSide():1-userSide();
@@ -821,6 +925,7 @@ function chanceV73(user) {
      .sort((a,b)=>{const pen=id=>['CB','LB','RB'].includes(sideName==='user'?M.matchRoles[id]:opponentPlayer(id)?.position)?25:0;
        return pitchDistance(before,a.point)+pen(a.id)-pitchDistance(before,b.point)-pen(b.id)})[0];
     if(!advancing)return;
+    if(offsideFlag(advancing.id,advancing.point,before,sideName)){callOffside(advancing.id,sideName,advancing.point,carrier);return;}
     M.passMemory??=[];M.passMemory.push({side:sideName,from:carrier,to:advancing.id});if(M.passMemory.length>8)M.passMemory.shift();
     const origin=before,passing=playerAttribute(carrier,sideName,'passing',65);
     matchEvent('pass',M.min+'’ Hücum bölgesine uzun pas.',
@@ -832,31 +937,69 @@ function chanceV73(user) {
     carrier=advancing.id;before=advancing.point;
     progress=dir>0?before[0]:100-before[0];
   }
-  const candidate=(user?M.active:M.oppIds).filter(id=>
-    id!==carrier&&!isKeeper(sideName,id))
-   .map(id=>({id,point:eventPoint(id,sideName)}))
-   .filter(x=>pitchDistance(before,x.point)<24&&
-     (dir>0?x.point[0]:100-x.point[0])>progress-8)
-   .sort((a,b)=>pitchSpace(a.point,sideName).danger-pitchSpace(b.point,sideName).danger)[0];
+  // V7.6: shoot when it is worth it; otherwise find the better-placed team-mate, or drive into range
   const carrierRole=user?M.matchRoles[carrier]:opponentPlayer(carrier)?.position;
-  const shooter=carrierRole==='GK'&&candidate?candidate.id:carrier;
-  const target=eventPoint(shooter,sideName);
+  const prog=p=>dir>0?p[0]:100-p[0],unprog=v=>dir>0?v:100-v;
+  const keeperProg=prog(eventPoint(keeperId(user?'opp':'user'),user?'opp':'user'));
+  const riskExp=[1.8,1,.8][tacticProfile(sideName).mentality+1];   // cautious teams discount risky final balls
+  const pick=()=>{
+   let shooterId=carrier,value=carrierRole==='GK'?-1:shotValueAt(carrier,sideName,before),chance=1,runTo=null;
+   for(const id of (user?M.active:M.oppIds)){
+    if(id===carrier||isKeeper(sideName,id))continue;
+    const point=eventPoint(id,sideName);
+    // a forward on the line is played into his run, into the space behind the defence
+    const onLine=prog(point)>58&&offsideMargin(point,before,sideName)>-4&&!offsideAt(point,before,sideName);
+    const run=onLine?Math.max(0,Math.min(9,keeperProg-prog(point)-4)):0;
+    const aim=run>1?[unprog(prog(point)+run),point[1]+(50-point[1])*.25]:point;
+    const range=pitchDistance(before,aim);
+    if(range>=(run>1?50:34))continue;
+    const pSucc=clamp(.94-range*.006-passLanePressure(before,aim,sideName)*.3-(run>1?.08:0),.3,.95);
+    let v=shotValueAt(id,sideName,aim)*Math.pow(pSucc,riskExp)*.9;
+    if(offsideAt(point,before,sideName))v*=clamp(.12-attributeEdge(playerAttribute(carrier,carrierSide,'vision',68))*.08,.03,.2);   // passers see the flag coming
+    if(v>value*1.15+.004){value=v;shooterId=id;chance=pSucc;runTo=run>1?aim:null;}
+   }
+   return {shooterId,value,chance,runTo};
+  };
+  let choice=pick();
+  for(let k=0;k<2&&choice.shooterId===carrier&&choice.value<.035&&carrierRole!=='GK';k++){
+   // too far to shoot and nobody better placed: carry it towards goal first
+   if(!pitchDribble(carrier,carrierSide,r))return;
+   before=eventPoint(carrier,carrierSide);progress=dir>0?before[0]:100-before[0];
+   choice=pick();
+  }
+  if(choice.value<.012){
+   // from 30 m and beyond a shot is a rare gamble, likelier for natural finishers or a "shoot" order
+   const finN=normalizeAttribute(playerAttribute(choice.shooterId,sideName,'finishing',65));
+   if(M.rand()>.1+(finN-.5)*.25+(orderFor(choice.shooterId,sideName)==='shoot'?.35:0))return;
+  }
+  const shooter=choice.shooterId;
+  const runFrom=eventPoint(shooter,sideName);
+  const target=choice.runTo?[...choice.runTo]:runFrom;
   const shooterPlayer=playerAtMarker(shooter,sideName);
   const p=user?shooterPlayer:{...(shooterPlayer||{}),name:shooterPlayer?.name||r[0]+' forvet',
     finishing:shooterPlayer?.shooting??r[3],physical:shooterPlayer?.overall??r[8],fitness:shooterPlayer?.fitness??90};
   if(!p)return;
-  // the DEFENDING team's line decides the offside trap, for either side
-  const defLine=tacticProfile(user?'opp':'user').line;
-  if(defLine>0&&M.rand()<.065){
-    matchEvent('offside',user?`${M.min}’ ${p.name} savunma çizgisinin arkasına erken koştu; ofsayt.`:`${M.min}’ Rakip forvet savunma çizgisinin arkasına erken koştu; ofsayt.`,
-      {side:user?userSide():1-userSide(),playerId:user?p.id:shooter,fromId:shooter,fromSide:user?'user':'opp',fromPos:target,toPos:target});
-    startPitchRestart('FREE_KICK',user?'opp':'user',target);
-    return;
-  }
   if(carrier!==shooter) {
-    matchEvent('offBallRun',M.min+'’ '+p.name+' şut için boş alana koştu.',
+    if(offsideFlag(shooter,runFrom,before,sideName)){callOffside(shooter,sideName,runFrom,carrier);return;}
+    if(M.rand()>choice.chance){
+      // the final ball is cut out
+      const defSide=user?'opp':'user',cut=nearestMarker(defSide,target);
+      if(cut){
+        matchEvent('pass',M.min+'’ '+(carrierSide==='user'?S.players.find(x=>x.id===carrier)?.name||'Takım':'Rakip')+' ara pası denedi.',
+          {fromId:carrier,toId:cut.id,fromSide:carrierSide,toSide:defSide,ballSide:defSide,fromPos:before,toPos:eventPoint(cut.id,defSide),success:false,passKind:'through',
+           distance:pitchDistance(before,target),passing:playerAttribute(carrier,carrierSide,'passing',70)});
+        if(carrierSide==='user'&&M.playerStats[carrier]){M.playerStats[carrier].passesAttempted++;M.stats.passes[userSide()]++;}
+        switchPitchOwner(cut.id,defSide);setBallState(eventPoint(cut.id,defSide),cut.id);
+        M.stats.possessionsWon[defSide==='user'?userSide():1-userSide()]++;
+        matchEvent('interception',M.min+'’ '+(playerAtMarker(cut.id,defSide)?.name||'Rakip')+' araya girdi.',
+          {fromId:carrier,toId:cut.id,fromSide:carrierSide,toSide:defSide,ballSide:defSide,fromPos:target,toPos:eventPoint(cut.id,defSide)});
+        return;
+      }
+    }
+    if(choice.runTo)M.dynamicPositions[String(shooter)]=[...target];   // he arrives where the ball was played
+    matchEvent('offBallRun',M.min+'’ '+p.name+(choice.runTo?' savunmanın arkasına koştu.':' şut için boş alana koştu.'),
       {fromId:shooter,toId:shooter,playerId:user?p.id:null,fromSide:user?'user':'opp',
-        toSide:user?'user':'opp',ballSide:carrierSide,carrierId:carrier,fromPos:target,toPos:target});
+        toSide:user?'user':'opp',ballSide:carrierSide,carrierId:carrier,fromPos:runFrom,toPos:target});
     matchEvent('pass',M.min+'’ '+(carrierSide==='user'?S.players.find(x=>x.id===carrier)?.name||'Takım':'Rakip')+
       ' hücum oyuncusuna oynadı.',{fromId:carrier,toId:shooter,fromSide:carrierSide,toSide:user?'user':'opp',
         ballSide:user?'user':'opp',fromPos:before,toPos:target,success:true,passKind:'through',
@@ -968,10 +1111,13 @@ function resolveShot(user,shooter,p,opts={}) {
       fromSide:user?'user':'opp',ballSide:'none',fromPos:destination,toPos:rebound,frame,hitFrame:true});
     makeLooseBall(destination,rebound,frame||'post',user?'opp':'user');
   } else {
-    matchEvent('wide',M.min+'’ Top auta çıktı.',{side,fromId:shooter,
-      fromSide:user?'user':'opp',ballSide:'none',fromPos:source,toPos:destination});
-    const keeperSide=user?'opp':'user';
-    startPitchRestart('GOAL_KICK',keeperSide,[dir>0?102:-2,destination[1]]);
+    // a shot through a crowded area that misses usually took a touch off someone on the way: corner
+    const keeperSide=user?'opp':'user',marker=nearestMarker(keeperSide,source);
+    const deflected=!opts.penalty&&marker&&marker.d<7&&M.rand()<.4*(1-marker.d/9);
+    matchEvent('wide',M.min+'’ '+(deflected?'Şut savunmadan sekip auta çıktı.':'Top auta çıktı.'),{side,fromId:shooter,
+      fromSide:user?'user':'opp',ballSide:'none',fromPos:source,toPos:destination,deflected:!!deflected});
+    if(deflected){M.stats.corners[side]++;startPitchRestart('CORNER',user?'user':'opp',[dir>0?102:-2,destination[1]<50?-3:103]);}
+    else startPitchRestart('GOAL_KICK',keeperSide,[dir>0?102:-2,destination[1]]);
   }
   if(user&&outcome==='save')M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+.05,1,10);
   if(user&&outcome!=='save'&&xg>=.18)M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating-.11,1,10);

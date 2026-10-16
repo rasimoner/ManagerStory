@@ -569,16 +569,22 @@ test('SET-PIECE RECOVERY: players pulled into the box for a corner run back to s
     if (!inBox.length) continue;                                  // corner ended with nobody left forward
     const start = Object.fromEntries(inBox.map(id => [id, rel(id)]));
     const prev = Object.fromEntries(inBox.map(id => [id, h.run(`[...eventPoint(${id},'user')]`)]));
-    let moved = 0;
+    let moved = 0, anotherCorner = false;
     for (let m = 0; m < 3; m++) {
+      const n0 = h.run('M.events.length');
       if (minute(h)) moved++;
+      // a goal sends everybody to their own half for the kickoff, and a new corner sends the big men up:
+      // those placements are by the laws, not a run
+      const kickoff = h.run(`M.events.slice(${n0}).some(e=>e.type==='kickoff'||(e.type==='restartPlayers'&&e.restartType==='CORNER'))`);
+      if (h.run(`M.events.slice(${n0}).some(e=>e.type==='restartPlayers'&&e.restartType==='CORNER')`)) anotherCorner = true;
       for (const id of inBox) {
         const p = h.run(`[...eventPoint(${id},'user')]`);
-        assert.ok(Math.hypot(p[0] - prev[id][0], p[1] - prev[id][1]) <= 60, 'a recovery run is fast, not a teleport across the pitch');
+        if (!kickoff) assert.ok(Math.hypot(p[0] - prev[id][0], p[1] - prev[id][1]) <= 60, 'a recovery run is fast, not a teleport across the pitch');
         prev[id] = p;
       }
     }
     assert.equal(moved, 3, 'the clock advanced three football minutes');
+    if (anotherCorner) continue;                                  // a new corner sent them up again: a different sample
     for (const id of inBox) assert.ok(rel(id) < start[id] - 15 || rel(id) < 70, `CB ${id} back from ${start[id].toFixed(1)} to ${rel(id).toFixed(1)}`);
     same(h.run(PROBES).problems, []);
     checked++;
@@ -593,7 +599,8 @@ test('PASSING STYLE decision: Direkt differs from Dengeli (not only from Kısa);
   const measure = style => {
     let n = 0, prog = 0, long = 0, dist = 0;
     for (let f = 0; f < 6; f++) {
-      const h = harness(); h.run(`S=fresh();init();S.fixture=${f};startMatch();M.passingStyle='${style}';resumeLive();advanceLive(10)`);
+      // the same match state for every style (play the opening with one style, then switch), so only the decision differs
+      const h = harness(); h.run(`S=fresh();init();S.fixture=${f};startMatch();M.passingStyle='Dengeli';resumeLive();advanceLive(10);M.passingStyle='${style}'`);
       const r = h.run(`(function(){let n=0,prog=0,long=0,dist=0;M.rand=R(55);
         for(const from of M.active){if(M.matchRoles[from]==='GK')continue;
           for(let k=0;k<120;k++){const o=weightedPitchChoice(passOptions('user',from));n++;if(o.progress>12)prog++;if(o.range>29)long++;dist+=o.range;}}

@@ -1,5 +1,5 @@
 /* ManagerStory V7.2: additive migration and shared match state. */
-const GAME_VERSION = "7.5.0";
+const GAME_VERSION = "7.6.0";
 const MATCH_TACTICS = {
   mentality: ["Temkinli", "Dengeli", "Cesur"],
   press: ["Düşük", "Normal", "Yüksek"],
