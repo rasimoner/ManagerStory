@@ -1,4 +1,4 @@
-// New 3D match view (V7.5.0 development).
+// New 3D match view (since V7.5.0).
 // Same MatchEngine, same events, same pause/speed and the same presentation clock as the 2D view.
 // This view plays each engine event as football; the existing presentation clock follows it
 // (window.ManagerStoryNewView.gate) and the next engine minute is generated only after this view
