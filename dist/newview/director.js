@@ -394,7 +394,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     else if (outcome === 'save') aim = V(lineX, 0.5 + rnd * 1.2, clamp(tz, -2.9, 2.9));
     else if (outcome === 'post') aim = V(lineX, 0.9 + rnd * 0.8, tz >= 0 ? 3.62 : -3.62);
     else if (outcome === 'block') aim = V(lineX, 0.6, clamp(tz, -3, 3));
-    else { const z = Math.abs(tz) < 3.9 ? (tz >= 0 ? 4.6 : -4.6) : tz; aim = V(lineX, Math.abs(tz) < 3.9 && rnd > .5 ? 2.9 : 0.5 + rnd, z); }
+    else { const sz = tz >= 0 ? 1 : -1, z = sz * clamp(Math.abs(tz) < 3.9 ? 4.6 : Math.abs(tz), 4.3, 6.8); aim = V(lineX, Math.abs(tz) < 3.9 && rnd > .5 ? 2.9 : 0.5 + rnd, z); }   // a miss goes just wide, never off towards the corner flag
 
     const hc = e.header && S.headerCross?.p === sh ? S.headerCross : null;
     S.headerCross = null;
@@ -692,9 +692,48 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* until(() => far() <= 2, e.restartType === 'THROW_IN' ? 1.2 : e.restartType === 'CORNER' ? 4.5 : 3);
         yield* wait(0.4); if (e.restartType !== 'CORNER') hooks.cam('tv'); break;
       }
-      case 'foul': hooks.whistle(); yield* wait(0.7); break;
-      case 'yellow': hooks.banner('SARI KART', 1400); yield* wait(1.2); break;
-      case 'red': hooks.banner('KIRMIZI KART', 1600); yield* wait(1.4); break;
+      case 'offside': {
+        // the pass is played to the man beyond the line; the flag goes up as it is played, the line is shown
+        const passer = e.fromId != null ? P(e.fromId, e.fromSide) : ball.owner, rec = P(e.toId, e.toSide);
+        if (passer && rec && passer !== rec && ball.owner === passer) {
+          const toW = toWorld(e.toPos);
+          rec.target.copy(toW); rec.want = 6.5; rec.runUntil = S.t + 2; rec.face = null;
+          passer.busy = true;
+          const dir = V(toW.x - ball.p.x, 0, toW.z - ball.p.z);
+          yield* approachKick(passer, 'pass', dir);
+          dir.set(toW.x - ball.p.x, 0, toW.z - ball.p.z);
+          rt.startAction(passer, 'pass'); rt.kickWarp(passer, 'pass', dir);
+          yield* until(() => rt.actionAtContact(passer), 2);
+          rt.kickGround(toW, 4.5, 0.7); passer.busy = false;
+        }
+        if (e.lineX != null) hooks.offsideLine?.(toWorld([e.lineX, 50]).x);
+        hooks.whistle(); hooks.banner('OFSAYT', 1500);
+        yield* wait(1.0);
+        break;
+      }
+      case 'foul': {
+        // the foul is a challenge you can see: the fouler goes in on the man with the ball, who is
+        // stopped (or plays on when the referee gives advantage), then the whistle
+        const def = P(e.fromId, e.fromSide), car = P(e.toId, e.toSide) || ball.owner;
+        if (def && car && def !== car && !def.offPitch && def.pos.distanceTo(car.pos) < 25) {
+          def.busy = car.busy = true;
+          const goal = car.pos.clone().add(V(Math.sin(car.heading) * 6, 0, Math.cos(car.heading) * 6));
+          goal.x = clamp(goal.x, -49, 49); goal.z = clamp(goal.z, -31, 31);
+          yield* until(() => {
+            if (ball.owner === car) rt.dribble(car, goal, 3.2); else { car.target.copy(goal); car.want = 3.2; }
+            def.target.copy(car.pos).add(V(Math.sin(car.heading) * 0.8, 0, Math.cos(car.heading) * 0.8)); def.want = 7; def.face = car.pos; def.faceLock = false;
+            return def.pos.distanceTo(car.pos) < 1.3;
+          }, 3);
+          rt.startAction(def, 'lunge');
+          if (!e.advantage) { rt.startAction(car, 'feint'); car.vel.multiplyScalar(0.2); car.want = 0; car.target.copy(car.pos); if (ball.owner === car) { ball.owner = null; ball.v.multiplyScalar(0.25); } }
+          yield* wait(0.35);
+          def.busy = car.busy = false;
+        }
+        if (e.advantage) hooks.banner('AVANTAJ', 1300); else hooks.whistle();
+        yield* wait(0.7); break;
+      }
+      case 'yellow': { const who = P(e.playerId, e.side === (meta.userHome ? 0 : 1) ? 'user' : 'opp'); hooks.banner('SARI KART' + (who?.name ? ' · ' + who.name : ''), 1600); if (who) hooks.cam('close', who, null); yield* wait(1.3); hooks.cam('tv'); break; }
+      case 'red': { const who = P(e.playerId, e.side === (meta.userHome ? 0 : 1) ? 'user' : 'opp'); hooks.banner('KIRMIZI KART' + (who?.name ? ' · ' + who.name : ''), 1800); if (who) hooks.cam('close', who, null); yield* wait(1.5); hooks.cam('tv'); break; }
       case 'half': hooks.banner('DEVRE ARASI', 2600); yield* wait(2.8); break;
       case 'end': {
         // final whistle: play stops where it is, everyone eases up instead of freezing mid-stride

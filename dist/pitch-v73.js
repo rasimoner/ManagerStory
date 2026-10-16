@@ -530,7 +530,7 @@ function evolvePitchPositions(){
   if(initiatedRun&&id!==M.ballOwner&&M.pitchRunMinute?.[side]!==M.min){
     M.pitchRunMinute ??={};M.pitchRunMinute[side]=M.min;
     if(side==='user'&&M.playerStats[id])M.playerStats[id].runs++;
-    matchEvent('offBallRun',M.min+'’ '+(player?.name||'Rakip')+' boş alana koşuyor.',
+    matchEvent('offBallRun',M.min+'’ '+(player?.name||'Rakip')+lineVariant(M.events.length,[' boş alana koşuyor.',' boşluğa sızıyor.',' açılıp pas istiyor.',' derinlemesine koştu.',' pozisyon değiştirdi.']),
      {playerId:side==='user'?id:null,fromId:id,toId:id,fromSide:side,toSide:side,
       ballSide:side,fromPos:here,toPos:next,carrierId:M.ballOwner});
   }
@@ -574,6 +574,9 @@ function passOptions(side,from,style){
  const own=Math.max(0,(dir>0?point[0]:100-point[0])),ownThird=own<34;
  const pressureNow=(nearestMarker(side==='user'?'opp':'user',point)?.d??99)<12;
  const candidates=(side==='user'?M.active:M.oppIds).filter(id=>id!==from&&pitchDistance(point,eventPoint(id,side))>=5);
+ // V7.8: what the man on the ball sees in front of him; with grass ahead the game goes forward
+ const passerRole=side==='user'?M.matchRoles[from]:opponentPlayer(from)?.position;
+ const ahead=freeAhead(point,side,dir);
  const raw=candidates.map(id=>{
   const target=eventPoint(id,side),range=pitchDistance(point,target),space=pitchSpace(target,side);
   const progress=(target[0]-point[0])*dir;
@@ -607,13 +610,25 @@ function passOptions(side,from,style){
   const oneTwoDone=memory.length>=2&&memory.at(-1).from===memory.at(-2).to&&memory.at(-1).to===memory.at(-2).from;
   if(id===lastPasser)weight*=oneTwoDone?(pressureNow?.35:.02):(pressureNow?.55:.18);
   else if(memory.slice(-3).some(m=>m.from===id&&m.to===from))weight*=.5;
+  // V7.8: no backward pass with space to run into (unless the side is keeping the ball under orders),
+  // and a forward does not play a long ball back to his own defence
+  if(ahead&&progress<-5)weight*=T.patience?.55:.25;
+  if(['ST','LW','RW','CAM'].includes(passerRole||'')&&['CB','LB','RB','GK'].includes(role||'')&&progress<-12&&range>25)weight*=pressureNow?.25:.06;
   // V7.6: the nearer option is the easier one to see and play; long balls need a reason (vision, style)
   weight*=1/(1+Math.pow(range/(22*(1+.25*ve)*(style==='Direkt'?1.35:style==='Kısa'?.8:1)),2));
-  return {id,point:target,range,lane,space,weight:Math.max(.02,weight),forward,progress};
+  const longBack=['ST','LW','RW','CAM'].includes(passerRole||'')&&['CB','LB','RB','GK'].includes(role||'')&&progress<-12&&range>25;
+  return {id,point:target,range,lane,space,weight:Math.max(.02,weight),forward,progress,longBack};
  });
+ // V7.8: a forward never chooses a long ball back to his own defence while anything else is on
+ if(raw.some(o=>!o.longBack))for(let i=raw.length-1;i>=0;i--)if(raw[i].longBack)raw.splice(i,1);
  // prefer forward options when a usable one exists
  const usable=raw.some(o=>o.progress>10&&o.lane<.7&&o.range<58);
  return raw.filter(o=>o.range<=64).map(o=>o.progress<-6&&usable?{...o,weight:o.weight*.7}:o);
+}
+/* V7.8: open grass ahead of the ball: no opponent within 15 (pitch %) in a forward cone */
+function freeAhead(point,side,dir){
+ const other=side==='user'?'opp':'user';
+ return !(other==='user'?M.active:M.oppIds).some(id=>{const q=eventPoint(id,other),dx=(q[0]-point[0])*dir,dy=q[1]-point[1];return dx>0&&Math.abs(dy)<dx*1.1+2&&Math.hypot(dx,dy)<15;});
 }
 function pitchDribble(from,side,opponent){
  const owner=playerAtMarker(from,side),start=eventPoint(from,side),dir=(side==='user'?1:-1)*userDirection();
@@ -652,7 +667,7 @@ function pitchDribble(from,side,opponent){
  }
  const stat=side==='user'?M.playerStats[from]:null;
  if(stat){stat.dribblesAttempted++;stat.distanceKm+=distance*.008;if(success){stat.dribbles++;stat.rating=clamp(stat.rating+.035,1,10);}}
- matchEvent(near?'dribble':'ballCarry',M.min+'’ '+(owner?.name||opponentName(from))+(success?' rakibini geçip topu taşıdı.':' müdahalede topu kaybetti.'),
+ matchEvent(near?'dribble':'ballCarry',M.min+'’ '+(owner?.name||opponentName(from))+(success?(near?lineVariant(M.events.length,[' rakibini geçip topu taşıdı.',' adamını geçti.',' çalımla sıyrıldı.']):lineVariant(M.events.length,[' topu ileri taşıdı.',' boş alanda topla ilerledi.',' topu sürdü.'])):' müdahalede topu kaybetti.'),
   {playerId:side==='user'?from:null,fromId:from,toId:success?from:defender?.id,fromSide:side,
    toSide:success?side:defendingSide,ballSide:success?side:defendingSide,fromPos:start,toPos:end,success});
  if(near){
@@ -723,13 +738,18 @@ function actionMinute(userPoss,effect,opponent){
   const readsLine=attributeEdge(playerAttribute(from,side,'vision',68));
   for(const o of options)if(offsideAt(o.point,point,side))o.weight*=clamp(.12-readsLine*.08,.03,.2);
   const actions=[{type:'pass',weight:Math.max(.4,3-pressure*.7+(best?.weight||0)*.22)*clamp(1.2-sv*5,.35,1)},
-   {type:'carry',weight:role==='GK'?.03:Math.max(.08,(playerAttribute(from,side,'dribbling',65)-45)*.027*attitude+
+   {type:'carry',weight:role==='GK'?.03:Math.max(.08,(freeAhead(point,side,dir)&&forward<80?.55:0)+(playerAttribute(from,side,'dribbling',65)-45)*.027*attitude+
        (order==='inside'||order==='wide'?.45:0)-pressure*.2)},
    {type:'hold',weight:pressure>.45&&(role==='ST'||order==='holdUp')?(.28+(playerAttribute(from,side,'strength',70)-50)*.015):.04},
    {type:'shoot',weight:forward>62&&role!=='GK'?(sv>=.05?3.2*sv/(sv+.05)+(order==='shoot'?.65:0):
       Math.max(.05,((forward-65)*.045+(playerAttribute(from,side,'finishing',65)-55)*.008+
       (playerAttribute(from,side,'vision',65)*.5+playerAttribute(from,side,'composure',65)*.5-65)*.012-
       pitchSpace(point,side).danger*.14+(order==='shoot'?.65:0))*.5))*attitude:.0}];
+  // V7.8: when the only good passes go backwards but there is grass ahead, he drives on instead;
+  // a forward whose best option is a long ball back to his defence holds it up instead
+  {const top=options.slice().sort((a,b)=>b.weight-a.weight)[0];
+   if(top&&top.progress<-5&&freeAhead(point,side,dir)&&role!=='GK')actions[0].weight*=.3;
+   if(top&&['ST','LW','RW','CAM'].includes(role||'')&&top.range>25&&top.progress<-12){actions[0].weight*=.35;actions[2].weight=Math.max(actions[2].weight,.6);}}
   if(order==='riskPass')actions[0].weight*=1.18;
   if(order==='stay')actions[1].weight*=.6;
   const choice=weightedPitchChoice(actions);
@@ -804,7 +824,15 @@ function actionMinute(userPoss,effect,opponent){
   const newOwner=M.ballOwner,newSide=M.ballSide,wing=['LW','RW'].includes(role);
   const landing=newOwner==null?[...(M.ballState?.position||to)]:eventPoint(newOwner,newSide);
   const cross=wing&&range>22&&forward>58;
-  matchEvent(cross?'cross':'pass',M.min+'’ '+(passer?.name||'Rakip')+(cross?' orta yaptı.':' pas verdi.')+
+  const rName=playerAtMarker(target,side)?.name||'takım arkadaşına',pz=(to[0]-point[0])*dir,sw=Math.abs(to[1]-point[1])>34,kv=M.events.length;
+  const passLine=cross?lineVariant(kv,[' orta yaptı.',' ceza sahasına ortaladı.',' içeri ortaladı.'])
+   :!success?' pas verdi.'
+   :selected.forward&&range>24?lineVariant(kv,[` ara pasıyla ${rName}'i koşturdu.`,` ${rName}'i savunma arkasına gönderdi.`])
+   :sw?lineVariant(kv,[` oyunun yönünü ${rName} ile değiştirdi.`,` topu öbür kanada, ${rName}'e taşıdı.`])
+   :range>29?lineVariant(kv,[` uzun topla ${rName}'i aradı.`,` ${rName}'e uzun oynadı.`])
+   :pz<-5?lineVariant(kv,[` geriye, ${rName}'e verdi.`,` oyunu ${rName} ile yeniden kurdu.`])
+   :lineVariant(kv,[` kısa pasla ${rName}'e verdi.`,` ${rName} ile paslaştı.`,` topu ${rName}'e aktardı.`,' pas verdi.']);
+  matchEvent(cross?'cross':'pass',M.min+'’ '+(passer?.name||'Rakip')+passLine+
     (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
      passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
@@ -812,7 +840,7 @@ function actionMinute(userPoss,effect,opponent){
   if(cutPresentation)window.ManagerStoryLive3D.linkPassCut?.(cutPresentation);
   if(success){
    const receiver=playerAtMarker(target,side);
-   matchEvent('firstTouch',M.min+'’ '+(receiver?.name||'Rakip')+' topu kontrol etti.',
+   matchEvent('firstTouch',M.min+'’ '+(receiver?.name||'Rakip')+(longBall?lineVariant(M.events.length,[' topu göğsüyle indirdi.',' havadan gelen topu kontrol etti.']):lineVariant(M.events.length,[' topu kontrol etti.',' topu önüne aldı.',' pası iyi karşıladı.',' topu ayağının altına aldı.'])),
     {fromId:target,toId:target,fromSide:side,toSide:side,ballSide:side,fromPos:to,toPos:to});
   }
   if(pendingThrow)startPitchRestart('THROW_IN',pendingThrowSide,pendingThrow);
@@ -874,6 +902,11 @@ function offsideMargin(receiverPoint,ballPoint,side){
  const line=(defSide==='user'?M.active:M.oppIds).map(id=>prog(eventPoint(id,defSide))).sort((a,b)=>b-a);
  return r-(line[1]??100);
 }
+function offsideLineX(side){
+ const dir=(side==='user'?1:-1)*userDirection(),prog=p=>dir>0?p[0]:100-p[0],defSide=side==='user'?'opp':'user';
+ const line=(defSide==='user'?M.active:M.oppIds).map(id=>prog(eventPoint(id,defSide))).sort((a,b)=>b-a)[1]??100;
+ return dir>0?line:100-line;
+}
 function offsideAt(receiverPoint,ballPoint,side){return offsideMargin(receiverPoint,ballPoint,side)>OFFSIDE_RUN;}
 /* Is the pass flagged? Only a receiver who IS beyond the line at the pass can be. The engine moves
    players a minute at a time, so how early the run started is uncertain: the further beyond the
@@ -889,7 +922,9 @@ function callOffside(receiverId,receiverSide,receiverPoint,passerId){
  const user=receiverSide==='user',player=playerAtMarker(receiverId,receiverSide);
  const name=player?.name||(user?'Oyuncumuz':'Rakip forvet');
  matchEvent('offside',`${M.min}’ ${name} pas çıktığı anda son savunmacının gerisindeydi; ofsayt.`,
-  {side:user?userSide():1-userSide(),playerId:user?receiverId:receiverId,fromId:passerId,toId:receiverId,fromSide:receiverSide,toSide:receiverSide,fromPos:[...receiverPoint],toPos:[...receiverPoint]});
+  {side:user?userSide():1-userSide(),playerId:user?receiverId:receiverId,fromId:passerId,toId:receiverId,fromSide:receiverSide,toSide:receiverSide,fromPos:[...receiverPoint],toPos:[...receiverPoint],
+   // V7.8: where the pass came from and where the line was (second-last defender), so a view can show the call
+   passFrom:passerId!=null?[...eventPoint(passerId,receiverSide)]:null,lineX:offsideLineX(receiverSide)});
  startPitchRestart('FREE_KICK',user?'opp':'user',[...receiverPoint]);
 }
 

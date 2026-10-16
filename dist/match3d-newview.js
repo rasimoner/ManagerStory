@@ -185,6 +185,7 @@ function teams() {
 let banTimer;
 function banner(text, ms) { clearTimeout(banTimer); bannerEl.textContent = text; bannerEl.classList.add('on'); banTimer = setTimeout(() => bannerEl.classList.remove('on'), Math.min(ms, 2200)); }
 let autoCam = { mode: 'tv', a: null, b: null }, simSlow = 1, cut = true;
+let offLine = null, offLineTimer = null;
 function startMatchView() {
   if (rt) for (const p of rt.players) scene.remove(p.model);
   for (const m of crowd) scene.remove(m);
@@ -197,7 +198,12 @@ function startMatchView() {
   const fresh = matchSecond() === 0 && M.events.length <= 1;
   director = createDirector(rt, { events: M.events, snaps, meta: { user: roster.filter(r => r.side === 'user'), opp: roster.filter(r => r.side === 'opp'), teams: t, userHome: M.userHome } }, {
     say() {}, banner: (text, ms) => { if (text !== 'GOL' && text !== 'MAÇ SONU' && text !== 'DEVRE ARASI') banner(text, ms); },
-    flash: text => banner(text, 1100), excite: v => { stadium.crowdMat.uniforms.uExcite.value = stadium.flagMat.uniforms.uExcite.value = v; },
+    flash: text => banner(text, 1100),
+    // a yellow line across the pitch at the offside line for a couple of seconds
+    offsideLine: x => {
+      if (!offLine) { offLine = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 68), stadium.noOutline(new THREE.MeshBasicMaterial({ color: '#ffd400', transparent: true, opacity: .9, depthWrite: false }))); offLine.rotation.x = -Math.PI / 2; offLine.position.y = 0.03; scene.add(offLine); }
+      offLine.position.x = x; offLine.visible = true; clearTimeout(offLineTimer); offLineTimer = setTimeout(() => { offLine.visible = false; }, 2600);
+    }, excite: v => { stadium.crowdMat.uniforms.uExcite.value = stadium.flagMat.uniforms.uExcite.value = v; },
     score() {}, minute() {},
     cam: (mode, a = null, b = null, hard = false) => { autoCam = { mode, a, b }; if (hard) cut = true; },
     slow: s => { simSlow = s; }, whistle() {}, finished() {},

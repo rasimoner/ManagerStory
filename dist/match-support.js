@@ -168,13 +168,19 @@ function shotInterventionActor(e){
  const role=side==='user'?M?.matchRoles?.[id]:player?.position;
  return {kind:player&&role?(role==='GK'?'keeper':'field'):'unknown',id,side,name:player?.name||null,role:role||null};
 }
+// V7.8: commentary variety. The sentence is picked from the event's own number (no dice), so the same
+// match always reads the same, but a match no longer repeats one sentence per event type.
+function lineVariant(seed, lines) { return lines[((Math.imul((seed | 0) + 7, 2654435761) >>> 0) >> 3) % lines.length]; }
 function presentationEvent(e){
  if(!e)return e;
  if(['press','tackle','interception'].includes(e.type)){
   const id=e.type==='interception'?e.toId:e.defenderId,side=e.type==='tackle'?(e.fromSide==='user'?'opp':e.fromSide==='opp'?'user':null):e.toSide;
   const player=id==null||!['user','opp'].includes(side)?null:playerAtMarker(id,side),role=side==='user'?M?.matchRoles?.[id]:player?.position;
   const actor={id,side,name:player?.name||null,role:role||null,kind:player&&role?(role==='GK'?'keeper':'field'):'unknown'};
-  const name=player?(role==='GK'?'Kaleci ':'')+player.name:'Oyuncu',action=e.type==='press'?' topa baskıya çıktı.':e.type==='interception'||e.success?' topu kazandı.':' müdahaleyi kaçırdı.';
+  const name=player?(role==='GK'?'Kaleci ':'')+player.name:'Oyuncu',k=e.eventId??0;
+  const action=e.type==='press'?lineVariant(k,[' topa baskıya çıktı.',' rakibinin üstüne gitti.',' pres yaptı.',' adamını sıkıştırdı.'])
+   :e.type==='interception'?lineVariant(k,[' topu kazandı.',' pası kesti.',' araya girip topu aldı.'])
+   :e.success?lineVariant(k,[' topu kazandı.',' temiz bir müdahaleyle topu aldı.',' topu kaptı.']):lineVariant(k,[' müdahaleyi kaçırdı.',' geçildi.',' topa yetişemedi.']);
   return {...e,text:(e.minute??M.min)+'’ '+name+action,presentationActor:actor};
  }
  if(e.type==='chance'&&e.outcome==='block'){
@@ -199,31 +205,56 @@ function liveCommentaryLines(){
   const recent=M.events.filter(e=>e.gameSecond!=null&&now-e.gameSecond>=0&&now-e.gameSecond<=90).slice(-2).reverse();
   return recent.length?recent.map(e=>presentationEvent(e).text):['Sahada oyun sürüyor.'];
 }
+// V7.8: a foul is a real challenge. It is committed by the team without the ball, by the player
+// closest to the man on the ball, where the ball is; the fouled team gets the free kick (or plays on
+// when it keeps a promising attack: advantage). The card follows the foul: a tactical foul that stops
+// an attack, a late foul from behind or a persistent offender is booked; denying a clear goal-scoring
+// chance as the last man is a red card. Before, the side, the player and the card were drawn at random,
+// anywhere on the pitch, and play carried on.
 function recordMatchFoul() {
-  const side = M.rand() < .5 ? 0 : 1;
+  const carrier = M.ballOwner, victimSide = M.ballSide;
+  if (carrier == null || (victimSide !== 'user' && victimSide !== 'opp') || M.minuteShot) return;
+  if (M.restart && M.restart.restartPhase && M.restart.restartPhase !== 'LIVE') return;
+  if (isKeeper(victimSide, carrier)) return;
+  const foulSide = victimSide === 'user' ? 'opp' : 'user';
+  const ball = M.ballState?.position || eventPoint(carrier, victimSide);
+  const near = nearestMarker(foulSide, ball);
+  if (!near || near.d > 13 || isKeeper(foulSide, near.id)) return;     // nobody close enough to foul him
+  // defenders are careful in their own box: most challenges there are clean
+  const ownGoalX = attackDirection(foulSide) > 0 ? 0 : 100;
+  const inBox = Math.abs(ball[0] - ownGoalX) < 17 && Math.abs(ball[1] - 50) < 30;
+  if (inBox && M.rand() < .82) return;
+  const id = near.id, side = foulSide === 'user' ? userSide() : 1 - userSide(), own = foulSide === 'user';
+  const booked = (M.yellowByPlayer?.[id] || 0) > 0;
+  if (booked && M.rand() < .7) return;                                   // a booked player holds back
+  if (own && M.matchRoles[id] === 'GK') return;
   M.stats.fouls[side]++;
-  const own = side === userSide();
-  const candidates = own ? M.active.filter(id => M.matchRoles[id] !== 'GK') : M.oppIds;
-  if (!candidates.length) return;
-  const id = candidates[Math.floor(M.rand() * candidates.length)];
-  const name = own ? S.players.find(p => p.id === id).name : `${side === 0 ? M.home : M.away} oyuncusu`;
-  matchEvent('foul', `${M.min}' ${name} faul yaptı.`, { side, playerId: id });
-  if (M.rand() < .16) recordMatchCard(side, id, M.rand() < .035);
-  if (M.rand() < .12) {
-    // The foul happened where the ball is. Inside the fouling team's own box, against the side in possession,
-    // it can be a penalty; anywhere else it is a free kick from the ball.
-    const foulSide = own ? 'user' : 'opp', takerSide = own ? 'opp' : 'user';
-    const ball = M.ballState?.position || eventPoint(id, foulSide);
-    const ownGoalX = attackDirection(foulSide) > 0 ? 0 : 100;
-    const inBox = Math.abs(ball[0] - ownGoalX) < 17 && Math.abs(ball[1] - 50) < 30;
-    if (inBox && M.ballSide === takerSide && M.rand() < .5) {
-      matchEvent('penalty', `${M.min}' Penaltı kararı.`,{side:1-side,fromId:id,fromSide:foulSide,
-        ballSide:takerSide,fromPos:ball,toPos:[attackDirection(takerSide) > 0 ? 89 : 11,50]});
-      M.stats.penalties = M.stats.penalties || [0, 0];
-      M.stats.penalties[takerSide === 'user' ? userSide() : 1 - userSide()]++;
-      startPitchRestart('PENALTY', takerSide, ball);
-    } else startPitchRestart('FREE_KICK', takerSide, ball);
-  }
+  const dir = attackDirection(victimSide), goalX = dir > 0 ? 100 : 0, toGoal = Math.abs(goalX - ball[0]);
+  const fouler = eventPoint(id, foulSide);
+  const fromBehind = (fouler[0] - ball[0]) * dir < -1;                   // he was beaten and caught the man from behind
+  // last man: no other outfield defender between the ball and the goal
+  const covering = (foulSide === 'user' ? M.active : M.oppIds).filter(x => x !== id && !isKeeper(foulSide, x))
+    .filter(x => (goalX - eventPoint(x, foulSide)[0]) * dir < toGoal - 1).length;
+  const clearChance = covering === 0 && toGoal < 28 && Math.abs(ball[1] - 50) < 22 && fromBehind;
+  const attacking = toGoal < 40;                                           // stopping an attack in our half
+  const victimName = victimSide === 'user' ? (S.players.find(p => p.id === carrier)?.name || 'Oyuncumuz') : (playerAtMarker(carrier, 'opp')?.name || 'rakip oyuncu');
+  const name = own ? (S.players.find(p => p.id === id)?.name || 'Oyuncumuz') : (playerAtMarker(id, 'opp')?.name || `${side === 0 ? M.home : M.away} oyuncusu`);
+  // advantage: the fouled team keeps the ball in the final third and the attack goes on
+  const advantage = !clearChance && toGoal < 35 && M.rand() < .35;
+  matchEvent('foul', `${M.min}' ${name}, ${victimName} karşısında faul yaptı.${advantage ? ' Hakem avantaj verdi.' : ''}`,
+    { side, playerId: own ? id : null, fromId: id, fromSide: foulSide, toId: carrier, toSide: victimSide, fromPos: [...fouler], toPos: [...ball], ballSide: victimSide, advantage, tactical: attacking && fromBehind, lastMan: clearChance });
+  const persistent = (M.foulsByPlayer = M.foulsByPlayer || {})[id] = (M.foulsByPlayer[id] || 0) + 1;
+  const pYellow = clamp(.08 + (fromBehind ? .1 : 0) + (attacking && fromBehind ? .16 : 0) + (persistent >= 3 ? .25 : 0), .05, .7);
+  if (clearChance && M.rand() < .3) recordMatchCard(side, id, true);
+  else if (M.rand() < pYellow * (booked ? .4 : 1)) recordMatchCard(side, id, false);
+  if (advantage) return;
+  if (inBox) {
+    matchEvent('penalty', `${M.min}' Penaltı kararı.`, { side: 1 - side, fromId: id, fromSide: foulSide,
+      ballSide: victimSide, fromPos: ball, toPos: [attackDirection(victimSide) > 0 ? 89 : 11, 50] });
+    M.stats.penalties = M.stats.penalties || [0, 0];
+    M.stats.penalties[victimSide === 'user' ? userSide() : 1 - userSide()]++;
+    startPitchRestart('PENALTY', victimSide, ball);
+  } else startPitchRestart('FREE_KICK', victimSide, ball);
 }
 function recordMatchCard(side, id, directRed = false) {
   const own = side === userSide(), p = own ? S.players.find(x => x.id === id) : null;
