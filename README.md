@@ -13,7 +13,8 @@ No build step is needed: `dist` contains the editable application and assets.
 
 ## Tests
 
-Run `npm test` with Node.js 22.
+Run `npm test` with Node.js 22 (about 15 minutes: it plays complete matches).
+`NV_FIXTURES=0,1,2` and `CLOCK_FIXTURES=...` choose which matches the new-view and clock tests play.
 
 ## Career saves
 
