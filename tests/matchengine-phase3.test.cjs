@@ -428,10 +428,12 @@ test('SUBSTITUTION: an injured player replaced by a different-position player ex
     assert.equal(h.run(`M.matchRoles[${inc}]`), 'ST');
     assert.ok(h.run(`positionSuitability(${inc},'user')`) < 1, 'Phase 2 position suitability applies');
     same(h.run(PROBES).problems, []);
+    const minBefore = h.run('M.min');
     h.run('resumeLive()');
     assert.equal(h.run('M.pause'), false, 'engine is running again');
     h.run('advanceLive(6)');
-    assert.ok(h.run('M.min') >= 11, 'the clock moves after the substitution');
+    // (the first advance can stop early at an engine pause, so compare with the minute of the substitution)
+    assert.ok(h.run('M.min') > minBefore, 'the clock moves after the substitution');
     assert.equal(h.run('M.substitutions.length'), 1);
   }
 });

@@ -371,6 +371,11 @@ function placeRestartPlayers(type,side,pos,taker){
   const near=outfieldOf(side).filter(id=>id!==taker).sort((a,b)=>pitchDistance(eventPoint(a,side),pos)-pitchDistance(eventPoint(b,side),pos)).slice(0,3);
   near.forEach((id,i)=>setP(id,[pos[0]+dir*(4+i*5)-(i===0?8:0),pos[1]<50?pos[1]+10+i*7:pos[1]-10-i*7]));
   near.forEach((id,i)=>{const m=nearestMarker(other,eventPoint(id,side));if(m&&i<2)setP(m.id,[eventPoint(id,side)[0]-dir*2.5,eventPoint(id,side)[1]+(pos[1]<50?-2:2)]);});
+ }else if(type==='GOAL_KICK'){
+  // V7.8: opponents leave the penalty area until the goal kick is taken (law 16)
+  setP(taker,pos,true);
+  const own=dir>0?0:100;
+  for(const id of outfieldOf(other)){const p=eventPoint(id,other);if(Math.abs(p[0]-own)<17&&p[1]>19&&p[1]<81)setP(id,[own+dir*(18.5+Math.abs(p[1]-50)%3),p[1]]);}
  }else{
   M.dynamicPositions[String(taker)]=[...pos];
  }
@@ -423,7 +428,7 @@ function restartDelivery(side,taker,receiver,from,target,ok,aerial){
  if(ok){M.stats.completedPasses[index]++;switchPitchOwner(receiver,side);setBallState(target,receiver);return true;}
  const icpt=nearestMarker(other,target);
  if(!aerial&&icpt&&icpt.d<14){
-  const gain=moveTowards(eventPoint(icpt.id,other),target,Math.min(icpt.d,10));
+  const gain=moveTowards(eventPoint(icpt.id,other),target,Math.min(Math.max(0,icpt.d-1.2),10));   // V7.8: he cuts in beside the intended receiver, not onto him
   M.dynamicPositions[String(icpt.id)]=gain;switchPitchOwner(icpt.id,other);setBallState(gain,icpt.id);
   M.stats.possessionsWon[other==='user'?userSide():1-userSide()]++;
  }else makeLooseBall(from,target,aerial?'aerial':'restart',other);

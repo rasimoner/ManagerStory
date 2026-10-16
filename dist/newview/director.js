@@ -493,6 +493,16 @@ export function createDirector(rt, data, hooks, opts = {}) {
         hooks.cam('tv', null, null, true);
         if (from) { from.pos.set(-Math.sign(toWorld(e.toPos).x || 1) * 0.4, 0, 0); faceBall(from); }
         yield* wait(0.8);
+        // the kickoff is a pass: a short exchange with the nearest team-mate, as the 2D pitch shows it
+        // (the engine keeps the ball with the taker)
+        if (from) {
+          const mate = rt.players.filter(q => !q.offPitch && q.side === from.side && q !== from && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(from.pos) - b.pos.distanceTo(from.pos))[0];
+          if (mate && mate.pos.distanceTo(from.pos) < 20) {
+            yield* pass(from, mate, mate.pos.clone(), 'ground');
+            yield* wait(0.3);
+            yield* pass(mate, from, from.pos.clone(), 'ground');
+          }
+        }
         break;
       }
       case 'offBallRun': if (from && !from.busy && ball.owner !== from) { from.target.copy(toWorld(e.toPos)); from.want = GAIT[4]; from.gait = 4; from.runUntil = S.t + 2.5; from.face = null; } break;
@@ -612,6 +622,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
         ball.held = null; ball.owner = null; ball.v.set(0, 0, 0);
         if (type === 'THROW_IN') spot.z = Math.sign(spot.z || 1) * 34.05;
         if (type === 'CORNER') { spot.x = Math.sign(spot.x || 1) * 52.2; spot.z = Math.sign(spot.z || 1) * 33.7; }
+        if (type === 'GOAL_KICK' && taker) {
+          // opponents leave the penalty area until the goal kick is taken
+          const gs = Math.sign(spot.x || 1), edge = gs * (GOAL_X - 16.5 - 1.5);
+          for (const q of rt.players) if (!q.offPitch && q.side !== taker.side && q.role !== 'GK' && Math.abs(q.pos.x) > GOAL_X - 17 && Math.sign(q.pos.x) === gs && Math.abs(q.pos.z) < 21) {
+            q.target.set(edge, 0, q.pos.z); q.want = 4.5; q.runUntil = S.t + 4; q.face = ball.p;
+          }
+        }
         ball.p.set(spot.x, BALL_R, spot.z);
         if (taker) {
           taker.busy = true;

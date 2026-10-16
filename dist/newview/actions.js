@@ -69,9 +69,17 @@ export const ACTIONS = {
       { t: 1, p: { RightUpLeg: [-15, 0, 0], RightLeg: [30, 0, 0], LeftLeg: [30, 0, 0], Spine: [14, 0, 6] } },
     ],
   },
+  // the keeper's set position is alive: he bounces on his toes and shifts his weight from foot to
+  // foot, hands up and loose (one cycle ≈ 1.4 s, played by the runtime with a per-keeper phase)
   keeperReady: {
-    loop: true, mask: 'all',
-    keys: [{ t: 0, p: { LeftUpLeg: [-34, 0, 13], RightUpLeg: [-34, 0, -13], LeftLeg: [58, 0, 0], RightLeg: [58, 0, 0], LeftFoot: [-18, 0, 0], RightFoot: [-18, 0, 0], Spine: [28, 0, 0], Head: [-22, 0, 0], LeftArm: [-48, 0, -40], RightArm: [-48, 0, 40], LeftForeArm: [0, -48, 0], RightForeArm: [0, 48, 0] } }],
+    loop: true, mask: 'all', period: 1.4,
+    keys: [
+      { t: 0, p: { LeftUpLeg: [-34, 0, 13], RightUpLeg: [-34, 0, -13], LeftLeg: [58, 0, 0], RightLeg: [58, 0, 0], LeftFoot: [-18, 0, 0], RightFoot: [-18, 0, 0], Spine: [28, 0, 0], Head: [-22, 0, 0], LeftArm: [-48, 0, -40], RightArm: [-48, 0, 40], LeftForeArm: [0, -48, 0], RightForeArm: [0, 48, 0] } },
+      { t: 0.25, p: { LeftUpLeg: [-40, 0, 16], RightUpLeg: [-28, 0, -9], LeftLeg: [68, 0, 0], RightLeg: [48, 0, 0], LeftFoot: [-22, 0, 0], RightFoot: [-12, 0, 0], Spine: [30, 0, 4], Head: [-24, 0, -3], LeftArm: [-56, 0, -34], RightArm: [-42, 0, 46], LeftForeArm: [0, -54, 0], RightForeArm: [0, 42, 0] } },
+      { t: 0.5, p: { LeftUpLeg: [-40, 0, 13], RightUpLeg: [-40, 0, -13], LeftLeg: [68, 0, 0], RightLeg: [68, 0, 0], LeftFoot: [-22, 0, 0], RightFoot: [-22, 0, 0], Spine: [31, 0, 0], Head: [-24, 0, 0], LeftArm: [-52, 0, -38], RightArm: [-52, 0, 38], LeftForeArm: [0, -52, 0], RightForeArm: [0, 52, 0] } },
+      { t: 0.75, p: { LeftUpLeg: [-28, 0, 9], RightUpLeg: [-40, 0, -16], LeftLeg: [48, 0, 0], RightLeg: [68, 0, 0], LeftFoot: [-12, 0, 0], RightFoot: [-22, 0, 0], Spine: [30, 0, -4], Head: [-24, 0, 3], LeftArm: [-42, 0, -46], RightArm: [-56, 0, 34], LeftForeArm: [0, -42, 0], RightForeArm: [0, 54, 0] } },
+      { t: 1, p: { LeftUpLeg: [-34, 0, 13], RightUpLeg: [-34, 0, -13], LeftLeg: [58, 0, 0], RightLeg: [58, 0, 0], LeftFoot: [-18, 0, 0], RightFoot: [-18, 0, 0], Spine: [28, 0, 0], Head: [-22, 0, 0], LeftArm: [-48, 0, -40], RightArm: [-48, 0, 40], LeftForeArm: [0, -48, 0], RightForeArm: [0, 48, 0] } },
+    ],
   },
   // dive to the keeper's right; the root roll and launch are driven separately
   diveRight: {

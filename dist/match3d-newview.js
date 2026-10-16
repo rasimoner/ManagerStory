@@ -17,6 +17,9 @@ css.textContent = `.nv-banner{position:absolute;left:50%;top:30%;transform:trans
 .nv-banner.on{opacity:1}
 .nv-who{position:absolute;left:8px;bottom:8px;display:flex;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.04em;text-transform:uppercase;border-radius:5px;overflow:hidden;pointer-events:none;box-shadow:0 2px 8px #0006}
 .nv-who b{padding:4px 6px;color:#fff;font-variant-numeric:tabular-nums}
+.nv-dir{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:3px 9px 3px 3px;border-radius:999px;background:#0d1117b8;color:#f3f5f7;font:700 12px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.04em;pointer-events:none;box-shadow:0 2px 8px #0005}
+.nv-dir b{padding:3px 6px;border-radius:999px}
+.nv-dir i{font-style:normal;font-size:15px;display:inline-block;transition:transform .35s ease}
 .nv-who span{padding:4px 8px;background:#0d1117c8;color:#f3f5f7}
 .nv-loading{position:absolute;inset:0;display:grid;place-items:center;color:#cfe0d3;font:600 14px -apple-system,BlinkMacSystemFont,sans-serif;background:#10251a}
 .nv-fs{position:absolute;top:8px;right:8px;width:36px;height:36px;display:grid;place-items:center;border:1px solid #ffffff38;border-radius:9px;background:#0d1117b0;color:#f3f5f7;font:700 18px/1 -apple-system,BlinkMacSystemFont,sans-serif;padding:0;cursor:pointer;touch-action:manipulation;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -46,9 +49,10 @@ html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:non
 document.head.append(css);
 
 const surface = document.createElement('div'); surface.className = 'career3d v73pitch';
-surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><button class="nv-fs" type="button" aria-label="Tam ekran" title="Tam ekran">⤢</button><div class="nv-hud"><div class="nv-bug" aria-label="Skor"><span class="t1"></span><span class="sc"></span><span class="t2"></span><span class="clk"></span></div><div class="nv-bottom"><div class="nv-comm" aria-live="polite"></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Kamera"><button type="button" data-cam="auto" aria-pressed="true">Otomatik</button><button type="button" data-cam="tv" aria-pressed="false">Yayın</button><button type="button" data-cam="close" aria-pressed="false">Yakın</button><button type="button" data-cam="stand" aria-pressed="false">Tribün</button></div></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Hız"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button></div><button type="button" class="nv-pill" data-act="pause">Duraklat</button><button type="button" class="nv-pill go" data-act="intervene">Müdahale</button></div></div></div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
+surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-dir" aria-label="Hücum yönü"><b></b><i>➜</i></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><button class="nv-fs" type="button" aria-label="Tam ekran" title="Tam ekran">⤢</button><div class="nv-hud"><div class="nv-bug" aria-label="Skor"><span class="t1"></span><span class="sc"></span><span class="t2"></span><span class="clk"></span></div><div class="nv-bottom"><div class="nv-comm" aria-live="polite"></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Kamera"><button type="button" data-cam="auto" aria-pressed="true">Otomatik</button><button type="button" data-cam="tv" aria-pressed="false">Yayın</button><button type="button" data-cam="close" aria-pressed="false">Yakın</button><button type="button" data-cam="stand" aria-pressed="false">Tribün</button></div></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Hız"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button></div><button type="button" class="nv-pill" data-act="pause">Duraklat</button><button type="button" class="nv-pill go" data-act="intervene">Müdahale</button></div></div></div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 const bannerEl = surface.querySelector('.nv-banner'), whoEl = surface.querySelector('.nv-who'), loadingEl = surface.querySelector('.nv-loading'), status = surface.querySelector('[role=status]');
+const dirEl = surface.querySelector('.nv-dir');
 const fsBtn = surface.querySelector('.nv-fs'), hud = surface.querySelector('.nv-hud'), commEl = surface.querySelector('.nv-comm');
 const bugT1 = hud.querySelector('.t1'), bugT2 = hud.querySelector('.t2'), bugSc = hud.querySelector('.sc'), bugClk = hud.querySelector('.clk'), pauseBtn = hud.querySelector('[data-act=pause]');
 
@@ -217,6 +221,21 @@ function updateCamera(dtReal, aspect) {
 }
 
 // ---------- radar ----------
+// which way our team attacks, as seen on screen (and on the radar)
+const dirA = new THREE.Vector3(), dirB = new THREE.Vector3();
+let dirAngle = null;
+function userAttackSign() { return typeof attackDirection === 'function' ? (attackDirection('user') >= 0 ? 1 : -1) : (M.userHome ? 1 : -1); }
+function paintDirection() {
+  const t = teams(), team = M.userHome ? t.home : t.away, s = userAttackSign();
+  const b = dirEl.firstChild; b.textContent = team.shortName || team.name.slice(0, 3); b.style.background = team.primaryColor; b.style.color = team.secondaryColor;
+  if (!broadcast) return;
+  dirA.copy(broadcast.look).setY(0); dirB.copy(dirA).add(new THREE.Vector3(s * 6, 0, 0));
+  dirA.project(camera); dirB.project(camera);
+  if (dirA.z >= 1 || dirB.z >= 1) return;
+  // screen x grows to the right, y downwards (CSS rotate is clockwise)
+  let a = Math.atan2(-(dirB.y - dirA.y), (dirB.x - dirA.x) * camera.aspect) * 180 / Math.PI; if (dirAngle != null) { while (a - dirAngle > 180) a -= 360; while (a - dirAngle < -180) a += 360; }
+  dirAngle = a; dirEl.lastChild.style.transform = `rotate(${a.toFixed(0)}deg)`;
+}
 function drawRadar() {
   const c = radar.getContext('2d'), w = 200, h = 130, t = teams();
   c.clearRect(0, 0, w, h); c.strokeStyle = '#d5e2cd'; c.strokeRect(5, 5, w - 10, h - 10); c.beginPath(); c.moveTo(w / 2, 5); c.lineTo(w / 2, h - 5); c.stroke();
@@ -224,6 +243,9 @@ function drawRadar() {
   const X = x => 5 + (x / 105 + .5) * 190, Y = z => 5 + (z / 68 + .5) * 120;
   for (const p of rt.players) { if (p.offPitch) continue; c.fillStyle = (p.side === 'user' ? userTeam : oppTeam).primaryColor; c.beginPath(); c.arc(X(p.pos.x), Y(p.pos.z), 2.5, 0, Math.PI * 2); c.fill(); c.stroke(); }
   c.fillStyle = 'white'; c.beginPath(); c.arc(X(rt.ball.p.x), Y(rt.ball.p.z), 2, 0, Math.PI * 2); c.fill();
+  // our attacking direction: an arrow in our colour along the top edge
+  const s = userAttackSign(), cx = w / 2, y = 11; c.fillStyle = userTeam.primaryColor; c.strokeStyle = '#0d1117';
+  c.beginPath(); c.moveTo(cx - s * 16, y - 2.5); c.lineTo(cx + s * 8, y - 2.5); c.lineTo(cx + s * 8, y - 6); c.lineTo(cx + s * 17, y); c.lineTo(cx + s * 8, y + 6); c.lineTo(cx + s * 8, y + 2.5); c.lineTo(cx - s * 16, y + 2.5); c.closePath(); c.fill(); c.stroke();
 }
 
 // ---------- loop ----------
@@ -274,12 +296,13 @@ function frame(now) {
   } else whoEl.hidden = true;
   const now3 = performance.now() / 1000;
   stadium.crowdMat.uniforms.uTime.value = now3; stadium.flagMat.uniforms.uTime.value = now3;
+  stadium.updateNets(rt.S.netHit, rt.S.t);
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
   updateCamera(dtReal, w / Math.max(1, h));
   renderer.render(scene, camera);
   camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
-  if (frameNo++ % 3 === 0) drawRadar();
+  if (frameNo++ % 3 === 0) { drawRadar(); paintDirection(); }
   if (full && frameNo % 6 === 0) paintHud();
 }
 
@@ -297,6 +320,7 @@ window.ManagerStoryNewView = {
   },
   get director() { return director; },
   get simTime() { return rt?.S.t ?? 0; },
+  get runtime() { return rt; },          // for automated checks
   // where the ball is on screen (-1..1 inside the frame) and where the camera looks: for measuring the camera
   get framing() {
     if (!camera || !rt || !broadcast) return null;

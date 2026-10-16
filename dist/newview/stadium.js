@@ -61,6 +61,7 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
   }
 
   // goal at x = +52.5
+  const nets = [];
   for (const GS of [1, -1]) {
     const m = new THREE.MeshToonMaterial({ color: '#ffffff', gradientMap: toonRamp });
     const post = (w, h, d, x, y, z) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = true; b.layers.enable(1); scene.add(b); };
@@ -68,9 +69,12 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     const pts = [], X0 = GS * 52.6, X1 = GS * 54.6;
     for (let z = -3.66; z <= 3.661; z += 0.3) { pts.push(X0, 2.44, z, X1, 1.6, z, X1, 1.6, z, X1, 0, z); }
     for (let y = 0; y <= 1.6; y += 0.3) pts.push(X1, y, -3.66, X1, y, 3.66);
+    // a finer mesh than before so a ball can bulge it
+    for (let z = -3.66; z <= 3.661; z += 0.3) for (let y = 0; y < 1.6; y += 0.2) pts.push(X1, y, z, X1, y + 0.2, z);
     const net = new THREE.LineSegments(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)),
       new THREE.LineBasicMaterial({ color: '#ffffff', transparent: true, opacity: .55 }));
-    scene.add(net);
+    net.userData = { GS, rest: Float32Array.from(pts) };
+    nets.push(net); scene.add(net);
   }
 
   // ---------- stands, boards, crowd ----------
@@ -248,5 +252,24 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
 
 
 
-  return { sun, toonRamp, noOutline, crowdMat, flagMat, buildCrowd };
+  // the net gives where the ball hit it and ripples out for a second (hit = runtime S.netHit)
+  let lastHit = null;
+  function updateNets(hit, t) {
+    for (const net of nets) {
+      const { GS, rest } = net.userData, a = net.geometry.attributes.position, mine = hit && Math.sign(hit.x) === GS;
+      const age = mine ? t - hit.t : 99;
+      if (age > 1.6) { if (net.userData.moved) { a.array.set(rest); a.needsUpdate = true; net.userData.moved = false; } continue; }
+      const amp = Math.min(0.55, 0.03 * hit.v) * Math.exp(-age * 3.2), wob = Math.cos(age * 16);
+      for (let i = 0; i < a.count; i++) {
+        const x = rest[i * 3], y = rest[i * 3 + 1], z = rest[i * 3 + 2];
+        const depth = Math.min(1, Math.max(0, (Math.abs(x) - 52.6) / 2));         // the frame never moves
+        if (depth <= 0) { a.array[i * 3] = x; continue; }
+        const r2 = (y - hit.y) ** 2 + (z - hit.z) ** 2, f = Math.exp(-r2 / 1.1) * depth;
+        a.array[i * 3] = x + GS * amp * f * (0.6 + 0.4 * wob);
+        a.array[i * 3 + 1] = y - amp * 0.25 * f * Math.max(0, wob);
+      }
+      a.needsUpdate = true; net.userData.moved = true;
+    }
+  }
+  return { sun, toonRamp, noOutline, crowdMat, flagMat, buildCrowd, updateNets };
 }
