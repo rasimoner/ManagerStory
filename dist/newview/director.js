@@ -137,12 +137,26 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }, 10);
   }
 
+  // approach, then aim from where the ball is now; if the new aim moves the plant spot out of reach
+  // (the ball rolled on, or it was played to a spot right next to it), approach again
+  function* approachAim(p, name, at) {
+    const dir = V();
+    for (let i = 0; i < 3; i++) {
+      dir.set(at.x - ball.p.x, 0, at.z - ball.p.z);
+      yield* approachKick(p, name, dir);
+      dir.set(at.x - ball.p.x, 0, at.z - ball.p.z);
+      const k = rt.kickNeed(p, name, dir);
+      if (k.dist <= k.reach + 0.05) break;
+    }
+    return dir;
+  }
+
   function* pass(from, to, toW, travel, implicit = false, opts = {}) {
     from.busy = true;
     // settle the ball at the passer's feet first
     if (ball.owner !== from) yield* ensureOwner(from);
     from.busy = true;
-    const dir = V(toW.x - ball.p.x, 0, toW.z - ball.p.z);
+    let dir = V(toW.x - ball.p.x, 0, toW.z - ball.p.z);
     const throwIn = opts.throwIn;
     let flight = 0;
     if (throwIn) {
@@ -154,8 +168,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       rt.kickAir(V(toW.x, 0.4, toW.z), Math.max(0.6, dir.length() / 13));
     } else {
       const name = 'pass';
-      yield* approachKick(from, name, dir);
-      dir.set(toW.x - ball.p.x, 0, toW.z - ball.p.z);
+      dir = yield* approachAim(from, name, toW);
       rt.startAction(from, name); rt.kickWarp(from, name, dir);
       yield* until(() => rt.actionAtContact(from), 2);
       if (travel === 'aerial' || dir.length() > 30) { flight = Math.max(0.7, dir.length() / 17); rt.kickAir(V(toW.x, opts.height ?? 0.25, toW.z), flight); }   // a long ball goes in the air
@@ -367,21 +380,26 @@ export function createDirector(rt, data, hooks, opts = {}) {
       noteContact('header', sh);
       ball.owner = null; sh.lastTouch = S.t;
     } else {
-      const dir = V(aim.x - ball.p.x, 0, aim.z - ball.p.z);
-      yield* approachKick(sh, 'shot', dir);
-      dir.set(aim.x - ball.p.x, 0, aim.z - ball.p.z);
+      const dir = yield* approachAim(sh, 'shot', aim);
       rt.startAction(sh, 'shot'); rt.kickWarp(sh, 'shot', dir);
       yield* until(() => rt.actionAtContact(sh), 2);
     }
     // a save happens in the keeper's hands, in front of his line: the shot is aimed at the spot his
     // gloves can reach (within a dive and an arm of where he stands), not at the goal line
+    let smother = 0;
     if (outcome === 'save' && gk) {
       const gz = gk.pos.z, front = gk.pos.x - goalSide * 0.3;
-      let z = clamp(aim.z, gz - 2.3, gz + 2.3);
-      if (gz - 2.3 < 2.9 && gz + 2.3 > -2.9) z = clamp(z, -2.9, 2.9);       // inside the posts when he can reach there
-      aim = V(Math.abs(front) < Math.abs(lineX) ? front : lineX - goalSide * 0.5, aim.y, z);
+      if (Math.abs(ball.p.x) > Math.abs(front) - 0.6) {
+        // the shooter is level with or past the keeper: he smothers it on its way to the line
+        aim = V(clamp(ball.p.x + goalSide * 0.8, -52, 52), 0.3, ball.p.z + (aim.z - ball.p.z) * 0.15);
+        smother = Math.hypot(aim.x - gk.pos.x, aim.z - gk.pos.z) / 5.5;
+      } else {
+        let z = clamp(aim.z, gz - 2.3, gz + 2.3);
+        if (gz - 2.3 < 2.9 && gz + 2.3 > -2.9) z = clamp(z, -2.9, 2.9);       // inside the posts when he can reach there
+        aim = V(Math.abs(front) < Math.abs(lineX) ? front : lineX - goalSide * 0.5, aim.y, z);
+      }
     }
-    const dist = aim.distanceTo(ball.p), flight = Math.max(0.35, dist / (e.header ? 14 : 24));
+    const dist = aim.distanceTo(ball.p), flight = Math.max(0.35, dist / (e.header ? 14 : 24), smother);
     // a blocker steps into the line first
     let blocker = null;
     if (outcome === 'block' && block) {

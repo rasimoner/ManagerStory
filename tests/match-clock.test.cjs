@@ -7,7 +7,7 @@
 //   half time and full time happen once; the result is applied to the career once
 //   a goal graphic waits for the team photo (or its fallback); a failed photo never stops the match
 //   pause freezes clock, positions, ball and event phase; speed changes never restart an event
-//   the 2D players and ball never jump across the pitch outside a placed restart
+//   the 2D players and ball never jump across the pitch outside a placed restart (kickoff after a goal included)
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -29,6 +29,8 @@ function engineOnly(fixture) {
 
 function withClock(fixture, { failPhotoEvery = 0 } = {}) {
   const h = harness();
+  // as in a browser: the goal graphic loads the team photo (node has no Image, the clock would skip the wait)
+  h.run('if(typeof Image!=="function")globalThis.Image=function(){}');
   h.run(read('match3d-live-clock.js')); h.run(read('match-view-adapter.js'));
   h.run(`S=fresh();init();S.fixture=${fixture};ManagerStoryLive3D.enable();startMatch();resumeLive()`);
   const seen = { minutesMixed: 0, halfEvents: 0, goals: 0, photoWaits: 0, jumps: [], steps: 0, speedRestarts: 0 };
@@ -50,8 +52,8 @@ function withClock(fixture, { failPhotoEvery = 0 } = {}) {
       h.run(`ManagerStoryLive3D.goalImageReady(M,${JSON.stringify(g.id)},${failed})`);
     }
     // 2D positions
-    const frame = h.run(`(()=>{const v=MatchView.read();return v&&{ball:v.ball.displayPosition,pl:v.players.map(p=>[p.side+':'+p.id,p.displayPosition]),ev:pitchV73.active?.type??null,t:ManagerStoryLive3D.time}})()`);
-    if (frame && prev && !['kickoff', 'restartPosition', 'restartPlayers', 'goal', 'half', 'end', 'sub', 'red'].includes(frame.ev) && !['kickoff', 'restartPosition', 'restartPlayers', 'goal', 'half', 'end', 'sub', 'red'].includes(prev.ev)) {
+    const frame = h.run(`(()=>{const v=MatchView.read();return v&&{ball:v.ball.displayPosition,pl:v.players.map(p=>[p.side+':'+p.id,p.displayPosition]),ev:pitchV73.active&&(pitchV73.active.goalReset||pitchV73.active.restartReset)?'reset':pitchV73.active?.type??null,t:ManagerStoryLive3D.time}})()`);
+    if (frame && prev && !['kickoff', 'restartPosition', 'restartPlayers', 'reset', 'goal', 'half', 'end', 'sub', 'red'].includes(frame.ev) && !['kickoff', 'restartPosition', 'restartPlayers', 'reset', 'goal', 'half', 'end', 'sub', 'red'].includes(prev.ev)) {
       const m = (a, b) => Math.hypot((a[0] - b[0]) * 1.05, (a[1] - b[1]) * 0.68);
       const was = new Map(prev.pl);
       for (const [k, pos] of frame.pl) { const w = was.get(k); if (pos && w && m(pos, w) > 6) seen.jumps.push({ k, d: +m(pos, w).toFixed(1), ev: frame.ev }); }

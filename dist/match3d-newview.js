@@ -229,17 +229,25 @@ function shot(mode, aspect) {
     wantPos.set(b.x - 2, (tall ? 10.5 : 14) + lift * 0.9, z); wantLook.set(b.x + 2, 0, b.z - 2); wantFov = tall ? 46 : 34;
   }
 }
-function updateCamera(dtReal, aspect) {
+const ndc = new THREE.Vector3();
+function updateCamera(dtReal, aspect, dtSim = 0) {
   const saved = autoCam;
   if (full && camMode !== 'auto') {
     const b = rt.ball.p, near = rt.ball.owner || rt.players.filter(p => !p.offPitch).reduce((m, p) => (!m || p.pos.distanceTo(b) < m.pos.distanceTo(b) ? p : m), null);
     autoCam = { mode: camMode === 'close' ? 'close' : camMode, a: camMode === 'close' ? near : null, b: null };
   }
   shot(autoCam.mode, aspect);
-  const k = 1 - Math.exp(-dtReal * (autoCam.mode === 'stand' ? 1.8 : autoCam.mode === 'shot' ? 2.4 : 3));
+  // the camera follows in match time (at 2x it pans twice as fast), and never lets the ball leave the frame
+  const k = 1 - Math.exp(-Math.max(dtReal, dtSim) * (autoCam.mode === 'stand' ? 1.8 : autoCam.mode === 'shot' ? 2.4 : 3));
   if (cut || camPos.distanceTo(wantPos) > 30) { camPos.copy(wantPos); camLook.copy(wantLook); camera.fov = wantFov; cut = false; }
   else { camPos.lerp(wantPos, k); camLook.lerp(wantLook, k); camera.fov += (wantFov - camera.fov) * k; }
   camera.aspect = aspect; camera.updateProjectionMatrix();
+  for (let i = 0; i < 4; i++) {
+    camera.position.copy(camPos); camera.lookAt(camLook); camera.updateMatrixWorld();
+    ndc.copy(rt.ball.p).project(camera);
+    if (ndc.z < 1 && Math.abs(ndc.x) < 0.72 && Math.abs(ndc.y) < 0.8) break;
+    camPos.lerp(wantPos, 0.4); camLook.lerp(wantLook, 0.4);
+  }
   camera.position.copy(camPos); camera.lookAt(camLook);
   autoCam = saved;
   stadium.sun.target.position.copy(camLook); stadium.sun.position.copy(camLook).add(new THREE.Vector3(-30, 60, 40));
@@ -305,7 +313,7 @@ function frame(now) {
   stadium.crowdMat.uniforms.uTime.value = now3; stadium.flagMat.uniforms.uTime.value = now3;
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
-  updateCamera(dtReal, w / Math.max(1, h));
+  updateCamera(dtReal, w / Math.max(1, h), dt / TEST_SCALE);
   renderer.render(scene, camera);
   camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
   if (frameNo++ % 3 === 0) drawRadar();
