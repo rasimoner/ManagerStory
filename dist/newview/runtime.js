@@ -129,7 +129,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   }
 
   // measured once: where the kicking toe / the keeper's hands are at the contact frame
-  let toeAt = {}, diveReach = 1.85, slideToe = V(0, 0, 1.1), headAt = V(0, 2.1, 0.1);
+  let toeAt = {}, diveReach = 1.85, diveFwd = 0.3, slideToe = V(0, 0, 1.1), headAt = V(0, 2.1, 0.1);
   // entry speed kept into the drop, then the slide dies away on the grass
   const slideProfile = t => 1 - smooth(t, 0.18, MOTIONS.tackle.slideEnd);
   function calibrate() {
@@ -160,7 +160,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     if (probe.A.tackle) slideToe = atMotion('tackle', ['LeftToeBase', 'RightToeBase']).reduce((a, b) => (b.z > a.z ? b : a));
     if (probe.A.header) { const [h] = atMotion('header', ['Head']); headAt = h.add(V(0, 0.1 + MOTIONS.header.lift, 0.08)); }
     const hands = at('diveRight', ACTIONS.diveRight.contact, ['LeftHand', 'RightHand']);
-    diveReach = Math.hypot(hands.x, hands.y);
+    diveReach = Math.hypot(hands.x, hands.y); diveFwd = hands.z;
   }
 
   function place(p, w, heading) {
@@ -181,6 +181,14 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   function contactPoint(p) {
     const off = p.motion?.name === 'tackle' ? slideToe : p.motion?.name === 'header' ? headAt : null;
     return off ? off.clone().applyAxisAngle(V(0, 1, 0), p.heading).add(p.pos) : null;
+  }
+  // how far a point is from what plays the ball: the whole outstretched leg in a slide (hip to boot),
+  // the forehead in a header
+  function contactDistance(p, pt) {
+    const tip = contactPoint(p); if (!tip) return Infinity;
+    if (p.motion?.name !== 'tackle') return tip.distanceTo(pt);
+    const a = p.pos.clone().setY(0.1), ab = tip.clone().sub(a), k = clamp(pt.clone().sub(a).dot(ab) / ab.lengthSq(), 0, 1);
+    return a.addScaledVector(ab, k).distanceTo(pt);
   }
   // sliding tackle at a spot: the entry speed is chosen so the leading boot gets there on the contact frame
   // `spot` may be a function (where the ball will be on the contact frame): the slide steers onto it
@@ -208,7 +216,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   // header jump: the forehead meets the ball at `spot` (height included) on the contact frame
   function headerAt(p, spot, heading, delay = 0) {
     const off = headAt.clone().setY(0).applyAxisAngle(V(0, 1, 0), heading);
-    return startMotion(p, 'header', delay, { from: null, to: V(spot.x, 0, spot.z).sub(off), heading });
+    return startMotion(p, 'header', delay, { from: null, to: V(spot.x, 0, spot.z).sub(off), spot: V(spot.x, 0, spot.z), heading });
   }
   function actionDone(p) { return !p.act || S.t - p.act.t0 >= ACTIONS[p.act.name].dur; }
   function actionAtContact(p) { const a = ACTIONS[p.act?.name]; return a && S.t - p.act.t0 >= a.dur * (a.contact ?? 0.5); }
@@ -218,13 +226,24 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     return V(ball.p.x + ball.v.x * f, BALL_R, ball.p.z + ball.v.z * f);
   }
   // move the root so the kicking toe meets the ball at the action's contact frame
-  function kickWarp(p, name, dir) {
+  // where the root must be on the contact frame for the kicking toe to meet the ball
+  function kickPlan(p, name, dir) {
     const a = ACTIONS[name], tc = a.dur * a.contact;
     const ballAt = ball.p.y > BALL_R + 0.05 ? ball.p.clone() : predictBall(tc);
     const h = Math.atan2(dir.x, dir.z);
     const toe = toeAt[name].clone().applyAxisAngle(V(0, 1, 0), h);
-    p.heading = h;
-    p.warp = { from: p.pos.clone(), to: ballAt.sub(toe).setY(0), t0: S.t, tc };
+    return { to: ballAt.sub(toe).setY(0), h, tc };
+  }
+  // how far the kick may still move the body: about a running step over the wind-up
+  const kickReach = name => 3.4 * ACTIONS[name].dur * ACTIONS[name].contact;
+  function kickNeed(p, name, dir) { const k = kickPlan(p, name, dir); return { dist: Math.hypot(k.to.x - p.pos.x, k.to.z - p.pos.z), to: k.to, reach: kickReach(name) }; }
+  function kickWarp(p, name, dir) {
+    const k = kickPlan(p, name, dir);
+    p.heading = k.h;
+    // carry only his speed towards the plant spot into the step (a sideways drift would make it swerve)
+    const along = V(k.to.x - p.pos.x, 0, k.to.z - p.pos.z), len = along.length();
+    const v0 = len > 1e-3 ? along.multiplyScalar(clamp(p.vel.dot(along) / len, 0, 4) / len) : V();
+    p.warp = { from: p.pos.clone(), to: k.to, t0: S.t, tc: k.tc, v0 };
   }
   function toeNear(p, maxD) {
     let best = null;
@@ -237,8 +256,14 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   }
   function kickGround(to, arrive = 3) {
     const d = Math.hypot(to.x - ball.p.x, to.z - ball.p.z);
-    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(arrive + ROLL_K * d);
-    ball.p.y = BALL_R; ball.owner = null;
+    // a driven pass, not a cannon shot: past ~26 m/s it simply arrives slower
+    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(Math.min(26, arrive + ROLL_K * d));
+    ball.owner = null;          // a bouncing ball played on keeps its height and drops
+  }
+  // a ball taken into the hands travels there over a moment instead of popping into them
+  function pickUp(hands, blend = 0.35) {
+    const from = ball.p.clone(), t0 = S.t;
+    return () => { const h = hands(), k = smooth(S.t - t0, 0, blend); return from.clone().lerp(h, k); };
   }
   function kickAir(to, flight) {
     // air drag (see stepBall) is allowed for, so the ball really arrives at `to` after `flight` s
@@ -247,7 +272,11 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     ball.owner = null;
   }
   function dribble(p, goal, speed) {
-    const lead = ball.p.clone().addScaledVector(ball.v, 0.22);
+    // run with the ball, not at it: aim a little past it towards where he is taking it, so he
+    // keeps his pace between touches instead of braking onto the ball every time
+    const g = V(goal.x - ball.p.x, 0, goal.z - ball.p.z), gl = g.length(); if (gl > 1e-3) g.multiplyScalar(1 / gl);
+    const ballAhead = (ball.p.x - p.pos.x) * g.x + (ball.p.z - p.pos.z) * g.z;      // ball in front of him along his line
+    const lead = ball.p.clone().addScaledVector(ball.v, 0.22).addScaledVector(g, ballAhead > 0.25 ? Math.min(1.2, gl) : -0.3);
     p.target.set(lead.x, 0, lead.z); p.want = speed; p.face = null; p.faceLock = false;
     if (ball.out) return false;
     const touch = toeNear(p, 0.34);
@@ -265,13 +294,18 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   function receive(p, spot) {
     const toBall = Math.hypot(ball.p.x - p.pos.x, ball.p.z - p.pos.z);
     const slowBall = Math.hypot(ball.v.x, ball.v.z) < 1.5 && ball.p.y < 0.5;
-    const meet = toBall < 10 || slowBall || !spot ? ball.p.clone().addScaledVector(ball.v, Math.min(0.5, toBall / 12)) : spot;
-    p.target.set(meet.x, 0, meet.z); p.want = toBall < 6 ? 4 : toBall < 16 ? 6 : 7.4; p.face = ball.p;
+    // wait at the spot the pass is played to, unless the ball has already gone past it (then go after it)
+    const passed = spot && (ball.v.x * (spot.x - ball.p.x) + ball.v.z * (spot.z - ball.p.z) < 0);
+    const meet = toBall < 10 || slowBall || !spot || passed ? ball.p.clone().addScaledVector(ball.v, Math.min(0.5, toBall / 12)) : spot;
+    // close in at pace, slow down to take it: a ball rolling away is sprinted after
+    const away = (ball.v.x * (ball.p.x - p.pos.x) + ball.v.z * (ball.p.z - p.pos.z)) / Math.max(toBall, 0.01);
+    p.target.set(meet.x, 0, meet.z); p.want = toBall < 4 ? 4 : toBall < 10 && away < 2 ? 6 : 7.4; p.face = ball.p;
     if (ball.p.y > 1.6 || ball.out) return false;
     const touch = toeNear(p, 0.48);
     if (touch || toBall < 0.55) {
-      ball.v.multiplyScalar(0.1).add(V(Math.sin(p.heading), 0, Math.cos(p.heading)).multiplyScalar(1.4)); ball.v.y = 0;
-      ball.p.y = Math.min(ball.p.y, 0.6);
+      // cushioned: a ball taken on the chest or thigh drops to his feet, it is not snapped down
+      ball.v.multiplyScalar(0.1).add(V(Math.sin(p.heading), 0, Math.cos(p.heading)).multiplyScalar(1.4));
+      ball.v.y = ball.p.y > BALL_R + 0.05 ? -0.5 : 0;
       ball.owner = p; p.lastTouch = S.t; return true;
     }
     return false;
@@ -283,12 +317,15 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const h0 = gk.heading, R = V(-Math.cos(h0), 0, Math.sin(h0)), F = V(Math.sin(h0), 0, Math.cos(h0));
     const rel = at.clone().sub(gk.pos);
     let d = rel.dot(R); const side = d >= 0 ? 1 : -1; d = Math.abs(d);
-    const h = Math.max(0.15, at.y), fwd = clamp(rel.dot(F) - 0.1, -0.4, 1.2);
+    // the gloves reach out in front of the body: step the body that much short of the ball
+    const h = Math.max(0.15, at.y), fwd = clamp(rel.dot(F) - diveFwd, -0.6, 1.2);
     const tc = Math.max(0.22, tArrive - reaction);
     const reach = save ? diveReach : diveReach * 0.82;           // a beaten keeper falls just short
     const r = clamp(Math.atan2(d, h), 0.25, 1.6);
     const off = Math.hypot(d, h) - reach;
-    gk.dive = { start: S.t + reaction, tc, roll: r * side, slide: Math.max(-0.2, off * Math.sin(r)) * side, lift: Math.max(0, off * Math.cos(r)),
+    // a dive is explosive but human: the body covers at most about 6.5 m/s on average to the ball
+    const slide = Math.min(Math.max(-0.2, off * Math.sin(r)), 6.5 * tc);
+    gk.dive = { start: S.t + reaction, tc, roll: r * side, slide: slide * side, lift: Math.min(Math.max(0, off * Math.cos(r)), 0.9),
       base0: gk.pos.clone(), base: gk.pos.clone().addScaledVector(F, fwd), save, done: false };
     startAction(gk, side > 0 ? 'diveRight' : 'diveLeft');
     gk.act.t0 = S.t + reaction + tc - ACTIONS.diveRight.dur * ACTIONS.diveRight.contact;
@@ -296,7 +333,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   }
   function updateDive(gk) {
     const D = gk.dive; if (!D) return;
-    const k = clamp((S.t - D.start) / D.tc, 0, 1), e = 1 - (1 - k) * (1 - k);
+    const k = clamp((S.t - D.start) / D.tc, 0, 1), e = 1 - Math.pow(1 - k, 1.5);   // explosive start, peak 1.5x the average
     let roll = D.roll * e, slide = D.slide * e, lift = D.lift * e;
     if (k >= 1) {
       const f = clamp((S.t - D.start - D.tc) / 0.45, 0, 1), sgn = Math.sign(D.roll) || 1;
@@ -306,10 +343,24 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       roll *= 1 - g; lift *= 1 - g;
       if (up >= 1) {
         const right = V(-Math.cos(gk.heading), 0, Math.sin(gk.heading));
-        gk.pos.copy(D.base).addScaledVector(right, slide); gk.dive = null; gk.act = null; return;
+        gk.pos.copy(D.base).addScaledVector(right, slide); gk.dive = null; if (gk.act?.name.startsWith('dive')) gk.act = null; return;
       }
     }
     D.cur = { roll, slide, lift, base: D.base0.clone().lerp(D.base, e) };
+  }
+  // where the gloves will be on the dive's contact frame (the same pose and body transform pose() uses)
+  function diveHands(gk) {
+    const D = gk.dive, name = gk.act?.name; if (!D || !name) return handsOf(gk);
+    const probe = players.find(q => q !== gk) || gk, m = probe.model, sp = m.position.clone(), sq = m.quaternion.clone();
+    m.position.set(0, 0, 0); m.quaternion.identity();
+    for (const k of LOCO) probe.A[k].setEffectiveWeight(0); probe.A.idle.setEffectiveWeight(1); probe.A.idle.time = 0;
+    for (const k of Object.keys(MOTIONS)) if (probe.A[k]) probe.A[k].setEffectiveWeight(0);
+    probe.mixer.update(0); applyAction(probe.bones, name, ACTIONS[name].contact, 1); m.updateMatrixWorld(true);
+    const local = probe.bones.LeftHand.getWorldPosition(V()).add(probe.bones.RightHand.getWorldPosition(V())).multiplyScalar(0.5);
+    m.position.copy(sp); m.quaternion.copy(sq); m.updateMatrixWorld(true);
+    const right = V(-Math.cos(gk.heading), 0, Math.sin(gk.heading));
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, gk.heading, 0)).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), D.roll));
+    return D.base.clone().addScaledVector(right, D.slide).add(V(0, D.lift + 0.13 * Math.abs(Math.sin(D.roll)), 0)).add(local.applyQuaternion(q));
   }
   function handsOf(gk) { return gk.bones.LeftHand.getWorldPosition(V()).add(gk.bones.RightHand.getWorldPosition(V())).multiplyScalar(0.5); }
 
@@ -317,9 +368,10 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   const tmp = V();
   function move(p, dt) {
     if (p.warp) {
-      const w = p.warp, k = clamp((S.t - w.t0) / w.tc, 0, 1), e = 1 - Math.pow(1 - k, 2);
+      // carries on from his running speed into the plant (Hermite: no restart from standstill)
+      const w = p.warp, k = clamp((S.t - w.t0) / w.tc, 0, 1), k2 = k * k, k3 = k2 * k;
       const prev = p.pos.clone();
-      p.pos.lerpVectors(w.from, w.to, e);
+      p.pos.copy(w.from).multiplyScalar(2 * k3 - 3 * k2 + 1).addScaledVector(w.to, -2 * k3 + 3 * k2).addScaledVector(w.v0, (k3 - 2 * k2 + k) * w.tc);
       p.vel.copy(p.pos).sub(prev).multiplyScalar(1 / Math.max(dt, 1e-4));
       if (k >= 1) { p.warp = null; p.vel.multiplyScalar(0.5); }
       return;
@@ -330,12 +382,19 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       const m = p.motion, prev = p.pos.clone();
       if (m.name === 'tackle') { steerSlide(p, el); p.vel.copy(m.dir).multiplyScalar(m.v0 * slideProfile(el)); p.pos.addScaledVector(p.vel, dt); }
       else if (m.name === 'header' && m.to) {
-        if (!m.from) m.from = p.pos.clone();
+        if (!m.from) {
+          m.from = p.pos.clone();
+          // a jump can step in a little, not glide: if he is still far, he jumps from where he got to
+          const gap = m.to.clone().sub(m.from); gap.y = 0;
+          if (gap.length() > 1.6) { m.to = m.from.clone().addScaledVector(gap.normalize(), 1.6); m.capped = true; }
+        }
         const c = MOTIONS.header.contact;
-        p.pos.lerpVectors(m.from, m.to, smooth(el, 0, c));
-        p.vel.copy(p.pos).sub(prev).multiplyScalar(1 / Math.max(dt, 1e-4));
         const dh = Math.atan2(Math.sin(m.heading - p.heading), Math.cos(m.heading - p.heading));
         p.heading += clamp(dh, -8 * dt, 8 * dt);
+        // keep the forehead on the ball's spot while he is still turning into it
+        if (!m.capped) m.to.copy(m.spot).sub(headAt.clone().setY(0).applyAxisAngle(V(0, 1, 0), p.heading));
+        p.pos.lerpVectors(m.from, m.to, smooth(el, 0, c));
+        p.vel.copy(p.pos).sub(prev).multiplyScalar(1 / Math.max(dt, 1e-4));
       } else { p.vel.multiplyScalar(Math.exp(-6 * dt)); p.pos.addScaledVector(p.vel, dt); }
       p.pos.x = clamp(p.pos.x, -58, 58); p.pos.z = clamp(p.pos.z, -37, 37);
       p.lean = lerp(p.lean, 0, Math.min(1, dt * 6));
@@ -447,6 +506,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       const dx = ball.p.x - p.pos.x, dz = ball.p.z - p.pos.z, d = Math.hypot(dx, dz);
       if (d < 0.3) {
         const nx = d > 1e-4 ? dx / d : Math.sin(p.heading), nz = d > 1e-4 ? dz / d : Math.cos(p.heading);
+        if (!ball.allowOut && ((Math.abs(ball.p.x) > GOAL_X - 0.6 && nx * ball.p.x > 0) || (Math.abs(ball.p.z) > 33.4 && nz * ball.p.z > 0))) continue;
         ball.p.x = p.pos.x + nx * 0.3; ball.p.z = p.pos.z + nz * 0.3;
         const along = ball.v.x * nx + ball.v.z * nz, push = p.vel.length() * 1.05;
         if (along < push) { ball.v.x += nx * (push - along); ball.v.z += nz * (push - along); }
@@ -455,7 +515,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     for (let i = 0; i < players.length; i++) for (let j = i + 1; j < players.length; j++) {
       const a = players[i], c = players[j]; if (a.dive || c.dive) continue;
       const dx = c.pos.x - a.pos.x, dz = c.pos.z - a.pos.z, d = Math.hypot(dx, dz);
-      if (d < 0.68 && d > 1e-4) { const k = (0.68 - d) / 2 / d; a.pos.x -= dx * k; a.pos.z -= dz * k; c.pos.x += dx * k; c.pos.z += dz * k; }
+      // bodies ease apart (a few cm a step) instead of being thrown apart in one frame
+      if (d < 0.68 && d > 1e-4) { const k = Math.min(0.68 - d, 0.012) / 2 / d; a.pos.x -= dx * k; a.pos.z -= dz * k; c.pos.x += dx * k; c.pos.z += dz * k; }
     }
   }
   function stepBall(dt) {
@@ -480,7 +541,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const LX = GOAL_X - 0.35, LZ = 34 - 0.35;
     for (const [ax, L] of [['x', LX], ['z', LZ]]) {
       const pos = ball.p[ax], vel = ball.v[ax], s = Math.sign(pos);
-      if (Math.abs(pos) > L) { ball.p[ax] = s * L; if (vel * s > 0) ball.v[ax] = 0; ball.keptIn++; continue; }
+      if (Math.abs(pos) > L) { ball.p[ax] -= s * Math.min(Math.abs(pos) - L, 0.04); if (vel * s > 0) ball.v[ax] = 0; ball.keptIn++; continue; }   // eased back, never snapped
       const outward = vel * s;
       if (outward <= 0) continue;
       const room = Math.max(0.05, L - Math.abs(pos));
@@ -494,9 +555,9 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   }
 
   return {
-    players, ball, S, addPlayer, calibrate, place, startAction, actionDone, actionAtContact, predictBall, kickWarp, toeNear,
-    startMotion, motionAtContact, slideAt, headerAt, contactPoint, get headHeight() { return headAt.y; }, get slideReach() { return Math.hypot(slideToe.x, slideToe.z); },
-    kickGround, kickAir, dribble, receive, planDive, updateDive, handsOf, move, pose, contacts, stepBall,
+    players, ball, S, addPlayer, calibrate, place, startAction, actionDone, actionAtContact, predictBall, kickWarp, kickNeed, toeNear, pickUp,
+    startMotion, motionAtContact, slideAt, headerAt, contactPoint, contactDistance, get headHeight() { return headAt.y; }, get slideReach() { return Math.hypot(slideToe.x, slideToe.z); },
+    kickGround, kickAir, dribble, receive, planDive, updateDive, handsOf, diveHands, move, pose, contacts, stepBall,
     get diveReach() { return diveReach; },
   };
 }

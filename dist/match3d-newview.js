@@ -326,6 +326,12 @@ window.ManagerStoryNewView = {
   },
   get director() { return director; },
   get simTime() { return rt?.S.t ?? 0; },
+  // where the ball is on screen (-1..1 inside the frame), for the framing check
+  get framing() {
+    if (!camera || !rt) return null;
+    const v = rt.ball.p.clone().project(camera);
+    return { x: v.x, y: v.y, front: v.z < 1, mode: autoCam.mode, out: !!rt.ball.out };
+  },
 };
 
 window.MatchView?.subscribe?.(snapshot => {
