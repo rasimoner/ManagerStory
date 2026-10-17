@@ -94,6 +94,22 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const defending = ball.owner ? ball.owner.side !== p.side : false, k = defending ? 0.3 : 0.12;
         h.z += (ball.p.z - h.z) * k; h.x += (ball.p.x - h.x) * k * 0.5;
       }
+      // the keeper: when the ball comes within shooting range he leaves the engine's spot and takes
+      // up his position on the line between the ball and the middle of his goal, a few metres out
+      if (gk && !S.restartHomes && !S.dead && ball.owner !== p) {
+        const own = Math.sign(p.home?.x || p.pos.x) * GOAL_X, toBall = V(ball.p.x - own, 0, ball.p.z), dist = toBall.length();
+        const w = clamp((42 - dist) / 14, 0, 1);
+        if (w > 0 && dist > 0.1) h.lerp(V(own, 0, 0).addScaledVector(toBall.normalize(), clamp(dist * 0.14, 1.2, 5.5)), w);
+      }
+      // a free kick or corner: the other side keeps 9.15 m from the ball until it is taken
+      const R = S.restartSpot;
+      if (R && p.side !== R.side && !gk) {
+        const off = V(h.x - R.spot.x, 0, h.z - R.spot.z);
+        if (off.length() < 9.15) {
+          if (off.length() < 0.5) off.set(Math.sign(R.spot.x || 1) * GOAL_X - R.spot.x, 0, -R.spot.z);
+          h.copy(R.spot).setY(0).addScaledVector(off.normalize(), 9.4);
+        }
+      }
       h.x = clamp(h.x, -51, 51); h.z = clamp(h.z, -33, 33);
       const d = h.distanceTo(p.pos);
       p.target.copy(h); p.want = gaitFor(p, d, S.dead ? (S.restartHomes && d > 10 ? 3 : 2) : gk ? 3 : 4); p.face = ball.p; p.faceLock = false;
@@ -459,6 +475,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
       noteContact('header', sh);
       ball.owner = null; sh.lastTouch = S.t;
     } else {
+      // a save needs a keeper in front of the shot: caught out of position, he races back while the
+      // shooter steadies himself (never a save by a keeper standing behind the shooter)
+      if (gk && outcome === 'save' && !e.penalty && !e.freeKick && gk.pos.distanceTo(gk.target) > 3) {
+        gk.want = 7.5;
+        yield* until(() => gk.pos.distanceTo(gk.target) < 1.2, Math.min(2.5, gk.pos.distanceTo(gk.target) / 6.5 + 0.4));
+        gk.want = 5;
+      }
       const dir = yield* approachAim(sh, 'shot', aim);
       rt.startAction(sh, 'shot'); rt.kickWarp(sh, 'shot', dir);
       yield* until(() => rt.actionAtContact(sh), 2);
@@ -578,7 +601,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const from = P(e.fromId, e.fromSide), to = P(e.toId, e.toSide);
     switch (e.type) {
       case 'kickoff': {
-        if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; }
+        if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; } S.restartSpot = null;
         layout(i, true); S.dead = false; ball.allowOut = false; ball.held = null;
         ball.p.set(0, BALL_R, 0); ball.v.set(0, 0, 0); ball.owner = from;
         hooks.cam('tv', null, null, true);
@@ -623,7 +646,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         break;
       case 'pass': case 'cross': case 'goalKick': case 'freeKick': case 'corner': case 'throwIn': {
         if (!from) break;
-        if (e.restartType) { S.dead = false; if (S.restartTaker && S.restartTaker !== from) { S.restartTaker.busy = false; ball.held = null; } S.restartTaker = null; }
+        if (e.restartType) { S.dead = false; if (S.restartTaker && S.restartTaker !== from) { S.restartTaker.busy = false; ball.held = null; } S.restartTaker = null; S.restartSpot = null; }
         if (e.type === 'corner') hooks.cam('tv');
         const target = toWorld(e.toPos);
         const receiver = to && to !== from ? to : null;
@@ -721,6 +744,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           }
         }
         ball.p.set(spot.x, BALL_R, spot.z);
+        S.restartSpot = taker && (type === 'FREE_KICK' || type === 'CORNER') ? { spot: spot.clone(), side: taker.side } : null;
         if (taker) {
           taker.busy = true;
           // throw-in: taker behind the line; corner/free kick: a short run-up behind the ball
@@ -743,8 +767,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
       case 'restartPlayers': yield* wait(e.restartType === 'FREE_KICK' || e.restartType === 'THROW_IN' ? 0.4 : 0.8); break;
       case 'restartWait': {
         // the restart is taken once the players are (nearly) in place for it — a real pause, short for a throw-in
-        const far = () => S.restartHomes ? rt.players.filter(p => { const q = S.restartHomes[p.side + ':' + p.id]; return q && !p.offPitch && !p.busy && toWorld(q).distanceTo(p.pos) > 3; }).length : 0;
-        yield* until(() => far() <= 2, e.restartType === 'THROW_IN' ? 1.2 : e.restartType === 'CORNER' ? 4.5 : 3);
+        const R = S.restartSpot, close = p => R && p.side !== R.side && p.role !== 'GK' && p.pos.distanceTo(R.spot.clone().setY(0)) < 8.5;
+        const far = () => rt.players.filter(p => { const q = S.restartHomes?.[p.side + ':' + p.id]; return q && !p.offPitch && !p.busy && toWorld(q).distanceTo(p.pos) > 3; }).length;
+        const near = () => rt.players.some(p => !p.offPitch && !p.busy && close(p));
+        yield* until(() => far() <= 2 && !near(), e.restartType === 'THROW_IN' ? 1.2 : e.restartType === 'CORNER' ? 4.5 : 4);
         // a direct free kick: the camera goes behind the taker, wall and goal in the picture
         const fkShot = e.restartType === 'FREE_KICK' && events[i + 1]?.type === 'shot' && events[i + 1].freeKick ? events[i + 1] : null;
         if (fkShot) { const tk = P(fkShot.fromId, fkShot.fromSide), gk0 = rt.players.find(q => q.role === 'GK' && q.side !== fkShot.fromSide && !q.offPitch); if (tk) hooks.cam('shot', tk, gk0, true); hooks.banner('SERBEST VURUŞ', 1500); yield* wait(1.4); break; }
@@ -903,7 +929,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     for (const p of rt.players) { if (!p.offPitch) { p.busy = false; rt.place(p, p.pos); } }
     layout(Math.max(0, idx - 1), true);
     ball.held = null; ball.v.set(0, 0, 0); ball.allowOut = false; S.dead = false;
-    if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; }
+    if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; } S.restartSpot = null;
     const w = toWorld(ballPct || [50, 50]); ball.p.set(w.x, BALL_R, w.z);
     ball.owner = ownerId != null ? P(ownerId, ownerSide) : null;
     if (ball.owner) { ball.owner.pos.set(w.x - 0.45, 0, w.z); }
