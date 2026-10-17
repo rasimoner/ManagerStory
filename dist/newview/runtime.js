@@ -103,8 +103,10 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   function addPlayer(d) {
     const inst = rig.newInstance(), model = inst.group, identity = new THREE.Matrix4();
     const h = hash(d.key);
-    const style = { hair: HAIR_STYLES[h % HAIR_STYLES.length], build: 0.95 + (h >> 4) % 4 * 0.035, keeper: !!d.keeper };
-    const body = new THREE.SkinnedMesh(geometryFor(style), kitMaterial(d.kit, SKINS[(h >> 8) % SKINS.length], HAIRS[(h >> 12) % HAIRS.length], ramp));
+    // unsigned shifts: the hash is a full 32-bit number, a signed shift made it negative for about
+    // half the players and their skin and hair fell back to white
+    const style = { hair: HAIR_STYLES[h % HAIR_STYLES.length], build: 0.95 + (h >>> 4) % 4 * 0.035, keeper: !!d.keeper };
+    const body = new THREE.SkinnedMesh(geometryFor(style), kitMaterial(d.kit, SKINS[(h >>> 8) % SKINS.length], HAIRS[(h >>> 12) % HAIRS.length], ramp));
     body.castShadow = true; body.frustumCulled = false; body.layers.enable(1);
     model.add(body); body.bind(inst.skeleton, identity);
     if (numberTexture) {
