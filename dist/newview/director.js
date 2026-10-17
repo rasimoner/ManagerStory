@@ -257,6 +257,48 @@ export function createDirector(rt, data, hooks, opts = {}) {
       return def.pos.distanceTo(car.pos) < 2.0;
     }, 3.5);
     def.loopsWant.jockey = 0;
+    // several ways to win and lose a duel (stable per event): poke, shoulder, stepping in /
+    // feint and cut, knock it past and run, drag-back and turn
+    const style = Math.floor(pick(def.lastEvent, 7) * 3);
+    if (success && style === 1) {
+      // shoulder to shoulder: he leans in and takes the ball away with his body between man and ball
+      rt.startAction(def, 'shoulder');
+      yield* until(() => { def.target.copy(car.pos).add(V(-Math.cos(car.heading) * 0.6, 0, Math.sin(car.heading) * 0.6)); def.want = 4.5; if (ball.owner === car) rt.dribble(car, carGoal, 2.2); return S.t - def.act.t0 > 0.3; }, 0.8);
+      ball.owner = def; def.lastTouch = S.t; ball.v.set(Math.sin(def.heading), 0, Math.cos(def.heading)).multiplyScalar(1.6);
+      car.vel.multiplyScalar(0.4); rt.startAction(car, 'feint');
+      yield* wait(0.45); def.busy = car.busy = false; def.faceLock = false; if (closeUp) hooks.cam('tv'); return;
+    }
+    if (success && style === 2) {
+      // reads the touch and steps across the ball's path: no lunge, he simply takes it in stride
+      const ahead = ball.p.clone().addScaledVector(V(ball.v.x, 0, ball.v.z), 0.35);
+      yield* until(() => { def.target.copy(ahead); def.want = 5.5; return def.pos.distanceTo(ahead) < 0.7; }, 0.9);
+      ball.owner = def; def.lastTouch = S.t; ball.v.multiplyScalar(0.3);
+      yield* wait(0.35); def.busy = car.busy = false; def.faceLock = false; if (closeUp) hooks.cam('tv'); return;
+    }
+    if (!success && style === 1) {
+      // knocks it past the defender's side and races onto it
+      const fwd = V(Math.sin(car.heading), 0, Math.cos(car.heading)), away = V(car.pos.x - def.pos.x, 0, car.pos.z - def.pos.z).normalize();
+      const out = fwd.clone().multiplyScalar(1.3).add(away.multiplyScalar(-0.5)).normalize();
+      if (Math.abs(car.pos.z) > 26 && out.z * Math.sign(car.pos.z) > 0) out.z *= -0.4;
+      if (Math.abs(car.pos.x) > 44 && out.x * Math.sign(car.pos.x) > 0) out.x *= -0.4;
+      rt.startAction(car, 'cut'); ball.owner = null; ball.v.copy(out.normalize()).multiplyScalar(7.5); car.lastTouch = S.t;
+      rt.startAction(def, 'lunge', 0.12);
+      car.target.copy(ball.p).addScaledVector(out, 6); car.want = 7.6;
+      yield* wait(0.5); def.busy = car.busy = false; def.faceLock = false;
+      yield* chase(car, null);
+      if (closeUp) hooks.cam('tv'); return;
+    }
+    if (!success && style === 2) {
+      // drag-back: rolls it back under his sole and turns away from the challenge
+      rt.startAction(car, 'dragBack'); car.vel.multiplyScalar(0.3);
+      rt.startAction(def, 'lunge', 0.2);
+      yield* wait(0.3);
+      const back = V(-Math.sin(car.heading), 0, -Math.cos(car.heading)), side = V(Math.cos(car.heading), 0, -Math.sin(car.heading)).multiplyScalar(pick(def.lastEvent, 9) < 0.5 ? 1 : -1);
+      const out = back.multiplyScalar(0.3).add(side).normalize();
+      if (Math.abs(car.pos.z) > 26 && out.z * Math.sign(car.pos.z) > 0) out.negate();
+      ball.v.copy(out).multiplyScalar(3.2); car.lastTouch = S.t; car.heading = Math.atan2(out.x, out.z);
+      yield* wait(0.4); def.busy = car.busy = false; def.faceLock = false; if (closeUp) hooks.cam('tv'); return;
+    }
     if (!success) { rt.startAction(car, 'feint'); }
     rt.startAction(def, 'lunge', success ? 0 : 0.18);
     // side of the lunge: towards the ball
@@ -436,7 +478,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
         aim = V(Math.abs(front) < Math.abs(lineX) ? front : lineX - goalSide * 0.5, aim.y, z);
       }
     }
-    const dist = aim.distanceTo(ball.p), flight = Math.max(0.35, dist / (e.header ? 14 : 24), smother);
+    // a free kick is bent up over the wall and dips (a slower, higher flight)
+    const dist = aim.distanceTo(ball.p), flight = Math.max(0.35, dist / (e.header ? 14 : e.freeKick ? 19 : 24), smother);
     // a blocker steps into the line first
     let blocker = null;
     if (outcome === 'block' && block) {
@@ -452,6 +495,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }
     rt.kickAir(aim, flight);
     if (gk && outcome === 'save') ball.through = S.t + flight + 0.05;
+    if (e.freeKick) {
+      // the wall jumps as the kick is struck (a ball that is blocked hits it on the way)
+      const toGoalDir = V(aim.x - ball.p.x, 0, aim.z - ball.p.z).normalize();
+      for (const q of rt.players) if (!q.offPitch && q.side !== sh.side && q.role !== 'GK' && !q.busy) {
+        const rel = V(q.pos.x - ball.p.x, 0, q.pos.z - ball.p.z), along = rel.dot(toGoalDir), across = Math.abs(rel.x * toGoalDir.z - rel.z * toGoalDir.x);
+        if (along > 7.5 && along < 11 && across < 2.2) rt.startMotion(q, 'header');
+      }
+    }
     hooks.slow(0.45);
     const tArrive = outcome === 'save' ? flight : flight * Math.max(0.2, (Math.abs(gk ? gk.pos.x : lineX) - Math.abs(ball.p.x)) / Math.max(0.5, Math.abs(lineX - ball.p.x)));
     if (gk && outcome === 'save') { /* planned above */ }
@@ -673,7 +724,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (taker) {
           taker.busy = true;
           // throw-in: taker behind the line; corner/free kick: a short run-up behind the ball
-          const outward = type === 'THROW_IN' ? V(0, 0, Math.sign(spot.z) * 0.45) : V(spot.x, 0, spot.z).setY(0).normalize().multiplyScalar(0.7);
+          // a direct free kick: the taker stands a few steps back, in line with the goal, for his run-up
+          const directFK = type === 'FREE_KICK' && events.slice(i + 1, i + 5).some(x => x.type === 'shot' && x.freeKick);
+          const toGoalDir = V(Math.sign(spot.x || 1) * GOAL_X - spot.x, 0, -spot.z).normalize();
+          const outward = type === 'THROW_IN' ? V(0, 0, Math.sign(spot.z) * 0.45) : directFK ? toGoalDir.multiplyScalar(-2.6) : V(spot.x, 0, spot.z).setY(0).normalize().multiplyScalar(0.7);
           taker.target.copy(spot).add(outward).setY(0); taker.want = taker.pos.distanceTo(spot) > 8 ? 7 : 4.5; taker.face = V(0, 0, 0); taker.faceLock = false;
           yield* until(() => taker.pos.distanceTo(taker.target) < 0.6, taker.pos.distanceTo(taker.target) / 5 + 2);
           // the last step onto the spot (at walking pace, no jump)
@@ -690,6 +744,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
         // the restart is taken once the players are (nearly) in place for it — a real pause, short for a throw-in
         const far = () => S.restartHomes ? rt.players.filter(p => { const q = S.restartHomes[p.side + ':' + p.id]; return q && !p.offPitch && !p.busy && toWorld(q).distanceTo(p.pos) > 3; }).length : 0;
         yield* until(() => far() <= 2, e.restartType === 'THROW_IN' ? 1.2 : e.restartType === 'CORNER' ? 4.5 : 3);
+        // a direct free kick: the camera goes behind the taker, wall and goal in the picture
+        const fkShot = e.restartType === 'FREE_KICK' && events[i + 1]?.type === 'shot' && events[i + 1].freeKick ? events[i + 1] : null;
+        if (fkShot) { const tk = P(fkShot.fromId, fkShot.fromSide), gk0 = rt.players.find(q => q.role === 'GK' && q.side !== fkShot.fromSide && !q.offPitch); if (tk) hooks.cam('shot', tk, gk0); hooks.banner('SERBEST VURUŞ', 1500); yield* wait(1.4); break; }
         yield* wait(0.4); if (e.restartType !== 'CORNER') hooks.cam('tv'); break;
       }
       case 'offside': {

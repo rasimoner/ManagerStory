@@ -327,7 +327,16 @@ function kickoffTaker(side){
  const pool=outfieldOf(side);
  return pool.find(id=>roleOf(id,side)==='CM')??pool.find(id=>roleOf(id,side)==='CAM')??pool[0];
 }
+/* V7.8: a free kick within shooting range, in front of goal, is struck at goal over a wall */
+function directFreeKick(side,pos){
+ const dir=attackDirection(side),toGoal=dir>0?100-pos[0]:pos[0];
+ return toGoal>=16.5&&toGoal<=31&&Math.abs(pos[1]-50)<21;
+}
+function freeKickSpecialist(side){
+ return outfieldOf(side).slice().sort((a,b)=>playerAttribute(b,side,'finishing',60)+playerAttribute(b,side,'technique',60)-playerAttribute(a,side,'finishing',60)-playerAttribute(a,side,'technique',60))[0];
+}
 function restartTaker(type,side,position){
+ if(type==='FREE_KICK'&&directFreeKick(side,position))return freeKickSpecialist(side);
  if(type==='GOAL_KICK')return keeperId(side);
  if(type==='PENALTY')return penaltyTaker(side);
  if(type==='KICK_OFF')return kickoffTaker(side);
@@ -371,6 +380,14 @@ function placeRestartPlayers(type,side,pos,taker){
   const near=outfieldOf(side).filter(id=>id!==taker).sort((a,b)=>pitchDistance(eventPoint(a,side),pos)-pitchDistance(eventPoint(b,side),pos)).slice(0,3);
   near.forEach((id,i)=>setP(id,[pos[0]+dir*(4+i*5)-(i===0?8:0),pos[1]<50?pos[1]+10+i*7:pos[1]-10-i*7]));
   near.forEach((id,i)=>{const m=nearestMarker(other,eventPoint(id,side));if(m&&i<2)setP(m.id,[eventPoint(id,side)[0]-dir*2.5,eventPoint(id,side)[1]+(pos[1]<50?-2:2)]);});
+ }else if(type==='FREE_KICK'&&directFreeKick(side,pos)){
+  // V7.8: a wall 9.15 m from the ball on the line to goal; attackers lurk at the edge of the box
+  setP(taker,pos,true);
+  const goal=[dir>0?100:0,50],dx=(goal[0]-pos[0])*1.05,dy=(goal[1]-pos[1])*.68,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
+  const n=Math.abs(pos[1]-50)<12?4:3,wall=outfieldOf(other).slice().sort((a,b)=>pitchDistance(eventPoint(a,other),pos)-pitchDistance(eventPoint(b,other),pos)).slice(0,n);
+  wall.forEach((id,i)=>{const off=(i-(n-1)/2)*.62;setP(id,[pos[0]+(ux*9.15-uy*off)/1.05,pos[1]+(uy*9.15+ux*off)/.68],true);});
+  outfieldOf(side).filter(id=>id!==taker).slice(0,3).forEach((id,i)=>setP(id,[goal[0]-dir*(14+i*2),36+i*14]));
+  const gk=keeperId(other);if(gk!=null)setP(gk,[goal[0]-dir*1.5,50+(pos[1]<50?3:-3)],true);
  }else if(type==='GOAL_KICK'){
   // V7.8: opponents leave the penalty area until the goal kick is taken (law 16)
   setP(taker,pos,true);
@@ -484,6 +501,10 @@ function executeRestart(type,side,taker,pos,R){
      {fromId:taker,toId:def.id,fromSide:side,toSide:other,ballSide:other,fromPos:tp,toPos:eventPoint(def.id,other)});
    }else makeLooseBall(tp,[atkGoal-dir*(24+M.rand()*8),limitPitch(tp[1]+(M.rand()-.5)*34,14,86)],'clearance',null);
   }else makeLooseBall(tp,tp,'aerial',null);
+  return;
+ }
+ if(type==='FREE_KICK'&&directFreeKick(side,pos)){
+  resolveShot(side==='user',taker,shooterRecord(taker,side),{freeKick:true,source:pos,restartType:type});
   return;
  }
  let kind,receiver,target;

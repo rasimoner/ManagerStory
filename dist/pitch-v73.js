@@ -1082,6 +1082,11 @@ function resolveShot(user,shooter,p,opts={}) {
     const finN=normalizeAttribute(playerAttribute(shooter,sideName,'finishing',65)),compN=normalizeAttribute(playerAttribute(shooter,sideName,'composure',65)),kN=normalizeAttribute(keeper);
     onProbability=clamp(.84+(finN-.5)*.14+(compN-.5)*.10,.62,.97);
     goalProbability=clamp(.83+(finN-.5)*.10-(kN-.5)*.22,.55,.94);
+  }else if(opts.freeKick){
+    // direct free kick over the wall: struck well it is on target about a third of the time; the wall blocks some
+    const finN=normalizeAttribute(playerAttribute(shooter,sideName,'finishing',65)),tecN=normalizeAttribute(playerAttribute(shooter,sideName,'technique',65)),kN=normalizeAttribute(keeper);
+    onProbability=clamp(.3+(finN-.5)*.16+(tecN-.5)*.16-Math.max(0,distance-22)*.008,.15,.5);
+    goalProbability=clamp(.36+(finN-.5)*.12+(tecN-.5)*.1-(kN-.5)*.2,.12,.55);
   }else if(opts.header){
     onProbability=clamp(onProbability*.85+.03,.15,.8);   // headers are harder to direct than feet
   }
@@ -1091,14 +1096,14 @@ function resolveShot(user,shooter,p,opts={}) {
   const on=M.rand()<onProbability;
   if(on)M.ont[side]++;
   const goal=on&&M.rand()<goalProbability;
-  let outcome=goal?'goal':on?'save':(opts.penalty?false:M.rand()<.19)?'block':M.rand()<(opts.penalty?.22:.16)?'post':'wide';
+  let outcome=goal?'goal':on?'save':(opts.penalty?false:M.rand()<(opts.freeKick?.3:.19))?'block':M.rand()<(opts.penalty?.22:.16)?'post':'wide';
   // the woodwork is a real outcome: the ball reaches the frame at an exact spot and rebounds from it
   const frame=outcome==='post'?(M.rand()<.4?'crossbar':'post'):null;
   if(outcome==='wide')destination[1]=destination[1]<50?28:72;
   if(outcome==='post')destination[1]=frame==='crossbar'?50+(M.rand()-.5)*10:(destination[1]<50?39:61);
   matchEvent('shot',M.min+'’ '+p.name+' şut çekti.',{side,playerId:user?p.id:null,fromId:shooter,
     fromSide:user?'user':'opp',ballSide:user?'user':'opp',fromPos:source,toPos:destination,
-    goalkeeperId:opponentGK,xg,onTarget:on,outcome,frame,restartType:opts.restartType||null,header:!!opts.header,penalty:!!opts.penalty});
+    goalkeeperId:opponentGK,xg,onTarget:on,outcome,frame,restartType:opts.restartType||null,header:!!opts.header,penalty:!!opts.penalty,freeKick:!!opts.freeKick});
   if(shotStart)window.ManagerStoryLive3D.captureShotStart?.(shotStart);
   if(!goal)matchEvent('chance',M.min+'’ '+p.name+' şutunun sonucu: '+({save:'kurtarış',block:'blok',post:'direk',wide:'aut'}[outcome])+'.',
     {side,playerId:user?p.id:null,xg,onTarget:on,outcome});

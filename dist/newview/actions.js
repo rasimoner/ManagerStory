@@ -102,6 +102,25 @@ export const ACTIONS = {
   },
 };
 
+// drag-back: the sole rolls the ball back under the body, then he turns away with it
+ACTIONS.dragBack = {
+  dur: 0.7, mask: 'all',
+  keys: [
+    { t: 0, p: { RightUpLeg: [-10, 0, 0], RightLeg: [30, 0, 0], Spine: [10, 0, 0] } },
+    { t: 0.3, p: { RightUpLeg: [-38, 0, -4], RightLeg: [20, 0, 0], RightFoot: [-28, 0, 0], LeftLeg: [34, 0, 0], Spine: [6, 0, 0], LeftArm: [-10, 0, -50], RightArm: [-20, 0, 52], Head: [20, 0, 0] } },
+    { t: 0.55, p: { RightUpLeg: [-6, 0, -2], RightLeg: [52, 0, 0], RightFoot: [-10, 0, 0], LeftLeg: [40, 0, 0], Spine: [14, 30, 6], LeftArm: [10, 0, -36], RightArm: [-30, 0, 40], Head: [10, -20, 0] } },
+    { t: 1, p: { RightUpLeg: [-14, 0, 0], RightLeg: [32, 0, 0], Spine: [10, 0, 0] } },
+  ],
+};
+// shoulder-to-shoulder: he leans his weight into the man and gets his body between man and ball
+ACTIONS.shoulder = {
+  dur: 0.6, mask: 'upper',
+  keys: [
+    { t: 0, p: {} },
+    { t: 0.4, p: { Spine: [18, -12, 22], LeftArm: [-6, 0, -66], RightArm: [-24, 0, 40], RightForeArm: [0, 46, 0], Head: [8, 10, 0] } },
+    { t: 1, p: {} },
+  ],
+};
 // throw-in: ball taken behind the head with both hands, released over it
 ACTIONS.throwIn = {
   dur: 1.0, contact: 0.55, mask: 'upper',

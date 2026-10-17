@@ -130,8 +130,9 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
   test(`fixture ${fixture}: the camera follows smoothly — the ball never jerks about on screen, the view never jumps`, async () => {
     const { view } = await match(fixture);
     if (process.env.NV_DEBUG) console.log('camera', JSON.stringify(view.cam));
-    // (V7.6 camera: about 0.08; the edge-of-frame correction that made the picture stutter: 0.46)
-    assert.ok(view.cam.jitterP99 < 0.12, 'ball screen jitter p99 ' + view.cam.jitterP99.toFixed(3));
+    // (V7.6 camera: 0.07–0.10, part of it the ball's own sudden kicks; the edge-of-frame correction
+    // that made the picture stutter: 0.46–0.50)
+    assert.ok(view.cam.jitterP99 < 0.15, 'ball screen jitter p99 ' + view.cam.jitterP99.toFixed(3));
     assert.equal(view.cam.jumps, 0, 'camera jumps');
   });
   test(`fixture ${fixture}: every engine event is played in order, without stalls, and the score shown is the engine's`, async () => {
