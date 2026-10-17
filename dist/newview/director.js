@@ -57,6 +57,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }
     // a restart in progress: players take up the engine's arrangement for it until it is taken
     if (S.restartHomes) for (const p of rt.players) { const q = S.restartHomes[p.side + ':' + p.id]; if (q) p.home = toWorld(q); }
+    // a direct free kick: the wall stands shoulder to shoulder and the taker's team-mates keep off the ball (view only)
+    if (S.restartHomes && S.fkHomes) for (const p of rt.players) { const w = S.fkHomes[p.side + ':' + p.id]; if (w) p.home = w.clone(); }
   }
   function faceBall(p) { p.heading = Math.atan2(ball.p.x - p.pos.x, ball.p.z - p.pos.z); }
   // stable per-event choice in [0,1): the same match always looks the same
@@ -76,6 +78,29 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (lvl < cur && d > GAIT_AT[lvl] * 0.7) lvl = cur;          // keep going until clearly there
     p.gait = Math.min(lvl, cap);
     return GAIT[p.gait];
+  }
+  // The engine spaces every player at least ~3 m from his team-mates, which spreads its wall over
+  // 8 m and leaves the fouled player standing by the ball. For the picture: the defenders the engine
+  // put in the wall line up shoulder to shoulder 9.15 m out, covering the near post; the taker's
+  // team-mates near the ball step out of the line to goal.
+  function freeKickHomes(spot, toGoal, taker, arranged) {
+    if (!arranged) return null;
+    const out = {}, across = V(toGoal.z, 0, -toGoal.x), wall = [];
+    for (const p of rt.players) {
+      if (p.offPitch || p.role === 'GK' || p === taker) continue;
+      const q = arranged[p.side + ':' + p.id]; if (!q) continue;
+      const w = toWorld(q), rel = V(w.x - spot.x, 0, w.z - spot.z), al = rel.dot(toGoal), ac = rel.dot(across);
+      if (p.side !== taker.side && al > 7 && al < 11.5 && Math.abs(ac) < 6.5) wall.push({ p, ac });
+      else if (p.side === taker.side && rel.length() < 6 && al > -2) {
+        const side = ac >= 0 ? 1 : -1;
+        out[p.side + ':' + p.id] = spot.clone().addScaledVector(toGoal, Math.max(1, al)).addScaledVector(across, side * 5).setY(0);
+      }
+    }
+    wall.sort((a, b) => a.ac - b.ac);
+    // the wall covers the near post's side of the goal; the keeper the other half
+    const near = Math.sign(spot.z || 1), nearSide = Math.sign(across.z || 1) * near, n = wall.length;
+    wall.forEach(({ p }, k) => { out[p.side + ':' + p.id] = spot.clone().addScaledVector(toGoal, 9.4).addScaledVector(across, (k - (n - 1) / 2) * 0.7 + nearSide * 0.5).setY(0); });
+    return out;
   }
   function shape() {
     // smoothed ball offset from where it was when the engine took the positions
@@ -604,10 +629,16 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (ahead) S.restartHomes = ahead.arranged;
     else if (!e.restartType && !['foul', 'yellow', 'red', 'sub', 'offside', 'injury'].includes(e.type)) S.restartHomes = null;
     layout(i, false);
+    // an offside call is coming: the receiver is already making his (early) run
+    const offAhead = events.slice(i + 1, i + 4).find(x => x.type === 'offside');
+    if (offAhead && S.offRun !== offAhead.eventId) {
+      const r = P(offAhead.toId, offAhead.toSide);
+      if (r && !r.busy && ball.owner !== r) { S.offRun = offAhead.eventId; r.target.copy(toWorld(offAhead.toPos)); r.want = 6.8; r.runUntil = S.t + 8; r.face = null; }
+    }
     const from = P(e.fromId, e.fromSide), to = P(e.toId, e.toSide);
     switch (e.type) {
       case 'kickoff': {
-        if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; } S.restartSpot = null;
+        if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; } S.restartSpot = null; S.fkHomes = null;
         layout(i, true); S.dead = false; ball.allowOut = false; ball.held = null;
         ball.p.set(0, BALL_R, 0); ball.v.set(0, 0, 0); ball.owner = from;
         hooks.cam('tv', null, null, true);
@@ -652,7 +683,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         break;
       case 'pass': case 'cross': case 'goalKick': case 'freeKick': case 'corner': case 'throwIn': {
         if (!from) break;
-        if (e.restartType) { S.dead = false; if (S.restartTaker && S.restartTaker !== from) { S.restartTaker.busy = false; ball.held = null; } S.restartTaker = null; S.restartSpot = null; }
+        if (e.restartType) { S.dead = false; if (S.restartTaker && S.restartTaker !== from) { S.restartTaker.busy = false; ball.held = null; } S.restartTaker = null; S.restartSpot = null; S.fkHomes = null; }
         if (e.type === 'corner') hooks.cam('tv');
         const target = toWorld(e.toPos);
         const receiver = to && to !== from ? to : null;
@@ -758,6 +789,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
           const directFK = type === 'FREE_KICK' && events.slice(i + 1, i + 5).some(x => x.type === 'shot' && x.freeKick);
           const toGoalDir = V(Math.sign(spot.x || 1) * GOAL_X - spot.x, 0, -spot.z).normalize();
           const atGoal = directFK || type === 'PENALTY';      // a shot at goal: he stands behind the ball, facing the goal
+          S.fkHomes = directFK ? freeKickHomes(spot, toGoalDir, taker, events.slice(i, i + 3).find(x => x.type === 'restartPlayers')?.arranged) : null;
+          if (S.fkHomes) layout(i, false);
           const outward = type === 'THROW_IN' ? V(0, 0, Math.sign(spot.z) * 0.45) : atGoal ? toGoalDir.clone().multiplyScalar(type === 'PENALTY' ? -1.8 : -2.6) : V(spot.x, 0, spot.z).setY(0).normalize().multiplyScalar(0.7);
           taker.target.copy(spot).add(outward).setY(0); taker.want = taker.pos.distanceTo(spot) > 8 ? 7 : 4.5; taker.face = atGoal ? V(Math.sign(spot.x || 1) * GOAL_X, 0, 0) : V(0, 0, 0); taker.faceLock = false;
           yield* until(() => taker.pos.distanceTo(taker.target) < 0.6, taker.pos.distanceTo(taker.target) / 5 + 2);
@@ -774,7 +807,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       case 'restartWait': {
         // the restart is taken once the players are (nearly) in place for it — a real pause, short for a throw-in
         const R = S.restartSpot, close = p => R && p.side !== R.side && p.role !== 'GK' && p.pos.distanceTo(R.spot.clone().setY(0)) < 8.5;
-        const far = () => rt.players.filter(p => { const q = S.restartHomes?.[p.side + ':' + p.id]; return q && !p.offPitch && !p.busy && toWorld(q).distanceTo(p.pos) > 3; }).length;
+        const far = () => rt.players.filter(p => { const k = p.side + ':' + p.id, q = S.restartHomes?.[k]; return q && !p.offPitch && !p.busy && (S.fkHomes?.[k] || toWorld(q)).distanceTo(p.pos) > (S.fkHomes?.[k] ? 1.2 : 3); }).length;
         const near = () => rt.players.some(p => !p.offPitch && !p.busy && close(p));
         yield* until(() => far() <= 2 && !near(), e.restartType === 'THROW_IN' ? 1.2 : e.restartType === 'CORNER' ? 4.5 : 4);
         // a direct free kick: the camera goes behind the taker, wall and goal in the picture
@@ -785,8 +818,23 @@ export function createDirector(rt, data, hooks, opts = {}) {
       case 'offside': {
         // the pass is played to the man beyond the line; the flag goes up as it is played, the line is shown
         const passer = e.fromId != null ? P(e.fromId, e.fromSide) : ball.owner, rec = P(e.toId, e.toSide);
+        if (passer && rec && passer !== rec && ball.owner !== passer && (!ball.owner || ball.owner.side === passer.side)) yield* ensureOwner(passer);
+        // the line the viewer can see: the second-last defender on the pitch now (keeper included),
+        // never inside the attackers' own half; the receiver is beyond it when the ball is played
+        const keeper = keeperOf(rec ? (rec.side === 'user' ? 'opp' : 'user') : 'opp'), g = Math.sign(keeper?.pos.x || toWorld(e.toPos).x || 1);
+        const lineNow = () => Math.max(rt.players.filter(q => !q.offPitch && rec && q.side !== rec.side).map(q => q.pos.x * g).sort((a, b) => b - a)[1] ?? 0, 0) * g;
+        let line3D = lineNow();
         if (passer && rec && passer !== rec && ball.owner === passer) {
+          // the passer waits for the run: the ball is played once the receiver is beyond the line
+          // (a run that starts too far back takes a moment, the passer holds the ball meanwhile)
+          if ((rec.pos.x - line3D) * g < 0.6) {
+            passer.busy = true; rec.busy = true; rec.want = 7;
+            yield* until(() => { line3D = lineNow(); rec.target.set(line3D + g * 3, 0, toWorld(e.toPos).z); return (rec.pos.x - line3D) * g > 0.6; }, 3.5);
+            rec.busy = false;
+          }
+          line3D = lineNow();
           const toW = toWorld(e.toPos);
+          if (toW.x * g < line3D * g + 1.2) toW.x = line3D + g * Math.max(1.5, Math.min(4, rec.pos.x * g - line3D * g + 1));
           rec.target.copy(toW); rec.want = 6.5; rec.runUntil = S.t + 2; rec.face = null;
           passer.busy = true;
           const dir = V(toW.x - ball.p.x, 0, toW.z - ball.p.z);
@@ -796,7 +844,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           yield* until(() => rt.actionAtContact(passer), 2);
           rt.kickGround(toW, 4.5, 0.7); passer.busy = false;
         }
-        if (e.lineX != null) hooks.offsideLine?.(toWorld([e.lineX, 50]).x);
+        hooks.offsideLine?.(line3D);
         hooks.whistle(); hooks.banner('OFSAYT', 1500);
         yield* wait(1.0);
         break;
@@ -938,7 +986,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     for (const p of rt.players) { if (!p.offPitch) { p.busy = false; rt.place(p, p.pos); } }
     layout(Math.max(0, idx - 1), true);
     ball.held = null; ball.v.set(0, 0, 0); ball.allowOut = false; S.dead = false;
-    if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; } S.restartSpot = null;
+    if (S.restartTaker) { S.restartTaker.busy = false; S.restartTaker = null; } S.restartSpot = null; S.fkHomes = null;
     const w = toWorld(ballPct || [50, 50]); ball.p.set(w.x, BALL_R, w.z);
     ball.owner = ownerId != null ? P(ownerId, ownerSide) : null;
     if (ball.owner) { ball.owner.pos.set(w.x - 0.45, 0, w.z); }
