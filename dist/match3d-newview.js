@@ -45,15 +45,50 @@ html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:non
 .nv-full .nv-who{left:max(10px,env(safe-area-inset-left,0px));top:calc(env(safe-area-inset-top,0px) + 50px);bottom:auto}
 .nv-full .nv-banner{top:34%}
 @media (orientation:landscape) and (max-height:520px){.nv-bottom{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 8px}.nv-comm{flex-basis:100%;font-size:14px}.nv-row{flex-wrap:nowrap}.nv-seg button,.nv-pill{min-height:36px;padding:8px 10px}}
-@media (prefers-reduced-motion:reduce){.nv-banner{transition:none}}`;
+@media (prefers-reduced-motion:reduce){.nv-banner{transition:none}}
+.nv-tbtn{position:absolute;top:8px;right:52px;height:36px;padding:0 10px;display:grid;place-items:center;border:1px solid #f4c43088;border-radius:9px;background:#0d1117b0;color:#f4c430;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;touch-action:manipulation;z-index:3}
+.nv-full .nv-tbtn{top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 62px);height:44px}
+.nv-tune{position:absolute;left:50%;top:52px;transform:translateX(-50%);width:min(340px,calc(100% - 20px));max-height:calc(100% - 64px);overflow:auto;z-index:4;background:#0d1117ee;border:1px solid #f4c43066;border-radius:12px;padding:10px 12px;color:#f3f5f7;font:500 14px/1.3 -apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 6px 24px #000a}
+.nv-full .nv-tune{top:calc(env(safe-area-inset-top,0px) + 62px)}
+.nv-tune h4{margin:0 0 4px;font-size:14px;color:#f4c430}.nv-tune p{margin:0 0 8px;font-size:12px;color:#aab4bf}
+.nv-tune .r{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #ffffff14}
+.nv-tune .r span{flex:1}.nv-tune .r b{min-width:46px;text-align:center;font-variant-numeric:tabular-nums}
+.nv-tune button{font:700 16px/1 -apple-system,BlinkMacSystemFont,sans-serif;min-width:40px;min-height:36px;border:1px solid #ffffff30;border-radius:8px;background:#1f2731;color:#f3f5f7;cursor:pointer;touch-action:manipulation}
+.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}`;
 document.head.append(css);
 
 const surface = document.createElement('div'); surface.className = 'career3d v73pitch';
-surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-dir" aria-label="Hücum yönü"><b></b><i>➜</i></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><button class="nv-fs" type="button" aria-label="Tam ekran" title="Tam ekran">⤢</button><div class="nv-hud"><div class="nv-bug" aria-label="Skor"><span class="t1"></span><span class="sc"></span><span class="t2"></span><span class="clk"></span></div><div class="nv-bottom"><div class="nv-comm" aria-live="polite"></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Kamera"><button type="button" data-cam="auto" aria-pressed="true">Otomatik</button><button type="button" data-cam="tv" aria-pressed="false">Yayın</button><button type="button" data-cam="close" aria-pressed="false">Yakın</button><button type="button" data-cam="stand" aria-pressed="false">Tribün</button></div></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Hız"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button></div><button type="button" class="nv-pill" data-act="pause">Duraklat</button><button type="button" class="nv-pill go" data-act="intervene">Müdahale</button></div></div></div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
+surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-dir" aria-label="Hücum yönü"><b></b><i>➜</i></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><button class="nv-fs" type="button" aria-label="Tam ekran" title="Tam ekran">⤢</button><button class="nv-tbtn" type="button" aria-label="Hız ayarları (geçici)">⚙ Hız</button><div class="nv-tune" hidden></div><div class="nv-hud"><div class="nv-bug" aria-label="Skor"><span class="t1"></span><span class="sc"></span><span class="t2"></span><span class="clk"></span></div><div class="nv-bottom"><div class="nv-comm" aria-live="polite"></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Kamera"><button type="button" data-cam="auto" aria-pressed="true">Otomatik</button><button type="button" data-cam="tv" aria-pressed="false">Yayın</button><button type="button" data-cam="close" aria-pressed="false">Yakın</button><button type="button" data-cam="stand" aria-pressed="false">Tribün</button></div></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Hız"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button></div><button type="button" class="nv-pill" data-act="pause">Duraklat</button><button type="button" class="nv-pill go" data-act="intervene">Müdahale</button></div></div></div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 const bannerEl = surface.querySelector('.nv-banner'), whoEl = surface.querySelector('.nv-who'), loadingEl = surface.querySelector('.nv-loading'), status = surface.querySelector('[role=status]');
 const dirEl = surface.querySelector('.nv-dir');
 const fsBtn = surface.querySelector('.nv-fs'), hud = surface.querySelector('.nv-hud'), commEl = surface.querySelector('.nv-comm');
+// ---------- temporary speed tuning (V7.8 dev; the user sets the real speeds on the phone) ----------
+// Saved on this device only. Defaults are the current game: the buttons play at 0.5, 1 and 2,
+// players and the ball at their normal pace, the camera at its normal easing, a shot in 0.45 slow motion.
+const TUNE_KEY = 'managerstory-nv-tune-v1';
+const TUNE_DEF = { s05: 0.5, s1: 1, s2: 2, player: 1, ball: 1, cam: 1, slowmo: 0.45 };
+const TUNE_ROWS = [['s05', '0.5× tuşu = oyun hızı', 0.05], ['s1', '1× tuşu = oyun hızı', 0.05], ['s2', '2× tuşu = oyun hızı', 0.05], ['player', 'Oyuncu koşu hızı', 0.05], ['ball', 'Top hızı (pas ve şut)', 0.05], ['cam', 'Kamera takip hızı', 0.1], ['slowmo', 'Şut anı ağır çekim', 0.05]];
+const tune = { ...TUNE_DEF };
+try { const saved = JSON.parse(localStorage.getItem(TUNE_KEY) || '{}'); for (const k of Object.keys(TUNE_DEF)) if (Number.isFinite(saved[k])) tune[k] = saved[k]; } catch (e) { /* storage unavailable: defaults */ }
+const tuneBtn = surface.querySelector('.nv-tbtn'), tuneEl = surface.querySelector('.nv-tune');
+function realSpeed() { const s = M?.speed || 1; return s === 0.5 ? tune.s05 : s === 2 ? tune.s2 : s === 1 ? tune.s1 : s; }
+function paintTune() {
+  if (tuneEl.hidden) return;
+  tuneEl.innerHTML = '<h4>Hız ayarları (geçici)</h4><p>Şu an <span class="now">' + (M?.speed || 1) + '× tuşu → oyun ' + realSpeed().toFixed(2) + '</span>. Değerler bu cihazda saklanır.</p>'
+    + TUNE_ROWS.map(([k, label]) => '<div class="r"><span>' + label + '</span><button type="button" data-tk="' + k + '" data-d="-1">−</button><b>' + tune[k].toFixed(2) + '</b><button type="button" data-tk="' + k + '" data-d="1">+</button></div>').join('')
+    + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
+}
+tuneBtn.addEventListener('click', () => { tuneEl.hidden = !tuneEl.hidden; paintTune(); });
+tuneEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const k = b.dataset.tk;
+  if (k === 'close') { tuneEl.hidden = true; return; }
+  if (k === 'reset') Object.assign(tune, TUNE_DEF);
+  else { const row = TUNE_ROWS.find(r => r[0] === k); if (!row) return; tune[k] = Math.round(Math.min(4, Math.max(0.05, tune[k] + Number(b.dataset.d) * row[2])) * 100) / 100; }
+  try { localStorage.setItem(TUNE_KEY, JSON.stringify(tune)); } catch (err) { /* storage unavailable */ }
+  paintTune();
+});
 const bugT1 = hud.querySelector('.t1'), bugT2 = hud.querySelector('.t2'), bugSc = hud.querySelector('.sc'), bugClk = hud.querySelector('.clk'), pauseBtn = hud.querySelector('[data-act=pause]');
 
 // ---------- fullscreen broadcast mode ----------
@@ -88,7 +123,7 @@ function syncButtons() {
 hud.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b || !M) return;
   if (b.dataset.cam) { camMode = b.dataset.cam; cut = true; }
-  else if (b.dataset.speed) setMatchSpeed(Number(b.dataset.speed));
+  else if (b.dataset.speed) { setMatchSpeed(Number(b.dataset.speed)); paintTune(); }
   else if (b.dataset.act === 'pause') { const p = typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : M.pause; if (p) resumeLive(); else pauseLive(); }
   else if (b.dataset.act === 'intervene') { setFull(false); if (typeof openDecisionSheet === 'function') openDecisionSheet(); }
   syncButtons();
@@ -100,7 +135,8 @@ function paintHud() {
   bugT2.style.background = t.away.primaryColor; bugT2.style.color = t.away.secondaryColor;
   bugSc.textContent = (st?.eventScore || [M.hg, M.ag]).join('–');
   bugClk.textContent = typeof clockFromSeconds === 'function' ? clockFromSeconds(st?.displayMatchSeconds ?? matchSecond()) : M.min + "'";
-  const line = typeof liveCommentaryLines === 'function' ? liveCommentaryLines()[0] : '';
+  // the subtitle the view says at the moment it happens (the kick, or the end of a duel); the clock's line until then
+  const line = sayLine ?? (typeof liveCommentaryLines === 'function' ? liveCommentaryLines()[0] : '');
   if (commEl.textContent !== line) commEl.textContent = line || '';
   syncButtons();
 }
@@ -184,7 +220,7 @@ function teams() {
 // ---------- per match ----------
 let banTimer;
 function banner(text, ms) { clearTimeout(banTimer); bannerEl.textContent = text; bannerEl.classList.add('on'); banTimer = setTimeout(() => bannerEl.classList.remove('on'), Math.min(ms, 2200)); }
-let autoCam = { mode: 'tv', a: null, b: null }, simSlow = 1, cut = true;
+let autoCam = { mode: 'tv', a: null, b: null }, simSlow = 1, cut = true, sayLine = null;
 let offLine = null, offLineTimer = null;
 function startMatchView() {
   if (rt) for (const p of rt.players) scene.remove(p.model);
@@ -192,12 +228,13 @@ function startMatchView() {
   const t = teams();
   crowd = stadium.buildCrowd(t.home.primaryColor, t.home.secondaryColor, t.away.primaryColor, t.away.secondaryColor) || [];
   rt = createRuntime({ scene, rig: assets.rig, gait: assets.gait, ramp: stadium.toonRamp, numberTexture, cadence: CADENCE, stride: STRIDE });
+  rt.S.tune = tune; sayLine = null;
   snaps = [{ n: M.events.length, pl: enginePositions() }];
   const roster = rosterList();
   rosterKey = JSON.stringify(roster.map(r => [r.side, r.id]));
   const fresh = matchSecond() === 0 && M.events.length <= 1;
   director = createDirector(rt, { events: M.events, snaps, meta: { user: roster.filter(r => r.side === 'user'), opp: roster.filter(r => r.side === 'opp'), teams: t, userHome: M.userHome } }, {
-    say() {}, banner: (text, ms) => { if (text !== 'GOL' && text !== 'MAÇ SONU' && text !== 'DEVRE ARASI') banner(text, ms); },
+    say: (text, e) => { sayLine = (e && typeof presentationEvent === 'function' ? presentationEvent(e).text : text) || sayLine; }, banner: (text, ms) => { if (text !== 'GOL' && text !== 'MAÇ SONU' && text !== 'DEVRE ARASI') banner(text, ms); },
     flash: text => banner(text, 1100),
     // a yellow line across the pitch at the offside line for a couple of seconds
     offsideLine: x => {
@@ -206,7 +243,7 @@ function startMatchView() {
     }, excite: v => { stadium.crowdMat.uniforms.uExcite.value = stadium.flagMat.uniforms.uExcite.value = v; },
     score() {}, minute() {},
     cam: (mode, a = null, b = null, hard = false) => { autoCam = { mode, a, b }; if (hard) cut = true; },
-    slow: s => { simSlow = s; }, whistle() {}, finished() {},
+    slow: s => { simSlow = s < 1 ? tune.slowmo : s; }, whistle() {}, finished() {},
   }, { startIndex: fresh ? 0 : M.events.length, debug: TEST_SCALE > 1 || /[?&]nvdebug/.test(location.search) });
   if (!fresh) director.resync(M.ballOwner, M.ballSide, M.ballState?.position);
   lastEvents = M.events.length; match = M; cut = true;
@@ -222,7 +259,7 @@ function updateCamera(dtReal, aspect) {
   }
   broadcast ||= createBroadcastCamera(camera);
   if (cut) { broadcast.cut(); cut = false; }
-  broadcast.update(rt, cam, dtReal, aspect);
+  broadcast.update(rt, cam, dtReal * tune.cam, aspect);
   stadium.sun.target.position.copy(broadcast.look); stadium.sun.position.copy(broadcast.look).add(new THREE.Vector3(-30, 60, 40));
 }
 
@@ -281,7 +318,7 @@ function frame(now) {
   if (key !== rosterKey) { director.syncRoster(roster); rosterKey = key; }
   // after the final whistle the view still plays the match's last actions, unless the drain is paused
   const hold = M.finished ? !director.busy || (!!window.ManagerStoryLive3D?.finishing && paused()) : paused();
-  const dt = hold ? 0 : dtReal * (M.speed || 1) * simSlow * TEST_SCALE;
+  const dt = hold ? 0 : dtReal * realSpeed() * simSlow * TEST_SCALE;
   if (dt > 0) {
     const n = Math.max(1, Math.ceil(dt / (1 / 120)));
     for (let i = 0; i < n; i++) { rt.S.t += dt / n; director.update(); for (const p of rt.players) if (!p.offPitch) rt.move(p, dt / n); rt.stepBall(dt / n); rt.contacts(); }
@@ -316,6 +353,7 @@ function frame(now) {
 const FAST = 6;
 window.ManagerStoryNewView = {
   get active() { return isActive() && !!director && match === M; },
+  get subtitle() { return sayLine; },
   get busy() { return this.active && director.busy; },
   gate(state) {
     if (!this.active) return null;

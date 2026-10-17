@@ -255,11 +255,12 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     return best;
   }
   function kickGround(to, arrive = 3, k = ROLL_K) {
+    S.kicks = (S.kicks || 0) + 1;
     const d = Math.hypot(to.x - ball.p.x, to.z - ball.p.z);
     // a struck pass skims over the grass (k), a touch or a loose ball drags (ROLL_K);
     // a driven pass, not a cannon shot: past ~26 m/s it simply arrives slower
     ball.rollK = k;
-    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(Math.min(26, arrive + k * d));
+    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(Math.min(26, arrive + k * d) * (S.tune?.ball ?? 1));
     ball.owner = null;          // a bouncing ball played on keeps its height and drops
   }
   // a ball taken into the hands travels there over a moment instead of popping into them
@@ -270,6 +271,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   // a struck pass rolls on its own drag until someone has it or it has died down
   function rollK() { if (ball.owner || ball.held || Math.hypot(ball.v.x, ball.v.z) < 1.5) ball.rollK = null; return ball.rollK || ROLL_K; }
   function kickAir(to, flight) {
+    S.kicks = (S.kicks || 0) + 1;
     ball.rollK = null;
     // air drag (see stepBall) is allowed for, so the ball really arrives at `to` after `flight` s
     const k = AIR_K, f = k / (1 - Math.exp(-k * flight));
@@ -410,7 +412,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     if (p.motion && el >= p.motion.dur) p.motion = null;
     const to = tmp.copy(p.target).sub(p.pos); to.y = 0;
     const d = to.length();
-    const want = Math.min(p.want, d > 0.05 ? Math.sqrt(2 * 5 * Math.max(0, d - 0.12)) : 0);
+    const want = Math.min(p.want * (S.tune?.player ?? 1), d > 0.05 ? Math.sqrt(2 * 5 * Math.max(0, d - 0.12)) : 0);
     const desired = d > 1e-3 ? to.multiplyScalar(want / d) : to.set(0, 0, 0);
     const acc = desired.length() > p.vel.length() ? 6 : 9;
     const dv = desired.sub(p.vel), m = dv.length();

@@ -4,6 +4,7 @@ import * as THREE from '../vendor/three/three.module.min.js';
 import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
 
+const SAY_AT_START = new Set(['ballCarry', 'dribble', 'run', 'kickoff', 'foul', 'yellow', 'red', 'sub', 'injury', 'half', 'end', 'goal']);
 const SKIP_TEXT = new Set(['offBallRun', 'press', 'chance', 'restartPlayers', 'restartWait', 'restartPosition', 'firstTouch', 'looseBall']);
 const RESTART_LABEL = { CORNER: 'KORNER', GOAL_KICK: 'KALE VURUŞU', THROW_IN: 'TAÇ', FREE_KICK: 'SERBEST VURUŞ', PENALTY: 'PENALTI' };
 
@@ -491,10 +492,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
     let smother = 0;
     if (outcome === 'save' && gk) {
       const gz = gk.pos.z, front = gk.pos.x - goalSide * 0.3;
-      if (Math.abs(ball.p.x) > Math.abs(front) - 0.6) {
+      if (Math.abs(ball.p.x) > Math.abs(front) - 0.6 && Math.hypot(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) < 7) {
         // the shooter is level with or past the keeper: he smothers it on its way to the line
         aim = V(clamp(ball.p.x + goalSide * 0.8, -52, 52), 0.3, ball.p.z + (aim.z - ball.p.z) * 0.15);
-        smother = Math.hypot(aim.x - gk.pos.x, aim.z - gk.pos.z) / 5.5;
+        smother = Math.min(1, Math.hypot(aim.x - gk.pos.x, aim.z - gk.pos.z) / 5.5);
       } else {
         let z = clamp(aim.z, gz - 2.3, gz + 2.3);
         if (gz - 2.3 < 2.9 && gz + 2.3 > -2.9) z = clamp(z, -2.9, 2.9);       // inside the posts when he can reach there
@@ -502,7 +503,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       }
     }
     // a free kick is bent up over the wall and dips (a slower, higher flight)
-    const dist = aim.distanceTo(ball.p), flight = Math.max(0.35, dist / (e.header ? 14 : e.freeKick ? 19 : 24), smother);
+    const dist = aim.distanceTo(ball.p), flight = Math.max(0.35, dist / ((e.header ? 14 : e.freeKick ? 19 : 24) * (S.tune?.ball ?? 1)), smother);
     // a blocker steps into the line first
     let blocker = null;
     if (outcome === 'block' && block) {
@@ -592,7 +593,12 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if ((e.type === 'red' || e.type === 'sub') && pendingRoster) applyRoster(pendingRoster);
     if (e.homeGoals != null) hooks.score(e.homeGoals, e.awayGoals);
     hooks.minute(e.minute);
-    if (!SKIP_TEXT.has(e.type) && !handled.has(i)) hooks.say(e.text);
+    // the subtitle follows the picture: a kick is described when the ball is struck, a duel or a
+    // save when it has been decided (the end of its play); a run with the ball or a whistle at once
+    if (!SKIP_TEXT.has(e.type) && !handled.has(i)) {
+      flushSay();
+      if (SAY_AT_START.has(e.type)) hooks.say(e.text, e); else sayQ = { e, i, kicks: S.kicks || 0 };
+    }
     // as soon as the ball is out, players head for the arrangement of the coming restart
     const ahead = e.type === 'ballOut' || e.type === 'restartPosition' || e.type === 'restartPlayers' ? events.slice(i, i + 3).find(x => x.type === 'restartPlayers' && x.arranged) : null;
     if (ahead) S.restartHomes = ahead.arranged;
@@ -860,6 +866,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }
     return null;
   }
+  let sayQ = null;
+  function flushSay() { if (sayQ) { const q = sayQ; sayQ = null; hooks.say(q.e.text, q.e); } }
   function update() {
     shape();
     if (!task) task = nextTask();
@@ -876,6 +884,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       }
       task = nextTask();
     }
+    if (sayQ && ((S.kicks || 0) > sayQ.kicks || !task || task.i !== sayQ.i)) flushSay();
     for (const p of rt.players) if (p.dive) rt.updateDive(p);
   }
 
@@ -891,7 +900,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     for (let k = 0; k < s; k++) if (events[k].homeGoals != null) hooks.score(events[k].homeGoals, events[k].awayGoals);
     ball.held = null; ball.v.set(0, 0, 0);
     if (owner) { const w = toWorld(e.fromPos || [50, 50]); owner.pos.copy(w); ball.p.set(w.x + 0.5, BALL_R, w.z); ball.owner = owner; }
-    idx = s; task = null; hooks.slow(1); hooks.cam('tv', null, null, true);
+    idx = s; task = null; sayQ = null; hooks.slow(1); hooks.cam('tv', null, null, true);
     return true;
   }
 
@@ -925,7 +934,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
   // jump to "now": used when the view becomes visible again in the middle of a match
   function resync(ownerId, ownerSide, ballPct) {
-    idx = events.length; task = null;
+    idx = events.length; task = null; sayQ = null;
     for (const p of rt.players) { if (!p.offPitch) { p.busy = false; rt.place(p, p.pos); } }
     layout(Math.max(0, idx - 1), true);
     ball.held = null; ball.v.set(0, 0, 0); ball.allowOut = false; S.dead = false;

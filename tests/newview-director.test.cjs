@@ -82,7 +82,7 @@ async function playMatch(rec) {
     if (step % 4 === 3) {      // one phone frame = 1/60 s real = 2/60 s of match
       const before = broadcast.pos.clone();
       broadcast.update(rt, shotPlan, 1 / 60, 390 / 760); camera.updateMatrixWorld(); if (broadcast.cutFrame) cutNow = true;
-      ndc.copy(ball.p).project(camera); screen.push([ndc.x, ndc.y, ndc.z < 1 && !cutNow]); camMoves.push(cutNow ? 0 : before.distanceTo(broadcast.pos)); cutNow = false;
+      ndc.copy(ball.p).project(camera); screen.push([ndc.x, ndc.y, ndc.z < 1 && !cutNow]); camMoves.push(cutNow ? 0 : before.distanceTo(broadcast.pos)); if (process.env.NV_DEBUG) (out.camAt ||= []).push([+rt.S.t.toFixed(2), director.current?.type, shotPlan?.mode]); cutNow = false;
     }
     const current = director.current?.type;
     // how long each engine event takes to play on the pitch (the match clock waits for it)
@@ -114,7 +114,7 @@ async function playMatch(rec) {
   // and frames where the camera jumps (moves far more than in the frames around it)
   const jitter = [], jumps = [];
   for (let i = 2; i < screen.length; i++) if (screen[i][2] && screen[i - 1][2] && screen[i - 2][2]) jitter.push(Math.hypot(screen[i][0] - 2 * screen[i - 1][0] + screen[i - 2][0], screen[i][1] - 2 * screen[i - 1][1] + screen[i - 2][1]));
-  for (let i = 1; i < camMoves.length - 1; i++) if (camMoves[i] > 0.25 && camMoves[i] < 30 && camMoves[i] > 3 * Math.max(camMoves[i - 1], camMoves[i + 1])) jumps.push(+camMoves[i].toFixed(2));
+  for (let i = 1; i < camMoves.length - 1; i++) if (camMoves[i] > 0.25 && camMoves[i] < 30 && camMoves[i] > 3 * Math.max(camMoves[i - 1], camMoves[i + 1])) { jumps.push(+camMoves[i].toFixed(2)); if (process.env.NV_DEBUG) console.log('camjump', camMoves[i].toFixed(2), JSON.stringify(out.camAt?.slice(i - 3, i + 2)), camMoves.slice(i - 3, i + 3).map(v => v.toFixed(2)).join(',')); }
   jitter.sort((a, b) => a - b);
   const camStats = { jitterP99: jitter[Math.floor(0.99 * (jitter.length - 1))], jumps: jumps.length, jumpSizes: jumps.slice(0, 10), offFrame: screen.filter(x => !x[2] || Math.abs(x[0]) > 1 || Math.abs(x[1]) > 1).length / screen.length };
   return { ...out, director, shown, stats: director.stats, cam: camStats };

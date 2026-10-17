@@ -4,12 +4,16 @@ import * as THREE from '../vendor/three/three.module.min.js';
 
 export function createBroadcastCamera(camera) {
   const pos = new THREE.Vector3(-8, 12, 26), look = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
-  let wantFov = 46, cut = true, lastMode = null;
+  let wantFov = 46, cut = true, lastMode = null, lastSide = null;
   function shot(rt, cam, aspect) {
     const b = rt.ball.p, tall = aspect < 1.25, { mode, a, b: o } = cam;
     if (mode === 'close' && a && o) {
       const d = o.pos.clone().sub(a.pos).setY(0); if (d.lengthSq() < 1e-4) d.set(1, 0, 0); d.normalize();
-      const side = new THREE.Vector3(-d.z, 0, d.x); if (side.z < 0) side.negate();
+      const side = new THREE.Vector3(-d.z, 0, d.x);
+      // the camera stays on the near (TV) side; when the two players stand along the pitch's length
+      // it keeps the side it is on instead of flipping across with every small step
+      if (lastSide && Math.abs(side.z) < 0.35) { if (side.dot(lastSide) < 0) side.negate(); } else if (side.z < 0) side.negate();
+      lastSide = side.clone();
       wantPos.copy(a.pos).addScaledVector(d, -4.8).addScaledVector(side, 2.6).setY(2.0);
       wantLook.copy(a.pos).lerp(o.pos, 0.55).setY(0.8); wantFov = tall ? 52 : 40;
     } else if (mode === 'close' && a) {
