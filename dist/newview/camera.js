@@ -23,8 +23,9 @@ export function createBroadcastCamera(camera) {
       const side = new THREE.Vector3(-g.z, 0, g.x); if (side.z < 0) side.negate();
       wantPos.copy(a.pos).addScaledVector(g, -5.4).addScaledVector(side, 1.6).setY(2.0); wantLook.copy(a.pos).addScaledVector(g, 9).setY(1.0); wantFov = tall ? 54 : 42;
     } else if (mode === 'stand') {
-      // high angle from the pitch side, the crowd wall behind the ball (corner and touchline views)
-      const sz = Math.sign(b.z || -1), sx = Math.abs(b.x) > 36 ? Math.sign(b.x) : 0;
+      // high angle from the TV side of the pitch, the far stand behind the ball (corner and touchline
+      // views). It never crosses to the other touchline: that would turn left and right round on screen
+      const sz = -1, sx = Math.abs(b.x) > 36 ? Math.sign(b.x) : 0;
       const back = new THREE.Vector3(-sx * 0.8, 0, -sz).normalize();
       wantPos.copy(b).addScaledVector(back, tall ? 20 : 24).setY(tall ? 17 : 15);
       wantPos.x = Math.max(-56, Math.min(56, wantPos.x)); wantPos.z = Math.max(-36, Math.min(36, wantPos.z));
