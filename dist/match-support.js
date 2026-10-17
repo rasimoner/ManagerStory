@@ -170,7 +170,7 @@ function shotInterventionActor(e){
 }
 // V7.8: commentary variety. The sentence is picked from the event's own number (no dice), so the same
 // match always reads the same, but a match no longer repeats one sentence per event type.
-function lineVariant(seed, lines) { return lines[((Math.imul((seed | 0) + 7, 2654435761) >>> 0) >> 3) % lines.length]; }
+function lineVariant(seed, lines) { return lines[((Math.imul((seed | 0) + 7, 2654435761) >>> 0) >>> 3) % lines.length]; }   // (unsigned shift: a negative index read "undefined")
 function presentationEvent(e){
  if(!e)return e;
  if(['press','tackle','interception'].includes(e.type)){
