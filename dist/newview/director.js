@@ -727,13 +727,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
           // a direct free kick: the taker stands a few steps back, in line with the goal, for his run-up
           const directFK = type === 'FREE_KICK' && events.slice(i + 1, i + 5).some(x => x.type === 'shot' && x.freeKick);
           const toGoalDir = V(Math.sign(spot.x || 1) * GOAL_X - spot.x, 0, -spot.z).normalize();
-          const outward = type === 'THROW_IN' ? V(0, 0, Math.sign(spot.z) * 0.45) : directFK ? toGoalDir.multiplyScalar(-2.6) : V(spot.x, 0, spot.z).setY(0).normalize().multiplyScalar(0.7);
-          taker.target.copy(spot).add(outward).setY(0); taker.want = taker.pos.distanceTo(spot) > 8 ? 7 : 4.5; taker.face = V(0, 0, 0); taker.faceLock = false;
+          const atGoal = directFK || type === 'PENALTY';      // a shot at goal: he stands behind the ball, facing the goal
+          const outward = type === 'THROW_IN' ? V(0, 0, Math.sign(spot.z) * 0.45) : atGoal ? toGoalDir.clone().multiplyScalar(type === 'PENALTY' ? -1.8 : -2.6) : V(spot.x, 0, spot.z).setY(0).normalize().multiplyScalar(0.7);
+          taker.target.copy(spot).add(outward).setY(0); taker.want = taker.pos.distanceTo(spot) > 8 ? 7 : 4.5; taker.face = atGoal ? V(Math.sign(spot.x || 1) * GOAL_X, 0, 0) : V(0, 0, 0); taker.faceLock = false;
           yield* until(() => taker.pos.distanceTo(taker.target) < 0.6, taker.pos.distanceTo(taker.target) / 5 + 2);
           // the last step onto the spot (at walking pace, no jump)
           const from0 = taker.pos.clone(), t0 = S.t, step = Math.max(0.15, from0.distanceTo(taker.target) / 2.2);
           yield* until(() => { const k = Math.min(1, (S.t - t0) / Math.max(1e-3, step)); taker.pos.lerpVectors(from0, taker.target, k * k * (3 - 2 * k)); taker.vel.multiplyScalar(0.8); return k >= 1; }, step + 0.1);
-          taker.heading = Math.atan2(-taker.pos.x * (type === 'THROW_IN' ? 0.3 : 1), -taker.pos.z);
+          taker.heading = atGoal ? Math.atan2(toGoalDir.x, toGoalDir.z) : Math.atan2(-taker.pos.x * (type === 'THROW_IN' ? 0.3 : 1), -taker.pos.z);
           if (type === 'THROW_IN') { taker.loopsWant.throwHold = 1; taker.loops.throwHold = 1; ball.held = rt.pickUp(() => rt.handsOf(taker), 0.5); }
           ball.owner = taker; S.restartTaker = taker;     // he stays on the ball until the restart is taken
         }
