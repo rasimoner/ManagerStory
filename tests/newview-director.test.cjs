@@ -81,7 +81,7 @@ async function playMatch(rec) {
     rt.stepBall(SUB); rt.contacts();
     if (step % 4 === 3) {      // one phone frame = 1/60 s real = 2/60 s of match
       const before = broadcast.pos.clone();
-      broadcast.update(rt, shotPlan, 1 / 60, 390 / 760); camera.updateMatrixWorld();
+      broadcast.update(rt, shotPlan, 1 / 60, 390 / 760); camera.updateMatrixWorld(); if (broadcast.cutFrame) cutNow = true;
       ndc.copy(ball.p).project(camera); screen.push([ndc.x, ndc.y, ndc.z < 1 && !cutNow]); camMoves.push(cutNow ? 0 : before.distanceTo(broadcast.pos)); cutNow = false;
     }
     const current = director.current?.type;

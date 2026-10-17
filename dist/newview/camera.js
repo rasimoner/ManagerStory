@@ -4,7 +4,7 @@ import * as THREE from '../vendor/three/three.module.min.js';
 
 export function createBroadcastCamera(camera) {
   const pos = new THREE.Vector3(-8, 12, 26), look = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
-  let wantFov = 46, cut = true;
+  let wantFov = 46, cut = true, lastMode = null;
   function shot(rt, cam, aspect) {
     const b = rt.ball.p, tall = aspect < 1.25, { mode, a, b: o } = cam;
     if (mode === 'close' && a && o) {
@@ -30,17 +30,22 @@ export function createBroadcastCamera(camera) {
       wantPos.set(b.x - 2, (tall ? 10.5 : 14) + lift * 0.9, z); wantLook.set(b.x + 2, 0, b.z - 2); wantFov = tall ? 46 : 34;
     }
   }
-  return {
-    pos, look,
+  const api = {
+    pos, look, cutFrame: false,
     cut() { cut = true; },
     // eases towards the shot in real time, as a TV operator would
     update(rt, cam, dtReal, aspect) {
       shot(rt, cam, aspect);
+      // a new shot far from the current one is a cut, as a director would make it, not a fast swing
+      if (cam.mode !== lastMode && lastMode != null && pos.distanceTo(wantPos) > 12) cut = true;
+      lastMode = cam.mode;
       const k = 1 - Math.exp(-dtReal * (cam.mode === 'stand' ? 1.8 : cam.mode === 'shot' ? 2.4 : 3));
+      api.cutFrame = cut || pos.distanceTo(wantPos) > 30;
       if (cut || pos.distanceTo(wantPos) > 30) { pos.copy(wantPos); look.copy(wantLook); camera.fov = wantFov; cut = false; }
       else { pos.lerp(wantPos, k); look.lerp(wantLook, k); camera.fov += (wantFov - camera.fov) * k; }
       camera.aspect = aspect; camera.updateProjectionMatrix();
       camera.position.copy(pos); camera.lookAt(look);
     },
   };
+  return api;
 }

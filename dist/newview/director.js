@@ -746,7 +746,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* until(() => far() <= 2, e.restartType === 'THROW_IN' ? 1.2 : e.restartType === 'CORNER' ? 4.5 : 3);
         // a direct free kick: the camera goes behind the taker, wall and goal in the picture
         const fkShot = e.restartType === 'FREE_KICK' && events[i + 1]?.type === 'shot' && events[i + 1].freeKick ? events[i + 1] : null;
-        if (fkShot) { const tk = P(fkShot.fromId, fkShot.fromSide), gk0 = rt.players.find(q => q.role === 'GK' && q.side !== fkShot.fromSide && !q.offPitch); if (tk) hooks.cam('shot', tk, gk0); hooks.banner('SERBEST VURUŞ', 1500); yield* wait(1.4); break; }
+        if (fkShot) { const tk = P(fkShot.fromId, fkShot.fromSide), gk0 = rt.players.find(q => q.role === 'GK' && q.side !== fkShot.fromSide && !q.offPitch); if (tk) hooks.cam('shot', tk, gk0, true); hooks.banner('SERBEST VURUŞ', 1500); yield* wait(1.4); break; }
         yield* wait(0.4); if (e.restartType !== 'CORNER') hooks.cam('tv'); break;
       }
       case 'offside': {
