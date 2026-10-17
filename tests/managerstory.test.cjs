@@ -246,7 +246,7 @@ test('V7.2 career save is preserved and upgraded on load',()=>{
  const original=h.storage.get('msv4'),restored=harness(h.storage);
  assert.equal(restored.storage.get('msv4-v72-backup'),original);
  assert.equal(restored.run('S.budget'),7732100);
- assert.equal(restored.run('S.version'),'7.7.0');assert.equal(restored.run('S.v73.schema'),1);
+ assert.equal(restored.run('S.version'),'7.8.0');assert.equal(restored.run('S.v73.schema'),1);
 });
 test('goal kick begins in six-yard area and cannot fall back to kickoff',()=>{
  const h=harness();h.run('S=fresh();init();startMatch()');const before=h.run('M.events.filter(e=>e.type==="kickoff").length');
@@ -335,7 +335,7 @@ test('opponent roster identities, attributes, fatigue, evolution and V7.3 migrat
  h.run('S.version="7.3";save()');const original=h.storage.get('msv4');
  const reopened=harness(h.storage);
  assert.equal(reopened.storage.get('msv4-v73-backup'),original);
- assert.equal(reopened.run('S.version'),'7.7.0');
+ assert.equal(reopened.run('S.version'),'7.8.0');
  assert.equal(reopened.run('M.oppLineup.o9'),first);
 });
 test('one ball state tracks owners and restarts without extra kickoffs',()=>{
@@ -433,7 +433,7 @@ test('injury at halftime remains resolvable without skipping halftime side switc
 });
 test('authoritative second stamps events; stale 02:00 animation cannot replay under 07:56',()=>{
  // the test wipes M.events, so it needs a fixture that is still goalless at 07:56 (otherwise score and goal events legitimately disagree)
- let h;for(let fixture=0;fixture<34;fixture++){h=harness();h.run(`S=fresh();init();S.fixture=${fixture};startMatch();advanceLive(476/90)`);if(h.run('M.hg+M.ag')===0)break;}
+ let h;for(let fixture=0;fixture<34;fixture++){h=harness();h.run(`S=fresh();init();S.fixture=${fixture};startMatch();advanceLive(476/90)`);if(h.run('M.hg+M.ag')===0&&h.run('M.min>=7'))break;}   // (and it must have reached 07:56: an early injury pause stops the clock)
  assert.equal(h.run('matchClock()'),'07:56');
  h.run('M.events=[];M.story=[];matchEvent("pass","Eski etiket",{gameSecond:120,minute:2})');
  assert.equal(h.run('M.events.at(-1).gameSecond'),476);
@@ -659,7 +659,7 @@ test('press and individual instruction tradeoffs alter positions and fatigue',()
 });
 test('a scoreless twenty minute period still has coherent movement, pressure and ball ownership',()=>{
  // the seeded fixture must stay goalless for 20 minutes (a goal legitimately resets shape via kickoff)
- let h;for(let fixture=0;fixture<34;fixture++){h=harness();h.run(`S=fresh();init();S.fixture=${fixture};startMatch();advanceLive(13.35)`);if(h.run('M.hg+M.ag')===0)break;}
+ let h;for(let fixture=0;fixture<34;fixture++){h=harness();h.run(`S=fresh();init();S.fixture=${fixture};startMatch();advanceLive(13.35)`);if(h.run('M.hg+M.ag')===0&&h.run('M.min>=20'))break;}   // (an early injury pause is not a 20 minute period)
  assert.ok(h.run('M.min>=20'));
  assert.equal(h.run('M.hg+M.ag'),0);
  assert.ok(h.run('Object.keys(M.dynamicPositions).length>=20'));

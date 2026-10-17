@@ -12,7 +12,7 @@ export const GOAL_X = 52.5, BALL_R = 0.11, G = 9.81, ROLL_K = 1.1, AIR_K = 0.06;
 // contact: seconds into the clip where the foot/head meets the ball.
 export const MOTIONS = {
   tackle: { contact: 0.36, fadeIn: 0.1, fadeOut: 0.22, slideEnd: 1.15 },
-  header: { contact: 0.4, fadeIn: 0.08, fadeOut: 0.3, takeoff: 0.12, land: 0.72, lift: 0.4 },
+  header: { contact: 0.4, fadeIn: 0.08, fadeOut: 0.3, takeoff: 0.12, land: 0.72, lift: 0.12 },   // (0.4 put the boots ~0.9 m off the grass)
   cheer: { fadeIn: 0.3, fadeOut: 0.5 },
 };
 const LOCO = ['idle', 'walk', 'run', 'sprint'];
@@ -255,11 +255,12 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     return best;
   }
   function kickGround(to, arrive = 3, k = ROLL_K) {
+    S.kicks = (S.kicks || 0) + 1;
     const d = Math.hypot(to.x - ball.p.x, to.z - ball.p.z);
     // a struck pass skims over the grass (k), a touch or a loose ball drags (ROLL_K);
     // a driven pass, not a cannon shot: past ~26 m/s it simply arrives slower
     ball.rollK = k;
-    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(Math.min(26, arrive + k * d));
+    ball.v.set(to.x - ball.p.x, 0, to.z - ball.p.z).normalize().multiplyScalar(Math.min(26, arrive + k * d) * (S.tune?.ball ?? 1));
     ball.owner = null;          // a bouncing ball played on keeps its height and drops
   }
   // a ball taken into the hands travels there over a moment instead of popping into them
@@ -270,6 +271,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   // a struck pass rolls on its own drag until someone has it or it has died down
   function rollK() { if (ball.owner || ball.held || Math.hypot(ball.v.x, ball.v.z) < 1.5) ball.rollK = null; return ball.rollK || ROLL_K; }
   function kickAir(to, flight) {
+    S.kicks = (S.kicks || 0) + 1;
     ball.rollK = null;
     // air drag (see stepBall) is allowed for, so the ball really arrives at `to` after `flight` s
     const k = AIR_K, f = k / (1 - Math.exp(-k * flight));
@@ -319,6 +321,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   // keeper dive: roll towards the ball's side so the gloves reach where it crosses his line
   function planDive(gk, at, tArrive, save) {
     const reaction = 0.12;
+    // still down from a dive a moment ago: the new one starts from where his body is, not from where he took off
+    if (gk.dive?.cur) { const c = gk.dive.cur, r0 = V(-Math.cos(gk.heading), 0, Math.sin(gk.heading)); gk.pos.copy(c.base).addScaledVector(r0, c.slide).setY(0); }
     const h0 = gk.heading, R = V(-Math.cos(h0), 0, Math.sin(h0)), F = V(Math.sin(h0), 0, Math.cos(h0));
     const rel = at.clone().sub(gk.pos);
     let d = rel.dot(R); const side = d >= 0 ? 1 : -1; d = Math.abs(d);
@@ -408,7 +412,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     if (p.motion && el >= p.motion.dur) p.motion = null;
     const to = tmp.copy(p.target).sub(p.pos); to.y = 0;
     const d = to.length();
-    const want = Math.min(p.want, d > 0.05 ? Math.sqrt(2 * 5 * Math.max(0, d - 0.12)) : 0);
+    const want = Math.min(p.want * (S.tune?.player ?? 1), d > 0.05 ? Math.sqrt(2 * 5 * Math.max(0, d - 0.12)) : 0);
     const desired = d > 1e-3 ? to.multiplyScalar(want / d) : to.set(0, 0, 0);
     const acc = desired.length() > p.vel.length() ? 6 : 9;
     const dv = desired.sub(p.vel), m = dv.length();
@@ -480,7 +484,9 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     for (const k of ['jockey', 'keeperReady', 'throwHold']) {
       p.loops[k] = lerp(p.loops[k], p.loopsWant[k], Math.min(1, dt * 5));
       const w = p.loops[k] * (1 - mw);
-      if (w > 0.01) { applyAction(p.bones, k, 0, w); groundW = Math.max(groundW, w); }
+      // a looping stance with several keys is played through its cycle (each player at his own phase)
+      const per = ACTIONS[k].period, ph = per ? ((S.t / per + (p.idleT || 0) / 3) % 1) : 0;
+      if (w > 0.01) { applyAction(p.bones, k, ph, w); groundW = Math.max(groundW, w); }
     }
     if (p.act) {
       const a = ACTIONS[p.act.name], el = S.t - p.act.t0;
@@ -537,8 +543,23 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     if (!ball.allowOut) keepIn(dt);
     if (Math.abs(ball.p.x) > 57) { ball.p.x = Math.sign(ball.p.x) * 57; ball.v.x *= -0.2; }
     if (Math.abs(ball.p.z) > 37) { ball.p.z = Math.sign(ball.p.z) * 37; ball.v.z *= -0.2; }
+    netCatch();
     const inGoal = Math.abs(ball.p.x) > GOAL_X && Math.abs(ball.p.z) < 3.66 && ball.p.y < 2.44;
     ball.out = !inGoal && (Math.abs(ball.p.x) > GOAL_X + BALL_R || Math.abs(ball.p.z) > 34 + BALL_R);
+  }
+  // The goal net (2 m deep, back wall 1.6 m high, roof sloping down from the bar): a ball in the goal
+  // is caught by the mesh — it gives, the ball loses its pace and drops — and S.netHit tells the
+  // stadium where to ripple the net.
+  const NET_D = 2.0, NET_H = 1.6;
+  function netCatch() {
+    const s = Math.sign(ball.p.x), gx = Math.abs(ball.p.x) - GOAL_X;
+    if (gx <= 0.05 || gx > NET_D + 0.6 || Math.abs(ball.p.z) > 3.8) return;
+    const back = NET_D - (ball.p.y > NET_H ? (ball.p.y - NET_H) / (2.44 - NET_H) * NET_D : 0) - BALL_R;
+    let hit = false;
+    if (gx > back && ball.v.x * s > 0) { ball.p.x = s * (GOAL_X + Math.max(0.05, back)); hit = Math.abs(ball.v.x); ball.v.x = -s * Math.abs(ball.v.x) * 0.08; ball.v.z *= 0.35; ball.v.y = Math.min(ball.v.y, 0) * 0.4; }
+    if (Math.abs(ball.p.z) > 3.66 - BALL_R && ball.v.z * Math.sign(ball.p.z) > 0 && Math.abs(ball.p.z) < 3.8) { ball.p.z = Math.sign(ball.p.z) * (3.66 - BALL_R); hit = Math.max(hit || 0, Math.abs(ball.v.z)); ball.v.z *= -0.1; ball.v.x *= 0.5; }
+    if (ball.p.y > 2.44 - BALL_R && ball.v.y > 0) { ball.v.y = 0; }
+    if (hit && hit > 1.5 && (!S.netHit || S.t - S.netHit.t > 0.3)) S.netHit = { t: S.t, x: ball.p.x, y: ball.p.y, z: ball.p.z, v: hit };
   }
   // While the engine says the ball is in play it must stay in play: a ball rolling towards a line
   // loses pace so it dies just inside it, the way an over-hit touch stops on the chalk.

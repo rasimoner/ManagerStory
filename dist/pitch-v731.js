@@ -327,7 +327,16 @@ function kickoffTaker(side){
  const pool=outfieldOf(side);
  return pool.find(id=>roleOf(id,side)==='CM')??pool.find(id=>roleOf(id,side)==='CAM')??pool[0];
 }
+/* V7.8: a free kick within shooting range, in front of goal, is struck at goal over a wall */
+function directFreeKick(side,pos){
+ const dir=attackDirection(side),toGoal=dir>0?100-pos[0]:pos[0];
+ return toGoal>=16.5&&toGoal<=31&&Math.abs(pos[1]-50)<21;
+}
+function freeKickSpecialist(side){
+ return outfieldOf(side).slice().sort((a,b)=>playerAttribute(b,side,'finishing',60)+playerAttribute(b,side,'technique',60)-playerAttribute(a,side,'finishing',60)-playerAttribute(a,side,'technique',60))[0];
+}
 function restartTaker(type,side,position){
+ if(type==='FREE_KICK'&&directFreeKick(side,position))return freeKickSpecialist(side);
  if(type==='GOAL_KICK')return keeperId(side);
  if(type==='PENALTY')return penaltyTaker(side);
  if(type==='KICK_OFF')return kickoffTaker(side);
@@ -371,6 +380,19 @@ function placeRestartPlayers(type,side,pos,taker){
   const near=outfieldOf(side).filter(id=>id!==taker).sort((a,b)=>pitchDistance(eventPoint(a,side),pos)-pitchDistance(eventPoint(b,side),pos)).slice(0,3);
   near.forEach((id,i)=>setP(id,[pos[0]+dir*(4+i*5)-(i===0?8:0),pos[1]<50?pos[1]+10+i*7:pos[1]-10-i*7]));
   near.forEach((id,i)=>{const m=nearestMarker(other,eventPoint(id,side));if(m&&i<2)setP(m.id,[eventPoint(id,side)[0]-dir*2.5,eventPoint(id,side)[1]+(pos[1]<50?-2:2)]);});
+ }else if(type==='FREE_KICK'&&directFreeKick(side,pos)){
+  // V7.8: a wall 9.15 m from the ball on the line to goal; attackers lurk at the edge of the box
+  setP(taker,pos,true);
+  const goal=[dir>0?100:0,50],dx=(goal[0]-pos[0])*1.05,dy=(goal[1]-pos[1])*.68,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len;
+  const n=Math.abs(pos[1]-50)<12?4:3,wall=outfieldOf(other).slice().sort((a,b)=>pitchDistance(eventPoint(a,other),pos)-pitchDistance(eventPoint(b,other),pos)).slice(0,n);
+  wall.forEach((id,i)=>{const off=(i-(n-1)/2)*.62;setP(id,[pos[0]+(ux*9.15-uy*off)/1.05,pos[1]+(uy*9.15+ux*off)/.68],true);});
+  outfieldOf(side).filter(id=>id!==taker).slice(0,3).forEach((id,i)=>setP(id,[goal[0]-dir*(14+i*2),36+i*14]));
+  const gk=keeperId(other);if(gk!=null)setP(gk,[goal[0]-dir*1.5,50+(pos[1]<50?3:-3)],true);
+ }else if(type==='GOAL_KICK'){
+  // V7.8: opponents leave the penalty area until the goal kick is taken (law 16)
+  setP(taker,pos,true);
+  const own=dir>0?0:100;
+  for(const id of outfieldOf(other)){const p=eventPoint(id,other);if(Math.abs(p[0]-own)<17&&p[1]>19&&p[1]<81)setP(id,[own+dir*(18.5+Math.abs(p[1]-50)%3),p[1]]);}
  }else{
   M.dynamicPositions[String(taker)]=[...pos];
  }
@@ -423,7 +445,7 @@ function restartDelivery(side,taker,receiver,from,target,ok,aerial){
  if(ok){M.stats.completedPasses[index]++;switchPitchOwner(receiver,side);setBallState(target,receiver);return true;}
  const icpt=nearestMarker(other,target);
  if(!aerial&&icpt&&icpt.d<14){
-  const gain=moveTowards(eventPoint(icpt.id,other),target,Math.min(icpt.d,10));
+  const gain=moveTowards(eventPoint(icpt.id,other),target,Math.min(Math.max(0,icpt.d-1.2),10));   // V7.8: he cuts in beside the intended receiver, not onto him
   M.dynamicPositions[String(icpt.id)]=gain;switchPitchOwner(icpt.id,other);setBallState(gain,icpt.id);
   M.stats.possessionsWon[other==='user'?userSide():1-userSide()]++;
  }else makeLooseBall(from,target,aerial?'aerial':'restart',other);
@@ -481,6 +503,10 @@ function executeRestart(type,side,taker,pos,R){
   }else makeLooseBall(tp,tp,'aerial',null);
   return;
  }
+ if(type==='FREE_KICK'&&directFreeKick(side,pos)){
+  resolveShot(side==='user',taker,shooterRecord(taker,side),{freeKick:true,source:pos,restartType:type});
+  return;
+ }
  let kind,receiver,target;
  if(type==='GOAL_KICK'){
   kind=goalKickKind(side,taker);receiver=restartReceiver(side,taker,kind,pos);
@@ -525,15 +551,18 @@ function runRestart(type,side,outPosition){
  const label={GOAL_KICK:'Kale vuruşu',CORNER:'Korner',THROW_IN:'Taç',FREE_KICK:'Serbest vuruş',PENALTY:'Penaltı'}[type];
  restartStep(R,'BALL_OUT');
  M.ballOwner=null;M.ballSide='none';setBallState(type==='KICK_OFF'?[50,50]:op,null,'BALL_OUT');
- if(visible&&type!=='PENALTY')matchEvent('ballOut',M.min+'’ Top oyun alanının dışında.',{restartType:type,fromPos:op,toPos:op,ballSide:'none'});
+ if(visible&&type!=='PENALTY')matchEvent('ballOut',M.min+'’ '+(type==='FREE_KICK'?'Hakem oyunu durdurdu.':lineVariant(M.events.length,['Top oyun alanının dışında.','Top dışarı çıktı.','Top çizgiyi geçti.'])),{restartType:type,fromPos:op,toPos:op,ballSide:'none'});
  restartStep(R,'DETERMINE_RESTART');
  restartStep(R,'POSITION_BALL');
  if(visible)matchEvent('restartPosition',M.min+'’ '+label+' hazırlanıyor.',{restartType:type,fromPos:op,toPos:pos,fromId:taker,toId:taker,fromSide:side,toSide:side,ballSide:'none'});
  restartStep(R,'POSITION_PLAYERS');
  placeRestartPlayers(type,side,pos,taker);
- if(visible)matchEvent('restartPlayers',M.min+'’ Oyuncular yerlerini aldı.',{restartType:type,restartPosition:pos,fromId:taker,toId:taker,fromSide:side,toSide:side,ballSide:'none',fromPos:pos,toPos:pos});
+ // V7.8: the arrangement for the restart travels with the event, so a view between the minute
+ // keyframes can show it (corner: the box filled; throw-in: team-mates come short; goal kick: box cleared)
+ const arranged=Object.fromEntries([...M.active.map(id=>['user',id]),...M.oppIds.map(id=>['opp',id])].map(([s,id])=>{const q=eventPoint(id,s);return [s+':'+id,[Math.round(q[0]*10)/10,Math.round(q[1]*10)/10]];}));
+ if(visible)matchEvent('restartPlayers',M.min+'’ '+({CORNER:'Oyuncular ceza sahasında yerini aldı.',FREE_KICK:'Oyuncular serbest vuruş için yerleşti.',THROW_IN:'Taç için oyuncular yaklaştı.',GOAL_KICK:'Rakip oyuncular ceza sahasını boşalttı.'}[type]||'Oyuncular yerlerini aldı.'),{restartType:type,restartPosition:pos,fromId:taker,toId:taker,fromSide:side,toSide:side,ballSide:'none',fromPos:pos,toPos:pos,arranged});
  restartStep(R,'WAIT_FOR_RESTART');
- if(visible)matchEvent('restartWait',M.min+'’ Oyun yeniden başlayacak.',{restartType:type,fromPos:pos,toPos:pos,ballSide:'none'});
+ if(visible)matchEvent('restartWait',M.min+'’ '+({CORNER:'Korner kullanılmak üzere.',FREE_KICK:'Serbest vuruş kullanılmak üzere.',THROW_IN:'Taç atılmak üzere.',GOAL_KICK:'Kaleci topu yerleştirdi.',PENALTY:'Penaltı atışı bekleniyor.'}[type]||'Oyun yeniden başlayacak.'),{restartType:type,fromPos:pos,toPos:pos,ballSide:'none'});
  restartStep(R,'EXECUTE_RESTART');
  executeRestart(type,side,taker,pos,R);
  // a goal or goal kick produced by the restart itself starts its own restart; this one is simply finished
