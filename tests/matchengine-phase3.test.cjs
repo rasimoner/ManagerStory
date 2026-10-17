@@ -91,7 +91,8 @@ test('HIGH vs LOW line: defenders really stand higher, relative to the attacking
 });
 
 test('SHORT vs DIRECT passing: distance and long-ball share differ; completion trades off', { timeout: 300000 }, () => {
-  const short = arm({ passingStyle: 'Kısa' }), direct = arm({ passingStyle: 'Direkt' });
+  // 16 matches per arm: over 8 the long-ball share difference sat at the edge of the threshold (seed noise)
+  const short = arm({ passingStyle: 'Kısa' }, { n: 16 }), direct = arm({ passingStyle: 'Direkt' }, { n: 16 });
   assert.ok(direct.passDist > short.passDist + 3, `distance ${direct.passDist.toFixed(1)} vs ${short.passDist.toFixed(1)}`);
   assert.ok(direct.longShare > short.longShare + .05, `long share ${direct.longShare.toFixed(3)} vs ${short.longShare.toFixed(3)}`);
   assert.ok(direct.completion < short.completion, `completion ${direct.completion.toFixed(3)} vs ${short.completion.toFixed(3)}`);
