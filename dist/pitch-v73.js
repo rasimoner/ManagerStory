@@ -750,7 +750,7 @@ function actionMinute(userPoss,effect,opponent){
   {const top=options.slice().sort((a,b)=>b.weight-a.weight)[0];
    if(top&&top.progress<-5&&freeAhead(point,side,dir)&&role!=='GK')actions[0].weight*=.3;
    if(top&&['ST','LW','RW','CAM'].includes(role||'')&&top.range>25&&top.progress<-12){actions[0].weight*=.35;actions[2].weight=Math.max(actions[2].weight,.6);}}
-  // V7.8.1: through on goal (no outfield defender between him and the goal, inside the last 30 m):
+  // V7.8.2: through on goal (no outfield defender between him and the goal, inside the last 30 m):
   // he goes for goal — a shot, or a team-mate better placed across the box — instead of turning back
   {const defName=side==='user'?'opp':'user';
    const through=role!=='GK'&&forward>70&&Math.abs(point[1]-50)<32&&!outfieldOf(defName).some(id=>{const q=eventPoint(id,defName),ahead=(q[0]-point[0])*dir;return ahead>-1&&Math.abs(q[1]-point[1])<ahead*.9+4;});
