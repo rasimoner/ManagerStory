@@ -428,7 +428,15 @@ export function createDirector(rt, data, hooks, opts = {}) {
       ball.owner = star; ball.held = null; ball.v.set(0, 0, 0); ball.p.set(at.x + fx * 0.5, BALL_R, at.z);
       rt.place(def, V(at.x + fx * 9, 0, at.z + 1)); def.heading = Math.atan2(-fx, 0);
       forced = kind;
-      if (kind === 'nolook') {
+      if (kind === 'flairpass') {
+        const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
+        const spot = V(at.x + fx * 14, 0, at.z - 7);
+        rt.place(mate, spot.clone().addScaledVector(V(fx, 0, 0), 2));
+        yield* carry(star, V(at.x + fx * 5, 0, at.z), 3.5);
+        tryMove = 'flairpass';
+        if (!(yield* flairPassTry(star, mate, spot, 'ground', false, { ev: { eventId: -1 } }))) { tryMove = null; forced = null; return true; }
+        star.busy = false; mate.busy = true; yield* chase(mate, spot); mate.busy = false;
+      } else if (kind === 'nolook') {
         const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
         rt.place(mate, V(at.x + fx * 16, 0, at.z - 8));
         yield* carry(star, V(at.x + fx * 6, 0, at.z), 4.2);
@@ -543,6 +551,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     // the pass in the middle of the move: the defender has gone with the step-over, the take is a pass
     if (opts.passTo) {
       rt.kickGround(opts.passTo, 4.5, 0.7); car.lastTouch = S.t; audit.kind = 'flairpass';
+      if (closeUp) hooks.cam('tv');
       noteSkill(audit, car);
       car.target.copy(car.pos); car.want = 0.5;
       yield* wait(0.3); hooks.slow(1);
@@ -905,6 +914,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     audit.heel = +heelOf(car, 'Left').distanceTo(ball.p).toFixed(3);
     const vf = 3.9, vy = 6.1;
     ball.v.copy(f).multiplyScalar(vf).setY(vy); car.lastTouch = S.t;
+    if (closeUp) hooks.cam('tv');          // the ball is up: the wide picture shows it go over him (the replay shows it close)
     const over = overWatch(def.pos.clone(), f);
     let apex = 0;
     def.target.copy(def.pos); def.want = 0.3; def.loopsWant.jockey = 0; def.face = ball.p; def.faceLock = true;
@@ -938,6 +948,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const audit = { kind: 'sombrero', toe: +toeGap(car, 'Right').toFixed(3) };
     const vf = 2.7, vy = 6.4;
     ball.v.copy(f).multiplyScalar(vf).setY(vy); car.lastTouch = S.t;
+    if (closeUp) hooks.cam('tv');          // the ball is up: the wide picture shows it go over him (the replay shows it close)
     const over = overWatch(def.pos.clone(), f);
     def.loopsWant.jockey = 0; def.face = ball.p; def.faceLock = true; def.want = 0.3; def.target.copy(def.pos);
     const land = landing(ball.v.x, vy, ball.v.z, ball.p);
@@ -980,6 +991,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(ball.p).setY(0); def.want = 3;
     const vf = 3.4, vy = 4.4;
     ball.v.copy(f).multiplyScalar(vf).setY(vy); car.lastTouch = S.t;
+    if (closeUp) hooks.cam('tv');          // the ball is up: the wide picture shows it go over him (the replay shows it close)
     const over = overWatch(def.pos.clone(), f);
     const land = landing(ball.v.x, vy, ball.v.z, ball.p);
     car.feet = null; car.faceLock = false;
