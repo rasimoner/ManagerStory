@@ -295,7 +295,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // settle the ball just in front of his boots (it is not put there: he steadies and lets it come back)
   function* gather(car, def, maxT = 0.9) {
     const f = fwdOf(car);
-    const ok = () => { const rel = V(ball.p.x - car.pos.x, 0, ball.p.z - car.pos.z), a = rel.dot(f), l = Math.abs(rel.dot(rightOf(car))); return a > 0.3 && a < 0.56 && l < 0.22; };
+    const ok = () => { const rel = V(ball.p.x - car.pos.x, 0, ball.p.z - car.pos.z), a = rel.dot(fwdOf(car)), l = Math.abs(rel.dot(rightOf(car))); return a > 0.3 && a < 0.56 && l < 0.22; };
     yield* until(() => {
       car.target.copy(ball.p).addScaledVector(f, -0.42); car.want = 2.4; car.face = null;
       def.target.copy(car.pos).addScaledVector(f, 1.9); def.want = 1.4; def.face = car.pos; def.faceLock = true; def.loopsWant.jockey = 1;
@@ -309,10 +309,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // ball back across the other way
   function* stepoverBeat(car, def, closeUp) {
     if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 3.2) return false;
+    // square up to the ball (turned, not snapped): his line is from him to the ball
+    car.face = ball.p; car.faceLock = true;
+    yield* until(() => { const want = Math.atan2(ball.p.x - car.pos.x, ball.p.z - car.pos.z), d = Math.atan2(Math.sin(want - car.heading), Math.cos(want - car.heading)); return Math.abs(d) < 0.06; }, 0.25);
     const f = fwdOf(car), r = rightOf(car), t0 = S.t, b0 = ball.p.clone();
     if (closeUp) hooks.cam('close', car, def);
     hooks.slow(0.4);
     car.target.copy(car.pos).addScaledVector(f, 0.15); car.want = 0.4; car.vel.multiplyScalar(0.35); ball.v.copy(f).multiplyScalar(0.12);
+    car.face = car.pos.clone().addScaledVector(f, 30); car.faceLock = true;            // square to the ball through the move
     ball.through = t0 + 1.0;          // his body does not nudge the ball on: only the boots play it during the move
     def.target.copy(def.pos); def.want = 0.5;
     const at = (a, l, y = 0.03) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
@@ -328,7 +332,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       } },
       Right: { w: ramp(t0, 0, 0.08, 0.95, 1.1), at: t => {
         const u = (t - t0) / 0.5;
-        if (u <= 1) { const [a, l] = spline(path, u); return at(a, l, 0.03 + 0.24 * Math.sin(Math.PI * clamp((u - 0.08) / 0.84, 0, 1))); }
+        if (u <= 1) { const [a, l] = spline(path, u); return at(a, l, 0.03 + 0.28 * Math.sin(Math.PI * clamp((u - 0.08) / 0.84, 0, 1))); }
         const k = clamp((t - t0 - 0.5) / 0.12, 0, 1);                      // lands outside, then comes back to the ball's right side
         return at(0.13 - 0.13 * k, 0.3 - 0.17 * k, 0.03 + 0.03 * Math.sin(Math.PI * k));
       } },
@@ -338,6 +342,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     let plant0 = null;
     yield* until(() => {
       const u = (S.t - t0) / 0.5, toe = car.feet.Right.last, sup = car.feet.Left.last;
+      if (DEBUG && toe && u > 0.15 && u < 0.85 && toe.distanceTo(ball.p) < 0.12 && !audit.close) audit.close = { u: +u.toFixed(2), toe: toe.toArray().map(v => +v.toFixed(2)), target: car.feet.Right.at(S.t).toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)), hip: car.bones.RightUpLeg.getWorldPosition(V()).toArray().map(v => +v.toFixed(2)), car: car.pos.toArray().map(v => +v.toFixed(2)), h: +car.heading.toFixed(2) };
       if (toe && u > 0.15 && u < 0.85) { audit.minGap = Math.min(audit.minGap, toe.distanceTo(ball.p)); audit.peak = Math.max(audit.peak, toe.y); }
       if (sup && S.t - t0 > 0.12 && S.t - t0 < 0.5) { plant0 ||= sup.clone(); audit.plantSlip = Math.max(audit.plantSlip, Math.hypot(sup.x - plant0.x, sup.z - plant0.z)); }
       if (S.t - t0 > 0.45) { car.target.copy(ball.p).addScaledVector(f, -0.28); car.want = 1.0; }      // a half step to the ball for the take
@@ -355,7 +360,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     car.target.copy(ball.p).addScaledVector(out, 0.5); car.want = 6;
     yield* wait(0.3); hooks.slow(1);
     rt.startAction(def, 'stumble'); def.want = 0.5; def.face = car.pos; def.faceLock = true;
-    yield* wait(0.35); car.feet = null;
+    yield* wait(0.35); car.feet = null; car.faceLock = false;
     def.busy = car.busy = false; def.faceLock = false; def.loopsWant.jockey = 0;
     yield* chase(car, null);
     if (closeUp) hooks.cam('tv');
