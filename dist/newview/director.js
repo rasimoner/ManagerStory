@@ -279,7 +279,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
     to.busy = true;
     if (chest) yield* chestControl(to, toW, kickT + flight);
     if (trap) { const done = yield* footTrap(to, toW, kickT + flight); if (trapTried) tryMove = done ? null : 'trap'; }
-    const ok = yield* chase(to, toW);
+    // V7.9: Bergkamp's turn — back to goal with a man on him, the first touch sends the ball round one
+    // side of the defender while he spins round the other
+    const pir = !chest && !trap && flight === 0 ? pirouetteChance(to, toW, opts, implicit) : null;
+    const ok = pir ? yield* pirouetteReceive(to, toW, pir) : yield* chase(to, toW);
     if (noLook) hooks.slow(1);
     if (!ok) { noteFix(to, 'pass'); ball.owner = to; ball.p.set(to.pos.x + Math.sin(to.heading) * .5, BALL_R, to.pos.z + Math.cos(to.heading) * .5); ball.v.set(0, 0, 0); }
     to.busy = false;
@@ -313,8 +316,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
       p.target.copy(ball.p).addScaledVector(f, -0.32).setY(0); p.want = 1.2;
       if (Math.hypot(ball.v.x, ball.v.z) > 0.6) ball.v.multiplyScalar(0.9);
       return a > 0.2 && a < 0.42 && l < 0.2;
-    }, 1);
-    if (!set) { p.faceLock = false; return false; }
+    }, 1.6);
+    if (!set) { p.faceLock = false; stats.lastFail = ['backheel', 'set', +S.t.toFixed(1)]; return false; }
     const t0 = S.t, b0 = ball.p.clone();
     p.vel.multiplyScalar(0.3); p.target.copy(p.pos); p.want = 0.2; ball.v.set(0, 0, 0); ball.through = t0 + 1.2;
     hooks.slow(0.5);
@@ -357,7 +360,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const hd = Math.atan2(aim.x, aim.z) - p.heading;
       return d < 0.12 && Math.abs(Math.atan2(Math.sin(hd), Math.cos(hd))) < 0.08 && Math.hypot(ball.v.x, ball.v.z) < 0.3;
     }, 3);
-    if (!set) { p.faceLock = false; return false; }
+    if (!set) { p.faceLock = false; stats.lastFail = ['rabona', 'set', +S.t.toFixed(1)]; return false; }
     const t0 = S.t, b0 = ball.p.clone();
     hooks.slow(0.4);
     p.vel.multiplyScalar(0.2); p.target.copy(p.pos); p.want = 0.2; ball.v.set(0, 0, 0); ball.through = t0 + 1.2;
@@ -430,6 +433,67 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // a little job for later (sim time), outside any event
   const laterQ = [];
   function later(dt, fn) { laterQ.push({ at: S.t + dt, fn }); }
+  // who turns his man with the first touch: a player who has it, back to goal in the final third with a
+  // defender tight behind him (or the test button: the nearest defender comes to him)
+  function pirouetteChance(to, toW, opts, implicit) {
+    if (!to || to.role === 'GK' || opts.restart || opts.throwIn || opts.meet) return null;
+    const tryIt = tryMove === 'pirouette' && to.side === 'user';
+    const goal = V(-ownGoalX(to.side), 0, 0), spot = V(toW.x, 0, toW.z);
+    const back = V(ball.p.x - spot.x, 0, ball.p.z - spot.z).normalize();            // he faces the ball as it comes
+    const toGoal = goal.clone().sub(spot).normalize();
+    if (!tryIt) {
+      if (implicit || !has(to, 'pirouette') || fromOwnGoal(to) < 70 || back.dot(toGoal) > -0.4 || pick(opts.ev, 41) > 0.5) return null;
+      const def = nearestOpp(to, 2.6);
+      if (!def || def.pos.clone().sub(spot).dot(toGoal) < 0.3) return null;
+      return { def, tried: false };
+    }
+    const def = nearestOpp(to, 25);
+    if (!def) return null;
+    tryMove = null;
+    return { def, tried: true };
+  }
+  function* pirouetteReceive(R, toW, pir) {
+    const D = pir.def;
+    // he comes to the ball, the defender right behind him
+    const ok0 = yield* until(() => {
+      const f = V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z), d = f.length(); f.normalize();
+      R.target.copy(toW).setY(0); R.want = Math.hypot(toW.x - R.pos.x, toW.z - R.pos.z) > 1 ? 5 : 1; R.face = ball.p; R.faceLock = true;
+      D.busy = true; D.target.copy(R.pos).addScaledVector(f, -1.15); D.want = 6; D.face = R.pos; D.faceLock = true;
+      return d < 2.2 && D.pos.distanceTo(R.pos) < 1.6;
+    }, 5);
+    if (!ok0) { D.busy = false; D.faceLock = false; R.faceLock = false; if (pir.tried) tryMove = 'pirouette'; return yield* chase(R, toW); }
+    const f = fwdOf(R), r = rightOf(R), R0 = R.pos.clone(), h0 = R.heading, t0 = S.t;
+    hooks.cam('close', R, D); hooks.slow(0.4);
+    ball.through = t0 + 2;
+    // the left boot meets the ball on its left side and sends it round the defender's left (his right)
+    const ballTo = R0.clone().addScaledVector(f, -2.4).addScaledVector(r, 1.0);
+    R.feet = { Left: { w: ramp(t0, 0, 0.1, 0.5, 0.65), at: () => ball.p.clone().addScaledVector(r, -0.12).addScaledVector(f, 0.02).setY(0.06) } };
+    const audit = { kind: 'pirouette' };
+    yield* until(() => { R.target.copy(R.pos); R.want = 0; return toeGap(R, 'Left') < 0.22 && V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z).dot(f) < 0.55; }, 1.2);
+    audit.touch = +toeGap(R, 'Left').toFixed(3);
+    const dir = ballTo.clone().sub(ball.p).setY(0), len = dir.length();
+    ball.v.copy(dir.normalize()).multiplyScalar(Math.min(4.6, 1.2 + len * 1.3)); ball.owner = null; R.lastTouch = S.t;
+    // he spins round the other side: half a turn to his left on an arc past the defender's right
+    const path = [[R0.x, R0.z], [R0.x - r.x * 0.75 - f.x * 0.35, R0.z - r.z * 0.75 - f.z * 0.35], [R0.x - r.x * 0.7 - f.x * 1.7, R0.z - r.z * 0.7 - f.z * 1.7], [ballTo.x, ballTo.z]];
+    const T = 1.0, t1 = S.t;
+    R.drive = { heading: t => h0 + Math.PI * smooth01(clamp((t - t1) / (T * 0.8), 0, 1)), pos: t => { const [x, z] = spline(path, smooth01(clamp((t - t1) / T, 0, 1)) * 0.92); return V(x, 0, z); } };
+    rt.startAction(D, 'lunge'); D.loopsWant.jockey = 0; D.target.copy(D.pos).addScaledVector(r, 0.9); D.want = 2;
+    let minD = 9, ballSide = 0, manSide = 0;
+    yield* until(() => {
+      minD = Math.min(minD, Math.hypot(ball.p.x - D.pos.x, ball.p.z - D.pos.z));
+      const bs = V(ball.p.x - D.pos.x, 0, ball.p.z - D.pos.z), ms = V(R.pos.x - D.pos.x, 0, R.pos.z - D.pos.z);
+      if (!ballSide && bs.dot(f) < 0) ballSide = Math.sign(bs.dot(r));
+      if (!manSide && ms.dot(f) < 0) manSide = Math.sign(ms.dot(r));
+      return S.t - t1 >= T * 0.92;
+    }, T + 0.2);
+    Object.assign(audit, { aroundBall: +minD.toFixed(2), sides: ballSide * manSide });
+    noteSkill(audit, R);
+    R.drive = null; R.feet = null; R.faceLock = false; R.heading = h0 + Math.PI;
+    hooks.slow(1); hooks.cam('tv');
+    rt.startAction(D, 'stumble'); D.want = 0.5;
+    later(0.6, () => { D.busy = false; D.faceLock = false; });
+    return yield* chase(R, null);
+  }
   // chest control: he gets under the dropping ball, leans back and lets it come off his chest to his feet
   const CHEST_H = 1.42;
   function* chestControl(p, spot, tArr) {
@@ -609,6 +673,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* carry(star, V(at.x + fx * 4, 0, at.z), 3.5);
         tryMove = kind;
         yield* pass(star, mate, spot, kind === 'rabona' ? 'aerial' : 'ground', false, { ev: { eventId: -1 } });
+      } else if (kind === 'pirouette') {
+        const mate = mateOf();
+        rt.place(mate, V(at.x - fx * 18, 0, at.z - 4)); ball.owner = mate; ball.p.copy(mate.pos).addScaledVector(V(fx, 0, 0), 0.5).setY(BALL_R); ball.v.set(0, 0, 0);
+        rt.place(star, V(at.x, 0, at.z), Math.atan2(-fx, 0)); tryMove = 'pirouette';
+        yield* pass(mate, star, V(at.x - fx * 0.6, 0, at.z), 'ground', false, { ev: { eventId: -1 } });
       } else if (kind === 'trap') {
         const mate = mateOf();
         rt.place(mate, V(at.x - fx * 30, 0, at.z - 6));
@@ -670,7 +739,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // opponent comes to him and he plays the move (whether he has it or not, wherever he is); the
   // match then goes on from there
   let tryMove = null, tryWait = 0;
-  const PASS_TRIES = new Set(['nolook', 'flairpass', 'backheel', 'rabona', 'trap', 'panenka', 'chip', 'bicycle']);
+  const PASS_TRIES = new Set(['nolook', 'flairpass', 'backheel', 'rabona', 'trap', 'panenka', 'chip', 'bicycle', 'pirouette']);
   function* tryNow(car) {
     const kind = tryMove;
     const def = rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== car.side && q.role !== 'GK')

@@ -95,6 +95,7 @@ export const STAR_MOVES = {
   rainbow: { name: 'GÖKKUŞAĞI', line: 'Topu topuğuyla arkadan kendi başının ve rakibin üstünden aşırtır.' },
   sombrero: { name: 'AŞIRTMA ÇALIM', line: 'Karşısındaki adamın başının üstünden aşırtır, arkasında yakalar.' },
   juggle: { name: 'SEKTİRİP GEÇME', line: 'Topu havaya kaldırır, havadayken bir daha dokunup uzanan bacağın üstünden geçer.' },
+  pirouette: { name: 'BERGKAMP DÖNÜŞÜ', line: 'Sırtı kaleye dönük, ilk dokunuşla topu adamın bir yanından geçirir, kendisi öbür yanından döner.' },
   backheel: { name: 'TOPUK PASI', line: 'Sırtı pasa dönükken topun üstünden basar, topukla arkadaşına bırakır.' },
   rabona: { name: 'RABONA', line: 'Vuran ayak destek ayağının arkasından dolanıp topa vurur.' },
   trap: { name: 'AYAKLA ÖLDÜRME', line: 'Gökten düşen topu ayağıyla karşılar, tek dokunuşta ayağının dibine indirir.' },

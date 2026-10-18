@@ -111,6 +111,7 @@ function skillMoves(id,side){
  if(role==='ST'&&(stars>=4||(t>=78&&fin>=80)))moves.push('bicycle');
  if(fin>=78&&t>=76)moves.push('chip');
  if(t>=78)moves.push('trap');
+ if((role==='ST'||role==='CAM'||role==='CF')&&stars>=4&&t>=80)moves.push('pirouette');
  return {stars,moves};
 }
 

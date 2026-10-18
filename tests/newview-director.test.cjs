@@ -210,6 +210,9 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
         if (k.kind === 'chip' && k.overKeeper != null) assert.ok(k.overKeeper > 2.2, 'over the keeper: ' + JSON.stringify(k));
       } else if (k.kind === 'bicycle') {
         assert.ok(k.contact < 0.35 && k.pitch > 1.3 && k.h > 1.2, 'over backwards, the boot on the ball above his head: ' + JSON.stringify(k));
+      } else if (k.kind === 'pirouette') {
+        assert.ok(k.touch < 0.3, 'the first touch is made with the boot: ' + JSON.stringify(k));
+        assert.ok(k.sides === -1 && k.aroundBall > 0.35, 'ball one side of the defender, the man the other: ' + JSON.stringify(k));
       } else if (k.kind === 'chest') {
         assert.ok(k.contact < 0.38 && k.h > 0.9, 'the ball is taken on the chest: ' + JSON.stringify(k));
       }
