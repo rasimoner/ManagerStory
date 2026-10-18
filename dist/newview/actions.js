@@ -133,6 +133,49 @@ ACTIONS.throwIn = {
 };
 // waiting at the touchline with the ball held at the chest
 ACTIONS.throwHold = { loop: true, mask: 'upper', keys: [{ t: 0, p: { LeftArm: [-55, 0, -70], RightArm: [-55, 0, 70], LeftForeArm: [0, -95, 0], RightForeArm: [0, 95, 0] } }] };
+// ---- V7.9 skill moves (the legs are placed by foot targets, see runtime footIK) ----
+// step-over: the right foot circles round the front of the ball from inside to outside without
+// touching it, the hips and shoulders dip right to sell the move
+ACTIONS.stepover = {
+  dur: 0.62, mask: 'all',
+  keys: [
+    { t: 0, p: { RightUpLeg: [-12, 0, 0], RightLeg: [34, 0, 0], LeftLeg: [30, 0, 0], Spine: [12, 0, 0] } },
+    { t: 0.3, p: { RightUpLeg: [-48, -10, 22], RightLeg: [70, 0, 0], RightFoot: [10, 0, 0], LeftUpLeg: [-8, 0, 4], LeftLeg: [44, 0, 0], LeftFoot: [-8, 0, 0], Spine: [16, -12, 8], LeftArm: [-10, 0, -40], RightArm: [-20, 0, 50], Head: [24, 0, 0] } },
+    { t: 0.55, p: { RightUpLeg: [-40, 10, -34], RightLeg: [52, 0, 0], RightFoot: [6, 0, 0], LeftUpLeg: [-4, 0, 8], LeftLeg: [50, 0, 0], LeftFoot: [-10, 0, 0], Spine: [18, -26, 22], LeftArm: [24, 0, -20], RightArm: [-26, 0, 60], LeftForeArm: [0, -40, 0], Head: [18, 10, 0] } },
+    { t: 0.8, p: { RightUpLeg: [-10, 0, -26], RightLeg: [40, 0, 0], LeftUpLeg: [6, 0, 6], LeftLeg: [54, 0, 0], Spine: [18, -20, 20], LeftArm: [20, 0, -26], RightArm: [-20, 0, 56], Head: [16, 8, 0] } },
+    { t: 1, p: { RightUpLeg: [-14, 0, -6], RightLeg: [34, 0, 0], LeftLeg: [36, 0, 0], Spine: [14, -6, 6] } },
+  ],
+};
+// the nutmeg: a short stab with the outside of the right foot, body low and over the ball
+ACTIONS.poke = {
+  dur: 0.42, contact: 0.45, mask: 'all',
+  keys: [
+    { t: 0, p: { RightUpLeg: [-6, 0, 0], RightLeg: [40, 0, 0], LeftLeg: [36, 0, 0], Spine: [16, 0, 0] } },
+    { t: 0.3, p: { RightUpLeg: [6, 20, 4], RightLeg: [62, 0, 0], RightFoot: [22, 0, 0], LeftUpLeg: [-14, 0, 0], LeftLeg: [46, 0, 0], Spine: [24, 10, 0], LeftArm: [-18, 0, -42], RightArm: [10, 0, 62], Head: [30, 0, 0] } },
+    { t: 0.45, p: { RightUpLeg: [-34, 22, -10], RightLeg: [24, 0, 0], RightFoot: [18, 0, 0], LeftUpLeg: [-16, 0, 0], LeftLeg: [48, 0, 0], Spine: [24, -4, 0], LeftArm: [-24, 0, -40], RightArm: [14, 0, 60], Head: [28, 0, 0] } },
+    { t: 1, p: { RightUpLeg: [-20, 0, 0], RightLeg: [36, 0, 0], Spine: [16, 0, 0] } },
+  ],
+};
+// defender squared up, legs spread wide (the gap the ball goes through)
+ACTIONS.spread = {
+  dur: 1.1, mask: 'all',
+  keys: [
+    { t: 0, p: { LeftUpLeg: [-26, 0, 8], RightUpLeg: [-26, 0, -8], LeftLeg: [46, 0, 0], RightLeg: [46, 0, 0], Spine: [24, 0, 0] } },
+    { t: 0.25, p: { LeftUpLeg: [-20, 0, 26], RightUpLeg: [-20, 0, -26], LeftLeg: [40, 0, 0], RightLeg: [40, 0, 0], LeftFoot: [-10, 0, 0], RightFoot: [-10, 0, 0], Spine: [30, 0, 0], Head: [-6, 0, 0], LeftArm: [-10, 0, -40], RightArm: [-10, 0, 40], LeftForeArm: [0, -40, 0], RightForeArm: [0, 40, 0] } },
+    { t: 0.6, p: { LeftUpLeg: [-14, 0, 24], RightUpLeg: [-14, 0, -24], LeftLeg: [30, 0, 0], RightLeg: [30, 0, 0], Spine: [44, 0, 0], Head: [30, 0, 0], LeftArm: [-30, 0, -30], RightArm: [-30, 0, 30] } },
+    { t: 1, p: { LeftUpLeg: [-10, 0, 8], RightUpLeg: [-10, 0, -8], LeftLeg: [24, 0, 0], RightLeg: [24, 0, 0], Spine: [16, 30, 0], Head: [0, 30, 0] } },
+  ],
+};
+// beaten: he commits, loses his footing, a hand goes down to the grass and he twists round
+ACTIONS.stumble = {
+  dur: 1.3, mask: 'all',
+  keys: [
+    { t: 0, p: { RightUpLeg: [-40, -20, -34], RightLeg: [14, 0, 0], LeftUpLeg: [-20, 0, 12], LeftLeg: [66, 0, 0], Spine: [32, -14, 26] } },
+    { t: 0.35, p: { RightUpLeg: [-56, -10, -40], RightLeg: [30, 0, 0], LeftUpLeg: [-6, 0, 20], LeftLeg: [96, 0, 0], LeftFoot: [-20, 0, 0], Spine: [52, -20, 34], LeftArm: [40, 0, -10], RightArm: [-60, 0, 20], LeftForeArm: [0, -10, 0], Head: [-10, -20, 0] } },
+    { t: 0.7, p: { RightUpLeg: [-44, -10, -30], RightLeg: [60, 0, 0], LeftUpLeg: [-20, 0, 14], LeftLeg: [100, 0, 0], Spine: [46, 30, 20], LeftArm: [30, 0, -20], RightArm: [-50, 0, 30], Head: [-20, 40, 0] } },
+    { t: 1, p: { RightUpLeg: [-20, 0, -6], RightLeg: [40, 0, 0], LeftLeg: [40, 0, 0], Spine: [20, 20, 6], Head: [0, 30, 0] } },
+  ],
+};
 // mirror an action left <-> right (angles about y and z flip sign)
 function mirror(src) {
   const swap = n => n.startsWith('Left') ? 'Right' + n.slice(4) : n.startsWith('Right') ? 'Left' + n.slice(5) : n;
@@ -140,6 +183,7 @@ function mirror(src) {
 }
 ACTIONS.diveLeft = mirror(ACTIONS.diveRight);
 ACTIONS.passLeft = mirror(ACTIONS.pass);
+ACTIONS.lungeL = mirror(ACTIONS.lunge);
 
 const MASKS = {
   all: null,

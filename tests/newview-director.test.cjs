@@ -153,6 +153,23 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     assert.deepEqual(view.ballJumps, [], 'ball position jumps');
   });
 
+  test(`fixture ${fixture}: skill moves are readable — the step-over boot circles the ball without touching it, the nutmeg goes between the feet`, async () => {
+    const { view } = await match(fixture);
+    const skills = view.stats.skills || [];
+    if (process.env.NV_DEBUG) console.log('skills', JSON.stringify(skills));
+    for (const k of skills) {
+      if (k.kind === 'stepover') {
+        assert.ok(k.minGap > 0.12, 'step-over boot stays off the ball: ' + JSON.stringify(k));
+        assert.ok(k.peak > 0.12, 'step-over boot lifts over the ball: ' + JSON.stringify(k));
+        assert.ok(k.plantSlip < 0.05, 'standing boot stays planted: ' + JSON.stringify(k));
+        assert.ok(k.contact != null && k.contact < 0.3, 'the take is made with the boot on the ball: ' + JSON.stringify(k));
+      } else if (k.kind === 'nutmeg') {
+        assert.ok(k.contact != null && k.contact < 0.3, 'the stab is made with the boot on the ball: ' + JSON.stringify(k));
+        assert.ok(k.between === true && k.gapL > 0.15 && k.gapR > 0.15, 'the ball goes between the feet: ' + JSON.stringify(k));
+      }
+    }
+  });
+
   test(`fixture ${fixture}: the ball stays in play unless the engine puts it out`, async () => {
     const { view } = await match(fixture);
     assert.equal(view.outWithoutLeave, 0);

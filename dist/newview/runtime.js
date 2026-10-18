@@ -433,6 +433,46 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     p.lean = lerp(p.lean, clamp(-turn / Math.max(dt, 1e-4) * sp * 0.012, -0.16, 0.16), Math.min(1, dt * 6));
   }
 
+  // ---- foot targets (two-bone IK) ----
+  // A skill move says where a boot must be (round the ball, on it, planted on the grass); the
+  // hip-knee-ankle chain of the recorded skeleton is turned so the toe reaches that point, the knee
+  // bending forwards, the boot flat along his heading. p.feet = { Left|Right: { at(t) -> point, w(t) -> 0..1 } }
+  const ikQ = new THREE.Quaternion(), ikQ2 = new THREE.Quaternion(), yUp = V(0, 1, 0);
+  function footIK(p, side, target, weight) {
+    const upper = p.bones[side + 'UpLeg'], lower = p.bones[side + 'Leg'], foot = p.bones[side + 'Foot'], toe = p.bones[side + 'ToeBase'];
+    if (!upper || !lower || !foot || !toe) return null;
+    const yaw = new THREE.Quaternion().setFromAxisAngle(yUp, p.heading);
+    const current = toe.getWorldPosition(V()), wanted = current.clone().lerp(target, clamp(weight, 0, 1));
+    const ankle = wanted.clone().sub(toe.position.clone().applyQuaternion(yaw));
+    const hip = upper.getWorldPosition(V()), knee = lower.getWorldPosition(V()), heel = foot.getWorldPosition(V());
+    const l1 = hip.distanceTo(knee), l2 = knee.distanceTo(heel), v = ankle.clone().sub(hip);
+    const dist = clamp(v.length(), 0.08, l1 + l2 - 0.005), dir = v.normalize();
+    let pole = V(Math.sin(p.heading), 0, Math.cos(p.heading)); pole.addScaledVector(dir, -pole.dot(dir));
+    if (pole.lengthSq() < 0.01) pole.set(1, 0, 0); pole.normalize();
+    const along = (l1 * l1 - l2 * l2 + dist * dist) / (2 * dist), high = Math.sqrt(Math.max(1e-5, l1 * l1 - along * along));
+    const bend = hip.clone().addScaledVector(dir, along).addScaledVector(pole, high);
+    const turn = (bone, from, to) => {
+      ikQ.setFromUnitVectors(from.normalize(), to.normalize());
+      const world = bone.getWorldQuaternion(ikQ2).premultiply(ikQ);
+      bone.quaternion.copy(bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(world));
+      p.model.updateMatrixWorld(true);
+    };
+    turn(upper, knee.clone().sub(hip), bend.clone().sub(hip));
+    const k2 = lower.getWorldPosition(V());
+    turn(lower, foot.getWorldPosition(V()).sub(k2), ankle.clone().sub(k2));
+    foot.quaternion.copy(foot.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(yaw));
+    p.model.updateMatrixWorld(true);
+    return toe.getWorldPosition(V());
+  }
+  function applyFeet(p) {
+    if (!p.feet) return;
+    for (const side of ['Left', 'Right']) {
+      const f = p.feet[side]; if (!f) continue;
+      const w = f.w(S.t); if (w <= 0.001) continue;
+      const at = f.at(S.t); if (at) f.last = footIK(p, side, at, w);
+    }
+  }
+
   const qNod = new THREE.Quaternion(), qTmp = new THREE.Quaternion(), xAxis = V(1, 0, 0);
   function pose(p, dt) {
     const sp = p.vel.length(), Wk = gait.walk, R = gait.run, Sp = gait.sprint;
@@ -510,6 +550,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     else if (compact > 0.005) p.ground = lerp(p.ground, Math.max(0, -footClearance(p.bones)), Math.min(1, dt * 12));   // a straighter leg would dig in
     else p.ground = lerp(p.ground, 0, Math.min(1, dt * 8));
     if (Math.abs(p.ground) > 1e-4) { p.model.position.y += p.ground; p.model.updateMatrixWorld(true); }
+    applyFeet(p);
   }
 
   function contacts() {
@@ -585,7 +626,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   return {
     players, ball, S, addPlayer, calibrate, place, startAction, actionDone, actionAtContact, predictBall, kickWarp, kickNeed, toeNear, pickUp,
     startMotion, motionAtContact, slideAt, headerAt, contactPoint, contactDistance, get headHeight() { return headAt.y; }, get slideReach() { return Math.hypot(slideToe.x, slideToe.z); },
-    kickGround, kickAir, dribble, receive, planDive, updateDive, handsOf, diveHands, move, pose, contacts, stepBall,
+    kickGround, kickAir, dribble, receive, planDive, updateDive, handsOf, diveHands, move, pose, contacts, stepBall, footIK,
     get diveReach() { return diveReach; },
   };
 }
