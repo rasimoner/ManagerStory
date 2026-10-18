@@ -229,15 +229,17 @@ export function createDirector(rt, data, hooks, opts = {}) {
       noLook = !!to && !implicit && !opts.restart && !opts.meet && travel === 'ground' && has(from, 'nolook') && zoneOk('nolook', from)
         && (toW.x - from.pos.x) * fwdX > -3 && len0 > 8 && len0 < 30 && pick(opts.ev, 5) < 0.6;
       if (DEBUG && has(from, 'nolook') && !implicit) (stats.nlog ||= []).push([to ? 1 : 0, opts.restart ? 1 : 0, travel, +fromOwnGoal(from).toFixed(0), +((toW.x - from.pos.x) * fwdX).toFixed(0), +len0.toFixed(0), +pick(opts.ev, 5).toFixed(2)].join(','));
-      const name = noLook ? 'nolook' : 'pass';
+      let name = noLook ? 'nolook' : 'pass';
       dir = yield* approachAim(from, name, toW);
+      // could not get set for it (the ball ran on, or it is still bouncing): an ordinary pass instead
+      if (noLook) { const k = rt.kickNeed(from, name, dir); if (k.dist > k.reach + 0.05 || ball.p.y > BALL_R + 0.05 || Math.abs(ball.v.y) > 0.5) { noLook = false; name = 'pass'; dir = yield* approachAim(from, name, toW); } }
       rt.startAction(from, name); rt.kickWarp(from, name, dir);
       if (noLook) hooks.slow(0.45);
       yield* until(() => rt.actionAtContact(from), 2);
       kickT = S.t;
       if (noLook) {
         const toe = from.toes[1].getWorldPosition(V());
-        noteSkill({ kind: 'nolook', contact: +Math.hypot(toe.x - ball.p.x, toe.z - ball.p.z).toFixed(3), len: +len0.toFixed(1) }, from);
+        noteSkill({ kind: 'nolook', contact: +Math.hypot(toe.x - ball.p.x, toe.z - ball.p.z).toFixed(3), len: +len0.toFixed(1), ...(DEBUG ? { dbg: { toe: toe.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)), bv: ball.v.toArray().map(v => +v.toFixed(2)), pos: from.pos.toArray().map(v => +v.toFixed(2)), warpTo: from.warp?.to?.toArray().map(v => +v.toFixed(2)), owner: ball.owner?.key, el: +(S.t - from.act?.t0).toFixed(3), act: from.act?.name } } : {}) }, from);
       }
       // V7.9: a long ball dropping onto a man standing under it is taken on the chest
       chest = !!to && !opts.meet && !opts.restart && travel === 'aerial' && to.role !== 'GK' && dir.length() > 22 && dir.length() < 50 && pick(opts.ev, 3) < 0.3
@@ -275,9 +277,12 @@ export function createDirector(rt, data, hooks, opts = {}) {
     let started = false, best = 9;
     yield* until(() => {
       const left = tArr - S.t;
-      p.target.copy(spot).setY(0).addScaledVector(V(ball.v.x, 0, ball.v.z).normalize(), 0.18);
+      // his chest goes where the ball will arrive (a step back from it, so it meets the chest, not the man)
+      const bv = V(ball.v.x, 0, ball.v.z), arrive = ball.p.clone().addScaledVector(bv, Math.max(0, left)).setY(0);
+      const chestOff = p.bones.Spine2.getWorldPosition(V()).sub(p.pos).setY(0);
+      p.target.copy(arrive).sub(chestOff).addScaledVector(bv.normalize(), 0.1);
       const gap = Math.hypot(p.target.x - p.pos.x, p.target.z - p.pos.z);
-      p.want = gap > 2 ? 6.5 : gap > 0.3 ? 2.5 : 0; p.face = ball.p; p.faceLock = left < 1.2;
+      p.want = gap > 2 ? 6.5 : gap > 0.08 ? Math.min(3, 1 + gap * 4) : 0; p.face = ball.p; p.faceLock = left < 1.2;
       if (!started && left <= lead) {
         if (gap > 0.6 || p.vel.length() > 2.2) return true;              // not under it in time: he plays it as it comes
         rt.startAction(p, 'chest'); started = true; hooks.slow(0.5); ball.through = tArr + 0.4;    // only the chest plays it
