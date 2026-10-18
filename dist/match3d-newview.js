@@ -69,7 +69,7 @@ html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:non
 .nv-rp-skip{position:absolute;right:10px;bottom:10px;pointer-events:auto;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:#f3f5f7;background:#0d1117c4;border:1px solid #ffffff30;border-radius:9px;padding:10px 12px;cursor:pointer;touch-action:manipulation}
 .nv-full .nv-rp-skip{bottom:calc(env(safe-area-inset-bottom,0px) + 16px);right:max(10px,env(safe-area-inset-right,0px))}
 .nv-replaying .nv-dir,.nv-replaying .nv-who,.nv-replaying .nv-banner,.nv-replaying .career3d-radar,.nv-replaying .nv-bug,.nv-replaying .nv-bottom,.nv-replaying .nv-tbtn,.nv-replaying .nv-tune{visibility:hidden}
-.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}`;
+.nv-tune .tries{display:flex;flex-wrap:wrap;gap:6px}.nv-tune .tries button{font-size:13px;padding:0 10px;border-color:#f4c43066;color:#f4c430}.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}`;
 document.head.append(css);
 
 const surface = document.createElement('div'); surface.className = 'career3d v73pitch';
@@ -94,11 +94,15 @@ function paintTune() {
   if (tuneEl.hidden) return;
   tuneEl.innerHTML = '<h4>Hız ayarları (geçici)</h4><p>Şu an <span class="now">' + (M?.speed || 1) + '× tuşu → oyun ' + realSpeed().toFixed(2) + '</span>. Değerler bu cihazda saklanır.</p>'
     + TUNE_ROWS.map(([k, label]) => '<div class="r"><span>' + label + '</span><button type="button" data-tk="' + k + '" data-d="-1">−</button><b>' + tune[k].toFixed(2) + '</b><button type="button" data-tk="' + k + '" data-d="1">+</button></div>').join('')
+    + '<h4 style="margin-top:12px">Yıldız anı dene (geçici)</h4><p>' + (director?.trying ? 'Bekleniyor: ' + TRY_NAMES[director.trying] + ' — topu süren oyuncumuz sıradaki fırsatta yapacak.' : 'Seçince maç durmaz: topu süren oyuncumuz sıradaki fırsatta yapar (bu denemede oyuncu ve bölge kuralı yok), sonra oyun devam eder.') + '</p><div class="tries">'
+    + Object.entries(TRY_NAMES).map(([k, n]) => '<button type="button" data-try="' + k + '">' + n + '</button>').join('') + '</div>'
     + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
 }
 tuneBtn.addEventListener('click', () => { tuneEl.hidden = !tuneEl.hidden; paintTune(); });
+const TRY_NAMES = { stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas' };
 tuneEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.try) { if (director) { director.tryNext(b.dataset.try); lastReplay = -99; banner('DENEME · ' + TRY_NAMES[b.dataset.try].toUpperCase(), 1500); } tuneEl.hidden = true; return; }
   const k = b.dataset.tk;
   if (k === 'close') { tuneEl.hidden = true; return; }
   if (k === 'reset') Object.assign(tune, TUNE_DEF);

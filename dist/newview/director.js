@@ -226,8 +226,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
     } else {
       // V7.9: a no-look pass — only a player who has it, in the opponents' half, not played backwards
       const fwdX = -Math.sign(ownGoalX(from.side)), len0 = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
-      noLook = !!to && !implicit && !opts.restart && !opts.meet && travel === 'ground' && has(from, 'nolook') && zoneOk('nolook', from)
-        && (toW.x - from.pos.x) * fwdX > -3 && len0 > 8 && len0 < 30 && (forced === 'nolook' || pick(opts.ev, 5) < 0.6);
+      const tryNL = tryMove === 'nolook' && from.side === 'user' && from.role !== 'GK';
+      noLook = !!to && !opts.restart && !opts.meet && !throwIn && len0 > 5 && len0 < 30 && (tryNL || !implicit && travel === 'ground' && has(from, 'nolook') && zoneOk('nolook', from)
+        && (toW.x - from.pos.x) * fwdX > -3 && len0 > 8 && (forced === 'nolook' || pick(opts.ev, 5) < 0.6));
       let name = noLook ? 'nolook' : 'pass';
       dir = yield* approachAim(from, name, toW);
       // could not get set for it (the ball ran on, or it is still bouncing): an ordinary pass instead
@@ -236,6 +237,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (noLook) hooks.slow(0.45);
       yield* until(() => rt.actionAtContact(from), 2);
       kickT = S.t;
+      if (noLook && tryNL) { tryMove = null; hooks.tried?.('nolook'); }
       if (noLook) {
         const toe = from.toes[1].getWorldPosition(V());
         noteSkill({ kind: 'nolook', contact: +Math.hypot(toe.x - ball.p.x, toe.z - ball.p.z).toFixed(3), len: +len0.toFixed(1), ...(DEBUG ? { dbg: { toe: toe.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)), bv: ball.v.toArray().map(v => +v.toFixed(2)), pos: from.pos.toArray().map(v => +v.toFixed(2)), warpTo: from.warp?.to?.toArray().map(v => +v.toFixed(2)), owner: ball.owner?.key, el: +(S.t - from.act?.t0).toFixed(3), act: from.act?.name } } : {}) }, from);
@@ -313,6 +315,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     // he slows down only while a man is near him; a long run with the ball ends after ~11 s wherever he is
     const end = S.t + Math.min(11, p.pos.distanceTo(goalW) / Math.max(2, carrySpeed(p, speed) - 1) + 2);
     while (S.t < end && ball.owner === p) {
+      // (temporary test button) our man on the ball plays the move asked for, in the flow of play
+      if (tryMove && tryMove !== 'nolook' && p.side === 'user' && p.role !== 'GK' && (yield* tryNow(p))) { p.busy = true; if (ball.owner !== p) break; continue; }
       rt.dribble(p, goalW, carrySpeed(p, speed));
       if (Math.hypot(ball.p.x - goalW.x, ball.p.z - goalW.z) < 1.4) break;
       yield;
@@ -411,6 +415,29 @@ export function createDirector(rt, data, hooks, opts = {}) {
       forced = null;
     })();
     return star.name;
+  }
+  // ---- temporary test button: "play this move with the man on the ball, now" ----
+  // nothing is moved or stopped: the next time one of our players carries the ball, the nearest
+  // opponent comes to him and he plays the move (whether he has it or not, wherever he is); the
+  // match then goes on from there
+  let tryMove = null, tryWait = 0;
+  function* tryNow(car) {
+    const kind = tryMove;
+    const def = rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== car.side && q.role !== 'GK')
+      .reduce((m, q) => (!m || q.pos.distanceTo(car.pos) < m.pos.distanceTo(car.pos) ? q : m), null);
+    if (!def || def.pos.distanceTo(car.pos) > 16) return false;
+    tryMove = null; def.busy = true; car.busy = true;
+    const f = fwdOf(car), goal = car.pos.clone().addScaledVector(f, 12); goal.x = clamp(goal.x, -48, 48); goal.z = clamp(goal.z, -30, 30);
+    yield* until(() => {
+      rt.dribble(car, goal, 3);
+      def.target.copy(car.pos).addScaledVector(fwdOf(car), 1.9); def.want = 5.5; def.face = car.pos; def.faceLock = def.pos.distanceTo(car.pos) < 5; def.loopsWant.jockey = def.faceLock ? 1 : 0;
+      return def.pos.distanceTo(car.pos) < 2.6;
+    }, 4);
+    def.lastEvent ||= { eventId: 0 };
+    const ok = def.pos.distanceTo(car.pos) < 3.2 && (yield* SKILL_BEAT[kind](car, def, true)) !== false;
+    if (!ok) { tryMove = kind; def.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; car.busy = false; hooks.cam('tv'); }
+    else hooks.tried?.(kind);
+    return ok;
   }
   // every special move is logged with who did it and where, for the checks and the replay
   function noteSkill(audit, p, extra) {
@@ -1228,6 +1255,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function update() {
     shape();
     if (staged) { if (staged.next().done) staged = null; return; }
+    // (temporary test button) our man on the ball, between two actions, plays the move asked for now
+    const o = ball.owner;
+    if (tryMove && tryMove !== 'nolook' && S.t > tryWait && o && o.side === 'user' && o.role !== 'GK' && !o.busy && !o.motion && !o.act && !S.dead && !ball.held
+      && rt.players.some(q => !q.offPitch && !q.busy && !q.dive && q.side !== o.side && q.role !== 'GK' && q.pos.distanceTo(o.pos) < 16)) {
+      staged = (function* () { o.busy = true; if (!(yield* tryNow(o))) { o.busy = false; tryWait = S.t + 3; } })();
+      if (staged.next().done) staged = null; else return;
+    }
     if (!task) task = nextTask();
     let guard = 0;
     while (task && guard++ < 40) {
@@ -1304,6 +1338,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   if (idx === 0) { layout(0, true); ball.p.set(0, BALL_R, 0); }
   return {
     update, skipTo, stats, syncRoster, resync, stage,
+    tryNext(kind) { tryMove = kind || null; }, get trying() { return tryMove; },
     get index() { return idx; }, get current() { return task ? events[task.i] : null; }, get total() { return events.length; },
     // the live presentation clock may show an engine event once the new view has started it;
     // a shot is held back until its outcome has played out, so the goal graphic never spoils it
