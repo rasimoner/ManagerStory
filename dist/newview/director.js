@@ -406,7 +406,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const ok = DUEL_MOVES.filter(m => has(car, m) && zoneOk(m, car) && !(SHOWBOAT.has(m) && losing(car.side)));
     if (forced && ok.includes(forced)) return forced;
     if (!ok.length || pick(def.lastEvent, 13) > 0.65) return null;
-    return ok[Math.floor(pick(def.lastEvent, 17) * ok.length)];
+    // variety: a move he has already shown in this match waits until his others have had their turn
+    const least = Math.min(...ok.map(m => car.used?.[m] || 0)), pool = ok.filter(m => (car.used?.[m] || 0) === least);
+    return pool[Math.floor(pick(def.lastEvent, 17) * pool.length)];
   }
   // ---- development only: stage a special move now (to film it or look at it on the phone) ----
   // the match waits while it plays; the player who has the move is put in the opponents' half with
@@ -486,6 +488,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function noteSkill(audit, p, extra) {
     Object.assign(audit, { who: p.key, side: p.side, moves: [...(p.moves || [])], fromOwn: +fromOwnGoal(p).toFixed(1), z: +p.pos.z.toFixed(1), t: +S.t.toFixed(2), losing: losing(p.side) }, extra);
     (stats.skills ||= []).push(audit);
+    (p.used ||= {})[audit.kind] = (p.used[audit.kind] || 0) + 1;
     hooks.star?.(audit, p);
   }
   // step-over: the right boot circles round the front of the ball from inside to out without touching
