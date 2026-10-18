@@ -1520,7 +1520,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* until(() => gk.pos.distanceTo(gk.target) < 1.2, Math.min(2.5, gk.pos.distanceTo(gk.target) / 6.5 + 0.4));
         gk.want = 5;
       }
-      if (chip && gk) yield* until(() => gk.pos.distanceTo(gk.target) < 1.2, 1.4);        // he waits for the keeper to commit
+      if (chip && gk) yield* until(() => gk.pos.distanceTo(gk.target) < 1.2 || Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z) < 6.5, 2.4);        // he waits for the keeper to commit
       const kname = panenka || chip ? 'pass' : 'shot';
       const dir = yield* approachAim(sh, kname, aim);
       rt.startAction(sh, kname); rt.kickWarp(sh, kname, dir);
@@ -1544,7 +1544,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
       }
     }
     // a free kick is bent up over the wall and dips (a slower, higher flight)
-    const dist = aim.distanceTo(ball.p), flight = panenka ? 1.1 : chip ? Math.max(1.1, dist / 11) : Math.max(0.35, dist / ((e.header ? 14 : e.freeKick ? 19 : 24) * (S.tune?.ball ?? 1)), smother);
+    const dist = aim.distanceTo(ball.p);
+    // a chip is given just enough air to clear the keeper's reach where he stands (no higher)
+    let chipT = 0;
+    if (chip) {
+      const L = Math.hypot(aim.x - ball.p.x, aim.z - ball.p.z), dk = gk ? clamp(V(gk.pos.x - ball.p.x, 0, gk.pos.z - ball.p.z).length(), 1, L - 1) : L * 0.5;
+      for (chipT = L / 16; chipT < L / 7; chipT += 0.02) { const vy = (aim.y - ball.p.y + 4.905 * chipT * chipT) / chipT, tk = chipT * dk / L; if (ball.p.y + vy * tk - 4.905 * tk * tk >= 2.45) break; }
+    }
+    const flight = panenka ? 1.1 : chip ? chipT : Math.max(0.35, dist / ((e.header ? 14 : e.freeKick ? 19 : 24) * (S.tune?.ball ?? 1)), smother);
     // a blocker steps into the line first
     let blocker = null;
     if (outcome === 'block' && block) {

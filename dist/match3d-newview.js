@@ -359,8 +359,10 @@ function starCamera(dtReal, aspect, ballAt) {
   const tall = aspect < 1.25;
   replay.posOf(rp.key, rp.t, rpStar) || rpStar.copy(ballAt);
   // a ball in the air pulls the picture its way and the camera back a little, so both stay in frame
-  const up = Math.max(0, ballAt.y - BALL_R), pull = 1 + Math.min(0.6, up * 0.22);
-  rpStar.lerp(ballAt.clone().setY(0), 0.35 + Math.min(0.25, up * 0.12));
+  // the star and the ball both stay in the picture: a ball played away (a pass, a shot, a chip) widens it
+  const up = Math.max(0, ballAt.y - BALL_R), sep = Math.hypot(ballAt.x - rpStar.x, ballAt.z - rpStar.z);
+  const pull = Math.max(1 + Math.min(0.6, up * 0.22), (sep * (tall ? 1.9 : 1.1) + 2) / 5.8);
+  rpStar.lerp(ballAt.clone().setY(0), sep > 2.5 ? 0.5 : 0.35 + Math.min(0.25, up * 0.12));
   rpWant.copy(rpStar).add(new THREE.Vector3(-1.7 * pull, (tall ? 3.6 : 3.3) * pull, (tall ? 5.0 : 4.4) * pull));
   const k = rp.first ? 1 : 1 - Math.exp(-dtReal * 4);
   rpCamPos.lerp(rpWant, k); rpCamLook.lerp(rpStar.setY(0.6 + Math.min(1.2, up * 0.45)), k); rp.first = false;
