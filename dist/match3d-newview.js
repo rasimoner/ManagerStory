@@ -367,6 +367,24 @@ function starCamera(dtReal, aspect, ballAt) {
   camera.position.copy(rpCamPos); camera.lookAt(rpCamLook);
 }
 
+// a player standing right in front of a close camera is left out of the picture (a broadcast camera
+// would be moved; ours just does not draw him), never the players the shot is about
+const occA = new THREE.Vector3(), occF = new THREE.Vector3();
+function hideOccluders() {
+  const out = [];
+  const close = rp || autoCam.mode === 'close' || autoCam.mode === 'shot' || (full && camMode === 'close');
+  if (!close || !rt) return out;
+  camera.getWorldDirection(occF);
+  const keep = new Set([autoCam.a, autoCam.b, rp && rt.players.find(p => p.key === rp.key)].filter(Boolean));
+  for (const p of rt.players) {
+    if (p.offPitch || !p.model.visible || keep.has(p)) continue;
+    occA.copy(p.model.position).setY(1.1).sub(camera.position);
+    const d = occA.length();
+    if (d < 3.6 && occA.dot(occF) > 0 && occA.dot(occF) / d > Math.cos(0.6)) { p.model.visible = false; out.push(p); }
+  }
+  return out;
+}
+
 // ---------- loop ----------
 const ballAxis = new THREE.Vector3();
 // automated checks only (?nvtest=N): play N times faster and draw every 10th frame
@@ -434,8 +452,10 @@ function frame(now) {
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
   if (rp) starCamera(dtReal, w / Math.max(1, h), ballAt); else updateCamera(dtReal, w / Math.max(1, h));
+  const hidden = hideOccluders();
   renderer.render(scene, camera);
   camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
+  for (const p of hidden) p.model.visible = true;
   if (frameNo++ % 3 === 0) { drawRadar(); paintDirection(); }
   if (full && frameNo % 6 === 0) paintHud();
 }

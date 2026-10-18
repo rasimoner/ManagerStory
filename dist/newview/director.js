@@ -558,8 +558,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     rt.startAction(def, 'stumble'); def.want = 0.5; def.face = car.pos; def.faceLock = true;
     yield* wait(0.35); car.feet = null; car.faceLock = false;
     def.busy = car.busy = false; def.faceLock = false; def.loopsWant.jockey = 0;
+    if (closeUp) hooks.cam('tv');          // he is away: back to the wide picture while he runs on
     yield* chase(car, null);
-    if (closeUp) hooks.cam('tv');
   }
   // through his legs: the defender squares up with his feet apart, a stab with the right boot sends
   // the ball through the gap and the attacker goes round him
@@ -607,8 +607,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     def.face = ball.p; def.faceLock = true; def.want = 1.5; def.target.copy(def.pos).addScaledVector(f, 0.8);
     yield* until(() => !def.feet || S.t - t0 > 1.3, 0.8); def.feet = null;
     def.busy = car.busy = false; def.faceLock = false;
+    if (closeUp) hooks.cam('tv');          // he is away: back to the wide picture while he runs on
     yield* chase(car, null);
-    if (closeUp) hooks.cam('tv');
   }
 
   // elastico: the outside of the right boot pushes the ball out to his right, the same boot wraps
@@ -664,8 +664,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     rt.startAction(def, 'stumble'); def.want = 0.5; def.face = car.pos; def.faceLock = true;
     yield* wait(0.3); car.feet = null; car.faceLock = false;
     def.busy = car.busy = false; def.faceLock = false; def.loopsWant.jockey = 0;
+    if (closeUp) hooks.cam('tv');          // he is away: back to the wide picture while he runs on
     yield* chase(car, null);
-    if (closeUp) hooks.cam('tv');
   }
 
   // ---- V7.9 more special moves (boots placed with the foot targets) ----
@@ -681,8 +681,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     rt.startAction(def, 'stumble'); def.want = 0.5; def.face = car.pos; def.faceLock = true;
     yield* wait(0.3); car.feet = null; car.faceLock = false; car.drive = null;
     def.busy = car.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; def.feet = null;
+    if (closeUp) hooks.cam('tv');          // he is away: back to the wide picture while he runs on
     yield* chase(car, null);
-    if (closeUp) hooks.cam('tv');
   }
 
   // Cruyff turn: he shapes to strike it (the boot goes back and comes through), but the inside of the
@@ -773,7 +773,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const f = fwdOf(car), r = rightOf(car), t0 = S.t, h0 = car.heading, T = 0.9;
     if (closeUp) hooks.cam('close', car, def);
     hooks.slow(0.4);
-    ball.through = t0 + 1.4; ball.v.set(0, 0, 0); def.target.copy(def.pos); def.want = 0.5;
+    ball.through = t0 + 1.4; ball.v.set(0, 0, 0); def.target.copy(car.pos).addScaledVector(f, 2.3); def.want = 1.5; def.face = car.pos; def.faceLock = true;
     const hd = t => h0 - 2 * Math.PI * smooth01(clamp((t - t0) / T, 0, 1));          // a full turn to his right
     const fw = h => V(Math.sin(h), 0, Math.cos(h));
     car.drive = { heading: hd, pos: t => ball.p.clone().addScaledVector(fw(hd(t)), -0.38) };
@@ -792,7 +792,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (u > 0.44 && u < 0.66) audit.soleB = Math.min(audit.soleB, toeGap(car, 'Left'));
       audit.wander = Math.max(audit.wander, Math.hypot(ball.p.x - car.pos.x, ball.p.z - car.pos.z));
       ball.v.y = 0; ball.p.y = BALL_R;
-      if (u > 0.2 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(c0).addScaledVector(f, 1.2); def.want = 3; }
+      if (u > 0.2 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(c0).addScaledVector(f, 1.7).addScaledVector(r, -0.6); def.want = 3; }      // he goes the other way
       return u >= 0.76;
     }, 1.2);
     audit.spin = +Math.abs(hd(S.t) - h0).toFixed(2);
@@ -867,8 +867,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     yield* until(() => ball.p.y < 0.5, 1.8);
     hooks.slow(1);
     def.busy = car.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; def.feet = null;
+    if (closeUp) hooks.cam('tv');          // he is away: back to the wide picture while he runs on
     yield* chase(car, null);
-    if (closeUp) hooks.cam('tv');
   }
   const landing = (vx, vy, vz, from) => { const t = (vy + Math.sqrt(vy * vy + 2 * 9.81 * Math.max(0, from.y - BALL_R))) / 9.81; return from.clone().add(V(vx * t * 0.95, 0, vz * t * 0.95)).setY(0); };
 
@@ -1037,8 +1037,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
       rt.startAction(def, 'lunge', 0.12);
       car.target.copy(ball.p).addScaledVector(out, 6); car.want = 7.6;
       yield* wait(0.5); def.busy = car.busy = false; def.faceLock = false;
+      if (closeUp) hooks.cam('tv');
       yield* chase(car, null);
-      if (closeUp) hooks.cam('tv'); return;
+      return;
     }
     if (!success && style === 2) {
       // drag-back: rolls it back under his sole and turns away from the challenge
