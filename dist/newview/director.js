@@ -449,6 +449,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         hooks.cam('tv');
       }
       forced = null;
+      return true;
     })();
     return star.name;
   }
@@ -713,7 +714,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const u = S.t - t0, toe = car.feet.Right.last;
       if (toe && u < 0.3) audit.fake = Math.max(audit.fake, toe.y);
       if (toe && u > 0.3 && u < 0.41) audit.swingGap = Math.min(audit.swingGap, toe.distanceTo(ball.p));
-      if (u > 0.22 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(b0).setY(0); def.want = 3; }
+      if (u > 0.22 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(car.pos).addScaledVector(f, 1.15); def.want = 3; }      // he goes for the shot, not through the man
       slip();
       return u >= 0.5 && toeGap(car, 'Right') < 0.24;
     }, 0.68);
@@ -791,7 +792,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (u > 0.44 && u < 0.66) audit.soleB = Math.min(audit.soleB, toeGap(car, 'Left'));
       audit.wander = Math.max(audit.wander, Math.hypot(ball.p.x - car.pos.x, ball.p.z - car.pos.z));
       ball.v.y = 0; ball.p.y = BALL_R;
-      if (u > 0.2 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(c0).addScaledVector(f, 0.6); def.want = 3; }
+      if (u > 0.2 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(c0).addScaledVector(f, 1.2); def.want = 3; }
       return u >= 0.76;
     }, 1.2);
     audit.spin = +Math.abs(hd(S.t) - h0).toFixed(2);
@@ -1627,13 +1628,19 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function flushSay() { if (sayQ) { const q = sayQ; sayQ = null; hooks.say(q.e.text, q.e); } }
   function update() {
     shape();
-    if (staged) { if (staged.next().done) staged = null; return; }
+    if (staged) {
+      const r = staged.next();
+      // a move played between two events (test button, staging): the event it interrupted is not
+      // resumed — it would put the ball back where the engine had it — the next one starts from the pitch as it is
+      if (r.done) { staged = null; if (r.value) { task = null; for (const p of rt.players) { p.busy = false; p.faceLock = false; } } }
+      return;
+    }
     // (temporary test button) our man on the ball, between two actions, plays the move asked for now
     const o = ball.owner;
     if (tryMove && !PASS_TRIES.has(tryMove) && S.t > tryWait && o && o.side === 'user' && o.role !== 'GK' && !o.busy && !o.motion && !o.act && !S.dead && !ball.held
       && rt.players.some(q => !q.offPitch && !q.busy && !q.dive && q.side !== o.side && q.role !== 'GK' && q.pos.distanceTo(o.pos) < 16)) {
-      staged = (function* () { o.busy = true; if (!(yield* tryNow(o))) { o.busy = false; tryWait = S.t + 3; } })();
-      if (staged.next().done) staged = null; else return;
+      staged = (function* () { o.busy = true; const ok = yield* tryNow(o); if (!ok) { o.busy = false; tryWait = S.t + 3; } return ok; })();
+      const r0 = staged.next(); if (r0.done) staged = null; else return;
     }
     if (!task) task = nextTask();
     let guard = 0;
