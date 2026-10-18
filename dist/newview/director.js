@@ -31,7 +31,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function addFromRoster(r) {
     const gk = r.role === 'GK';
     const kit = gk ? (r.side === 'user' ? keeperKit('#ff7a1a', '#f2f2f2') : keeperKit('#7c4dff', '#2a7de1')) : (r.side === 'user' ? userKit : oppKit);
-    const p = rt.addPlayer({ key: key(r.side, r.id), id: r.id, side: r.side, team: r.side, name: r.name, role: r.role, no: r.no, kit, keeper: gk, moves: r.moves || [] });
+    const p = rt.addPlayer({ key: key(r.side, r.id), id: r.id, side: r.side, team: r.side, name: r.name, role: r.role, no: r.no, kit, keeper: gk, moves: r.moves || [], stars: r.stars || 1 });
     by.set(key(r.side, r.id), p);
     return p;
   }
@@ -407,13 +407,20 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // the special move a beaten defender falls for, if the carrier has one that fits here (stable per event)
   const DUEL_MOVES = ['elastico', 'stepover', 'nutmeg', 'cruyff', 'croqueta', 'roulette', 'flairnutmeg', 'rainbow', 'sombrero', 'juggle'];
   const SHOWBOAT = new Set(['rainbow', 'sombrero', 'juggle']);
+  const MOVE_WEIGHT = { cruyff: 1, nutmeg: 1, stepover: 1.5, croqueta: 1.5, roulette: 2, elastico: 2, flairnutmeg: 2, rainbow: 1.5, sombrero: 1.5, juggle: 1.5 };
   function duelMove(car, def) {
     const ok = DUEL_MOVES.filter(m => has(car, m) && zoneOk(m, car) && !(SHOWBOAT.has(m) && losing(car.side)));
     if (forced && ok.includes(forced)) return forced;
-    if (!ok.length || pick(def.lastEvent, 13) > 0.65) return null;
-    // variety: a move he has already shown in this match waits until his others have had their turn
+    // the better the dribbler, the more often a beaten man falls for one of his moves
+    const chance = car.stars >= 5 ? 0.75 : car.stars >= 4 ? 0.6 : 0.3;
+    if (!ok.length || pick(def.lastEvent, 13) > chance) return null;
+    // variety: a move he has already shown in this match waits until his others have had their turn;
+    // the showier moves of a player who has them come up a little more than the everyday ones
     const least = Math.min(...ok.map(m => car.used?.[m] || 0)), pool = ok.filter(m => (car.used?.[m] || 0) === least);
-    return pool[Math.floor(pick(def.lastEvent, 17) * pool.length)];
+    const w = m => MOVE_WEIGHT[m] || 1, total = pool.reduce((a, m) => a + w(m), 0);
+    let x = pick(def.lastEvent, 17) * total;
+    for (const m of pool) { x -= w(m); if (x < 0) return m; }
+    return pool.at(-1);
   }
   // ---- development only: stage a special move now (to film it or look at it on the phone) ----
   // the match waits while it plays; the player who has the move is put in the opponents' half with
@@ -739,9 +746,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const dir = f.clone().multiplyScalar(-0.75).addScaledVector(r, -0.65).normalize();
     ball.v.copy(dir).multiplyScalar(3.0); car.lastTouch = S.t;
     // the ball goes behind the standing boot
+    audit.plantSlip = +slip().toFixed(3);          // the standing boot matters through the swing and the take
     const pl = (plantL.clone().sub(b0)).dot(r);
-    yield* until(() => { slip(); const d = ball.p.clone().sub(b0); if (d.dot(r) <= pl) { audit.behind = d.dot(f) < plantL.clone().sub(b0).dot(f) - 0.12; return true; } return S.t - t0 > 1.2; }, 0.6);
-    audit.plantSlip = +slip().toFixed(3);
+    yield* until(() => { const d = ball.p.clone().sub(b0); if (d.dot(r) <= pl) { audit.behind = d.dot(f) < plantL.clone().sub(b0).dot(f) - 0.12; return true; } return S.t - t0 > 1.2; }, 0.6);
     noteSkill(audit, car);
     car.feet = null; car.face = ball.p; car.faceLock = true; car.target.copy(ball.p).addScaledVector(dir, 0.6); car.want = 4.5;
     yield* wait(0.25);

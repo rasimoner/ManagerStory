@@ -231,9 +231,10 @@ function enginePositions() {
 }
 // the special moves a player has (pitch-v731.js skillMoves): most players have none
 function movesOf(id, side) { try { return typeof skillMoves === 'function' ? skillMoves(id, side).moves : []; } catch { return []; } }
+function starsOf(id, side) { try { return typeof skillMoves === 'function' ? skillMoves(id, side).stars : 1; } catch { return 1; } }
 function rosterList() {
-  const user = M.active.map((id, i) => { const p = S.players.find(x => x.id === id); return { id, side: 'user', name: p?.name ?? String(id), role: M.matchRoles[id], no: p?.number ?? (S.players.indexOf(p) + 1 || i + 1), moves: movesOf(id, 'user') }; });
-  const opp = M.oppIds.map((id, i) => { const p = playerAtMarker(id, 'opp'); return { id, side: 'opp', name: p?.name ?? id, role: p?.position ?? (i ? 'CM' : 'GK'), no: i + 1, moves: movesOf(id, 'opp') }; });
+  const user = M.active.map((id, i) => { const p = S.players.find(x => x.id === id); return { id, side: 'user', name: p?.name ?? String(id), role: M.matchRoles[id], no: p?.number ?? (S.players.indexOf(p) + 1 || i + 1), moves: movesOf(id, 'user'), stars: starsOf(id, 'user') }; });
+  const opp = M.oppIds.map((id, i) => { const p = playerAtMarker(id, 'opp'); return { id, side: 'opp', name: p?.name ?? id, role: p?.position ?? (i ? 'CM' : 'GK'), no: i + 1, moves: movesOf(id, 'opp'), stars: starsOf(id, 'opp') }; });
   return [...user, ...opp];
 }
 function teams() {

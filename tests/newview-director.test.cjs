@@ -20,8 +20,8 @@ const dist = process.env.NV_DIST || path.join(__dirname, '..', 'dist');
 const READ = `({
   pl:[...M.active.map(id=>[id,'user']),...M.oppIds.map(id=>[id,'opp'])].filter(([id,s])=>!(s==='user'&&M.sentOff?.includes(id))).map(([id,s])=>[id,s,eventPoint(id,s)]),
   ball:[...(M.ballState?.position||[50,50])],
-  roster:[...M.active.map((id,i)=>{const p=S.players.find(x=>x.id===id);return {id,side:'user',name:p?.name??String(id),role:M.matchRoles[id],no:p?.number??(S.players.indexOf(p)+1||i+1),moves:skillMoves(id,'user').moves}}),
-          ...M.oppIds.map((id,i)=>{const p=playerAtMarker(id,'opp');return {id,side:'opp',name:p?.name??id,role:p?.position??(i?'CM':'GK'),no:i+1,moves:skillMoves(id,'opp').moves}})],
+  roster:[...M.active.map((id,i)=>{const p=S.players.find(x=>x.id===id);return {id,side:'user',name:p?.name??String(id),role:M.matchRoles[id],no:p?.number??(S.players.indexOf(p)+1||i+1),moves:skillMoves(id,'user').moves,stars:skillMoves(id,'user').stars}}),
+          ...M.oppIds.map((id,i)=>{const p=playerAtMarker(id,'opp');return {id,side:'opp',name:p?.name??id,role:p?.position??(i?'CM':'GK'),no:i+1,moves:skillMoves(id,'opp').moves,stars:skillMoves(id,'opp').stars}})],
   n:M.events.length })`;
 
 function recordMatch(fixture) {
