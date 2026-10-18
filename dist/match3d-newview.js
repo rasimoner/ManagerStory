@@ -56,19 +56,19 @@ html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:non
 .nv-tune .r span{flex:1}.nv-tune .r b{min-width:46px;text-align:center;font-variant-numeric:tabular-nums}
 .nv-tune button{font:700 16px/1 -apple-system,BlinkMacSystemFont,sans-serif;min-width:40px;min-height:36px;border:1px solid #ffffff30;border-radius:8px;background:#1f2731;color:#f3f5f7;cursor:pointer;touch-action:manipulation}
 .nv-rp{position:absolute;inset:0;pointer-events:none;z-index:2;box-shadow:inset 0 0 90px 10px #000b}
-.nv-rp-top{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;width:min(320px,calc(100% - 120px))}
-.nv-full .nv-rp-top{top:calc(env(safe-area-inset-top,0px) + 12px)}
-.nv-rp-tag{display:flex;border-radius:5px;overflow:hidden;font:800 12px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.12em;box-shadow:0 2px 8px #0008;white-space:nowrap}
+.nv-rp-top{position:absolute;top:8px;left:8px;right:56px;max-width:340px;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.nv-full .nv-rp-top{top:calc(env(safe-area-inset-top,0px) + 14px);left:max(10px,env(safe-area-inset-left,0px));right:calc(env(safe-area-inset-right,0px) + 66px)}
+.nv-rp-tag{display:flex;border-radius:5px;overflow:hidden;font:800 12px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.07em;box-shadow:0 2px 8px #0008;white-space:nowrap;max-width:100%}
 .nv-rp-tag span{background:#f4c430;color:#0d1117;padding:5px 8px}.nv-rp-tag b{background:#0d1117e0;color:#f4c430;padding:5px 7px;font-variant-numeric:tabular-nums}
 .nv-rp-bar{width:100%;height:3px;border-radius:2px;background:#ffffff40;overflow:hidden}.nv-rp-bar i{display:block;height:100%;width:0;background:#f4c430}
 .nv-rp-card{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);width:min(380px,calc(100% - 24px));text-align:center;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-.nv-full .nv-rp-card{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}
+.nv-full .nv-rp-card{bottom:calc(env(safe-area-inset-bottom,0px) + 74px)}
 .nv-rp-card strong{display:inline-block;transform:skewX(-8deg);background:#f4c430;color:#0d1117;font-weight:900;font-size:clamp(20px,7vw,30px);letter-spacing:.06em;padding:2px 14px;box-shadow:0 3px 12px #0009}
 .nv-rp-card em{display:block;margin-top:7px;font-style:normal;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-shadow:0 1px 4px #000}
 .nv-rp-card span{display:block;margin-top:4px;font-size:14px;font-weight:500;line-height:1.35;text-shadow:0 1px 4px #000;color:#e8edf2}
 .nv-rp-skip{position:absolute;right:10px;bottom:10px;pointer-events:auto;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:#f3f5f7;background:#0d1117c4;border:1px solid #ffffff30;border-radius:9px;padding:10px 12px;cursor:pointer;touch-action:manipulation}
-.nv-full .nv-rp-skip{bottom:calc(env(safe-area-inset-bottom,0px) + 150px);right:max(10px,env(safe-area-inset-right,0px))}
-.nv-replaying .nv-dir,.nv-replaying .nv-who,.nv-replaying .nv-banner,.nv-replaying .career3d-radar{visibility:hidden}
+.nv-full .nv-rp-skip{bottom:calc(env(safe-area-inset-bottom,0px) + 16px);right:max(10px,env(safe-area-inset-right,0px))}
+.nv-replaying .nv-dir,.nv-replaying .nv-who,.nv-replaying .nv-banner,.nv-replaying .career3d-radar,.nv-replaying .nv-bug,.nv-replaying .nv-bottom,.nv-replaying .nv-tbtn,.nv-replaying .nv-tune{visibility:hidden}
 .nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}`;
 document.head.append(css);
 
