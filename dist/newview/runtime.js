@@ -148,6 +148,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     toeAt = {
       pass: at('pass', ACTIONS.pass.contact, ['RightToeBase']).add(V(-0.02, 0, 0.05)),
       shot: at('shot', ACTIONS.shot.contact, ['RightToeBase']).add(V(0, 0, 0.06)),
+      nolook: at('nolook', ACTIONS.nolook.contact, ['RightToeBase']).add(V(-0.02, 0, 0.05)),
     };
     // recorded motions: the sliding boot and the forehead at their contact frames
     const atMotion = (name, bones) => {

@@ -20,8 +20,8 @@ const dist = process.env.NV_DIST || path.join(__dirname, '..', 'dist');
 const READ = `({
   pl:[...M.active.map(id=>[id,'user']),...M.oppIds.map(id=>[id,'opp'])].filter(([id,s])=>!(s==='user'&&M.sentOff?.includes(id))).map(([id,s])=>[id,s,eventPoint(id,s)]),
   ball:[...(M.ballState?.position||[50,50])],
-  roster:[...M.active.map((id,i)=>{const p=S.players.find(x=>x.id===id);return {id,side:'user',name:p?.name??String(id),role:M.matchRoles[id],no:p?.number??(S.players.indexOf(p)+1||i+1)}}),
-          ...M.oppIds.map((id,i)=>{const p=playerAtMarker(id,'opp');return {id,side:'opp',name:p?.name??id,role:p?.position??(i?'CM':'GK'),no:i+1}})],
+  roster:[...M.active.map((id,i)=>{const p=S.players.find(x=>x.id===id);return {id,side:'user',name:p?.name??String(id),role:M.matchRoles[id],no:p?.number??(S.players.indexOf(p)+1||i+1),moves:skillMoves(id,'user').moves}}),
+          ...M.oppIds.map((id,i)=>{const p=playerAtMarker(id,'opp');return {id,side:'opp',name:p?.name??id,role:p?.position??(i?'CM':'GK'),no:i+1,moves:skillMoves(id,'opp').moves}})],
   n:M.events.length })`;
 
 function recordMatch(fixture) {
@@ -153,10 +153,11 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     assert.deepEqual(view.ballJumps, [], 'ball position jumps');
   });
 
-  test(`fixture ${fixture}: skill moves are readable — the step-over boot circles the ball without touching it, the nutmeg goes between the feet`, async () => {
+  test(`fixture ${fixture}: skill moves are readable and special — boots on and round the ball, only the players who have them, only where they fit`, async () => {
     const { view } = await match(fixture);
     const skills = view.stats.skills || [];
     if (process.env.NV_DEBUG) console.log('skills', JSON.stringify(skills));
+    if (process.env.NV_DEBUG) console.log('nlog', JSON.stringify(view.stats.nlog || []));
     for (const k of skills) {
       if (k.kind === 'stepover') {
         assert.ok(k.minGap > 0.12, 'step-over boot stays off the ball: ' + JSON.stringify(k));
@@ -166,6 +167,21 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
       } else if (k.kind === 'nutmeg') {
         assert.ok(k.contact != null && k.contact < 0.3, 'the stab is made with the boot on the ball: ' + JSON.stringify(k));
         assert.ok(k.between === true && k.gapL > 0.15 && k.gapR > 0.15, 'the ball goes between the feet: ' + JSON.stringify(k));
+      } else if (k.kind === 'elastico') {
+        assert.ok(k.touch1 < 0.3 && k.touch2 < 0.3, 'both touches are made with the boot on the ball: ' + JSON.stringify(k));
+        assert.ok(k.out > 0.12, 'the ball visibly goes out before it comes back: ' + JSON.stringify(k));
+        assert.ok(k.plantSlip < 0.06, 'standing boot stays planted: ' + JSON.stringify(k));
+      } else if (k.kind === 'nolook') {
+        assert.ok(k.contact < 0.35, 'the no-look pass is struck with the boot on the ball: ' + JSON.stringify(k));
+      } else if (k.kind === 'chest') {
+        assert.ok(k.contact < 0.38 && k.h > 0.9, 'the ball is taken on the chest: ' + JSON.stringify(k));
+      }
+      // a special move belongs to the player (his repertoire) and to the right part of the pitch
+      if (k.kind !== 'chest') {
+        assert.ok(k.moves.includes(k.kind), 'only a player who has the move does it: ' + JSON.stringify(k));
+        assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
+        if (k.kind === 'elastico' || k.kind === 'nolook') assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
+        if (k.kind === 'elastico') assert.ok(Math.abs(k.z) < 31, 'no elastico against the touchline: ' + JSON.stringify(k));
       }
     }
   });
