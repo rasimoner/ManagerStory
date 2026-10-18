@@ -228,7 +228,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const fwdX = -Math.sign(ownGoalX(from.side)), len0 = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
       noLook = !!to && !implicit && !opts.restart && !opts.meet && travel === 'ground' && has(from, 'nolook') && zoneOk('nolook', from)
         && (toW.x - from.pos.x) * fwdX > -3 && len0 > 8 && len0 < 30 && pick(opts.ev, 5) < 0.6;
-      if (DEBUG && has(from, 'nolook') && !implicit) (stats.nlog ||= []).push([to ? 1 : 0, opts.restart ? 1 : 0, travel, +fromOwnGoal(from).toFixed(0), +((toW.x - from.pos.x) * fwdX).toFixed(0), +len0.toFixed(0), +pick(opts.ev, 5).toFixed(2)].join(','));
       let name = noLook ? 'nolook' : 'pass';
       dir = yield* approachAim(from, name, toW);
       // could not get set for it (the ball ran on, or it is still bouncing): an ordinary pass instead

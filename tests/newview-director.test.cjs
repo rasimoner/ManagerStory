@@ -157,7 +157,6 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     const { view } = await match(fixture);
     const skills = view.stats.skills || [];
     if (process.env.NV_DEBUG) console.log('skills', JSON.stringify(skills));
-    if (process.env.NV_DEBUG) console.log('nlog', JSON.stringify(view.stats.nlog || []));
     for (const k of skills) {
       if (k.kind === 'stepover') {
         assert.ok(k.minGap > 0.12, 'step-over boot stays off the ball: ' + JSON.stringify(k));
