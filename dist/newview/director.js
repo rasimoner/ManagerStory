@@ -313,7 +313,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const f = fwdOf(p), r = rightOf(p);
     const set = yield* until(() => {
       const rel = V(ball.p.x - p.pos.x, 0, ball.p.z - p.pos.z), a = rel.dot(f), l = Math.abs(rel.dot(r));
-      p.target.copy(ball.p).addScaledVector(f, -0.32).setY(0); p.want = 1.2;
+      p.target.copy(ball.p).addScaledVector(f, -0.2).setY(0); p.want = 1.2;          // he stops a little short of where he aims: the ball ends ~0.3 m ahead
       if (Math.hypot(ball.v.x, ball.v.z) > 0.6) ball.v.multiplyScalar(0.9);
       return a > 0.2 && a < 0.42 && l < 0.2;
     }, 1.6);
