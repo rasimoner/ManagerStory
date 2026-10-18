@@ -99,7 +99,7 @@ function paintTune() {
     + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
 }
 tuneBtn.addEventListener('click', () => { tuneEl.hidden = !tuneEl.hidden; paintTune(); });
-const TRY_NAMES = { stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas', cruyff: 'Cruyff dönüşü', croqueta: 'La Croqueta', roulette: 'Marsilya dönüşü', flairnutmeg: 'Flair bacak arası', flairpass: 'Makasla pas' };
+const TRY_NAMES = { stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas', cruyff: 'Cruyff dönüşü', croqueta: 'La Croqueta', roulette: 'Marsilya dönüşü', flairnutmeg: 'Flair bacak arası', flairpass: 'Makasla pas', rainbow: 'Gökkuşağı', sombrero: 'Aşırtma çalım', juggle: 'Sektirip geçme' };
 tuneEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.try) { if (director) { director.tryNext(b.dataset.try); lastReplay = -99; banner('DENEME · ' + TRY_NAMES[b.dataset.try].toUpperCase(), 1500); } tuneEl.hidden = true; return; }
@@ -357,10 +357,12 @@ function starCamera(dtReal, aspect, ballAt) {
   if (!rp) { updateCamera(dtReal, aspect); return; }
   const tall = aspect < 1.25;
   replay.posOf(rp.key, rp.t, rpStar) || rpStar.copy(ballAt);
-  rpStar.lerp(ballAt.clone().setY(0), 0.35);
-  rpWant.copy(rpStar).add(new THREE.Vector3(-1.7, tall ? 3.6 : 3.3, tall ? 5.0 : 4.4));
+  // a ball in the air pulls the picture its way and the camera back a little, so both stay in frame
+  const up = Math.max(0, ballAt.y - BALL_R), pull = 1 + Math.min(0.6, up * 0.22);
+  rpStar.lerp(ballAt.clone().setY(0), 0.35 + Math.min(0.25, up * 0.12));
+  rpWant.copy(rpStar).add(new THREE.Vector3(-1.7 * pull, (tall ? 3.6 : 3.3) * pull, (tall ? 5.0 : 4.4) * pull));
   const k = rp.first ? 1 : 1 - Math.exp(-dtReal * 4);
-  rpCamPos.lerp(rpWant, k); rpCamLook.lerp(rpStar.setY(0.6), k); rp.first = false;
+  rpCamPos.lerp(rpWant, k); rpCamLook.lerp(rpStar.setY(0.6 + Math.min(1.2, up * 0.45)), k); rp.first = false;
   camera.fov = tall ? 50 : 40; camera.aspect = aspect; camera.updateProjectionMatrix();
   camera.position.copy(rpCamPos); camera.lookAt(rpCamLook);
 }

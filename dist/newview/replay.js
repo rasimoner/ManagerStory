@@ -92,5 +92,8 @@ export const STAR_MOVES = {
   croqueta: { name: 'LA CROQUETA', line: 'Top bir ayaktan öbür ayağa kayar: iki dokunuşta adamın yanından sıyrılır.' },
   roulette: { name: 'MARSİLYA DÖNÜŞÜ', line: 'Topun üstünde tam tur döner, iki tabanla sürükleyip adamı geçer.' },
   flairnutmeg: { name: 'FLAIR BACAK ARASI', line: 'Arkasını döner, topu topukla adamın bacak arasından geçirir.' },
+  rainbow: { name: 'GÖKKUŞAĞI', line: 'Topu topuğuyla arkadan kendi başının ve rakibin üstünden aşırtır.' },
+  sombrero: { name: 'AŞIRTMA ÇALIM', line: 'Karşısındaki adamın başının üstünden aşırtır, arkasında yakalar.' },
+  juggle: { name: 'SEKTİRİP GEÇME', line: 'Topu havaya kaldırır, havadayken bir daha dokunup uzanan bacağın üstünden geçer.' },
   flairpass: { name: 'MAKASLA PAS', line: 'Makasın ortasında pası çıkarır: savunmacı çalımı beklerken top arkadaşına gider.' },
 };

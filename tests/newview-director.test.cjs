@@ -190,6 +190,15 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
         assert.ok(k.between === true && k.gapL > 0.15 && k.gapR > 0.15, 'the ball goes between the feet: ' + JSON.stringify(k));
       } else if (k.kind === 'flairpass') {
         assert.ok(k.minGap > 0.12 && k.peak > 0.12 && k.contact != null && k.contact < 0.3, 'a real step-over, then the pass with the boot on the ball: ' + JSON.stringify(k));
+      } else if (k.kind === 'rainbow') {
+        assert.ok(k.roll < 0.3 && k.heel < 0.3, 'rolled back under the sole, flicked by the heel: ' + JSON.stringify(k));
+        assert.ok(k.apex > 1.9 && (k.overDef == null || k.overDef > 1.7), 'up over his head and the defender\'s: ' + JSON.stringify(k));
+      } else if (k.kind === 'sombrero') {
+        assert.ok(k.toe < 0.3, 'scooped with the toe: ' + JSON.stringify(k));
+        assert.ok(k.apex > 1.8 && (k.overDef == null || k.overDef > 1.7), 'over the defender\'s head: ' + JSON.stringify(k));
+      } else if (k.kind === 'juggle') {
+        assert.ok(k.touch1 < 0.3 && k.touch2 < 0.3 && k.low > 0.2, 'two touches, the ball kept off the grass between them: ' + JSON.stringify(k));
+        assert.ok(k.overDef == null || k.overDef > 0.5, 'over the lunging leg: ' + JSON.stringify(k));
       } else if (k.kind === 'chest') {
         assert.ok(k.contact < 0.38 && k.h > 0.9, 'the ball is taken on the chest: ' + JSON.stringify(k));
       }
@@ -197,7 +206,8 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
       if (k.kind !== 'chest') {
         assert.ok(k.moves.includes(k.kind), 'only a player who has the move does it: ' + JSON.stringify(k));
         assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
-        if (['elastico', 'nolook', 'flairnutmeg', 'flairpass'].includes(k.kind)) assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
+        if (['rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(!k.losing, 'no showboating when losing: ' + JSON.stringify(k));
+        if (['elastico', 'nolook', 'flairnutmeg', 'flairpass', 'rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
         if (k.kind === 'elastico') assert.ok(Math.abs(k.z) < 31, 'no elastico against the touchline: ' + JSON.stringify(k));
       }
     }

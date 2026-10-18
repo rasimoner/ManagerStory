@@ -98,6 +98,9 @@ function skillMoves(id,side){
  if(!stopper&&(stars>=5||(stars>=4&&t>=80)))moves.push('roulette');
  if(moves.includes('nutmeg')&&stars>=4&&d>=78)moves.push('flairnutmeg');
  if(moves.includes('stepover')&&v>=75)moves.push('flairpass');
+ if(!stopper&&(stars>=5||(stars>=4&&d>=82)))moves.push('rainbow');
+ if(!stopper&&(stars>=5||(stars>=4&&d>=81&&t>=81)))moves.push('sombrero');
+ if(!stopper&&stars>=5)moves.push('juggle');
  return {stars,moves};
 }
 
