@@ -371,7 +371,7 @@ const STRIDE = Math.min(1, Math.max(0.5, Number(new URLSearchParams(location.sea
 // automated picture checks only (?nvfixdt): every frame is 1/60 s whatever the machine manages
 const FIXED_DT = /[?&]nvfixdt/.test(location.search) ? 1 / 60 : 0;
 const MANUAL = !!FIXED_DT && /[?&]nvmanual/.test(location.search);
-let manualTick = false;
+let manualTick = false, manualNoDraw = false;
 let fastForward = 1;          // (?nvfixdt only) a recording script skips ahead to the moment it wants
 const TEST_SCALE = Math.min(20, Math.max(1, Number(new URLSearchParams(location.search).get('nvtest')) || 1));
 let last = 0, frameNo = 0, rafId = null;
@@ -424,7 +424,7 @@ function frame(now) {
   const now3 = performance.now() / 1000;
   stadium.crowdMat.uniforms.uTime.value = now3; stadium.flagMat.uniforms.uTime.value = now3;
   stadium.updateNets(rt.S.netHit, rt.S.t);
-  if (fastForward > 1 && !rp && frameNo % 30) { frameNo++; return; }      // skipping ahead: bodies posed, picture not drawn
+  if ((fastForward > 1 && !rp && frameNo % 30) || manualNoDraw) { frameNo++; return; }      // skipping ahead: bodies posed, picture not drawn
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
   if (rp) starCamera(dtReal, w / Math.max(1, h), ballAt); else updateCamera(dtReal, w / Math.max(1, h));
@@ -453,8 +453,11 @@ window.ManagerStoryNewView = {
   get replay() { return rp ? { kind: rp.kind, who: rp.key, t: rp.t, t0: rp.t0, t1: rp.t1 } : null; },
   get replayKept() { return replay.count; },
   get starPending() { return starPending; },
+  // development: play a special move now (console: ManagerStoryNewView.star('elastico'))
+  get devScene() { return FIXED_DT ? { renderer, scene, crowd, outline } : null; },
+  star(kind) { if (!director || rp) return null; replay.clear(); starPending = null; lastReplay = -99; return director.stage(kind) || null; },
   // (?nvfixdt&nvmanual) draw n frames of 1/60 s now
-  step(n = 1) { if (!MANUAL) return; manualTick = true; try { for (let i = 0; i < n; i++) frame(performance.now()); } finally { manualTick = false; } },
+  step(n = 1, drawLastOnly = false) { if (!MANUAL) return; manualTick = true; try { for (let i = 0; i < n; i++) { manualNoDraw = drawLastOnly && i < n - 1; frame(performance.now()); } } finally { manualTick = false; manualNoDraw = false; } },
   set fastForward(v) { if (FIXED_DT) fastForward = Math.max(1, Number(v) || 1); },
   // where the ball is on screen (-1..1 inside the frame) and where the camera looks: for measuring the camera
   get framing() {

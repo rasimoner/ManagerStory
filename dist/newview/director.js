@@ -227,7 +227,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // V7.9: a no-look pass — only a player who has it, in the opponents' half, not played backwards
       const fwdX = -Math.sign(ownGoalX(from.side)), len0 = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
       noLook = !!to && !implicit && !opts.restart && !opts.meet && travel === 'ground' && has(from, 'nolook') && zoneOk('nolook', from)
-        && (toW.x - from.pos.x) * fwdX > -3 && len0 > 8 && len0 < 30 && pick(opts.ev, 5) < 0.6;
+        && (toW.x - from.pos.x) * fwdX > -3 && len0 > 8 && len0 < 30 && (forced === 'nolook' || pick(opts.ev, 5) < 0.6);
       let name = noLook ? 'nolook' : 'pass';
       dir = yield* approachAim(from, name, toW);
       // could not get set for it (the ball ran on, or it is still bouncing): an ordinary pass instead
@@ -365,8 +365,52 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // the special move a beaten defender falls for, if the carrier has one that fits here (stable per event)
   function duelMove(car, def) {
     const ok = ['elastico', 'stepover', 'nutmeg'].filter(m => has(car, m) && zoneOk(m, car));
+    if (forced && ok.includes(forced)) return forced;
     if (!ok.length || pick(def.lastEvent, 13) > 0.65) return null;
     return ok[Math.floor(pick(def.lastEvent, 17) * ok.length)];
+  }
+  // ---- development only: stage a special move now (to film it or look at it on the phone) ----
+  // the match waits while it plays; the player who has the move is put in the opponents' half with
+  // the ball, a defender comes to him, and the move is made exactly as in a match
+  let forced = null, staged = null;
+  function stage(kind) {
+    if (staged) return false;
+    const star = rt.players.filter(p => !p.offPitch && has(p, kind)).sort((a, b) => (a.side === 'user' ? 0 : 1) - (b.side === 'user' ? 0 : 1))[0];
+    if (!star) return false;
+    staged = (function* () {
+      const fx = -Math.sign(ownGoalX(star.side)), at = V(fx * 22, 0, 6);
+      const opp = rt.players.filter(q => !q.offPitch && q.side !== star.side && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at));
+      const def = opp[0];
+      for (const p of rt.players) p.busy = false;
+      rt.place(star, at); star.heading = Math.atan2(fx, 0);
+      ball.owner = star; ball.held = null; ball.v.set(0, 0, 0); ball.p.set(at.x + fx * 0.5, BALL_R, at.z);
+      rt.place(def, V(at.x + fx * 9, 0, at.z + 1)); def.heading = Math.atan2(-fx, 0);
+      forced = kind;
+      if (kind === 'nolook') {
+        const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
+        rt.place(mate, V(at.x + fx * 16, 0, at.z - 8));
+        yield* carry(star, V(at.x + fx * 6, 0, at.z), 4.2);
+        yield* pass(star, mate, V(at.x + fx * 20, 0, at.z - 6), 'ground', false, { ev: { eventId: -1 } });
+      } else {
+        // he runs at the defender, who comes out to meet him; then the move (again if he could not set it up)
+        def.lastEvent = { eventId: -1 }; def.busy = star.busy = true;
+        hooks.cam('close', star, def);
+        yield* until(() => {
+          rt.dribble(star, V(at.x + fx * 12, 0, at.z), 3);
+          def.target.copy(star.pos).addScaledVector(fwdOf(star), 1.9); def.want = 4; def.face = star.pos; def.faceLock = true; def.loopsWant.jockey = 1;
+          return def.pos.distanceTo(star.pos) < 2.6;
+        }, 4);
+        for (let k = 0; k < 4; k++) {
+          if ((yield* SKILL_BEAT[kind](star, def, true)) !== false) break;
+          def.target.copy(star.pos).addScaledVector(fwdOf(star), 2); def.want = 3;
+          yield* wait(0.2);
+        }
+        def.busy = star.busy = false; def.faceLock = false; def.loopsWant.jockey = 0;
+        hooks.cam('tv');
+      }
+      forced = null;
+    })();
+    return star.name;
   }
   // every special move is logged with who did it and where, for the checks and the replay
   function noteSkill(audit, p, extra) {
@@ -1183,6 +1227,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function flushSay() { if (sayQ) { const q = sayQ; sayQ = null; hooks.say(q.e.text, q.e); } }
   function update() {
     shape();
+    if (staged) { if (staged.next().done) staged = null; return; }
     if (!task) task = nextTask();
     let guard = 0;
     while (task && guard++ < 40) {
@@ -1258,7 +1303,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
   if (idx === 0) { layout(0, true); ball.p.set(0, BALL_R, 0); }
   return {
-    update, skipTo, stats, syncRoster, resync,
+    update, skipTo, stats, syncRoster, resync, stage,
     get index() { return idx; }, get current() { return task ? events[task.i] : null; }, get total() { return events.length; },
     // the live presentation clock may show an engine event once the new view has started it;
     // a shot is held back until its outcome has played out, so the goal graphic never spoils it
