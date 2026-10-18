@@ -199,13 +199,27 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
       } else if (k.kind === 'juggle') {
         assert.ok(k.touch1 < 0.3 && k.touch2 < 0.3 && k.low > 0.2, 'two touches, the ball kept off the grass between them: ' + JSON.stringify(k));
         assert.ok(k.overDef == null || k.overDef > 0.5, 'over the lunging leg: ' + JSON.stringify(k));
+      } else if (k.kind === 'backheel') {
+        assert.ok(k.heel < 0.3 && k.over > 0.12 && k.back > 2.2, 'stepped over, played back with the heel: ' + JSON.stringify(k));
+      } else if (k.kind === 'rabona') {
+        assert.ok(k.contact < 0.3 && k.crossed === true && k.behind < -0.04, 'struck with the leg wrapped behind the standing leg: ' + JSON.stringify(k));
+      } else if (k.kind === 'trap') {
+        assert.ok(k.toe < 0.3 && k.h > 0.3, 'killed with the boot in the air: ' + JSON.stringify(k));
+      } else if (k.kind === 'panenka' || k.kind === 'chip') {
+        assert.ok(k.contact < 0.35 && k.apex > 1.4, 'a soft chip, struck with the boot: ' + JSON.stringify(k));
+        if (k.kind === 'chip' && k.overKeeper != null) assert.ok(k.overKeeper > 2.2, 'over the keeper: ' + JSON.stringify(k));
+      } else if (k.kind === 'bicycle') {
+        assert.ok(k.contact < 0.35 && k.pitch > 1.3 && k.h > 1.2, 'over backwards, the boot on the ball above his head: ' + JSON.stringify(k));
       } else if (k.kind === 'chest') {
         assert.ok(k.contact < 0.38 && k.h > 0.9, 'the ball is taken on the chest: ' + JSON.stringify(k));
       }
       // a special move belongs to the player (his repertoire) and to the right part of the pitch
-      if (k.kind !== 'chest') {
+      if (k.kind === 'trap') assert.ok(k.moves.includes('trap'), 'only a player who has the touch: ' + JSON.stringify(k));
+      if (k.kind !== 'chest' && k.kind !== 'trap') {
         assert.ok(k.moves.includes(k.kind), 'only a player who has the move does it: ' + JSON.stringify(k));
-        assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
+        if (!['panenka', 'chip', 'bicycle'].includes(k.kind)) assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
+        if (k.kind === 'backheel') assert.ok(k.fromOwn > 70, 'backheel only in the final third: ' + JSON.stringify(k));
+        if (k.kind === 'rabona') assert.ok(k.fromOwn > 52.5, 'rabona only in the opponents\' half: ' + JSON.stringify(k));
         if (['rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(!k.losing, 'no showboating when losing: ' + JSON.stringify(k));
         if (['elastico', 'nolook', 'flairnutmeg', 'flairpass', 'rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
         if (k.kind === 'elastico') assert.ok(Math.abs(k.z) < 31, 'no elastico against the touchline: ' + JSON.stringify(k));

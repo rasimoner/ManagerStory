@@ -554,6 +554,17 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       p.model.quaternion.setFromEuler(new THREE.Euler(0, p.heading, 0)).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), c.roll));
       groundW = 0;
     }
+    // a bicycle kick: the body tips over backwards round the hips and goes up (and comes down on its back)
+    if (p.flip) {
+      const fl = p.flip(S.t);
+      if (!fl) p.flip = null;
+      else {
+        const hipH = 0.95, q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-fl.pitch, p.heading, 0, 'YXZ'));
+        p.model.quaternion.copy(q);
+        p.model.position.set(p.pos.x, hipH + fl.lift, p.pos.z).sub(V(0, hipH, 0).applyQuaternion(q));
+        groundW = 0; p.ground = 0;
+      }
+    }
     p.model.updateMatrixWorld(true);
     if (groundW > 0.01) p.ground = lerp(p.ground, -footClearance(p.bones) * groundW, Math.min(1, dt * 12));
     else if (compact > 0.005) p.ground = lerp(p.ground, Math.max(0, -footClearance(p.bones)), Math.min(1, dt * 12));   // a straighter leg would dig in

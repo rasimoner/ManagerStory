@@ -216,6 +216,17 @@ ACTIONS.point = {
     { t: 1, p: {} },
   ],
 };
+// bicycle kick: arms out for balance, the standing leg tucks, the body arches back (the kicking leg is
+// placed by a foot target, the tip over by the runtime)
+ACTIONS.bicycle = {
+  dur: 1.3, mask: 'all',
+  keys: [
+    { t: 0, p: { LeftLeg: [30, 0, 0], RightLeg: [30, 0, 0], Spine: [6, 0, 0] } },
+    { t: 0.3, p: { LeftUpLeg: [-70, 0, 6], LeftLeg: [90, 0, 0], Spine: [-14, 0, 0], Spine1: [-8, 0, 0], Head: [30, 0, 0], LeftArm: [-10, 0, -20], RightArm: [-10, 0, 20], LeftForeArm: [0, -20, 0], RightForeArm: [0, 20, 0] } },
+    { t: 0.55, p: { LeftUpLeg: [-40, 0, 6], LeftLeg: [60, 0, 0], Spine: [-10, 0, 0], Head: [34, 0, 0], LeftArm: [10, 0, -10], RightArm: [10, 0, 10] } },
+    { t: 1, p: { LeftLeg: [20, 0, 0], RightLeg: [20, 0, 0], Spine: [0, 0, 0], LeftArm: [0, 0, -60], RightArm: [0, 0, 60] } },
+  ],
+};
 // mirror an action left <-> right (angles about y and z flip sign)
 function mirror(src) {
   const swap = n => n.startsWith('Left') ? 'Right' + n.slice(4) : n.startsWith('Right') ? 'Left' + n.slice(5) : n;
