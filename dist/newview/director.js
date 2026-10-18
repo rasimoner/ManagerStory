@@ -329,7 +329,12 @@ export function createDirector(rt, data, hooks, opts = {}) {
       def.target.copy(from.pos).addScaledVector(aim, 1.9); def.want = 5; def.face = from.pos; def.faceLock = true; def.loopsWant.jockey = 1;
       return def.pos.distanceTo(from.pos) < 2.6;
     }, tryIt ? 4 : 1);
-    const ok = (yield* stepoverBeat(from, def, true, { passTo: toW })) !== false;
+    let ok = false;
+    for (let k = 0; k < (tryIt ? 3 : 1) && !ok; k++) {
+      if (k) yield* until(() => { from.target.copy(from.pos); from.want = 0.4; def.target.copy(from.pos).addScaledVector(aim, 1.9); def.want = 3; def.face = from.pos; def.faceLock = true; return def.pos.distanceTo(from.pos) < 2.4; }, 1);
+      ok = (yield* stepoverBeat(from, def, true, { passTo: toW })) !== false;
+      if (ball.owner !== from && !ok) break;
+    }
     if (!ok) { def.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; from.faceLock = false; if (tryIt) tryMove = 'flairpass'; return false; }
     hooks.tried?.('flairpass');
     return true;
