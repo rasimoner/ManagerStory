@@ -99,7 +99,7 @@ function paintTune() {
     + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
 }
 tuneBtn.addEventListener('click', () => { tuneEl.hidden = !tuneEl.hidden; paintTune(); });
-const TRY_NAMES = { stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas' };
+const TRY_NAMES = { stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas', cruyff: 'Cruyff dönüşü', croqueta: 'La Croqueta', roulette: 'Marsilya dönüşü', flairnutmeg: 'Flair bacak arası', flairpass: 'Makasla pas' };
 tuneEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.try) { if (director) { director.tryNext(b.dataset.try); lastReplay = -99; banner('DENEME · ' + TRY_NAMES[b.dataset.try].toUpperCase(), 1500); } tuneEl.hidden = true; return; }

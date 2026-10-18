@@ -223,7 +223,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       yield* until(() => rt.actionAtContact(from), 2);
       ball.held = null;
       rt.kickAir(V(toW.x, 0.4, toW.z), Math.max(0.6, dir.length() / 13));
-    } else {
+    } else if (!(yield* flairPassTry(from, to, toW, travel, implicit, opts))) {
       // V7.9: a no-look pass — only a player who has it, in the opponents' half, not played backwards
       const fwdX = -Math.sign(ownGoalX(from.side)), len0 = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
       const tryNL = tryMove === 'nolook' && from.side === 'user' && from.role !== 'GK';
@@ -303,6 +303,37 @@ export function createDirector(rt, data, hooks, opts = {}) {
     hooks.slow(1); p.faceLock = false;
   }
 
+  // the pass in the middle of a step-over: a player who has it, in the opponents' half, a defender
+  // right in front of him and a short pass on (or the test button); true when the pass has been played
+  function nearestOpp(p, maxD) {
+    return rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== p.side && q.role !== 'GK' && q.pos.distanceTo(p.pos) < maxD)
+      .reduce((m, q) => (!m || q.pos.distanceTo(p.pos) < m.pos.distanceTo(p.pos) ? q : m), null);
+  }
+  function* flairPassTry(from, to, toW, travel, implicit, opts) {
+    if (!to || opts.restart || opts.meet || opts.throwIn || from.role === 'GK') return false;
+    const len = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
+    const tryIt = tryMove === 'flairpass' && from.side === 'user' && len > 4 && len < 30;
+    let def = nearestOpp(from, tryIt ? 16 : 3.2);
+    if (!def) return false;
+    if (!tryIt) {
+      const ahead = def.pos.clone().sub(from.pos).dot(V(toW.x - from.pos.x, 0, toW.z - from.pos.z).normalize());
+      if (implicit || travel !== 'ground' || !has(from, 'flairpass') || !zoneOk('flairpass', from) || len < 8 || len > 28 || ahead < 0.5 || pick(opts.ev, 21) >= 0.5) return false;
+    }
+    if (ball.owner !== from) return false;
+    if (tryIt) tryMove = null;
+    def.busy = true; from.busy = true; def.lastEvent ||= opts.ev || { eventId: 0 };
+    // he faces the pass, the defender comes to block it
+    const aim = V(toW.x - from.pos.x, 0, toW.z - from.pos.z).normalize();
+    yield* until(() => {
+      from.target.copy(from.pos); from.want = 0.3; from.face = toW; from.faceLock = true;
+      def.target.copy(from.pos).addScaledVector(aim, 1.9); def.want = 5; def.face = from.pos; def.faceLock = true; def.loopsWant.jockey = 1;
+      return def.pos.distanceTo(from.pos) < 2.6;
+    }, tryIt ? 4 : 1);
+    const ok = (yield* stepoverBeat(from, def, true, { passTo: toW })) !== false;
+    if (!ok) { def.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; from.faceLock = false; if (tryIt) tryMove = 'flairpass'; return false; }
+    hooks.tried?.('flairpass');
+    return true;
+  }
   // with the ball: drive into open grass, slow down and keep it close with a man nearby
   function carrySpeed(p, base) {
     const other = p.side === 'user' ? 'opp' : 'user';
@@ -316,7 +347,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const end = S.t + Math.min(11, p.pos.distanceTo(goalW) / Math.max(2, carrySpeed(p, speed) - 1) + 2);
     while (S.t < end && ball.owner === p) {
       // (temporary test button) our man on the ball plays the move asked for, in the flow of play
-      if (tryMove && tryMove !== 'nolook' && p.side === 'user' && p.role !== 'GK' && (yield* tryNow(p))) { p.busy = true; if (ball.owner !== p) break; continue; }
+      if (tryMove && !PASS_TRIES.has(tryMove) && p.side === 'user' && p.role !== 'GK' && (yield* tryNow(p))) { p.busy = true; if (ball.owner !== p) break; continue; }
       rt.dribble(p, goalW, carrySpeed(p, speed));
       if (Math.hypot(ball.p.x - goalW.x, ball.p.z - goalW.z) < 1.4) break;
       yield;
@@ -327,6 +358,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // ---- V7.9 skill moves: the boots are placed on and around the ball (runtime footIK) ----
   const fwdOf = p => V(Math.sin(p.heading), 0, Math.cos(p.heading));
   const rightOf = p => V(-Math.cos(p.heading), 0, Math.sin(p.heading));
+  const smooth01 = x => x * x * (3 - 2 * x);
   const ramp = (t0, a, b, c, d) => t => { const u = t - t0; return u < a ? 0 : u < b ? (u - a) / (b - a) : u < c ? 1 : u < d ? 1 - (u - c) / (d - c) : 0; };
   // Catmull-Rom through points, u in 0..1
   function spline(pts, u) {
@@ -362,13 +394,15 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const d = fromOwnGoal(p);
     if (d < 35) return false;                                         // his own third (and his own box)
     if (move === 'elastico') return d > GOAL_X && Math.abs(p.pos.z) < 31;
+    if (move === 'flairnutmeg' || move === 'flairpass') return d > GOAL_X;
     if (move === 'nolook') return d > GOAL_X;
     return true;
   }
   const has = (p, move) => !!p?.moves?.includes(move);
   // the special move a beaten defender falls for, if the carrier has one that fits here (stable per event)
+  const DUEL_MOVES = ['elastico', 'stepover', 'nutmeg', 'cruyff', 'croqueta', 'roulette', 'flairnutmeg'];
   function duelMove(car, def) {
-    const ok = ['elastico', 'stepover', 'nutmeg'].filter(m => has(car, m) && zoneOk(m, car));
+    const ok = DUEL_MOVES.filter(m => has(car, m) && zoneOk(m, car));
     if (forced && ok.includes(forced)) return forced;
     if (!ok.length || pick(def.lastEvent, 13) > 0.65) return null;
     return ok[Math.floor(pick(def.lastEvent, 17) * ok.length)];
@@ -421,6 +455,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // opponent comes to him and he plays the move (whether he has it or not, wherever he is); the
   // match then goes on from there
   let tryMove = null, tryWait = 0;
+  const PASS_TRIES = new Set(['nolook', 'flairpass']);
   function* tryNow(car) {
     const kind = tryMove;
     const def = rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== car.side && q.role !== 'GK')
@@ -434,7 +469,12 @@ export function createDirector(rt, data, hooks, opts = {}) {
       return def.pos.distanceTo(car.pos) < 2.6;
     }, 4);
     def.lastEvent ||= { eventId: 0 };
-    const ok = def.pos.distanceTo(car.pos) < 3.2 && (yield* SKILL_BEAT[kind](car, def, true)) !== false;
+    let ok = false;
+    for (let k = 0; k < 3 && !ok; k++) {
+      if (k) yield* until(() => { car.target.copy(car.pos); car.want = 0.5; def.target.copy(car.pos).addScaledVector(fwdOf(car), 1.9); def.want = 3; def.face = car.pos; def.faceLock = true; return def.pos.distanceTo(car.pos) < 2.4; }, 1);
+      ok = def.pos.distanceTo(car.pos) < 3.4 && (yield* SKILL_BEAT[kind](car, def, true)) !== false;
+      if (ball.owner !== car && !ok) break;
+    }
     if (!ok) { tryMove = kind; def.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; car.busy = false; hooks.cam('tv'); }
     else hooks.tried?.(kind);
     return ok;
@@ -448,7 +488,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // step-over: the right boot circles round the front of the ball from inside to out without touching
   // it, the left stays planted; the defender buys it and goes that way; the same boot then takes the
   // ball back across the other way
-  function* stepoverBeat(car, def, closeUp) {
+  function* stepoverBeat(car, def, closeUp, opts = {}) {
     if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 3.2) return false;
     // square up to the ball (turned, not snapped): his line is from him to the ball
     car.face = ball.p; car.faceLock = true;
@@ -494,6 +534,18 @@ export function createDirector(rt, data, hooks, opts = {}) {
     yield* until(() => { const t = car.feet.Right.last; car.target.copy(ball.p).addScaledVector(f, -0.24); car.want = 1.4; return t && t.distanceTo(ball.p) < 0.24; }, 0.3);
     const toe = car.feet.Right.last; audit.contact = toe ? +toe.distanceTo(ball.p).toFixed(3) : null;
     if (DEBUG) { const hip = car.bones.RightUpLeg.getWorldPosition(V()), tg = car.feet.Right.at(S.t); audit.dbg = { car: car.pos.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)), toe: toe?.toArray().map(v => +v.toFixed(2)), target: tg.toArray().map(v => +v.toFixed(2)), hip: hip.toArray().map(v => +v.toFixed(2)), w: +car.feet.Right.w(S.t).toFixed(2), bv: +Math.hypot(ball.v.x, ball.v.z).toFixed(2), cv: +car.vel.length().toFixed(2), el: +(S.t - t0).toFixed(2) }; }
+    // the pass in the middle of the move: the defender has gone with the step-over, the take is a pass
+    if (opts.passTo) {
+      rt.kickGround(opts.passTo, 4.5, 0.7); car.lastTouch = S.t; audit.kind = 'flairpass';
+      noteSkill(audit, car);
+      car.target.copy(car.pos); car.want = 0.5;
+      yield* wait(0.3); hooks.slow(1);
+      rt.startAction(def, 'stumble'); def.want = 0.5; def.face = ball.p; def.faceLock = true;
+      yield* wait(0.3); car.feet = null; car.faceLock = false;
+      def.busy = false; def.faceLock = false; def.loopsWant.jockey = 0;
+      if (closeUp) hooks.cam('tv');
+      return true;
+    }
     const out = f.clone().multiplyScalar(3.1).addScaledVector(r, -2.7);
     if (Math.abs(car.pos.z) > 28 && out.z * Math.sign(car.pos.z) > 0) out.z *= -0.4;
     ball.v.copy(out); car.lastTouch = S.t; rt.startAction(car, 'cut');
@@ -613,7 +665,190 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (closeUp) hooks.cam('tv');
   }
 
-  const SKILL_BEAT = { stepover: stepoverBeat, nutmeg: nutmegBeat, elastico: elasticoBeat };
+  // ---- V7.9 more special moves (boots placed with the foot targets) ----
+  const toeGap = (p, side) => { const t = p.feet?.[side]?.last; return t ? t.distanceTo(ball.p) : 9; };
+  const heelOf = (p, side) => p.bones[side + 'Foot'].getWorldPosition(V());
+  const slipWatch = (p, side, after, t0) => { let p0 = null, max = 0; return () => { const s = p.feet?.[side]?.last; if (s && S.t - t0 > after) { p0 ||= s.clone(); max = Math.max(max, Math.hypot(s.x - p0.x, s.z - p0.z)); } return max; }; };
+  function* squareUp(car) {
+    car.face = ball.p; car.faceLock = true;
+    yield* until(() => { const want = Math.atan2(ball.p.x - car.pos.x, ball.p.z - car.pos.z), d = Math.atan2(Math.sin(want - car.heading), Math.cos(want - car.heading)); return Math.abs(d) < 0.06; }, 0.25);
+  }
+  function* afterBeat(car, def, closeUp) {
+    hooks.slow(1);
+    rt.startAction(def, 'stumble'); def.want = 0.5; def.face = car.pos; def.faceLock = true;
+    yield* wait(0.3); car.feet = null; car.faceLock = false; car.drive = null;
+    def.busy = car.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; def.feet = null;
+    yield* chase(car, null);
+    if (closeUp) hooks.cam('tv');
+  }
+
+  // Cruyff turn: he shapes to strike it (the boot goes back and comes through), but the inside of the
+  // boot drags the ball back behind his standing leg instead and he turns away with it
+  function* cruyffBeat(car, def, closeUp) {
+    if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 3.4) return false;
+    yield* squareUp(car);
+    const f = fwdOf(car), r = rightOf(car), t0 = S.t, b0 = ball.p.clone();
+    if (closeUp) hooks.cam('close', car, def);
+    hooks.slow(0.4);
+    car.target.copy(car.pos); car.want = 0.3; car.vel.multiplyScalar(0.3); ball.v.copy(f).multiplyScalar(0.08);
+    car.face = car.pos.clone().addScaledVector(f, 30); car.faceLock = true;
+    ball.through = t0 + 1.2; def.target.copy(def.pos); def.want = 0.5;
+    const rel = (a, l, y) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
+    const plantL = b0.clone().addScaledVector(f, 0.16).addScaledVector(r, -0.26).setY(0.03);
+    const back = b0.clone().addScaledVector(f, -0.34).addScaledVector(r, 0.12).setY(0.3);
+    car.feet = {
+      Left: { w: ramp(t0, 0, 0.1, 0.9, 1.05), at: () => plantL },
+      Right: { w: ramp(t0, 0, 0.08, 0.9, 1.05), at: t => {
+        const u = t - t0;
+        if (u < 0.28) return back;                                                    // the shot is shaped: boot back and up
+        if (u < 0.42) { const k = (u - 0.28) / 0.14; return back.clone().lerp(rel(0.17, 0.11, 0.06), k * k * (3 - 2 * k)); }   // through, beside the ball
+        if (u < 0.5) { const k = (u - 0.42) / 0.08; return rel(0.17, 0.11, 0.06).lerp(rel(0.12, 0.02, 0.05), k); }            // the inside of the boot onto its front
+        return rel(-0.12, -0.12, 0.05);
+      } },
+    };
+    const audit = { kind: 'cruyff', fake: 0, swingGap: 9 }, slip = slipWatch(car, 'Left', 0.12, t0);
+    yield* until(() => {
+      const u = S.t - t0, toe = car.feet.Right.last;
+      if (toe && u < 0.3) audit.fake = Math.max(audit.fake, toe.y);
+      if (toe && u > 0.3 && u < 0.41) audit.swingGap = Math.min(audit.swingGap, toe.distanceTo(ball.p));
+      if (u > 0.22 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(b0).setY(0); def.want = 3; }
+      slip();
+      return u >= 0.5 && toeGap(car, 'Right') < 0.24;
+    }, 0.68);
+    audit.contact = +toeGap(car, 'Right').toFixed(3);
+    const dir = f.clone().multiplyScalar(-0.75).addScaledVector(r, -0.65).normalize();
+    ball.v.copy(dir).multiplyScalar(3.0); car.lastTouch = S.t;
+    // the ball goes behind the standing boot
+    const pl = (plantL.clone().sub(b0)).dot(r);
+    yield* until(() => { slip(); const d = ball.p.clone().sub(b0); if (d.dot(r) <= pl) { audit.behind = d.dot(f) < plantL.clone().sub(b0).dot(f) - 0.12; return true; } return S.t - t0 > 1.2; }, 0.6);
+    audit.plantSlip = +slip().toFixed(3);
+    noteSkill(audit, car);
+    car.feet = null; car.face = ball.p; car.faceLock = true; car.target.copy(ball.p).addScaledVector(dir, 0.6); car.want = 4.5;
+    yield* wait(0.25);
+    yield* afterBeat(car, def, closeUp);
+  }
+
+  // La Croqueta: the inside of the right boot slides the ball across to the left boot, which pushes it
+  // on past the defender's side, two touches in a blink
+  function* croquetaBeat(car, def, closeUp) {
+    if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 3.4) return false;
+    yield* squareUp(car);
+    const f = fwdOf(car), r = rightOf(car), t0 = S.t;
+    if (closeUp) hooks.cam('close', car, def);
+    hooks.slow(0.4);
+    car.target.copy(car.pos); car.want = 0.3; car.vel.multiplyScalar(0.4); ball.v.copy(f).multiplyScalar(0.1);
+    car.face = car.pos.clone().addScaledVector(f, 30); car.faceLock = true;
+    ball.through = t0 + 1.0; def.target.copy(def.pos); def.want = 0.5;
+    const rel = (a, l, y) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
+    let touched = 0, b1 = null;
+    car.feet = {
+      Right: { w: ramp(t0, 0, 0.06, 0.32, 0.45), at: () => rel(-0.02, 0.12, 0.05) },
+      Left: { w: ramp(t0, 0, 0.06, 0.62, 0.78), at: t => touched ? rel(-0.1, -0.1, 0.05) : car.pos.clone().addScaledVector(f, 0.1).addScaledVector(r, -0.2).setY(0.03) },
+    };
+    const audit = { kind: 'croqueta' };
+    yield* until(() => S.t - t0 >= 0.12 && toeGap(car, 'Right') < 0.22, 0.3);
+    audit.touch1 = +toeGap(car, 'Right').toFixed(3); b1 = ball.p.clone();
+    ball.v.copy(r).multiplyScalar(-2.4).addScaledVector(f, 0.25); car.lastTouch = S.t; touched = 1;
+    car.target.copy(car.pos).addScaledVector(r, -0.6).addScaledVector(f, 0.15); car.want = 2.2;
+    rt.startAction(def, 'lungeL'); def.loopsWant.jockey = 0; def.target.copy(def.pos).addScaledVector(r, 1.1); def.want = 3;
+    yield* until(() => S.t - t0 >= 0.3 && toeGap(car, 'Left') < 0.22, 0.32);
+    audit.touch2 = +toeGap(car, 'Left').toFixed(3); audit.shift = +(-ball.p.clone().sub(b1).dot(r)).toFixed(3);
+    const out = f.clone().multiplyScalar(4.2).addScaledVector(r, -0.9);
+    if (Math.abs(car.pos.z) > 28 && out.z * Math.sign(car.pos.z) > 0) out.z *= -0.4;
+    ball.v.copy(out); car.lastTouch = S.t;
+    noteSkill(audit, car);
+    car.target.copy(ball.p).addScaledVector(out, 0.5); car.want = 6;
+    yield* wait(0.3);
+    yield* afterBeat(car, def, closeUp);
+  }
+
+  // Marseille turn: the right sole drags the ball back as he spins round on it, the left sole takes it
+  // on round the other side and he comes out of the spin past his man
+  function* rouletteBeat(car, def, closeUp) {
+    if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 3.4) return false;
+    yield* squareUp(car);
+    const f = fwdOf(car), r = rightOf(car), t0 = S.t, h0 = car.heading, T = 0.9;
+    if (closeUp) hooks.cam('close', car, def);
+    hooks.slow(0.4);
+    ball.through = t0 + 1.4; ball.v.set(0, 0, 0); def.target.copy(def.pos); def.want = 0.5;
+    const hd = t => h0 - 2 * Math.PI * smooth01(clamp((t - t0) / T, 0, 1));          // a full turn to his right
+    const fw = h => V(Math.sin(h), 0, Math.cos(h));
+    car.drive = { heading: hd, pos: t => ball.p.clone().addScaledVector(fw(hd(t)), -0.38) };
+    const onTop = (side) => () => ball.p.clone().addScaledVector(rightOf(car), side === 'Right' ? 0.04 : -0.04).setY(0.2);
+    car.feet = {
+      Right: { w: t => { const u = t - t0; return u < 0.05 ? u / 0.05 : u < 0.36 ? 1 : u < 0.46 ? (0.46 - u) / 0.1 : u > 0.72 && u < 0.86 ? 1 : 0; }, at: t => (t - t0) < 0.5 ? onTop('Right')() : ball.p.clone().addScaledVector(fwdOf(car), -0.13).setY(0.05) },
+      Left: { w: t => { const u = t - t0; return u > 0.38 && u < 0.7 ? Math.min(1, (u - 0.38) / 0.06, (0.7 - u) / 0.06) : 0; }, at: onTop('Left') },
+    };
+    const audit = { kind: 'roulette', soleA: 9, soleB: 9, wander: 0 }, c0 = car.pos.clone();
+    let phase = 0;
+    yield* until(() => {
+      const u = S.t - t0;
+      if (phase === 0 && u > 0.05) { phase = 1; ball.v.copy(f).multiplyScalar(-0.45).addScaledVector(r, 0.9); }              // dragged back and across
+      if (phase === 1 && u > 0.42) { phase = 2; ball.v.copy(r).multiplyScalar(1.1).addScaledVector(f, 0.45); }               // the other sole takes it on round
+      if (u > 0.08 && u < 0.34) audit.soleA = Math.min(audit.soleA, toeGap(car, 'Right'));
+      if (u > 0.44 && u < 0.66) audit.soleB = Math.min(audit.soleB, toeGap(car, 'Left'));
+      audit.wander = Math.max(audit.wander, Math.hypot(ball.p.x - car.pos.x, ball.p.z - car.pos.z));
+      ball.v.y = 0; ball.p.y = BALL_R;
+      if (u > 0.2 && !def.act) { rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(c0).addScaledVector(f, 0.6); def.want = 3; }
+      return u >= 0.76;
+    }, 1.2);
+    audit.spin = +Math.abs(hd(S.t) - h0).toFixed(2);
+    audit.contact = +toeGap(car, 'Right').toFixed(3);
+    const out = f.clone().multiplyScalar(3.4).addScaledVector(r, 0.8);
+    if (Math.abs(car.pos.z) > 28 && out.z * Math.sign(car.pos.z) > 0) out.z *= -0.4;
+    ball.v.copy(out); car.lastTouch = S.t;
+    for (const k of ['soleA', 'soleB', 'wander']) audit[k] = +audit[k].toFixed(3);
+    noteSkill(audit, car);
+    yield* until(() => S.t - t0 >= T, 0.3);
+    car.drive = null; car.heading = h0; car.target.copy(ball.p).addScaledVector(out, 0.4); car.want = 6;
+    yield* wait(0.25);
+    yield* afterBeat(car, def, closeUp);
+  }
+
+  // flair nutmeg: he turns his back on the defender as if to shield it, then the heel sends the ball back
+  // through the defender's legs and he spins round him to collect
+  function* flairNutmegBeat(car, def, closeUp) {
+    if (!(yield* gather(car, def, 0.9)) || def.pos.distanceTo(car.pos) > 3.4) return false;
+    const fc = fwdOf(car);
+    yield* until(() => { def.target.copy(ball.p).addScaledVector(fc, 1.5); def.want = 3; def.face = car.pos; def.faceLock = true; car.target.copy(car.pos); car.want = 0.3; ball.v.multiplyScalar(0.85); return def.pos.distanceTo(ball.p.clone().setY(0)) < 1.8; }, 0.6);
+    const t0 = S.t, h0 = car.heading, p0 = car.pos.clone();
+    if (closeUp) hooks.cam('close', car, def);
+    hooks.slow(0.4);
+    def.heading = Math.atan2(car.pos.x - def.pos.x, car.pos.z - def.pos.z); def.face = car.pos; def.faceLock = true;
+    def.loopsWant.jockey = 0; def.target.copy(def.pos); def.want = 0; def.vel.multiplyScalar(0.2);
+    const dr = rightOf(def), df = fwdOf(def);
+    const fl = def.pos.clone().addScaledVector(dr, -0.44).addScaledVector(df, 0.06).setY(0.03), fr = def.pos.clone().addScaledVector(dr, 0.44).addScaledVector(df, 0.06).setY(0.03);
+    def.feet = { Left: { at: () => fl, w: ramp(t0, 0, 0.16, 1.2, 1.45) }, Right: { at: () => fr, w: ramp(t0, 0, 0.16, 1.2, 1.45) } };
+    rt.startAction(def, 'spread');
+    ball.v.set(0, 0, 0); ball.through = t0 + 0.8;
+    // turn his back (to his left, half a turn) on the spot, the ball now behind him
+    const TT = 0.36, hd = t => h0 + Math.PI * smooth01(clamp((t - t0) / TT, 0, 1));
+    car.drive = { heading: hd, pos: () => p0 };
+    const gap = def.pos.clone().addScaledVector(df, 0.06).setY(0);
+    // the heel goes onto the near face of the ball (the boot points the way he now faces)
+    car.feet = { Right: { w: t => { const u = t - t0; return u < TT - 0.1 ? 0 : Math.min(1, (u - TT + 0.1) / 0.08); }, at: t => { const fnow = V(Math.sin(hd(t)), 0, Math.cos(hd(t))); return ball.p.clone().addScaledVector(fnow, 0.1 + 0.17).setY(0.07); } } };
+    const audit = { kind: 'flairnutmeg' };
+    yield* until(() => S.t - t0 >= TT + 0.06 && heelOf(car, 'Right').distanceTo(ball.p) < 0.24, TT + 0.3);
+    audit.heel = +heelOf(car, 'Right').distanceTo(ball.p).toFixed(3); audit.turn = +(hd(S.t) - h0).toFixed(2);
+    const f = V(gap.x - ball.p.x, 0, gap.z - ball.p.z).normalize();
+    ball.v.copy(f).multiplyScalar(5.0); ball.through = S.t + 1.1; car.lastTouch = S.t;
+    car.drive = null; car.feet = null; car.heading = hd(S.t);
+    const side = V(-f.z, 0, f.x).multiplyScalar(pick(def.lastEvent, 11) < 0.5 ? 1 : -1);
+    car.target.copy(gap).addScaledVector(side, 1.3).addScaledVector(f, 0.2); car.want = 6.4; car.faceLock = false;
+    yield* until(() => { const g = betweenFeet(def, gap, f); if (g) Object.assign(audit, g); return !!g || S.t - t0 > TT + 1.2; }, 1.4);
+    noteSkill(audit, car);
+    yield* wait(0.2);
+    def.face = ball.p; def.want = 1.5;
+    yield* afterBeat(car, def, closeUp);
+  }
+  // the ball crossing the line between the defender's planted boots: was it between them, and how far from each
+  function betweenFeet(def, gap, f) {
+    const l = def.feet?.Left?.last, rr = def.feet?.Right?.last;
+    if (!l || !rr || (ball.p.x - gap.x) * f.x + (ball.p.z - gap.z) * f.z <= 0) return null;
+    const seg = V(rr.x - l.x, 0, rr.z - l.z), len = seg.length(), q = V(ball.p.x - l.x, 0, ball.p.z - l.z).dot(seg) / Math.max(1e-3, len * len);
+    return { between: q > 0 && q < 1, gapL: +Math.hypot(ball.p.x - l.x, ball.p.z - l.z).toFixed(3), gapR: +Math.hypot(ball.p.x - rr.x, ball.p.z - rr.z).toFixed(3) };
+  }
+  const SKILL_BEAT = { stepover: stepoverBeat, nutmeg: nutmegBeat, elastico: elasticoBeat, cruyff: cruyffBeat, croqueta: croquetaBeat, roulette: rouletteBeat, flairnutmeg: flairNutmegBeat };
   // a defender closes the carrier down and commits; success decides who gets the ball
   function* tackle(def, car, success, closeUp, slide) {
     if (!def || !car) return;
@@ -1257,7 +1492,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (staged) { if (staged.next().done) staged = null; return; }
     // (temporary test button) our man on the ball, between two actions, plays the move asked for now
     const o = ball.owner;
-    if (tryMove && tryMove !== 'nolook' && S.t > tryWait && o && o.side === 'user' && o.role !== 'GK' && !o.busy && !o.motion && !o.act && !S.dead && !ball.held
+    if (tryMove && !PASS_TRIES.has(tryMove) && S.t > tryWait && o && o.side === 'user' && o.role !== 'GK' && !o.busy && !o.motion && !o.act && !S.dead && !ball.held
       && rt.players.some(q => !q.offPitch && !q.busy && !q.dive && q.side !== o.side && q.role !== 'GK' && q.pos.distanceTo(o.pos) < 16)) {
       staged = (function* () { o.busy = true; if (!(yield* tryNow(o))) { o.busy = false; tryWait = S.t + 3; } })();
       if (staged.next().done) staged = null; else return;
@@ -1339,6 +1574,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   return {
     update, skipTo, stats, syncRoster, resync, stage,
     tryNext(kind) { tryMove = kind || null; }, get trying() { return tryMove; },
+    get tryDebug() { const b = ball.owner; return { tryMove, tryWait: +tryWait.toFixed(1), staged: !!staged, t: +S.t.toFixed(1), owner: b && [b.key, b.busy, !!b.motion, b.act?.name, b.role], dead: S.dead }; },
     get index() { return idx; }, get current() { return task ? events[task.i] : null; }, get total() { return events.length; },
     // the live presentation clock may show an engine event once the new view has started it;
     // a shot is held back until its outcome has played out, so the goal graphic never spoils it

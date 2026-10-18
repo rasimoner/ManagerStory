@@ -92,6 +92,12 @@ function skillMoves(id,side){
  if(stars>=4&&!stopper)moves.push('stepover');
  if(!stopper&&(stars>=5||(stars>=4&&t>=80&&d>=80)))moves.push('elastico');
  if(v>=78&&t>=74)moves.push('nolook');
+ if(stars>=3&&t>=70)moves.push('cruyff');
+ const mid=/M/.test(role||'');
+ if(stars>=4&&(mid||t>=80))moves.push('croqueta');
+ if(!stopper&&(stars>=5||(stars>=4&&t>=80)))moves.push('roulette');
+ if(moves.includes('nutmeg')&&stars>=4&&d>=78)moves.push('flairnutmeg');
+ if(moves.includes('stepover')&&v>=75)moves.push('flairpass');
  return {stars,moves};
 }
 

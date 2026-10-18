@@ -88,4 +88,9 @@ export const STAR_MOVES = {
   nutmeg: { name: 'BACAK ARASI', line: 'Savunmacı ayaklarını açınca top tam aradan geçer.' },
   elastico: { name: 'ELASTICO', line: 'Dış ayakla dışarı, aynı ayakla içeri: tek ayakla iki dokunuş.' },
   nolook: { name: 'BAKMADAN PAS', line: 'Başı bir yana bakarken pas öbür yana gider.' },
+  cruyff: { name: 'CRUYFF DÖNÜŞÜ', line: 'Vuracakmış gibi yapar, topu destek ayağının arkasından çekip döner.' },
+  croqueta: { name: 'LA CROQUETA', line: 'Top bir ayaktan öbür ayağa kayar: iki dokunuşta adamın yanından sıyrılır.' },
+  roulette: { name: 'MARSİLYA DÖNÜŞÜ', line: 'Topun üstünde tam tur döner, iki tabanla sürükleyip adamı geçer.' },
+  flairnutmeg: { name: 'FLAIR BACAK ARASI', line: 'Arkasını döner, topu topukla adamın bacak arasından geçirir.' },
+  flairpass: { name: 'MAKASLA PAS', line: 'Makasın ortasında pası çıkarır: savunmacı çalımı beklerken top arkadaşına gider.' },
 };

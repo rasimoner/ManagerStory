@@ -379,6 +379,14 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   // --- movement ---
   const tmp = V();
   function move(p, dt) {
+    // a spin move drives the body directly (where he is and which way he faces, by time)
+    if (p.drive) {
+      const prev = p.pos.clone(), d = p.drive;
+      if (d.pos) p.pos.copy(d.pos(S.t)).setY(0);
+      p.vel.copy(p.pos).sub(prev).multiplyScalar(1 / Math.max(dt, 1e-4));
+      if (d.heading) p.heading = d.heading(S.t);
+      return;
+    }
     if (p.warp) {
       // carries on from his running speed into the plant (Hermite: no restart from standstill)
       const w = p.warp, k = clamp((S.t - w.t0) / w.tc, 0, 1), k2 = k * k, k3 = k2 * k;

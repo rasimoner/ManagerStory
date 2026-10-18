@@ -172,6 +172,24 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
         assert.ok(k.plantSlip < 0.06, 'standing boot stays planted: ' + JSON.stringify(k));
       } else if (k.kind === 'nolook') {
         assert.ok(k.contact < 0.35, 'the no-look pass is struck with the boot on the ball: ' + JSON.stringify(k));
+      } else if (k.kind === 'cruyff') {
+        assert.ok(k.fake > 0.18, 'the shot is shaped, boot lifted back: ' + JSON.stringify(k));
+        assert.ok(k.swingGap > 0.1, 'the boot comes through beside the ball without striking it: ' + JSON.stringify(k));
+        assert.ok(k.contact < 0.3 && k.behind === true, 'the inside of the boot takes it back behind the standing leg: ' + JSON.stringify(k));
+        assert.ok(k.plantSlip < 0.06, 'standing boot stays planted: ' + JSON.stringify(k));
+      } else if (k.kind === 'croqueta') {
+        assert.ok(k.touch1 < 0.3 && k.touch2 < 0.3, 'one touch with each boot: ' + JSON.stringify(k));
+        assert.ok(k.shift > 0.2, 'the ball moves across from one boot to the other: ' + JSON.stringify(k));
+      } else if (k.kind === 'roulette') {
+        assert.ok(k.spin > 5.5, 'a full turn: ' + JSON.stringify(k));
+        assert.ok(k.soleA < 0.3 && k.soleB < 0.3, 'one sole and then the other on the ball: ' + JSON.stringify(k));
+        assert.ok(k.wander < 0.9 && k.contact < 0.35, 'the ball stays at his feet through the turn: ' + JSON.stringify(k));
+      } else if (k.kind === 'flairnutmeg') {
+        assert.ok(k.turn > 2.8, 'he turns his back first: ' + JSON.stringify(k));
+        assert.ok(k.heel < 0.3, 'the heel plays it: ' + JSON.stringify(k));
+        assert.ok(k.between === true && k.gapL > 0.15 && k.gapR > 0.15, 'the ball goes between the feet: ' + JSON.stringify(k));
+      } else if (k.kind === 'flairpass') {
+        assert.ok(k.minGap > 0.12 && k.peak > 0.12 && k.contact != null && k.contact < 0.3, 'a real step-over, then the pass with the boot on the ball: ' + JSON.stringify(k));
       } else if (k.kind === 'chest') {
         assert.ok(k.contact < 0.38 && k.h > 0.9, 'the ball is taken on the chest: ' + JSON.stringify(k));
       }
@@ -179,7 +197,7 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
       if (k.kind !== 'chest') {
         assert.ok(k.moves.includes(k.kind), 'only a player who has the move does it: ' + JSON.stringify(k));
         assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
-        if (k.kind === 'elastico' || k.kind === 'nolook') assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
+        if (['elastico', 'nolook', 'flairnutmeg', 'flairpass'].includes(k.kind)) assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
         if (k.kind === 'elastico') assert.ok(Math.abs(k.z) < 31, 'no elastico against the touchline: ' + JSON.stringify(k));
       }
     }
