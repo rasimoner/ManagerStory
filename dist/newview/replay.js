@@ -103,6 +103,7 @@ export const STAR_MOVES = {
   chip: { name: 'KALECİYİ AŞIRTMA', line: 'Kalecisi çıkınca topu yumuşakça başının üstünden aşırtır.' },
   bicycle: { name: 'RÖVEŞATA', line: 'Kaleye sırtı dönük, havalanıp başının üstünden vurur.' },
   scorpion: { name: 'AKREP VURUŞU', line: 'Top üstüne düşerken öne atlar, bacakları sırtının üstünden kıvrılır ve topukla topu geri çıkarır.' },
+  pensave: { name: 'PENALTI KURTARIŞI', line: 'Çizgide bekler, vuruş anında doğru köşeye uçar ve penaltıyı çıkarır.' },
   starsave: { name: 'YILDIZ KURTARIŞ', line: 'Köşeye uçar, eldiveninin ucuyla topu kalenin dışına çıkarır.' },
   flairpass: { name: 'MAKASLA PAS', line: 'Makasın ortasında pası çıkarır: savunmacı çalımı beklerken top arkadaşına gider.' },
 };

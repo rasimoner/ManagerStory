@@ -175,7 +175,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
 
   function place(p, w, heading) {
     p.pos.set(w.x, 0, w.z); p.vel.set(0, 0, 0); p.target.copy(p.pos); if (heading !== undefined) p.heading = heading;
-    p.want = 0; p.act = null; p.motion = null; p.warp = null; p.dive = null; p.faceLock = false;
+    p.want = 0; p.act = null; p.motion = null; p.warp = null; p.dive = null; p.prone = null; p.faceLock = false;
     p.loopsWant.jockey = p.loopsWant.keeperReady = p.loopsWant.throwHold = 0; p.loops.jockey = p.loops.keeperReady = p.loops.throwHold = 0;
   }
   function startAction(p, name, delay = 0) { p.act = { name, t0: S.t + delay }; p.motion = null; }
@@ -329,8 +329,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   }
 
   // keeper dive: roll towards the ball's side so the gloves reach where it crosses his line
-  function planDive(gk, at, tArrive, save) {
-    const reaction = 0.12;
+  function planDive(gk, at, tArrive, save, reaction = 0.12) {
     // still down from a dive a moment ago: the new one starts from where his body is, not from where he took off
     if (gk.dive?.cur) { const c = gk.dive.cur, r0 = V(-Math.cos(gk.heading), 0, Math.sin(gk.heading)); gk.pos.copy(c.base).addScaledVector(r0, c.slide).setY(0); }
     const h0 = gk.heading, R = V(-Math.cos(h0), 0, Math.sin(h0)), F = V(Math.sin(h0), 0, Math.cos(h0));
@@ -388,6 +387,41 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     startMotion(gk, 'gkGetUp');
     if (D.rise.act) gk.act = { name: D.rise.act, t0: -99, held: true };     // the dive's last pose, fading out
   }
+  // V7.9.3 getting up from lying face down (after the scorpion): he rolls over onto his back along his
+  // own length (head where it was), then gets up as he does after a dive — the recorded get-up clip, the
+  // pose he lay in fading out as it fades in. While he is down he does not move.
+  const PRONE_ROLL = 0.55;
+  function riseFromFront(p, side = 1) {
+    p.model.updateMatrixWorld(true);
+    const F = V(Math.sin(p.heading), 0, Math.cos(p.heading));
+    p.prone = { t0: S.t, side: Math.sign(side) || 1, axis: F, q0: p.model.quaternion.clone(), p0: p.model.position.clone(), pivot: p.bones.Hips.getWorldPosition(V()), rise: null };
+    if (p.act) p.act = { name: p.act.name, t0: -99, hold: clamp((S.t - p.act.t0) / ACTIONS[p.act.name].dur, 0, 1) };
+    p.flip = null; p.drive = null; p.vel.set(0, 0, 0); p.motion = null;
+  }
+  const qRoll = new THREE.Quaternion();
+  function proneTransform(P, k) {
+    // roll about the line of his body through the hips; the shoulder lifts him a touch as he goes over
+    qRoll.setFromAxisAngle(P.axis, P.side * Math.PI * smooth(k, 0, 1));
+    const q = qRoll.clone().multiply(P.q0), pos = P.p0.clone().sub(P.pivot).applyQuaternion(qRoll).add(P.pivot);
+    pos.y += 0.1 * Math.sin(Math.PI * smooth(k, 0, 1));
+    return { q, pos };
+  }
+  function updateProne(p) {
+    const P = p.prone; if (!P) return;
+    if (!P.rise && S.t - P.t0 >= PRONE_ROLL) {
+      // on his back, head where it was: the recorded get-up starts where he lies (he stands facing his feet)
+      const end = proneTransform(P, 1);
+      p.model.position.copy(end.pos); p.model.quaternion.copy(end.q); p.model.updateMatrixWorld(true);
+      const f = P.axis.clone().negate(), hg = Math.atan2(f.x, f.z), q = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), hg);
+      const hip = p.bones.Hips.getWorldPosition(V()), gpos = hip.sub(riseHip.clone().applyQuaternion(q)).setY(0);
+      P.rise = { t0: S.t, hg, q, gpos, fromP: end.pos, fromQ: end.q };
+      const held = p.act; startMotion(p, 'gkGetUp'); p.act = held;      // (the pose he lay in fades out under it)
+    }
+    if (P.rise && S.t - P.rise.t0 >= GK_RISE) {
+      p.pos.copy(P.rise.gpos); p.heading = P.rise.hg; p.vel.set(0, 0, 0);
+      p.prone = null; if (p.act?.hold != null) p.act = null;
+    }
+  }
   // where the gloves will be on the dive's contact frame (the same pose and body transform pose() uses)
   function diveHands(gk) {
     const D = gk.dive, name = gk.act?.name; if (!D || !name) return handsOf(gk);
@@ -424,7 +458,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       if (k >= 1) { p.warp = null; p.vel.multiplyScalar(0.5); }
       return;
     }
-    if (p.dive) { p.vel.set(0, 0, 0); return; }
+    if (p.dive || p.prone) { p.vel.set(0, 0, 0); return; }
     const el = motionEl(p);
     if (p.motion && el >= 0 && el < p.motion.dur) {
       const m = p.motion, prev = p.pos.clone();
@@ -623,7 +657,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     }
     for (const k of Object.keys(MOTIONS)) if (p.A[k]) p.A[k].setEffectiveWeight(p.motion?.name === k ? mw : 0);
     // (a keeper with the ball at his feet runs with it like anyone else: no set position while he has it)
-    for (const k of ['jockey', 'keeperReady', 'throwHold']) p.loops[k] = lerp(p.loops[k], k === 'keeperReady' && ball.owner === p && !ball.held ? 0 : p.loopsWant[k], Math.min(1, dt * (k === 'keeperReady' && ball.owner === p ? 8 : 5)));
+    for (const k of ['jockey', 'keeperReady', 'throwHold']) p.loops[k] = lerp(p.loops[k], k === 'keeperReady' && ball.owner === p && !ball.held ? 0 : p.loopsWant[k], Math.min(1, dt * (k === 'keeperReady' && ball.owner === p && !ball.held ? 20 : 5)));
     // a keeper in his set position stays square to the ball: he side-steps across and backpedals in a
     // half crouch (recorded clips), and only runs when he has to cover ground fast
     const K = keeperFootwork(p, dt, sp, mw);
@@ -668,6 +702,10 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
         const fade = D.rise ? 1 - smooth(S.t - D.rise.t0, 0, GK_RISE) : 1;
         applyAction(p.bones, p.act.name, u, smooth(el, 0, 0.1) * fade);
       }
+    } else if (p.act?.hold != null) {
+      // V7.9.3 the pose he lay in, held while he rolls over and fading out as the get-up comes in
+      const R = p.prone?.rise, fade = R ? 1 - smooth(S.t - R.t0, 0, GK_RISE) : 1;
+      applyAction(p.bones, p.act.name, p.act.hold, fade);
     } else if (p.act) {
       const a = ACTIONS[p.act.name], el = S.t - p.act.t0;
       if (el >= 0) {
@@ -686,6 +724,12 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       const c = p.dive.cur, right = V(-Math.cos(p.heading), 0, Math.sin(p.heading));
       p.model.position.copy(c.base).addScaledVector(right, c.slide).add(V(0, c.lift + 0.13 * Math.abs(Math.sin(c.roll)), 0));
       p.model.quaternion.setFromEuler(new THREE.Euler(0, p.heading, 0)).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), c.roll));
+      groundW = 0;
+    }
+    if (p.prone) {
+      const P = p.prone;
+      if (P.rise) { const u = smooth(S.t - P.rise.t0, 0, GK_RISE); p.model.position.copy(P.rise.fromP).lerp(P.rise.gpos, u); p.model.quaternion.copy(P.rise.fromQ).slerp(P.rise.q, u); }
+      else { const T = proneTransform(P, (S.t - P.t0) / PRONE_ROLL); p.model.position.copy(T.pos); p.model.quaternion.copy(T.q); }
       groundW = 0;
     }
     // a bicycle kick: the body tips over backwards round the hips and goes up (and comes down on its back)
@@ -782,7 +826,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   return {
     players, ball, S, addPlayer, calibrate, place, startAction, actionDone, actionAtContact, predictBall, kickWarp, kickNeed, toeNear, pickUp,
     startMotion, motionAtContact, slideAt, headerAt, contactPoint, contactDistance, get headHeight() { return headAt.y; }, get slideReach() { return Math.hypot(slideToe.x, slideToe.z); },
-    kickGround, kickAir, dribble, receive, planDive, updateDive, handsOf, diveHands, move, pose, contacts, stepBall, footIK,
+    kickGround, kickAir, dribble, receive, planDive, updateDive, riseFromFront, updateProne, handsOf, diveHands, move, pose, contacts, stepBall, footIK,
     get diveReach() { return diveReach; },
   };
 }

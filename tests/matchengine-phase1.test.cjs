@@ -320,3 +320,30 @@ test('one football minute cannot be processed twice (no re-entrant tick)', () =>
   assert.equal(h.run('window.__n'), 1, 'nested advanceLive during a tick is ignored');
   assert.equal(h.run('M.min'), 1);
 });
+
+test('V7.9.3 a keeper punch: only the defending keeper, only from a high ball into his own box, and the ball is loose afterwards', { timeout: 300000 }, () => {
+  const punches = [];
+  for (let fixture = 0; fixture < 24; fixture++) {
+    const h = fresh(fixture); playToEnd(h);
+    const ev = h.run('M.events'), keeper = h.run("({user:M.active.find(id=>M.matchRoles[id]==='GK'),opp:'o0'})"), dir = h.run('userDirection()');
+    ev.forEach((e, i) => {
+      if (e.type !== 'looseBall' || e.reason !== 'punch') return;
+      const prev = ev[i - 1];
+      punches.push({ fixture, e, prev, keeper, dir, next: ev[i + 1] });
+    });
+  }
+  assert.ok(punches.length >= 3, 'punches over 24 matches: ' + punches.length);
+  for (const { e, prev, keeper, next } of punches) {
+    // the man who punched it is the keeper of the defending side, and the ball came in the air from the other team
+    assert.equal(e.punchBy, keeper[e.punchSide], 'punched by the defending keeper: ' + JSON.stringify(e));
+    assert.ok(['cross', 'pass', 'corner'].includes(prev.type) && prev.fromSide !== e.punchSide, 'from a delivery by the attackers: ' + prev.type);
+    assert.ok(prev.passKind === 'cross' || prev.travelType === 'aerial', 'a high ball: ' + JSON.stringify(prev));
+    // from inside his own box, out towards (or beyond) its edge: never into his own goal
+    const own = e.punchSide === 'user' ? (keeper.user != null ? null : null) : null; void own;
+    const from = e.fromPos, land = e.toPos, goalX = Math.abs(from[0] - 100) < Math.abs(from[0]) ? 100 : 0;
+    assert.ok(Math.abs(from[0] - goalX) <= 17 && Math.abs(from[1] - 50) <= 21, 'from inside his box: ' + JSON.stringify(from));
+    assert.ok(Math.abs(land[0] - goalX) > Math.abs(from[0] - goalX) + 5, 'away from his goal: ' + JSON.stringify([from, land]));
+    assert.equal(e.ballSide, 'none', 'nobody owns a punched ball');
+    assert.equal(next?.type, 'recovery', 'the loose ball is won by whoever gets to it: ' + next?.type);
+  }
+});

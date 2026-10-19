@@ -791,7 +791,7 @@ function actionMinute(userPoss,effect,opponent){
   const accuracy=passSuccessProbability(from,side,selected,{pressure,effect,risk:order==='riskPass',tempo:tacticProfile(side).tempo});
   const stat=side==='user'?M.playerStats[from]:null,index=side==='user'?userSide():1-userSide();
   M.stats.passes[index]++;if(stat)stat.passesAttempted++;
-  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null,pendingCorner=false;
+  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null,pendingCorner=false,pendingPunch=null;
   const longBall=range>29||(['LW','RW'].includes(role)&&range>22&&forward>58);
   const contested=range>38||(['LW','RW'].includes(role)&&range>26&&forward>58);   // only genuinely high/long deliveries are contested
   if(success&&contested){
@@ -814,6 +814,12 @@ function actionMinute(userPoss,effect,opponent){
    if(interceptor&&interceptor.d<18&&boxBall&&M.rand()<(crossing?.6:.35)){
     // cut out at full stretch: the touch takes it behind
     pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');
+   }else if(interceptor&&interceptor.d<18&&longBall&&boxBall&&isKeeper(defSide,interceptor.id)&&(nearestMarker(side,to,from)?.d??99)<5&&M.rand()<.45){
+    // V7.9.3 a high ball into the box, the keeper comes for it with a man challenging: he punches it away
+    // from the six-yard box instead of catching it (it lands loose, out towards the edge of the box)
+    const away=deepFor(side,[100,50])>50?-1:1;
+    pendingPunch={from:[...to],land:[limitPitch(to[0]+away*(14+M.rand()*9),4,96),limitPitch(to[1]+(to[1]<50?-1:1)*M.rand()*16,8,92)],by:interceptor.id,side:defSide};
+    M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'LOOSE_BALL');
    }else if(interceptor&&interceptor.d<18){
     if(window.ManagerStoryLive3D?.enabled)cutPresentation={id:interceptor.id,side:defSide,start:[...eventPoint(interceptor.id,defSide)],intendedTarget:[...to]};
     const gain=moveTowards(eventPoint(interceptor.id,defSide),to,Math.min(interceptor.d,10));
@@ -838,7 +844,7 @@ function actionMinute(userPoss,effect,opponent){
    :pz<-5?lineVariant(kv,[` geriye, ${rName}'e verdi.`,` oyunu ${rName} ile yeniden kurdu.`])
    :lineVariant(kv,[` kısa pasla ${rName}'e verdi.`,` ${rName} ile paslaştı.`,` topu ${rName}'e aktardı.`,' pas verdi.']);
   matchEvent(cross?'cross':'pass',M.min+'’ '+(passer?.name||'Rakip')+passLine+
-    (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
+    (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':pendingPunch?' Kaleci çıktı.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
      passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
      distance:range,passing});
@@ -848,6 +854,7 @@ function actionMinute(userPoss,effect,opponent){
    matchEvent('firstTouch',M.min+'’ '+(receiver?.name||'Rakip')+(longBall?lineVariant(M.events.length,[' topu göğsüyle indirdi.',' havadan gelen topu kontrol etti.']):lineVariant(M.events.length,[' topu kontrol etti.',' topu önüne aldı.',' pası iyi karşıladı.',' topu ayağının altına aldı.'])),
     {fromId:target,toId:target,fromSide:side,toSide:side,ballSide:side,fromPos:to,toPos:to});
   }
+  if(pendingPunch){makeLooseBall(pendingPunch.from,pendingPunch.land,'punch',null,{punchBy:pendingPunch.by,punchSide:pendingPunch.side,text:(playerAtMarker(pendingPunch.by,pendingPunch.side)?.name||'Kaleci')+' yumrukla uzaklaştırdı.'});break;}
   if(pendingThrow)startPitchRestart('THROW_IN',pendingThrowSide,pendingThrow);
   if(pendingCorner){concedeCorner(side,to);break;}
  }
