@@ -94,6 +94,23 @@ async function playMatch(rec) {
       for (const p of players) {
         if (p.offPitch) continue;
         rt.pose(p, 2 * SUB);
+        // V7.9 keeper footwork: square to the ball in his set position, boots that stay planted
+        if (p.role === 'GK' && p.A.gkReady && !p.dive && !p.motion && p.loops.keeperReady > 0.6) {
+          const sp = p.vel.length();
+          if (sp < 3 && p.face) { const want = Math.atan2(p.face.x - p.pos.x, p.face.z - p.pos.z); (out.gkFace ||= []).push(Math.abs(Math.atan2(Math.sin(want - p.heading), Math.cos(want - p.heading)))); }
+          // the boot carrying his weight (the slower one on the grass) against how fast he moves
+          let best = Infinity;
+          for (const t of p.toes) {
+            const w = t.getWorldPosition(new THREE.Vector3()), k = p.key + t.name, pw = (out.toeAt ||= new Map()).get(k);
+            out.toeAt.set(k, [w, rt.S.t]);
+            if (pw && rt.S.t - pw[1] < 3 * SUB && w.y < 0.08 && pw[0].y < 0.08) best = Math.min(best, Math.hypot(w.x - pw[0].x, w.z - pw[0].z) / (rt.S.t - pw[1]));
+          }
+          if (best < Infinity && sp > 0.6 && sp < 3) {
+            (out.gkSkate ||= []).push(best / sp);
+            if (process.env.NV_DEBUG) { const F = new THREE.Vector3(Math.sin(p.heading), 0, Math.cos(p.heading)), fw = p.vel.dot(F) / sp, dir = fw > 0.6 ? 'fwd' : fw < -0.6 ? 'back' : 'side'; ((out.gkSkateBy ||= {})[dir] ||= []).push(best / sp); }
+          }
+        }
+        if (p.dive?.rise && !p.dive.rise.seen) { p.dive.rise.seen = true; out.gkRises = (out.gkRises || 0) + 1; }
         const now = p.model.position.clone().setY(0), was = seen.get(p);
         seen.set(p, now);
         if (!was || placed.has(p)) continue;
@@ -235,6 +252,15 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     const keepers = new Set(rec.snaps.flatMap(s => s.roster.filter(r => r.role === 'GK').map(r => r.side + ':' + r.id)));
     const carries = rec.events.filter(e => (e.type === 'ballCarry' || e.type === 'dribble') && keepers.has(e.fromSide + ':' + e.fromId));
     assert.equal(carries.length, 0, 'keeper carries: ' + carries.map(e => e.text).join(' | '));
+  });
+  test(`fixture ${fixture}: the keeper works like a keeper — square to the ball as he moves across, boots planted, up from a dive the way a person gets up`, async () => {
+    const { view } = await match(fixture);
+    const q = (arr, k) => { if (!arr?.length) return 0; const s = [...arr].sort((a, b) => a - b); return s[Math.floor(k * (s.length - 1))]; };
+    const face95 = q(view.gkFace, 0.95), skate = q(view.gkSkate, 0.5);
+    if (process.env.NV_DEBUG) console.log('keeperBy', JSON.stringify(Object.fromEntries(Object.entries(view.gkSkateBy || {}).map(([k, v]) => [k, [v.length, +q(v, 0.5).toFixed(2), +q(v, 0.9).toFixed(2)]]))));
+    if (process.env.NV_DEBUG) console.log('keeper', JSON.stringify({ frames: view.gkFace?.length || 0, face95: +face95.toFixed(2), skateMedian: +skate.toFixed(2), skateN: view.gkSkate?.length || 0, rises: view.gkRises || 0 }));
+    assert.ok(face95 < 0.5, 'keeper faces the ball in his set position (p95 ' + face95.toFixed(2) + ' rad off)');
+    assert.ok(skate < 0.35, 'planted boots barely slide (median ' + skate.toFixed(2) + ' of his speed)');
   });
   test(`fixture ${fixture}: the ball stays in play unless the engine puts it out`, async () => {
     const { view } = await match(fixture);
