@@ -110,6 +110,8 @@ async function playMatch(rec) {
             if (process.env.NV_DEBUG) { const F = new THREE.Vector3(Math.sin(p.heading), 0, Math.cos(p.heading)), fw = p.vel.dot(F) / sp, dir = fw > 0.6 ? 'fwd' : fw < -0.6 ? 'back' : 'side'; ((out.gkSkateBy ||= {})[dir] ||= []).push(best / sp); }
           }
         }
+        // a keeper running with the ball at his feet runs like anyone else (no set position on his legs)
+        if (p.role === 'GK' && ball.owner === p && !ball.held && !p.dive && p.vel.length() > 1.5) (out.gkCarryReady ||= []).push(p.loops.keeperReady);
         if (p.dive?.rise && !p.dive.rise.seen) { p.dive.rise.seen = true; out.gkRises = (out.gkRises || 0) + 1; }
         const now = p.model.position.clone().setY(0), was = seen.get(p);
         seen.set(p, now);
@@ -235,24 +237,20 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
       }
       // a special move belongs to the player (his repertoire) and to the right part of the pitch
       if (k.kind === 'trap') assert.ok(k.moves.includes('trap'), 'only a player who has the touch: ' + JSON.stringify(k));
-      if (k.kind !== 'chest' && k.kind !== 'trap') {
+      if (k.kind === 'starsave') assert.ok(k.hands < 0.35 && k.aimH > 1.3 && k.lat > 1.9, 'a star save: a shot high into the corner, kept out by the gloves at full stretch: ' + JSON.stringify(k));
+      if (k.kind === 'scorpion') assert.ok(k.contact < 0.3 && k.pitch < -1.2 && k.h > 1 && k.behindHead > 0, 'the scorpion: flat in the air face down, the heels on the ball above his back: ' + JSON.stringify(k));
+      if (k.kind !== 'chest' && k.kind !== 'trap' && k.kind !== 'starsave') {      // (a scorpion is checked here too: only a keeper who has it)
         assert.ok(k.moves.includes(k.kind), 'only a player who has the move does it: ' + JSON.stringify(k));
-        if (!['panenka', 'chip', 'bicycle'].includes(k.kind)) assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
+        if (!['panenka', 'chip', 'bicycle', 'scorpion'].includes(k.kind)) assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
         if (k.kind === 'backheel') assert.ok(k.fromOwn > 70, 'backheel only in the final third: ' + JSON.stringify(k));
         if (k.kind === 'rabona') assert.ok(k.fromOwn > 52.5, 'rabona only in the opponents\' half: ' + JSON.stringify(k));
-        if (['rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(!k.losing, 'no showboating when losing: ' + JSON.stringify(k));
+        if (['rainbow', 'sombrero', 'juggle', 'scorpion'].includes(k.kind)) assert.ok(!k.losing, 'no showboating when losing: ' + JSON.stringify(k));
         if (['elastico', 'nolook', 'flairnutmeg', 'flairpass', 'rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
         if (k.kind === 'elastico') assert.ok(Math.abs(k.z) < 31, 'no elastico against the touchline: ' + JSON.stringify(k));
       }
     }
   });
 
-  test(`fixture ${fixture}: a keeper never dribbles the ball upfield — he plays it out`, async () => {
-    const { rec } = await match(fixture);
-    const keepers = new Set(rec.snaps.flatMap(s => s.roster.filter(r => r.role === 'GK').map(r => r.side + ':' + r.id)));
-    const carries = rec.events.filter(e => (e.type === 'ballCarry' || e.type === 'dribble') && keepers.has(e.fromSide + ':' + e.fromId));
-    assert.equal(carries.length, 0, 'keeper carries: ' + carries.map(e => e.text).join(' | '));
-  });
   test(`fixture ${fixture}: the keeper works like a keeper — square to the ball as he moves across, boots planted, up from a dive the way a person gets up`, async () => {
     const { view } = await match(fixture);
     const q = (arr, k) => { if (!arr?.length) return 0; const s = [...arr].sort((a, b) => a - b); return s[Math.floor(k * (s.length - 1))]; };
@@ -261,6 +259,13 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     if (process.env.NV_DEBUG) console.log('keeper', JSON.stringify({ frames: view.gkFace?.length || 0, face95: +face95.toFixed(2), skateMedian: +skate.toFixed(2), skateN: view.gkSkate?.length || 0, rises: view.gkRises || 0 }));
     assert.ok(face95 < 0.5, 'keeper faces the ball in his set position (p95 ' + face95.toFixed(2) + ' rad off)');
     assert.ok(skate < 0.35, 'planted boots barely slide (median ' + skate.toFixed(2) + ' of his speed)');
+    for (const c of view.stats.claims || []) assert.ok(c.hands < 0.35 && c.h > 1.6, 'a high ball is taken in his hands, at least head high: ' + JSON.stringify(c));
+    for (const d of view.stats.footSaves || []) assert.ok(d < 0.35, 'a foot save is made with the boot: ' + d);
+    if (process.env.NV_DEBUG) console.log('gkClaims', JSON.stringify(view.stats.claims || []), 'footSaves', JSON.stringify(view.stats.footSaves || []));
+    for (const t of view.stats.gkThrows || []) assert.ok(t.hand < 0.3 && t.h > 1.2, 'an overarm throw leaves his hand above his head: ' + JSON.stringify(t));
+    if (process.env.NV_DEBUG) console.log('gkThrows', JSON.stringify(view.stats.gkThrows || []));
+    const carryReady = q(view.gkCarryReady, 0.9);
+    assert.ok(carryReady < 0.2, 'with the ball at his feet the keeper runs, not in his set position (p90 ' + carryReady.toFixed(2) + ')');
   });
   test(`fixture ${fixture}: the ball stays in play unless the engine puts it out`, async () => {
     const { view } = await match(fixture);

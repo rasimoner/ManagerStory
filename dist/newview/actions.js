@@ -239,6 +239,23 @@ ACTIONS.lungeL = mirror(ACTIONS.lunge);
 // the keeper's hands in his set position (the legs come from the recorded crouch): up in front, palms out
 ACTIONS.keeperHands = { loop: true, mask: 'arms', keys: [{ t: 0, p: { LeftArm: [-62, 0, -60], RightArm: [-62, 0, 60], LeftForeArm: [0, -62, 0], RightForeArm: [0, 62, 0], Head: [-14, 0, 0] } }] };
 
+// V7.9 the scorpion (the legs are placed by foot targets, the arms by hand targets): the push off, the back
+// arched with the head up in flight while the knees fold the heels up over him, then the landing
+ACTIONS.scorpion = {
+  dur: 2.4, contact: 0.231, mask: 'all',
+  keys: [
+    { t: 0, p: { LeftUpLeg: [-30, 0, 8], RightUpLeg: [-30, 0, -8], LeftLeg: [50, 0, 0], RightLeg: [50, 0, 0], Spine: [20, 0, 0] } },
+    { t: 0.075, p: { LeftUpLeg: [-10, 0, 6], RightUpLeg: [10, 0, -6], LeftLeg: [20, 0, 0], RightLeg: [60, 0, 0], Head: [-20, 0, 0] } },
+    { t: 0.19, p: { LeftUpLeg: [18, 0, 8], RightUpLeg: [18, 0, -8], LeftLeg: [110, 0, 0], RightLeg: [110, 0, 0], LeftFoot: [-25, 0, 0], RightFoot: [-25, 0, 0], Spine: [-22, 0, 0], Spine1: [-16, 0, 0], Spine2: [-12, 0, 0], Neck: [-15, 0, 0], Head: [-35, 0, 0] } },
+    { t: 0.26, p: { LeftUpLeg: [22, 0, 10], RightUpLeg: [22, 0, -10], LeftLeg: [118, 0, 0], RightLeg: [118, 0, 0], LeftFoot: [-25, 0, 0], RightFoot: [-25, 0, 0], Spine: [-22, 0, 0], Spine1: [-15, 0, 0], Spine2: [-10, 0, 0], Neck: [-15, 0, 0], Head: [-35, 0, 0] } },
+    { t: 0.31, p: { LeftUpLeg: [6, 0, 8], RightUpLeg: [6, 0, -8], LeftLeg: [30, 0, 0], RightLeg: [30, 0, 0], Spine: [-15, 0, 0], Spine1: [-8, 0, 0], Head: [-30, 0, 0] } },
+    { t: 0.375, p: { LeftUpLeg: [2, 0, 8], RightUpLeg: [2, 0, -8], LeftLeg: [12, 0, 0], RightLeg: [12, 0, 0], Spine: [-12, 0, 0], Head: [-30, 0, 0] } },
+    { t: 0.625, p: { LeftUpLeg: [4, 0, 8], RightUpLeg: [4, 0, -8], LeftLeg: [12, 0, 0], RightLeg: [12, 0, 0], Spine: [-8, 0, 0], Head: [-25, 0, 0] } },
+    { t: 0.79, p: { LeftUpLeg: [-70, 0, 10], RightUpLeg: [-70, 0, -10], LeftLeg: [110, 0, 0], RightLeg: [110, 0, 0], Spine: [25, 0, 0], Head: [-15, 0, 0] } },
+    { t: 1, p: { LeftUpLeg: [-10, 0, 4], RightUpLeg: [-10, 0, -4], LeftLeg: [15, 0, 0], RightLeg: [15, 0, 0], Spine: [5, 0, 0] } },
+  ],
+};
+
 const MASKS = {
   all: null,
   arms: ['LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm', 'Head'],

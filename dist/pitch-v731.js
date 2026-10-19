@@ -87,7 +87,8 @@ function skillMoves(id,side){
  const live=typeof M!=='undefined'&&M;
  const rec=playerRecord(id,side);
  const role=(side==='user'?(live?M.matchRoles?.[id]:null):(live?playerAtMarker(id,side)?.position:null))||String(rec?.pos||rec?.position||'').split('/')[0];
- if(role==='GK'||(live&&isKeeper(side,id)))return {stars:1,moves:[]};
+ // V7.9: a keeper's one special: Higuita's scorpion — only a good keeper (overall 70+)
+ if(role==='GK'||(live&&isKeeper(side,id)))return {stars:1,moves:(rec?.overall??0)>=70?['scorpion']:[]};
  const A=n=>baseAttribute(id,side,n,60),d=A('dribbling'),t=A('technique'),v=A('vision'),fin=A('finishing'),comp=A('composure');
  const stopper=role==='CB';
  const flair=d*.6+t*.4,stars=flair>=84?5:flair>=77?4:flair>=69?3:flair>=60?2:1,moves=[];
