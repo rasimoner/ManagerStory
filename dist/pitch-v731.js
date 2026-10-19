@@ -79,6 +79,41 @@ function effectiveAttribute(id,side,name,fallback){
  return clamp(v,1,100);
 }
 function playerAttribute(id,side,name,fallback){return effectiveAttribute(id,side,name,fallback);}
+/* V7.9: a player's skill moves, from his ability (not his fitness on the day). The engine decides a
+   duel exactly as before; the 3D view shows a beaten defender with one of the moves the attacker has.
+   Step-over and nutmeg need a good dribbler, the elastico is for the rare few, the no-look pass for a
+   technician who sees the pass. */
+function skillMoves(id,side){
+ const live=typeof M!=='undefined'&&M;
+ const rec=playerRecord(id,side);
+ const role=(side==='user'?(live?M.matchRoles?.[id]:null):(live?playerAtMarker(id,side)?.position:null))||String(rec?.pos||rec?.position||'').split('/')[0];
+ if(role==='GK'||(live&&isKeeper(side,id)))return {stars:1,moves:[]};
+ const A=n=>baseAttribute(id,side,n,60),d=A('dribbling'),t=A('technique'),v=A('vision'),fin=A('finishing'),comp=A('composure');
+ const stopper=role==='CB';
+ const flair=d*.6+t*.4,stars=flair>=84?5:flair>=77?4:flair>=69?3:flair>=60?2:1,moves=[];
+ if(stars>=4||(stars===3&&t>=76))moves.push('nutmeg');
+ if(stars>=4&&!stopper)moves.push('stepover');
+ if(!stopper&&(stars>=5||(stars>=4&&t>=80&&d>=80)))moves.push('elastico');
+ if(v>=78&&t>=74)moves.push('nolook');
+ if(stars>=3&&t>=70)moves.push('cruyff');
+ const mid=/M/.test(role||'');
+ if(stars>=4&&(mid||t>=80))moves.push('croqueta');
+ if(!stopper&&(stars>=5||(stars>=4&&t>=80)))moves.push('roulette');
+ if(moves.includes('nutmeg')&&stars>=4&&d>=78)moves.push('flairnutmeg');
+ if(moves.includes('stepover')&&v>=75)moves.push('flairpass');
+ if(!stopper&&(stars>=5||(stars>=4&&d>=82)))moves.push('rainbow');
+ if(!stopper&&(stars>=5||(stars>=4&&d>=81&&t>=81)))moves.push('sombrero');
+ if(!stopper&&stars>=5)moves.push('juggle');
+ // passes, finishes and touches (V7.9 batch 3)
+ if(t>=75)moves.push('backheel');
+ if(!stopper&&(stars>=5||t>=86))moves.push('rabona');
+ if(comp>=80&&t>=78)moves.push('panenka');
+ if(role==='ST'&&(stars>=4||(t>=78&&fin>=80)))moves.push('bicycle');
+ if(fin>=78&&t>=76)moves.push('chip');
+ if(t>=78)moves.push('trap');
+ if((role==='ST'||role==='CAM'||role==='CF')&&stars>=4&&t>=80)moves.push('pirouette');
+ return {stars,moves};
+}
 
 // Stamina, age and existing on-pitch activity drive in-match fitness loss (per football minute).
 function matchFatigueDrain(p,activity=1,tactical=1){

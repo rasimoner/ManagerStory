@@ -10,6 +10,7 @@ import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js';
 import { loadRig } from './newview/rig.js';
 import { createDirector } from './newview/director.js';
 import { createBroadcastCamera } from './newview/camera.js';
+import { createReplay, STAR_MOVES } from './newview/replay.js';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');
@@ -54,21 +55,37 @@ html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:non
 .nv-tune .r{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #ffffff14}
 .nv-tune .r span{flex:1}.nv-tune .r b{min-width:46px;text-align:center;font-variant-numeric:tabular-nums}
 .nv-tune button{font:700 16px/1 -apple-system,BlinkMacSystemFont,sans-serif;min-width:40px;min-height:36px;border:1px solid #ffffff30;border-radius:8px;background:#1f2731;color:#f3f5f7;cursor:pointer;touch-action:manipulation}
-.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}`;
+.nv-rp{position:absolute;inset:0;pointer-events:none;z-index:2;box-shadow:inset 0 0 90px 10px #000b}
+.nv-rp-top{position:absolute;top:8px;left:8px;right:56px;max-width:340px;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.nv-full .nv-rp-top{top:calc(env(safe-area-inset-top,0px) + 14px);left:max(10px,env(safe-area-inset-left,0px));right:calc(env(safe-area-inset-right,0px) + 66px)}
+.nv-rp-tag{display:flex;border-radius:5px;overflow:hidden;font:800 12px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.07em;box-shadow:0 2px 8px #0008;white-space:nowrap;max-width:100%}
+.nv-rp-tag span{background:#f4c430;color:#0d1117;padding:5px 8px}.nv-rp-tag b{background:#0d1117e0;color:#f4c430;padding:5px 7px;font-variant-numeric:tabular-nums}
+.nv-rp-bar{width:100%;height:3px;border-radius:2px;background:#ffffff40;overflow:hidden}.nv-rp-bar i{display:block;height:100%;width:0;background:#f4c430}
+.nv-rp-card{position:absolute;left:50%;bottom:16%;transform:translateX(-50%);width:min(380px,calc(100% - 24px));text-align:center;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+.nv-full .nv-rp-card{bottom:calc(env(safe-area-inset-bottom,0px) + 74px)}
+.nv-rp-card strong{display:inline-block;transform:skewX(-8deg);background:#f4c430;color:#0d1117;font-weight:900;font-size:clamp(20px,7vw,30px);letter-spacing:.06em;padding:2px 14px;box-shadow:0 3px 12px #0009}
+.nv-rp-card em{display:block;margin-top:7px;font-style:normal;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-shadow:0 1px 4px #000}
+.nv-rp-card span{display:block;margin-top:4px;font-size:14px;font-weight:500;line-height:1.35;text-shadow:0 1px 4px #000;color:#e8edf2}
+.nv-rp-skip{position:absolute;right:10px;bottom:10px;pointer-events:auto;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:#f3f5f7;background:#0d1117c4;border:1px solid #ffffff30;border-radius:9px;padding:10px 12px;cursor:pointer;touch-action:manipulation}
+.nv-full .nv-rp-skip{bottom:calc(env(safe-area-inset-bottom,0px) + 16px);right:max(10px,env(safe-area-inset-right,0px))}
+.nv-replaying .nv-dir,.nv-replaying .nv-who,.nv-replaying .nv-banner,.nv-replaying .career3d-radar,.nv-replaying .nv-bug,.nv-replaying .nv-bottom,.nv-replaying .nv-tbtn,.nv-replaying .nv-tune{visibility:hidden}
+.nv-tune .tries{display:flex;flex-wrap:wrap;gap:6px}.nv-tune .tries button{font-size:13px;padding:0 10px;border-color:#f4c43066;color:#f4c430}.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}`;
 document.head.append(css);
 
 const surface = document.createElement('div'); surface.className = 'career3d v73pitch';
-surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-dir" aria-label="Hücum yönü"><b></b><i>➜</i></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><button class="nv-fs" type="button" aria-label="Tam ekran" title="Tam ekran">⤢</button><button class="nv-tbtn" type="button" aria-label="Hız ayarları (geçici)">⚙ Hız</button><div class="nv-tune" hidden></div><div class="nv-hud"><div class="nv-bug" aria-label="Skor"><span class="t1"></span><span class="sc"></span><span class="t2"></span><span class="clk"></span></div><div class="nv-bottom"><div class="nv-comm" aria-live="polite"></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Kamera"><button type="button" data-cam="auto" aria-pressed="true">Otomatik</button><button type="button" data-cam="tv" aria-pressed="false">Yayın</button><button type="button" data-cam="close" aria-pressed="false">Yakın</button><button type="button" data-cam="stand" aria-pressed="false">Tribün</button></div></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Hız"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button></div><button type="button" class="nv-pill" data-act="pause">Duraklat</button><button type="button" class="nv-pill go" data-act="intervene">Müdahale</button></div></div></div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
+surface.innerHTML = '<canvas class="career3d-scene" aria-label="Canlı 3D saha"></canvas><canvas class="career3d-radar" width="200" height="130" aria-label="Aynı maçın radarı"></canvas><div class="nv-banner" aria-hidden="true"></div><div class="nv-dir" aria-label="Hücum yönü"><b></b><i>➜</i></div><div class="nv-who" hidden><b></b><span></span></div><div class="nv-loading">3D saha hazırlanıyor…</div><button class="nv-fs" type="button" aria-label="Tam ekran" title="Tam ekran">⤢</button><button class="nv-tbtn" type="button" aria-label="Hız ayarları (geçici)">⚙ Hız</button><div class="nv-tune" hidden></div><div class="nv-rp" hidden><div class="nv-rp-top"><div class="nv-rp-tag"><span>TEKRAR · YILDIZ KAMERASI</span><b></b></div><div class="nv-rp-bar"><i></i></div></div><div class="nv-rp-card"><strong></strong><em></em><span></span></div><button type="button" class="nv-rp-skip">Geç ›</button></div><div class="nv-hud"><div class="nv-bug" aria-label="Skor"><span class="t1"></span><span class="sc"></span><span class="t2"></span><span class="clk"></span></div><div class="nv-bottom"><div class="nv-comm" aria-live="polite"></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Kamera"><button type="button" data-cam="auto" aria-pressed="true">Otomatik</button><button type="button" data-cam="tv" aria-pressed="false">Yayın</button><button type="button" data-cam="close" aria-pressed="false">Yakın</button><button type="button" data-cam="stand" aria-pressed="false">Tribün</button></div></div><div class="nv-row"><div class="nv-seg" role="group" aria-label="Hız"><button type="button" data-speed="0.5">0.5×</button><button type="button" data-speed="1">1×</button><button type="button" data-speed="2">2×</button></div><button type="button" class="nv-pill" data-act="pause">Duraklat</button><button type="button" class="nv-pill go" data-act="intervene">Müdahale</button></div></div></div><p role="status" hidden></p><div class="pitch-goal-overlay" hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class="goal-club-props"></div><strong>GOOOL!</strong><small></small></div>';
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 const bannerEl = surface.querySelector('.nv-banner'), whoEl = surface.querySelector('.nv-who'), loadingEl = surface.querySelector('.nv-loading'), status = surface.querySelector('[role=status]');
 const dirEl = surface.querySelector('.nv-dir');
+const rpEl = surface.querySelector('.nv-rp'), rpBar = rpEl.querySelector('.nv-rp-bar i'), rpSpeed = rpEl.querySelector('.nv-rp-tag b'), rpCard = rpEl.querySelector('.nv-rp-card');
+rpEl.querySelector('.nv-rp-skip').addEventListener('click', () => { if (rp) rp.t = rp.t1; });
 const fsBtn = surface.querySelector('.nv-fs'), hud = surface.querySelector('.nv-hud'), commEl = surface.querySelector('.nv-comm');
 // ---------- temporary speed tuning (V7.8 dev; the user sets the real speeds on the phone) ----------
 // Saved on this device only. Defaults are the current game: the buttons play at 0.5, 1 and 2,
 // players and the ball at their normal pace, the camera at its normal easing, a shot in 0.45 slow motion.
 const TUNE_KEY = 'managerstory-nv-tune-v1';
-const TUNE_DEF = { s05: 0.5, s1: 1, s2: 2, player: 1, ball: 1, cam: 1, slowmo: 0.45 };
-const TUNE_ROWS = [['s05', '0.5× tuşu = oyun hızı', 0.05], ['s1', '1× tuşu = oyun hızı', 0.05], ['s2', '2× tuşu = oyun hızı', 0.05], ['player', 'Oyuncu koşu hızı', 0.05], ['ball', 'Top hızı (pas ve şut)', 0.05], ['cam', 'Kamera takip hızı', 0.1], ['slowmo', 'Şut anı ağır çekim', 0.05]];
+const TUNE_DEF = { s05: 0.5, s1: 1, s2: 2, player: 1, ball: 1, cam: 1, slowmo: 0.45, replay: 0.35 };
+const TUNE_ROWS = [['s05', '0.5× tuşu = oyun hızı', 0.05], ['s1', '1× tuşu = oyun hızı', 0.05], ['s2', '2× tuşu = oyun hızı', 0.05], ['player', 'Oyuncu koşu hızı', 0.05], ['ball', 'Top hızı (pas ve şut)', 0.05], ['cam', 'Kamera takip hızı', 0.1], ['slowmo', 'Şut anı ağır çekim', 0.05], ['replay', 'Yıldız tekrarı hızı (0 = kapalı)', 0.05]];
 const tune = { ...TUNE_DEF };
 try { const saved = JSON.parse(localStorage.getItem(TUNE_KEY) || '{}'); for (const k of Object.keys(TUNE_DEF)) if (Number.isFinite(saved[k])) tune[k] = saved[k]; } catch (e) { /* storage unavailable: defaults */ }
 const tuneBtn = surface.querySelector('.nv-tbtn'), tuneEl = surface.querySelector('.nv-tune');
@@ -77,15 +94,19 @@ function paintTune() {
   if (tuneEl.hidden) return;
   tuneEl.innerHTML = '<h4>Hız ayarları (geçici)</h4><p>Şu an <span class="now">' + (M?.speed || 1) + '× tuşu → oyun ' + realSpeed().toFixed(2) + '</span>. Değerler bu cihazda saklanır.</p>'
     + TUNE_ROWS.map(([k, label]) => '<div class="r"><span>' + label + '</span><button type="button" data-tk="' + k + '" data-d="-1">−</button><b>' + tune[k].toFixed(2) + '</b><button type="button" data-tk="' + k + '" data-d="1">+</button></div>').join('')
+    + '<h4 style="margin-top:12px">Yıldız anı dene (geçici)</h4><p>' + (director?.trying ? 'Bekleniyor: ' + TRY_NAMES[director.trying] + ' — topu süren oyuncumuz sıradaki fırsatta yapacak.' : 'Seçince maç durmaz: topu süren oyuncumuz sıradaki fırsatta yapar (bu denemede oyuncu ve bölge kuralı yok), sonra oyun devam eder.') + '</p><div class="tries">'
+    + Object.entries(TRY_NAMES).map(([k, n]) => '<button type="button" data-try="' + k + '">' + n + '</button>').join('') + '</div>'
     + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
 }
 tuneBtn.addEventListener('click', () => { tuneEl.hidden = !tuneEl.hidden; paintTune(); });
+const TRY_NAMES = { stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas', cruyff: 'Cruyff dönüşü', croqueta: 'La Croqueta', roulette: 'Marsilya dönüşü', flairnutmeg: 'Flair bacak arası', flairpass: 'Makasla pas', rainbow: 'Gökkuşağı', sombrero: 'Aşırtma çalım', juggle: 'Sektirip geçme', backheel: 'Topuk pası', rabona: 'Rabona', trap: 'Ayakla öldürme', chip: 'Kaleciyi aşırtma', bicycle: 'Röveşata', panenka: 'Panenka', pirouette: 'Bergkamp dönüşü' };
 tuneEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.try) { if (director) { director.tryNext(b.dataset.try); lastReplay = -99; banner('DENEME · ' + TRY_NAMES[b.dataset.try].toUpperCase(), 1500); } tuneEl.hidden = true; return; }
   const k = b.dataset.tk;
   if (k === 'close') { tuneEl.hidden = true; return; }
   if (k === 'reset') Object.assign(tune, TUNE_DEF);
-  else { const row = TUNE_ROWS.find(r => r[0] === k); if (!row) return; tune[k] = Math.round(Math.min(4, Math.max(0.05, tune[k] + Number(b.dataset.d) * row[2])) * 100) / 100; }
+  else { const row = TUNE_ROWS.find(r => r[0] === k); if (!row) return; tune[k] = Math.round(Math.min(4, Math.max(k === 'replay' ? 0 : 0.05, tune[k] + Number(b.dataset.d) * row[2])) * 100) / 100; }
   try { localStorage.setItem(TUNE_KEY, JSON.stringify(tune)); } catch (err) { /* storage unavailable */ }
   paintTune();
 });
@@ -208,9 +229,12 @@ function enginePositions() {
     .filter(([id, side]) => !(side === 'user' ? M.sentOff?.includes(id) : false))
     .map(([id, side]) => [id, side, eventPoint(id, side)]);
 }
+// the special moves a player has (pitch-v731.js skillMoves): most players have none
+function movesOf(id, side) { try { return typeof skillMoves === 'function' ? skillMoves(id, side).moves : []; } catch { return []; } }
+function starsOf(id, side) { try { return typeof skillMoves === 'function' ? skillMoves(id, side).stars : 1; } catch { return 1; } }
 function rosterList() {
-  const user = M.active.map((id, i) => { const p = S.players.find(x => x.id === id); return { id, side: 'user', name: p?.name ?? String(id), role: M.matchRoles[id], no: p?.number ?? (S.players.indexOf(p) + 1 || i + 1) }; });
-  const opp = M.oppIds.map((id, i) => { const p = playerAtMarker(id, 'opp'); return { id, side: 'opp', name: p?.name ?? id, role: p?.position ?? (i ? 'CM' : 'GK'), no: i + 1 }; });
+  const user = M.active.map((id, i) => { const p = S.players.find(x => x.id === id); return { id, side: 'user', name: p?.name ?? String(id), role: M.matchRoles[id], no: p?.number ?? (S.players.indexOf(p) + 1 || i + 1), moves: movesOf(id, 'user'), stars: starsOf(id, 'user') }; });
+  const opp = M.oppIds.map((id, i) => { const p = playerAtMarker(id, 'opp'); return { id, side: 'opp', name: p?.name ?? id, role: p?.position ?? (i ? 'CM' : 'GK'), no: i + 1, moves: movesOf(id, 'opp'), stars: starsOf(id, 'opp') }; });
   return [...user, ...opp];
 }
 function teams() {
@@ -229,6 +253,7 @@ function startMatchView() {
   crowd = stadium.buildCrowd(t.home.primaryColor, t.home.secondaryColor, t.away.primaryColor, t.away.secondaryColor) || [];
   rt = createRuntime({ scene, rig: assets.rig, gait: assets.gait, ramp: stadium.toonRamp, numberTexture, cadence: CADENCE, stride: STRIDE });
   rt.S.tune = tune; sayLine = null;
+  replay.clear(); starPending = null; rp = null; lastReplay = -99; rpEl.hidden = true; surface.classList.remove('nv-replaying');
   snaps = [{ n: M.events.length, pl: enginePositions() }];
   const roster = rosterList();
   rosterKey = JSON.stringify(roster.map(r => [r.side, r.id]));
@@ -244,6 +269,12 @@ function startMatchView() {
     score() {}, minute() {},
     cam: (mode, a = null, b = null, hard = false) => { autoCam = { mode, a, b }; if (hard) cut = true; },
     slow: s => { simSlow = s < 1 ? tune.slowmo : s; }, whistle() {}, finished() {},
+    // a special move: shown again from the star camera once it is over
+    star: (a, p) => {
+      if (!STAR_MOVES[a.kind] || !(tune.replay > 0) || (TEST_SCALE > 1 && !REPLAY_IN_TEST)) return;
+      if (rp || starPending || rt.S.t - lastReplay < REPLAY_GAP) return;
+      starPending = { kind: a.kind, key: p.key, name: p.name, no: p.no, side: p.side, t: rt.S.t };
+    },
   }, { startIndex: fresh ? 0 : M.events.length, debug: TEST_SCALE > 1 || /[?&]nvdebug/.test(location.search) });
   if (!fresh) director.resync(M.ballOwner, M.ballSide, M.ballState?.position);
   lastEvents = M.events.length; match = M; cut = true;
@@ -291,6 +322,72 @@ function drawRadar() {
   c.beginPath(); c.moveTo(cx - s * 16, y - 2.5); c.lineTo(cx + s * 8, y - 2.5); c.lineTo(cx + s * 8, y - 6); c.lineTo(cx + s * 17, y); c.lineTo(cx + s * 8, y + 6); c.lineTo(cx + s * 8, y + 2.5); c.lineTo(cx - s * 16, y + 2.5); c.closePath(); c.fill(); c.stroke();
 }
 
+// ---------- star replay (V7.9) ----------
+// a special move is kept and shown again at once: slowly, from a high close camera, with its name
+const REPLAY_PRE = 1.25, REPLAY_POST = 0.9, REPLAY_GAP = 30;
+const REPLAY_IN_TEST = /[?&]nvreplay/.test(location.search);
+const replay = createReplay(), liveState = createReplay({ frames: 1, minDt: 0 });
+let starPending = null, rp = null, lastReplay = -99;
+const rpCamPos = new THREE.Vector3(), rpCamLook = new THREE.Vector3(), rpStar = new THREE.Vector3(), rpWant = new THREE.Vector3();
+function startReplay() {
+  const s = starPending; starPending = null;
+  const [a, z] = replay.span(), t0 = Math.max(a, s.t - REPLAY_PRE), t1 = Math.min(z, s.t + REPLAY_POST);
+  if (t1 - t0 < 0.8) return;
+  liveState.clear(); liveState.record(rt, ballMesh);            // the pitch as it is now, put back afterwards
+  rp = { ...s, t0, t1, t: t0, first: true };
+  const info = STAR_MOVES[s.kind];
+  rpCard.querySelector('strong').textContent = info.name;
+  rpCard.querySelector('em').textContent = (s.no != null ? s.no + ' · ' : '') + (s.name || '');
+  rpCard.querySelector('span').textContent = info.line;
+  rpSpeed.textContent = tune.replay.toFixed(2).replace(/0$/, '') + '×';
+  rpEl.hidden = false; surface.classList.add('nv-replaying');
+}
+function playReplay(dtReal) {
+  if (!paused()) rp.t = Math.min(rp.t1, rp.t + dtReal * tune.replay);
+  const at = replay.apply(rt, ballMesh, rp.t);
+  rpBar.style.width = (100 * (rp.t - rp.t0) / Math.max(1e-3, rp.t1 - rp.t0)).toFixed(1) + '%';
+  if (rp.t >= rp.t1) { const ballAt = at.clone(); endReplay(); return ballAt; }
+  return at;
+}
+function endReplay() {
+  liveState.apply(rt, ballMesh, 0);
+  lastReplay = rt.S.t; rp = null; cut = true;
+  rpEl.hidden = true; surface.classList.remove('nv-replaying');
+}
+function starCamera(dtReal, aspect, ballAt) {
+  if (!rp) { updateCamera(dtReal, aspect); return; }
+  const tall = aspect < 1.25;
+  replay.posOf(rp.key, rp.t, rpStar) || rpStar.copy(ballAt);
+  // a ball in the air pulls the picture its way and the camera back a little, so both stay in frame
+  // the star and the ball both stay in the picture: a ball played away (a pass, a shot, a chip) widens it
+  const up = Math.max(0, ballAt.y - BALL_R), sep = Math.hypot(ballAt.x - rpStar.x, ballAt.z - rpStar.z);
+  const pull = Math.max(1 + Math.min(0.6, up * 0.22), (sep * (tall ? 1.9 : 1.1) + 2) / 5.8);
+  rpStar.lerp(ballAt.clone().setY(0), sep > 2.5 ? 0.5 : 0.35 + Math.min(0.25, up * 0.12));
+  rpWant.copy(rpStar).add(new THREE.Vector3(-1.7 * pull, (tall ? 3.6 : 3.3) * pull, (tall ? 5.0 : 4.4) * pull));
+  const k = rp.first ? 1 : 1 - Math.exp(-dtReal * 4);
+  rpCamPos.lerp(rpWant, k); rpCamLook.lerp(rpStar.setY(0.6 + Math.min(1.2, up * 0.45)), k); rp.first = false;
+  camera.fov = tall ? 50 : 40; camera.aspect = aspect; camera.updateProjectionMatrix();
+  camera.position.copy(rpCamPos); camera.lookAt(rpCamLook);
+}
+
+// a player standing right in front of a close camera is left out of the picture (a broadcast camera
+// would be moved; ours just does not draw him), never the players the shot is about
+const occA = new THREE.Vector3(), occF = new THREE.Vector3();
+function hideOccluders() {
+  const out = [];
+  const close = rp || autoCam.mode === 'close' || autoCam.mode === 'shot' || (full && camMode === 'close');
+  if (!close || !rt) return out;
+  camera.getWorldDirection(occF);
+  const keep = new Set([autoCam.a, autoCam.b, rp && rt.players.find(p => p.key === rp.key)].filter(Boolean));
+  for (const p of rt.players) {
+    if (p.offPitch || !p.model.visible || keep.has(p)) continue;
+    occA.copy(p.model.position).setY(1.1).sub(camera.position);
+    const d = occA.length();
+    if (d < 3.6 && occA.dot(occF) > 0 && occA.dot(occF) / d > Math.cos(0.6)) { p.model.visible = false; out.push(p); }
+  }
+  return out;
+}
+
 // ---------- loop ----------
 const ballAxis = new THREE.Vector3();
 // automated checks only (?nvtest=N): play N times faster and draw every 10th frame
@@ -298,40 +395,54 @@ const ballAxis = new THREE.Vector3();
 const CADENCE = Math.min(1.3, Math.max(0.9, Number(new URLSearchParams(location.search).get('adim')) || 1));
 // leg opening at jogging pace: 25% more compact than the recorded jog (`?bacak=1` shows the recorded one)
 const STRIDE = Math.min(1, Math.max(0.5, Number(new URLSearchParams(location.search).get('bacak')) || 0.75));
+// automated picture checks only (?nvfixdt): every frame is 1/60 s whatever the machine manages
+const FIXED_DT = /[?&]nvfixdt/.test(location.search) ? 1 / 60 : 0;
+const MANUAL = !!FIXED_DT && /[?&]nvmanual/.test(location.search);
+let manualTick = false, manualNoDraw = false;
+let fastForward = 1;          // (?nvfixdt only) a recording script skips ahead to the moment it wants
 const TEST_SCALE = Math.min(20, Math.max(1, Number(new URLSearchParams(location.search).get('nvtest')) || 1));
 let last = 0, frameNo = 0, rafId = null;
 const paused = () => typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : !!M?.pause;
 function isActive() { return !failed && !!assets && !!M && (M.fieldView === '3d' || full) && surface.isConnected && canvas.clientWidth > 0; }
 function frame(now) {
-  rafId = requestAnimationFrame(frame);
+  if (!manualTick) rafId = requestAnimationFrame(frame);
+  if (MANUAL && !manualTick) return;          // (?nvmanual) a recording script steps the frames itself
   if (full && shouldLeaveFull()) setFull(false);
   const active = isActive();
   if (!active) { if (wasActive) needResync = true; wasActive = false; last = now; return; }
   if (match !== M) { startMatchView(); needResync = false; }
   // back from 2D or another tab: the match went on without this view, so start from "now"
-  if (needResync) { if (director.index < M.events.length) director.resync(M.ballOwner, M.ballSide, M.ballState?.position); needResync = false; cut = true; }
+  if (needResync) { if (rp) endReplay(); replay.clear(); starPending = null; if (director.index < M.events.length) director.resync(M.ballOwner, M.ballSide, M.ballState?.position); needResync = false; cut = true; }
   wasActive = true;
-  const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+  const dtReal = FIXED_DT || Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
   // the engine generated a minute: record where everyone stands after it
   if (M.events.length !== lastEvents) { snaps.push({ n: M.events.length, pl: enginePositions(), ball: [...(M.ballState?.position || [50, 50])] }); if (snaps.length > 40) snaps.splice(1, snaps.length - 40); lastEvents = M.events.length; }
   const roster = rosterList(), key = JSON.stringify(roster.map(r => [r.side, r.id]));
   if (key !== rosterKey) { director.syncRoster(roster); rosterKey = key; }
   // after the final whistle the view still plays the match's last actions, unless the drain is paused
   const hold = M.finished ? !director.busy || (!!window.ManagerStoryLive3D?.finishing && paused()) : paused();
-  const dt = hold ? 0 : dtReal * realSpeed() * simSlow * TEST_SCALE;
+  // while a star replay plays the match waits (the clock waits for this view)
+  const dt = hold || rp ? 0 : dtReal * realSpeed() * simSlow * TEST_SCALE * (FIXED_DT ? fastForward : 1);
   if (dt > 0) {
     const n = Math.max(1, Math.ceil(dt / (1 / 120)));
     for (let i = 0; i < n; i++) { rt.S.t += dt / n; director.update(); for (const p of rt.players) if (!p.offPitch) rt.move(p, dt / n); rt.stepBall(dt / n); rt.contacts(); }
   }
-  const draw = TEST_SCALE === 1 || frameNo % 10 === 0;
+  // the special move is over: show it again
+  if (!rp && starPending && rt.S.t >= starPending.t + REPLAY_POST) startReplay();
+  const draw = TEST_SCALE === 1 || frameNo % 10 === 0 || rp;
   if (!draw) { frameNo++; return; }
-  for (const p of rt.players) if (!p.offPitch) rt.pose(p, dt);
   const b = rt.ball;
-  ballMesh.position.copy(b.p);
-  const sp = Math.hypot(b.v.x, b.v.z);
-  if (sp > 0.01 && dt > 0) ballMesh.rotateOnWorldAxis(ballAxis.set(b.v.z, 0, -b.v.x).normalize(), sp * dt / BALL_R);
-  ballShadow.position.set(b.p.x, .012, b.p.z);
-  const hgt = Math.max(0, b.p.y - BALL_R); ballShadow.scale.setScalar(1 + hgt * .35); ballShadow.material.opacity = .45 / (1 + hgt * 1.4);
+  let ballAt = b.p;
+  if (rp) ballAt = playReplay(dtReal);
+  else {
+    for (const p of rt.players) if (!p.offPitch) rt.pose(p, dt);
+    ballMesh.position.copy(b.p);
+    const sp = Math.hypot(b.v.x, b.v.z);
+    if (sp > 0.01 && dt > 0) ballMesh.rotateOnWorldAxis(ballAxis.set(b.v.z, 0, -b.v.x).normalize(), sp * dt / BALL_R);
+    if (dt > 0 && (tune.replay > 0)) replay.record(rt, ballMesh);
+  }
+  ballShadow.position.set(ballAt.x, .012, ballAt.z);
+  const hgt = Math.max(0, ballAt.y - BALL_R); ballShadow.scale.setScalar(1 + hgt * .35); ballShadow.material.opacity = .45 / (1 + hgt * 1.4);
   const o = b.owner;
   if (o && !rt.S.dead) {
     const t = teams(), team = o.side === 'user' ? (M.userHome ? t.home : t.away) : (M.userHome ? t.away : t.home);
@@ -340,11 +451,14 @@ function frame(now) {
   const now3 = performance.now() / 1000;
   stadium.crowdMat.uniforms.uTime.value = now3; stadium.flagMat.uniforms.uTime.value = now3;
   stadium.updateNets(rt.S.netHit, rt.S.t);
+  if ((fastForward > 1 && !rp && frameNo % 30) || manualNoDraw) { frameNo++; return; }      // skipping ahead: bodies posed, picture not drawn
   const w = canvas.clientWidth, h = canvas.clientHeight;
   if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
-  updateCamera(dtReal, w / Math.max(1, h));
+  if (rp) starCamera(dtReal, w / Math.max(1, h), ballAt); else updateCamera(dtReal, w / Math.max(1, h));
+  const hidden = hideOccluders();
   renderer.render(scene, camera);
   camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
+  for (const p of hidden) p.model.visible = true;
   if (frameNo++ % 3 === 0) { drawRadar(); paintDirection(); }
   if (full && frameNo % 6 === 0) paintHud();
 }
@@ -365,6 +479,15 @@ window.ManagerStoryNewView = {
   get director() { return director; },
   get simTime() { return rt?.S.t ?? 0; },
   get runtime() { return rt; },          // for automated checks
+  get replay() { return rp ? { kind: rp.kind, who: rp.key, t: rp.t, t0: rp.t0, t1: rp.t1 } : null; },
+  get replayKept() { return replay.count; },
+  get starPending() { return starPending; },
+  // development: play a special move now (console: ManagerStoryNewView.star('elastico'))
+  get devScene() { return FIXED_DT ? { renderer, scene, crowd, outline } : null; },
+  star(kind) { if (!director || rp) return null; replay.clear(); starPending = null; lastReplay = -99; return director.stage(kind) || null; },
+  // (?nvfixdt&nvmanual) draw n frames of 1/60 s now
+  step(n = 1, drawLastOnly = false) { if (!MANUAL) return; manualTick = true; try { for (let i = 0; i < n; i++) { manualNoDraw = drawLastOnly && i < n - 1; frame(performance.now()); } } finally { manualTick = false; manualNoDraw = false; } },
+  set fastForward(v) { if (FIXED_DT) fastForward = Math.max(1, Number(v) || 1); },
   // where the ball is on screen (-1..1 inside the frame) and where the camera looks: for measuring the camera
   get framing() {
     if (!camera || !rt || !broadcast) return null;

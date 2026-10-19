@@ -68,6 +68,12 @@ const CLIPS = {
   header: { seq: [['Jump_Start', 0, 0.62], ['Jump_Land', 0.02, 0.9]], fade: 0.1 },
   // goal celebration: both arms up
   cheer: { seq: [['Celebration', 0, 2.4]] },
+  // goalkeeper (V7.9): the set position, its side-steps and backpedal, getting up after a dive, a punch
+  // and the overarm throw
+  gkReady: { loop: 'Crouch_Idle_Loop' }, gkLeft: { loop: 'Crouch_Left_Loop' }, gkRight: { loop: 'Crouch_Right_Loop' }, gkBack: { loop: 'Jog_Bwd_Loop' },
+  gkGetUp: { seq: [['LayToIdle', 0, 1.53]] },
+  gkPunch: { seq: [['Punch_Cross', 0, 1.0]] },
+  gkThrow: { seq: [['OverhandThrow', 0, 1.33]] },
 };
 const FPS = 30;
 

@@ -20,8 +20,8 @@ const dist = process.env.NV_DIST || path.join(__dirname, '..', 'dist');
 const READ = `({
   pl:[...M.active.map(id=>[id,'user']),...M.oppIds.map(id=>[id,'opp'])].filter(([id,s])=>!(s==='user'&&M.sentOff?.includes(id))).map(([id,s])=>[id,s,eventPoint(id,s)]),
   ball:[...(M.ballState?.position||[50,50])],
-  roster:[...M.active.map((id,i)=>{const p=S.players.find(x=>x.id===id);return {id,side:'user',name:p?.name??String(id),role:M.matchRoles[id],no:p?.number??(S.players.indexOf(p)+1||i+1)}}),
-          ...M.oppIds.map((id,i)=>{const p=playerAtMarker(id,'opp');return {id,side:'opp',name:p?.name??id,role:p?.position??(i?'CM':'GK'),no:i+1}})],
+  roster:[...M.active.map((id,i)=>{const p=S.players.find(x=>x.id===id);return {id,side:'user',name:p?.name??String(id),role:M.matchRoles[id],no:p?.number??(S.players.indexOf(p)+1||i+1),moves:skillMoves(id,'user').moves,stars:skillMoves(id,'user').stars}}),
+          ...M.oppIds.map((id,i)=>{const p=playerAtMarker(id,'opp');return {id,side:'opp',name:p?.name??id,role:p?.position??(i?'CM':'GK'),no:i+1,moves:skillMoves(id,'opp').moves,stars:skillMoves(id,'opp').stars}})],
   n:M.events.length })`;
 
 function recordMatch(fixture) {
@@ -153,6 +153,89 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     assert.deepEqual(view.ballJumps, [], 'ball position jumps');
   });
 
+  test(`fixture ${fixture}: skill moves are readable and special — boots on and round the ball, only the players who have them, only where they fit`, async () => {
+    const { view } = await match(fixture);
+    const skills = view.stats.skills || [];
+    if (process.env.NV_DEBUG) console.log('skills', JSON.stringify(skills));
+    for (const k of skills) {
+      if (k.kind === 'stepover') {
+        assert.ok(k.minGap > 0.12, 'step-over boot stays off the ball: ' + JSON.stringify(k));
+        assert.ok(k.peak > 0.12, 'step-over boot lifts over the ball: ' + JSON.stringify(k));
+        assert.ok(k.plantSlip < 0.05, 'standing boot stays planted: ' + JSON.stringify(k));
+        assert.ok(k.contact != null && k.contact < 0.3, 'the take is made with the boot on the ball: ' + JSON.stringify(k));
+      } else if (k.kind === 'nutmeg') {
+        assert.ok(k.contact != null && k.contact < 0.3, 'the stab is made with the boot on the ball: ' + JSON.stringify(k));
+        assert.ok(k.between === true && k.gapL > 0.15 && k.gapR > 0.15, 'the ball goes between the feet: ' + JSON.stringify(k));
+      } else if (k.kind === 'elastico') {
+        assert.ok(k.touch1 < 0.3 && k.touch2 < 0.3, 'both touches are made with the boot on the ball: ' + JSON.stringify(k));
+        assert.ok(k.out > 0.12, 'the ball visibly goes out before it comes back: ' + JSON.stringify(k));
+        assert.ok(k.plantSlip < 0.06, 'standing boot stays planted: ' + JSON.stringify(k));
+      } else if (k.kind === 'nolook') {
+        assert.ok(k.contact < 0.35, 'the no-look pass is struck with the boot on the ball: ' + JSON.stringify(k));
+      } else if (k.kind === 'cruyff') {
+        assert.ok(k.fake > 0.18, 'the shot is shaped, boot lifted back: ' + JSON.stringify(k));
+        assert.ok(k.swingGap > 0.1, 'the boot comes through beside the ball without striking it: ' + JSON.stringify(k));
+        assert.ok(k.contact < 0.3 && k.behind === true, 'the inside of the boot takes it back behind the standing leg: ' + JSON.stringify(k));
+        assert.ok(k.plantSlip < 0.06, 'standing boot stays planted: ' + JSON.stringify(k));
+      } else if (k.kind === 'croqueta') {
+        assert.ok(k.touch1 < 0.3 && k.touch2 < 0.3, 'one touch with each boot: ' + JSON.stringify(k));
+        assert.ok(k.shift > 0.2, 'the ball moves across from one boot to the other: ' + JSON.stringify(k));
+      } else if (k.kind === 'roulette') {
+        assert.ok(k.spin > 5.5, 'a full turn: ' + JSON.stringify(k));
+        assert.ok(k.soleA < 0.3 && k.soleB < 0.3, 'one sole and then the other on the ball: ' + JSON.stringify(k));
+        assert.ok(k.wander < 0.9 && k.contact < 0.35, 'the ball stays at his feet through the turn: ' + JSON.stringify(k));
+      } else if (k.kind === 'flairnutmeg') {
+        assert.ok(k.turn > 2.8, 'he turns his back first: ' + JSON.stringify(k));
+        assert.ok(k.heel < 0.3, 'the heel plays it: ' + JSON.stringify(k));
+        assert.ok(k.between === true && k.gapL > 0.15 && k.gapR > 0.15, 'the ball goes between the feet: ' + JSON.stringify(k));
+      } else if (k.kind === 'flairpass') {
+        assert.ok(k.minGap > 0.12 && k.peak > 0.12 && k.contact != null && k.contact < 0.3, 'a real step-over, then the pass with the boot on the ball: ' + JSON.stringify(k));
+      } else if (k.kind === 'rainbow') {
+        assert.ok(k.roll < 0.3 && k.heel < 0.3, 'rolled back under the sole, flicked by the heel: ' + JSON.stringify(k));
+        assert.ok(k.apex > 1.9 && (k.overDef == null || k.overDef > 1.7), 'up over his head and the defender\'s: ' + JSON.stringify(k));
+      } else if (k.kind === 'sombrero') {
+        assert.ok(k.toe < 0.3, 'scooped with the toe: ' + JSON.stringify(k));
+        assert.ok(k.apex > 1.8 && (k.overDef == null || k.overDef > 1.7), 'over the defender\'s head: ' + JSON.stringify(k));
+      } else if (k.kind === 'juggle') {
+        assert.ok(k.touch1 < 0.3 && k.touch2 < 0.3 && k.low > 0.2, 'two touches, the ball kept off the grass between them: ' + JSON.stringify(k));
+        assert.ok(k.overDef == null || k.overDef > 0.5, 'over the lunging leg: ' + JSON.stringify(k));
+      } else if (k.kind === 'backheel') {
+        assert.ok(k.heel < 0.3 && k.over > 0.12 && k.back > 2.2, 'stepped over, played back with the heel: ' + JSON.stringify(k));
+      } else if (k.kind === 'rabona') {
+        assert.ok(k.contact < 0.3 && k.crossed === true && k.behind < -0.04, 'struck with the leg wrapped behind the standing leg: ' + JSON.stringify(k));
+      } else if (k.kind === 'trap') {
+        assert.ok(k.toe < 0.3 && k.h > 0.3, 'killed with the boot in the air: ' + JSON.stringify(k));
+      } else if (k.kind === 'panenka' || k.kind === 'chip') {
+        assert.ok(k.contact < 0.35 && k.apex > 1.4, 'a soft chip, struck with the boot: ' + JSON.stringify(k));
+        if (k.kind === 'chip' && k.overKeeper != null) assert.ok(k.overKeeper > 2.2, 'over the keeper: ' + JSON.stringify(k));
+      } else if (k.kind === 'bicycle') {
+        assert.ok(k.contact < 0.35 && k.pitch > 1.3 && k.h > 1.2, 'over backwards, the boot on the ball above his head: ' + JSON.stringify(k));
+      } else if (k.kind === 'pirouette') {
+        assert.ok(k.touch < 0.3, 'the first touch is made with the boot: ' + JSON.stringify(k));
+        assert.ok(k.sides === -1 && k.aroundBall > 0.35, 'ball one side of the defender, the man the other: ' + JSON.stringify(k));
+      } else if (k.kind === 'chest') {
+        assert.ok(k.contact < 0.38 && k.h > 0.9, 'the ball is taken on the chest: ' + JSON.stringify(k));
+      }
+      // a special move belongs to the player (his repertoire) and to the right part of the pitch
+      if (k.kind === 'trap') assert.ok(k.moves.includes('trap'), 'only a player who has the touch: ' + JSON.stringify(k));
+      if (k.kind !== 'chest' && k.kind !== 'trap') {
+        assert.ok(k.moves.includes(k.kind), 'only a player who has the move does it: ' + JSON.stringify(k));
+        if (!['panenka', 'chip', 'bicycle'].includes(k.kind)) assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));
+        if (k.kind === 'backheel') assert.ok(k.fromOwn > 70, 'backheel only in the final third: ' + JSON.stringify(k));
+        if (k.kind === 'rabona') assert.ok(k.fromOwn > 52.5, 'rabona only in the opponents\' half: ' + JSON.stringify(k));
+        if (['rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(!k.losing, 'no showboating when losing: ' + JSON.stringify(k));
+        if (['elastico', 'nolook', 'flairnutmeg', 'flairpass', 'rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
+        if (k.kind === 'elastico') assert.ok(Math.abs(k.z) < 31, 'no elastico against the touchline: ' + JSON.stringify(k));
+      }
+    }
+  });
+
+  test(`fixture ${fixture}: a keeper never dribbles the ball upfield — he plays it out`, async () => {
+    const { rec } = await match(fixture);
+    const keepers = new Set(rec.snaps.flatMap(s => s.roster.filter(r => r.role === 'GK').map(r => r.side + ':' + r.id)));
+    const carries = rec.events.filter(e => (e.type === 'ballCarry' || e.type === 'dribble') && keepers.has(e.fromSide + ':' + e.fromId));
+    assert.equal(carries.length, 0, 'keeper carries: ' + carries.map(e => e.text).join(' | '));
+  });
   test(`fixture ${fixture}: the ball stays in play unless the engine puts it out`, async () => {
     const { view } = await match(fixture);
     assert.equal(view.outWithoutLeave, 0);
