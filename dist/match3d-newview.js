@@ -94,7 +94,7 @@ function paintTune() {
   if (tuneEl.hidden) return;
   tuneEl.innerHTML = '<h4>Hız ayarları (geçici)</h4><p>Şu an <span class="now">' + (M?.speed || 1) + '× tuşu → oyun ' + realSpeed().toFixed(2) + '</span>. Değerler bu cihazda saklanır.</p>'
     + TUNE_ROWS.map(([k, label]) => '<div class="r"><span>' + label + '</span><button type="button" data-tk="' + k + '" data-d="-1">−</button><b>' + tune[k].toFixed(2) + '</b><button type="button" data-tk="' + k + '" data-d="1">+</button></div>').join('')
-    + '<h4 style="margin-top:12px">Yıldız anı dene (geçici)</h4><p>' + (director?.trying ? 'Bekleniyor: ' + TRY_NAMES[director.trying] + ' — topu süren oyuncumuz sıradaki fırsatta yapacak.' : 'Seçince maç durmaz: topu süren oyuncumuz sıradaki fırsatta yapar (bu denemede oyuncu ve bölge kuralı yok), sonra oyun devam eder.') + '</p><div class="tries">'
+    + '<h4 style="margin-top:12px">Yıldız anı dene (geçici)</h4><p>' + (director?.trying ? 'Bekleniyor: ' + TRY_NAMES[director.trying] + (director.trying === 'scorpion' ? ' — rakibin kalemize gelen ve kurtarılan bir sonraki şutunda kalecimiz yapacak.' : ' — topu süren oyuncumuz sıradaki fırsatta yapacak.') : 'Seçince maç durmaz: topu süren oyuncumuz sıradaki fırsatta yapar (bu denemede oyuncu ve bölge kuralı yok), sonra oyun devam eder.') + '</p><div class="tries">'
     + Object.entries(TRY_NAMES).map(([k, n]) => '<button type="button" data-try="' + k + '">' + n + '</button>').join('') + '</div>'
     + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
 }

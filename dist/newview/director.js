@@ -1629,8 +1629,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
       && (tryShot === 'chip' || (has(sh, 'chip') && fromGoal < 20 && pick(e, 33) < 0.35));
     const bicycle = !!hc && (tryShot === 'bicycle' || (has(sh, 'bicycle') && pick(e, 35) < 0.5));
     // V7.9: Higuita's scorpion — a looping ball dropping onto a keeper who has it; never when his team is losing
-    const scorpion = outcome === 'save' && !!gk && !hc && !e.penalty && !e.freeKick && !e.header && save?.saveType !== 'CATCH' && fromGoal > 16
-      && ((gk.side === 'user' && tryMove === 'scorpion') || (has(gk, 'scorpion') && !losing(gk.side) && (gk.used?.scorpion || 0) < 1 && pick(e, 47) < 0.08));
+    // (the test button: the next saved shot at our goal of any kind but a penalty or a header)
+    const tryScorp = gk?.side === 'user' && tryMove === 'scorpion' && outcome === 'save' && !hc && !e.penalty && !e.header;
+    const scorpion = !!gk && (tryScorp || (outcome === 'save' && !hc && !e.penalty && !e.freeKick && !e.header && save?.saveType !== 'CATCH' && fromGoal > 16
+      && has(gk, 'scorpion') && !losing(gk.side) && (gk.used?.scorpion || 0) < 1 && pick(e, 47) < 0.08));
     if (scorpion && tryMove === 'scorpion') tryMove = null;
     if ((panenka && tryShot === 'panenka') || (chip && tryShot === 'chip') || (bicycle && tryShot === 'bicycle')) tryMove = null;
     if (panenka) aim = V(lineX + goalSide * 0.25, 1.05, clamp(tz * 0.15, -0.5, 0.5));
@@ -1776,7 +1778,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const t0 = S.t;
     if (outcome === 'save' && gk && scorpion) {
       yield* scorpionSave(gk, t0 + flight, scorp);
-      if (save?.saveType === 'DEFLECT_CORNER') { ball.v.set(goalSide * 2.5, 6, Math.sign(ball.p.z || -1) * 5); ball.owner = null; }
+      if (save?.saveType === 'CATCH') { ball.v.set(-goalSide * 1.2, 4.5, 0); ball.owner = null; }       // it loops up off his heels and he gathers it
+      else if (save?.saveType === 'DEFLECT_CORNER') { ball.v.set(goalSide * 2.5, 6, Math.sign(ball.p.z || -1) * 5); ball.owner = null; }
       else { const r = toWorld(save?.toPos || [goalSide > 0 ? 88 : 12, 50]); ball.v.set((r.x - ball.p.x) * 0.55, 6.5, (r.z - ball.p.z) * 0.55); ball.owner = null; }
     } else if (outcome === 'save' && gk) {
       yield* until(() => savePoint().distanceTo(ball.p) < 0.3 || S.t - t0 >= flight, flight + 0.2);
@@ -1882,7 +1885,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const F = fwdOf(gk);
     gk.busy = true; gk.faceLock = true; gk.loopsWant.keeperReady = 0; gk.act = null; gk.motion = null;
     yield* until(() => { gk.target.copy(gk.pos); gk.want = 0; gk.vel.set(0, 0, 0); return S.t >= T - SCORP_LEAD; }, Math.max(0, T - SCORP_LEAD - S.t) + 0.1);
-    hooks.slow(0.4); ball.through = T + 1;
+    hooks.slow(0.4); ball.through = T + 1; hooks.cam('close', gk);         // the live picture goes to him
     gk.drive = { pos: body.pos, heading: body.heading }; gk.flip = body.flip;
     const w = ramp(T - 0.38, 0, 0.32, 0.46, 0.8), R = () => rightOf(gk);
     gk.feet = { Left: { w, at: () => ball.p.clone().addScaledVector(R(), -0.09) }, Right: { w, at: () => ball.p.clone().addScaledVector(R(), 0.09) } };
