@@ -36,7 +36,7 @@ function arm(tactics, { n = 8, opp = null, instr = [], first = 0 } = {}) {
     t.press += s.ev.filter(e => e.t === 'press' && e.ts === 'user').length; t.oppPress += s.ev.filter(e => e.t === 'press' && e.ts === 'opp').length;
     t.passes += s.st.passes[s.u]; t.completed += s.st.completedPasses[s.u];
     const up = s.ev.filter(e => (e.t === 'pass' || e.t === 'cross') && e.fs === 'user' && e.d != null);
-    t.dist += up.reduce((a, e) => a + e.d, 0); t.distN += up.length; t.longBalls += up.filter(e => e.k === 'long' || e.k === 'cross').length;
+    t.dist += up.reduce((a, e) => a + e.d, 0); t.distN += up.length; t.longBalls += up.filter(e => e.d > 29).length;   // (V7.9.3: by length — 'cross' is now only a ball into the box, a long ball forward is labelled 'through')
     t.loose += s.ev.filter(e => e.t === 'looseBall').length; t.aerialLoose += s.ev.filter(e => e.t === 'looseBall' && e.r === 'aerial').length;
     t.actions += s.ev.length;
     for (const id of starters) { const p = h.run(`S.players.find(p=>p.id===${id})`); if (p.minutes >= 80) { t.fatigue += before[id] - p.fitness; t.fatigueN++; } }

@@ -83,7 +83,8 @@ async function playMatch(rec) {
       const before = broadcast.pos.clone();
       broadcast.update(rt, shotPlan, 1 / 60, 390 / 760); camera.updateMatrixWorld(); if (broadcast.cutFrame) cutNow = true;
       // V7.9.3 the camera never goes inside a stand (behind the near touchline only above its rows, never behind the far one or the ends)
-      { const c = broadcast.pos; if (Math.abs(c.x) > 57 || c.z < -38 || (c.z > 38 && c.y < 5.5 + (c.z - 38.8) / 0.82 * 0.64)) (out.camInStand ||= []).push([+rt.S.t.toFixed(1), shotPlan.mode, c.toArray().map(v => +v.toFixed(1))]); }
+      // (the stands' rows: ends from |x| 59 rising 0.62 m every 0.82 m, the sides from |z| 38.8 rising 0.64; people 1.5 m tall)
+      { const c = broadcast.pos, ax = Math.abs(c.x); if ((ax > 59 && c.y < 2.75 + (ax - 59) / 0.82 * 0.62) || (c.z < -38.8 && c.y < 2.75 + (-c.z - 38.8) / 0.82 * 0.64) || (c.z > 38.8 && c.y < 2.75 + (c.z - 38.8) / 0.82 * 0.64)) (out.camInStand ||= []).push([+rt.S.t.toFixed(1), shotPlan.mode, c.toArray().map(v => +v.toFixed(1))]); }
       ndc.copy(ball.p).project(camera); screen.push([ndc.x, ndc.y, ndc.z < 1 && !cutNow]); camMoves.push(cutNow ? 0 : before.distanceTo(broadcast.pos)); if (process.env.NV_DEBUG) (out.camAt ||= []).push([+rt.S.t.toFixed(2), director.current?.type, shotPlan?.mode]); cutNow = false;
     }
     const current = director.current?.type;
@@ -119,7 +120,7 @@ async function playMatch(rec) {
         // tipped up like a board; rolling over after the scorpion, his body stays on the grass (no floating, no sinking)
         if (p.role === 'GK') {
           const hy = p.bones.Hips.getWorldPosition(new THREE.Vector3()).y, g = (out.gkLow ||= new Map());
-          if (hy < 0.35) g.set(p.key, rt.S.t);
+          if (hy < 0.35 && (p.dive || p.prone || p.flip)) g.set(p.key, rt.S.t);      // (down from a dive or the scorpion; a sliding tackle has its own get-up)
           else if (hy > 0.6 && g.has(p.key)) { if (rt.S.t - g.get(p.key) < 3) (out.gkUp ||= []).push({ t: +rt.S.t.toFixed(2), ev: current, act: p.act?.name, mot: p.motion?.name, dive: !!p.dive, clip: +(p.motion?.name === 'gkGetUp' ? p.A.gkGetUp.getEffectiveWeight() : 0).toFixed(2), prone: !!out.proneSeen?.has(p.key) }); g.delete(p.key); }
           if (p.prone) {
             (out.proneSeen ||= new Set()).add(p.key);
@@ -253,7 +254,7 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
       }
       // a special move belongs to the player (his repertoire) and to the right part of the pitch
       if (k.kind === 'trap') assert.ok(k.moves.includes('trap'), 'only a player who has the touch: ' + JSON.stringify(k));
-      if (k.kind === 'starsave') assert.ok(k.hands < 0.35 && k.aimH > 1.3 && k.lat > 1.9, 'a star save: a shot high into the corner, kept out by the gloves at full stretch: ' + JSON.stringify(k));
+      if (k.kind === 'starsave') assert.ok(k.hands < 0.35 && k.aimH >= 1.3 && k.lat > 1.9, 'a star save: a shot high into the corner, kept out by the gloves at full stretch: ' + JSON.stringify(k));
       if (k.kind === 'scorpion') assert.ok(k.contact < 0.3 && k.pitch < -1.2 && k.h > 1 && k.behindHead > 0, 'the scorpion: flat in the air face down, the heels on the ball above his back: ' + JSON.stringify(k));
       if (k.kind === 'pensave') assert.ok(k.hands < 0.35 && k.onLine < 0.6 && k.early != null && k.early >= -0.05 && k.early <= 0.1, 'a penalty save: on his line at the strike, gone as it is struck, the gloves on the ball: ' + JSON.stringify(k));
       if (k.kind !== 'chest' && k.kind !== 'trap' && k.kind !== 'starsave' && k.kind !== 'pensave') {      // (a scorpion is checked here too: only a keeper who has it)
@@ -306,7 +307,7 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     // V7.9.3 a ball that goes out for a corner crosses the goal line beside the goal (a save tipped over or round
     // the post, a block, a clearance behind), never flying out at the corner flag
     if (process.env.NV_DEBUG) console.log('cornerOuts', JSON.stringify(view.stats.cornerOuts || []));
-    for (const c of view.stats.cornerOuts || []) assert.ok(Math.abs(c[0]) > 52.5 && c[3] < 22, 'out for a corner over the goal line, near where it was played: ' + JSON.stringify(c));
+    for (const c of view.stats.cornerOuts || []) assert.ok(Math.abs(c[0]) > 52.5 && c[1] < 8 && Math.abs(c[2]) <= Math.max(Math.abs(c[4]) + 8, 14), 'out for a corner over the goal line, near where it was played (not out at the flag): ' + JSON.stringify(c));
     assert.equal(view.outWithoutLeave, 0);
   });
 

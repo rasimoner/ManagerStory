@@ -398,7 +398,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     if (p.act) p.act = { name: p.act.name, t0: -99, hold: clamp((S.t - p.act.t0) / ACTIONS[p.act.name].dur, 0, 1) };
     p.flip = null; p.drive = null; p.vel.set(0, 0, 0); p.motion = null;
   }
-  const qRoll = new THREE.Quaternion();
+  const qRoll = new THREE.Quaternion(), tmpLow = V();
+  const PRONE_BONES = ['Hips', 'Head', 'LeftHand', 'RightHand', 'LeftLeg', 'RightLeg', 'LeftToeBase', 'RightToeBase', 'Spine2', 'LeftFoot', 'RightFoot', 'LeftForeArm', 'RightForeArm'];
   function proneTransform(P, k) {
     // roll about the line of his body through the hips; the shoulder lifts him a touch as he goes over
     qRoll.setFromAxisAngle(P.axis, P.side * Math.PI * smooth(k, 0, 1));
@@ -729,7 +730,13 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     if (p.prone) {
       const P = p.prone;
       if (P.rise) { const u = smooth(S.t - P.rise.t0, 0, GK_RISE); p.model.position.copy(P.rise.fromP).lerp(P.rise.gpos, u); p.model.quaternion.copy(P.rise.fromQ).slerp(P.rise.q, u); }
-      else { const T = proneTransform(P, (S.t - P.t0) / PRONE_ROLL); p.model.position.copy(T.pos); p.model.quaternion.copy(T.q); }
+      else {
+        const T = proneTransform(P, (S.t - P.t0) / PRONE_ROLL); p.model.position.copy(T.pos); p.model.quaternion.copy(T.q);
+        // rolling over, no part of him goes into the grass: lifted by however much the lowest one would
+        p.model.updateMatrixWorld(true);
+        let low = Infinity; for (const b of PRONE_BONES) low = Math.min(low, p.bones[b].getWorldPosition(tmpLow).y);
+        if (low < 0.03) p.model.position.y += 0.03 - low;
+      }
       groundW = 0;
     }
     // a bicycle kick: the body tips over backwards round the hips and goes up (and comes down on its back)
