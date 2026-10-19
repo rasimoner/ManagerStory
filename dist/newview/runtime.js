@@ -796,7 +796,9 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   const NET_D = 2.0, NET_H = 1.6;
   function netCatch() {
     const s = Math.sign(ball.p.x), gx = Math.abs(ball.p.x) - GOAL_X;
-    if (gx <= 0.05 || gx > NET_D + 0.6 || Math.abs(ball.p.z) > 3.8) return;
+    // (V7.9.3 a ball that went over the bar is above the net, not in it: it drops behind the goal)
+    if (gx <= 0.05) { ball.overBar = ball.p.y > 2.44 + BALL_R * 0.5; return; }
+    if (ball.overBar || gx > NET_D + 0.6 || Math.abs(ball.p.z) > 3.8) return;
     const back = NET_D - (ball.p.y > NET_H ? (ball.p.y - NET_H) / (2.44 - NET_H) * NET_D : 0) - BALL_R;
     let hit = false;
     if (gx > back && ball.v.x * s > 0) { ball.p.x = s * (GOAL_X + Math.max(0.05, back)); hit = Math.abs(ball.v.x); ball.v.x = -s * Math.abs(ball.v.x) * 0.08; ball.v.z *= 0.35; ball.v.y = Math.min(ball.v.y, 0) * 0.4; }

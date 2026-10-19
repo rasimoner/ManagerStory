@@ -82,6 +82,8 @@ async function playMatch(rec) {
     if (step % 4 === 3) {      // one phone frame = 1/60 s real = 2/60 s of match
       const before = broadcast.pos.clone();
       broadcast.update(rt, shotPlan, 1 / 60, 390 / 760); camera.updateMatrixWorld(); if (broadcast.cutFrame) cutNow = true;
+      // V7.9.3 the camera never goes inside a stand (behind the near touchline only above its rows, never behind the far one or the ends)
+      { const c = broadcast.pos; if (Math.abs(c.x) > 57 || c.z < -38 || (c.z > 38 && c.y < 5.5 + (c.z - 38.8) / 0.82 * 0.64)) (out.camInStand ||= []).push([+rt.S.t.toFixed(1), shotPlan.mode, c.toArray().map(v => +v.toFixed(1))]); }
       ndc.copy(ball.p).project(camera); screen.push([ndc.x, ndc.y, ndc.z < 1 && !cutNow]); camMoves.push(cutNow ? 0 : before.distanceTo(broadcast.pos)); if (process.env.NV_DEBUG) (out.camAt ||= []).push([+rt.S.t.toFixed(2), director.current?.type, shotPlan?.mode]); cutNow = false;
     }
     const current = director.current?.type;
@@ -166,6 +168,7 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     // that made the picture stutter: 0.46–0.50)
     assert.ok(view.cam.jitterP99 < 0.15, 'ball screen jitter p99 ' + view.cam.jitterP99.toFixed(3));
     assert.equal(view.cam.jumps, 0, 'camera jumps');
+    assert.deepEqual(view.camInStand || [], [], 'camera inside a stand');
   });
   test(`fixture ${fixture}: every engine event is played in order, without stalls, and the score shown is the engine's`, async () => {
     const { rec, view } = await match(fixture);
@@ -300,6 +303,10 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
   });
   test(`fixture ${fixture}: the ball stays in play unless the engine puts it out`, async () => {
     const { view } = await match(fixture);
+    // V7.9.3 a ball that goes out for a corner crosses the goal line beside the goal (a save tipped over or round
+    // the post, a block, a clearance behind), never flying out at the corner flag
+    if (process.env.NV_DEBUG) console.log('cornerOuts', JSON.stringify(view.stats.cornerOuts || []));
+    for (const c of view.stats.cornerOuts || []) assert.ok(Math.abs(c[0]) > 52.5 && c[3] < 22, 'out for a corner over the goal line, near where it was played: ' + JSON.stringify(c));
     assert.equal(view.outWithoutLeave, 0);
   });
 

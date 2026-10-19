@@ -735,6 +735,9 @@ function actionMinute(userPoss,effect,opponent){
   // V7.6: a good shooting position is used, not passed backwards out of
   const sv=role==='GK'?0:shotValueAt(from,side,point);
   if(sv>=.1)for(const o of options)if(o.progress<-6)o.weight*=.3;
+  // V7.9.3: in the attacking part of the pitch and not under pressure, a long ball back (over 25 m, well
+  // backwards) is almost never the choice: he plays on, carries it or shoots
+  if(role!=='GK'&&forward>60&&pressure<.4)for(const o of options)if(o.progress<-15&&o.range>25)o.weight*=.08;
   const readsLine=attributeEdge(playerAttribute(from,side,'vision',68));
   for(const o of options)if(offsideAt(o.point,point,side))o.weight*=clamp(.12-readsLine*.08,.03,.2);
   const actions=[{type:'pass',weight:Math.max(.4,3-pressure*.7+(best?.weight||0)*.22)*clamp(1.2-sv*5,.35,1)},
@@ -792,8 +795,10 @@ function actionMinute(userPoss,effect,opponent){
   const stat=side==='user'?M.playerStats[from]:null,index=side==='user'?userSide():1-userSide();
   M.stats.passes[index]++;if(stat)stat.passesAttempted++;
   let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null,pendingCorner=false,pendingPunch=null;
-  const longBall=range>29||(['LW','RW'].includes(role)&&range>22&&forward>58);
-  const contested=range>38||(['LW','RW'].includes(role)&&range>26&&forward>58);   // only genuinely high/long deliveries are contested
+  // V7.9.3: a cross is a wide man's ball into the box; the same man playing it back is an ordinary pass
+  const intoBox=deepFor(side,to)>78&&Math.abs(to[1]-50)<30,wideCross=['LW','RW'].includes(role)&&forward>58&&intoBox;
+  const longBall=range>29||(wideCross&&range>22);
+  const contested=range>38||(wideCross&&range>26);   // only genuinely high/long deliveries are contested
   if(success&&contested){
    // the pass reached the area; the header/first contact is a physical contest (strength, positioning, pace)
    const rival=nearestMarker(side==='user'?'opp':'user',to);
@@ -801,7 +806,7 @@ function actionMinute(userPoss,effect,opponent){
     if(M.rand()>aerialWinProbability(target,side,rival.id,side==='user'?'opp':'user')){success=false;aerialLost=true;}
    }
   }
-  const crossing=['LW','RW'].includes(role)&&range>22&&forward>58,boxBall=deepFor(side,to)>(crossing?70:80)&&Math.abs(to[1]-50)<34;
+  const crossing=wideCross&&range>22,boxBall=deepFor(side,to)>(crossing?70:80)&&Math.abs(to[1]-50)<34;
   if(aerialLost&&boxBall&&M.rand()<.3){
    pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');   // headed behind
   }else if(aerialLost){
@@ -834,7 +839,7 @@ function actionMinute(userPoss,effect,opponent){
   }
   const newOwner=M.ballOwner,newSide=M.ballSide,wing=['LW','RW'].includes(role);
   const landing=newOwner==null?[...(M.ballState?.position||to)]:eventPoint(newOwner,newSide);
-  const cross=wing&&range>22&&forward>58;
+  const cross=wing&&range>22&&forward>58&&intoBox;
   const rName=playerAtMarker(target,side)?.name||'takım arkadaşına',pz=(to[0]-point[0])*dir,sw=Math.abs(to[1]-point[1])>34,kv=M.events.length;
   const passLine=cross?lineVariant(kv,[' orta yaptı.',' ceza sahasına ortaladı.',' içeri ortaladı.'])
    :!success?' pas verdi.'

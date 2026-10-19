@@ -29,7 +29,11 @@ export function createBroadcastCamera(camera) {
       const mid = a.pos.clone().lerp(o.pos, 0.5), d = o.pos.clone().sub(a.pos).setY(0); if (d.lengthSq() < 1e-4) d.set(1, 0, 0); d.normalize();
       const side = new THREE.Vector3(-d.z, 0, d.x); if (side.z < 0) side.negate();
       const span = Math.max(4, a.pos.distanceTo(o.pos));
-      wantPos.copy(mid).addScaledVector(side, (tall ? 4 : 5) + span * (tall ? 2.2 : 0.9)).addScaledVector(d, -1.5).setY(2.4 + span * 0.15); wantLook.copy(mid).addScaledVector(d, 0.8).setY(0.7); wantFov = tall ? 52 : 40;
+      // (never further back than the near touchline, never into a stand: past that it would show the inside of the stand)
+      const back = Math.min((tall ? 4 : 5) + span * (tall ? 2.2 : 0.9), 22);
+      wantPos.copy(mid).addScaledVector(side, back).addScaledVector(d, -1.5).setY(2.4 + span * 0.15);
+      wantPos.x = Math.max(-54, Math.min(54, wantPos.x)); wantPos.z = Math.max(-35, Math.min(35, wantPos.z));
+      wantLook.copy(mid).addScaledVector(d, 0.8).setY(0.7); wantFov = tall ? 52 : 40;
     } else if (mode === 'pen' && a) {
       // V7.9.3 a penalty: the TV angle from high behind the taker, the whole goal and the keeper in the picture
       const gx = Math.sign(o ? o.pos.x : a.pos.x || 1) * 52.5, spot = new THREE.Vector3(gx - Math.sign(gx) * 11, 0, 0);
