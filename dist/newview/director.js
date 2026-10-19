@@ -466,7 +466,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     hooks.cam('close', R, D); hooks.slow(0.4);
     ball.through = t0 + 2;
     // the left boot meets the ball on its left side and sends it round the defender's left (his right)
-    const ballTo = R0.clone().addScaledVector(f, -2.4).addScaledVector(r, 1.0);
+    const ballTo = R0.clone().addScaledVector(f, -2.5).addScaledVector(r, 1.25);
     R.feet = { Left: { w: ramp(t0, 0, 0.1, 0.5, 0.65), at: () => ball.p.clone().addScaledVector(r, -0.12).addScaledVector(f, 0.02).setY(0.06) } };
     const audit = { kind: 'pirouette' };
     yield* until(() => { R.target.copy(R.pos); R.want = 0; return toeGap(R, 'Left') < 0.22 && V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z).dot(f) < 0.55; }, 1.2);
@@ -477,7 +477,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const path = [[R0.x, R0.z], [R0.x - r.x * 0.75 - f.x * 0.35, R0.z - r.z * 0.75 - f.z * 0.35], [R0.x - r.x * 0.7 - f.x * 1.7, R0.z - r.z * 0.7 - f.z * 1.7], [ballTo.x, ballTo.z]];
     const T = 1.0, t1 = S.t;
     R.drive = { heading: t => h0 + Math.PI * smooth01(clamp((t - t1) / (T * 0.8), 0, 1)), pos: t => { const [x, z] = spline(path, smooth01(clamp((t - t1) / T, 0, 1)) * 0.92); return V(x, 0, z); } };
-    rt.startAction(D, 'lunge'); D.loopsWant.jockey = 0; D.target.copy(D.pos).addScaledVector(r, 0.9); D.want = 2;
+    rt.startAction(D, 'lungeL'); D.loopsWant.jockey = 0; D.target.copy(D.pos).addScaledVector(r, -0.6); D.want = 2;          // he goes with the man, not the ball
     let minD = 9, ballSide = 0, manSide = 0;
     yield* until(() => {
       minD = Math.min(minD, Math.hypot(ball.p.x - D.pos.x, ball.p.z - D.pos.z));
