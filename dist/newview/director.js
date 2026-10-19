@@ -1867,9 +1867,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
       flip: t => {
         const u = t - (T - SCORP_LEAD);
         if (u < 0) return { pitch: 0, lift: 0 };
-        if (u < SCORP_LEAD) { const k = smooth01(u / SCORP_LEAD); return { pitch: -1.5 * k, lift: 0.18 * Math.sin(Math.PI * k) - 0.22 * k }; }
+        // flat in the air at about hip height (he flies, not a nose-dive), then down onto his hands and chest
+        if (u < SCORP_LEAD) { const k = smooth01(u / SCORP_LEAD); return { pitch: -1.45 * k, lift: 0.16 * Math.sin(Math.PI * k) }; }
         const v = u - SCORP_LEAD;
-        if (v < 0.4) { const k = smooth01(v / 0.4); return { pitch: -1.5 - 0.06 * k, lift: -0.22 - 0.6 * k }; }
+        if (v < 0.4) { const k = smooth01(v / 0.4); return { pitch: -1.45 - 0.11 * k, lift: -0.82 * k }; }
         if (v < 1.0) return { pitch: -1.56, lift: -0.82 };
         if (v < 1.8) { const k = smooth01((v - 1.0) / 0.8); return { pitch: -1.56 * (1 - k), lift: -0.82 * (1 - k) }; }
         return null;
@@ -1879,7 +1880,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // where the heels meet the ball: above his back as he lies flat in the air
   function scorpionSpot(gk, T, b) {
     const fl = b.flip(T), hips = b.pos(T).setY(0.95 + fl.lift);
-    return hips.addScaledVector(fwdOf(gk), 0.2).add(V(0, 0.62, 0));
+    return hips.addScaledVector(fwdOf(gk), 0.5).add(V(0, 0.5, 0));            // over his shoulders, where the folded legs bring the heels
   }
   function* scorpionSave(gk, T, body) {
     const F = fwdOf(gk);
@@ -1887,10 +1888,18 @@ export function createDirector(rt, data, hooks, opts = {}) {
     yield* until(() => { gk.target.copy(gk.pos); gk.want = 0; gk.vel.set(0, 0, 0); return S.t >= T - SCORP_LEAD; }, Math.max(0, T - SCORP_LEAD - S.t) + 0.1);
     hooks.slow(0.4); ball.through = T + 1; hooks.cam('close', gk);         // the live picture goes to him
     gk.drive = { pos: body.pos, heading: body.heading }; gk.flip = body.flip;
-    const w = ramp(T - 0.38, 0, 0.32, 0.46, 0.8), R = () => rightOf(gk);
-    gk.feet = { Left: { w, at: () => ball.p.clone().addScaledVector(R(), -0.09) }, Right: { w, at: () => ball.p.clone().addScaledVector(R(), 0.09) } };
-    const hw = ramp(T - 0.15, 0, 0.3, 1.25, 1.7), ground = side => () => gk.pos.clone().addScaledVector(F, 0.75).addScaledVector(R(), side * 0.28).setY(0.06);
-    gk.hands = { Left: { w: hw, at: ground(-1) }, Right: { w: hw, at: ground(1) } };
+    rt.startAction(gk, 'scorpion'); gk.act.t0 = T - ACTIONS.scorpion.dur * ACTIONS.scorpion.contact;
+    // the heels reach the ball with the knees folding up behind him (not forwards)
+    const w = ramp(T - 0.32, 0, 0.26, 0.38, 0.52), R = () => rightOf(gk), behind = () => F.clone().negate().add(V(0, 1.2, 0));
+    gk.feet = { Left: { w, at: () => ball.p.clone().addScaledVector(R(), -0.09), pole: behind }, Right: { w, at: () => ball.p.clone().addScaledVector(R(), 0.09), pole: behind } };
+    // arms out in front in flight (Superman), then down to the grass to land on
+    const hw = ramp(T - SCORP_LEAD + 0.05, 0, 0.2, 1.6, 2.0), hips = () => gk.bones.Hips.getWorldPosition(V());
+    const hand = side => t => {
+      const fly = hips().addScaledVector(F, 1.15).addScaledVector(R(), side * 0.22).add(V(0, 0.2, 0));
+      const land = gk.pos.clone().addScaledVector(F, 0.7).addScaledVector(R(), side * 0.28).setY(0.06);
+      return fly.lerp(land, smooth01(clamp((t - T - 0.05) / 0.3, 0, 1)));
+    };
+    gk.hands = { Left: { w: hw, at: hand(-1) }, Right: { w: hw, at: hand(1) } };
     const near = () => Math.min(toeGap(gk, 'Left'), toeGap(gk, 'Right'));
     yield* until(() => near() < 0.22 || S.t >= T + 0.06, T - S.t + 0.3);
     const fl = gk.flip(S.t), audit = { kind: 'scorpion', contact: +near().toFixed(3), pitch: +(fl?.pitch ?? 0).toFixed(2), h: +ball.p.y.toFixed(2) };

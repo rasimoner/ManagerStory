@@ -476,7 +476,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   // hip-knee-ankle chain of the recorded skeleton is turned so the toe reaches that point, the knee
   // bending forwards, the boot flat along his heading. p.feet = { Left|Right: { at(t) -> point, w(t) -> 0..1 } }
   const ikQ = new THREE.Quaternion(), ikQ2 = new THREE.Quaternion(), yUp = V(0, 1, 0);
-  function footIK(p, side, target, weight) {
+  function footIK(p, side, target, weight, poleWant = null) {
     const upper = p.bones[side + 'UpLeg'], lower = p.bones[side + 'Leg'], foot = p.bones[side + 'Foot'], toe = p.bones[side + 'ToeBase'];
     if (!upper || !lower || !foot || !toe) return null;
     const yaw = new THREE.Quaternion().setFromAxisAngle(yUp, p.heading);
@@ -485,7 +485,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const hip = upper.getWorldPosition(V()), knee = lower.getWorldPosition(V()), heel = foot.getWorldPosition(V());
     const l1 = hip.distanceTo(knee), l2 = knee.distanceTo(heel), v = ankle.clone().sub(hip);
     const dist = clamp(v.length(), 0.08, l1 + l2 - 0.005), dir = v.normalize();
-    let pole = V(Math.sin(p.heading), 0, Math.cos(p.heading)); pole.addScaledVector(dir, -pole.dot(dir));
+    // the knee bends forwards (or where a move says: a scorpion folds the leg up behind him)
+    let pole = poleWant ? poleWant.clone() : V(Math.sin(p.heading), 0, Math.cos(p.heading)); pole.addScaledVector(dir, -pole.dot(dir));
     if (pole.lengthSq() < 0.01) pole.set(1, 0, 0); pole.normalize();
     const along = (l1 * l1 - l2 * l2 + dist * dist) / (2 * dist), high = Math.sqrt(Math.max(1e-5, l1 * l1 - along * along));
     const bend = hip.clone().addScaledVector(dir, along).addScaledVector(pole, high);
@@ -540,7 +541,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     for (const side of ['Left', 'Right']) {
       const f = p.feet[side]; if (!f) continue;
       const w = f.w(S.t); if (w <= 0.001) continue;
-      const at = f.at(S.t); if (at) f.last = footIK(p, side, at, w);
+      const at = f.at(S.t); if (at) f.last = footIK(p, side, at, w, f.pole ? f.pole(S.t) : null);
     }
   }
 
