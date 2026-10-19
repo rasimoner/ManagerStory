@@ -238,7 +238,7 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
       // a special move belongs to the player (his repertoire) and to the right part of the pitch
       if (k.kind === 'trap') assert.ok(k.moves.includes('trap'), 'only a player who has the touch: ' + JSON.stringify(k));
       if (k.kind === 'starsave') assert.ok(k.hands < 0.35 && k.aimH > 1.3 && k.lat > 1.9, 'a star save: a shot high into the corner, kept out by the gloves at full stretch: ' + JSON.stringify(k));
-      if (k.kind === 'scorpion') assert.ok(k.contact < 0.3 && k.pitch < -1.2 && k.h > 1, 'the scorpion: flat in the air face down, the heels on the ball above his back: ' + JSON.stringify(k));
+      if (k.kind === 'scorpion') assert.ok(k.contact < 0.3 && k.pitch < -1.2 && k.h > 1 && k.behindHead > 0, 'the scorpion: flat in the air face down, the heels on the ball above his back: ' + JSON.stringify(k));
       if (k.kind !== 'chest' && k.kind !== 'trap' && k.kind !== 'starsave') {      // (a scorpion is checked here too: only a keeper who has it)
         assert.ok(k.moves.includes(k.kind), 'only a player who has the move does it: ' + JSON.stringify(k));
         if (!['panenka', 'chip', 'bicycle', 'scorpion'].includes(k.kind)) assert.ok(k.fromOwn >= 35, 'no special move in his own third: ' + JSON.stringify(k));

@@ -246,8 +246,8 @@ ACTIONS.scorpion = {
   keys: [
     { t: 0, p: { LeftUpLeg: [-30, 0, 8], RightUpLeg: [-30, 0, -8], LeftLeg: [50, 0, 0], RightLeg: [50, 0, 0], Spine: [20, 0, 0] } },
     { t: 0.075, p: { LeftUpLeg: [-10, 0, 6], RightUpLeg: [10, 0, -6], LeftLeg: [20, 0, 0], RightLeg: [60, 0, 0], Head: [-20, 0, 0] } },
-    { t: 0.19, p: { LeftUpLeg: [25, 0, 8], RightUpLeg: [25, 0, -8], LeftLeg: [125, 0, 0], RightLeg: [125, 0, 0], LeftFoot: [-25, 0, 0], RightFoot: [-25, 0, 0], Spine: [-22, 0, 0], Spine1: [-16, 0, 0], Spine2: [-12, 0, 0], Neck: [-15, 0, 0], Head: [-35, 0, 0] } },
-    { t: 0.26, p: { LeftUpLeg: [35, 0, 10], RightUpLeg: [35, 0, -10], LeftLeg: [140, 0, 0], RightLeg: [140, 0, 0], LeftFoot: [-30, 0, 0], RightFoot: [-30, 0, 0], Spine: [-25, 0, 0], Spine1: [-18, 0, 0], Spine2: [-12, 0, 0], Neck: [-15, 0, 0], Head: [-35, 0, 0] } },
+    { t: 0.19, p: { LeftUpLeg: [18, 0, 8], RightUpLeg: [18, 0, -8], LeftLeg: [110, 0, 0], RightLeg: [110, 0, 0], LeftFoot: [-25, 0, 0], RightFoot: [-25, 0, 0], Spine: [-22, 0, 0], Spine1: [-16, 0, 0], Spine2: [-12, 0, 0], Neck: [-15, 0, 0], Head: [-35, 0, 0] } },
+    { t: 0.26, p: { LeftUpLeg: [22, 0, 10], RightUpLeg: [22, 0, -10], LeftLeg: [118, 0, 0], RightLeg: [118, 0, 0], LeftFoot: [-25, 0, 0], RightFoot: [-25, 0, 0], Spine: [-22, 0, 0], Spine1: [-15, 0, 0], Spine2: [-10, 0, 0], Neck: [-15, 0, 0], Head: [-35, 0, 0] } },
     { t: 0.31, p: { LeftUpLeg: [6, 0, 8], RightUpLeg: [6, 0, -8], LeftLeg: [30, 0, 0], RightLeg: [30, 0, 0], Spine: [-15, 0, 0], Spine1: [-8, 0, 0], Head: [-30, 0, 0] } },
     { t: 0.375, p: { LeftUpLeg: [2, 0, 8], RightUpLeg: [2, 0, -8], LeftLeg: [12, 0, 0], RightLeg: [12, 0, 0], Spine: [-12, 0, 0], Head: [-30, 0, 0] } },
     { t: 0.625, p: { LeftUpLeg: [4, 0, 8], RightUpLeg: [4, 0, -8], LeftLeg: [12, 0, 0], RightLeg: [12, 0, 0], Spine: [-8, 0, 0], Head: [-25, 0, 0] } },
