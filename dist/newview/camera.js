@@ -48,7 +48,7 @@ export function createBroadcastCamera(camera) {
       wantLook.copy(lo).add(hi).multiplyScalar(0.5).setY(1);
       wantFov = tall ? 50 : 38;
       // the nearest high view that holds them all, never from inside a stand (worked out once per corner)
-      const key = [sx, Math.sign(b.z), Math.round(b.x), Math.round(b.z), tall].join();
+      const key = [sx, Math.sign(b.z), Math.abs(b.z) > 30, tall].join();      // (a ball still rolling behind the line does not move the camera every metre)
       if (key !== cornerKey) {
         cornerKey = key; cornerPos = null;
         fit.fov = wantFov; fit.aspect = aspect; fit.updateProjectionMatrix();

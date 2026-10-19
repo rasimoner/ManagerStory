@@ -2372,6 +2372,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           }
         }
         ball.p.set(spot.x, BALL_R, spot.z);
+        if (type === 'CORNER') hooks.cam('stand', null, null, true);     // (V7.9.3 a cut to the corner picture once the ball is at the flag)
         S.restartSpot = taker && (type === 'FREE_KICK' || type === 'CORNER') ? { spot: spot.clone(), side: taker.side } : null;
         if (taker) {
           taker.busy = true;
