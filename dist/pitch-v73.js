@@ -737,9 +737,8 @@ function actionMinute(userPoss,effect,opponent){
   if(sv>=.1)for(const o of options)if(o.progress<-6)o.weight*=.3;
   const readsLine=attributeEdge(playerAttribute(from,side,'vision',68));
   for(const o of options)if(offsideAt(o.point,point,side))o.weight*=clamp(.12-readsLine*.08,.03,.2);
-  // (V7.9: a keeper never carries the ball upfield — he plays it out with a pass)
   const actions=[{type:'pass',weight:Math.max(.4,3-pressure*.7+(best?.weight||0)*.22)*clamp(1.2-sv*5,.35,1)},
-   {type:'carry',weight:role==='GK'?0:Math.max(.08,(freeAhead(point,side,dir)&&forward<80?.55:0)+(playerAttribute(from,side,'dribbling',65)-45)*.027*attitude+
+   {type:'carry',weight:role==='GK'?.03:Math.max(.08,(freeAhead(point,side,dir)&&forward<80?.55:0)+(playerAttribute(from,side,'dribbling',65)-45)*.027*attitude+
        (order==='inside'||order==='wide'?.45:0)-pressure*.2)},
    {type:'hold',weight:pressure>.45&&(role==='ST'||order==='holdUp')?(.28+(playerAttribute(from,side,'strength',70)-50)*.015):.04},
    {type:'shoot',weight:forward>62&&role!=='GK'?(sv>=.05?3.2*sv/(sv+.05)+(order==='shoot'?.65:0):

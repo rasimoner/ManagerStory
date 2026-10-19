@@ -15,6 +15,7 @@ export const MOTIONS = {
   header: { contact: 0.4, fadeIn: 0.08, fadeOut: 0.3, takeoff: 0.12, land: 0.72, lift: 0.12 },   // (0.4 put the boots ~0.9 m off the grass)
   cheer: { fadeIn: 0.3, fadeOut: 0.5 },
   gkGetUp: { fadeIn: 0.35, fadeOut: 0.25, keeper: true },        // a keeper back on his feet after a dive
+  gkThrow: { contact: 0.34, fadeIn: 0.12, fadeOut: 0.3, keeper: true },   // the keeper's overarm throw (release frame)
 };
 // V7.9 keeper footwork (Quaternius UAL, CC0): the set position, side-steps either way and the backpedal
 const GK_LOOPS = ['gkReady', 'gkLeft', 'gkRight', 'gkBack'];
@@ -501,6 +502,39 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     p.model.updateMatrixWorld(true);
     return toe.getWorldPosition(V());
   }
+  // the same two-bone reach for an arm: shoulder-elbow-wrist turned so the hand meets a point (a keeper's
+  // gloves on the ball); the elbow bends out to his side and a little down. p.hands like p.feet
+  function handIK(p, side, target, weight) {
+    const upper = p.bones[side + 'Arm'], lower = p.bones[side + 'ForeArm'], hand = p.bones[side + 'Hand'];
+    if (!upper || !lower || !hand) return null;
+    const current = hand.getWorldPosition(V()), wanted = current.clone().lerp(target, clamp(weight, 0, 1));
+    const sh = upper.getWorldPosition(V()), el = lower.getWorldPosition(V());
+    const l1 = sh.distanceTo(el), l2 = el.distanceTo(current), v = wanted.clone().sub(sh);
+    const dist = clamp(v.length(), 0.05, l1 + l2 - 0.005), dir = v.normalize();
+    const out = V(-Math.cos(p.heading), 0, Math.sin(p.heading)).multiplyScalar(side === 'Left' ? -1 : 1);
+    let pole = out.add(V(0, -0.6, 0)); pole.addScaledVector(dir, -pole.dot(dir));
+    if (pole.lengthSq() < 0.01) pole.set(0, -1, 0); pole.normalize();
+    const along = (l1 * l1 - l2 * l2 + dist * dist) / (2 * dist), high = Math.sqrt(Math.max(1e-5, l1 * l1 - along * along));
+    const bend = sh.clone().addScaledVector(dir, along).addScaledVector(pole, high);
+    const turn = (bone, from, to) => {
+      ikQ.setFromUnitVectors(from.normalize(), to.normalize());
+      const world = bone.getWorldQuaternion(ikQ2).premultiply(ikQ);
+      bone.quaternion.copy(bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(world));
+      p.model.updateMatrixWorld(true);
+    };
+    turn(upper, el.clone().sub(sh), bend.clone().sub(sh));
+    const e2 = lower.getWorldPosition(V());
+    turn(lower, hand.getWorldPosition(V()).sub(e2), sh.clone().addScaledVector(dir, dist).sub(e2));
+    return hand.getWorldPosition(V());
+  }
+  function applyHands(p) {
+    if (!p.hands) return;
+    for (const side of ['Left', 'Right']) {
+      const f = p.hands[side]; if (!f) continue;
+      const w = f.w(S.t); if (w <= 0.001) continue;
+      const at = f.at(S.t); if (at) f.last = handIK(p, side, at, w);
+    }
+  }
   function applyFeet(p) {
     if (!p.feet) return;
     for (const side of ['Left', 'Right']) {
@@ -587,7 +621,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       }
     }
     for (const k of Object.keys(MOTIONS)) if (p.A[k]) p.A[k].setEffectiveWeight(p.motion?.name === k ? mw : 0);
-    for (const k of ['jockey', 'keeperReady', 'throwHold']) p.loops[k] = lerp(p.loops[k], p.loopsWant[k], Math.min(1, dt * 5));
+    // (a keeper with the ball at his feet runs with it like anyone else: no set position while he has it)
+    for (const k of ['jockey', 'keeperReady', 'throwHold']) p.loops[k] = lerp(p.loops[k], k === 'keeperReady' && ball.owner === p && !ball.held ? 0 : p.loopsWant[k], Math.min(1, dt * (k === 'keeperReady' && ball.owner === p ? 8 : 5)));
     // a keeper in his set position stays square to the ball: he side-steps across and backpedals in a
     // half crouch (recorded clips), and only runs when he has to cover ground fast
     const K = keeperFootwork(p, dt, sp, mw);
@@ -602,7 +637,11 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       p.bones[b].quaternion.copy(qTmp.copy(jogMean[b]).slerp(p.bones[b].quaternion, k));
     }
     let lift = 0;
-    if (p.motion?.name === 'header' && mw > 0) {
+    if (p.motion?.name === 'header' && mw > 0 && p.keeper) {
+      // a keeper going up for a high ball: the jump, no nod (his hands take it)
+      const H = MOTIONS.header, u = clamp((mel - H.takeoff) / (H.land - H.takeoff), 0, 1);
+      lift = 4 * (H.lift + 0.1) * u * (1 - u);
+    } else if (p.motion?.name === 'header' && mw > 0) {
       const H = MOTIONS.header, u = clamp((mel - H.takeoff) / (H.land - H.takeoff), 0, 1);
       lift = 4 * H.lift * u * (1 - u);
       // the nod: head and shoulders snap through the ball at contact
@@ -666,6 +705,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     if (Math.abs(p.ground) > 1e-4) { p.model.position.y += p.ground; p.model.updateMatrixWorld(true); }
     if (K > 0.05 && !p.feet) keeperFeet(p, dt, K); else p.gkLock = null;
     applyFeet(p);
+    applyHands(p);
   }
 
   function contacts() {
