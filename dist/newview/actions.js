@@ -236,8 +236,12 @@ ACTIONS.diveLeft = mirror(ACTIONS.diveRight);
 ACTIONS.passLeft = mirror(ACTIONS.pass);
 ACTIONS.lungeL = mirror(ACTIONS.lunge);
 
+// the keeper's hands in his set position (the legs come from the recorded crouch): up in front, palms out
+ACTIONS.keeperHands = { loop: true, mask: 'arms', keys: [{ t: 0, p: { LeftArm: [-62, 0, -60], RightArm: [-62, 0, 60], LeftForeArm: [0, -62, 0], RightForeArm: [0, 62, 0], Head: [-14, 0, 0] } }] };
+
 const MASKS = {
   all: null,
+  arms: ['LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm', 'Head'],
   upper: ['Spine', 'Spine1', 'Spine2', 'Neck', 'Head', 'LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm'],
 };
 // per-bone strength for the jockey stance: crouch the legs a little, own the upper body

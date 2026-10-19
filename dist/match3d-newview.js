@@ -288,6 +288,7 @@ function updateCamera(dtReal, aspect) {
     const b = rt.ball.p, near = rt.ball.owner || rt.players.filter(p => !p.offPitch).reduce((m, p) => (!m || p.pos.distanceTo(b) < m.pos.distanceTo(b) ? p : m), null);
     cam = { mode: camMode === 'close' ? 'close' : camMode, a: camMode === 'close' ? near : null, b: null };
   }
+  const dev = window.ManagerStoryNewView?.devCam?.(rt); if (dev) cam = dev;     // (development: a held camera for reviews)
   broadcast ||= createBroadcastCamera(camera);
   if (cut) { broadcast.cut(); cut = false; }
   broadcast.update(rt, cam, dtReal * tune.cam, aspect);

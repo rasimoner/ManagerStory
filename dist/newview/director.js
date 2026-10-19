@@ -701,6 +701,16 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (gk) rt.place(gk, V(line - gs * 0.5, 0, 0));
         tryMove = kind;
         yield* shot({ eventId: -1, type: 'shot', fromId: star.id, fromSide: star.side, penalty: kind === 'panenka', outcome: 'goal', fromPos: pctOf(from), toPos: gs > 0 ? [100, 50] : [0, 50] }, events.length + 10);
+      } else if (kind === 'gksave' || kind === 'gkcatch' || kind === 'gkmove') {
+        // (keeper review) a shot saved: a dive and a parry, one straight at him and caught, or the
+        // keeper shuffling across his goal as the man carries it across the box first
+        const gs = fx, line = gs * GOAL_X, gk = rt.players.find(q => q.side !== star.side && q.role === 'GK' && !q.offPitch);
+        const from = V(line - gs * 21, 0, kind === 'gkmove' ? -12 : 5);
+        rt.place(star, from.clone().addScaledVector(V(gs, 0, 0), -1), Math.atan2(gs, 0)); ball.owner = star; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
+        if (gk) rt.place(gk, V(line - gs * 2.5, 0, 0), Math.atan2(-gs, 0));
+        if (kind === 'gkmove') yield* carry(star, V(line - gs * 19, 0, 9), 3.2);
+        yield* shot({ eventId: -1, type: 'shot', fromId: star.id, fromSide: star.side, outcome: 'save', fromPos: pctOf(star.pos), toPos: [gs > 0 ? 100 : 0, kind === 'gkcatch' ? 50 : kind === 'gkmove' ? 42 : 60], devSave: { saveType: kind === 'gkcatch' ? 'CATCH' : 'PARRY' } }, events.length + 10);
+        yield* wait(2.5);
       } else if (kind === 'bicycle') {
         const mate = mateOf(), gs = fx, line = gs * GOAL_X;
         const spot = V(line - gs * 9, rt.headHeight, 1.5);
@@ -1474,7 +1484,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const gk = P(e.goalkeeperId, defSide) || keeperOf(defSide);
     // look ahead for the outcome details the engine logged after the shot
     const after = events.slice(i + 1, i + 6);
-    const save = after.find(x => x.type === 'save'), post = after.find(x => x.type === 'post'), block = after.find(x => x.type === 'block');
+    const save = e.devSave || after.find(x => x.type === 'save'), post = after.find(x => x.type === 'post'), block = after.find(x => x.type === 'block');
     const goalSide = toWorld(e.toPos || [100, 50]).x >= 0 ? 1 : -1, lineX = goalSide * GOAL_X;
     const tz = toWorld(e.toPos || [100, 50]).z;
     const rnd = ((e.eventId * 9301 + 49297) % 233280) / 233280;
@@ -1625,7 +1635,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
       (stats.contacts.save ||= []).push(+rt.handsOf(gk).distanceTo(ball.p).toFixed(2));
       if (DEBUG) (stats.saveLog ||= []).push({ t: +S.t.toFixed(2), el: +(S.t - t0).toFixed(2), flight: +flight.toFixed(2), aim: aim.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)), hands: rt.handsOf(gk).toArray().map(v => +v.toFixed(2)), gk: gk.pos.toArray().map(v => +v.toFixed(2)), h: +gk.heading.toFixed(2), dive: gk.dive && { roll: +gk.dive.roll.toFixed(2), slide: +gk.dive.slide.toFixed(2), lift: +gk.dive.lift.toFixed(2), tc: +gk.dive.tc.toFixed(2), cur: gk.dive.cur && { roll: +gk.dive.cur.roll.toFixed(2), slide: +gk.dive.cur.slide.toFixed(2) } } });
       const catchIt = save?.saveType === 'CATCH';
-      if (catchIt) { ball.held = rt.pickUp(() => rt.handsOf(gk), 0.12); ball.owner = gk; yield* wait(1.4); ball.held = null; ball.v.set(0, 0, 0); }   // held, then dropped to his feet
+      if (catchIt) {      // held — on the ground and while he gets up — then dropped to his feet
+        ball.held = rt.pickUp(() => rt.handsOf(gk), 0.12); ball.owner = gk;
+        yield* wait(1.4); yield* until(() => !gk.dive && (!gk.motion || S.t - gk.motion.t0 > gk.motion.dur - 0.3), 3);
+        ball.held = null; ball.v.set(0, 0, 0);
+      }
       else if (save?.saveType === 'DEFLECT_CORNER') { ball.v.set(goalSide * 2.5, 2.2, Math.sign(ball.p.z || -1) * 6); ball.owner = null; }
       else { const r = toWorld(save?.toPos || [goalSide > 0 ? 90 : 10, 50]); ball.v.set((r.x - ball.p.x) * 0.9, 2.5, (r.z - ball.p.z) * 0.9); ball.owner = null; }
     } else if (outcome === 'post') {
