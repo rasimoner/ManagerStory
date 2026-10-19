@@ -230,6 +230,12 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     }
   });
 
+  test(`fixture ${fixture}: a keeper never dribbles the ball upfield — he plays it out`, async () => {
+    const { rec } = await match(fixture);
+    const keepers = new Set(rec.snaps.flatMap(s => s.roster.filter(r => r.role === 'GK').map(r => r.side + ':' + r.id)));
+    const carries = rec.events.filter(e => (e.type === 'ballCarry' || e.type === 'dribble') && keepers.has(e.fromSide + ':' + e.fromId));
+    assert.equal(carries.length, 0, 'keeper carries: ' + carries.map(e => e.text).join(' | '));
+  });
   test(`fixture ${fixture}: the ball stays in play unless the engine puts it out`, async () => {
     const { view } = await match(fixture);
     assert.equal(view.outWithoutLeave, 0);

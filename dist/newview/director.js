@@ -308,7 +308,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function* backheelKick(p, toW) {
     const aim0 = V(toW.x - p.pos.x, 0, toW.z - p.pos.z).normalize(), face = aim0.clone().negate(), hw = Math.atan2(face.x, face.z);
     p.busy = true; ball.through = S.t + 2.5;
-    yield* until(() => { rt.dribble(p, p.pos.clone().addScaledVector(face, 3), 1.4); const d = hw - p.heading; return Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) < 0.15; }, 1.4);
+    const turned = yield* until(() => { rt.dribble(p, p.pos.clone().addScaledVector(face, 3), 1.4); const d = hw - p.heading; return Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) < 0.15; }, 1.4);
+    if (!turned) { stats.lastFail = ['backheel', 'turn', +S.t.toFixed(1)]; return false; }      // not round with his back to the pass: a normal pass
     p.face = p.pos.clone().addScaledVector(face, 30); p.faceLock = true;
     const f = fwdOf(p), r = rightOf(p);
     const set = yield* until(() => {
@@ -469,10 +470,16 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const ballTo = R0.clone().addScaledVector(f, -2.5).addScaledVector(r, 1.25);
     R.feet = { Left: { w: ramp(t0, 0, 0.1, 0.5, 0.65), at: () => ball.p.clone().addScaledVector(r, -0.12).addScaledVector(f, 0.02).setY(0.06) } };
     const audit = { kind: 'pirouette' };
-    yield* until(() => { R.target.copy(R.pos); R.want = 0; return toeGap(R, 'Left') < 0.22 && V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z).dot(f) < 0.55; }, 1.2);
+    const met = yield* until(() => { R.target.copy(R.pos); R.want = 0; return toeGap(R, 'Left') < 0.22 && V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z).dot(f) < 0.55; }, 1.2);
+    if (!met) {      // the ball never reached his boot: no turn, he just goes and gets it
+      R.feet = null; R.faceLock = false; D.busy = false; D.faceLock = false; hooks.slow(1); hooks.cam('tv');
+      stats.lastFail = ['pirouette', 'touch', +S.t.toFixed(1)]; if (pir.tried) tryMove = 'pirouette';
+      return yield* chase(R, null);
+    }
     audit.touch = +toeGap(R, 'Left').toFixed(3);
     const dir = ballTo.clone().sub(ball.p).setY(0), len = dir.length();
     ball.v.copy(dir.normalize()).multiplyScalar(Math.min(4.6, 1.2 + len * 1.3)); ball.owner = null; R.lastTouch = S.t;
+    hooks.cam('tv');            // as he spins past, a close-up behind him would swing round onto the defender
     // he spins round the other side: half a turn to his left on an arc past the defender's right
     const path = [[R0.x, R0.z], [R0.x - r.x * 0.75 - f.x * 0.35, R0.z - r.z * 0.75 - f.z * 0.35], [R0.x - r.x * 0.7 - f.x * 1.7, R0.z - r.z * 0.7 - f.z * 1.7], [ballTo.x, ballTo.z]];
     const T = 1.0, t1 = S.t;
@@ -509,6 +516,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
       p.want = gap > 2 ? 6.5 : gap > 0.08 ? Math.min(3, 1 + gap * 4) : 0; p.face = ball.p; p.faceLock = left < 1.2;
       if (!started && left <= lead) {
         if (gap > 0.6 || p.vel.length() > 2.2) return true;              // not under it in time: he plays it as it comes
+        const yAt = ball.p.y + ball.v.y * left - 4.905 * left * left, vyAt = ball.v.y - 9.81 * left;
+        if (yAt < 1.15 || yAt > 1.65 || vyAt < -5) return true;           // not at chest height when it gets to him, or dropping too steeply to cushion
         rt.startAction(p, 'chest'); started = true; hooks.slow(0.5); ball.through = tArr + 0.4;    // only the chest plays it
       }
       // the touch: when the ball is at its closest to his chest
@@ -1484,11 +1493,20 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const tryShot = sh.side === 'user' && ['panenka', 'chip', 'bicycle'].includes(tryMove) ? tryMove : null;
     const fromGoal = Math.hypot(toWorld(e.fromPos || [50, 50]).x - lineX, toWorld(e.fromPos || [50, 50]).z);
     const panenka = !!e.penalty && outcome === 'goal' && (tryShot === 'panenka' || (has(sh, 'panenka') && pick(e, 29) < 0.35));
-    const chip = !panenka && !e.penalty && !e.freeKick && !e.header && !!gk && (outcome === 'goal' || outcome === 'wide') && fromGoal < 24
+    let chip = !panenka && !e.penalty && !e.freeKick && !e.header && !!gk && (outcome === 'goal' || outcome === 'wide') && fromGoal < 24
       && (tryShot === 'chip' || (has(sh, 'chip') && fromGoal < 20 && pick(e, 33) < 0.35));
     const bicycle = !!hc && (tryShot === 'bicycle' || (has(sh, 'bicycle') && pick(e, 35) < 0.5));
     if ((panenka && tryShot === 'panenka') || (chip && tryShot === 'chip') || (bicycle && tryShot === 'bicycle')) tryMove = null;
     if (panenka) aim = V(lineX + goalSide * 0.25, 1.05, clamp(tz * 0.15, -0.5, 0.5));
+    const aim0 = aim.clone();
+    // the flight time of a chip that clears the keeper's reach where he stands by 2.45 m (0: none does)
+    const chipArc = () => {
+      // (where along the flight it passes him: his position projected onto the line of the chip)
+      const along = V(aim.x - ball.p.x, 0, aim.z - ball.p.z), L = along.length();
+      const dk = gk ? clamp(V(gk.pos.x - ball.p.x, 0, gk.pos.z - ball.p.z).dot(along) / L, 1, L - 1) : L * 0.5;
+      for (let t = L / 16; t < L / 7; t += 0.02) { const vy = (aim.y - ball.p.y + 4.905 * t * t) / t, tk = t * dk / L; if (ball.p.y + vy * tk - 4.905 * tk * tk >= 2.45) return t; }
+      return 0;
+    };
     if (chip) aim = outcome === 'goal' ? V(lineX + goalSide * 0.3, 1.35, clamp(tz, -2.4, 2.4)) : V(lineX, 2.75, clamp(tz, -2.6, 2.6));
     if (e.penalty) { rt.place(sh, toWorld(e.fromPos).add(V(-goalSide * 1.2, 0, 0)), goalSide > 0 ? Math.PI / 2 : -Math.PI / 2); ball.p.copy(toWorld(e.fromPos)).setY(BALL_R); ball.v.set(0, 0, 0); ball.owner = sh; }
     if (!hc) yield* ensureOwner(sh);
@@ -1521,6 +1539,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
         gk.want = 5;
       }
       if (chip && gk) yield* until(() => gk.pos.distanceTo(gk.target) < 1.2 || Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z) < 6.5, 2.4);        // he waits for the keeper to commit
+      // no chip that cannot get over him (a tight angle, the keeper right on top of him): he just shoots
+      if (chip && !chipArc()) { chip = false; aim.copy(aim0); if (tryShot === 'chip') tryMove = 'chip'; }
       const kname = panenka || chip ? 'pass' : 'shot';
       const dir = yield* approachAim(sh, kname, aim);
       rt.startAction(sh, kname); rt.kickWarp(sh, kname, dir);
@@ -1546,11 +1566,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     // a free kick is bent up over the wall and dips (a slower, higher flight)
     const dist = aim.distanceTo(ball.p);
     // a chip is given just enough air to clear the keeper's reach where he stands (no higher)
-    let chipT = 0;
-    if (chip) {
-      const L = Math.hypot(aim.x - ball.p.x, aim.z - ball.p.z), dk = gk ? clamp(V(gk.pos.x - ball.p.x, 0, gk.pos.z - ball.p.z).length(), 1, L - 1) : L * 0.5;
-      for (chipT = L / 16; chipT < L / 7; chipT += 0.02) { const vy = (aim.y - ball.p.y + 4.905 * chipT * chipT) / chipT, tk = chipT * dk / L; if (ball.p.y + vy * tk - 4.905 * tk * tk >= 2.45) break; }
-    }
+    const chipT = chip ? chipArc() : 0;
     const flight = panenka ? 1.1 : chip ? chipT : Math.max(0.35, dist / ((e.header ? 14 : e.freeKick ? 19 : 24) * (S.tune?.ball ?? 1)), smother);
     // a blocker steps into the line first
     let blocker = null;
@@ -1995,6 +2011,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // a move played between two events (test button, staging): the event it interrupted is not
       // resumed — it would put the ball back where the engine had it — the next one starts from the pitch as it is
       if (r.done) { staged = null; if (r.value) { task = null; for (const p of rt.players) { p.busy = false; p.faceLock = false; } } }
+      for (const p of rt.players) if (p.dive) rt.updateDive(p);          // (a keeper's dive goes on during a staged move too)
       return;
     }
     // (temporary test button) our man on the ball, between two actions, plays the move asked for now
