@@ -1,4 +1,4 @@
-const CACHE = "managerstory-v7.9.3-dev-20261019a";
+const CACHE = "managerstory-v7.9.3-dev-20261020a";
 const ASSETS = [
   "./match3d-career.css", "./match3d-live-clock.js",
   "./match-view-adapter.js", "./vendor/three/three.module.min.js", "./vendor/three/three.core.min.js",
