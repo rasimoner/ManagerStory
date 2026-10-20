@@ -12,7 +12,7 @@ const types = h => h.run('M.events.map(e=>e.type)');
 /* Play N seeded matches with a managed-team tactic, return aggregate behavioural metrics. */
 function arm(tactics, { n = 8, opp = null, instr = [], first = 0 } = {}) {
   const t = { press: 0, oppPress: 0, fatigue: 0, fatigueN: 0, passes: 0, completed: 0, dist: 0, distN: 0, longBalls: 0, loose: 0, defLine: 0, defN: 0, spread: 0, spreadN: 0,
-    actions: 0, matches: 0, oppDefLine: 0, oppDefN: 0, oppFatigue: 0, oppFatigueN: 0, aerialLoose: 0 };
+    actions: 0, matches: 0, oppDefLine: 0, oppDefN: 0, oppFatigue: 0, oppFatigueN: 0, aerialLoose: 0, crosses: 0 };
   for (let i = 0; i < n; i++) {
     const h = harness(); h.run(`S=fresh();init();S.fixture=${(first + i) % 34};startMatch();`);
     h.run(`Object.assign(M,${JSON.stringify(tactics)});M.teamInstructions=${JSON.stringify(instr)};${opp ? `M.oppTactics=${JSON.stringify(opp)};` : ''}resumeLive()`);
@@ -36,15 +36,15 @@ function arm(tactics, { n = 8, opp = null, instr = [], first = 0 } = {}) {
     t.press += s.ev.filter(e => e.t === 'press' && e.ts === 'user').length; t.oppPress += s.ev.filter(e => e.t === 'press' && e.ts === 'opp').length;
     t.passes += s.st.passes[s.u]; t.completed += s.st.completedPasses[s.u];
     const up = s.ev.filter(e => (e.t === 'pass' || e.t === 'cross') && e.fs === 'user' && e.d != null);
-    t.dist += up.reduce((a, e) => a + e.d, 0); t.distN += up.length; t.longBalls += up.filter(e => e.k === 'long' || e.k === 'cross').length;
+    t.dist += up.reduce((a, e) => a + e.d, 0); t.distN += up.length; t.longBalls += up.filter(e => e.d > 29).length;   // (V7.9.3: by length — 'cross' is now only a ball into the box, a long ball forward is labelled 'through')
     t.loose += s.ev.filter(e => e.t === 'looseBall').length; t.aerialLoose += s.ev.filter(e => e.t === 'looseBall' && e.r === 'aerial').length;
-    t.actions += s.ev.length;
+    t.actions += s.ev.length; t.crosses += s.ev.filter(e => e.t === 'cross' && e.fs === 'user').length;
     for (const id of starters) { const p = h.run(`S.players.find(p=>p.id===${id})`); if (p.minutes >= 80) { t.fatigue += before[id] - p.fitness; t.fatigueN++; } }
     for (const id of h.run('Object.keys(M.oppLineup)')) { const o = h.run(`opponentPlayer(${JSON.stringify(id)})`); if (o && oppBefore[id] != null) { t.oppFatigue += oppBefore[id] - o.fitness; t.oppFatigueN++; } }
   }
   return { press: t.press / t.matches, oppPress: t.oppPress / t.matches, fatigue: t.fatigue / Math.max(1, t.fatigueN), oppFatigue: t.oppFatigue / Math.max(1, t.oppFatigueN),
     passes: t.passes / t.matches, completion: t.completed / Math.max(1, t.passes), passDist: t.dist / Math.max(1, t.distN), longShare: t.longBalls / Math.max(1, t.distN),
-    defLine: t.defLine / Math.max(1, t.defN), oppDefLine: t.oppDefLine / Math.max(1, t.oppDefN), spread: t.spread / Math.max(1, t.spreadN), loose: t.loose / t.matches, aerialLoose: t.aerialLoose / t.matches, events: t.actions / t.matches };
+    defLine: t.defLine / Math.max(1, t.defN), oppDefLine: t.oppDefLine / Math.max(1, t.oppDefN), spread: t.spread / Math.max(1, t.spreadN), loose: t.loose / t.matches, aerialLoose: t.aerialLoose / t.matches, events: t.actions / t.matches, crosses: t.crosses / t.matches };
 }
 
 test('tactical state is one config per team and only ever read through teamTactics(side)', () => {
@@ -74,7 +74,8 @@ test('HIGH vs LOW tempo: more actions, more errors under pressure, more fatigue'
   const hi = arm({ tempo: 'Yüksek' }), lo = arm({ tempo: 'Düşük' });
   assert.ok(hi.fatigue > lo.fatigue + 1.5, `fatigue ${hi.fatigue.toFixed(2)} vs ${lo.fatigue.toFixed(2)}`);
   assert.ok(hi.completion < lo.completion - .03, `completion ${hi.completion.toFixed(3)} vs ${lo.completion.toFixed(3)}`);
-  assert.ok(hi.passes > lo.passes * .97, 'high tempo does not reduce pass volume');
+  // (V7.9.4: actions, not passes — an open-play cross ends a move, and a slower side builds to more of them)
+  assert.ok(hi.events > lo.events * 1.02, `high tempo plays more actions: ${hi.events.toFixed(0)} vs ${lo.events.toFixed(0)}`);
 });
 
 test('HIGH vs LOW line: defenders really stand higher, relative to the attacking direction', { timeout: 300000 }, () => {
@@ -96,6 +97,11 @@ test('SHORT vs DIRECT passing: distance and long-ball share differ; completion t
   assert.ok(direct.passDist > short.passDist + 3, `distance ${direct.passDist.toFixed(1)} vs ${short.passDist.toFixed(1)}`);
   assert.ok(direct.longShare > short.longShare + .05, `long share ${direct.longShare.toFixed(3)} vs ${short.longShare.toFixed(3)}`);
   assert.ok(direct.completion < short.completion, `completion ${direct.completion.toFixed(3)} vs ${short.completion.toFixed(3)}`);
+});
+
+test('V7.9.4 WINGS vs CENTRE: playing through the wings puts more crosses into the box', { timeout: 600000 }, () => {
+  const wings = arm({ approach: 'Kanatlar' }, { n: 12 }), centre = arm({ approach: 'Merkez' }, { n: 12 });
+  assert.ok(wings.crosses > centre.crosses * 1.4 + 0.3, `crosses per match ${wings.crosses.toFixed(2)} vs ${centre.crosses.toFixed(2)}`);
 });
 
 test('WIDE vs NARROW: the managed team is measurably wider / narrower', { timeout: 300000 }, () => {

@@ -535,6 +535,10 @@ function executeRestart(type,side,taker,pos,R){
     M.stats.possessionsWon[other==='user'?userSide():1-userSide()]++;
     matchEvent('interception',M.min+'’ '+(playerAtMarker(def.id,other)?.name||'Rakip')+' korneri kesti.',
      {fromId:taker,toId:def.id,fromSide:side,toSide:other,ballSide:other,fromPos:tp,toPos:eventPoint(def.id,other)});
+   }else if(isKeeper(other,def.id)||(pitchDistance(eventPoint(keeperId(other),other),tp)<12&&(r2-winAtt)/Math.max(.01,1-winAtt)<.4)){
+    // V7.9.3 the keeper gets there first among the bodies: he punches it clear (where a defender would head it)
+    makeLooseBall(tp,[atkGoal-dir*(24+M.rand()*8),limitPitch(tp[1]+(M.rand()-.5)*34,14,86)],'punch',null,
+     {punchBy:keeperId(other),punchSide:other,text:(playerAtMarker(keeperId(other),other)?.name||'Kaleci')+' yumrukla uzaklaştırdı.'});
    }else makeLooseBall(tp,[atkGoal-dir*(24+M.rand()*8),limitPitch(tp[1]+(M.rand()-.5)*34,14,86)],'clearance',null);
   }else makeLooseBall(tp,tp,'aerial',null);
   return;
@@ -671,13 +675,14 @@ function resolveLooseBall(maxSeconds=8,force=false){
  switchPitchOwner(winner.id,winner.side);
  return winner;
 }
-function makeLooseBall(from,to,reason,preferSide){
+function makeLooseBall(from,to,reason,preferSide,extra=null){
  if(engineFrozen())return null;
  const raw=to||from,land=[limitPitch(raw[0],4,96),limitPitch(raw[1],6,94)];
  M.ballOwner=null;M.ballSide='none';
  setBallState(land,null,'LOOSE_BALL');
  M.looseBall={position:[...land],reason,preferSide:preferSide||null,elapsed:0};
- matchEvent('looseBall',M.min+'’ Top sahipsiz kaldı.',{fromPos:from,toPos:land,ballSide:'none',reason});
+ const {text,...more}=extra||{};
+ matchEvent('looseBall',M.min+'’ '+(text||'Top sahipsiz kaldı.'),{fromPos:from,toPos:land,ballSide:'none',reason,...more});
  window.ManagerStoryLive3D?.linkLooseTouch?.();
  return resolveLooseBall(8);
 }

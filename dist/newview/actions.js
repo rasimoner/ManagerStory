@@ -256,6 +256,20 @@ ACTIONS.scorpion = {
   ],
 };
 
+// V7.9.3 the keeper's volley out of his hands: the ball held out in front (the gloves are placed by hand
+// targets), a step onto the left foot as he lets it drop, the right leg swings through and meets it in
+// the air (the boot is placed on the ball by a foot target), a high follow-through leaning back
+ACTIONS.gkVolley = {
+  dur: 1.1, contact: 0.46, mask: 'all',
+  keys: [
+    { t: 0, p: { LeftArm: [-55, 0, -50], RightArm: [-55, 0, 50], LeftForeArm: [0, -55, 0], RightForeArm: [0, 55, 0], Spine: [10, 0, 0], Head: [18, 0, 0], LeftLeg: [12, 0, 0], RightLeg: [12, 0, 0] } },
+    { t: 0.22, p: { LeftUpLeg: [-26, 0, 2], LeftLeg: [22, 0, 0], RightUpLeg: [22, 0, -2], RightLeg: [62, 0, 0], RightFoot: [20, 0, 0], LeftArm: [-50, 0, -50], RightArm: [-50, 0, 50], LeftForeArm: [0, -45, 0], RightForeArm: [0, 45, 0], Spine: [12, 0, 0], Head: [22, 0, 0] } },
+    { t: 0.46, p: { LeftUpLeg: [4, 0, 6], LeftLeg: [14, 0, 0], LeftFoot: [-8, 0, 0], RightUpLeg: [-72, 0, -2], RightLeg: [18, 0, 0], RightFoot: [48, 0, 0], Spine: [-8, 0, 0], LeftArm: [-25, 0, -32], RightArm: [5, 0, 45], LeftForeArm: [0, -20, 0], RightForeArm: [0, 20, 0], Head: [22, 0, 0] } },
+    { t: 0.66, p: { LeftUpLeg: [10, 0, 6], LeftLeg: [12, 0, 0], RightUpLeg: [-104, 0, -2], RightLeg: [12, 0, 0], RightFoot: [40, 0, 0], Spine: [-14, 0, 0], LeftArm: [-12, 0, -30], RightArm: [0, 0, 40], Head: [8, 0, 0] } },
+    { t: 1, p: { RightUpLeg: [-12, 0, 0], RightLeg: [22, 0, 0], LeftLeg: [12, 0, 0], Spine: [4, 0, 0] } },
+  ],
+};
+
 const MASKS = {
   all: null,
   arms: ['LeftArm', 'RightArm', 'LeftForeArm', 'RightForeArm', 'Head'],

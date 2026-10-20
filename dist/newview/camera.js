@@ -24,6 +24,21 @@ export function createBroadcastCamera(camera) {
       const gx = Math.sign(o ? o.pos.x : a.pos.x || 1) * 52.5, g = new THREE.Vector3(gx, 0, 0).sub(a.pos).setY(0).normalize();
       const side = new THREE.Vector3(-g.z, 0, g.x); if (side.z < 0) side.negate();
       wantPos.copy(a.pos).addScaledVector(g, -5.4).addScaledVector(side, 1.6).setY(2.0); wantLook.copy(a.pos).addScaledVector(g, 9).setY(1.0); wantFov = tall ? 54 : 42;
+    } else if (mode === 'side' && a && o) {
+      // V7.9.3 a one-on-one: the man and the keeper side by side from the TV side, the goal behind the keeper
+      const mid = a.pos.clone().lerp(o.pos, 0.5), d = o.pos.clone().sub(a.pos).setY(0); if (d.lengthSq() < 1e-4) d.set(1, 0, 0); d.normalize();
+      const side = new THREE.Vector3(-d.z, 0, d.x); if (side.z < 0) side.negate();
+      const span = Math.max(4, a.pos.distanceTo(o.pos));
+      // (never further back than the near touchline, never into a stand: past that it would show the inside of the stand)
+      const back = Math.min((tall ? 4 : 5) + span * (tall ? 2.2 : 0.9), 22);
+      wantPos.copy(mid).addScaledVector(side, back).addScaledVector(d, -1.5).setY(2.4 + span * 0.15);
+      wantPos.x = Math.max(-54, Math.min(54, wantPos.x)); wantPos.z = Math.max(-35, Math.min(35, wantPos.z));
+      wantLook.copy(mid).addScaledVector(d, 0.8).setY(0.7); wantFov = tall ? 52 : 40;
+    } else if (mode === 'pen' && a) {
+      // V7.9.3 a penalty: the TV angle from high behind the taker, the whole goal and the keeper in the picture
+      const gx = Math.sign(o ? o.pos.x : a.pos.x || 1) * 52.5, spot = new THREE.Vector3(gx - Math.sign(gx) * 11, 0, 0);
+      const g = new THREE.Vector3(Math.sign(gx), 0, 0), side = new THREE.Vector3(0, 0, 1);
+      wantPos.copy(spot).addScaledVector(g, -8.5).addScaledVector(side, 1.0).setY(3.0); wantLook.set(gx - Math.sign(gx) * 2.5, 0.9, 0); wantFov = tall ? 50 : 30;
     } else if (mode === 'stand' && Math.abs(b.x) > 36) {
       // a corner: high from the TV side, the corner flag, the penalty spot and both posts all in the
       // picture (it used to look past the flag into the stand for the whole wait before the kick)
@@ -33,7 +48,7 @@ export function createBroadcastCamera(camera) {
       wantLook.copy(lo).add(hi).multiplyScalar(0.5).setY(1);
       wantFov = tall ? 50 : 38;
       // the nearest high view that holds them all, never from inside a stand (worked out once per corner)
-      const key = [sx, Math.sign(b.z), Math.round(b.x), Math.round(b.z), tall].join();
+      const key = [sx, Math.sign(b.z), Math.abs(b.z) > 30, tall].join();      // (a ball still rolling behind the line does not move the camera every metre)
       if (key !== cornerKey) {
         cornerKey = key; cornerPos = null;
         fit.fov = wantFov; fit.aspect = aspect; fit.updateProjectionMatrix();
@@ -64,16 +79,24 @@ export function createBroadcastCamera(camera) {
       wantPos.set(b.x - 2, (tall ? 10.5 : 14) + lift * 0.9, z); wantLook.set(b.x + 2, 0, b.z - 2); wantFov = tall ? 46 : 34;
     }
   }
+  // V7.9.4 no shot puts the camera inside a stand: low down it stays in front of the rows (a close-up of a
+  // man by the near touchline or the goal line is taken from just inside the boards)
+  function keepOutOfStands() {
+    const lowNear = 2.75 + Math.max(0, wantPos.z - 38.8) / 0.82 * 0.64;
+    if (wantPos.z > 38.3 && wantPos.y < lowNear) wantPos.z = 38.3;
+    if (wantPos.z < -38.3) wantPos.z = -38.3;
+    if (Math.abs(wantPos.x) > 58.5) { const lowEnd = 2.75 + (Math.abs(wantPos.x) - 59) / 0.82 * 0.62; if (wantPos.y < lowEnd) wantPos.x = Math.sign(wantPos.x) * 58.5; }
+  }
   const api = {
     pos, look, cutFrame: false,
     cut() { cut = true; },
     // eases towards the shot in real time, as a TV operator would
     update(rt, cam, dtReal, aspect) {
-      shot(rt, cam, aspect);
+      shot(rt, cam, aspect); keepOutOfStands();
       // a new shot far from the current one is a cut, as a director would make it, not a fast swing
       if (cam.mode !== lastMode && lastMode != null && pos.distanceTo(wantPos) > 12) cut = true;
       lastMode = cam.mode;
-      const k = 1 - Math.exp(-dtReal * (cam.mode === 'stand' ? 1.8 : cam.mode === 'shot' ? 2.4 : 3));
+      const k = 1 - Math.exp(-dtReal * (cam.mode === 'stand' ? 1.8 : cam.mode === 'shot' || cam.mode === 'pen' || cam.mode === 'side' ? 2.4 : 3));
       api.cutFrame = cut || pos.distanceTo(wantPos) > 30;
       if (cut || pos.distanceTo(wantPos) > 30) { pos.copy(wantPos); look.copy(wantLook); camera.fov = wantFov; cut = false; }
       else { pos.lerp(wantPos, k); look.lerp(wantLook, k); camera.fov += (wantFov - camera.fov) * k; }

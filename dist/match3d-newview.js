@@ -96,12 +96,17 @@ function paintTune() {
     + TUNE_ROWS.map(([k, label]) => '<div class="r"><span>' + label + '</span><button type="button" data-tk="' + k + '" data-d="-1">−</button><b>' + tune[k].toFixed(2) + '</b><button type="button" data-tk="' + k + '" data-d="1">+</button></div>').join('')
     + '<h4 style="margin-top:12px">Yıldız anı dene (geçici)</h4><p>' + (director?.trying ? 'Bekleniyor: ' + TRY_NAMES[director.trying] + (director.trying === 'scorpion' ? ' — rakibin kalemize gelen ve kurtarılan bir sonraki şutunda kalecimiz yapacak.' : ' — topu süren oyuncumuz sıradaki fırsatta yapacak.') : 'Seçince maç durmaz: topu süren oyuncumuz sıradaki fırsatta yapar (bu denemede oyuncu ve bölge kuralı yok), sonra oyun devam eder.') + '</p><div class="tries">'
     + Object.entries(TRY_NAMES).map(([k, n]) => '<button type="button" data-try="' + k + '">' + n + '</button>').join('') + '</div>'
+    + '<h4 style="margin-top:12px">Kaleci sahnesi (geçici)</h4><p>Maç bekler, sahne kendi ceza sahamızda kurulur ve oynanır; bitince maç kaldığı yerden sürer.</p><div class="tries">'
+    + Object.entries(GK_SCENES).map(([k, n]) => '<button type="button" data-gk="' + k + '">' + n + '</button>').join('') + '</div>'
     + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
 }
 tuneBtn.addEventListener('click', () => { tuneEl.hidden = !tuneEl.hidden; paintTune(); });
+// V7.9.3 (temporary) the keeper's part 3 moves, staged at our goal for a look on the phone
+const GK_SCENES = { gkpunch: 'Yumrukla uzaklaştırma', gkrush: 'Birebir: ayağa kapanma', gkrushgoal: 'Birebir: gol', gkpen: 'Penaltı kurtarışı', gkpengoal: 'Penaltı: gol', gkvolley: 'Elden vole', scorpion: 'Akrep + kalkış' };
 const TRY_NAMES = { scorpion: 'Kaleci: akrep vuruşu', stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas', cruyff: 'Cruyff dönüşü', croqueta: 'La Croqueta', roulette: 'Marsilya dönüşü', flairnutmeg: 'Flair bacak arası', flairpass: 'Makasla pas', rainbow: 'Gökkuşağı', sombrero: 'Aşırtma çalım', juggle: 'Sektirip geçme', backheel: 'Topuk pası', rabona: 'Rabona', trap: 'Ayakla öldürme', chip: 'Kaleciyi aşırtma', bicycle: 'Röveşata', panenka: 'Panenka', pirouette: 'Bergkamp dönüşü' };
 tuneEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.gk) { if (window.ManagerStoryNewView.star(b.dataset.gk)) banner('SAHNE · ' + GK_SCENES[b.dataset.gk].toUpperCase(), 1500); tuneEl.hidden = true; return; }
   if (b.dataset.try) { if (director) { director.tryNext(b.dataset.try); lastReplay = -99; banner('DENEME · ' + TRY_NAMES[b.dataset.try].toUpperCase(), 1500); } tuneEl.hidden = true; return; }
   const k = b.dataset.tk;
   if (k === 'close') { tuneEl.hidden = true; return; }

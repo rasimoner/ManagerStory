@@ -735,6 +735,9 @@ function actionMinute(userPoss,effect,opponent){
   // V7.6: a good shooting position is used, not passed backwards out of
   const sv=role==='GK'?0:shotValueAt(from,side,point);
   if(sv>=.1)for(const o of options)if(o.progress<-6)o.weight*=.3;
+  // V7.9.3: in the attacking part of the pitch and not under pressure, a long ball back (over 25 m, well
+  // backwards) is almost never the choice: he plays on, carries it or shoots
+  if(role!=='GK'&&forward>60&&pressure<.4)for(const o of options)if(o.progress<-15&&o.range>25)o.weight*=.08;
   const readsLine=attributeEdge(playerAttribute(from,side,'vision',68));
   for(const o of options)if(offsideAt(o.point,point,side))o.weight*=clamp(.12-readsLine*.08,.03,.2);
   const actions=[{type:'pass',weight:Math.max(.4,3-pressure*.7+(best?.weight||0)*.22)*clamp(1.2-sv*5,.35,1)},
@@ -749,7 +752,10 @@ function actionMinute(userPoss,effect,opponent){
   // a forward whose best option is a long ball back to his defence holds it up instead
   {const top=options.slice().sort((a,b)=>b.weight-a.weight)[0];
    if(top&&top.progress<-5&&freeAhead(point,side,dir)&&role!=='GK')actions[0].weight*=.3;
-   if(top&&['ST','LW','RW','CAM'].includes(role||'')&&top.range>25&&top.progress<-12){actions[0].weight*=.35;actions[2].weight=Math.max(actions[2].weight,.6);}}
+   if(top&&['ST','LW','RW','CAM'].includes(role||'')&&top.range>25&&top.progress<-12){actions[0].weight*=.35;actions[2].weight=Math.max(actions[2].weight,.6);}
+   // V7.9.3: in the attacking part without pressure, when the only passes left are long balls back he does
+   // something else with it (a cross, a carry, a shot, holding it up)
+   if(top&&role!=='GK'&&forward>60&&pressure<.4&&top.range>25&&top.progress<-15)actions[0].weight*=.12;}
   // V7.8.1: through on goal (no outfield defender between him and the goal, inside the last 30 m):
   // he goes for goal — a shot, or a team-mate better placed across the box — instead of turning back
   {const defName=side==='user'?'opp':'user';
@@ -757,7 +763,11 @@ function actionMinute(userPoss,effect,opponent){
    if(through){actions[0].weight*=.08;actions[2].weight*=.2;actions[3].weight=Math.max(actions[3].weight*1.6,2.4);}}
   if(order==='riskPass')actions[0].weight*=1.18;
   if(order==='stay')actions[1].weight*=.6;
+  // V7.9.4: a cross — a wide man in the attacking third with team-mates in the box can put it in
+  const crossPlan=role!=='GK'?crossOption(from,side,point,dir,forward,pressure):null;
+  if(crossPlan)actions.push({type:'cross',weight:crossPlan.weight});
   const choice=weightedPitchChoice(actions);
+  if(choice.type==='cross'){crossV79(from,side,point,crossPlan);break;}
   if(choice.type==='shoot'){chanceV73(side==='user');M.minuteShot=true;break;}
   if(choice.type==='hold'&&nearby&&nearby.d<8&&M.rand()>.75+.25*physicalContest(from,side,nearby.id,side==='user'?'opp':'user')){
    // shield lost: the ball runs loose and is contested for real
@@ -791,9 +801,11 @@ function actionMinute(userPoss,effect,opponent){
   const accuracy=passSuccessProbability(from,side,selected,{pressure,effect,risk:order==='riskPass',tempo:tacticProfile(side).tempo});
   const stat=side==='user'?M.playerStats[from]:null,index=side==='user'?userSide():1-userSide();
   M.stats.passes[index]++;if(stat)stat.passesAttempted++;
-  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null,pendingCorner=false;
-  const longBall=range>29||(['LW','RW'].includes(role)&&range>22&&forward>58);
-  const contested=range>38||(['LW','RW'].includes(role)&&range>26&&forward>58);   // only genuinely high/long deliveries are contested
+  let success=M.rand()<accuracy,aerialLost=false,pendingThrow=null,pendingThrowSide=null,cutPresentation=null,pendingCorner=false,pendingPunch=null;
+  // V7.9.3: a cross is a wide man's ball into the box; the same man playing it back is an ordinary pass
+  const intoBox=deepFor(side,to)>78&&Math.abs(to[1]-50)<30,wideCross=['LW','RW'].includes(role)&&forward>58&&intoBox;
+  const longBall=range>29||(wideCross&&range>22);
+  const contested=range>38||(wideCross&&range>26);   // only genuinely high/long deliveries are contested
   if(success&&contested){
    // the pass reached the area; the header/first contact is a physical contest (strength, positioning, pace)
    const rival=nearestMarker(side==='user'?'opp':'user',to);
@@ -801,7 +813,7 @@ function actionMinute(userPoss,effect,opponent){
     if(M.rand()>aerialWinProbability(target,side,rival.id,side==='user'?'opp':'user')){success=false;aerialLost=true;}
    }
   }
-  const crossing=['LW','RW'].includes(role)&&range>22&&forward>58,boxBall=deepFor(side,to)>(crossing?70:80)&&Math.abs(to[1]-50)<34;
+  const crossing=wideCross&&range>22,boxBall=deepFor(side,to)>(crossing?70:80)&&Math.abs(to[1]-50)<34;
   if(aerialLost&&boxBall&&M.rand()<.3){
    pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');   // headed behind
   }else if(aerialLost){
@@ -814,6 +826,12 @@ function actionMinute(userPoss,effect,opponent){
    if(interceptor&&interceptor.d<18&&boxBall&&M.rand()<(crossing?.6:.35)){
     // cut out at full stretch: the touch takes it behind
     pendingCorner=true;M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'BALL_OUT');
+   }else if(interceptor&&interceptor.d<18&&longBall&&boxBall&&isKeeper(defSide,interceptor.id)&&(nearestMarker(side,to,from)?.d??99)<5&&M.rand()<.45){
+    // V7.9.3 a high ball into the box, the keeper comes for it with a man challenging: he punches it away
+    // from the six-yard box instead of catching it (it lands loose, out towards the edge of the box)
+    const away=deepFor(side,[100,50])>50?-1:1;
+    pendingPunch={from:[...to],land:[limitPitch(to[0]+away*(14+M.rand()*9),4,96),limitPitch(to[1]+(to[1]<50?-1:1)*M.rand()*16,8,92)],by:interceptor.id,side:defSide};
+    M.ballOwner=null;M.ballSide='none';M.looseBall=null;setBallState(to,null,'LOOSE_BALL');
    }else if(interceptor&&interceptor.d<18){
     if(window.ManagerStoryLive3D?.enabled)cutPresentation={id:interceptor.id,side:defSide,start:[...eventPoint(interceptor.id,defSide)],intendedTarget:[...to]};
     const gain=moveTowards(eventPoint(interceptor.id,defSide),to,Math.min(interceptor.d,10));
@@ -828,7 +846,7 @@ function actionMinute(userPoss,effect,opponent){
   }
   const newOwner=M.ballOwner,newSide=M.ballSide,wing=['LW','RW'].includes(role);
   const landing=newOwner==null?[...(M.ballState?.position||to)]:eventPoint(newOwner,newSide);
-  const cross=wing&&range>22&&forward>58;
+  const cross=wing&&range>22&&forward>58&&intoBox;
   const rName=playerAtMarker(target,side)?.name||'takım arkadaşına',pz=(to[0]-point[0])*dir,sw=Math.abs(to[1]-point[1])>34,kv=M.events.length;
   const passLine=cross?lineVariant(kv,[' orta yaptı.',' ceza sahasına ortaladı.',' içeri ortaladı.'])
    :!success?' pas verdi.'
@@ -838,7 +856,7 @@ function actionMinute(userPoss,effect,opponent){
    :pz<-5?lineVariant(kv,[` geriye, ${rName}'e verdi.`,` oyunu ${rName} ile yeniden kurdu.`])
    :lineVariant(kv,[` kısa pasla ${rName}'e verdi.`,` ${rName} ile paslaştı.`,` topu ${rName}'e aktardı.`,' pas verdi.']);
   matchEvent(cross?'cross':'pass',M.min+'’ '+(passer?.name||'Rakip')+passLine+
-    (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
+    (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':pendingPunch?' Kaleci çıktı.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
      passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
      distance:range,passing});
@@ -848,10 +866,88 @@ function actionMinute(userPoss,effect,opponent){
    matchEvent('firstTouch',M.min+'’ '+(receiver?.name||'Rakip')+(longBall?lineVariant(M.events.length,[' topu göğsüyle indirdi.',' havadan gelen topu kontrol etti.']):lineVariant(M.events.length,[' topu kontrol etti.',' topu önüne aldı.',' pası iyi karşıladı.',' topu ayağının altına aldı.'])),
     {fromId:target,toId:target,fromSide:side,toSide:side,ballSide:side,fromPos:to,toPos:to});
   }
+  if(pendingPunch){makeLooseBall(pendingPunch.from,pendingPunch.land,'punch',null,{punchBy:pendingPunch.by,punchSide:pendingPunch.side,text:(playerAtMarker(pendingPunch.by,pendingPunch.side)?.name||'Kaleci')+' yumrukla uzaklaştırdı.'});break;}
   if(pendingThrow)startPitchRestart('THROW_IN',pendingThrowSide,pendingThrow);
   if(pendingCorner){concedeCorner(side,to);break;}
  }
  if(M.ballSide==='user')M.userPossTicks++;else M.oppPossTicks++;
+}
+/* V7.9.4 crosses ----------------------------------------------------------------------------
+   Before this a "cross" was only a pass that happened to reach a team-mate standing in the box, so open
+   play produced no headers at all. Now a wide man in the attacking third, with team-mates in the box,
+   can deliver it: into a zone (near post, penalty spot, far post) that one of them attacks. The ball is
+   contested in the air exactly like a corner: a header at goal, a knock-down, a clearance (sometimes
+   behind for a corner), or the keeper comes and claims or punches it. */
+const CROSS_ZONES=[{deep:94,y:-8},{deep:89,y:0},{deep:93,y:9}];   // near post, penalty spot, far post (y towards the far side)
+function crossOption(from,side,point,dir,forward,pressure){
+ const wide=Math.abs(point[1]-50);
+ if(forward<55||wide<12)return null;
+ const role=side==='user'?M.matchRoles[from]:opponentPlayer(from)?.position;
+ const runners=outfieldOf(side).filter(id=>id!==from).map(id=>({id,p:eventPoint(id,side)}))
+  .filter(x=>deepFor(side,x.p)>70&&Math.abs(x.p[1]-50)<24&&!offsideAt(x.p,point,side));
+ if(!runners.length)return null;
+ const T=tacticProfile(side);
+ const delivery=normalizeAttribute(playerAttribute(from,side,'passing',65)*.6+playerAttribute(from,side,'technique',65)*.4);
+ const wideMan=['LW','RW','LB','RB','LM','RM'].includes(role||'');
+ let weight=(1.5+delivery*1.8)*(wideMan?1:.4)*(.7+.3*Math.min(3,runners.length))*(forward>78?1.15:forward<64?.65:1)*(1-pressure*.35);   // (an early cross from deeper is rarer)
+ if(T.approach==='Kanatlar')weight*=1.35;else if(T.approach==='Merkez')weight*=.7;
+ if(T.width>0)weight*=1.15;else if(T.width<0)weight*=.85;
+ return {weight,runners,delivery,role};
+}
+function crossV79(from,side,point,plan){
+ const other=side==='user'?'opp':'user',dir=(side==='user'?1:-1)*userDirection(),atkGoal=dir>0?100:0;
+ const index=side==='user'?userSide():1-userSide();
+ const passer=playerAtMarker(from,side),who=passer?.name||(side==='user'?'Oyuncumuz':'Rakip');
+ // who attacks it: the better in the air and the finishers, from the runners in the box
+ const w=plan.runners.map(r=>.4+normalizeAttribute(aerialRating(r.id,side)*.6+playerAttribute(r.id,side,'finishing',65)*.4));
+ let r0=M.rand()*w.reduce((n,x)=>n+x,0),runner=plan.runners.at(-1);
+ for(let i=0;i<plan.runners.length;i++){r0-=w[i];if(r0<=0){runner=plan.runners[i];break;}}
+ // the zone he attacks, the one nearest to him; y measured towards the far side from the crosser
+ const away=point[1]<50?1:-1;
+ const zone=CROSS_ZONES.map(z=>({z,p:[atkGoal-dir*(100-z.deep),limitPitch(50+away*z.y,30,70)]})).sort((a,b)=>pitchDistance(a.p,runner.p)-pitchDistance(b.p,runner.p))[0];
+ const tp=zone.p,dist=pitchDistance(point,tp);
+ const stat=side==='user'?M.playerStats[from]:null;
+ M.stats.passes[index]++;if(stat)stat.passesAttempted++;
+ M.passMemory??=[];M.passMemory.push({side,from,to:runner.id});if(M.passMemory.length>8)M.passMemory.shift();
+ const pressure=clamp(1-((nearestMarker(other,point)?.d??20)/12),0,1);
+ const onTarget=M.rand()<clamp(.42+plan.delivery*.42-pressure*.18,.25,.88);       // a ball the runner can attack
+ const def=nearestMarker(other,tp),gk=keeperId(other),gkD=gk!=null?pitchDistance(eventPoint(gk,other),tp):99;
+ const line=lineVariant(M.events.length,[' orta yaptı.',' ceza sahasına ortaladı.',' içeri ortaladı.']);
+ const ev=(toId,toSide,extra='')=>matchEvent('cross',M.min+'’ '+who+line+extra,{side:index,fromId:from,toId,fromSide:side,toSide,ballSide:toSide,
+  fromPos:[...point],toPos:[...tp],success:toSide===side,passKind:'cross',travelType:'aerial',distance:dist,crossZone:CROSS_ZONES.indexOf(zone.z)});
+ M.ballOwner=null;M.ballSide='none';
+ if(!onTarget){
+  // overhit, underhit or cut out: behind for a corner or away
+  ev(def?.id??null,def?other:'none',' Top hedefini bulmadı.');
+  if(M.rand()<.35){concedeCorner(side,tp);return;}
+  makeLooseBall(tp,[atkGoal-dir*(22+M.rand()*12),limitPitch(tp[1]+(M.rand()-.5)*30,12,88)],'clearance',null);return;
+ }
+ // the keeper comes for it when it is in his reach (the near post and the spot more than the far post)
+ if(gk!=null&&gkD<11&&M.rand()<clamp(.42-gkD*.025,.08,.34)){
+  if(M.rand()<.5){   // claimed
+   ev(gk,other,' Kaleci çıkıp topu aldı.');
+   switchPitchOwner(gk,other);setBallState(eventPoint(gk,other),gk);
+   M.stats.possessionsWon[other==='user'?userSide():1-userSide()]++;return;
+  }
+  ev(runner.id,side);
+  makeLooseBall(tp,[atkGoal-dir*(24+M.rand()*8),limitPitch(tp[1]+(M.rand()-.5)*30,14,86)],'punch',null,
+   {punchBy:gk,punchSide:other,text:(playerAtMarker(gk,other)?.name||'Kaleci')+' yumrukla uzaklaştırdı.'});
+  return;
+ }
+ ev(runner.id,side);
+ const winAtt=def&&def.d<7?aerialWinProbability(runner.id,side,def.id,other):.92,r2=M.rand();
+ if(r2<winAtt*.7){
+  // met: a header at goal
+  M.stats.completedPasses[index]++;if(stat){stat.passesCompleted++;stat.keyPasses++;}
+  resolveShot(side==='user',runner.id,shooterRecord(runner.id,side),{header:true,source:tp,pressure:clamp(1-(def?.d??8)/10,0,1)});
+  M.minuteShot=true;
+ }else if(r2<winAtt){
+  // flicked on or knocked down: a second ball in the box
+  M.stats.completedPasses[index]++;if(stat)stat.passesCompleted++;
+  makeLooseBall(tp,[tp[0]-dir*(4+M.rand()*6),limitPitch(tp[1]+(M.rand()-.5)*16,25,75)],'aerial',side);
+ }else if(M.rand()<.3){
+  concedeCorner(side,tp);      // headed behind
+ }else makeLooseBall(tp,[atkGoal-dir*(22+M.rand()*12),limitPitch(tp[1]+(M.rand()-.5)*34,12,88)],'clearance',null);
 }
 /* V7.6 corners -----------------------------------------------------------------------------
    Most real corners come from defenders, not keepers: a cross or a ball into the box cut out

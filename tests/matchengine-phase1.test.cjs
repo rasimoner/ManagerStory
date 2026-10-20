@@ -320,3 +320,77 @@ test('one football minute cannot be processed twice (no re-entrant tick)', () =>
   assert.equal(h.run('window.__n'), 1, 'nested advanceLive during a tick is ignored');
   assert.equal(h.run('M.min'), 1);
 });
+
+test('V7.9.3 a keeper punch: only the defending keeper, only from a high ball into his own box, and the ball is loose afterwards', { timeout: 300000 }, () => {
+  const punches = [];
+  for (let fixture = 0; fixture < 24; fixture++) {
+    const h = fresh(fixture); playToEnd(h);
+    const ev = h.run('M.events'), keeper = h.run("({user:M.active.find(id=>M.matchRoles[id]==='GK'),opp:'o0'})"), dir = h.run('userDirection()');
+    ev.forEach((e, i) => {
+      if (e.type !== 'looseBall' || e.reason !== 'punch') return;
+      const prev = ev[i - 1];
+      punches.push({ fixture, e, prev, keeper, dir, next: ev[i + 1] });
+    });
+  }
+  assert.ok(punches.length >= 3, 'punches over 24 matches: ' + punches.length);
+  for (const { e, prev, keeper, next } of punches) {
+    // the man who punched it is the keeper of the defending side, and the ball came in the air from the other team
+    assert.equal(e.punchBy, keeper[e.punchSide], 'punched by the defending keeper: ' + JSON.stringify(e));
+    assert.ok(['cross', 'pass', 'corner'].includes(prev.type) && prev.fromSide !== e.punchSide, 'from a delivery by the attackers: ' + prev.type);
+    assert.ok(prev.passKind === 'cross' || prev.travelType === 'aerial', 'a high ball: ' + JSON.stringify(prev));
+    // from inside his own box, out towards (or beyond) its edge: never into his own goal
+    const own = e.punchSide === 'user' ? (keeper.user != null ? null : null) : null; void own;
+    const from = e.fromPos, land = e.toPos, goalX = Math.abs(from[0] - 100) < Math.abs(from[0]) ? 100 : 0;
+    assert.ok(Math.abs(from[0] - goalX) <= 17 && Math.abs(from[1] - 50) <= 21, 'from inside his box: ' + JSON.stringify(from));
+    assert.ok(Math.abs(land[0] - goalX) > Math.abs(from[0] - goalX) + 5, 'away from his goal: ' + JSON.stringify([from, land]));
+    assert.equal(e.ballSide, 'none', 'nobody owns a punched ball');
+    assert.equal(next?.type, 'recovery', 'the loose ball is won by whoever gets to it: ' + next?.type);
+  }
+});
+
+test('V7.9.3 an attacker in space does not turn round and play a long ball back; a cross goes into the box', { timeout: 600000 }, () => {
+  let back = 0, crosses = 0, outsideBox = [];
+  const N = 12;
+  for (let fixture = 0; fixture < N; fixture++) {
+    const h = fresh(fixture);
+    h.run(`window.__bp=[];const _m=matchEvent;matchEvent=function(type,text,o){if((type==='pass'||type==='cross')&&o&&o.fromPos&&o.toPos&&o.fromId!=null){const side=o.fromSide,dir=(side==='user'?1:-1)*userDirection();const fwd=dir>0?o.fromPos[0]:100-o.fromPos[0];const nb=nearestMarker(side==='user'?'opp':'user',o.fromPos);const role=side==='user'?M.matchRoles[o.fromId]:playerAtMarker(o.fromId,side)?.position;window.__bp.push({type,fwd,prog:(o.toPos[0]-o.fromPos[0])*dir,range:o.distance,d:nb?nb.d:99,role,success:o.success,deep:dir>0?o.toPos[0]:100-o.toPos[0],y:o.toPos[1]})}return _m.apply(this,arguments)}`);
+    playToEnd(h);
+    for (const b of h.run('window.__bp')) {
+      if (b.role !== 'GK' && b.fwd > 60 && b.d > 8.5 && b.prog < -15 && b.range > 25) back++;
+      if (b.type === 'cross') { crosses++; if (b.success !== false && (b.deep < 70 || Math.abs(b.y - 50) > 34)) outsideBox.push(b); }
+    }
+  }
+  assert.ok(back / N <= 0.3, 'long balls back from the attacking area without pressure, per match: ' + (back / N).toFixed(2));
+  assert.ok(crosses >= 6, 'crosses ' + crosses);
+  assert.deepEqual(outsideBox, [], 'a completed cross ends in or near the box');
+});
+
+test('V7.9.4 open-play crosses: from a wide man in the attacking third into the box, contested in the air; headers are a real share of shots and goals', { timeout: 900000 }, () => {
+  const N = 16, t = { crosses: 0, shots: 0, heads: 0, headsOpen: 0, goals: 0, headGoals: 0 }, bad = [];
+  for (let fixture = 0; fixture < N; fixture++) {
+    const h = fresh(fixture); playToEnd(h);
+    const ev = h.run('M.events');
+    ev.forEach((e, i) => {
+      if (e.type === 'shot') { t.shots++; if (e.header) { t.heads++; if (!e.restartType) t.headsOpen++; } }
+      if (e.type === 'goal') { t.goals++; const s = ev.slice(Math.max(0, i - 3), i).reverse().find(x => x.type === 'shot'); if (s?.header) t.headGoals++; }
+      if (e.type !== 'cross') return;
+      t.crosses++;
+      // (directions swap at half-time: the goal attacked is the end the ball is played to)
+      const end = e.toPos[0] > 50 ? 100 : 0, deep = p => end === 100 ? p[0] : 100 - p[0];
+      // from the attacking part of the pitch, out wide; into the box
+      if (deep(e.fromPos) < 55 || Math.abs(e.fromPos[1] - 50) < 12) bad.push(['from', e.fromPos]);
+      if (deep(e.toPos) < 78 || Math.abs(e.toPos[1] - 50) > 30) bad.push(['to', e.toPos]);
+      // what follows is the ball in the air being decided: a header at goal by the man it was for, a second ball,
+      // a corner, or the keeper's (a claim is the cross going to him); or a ball played into a man's stride (he controls it)
+      const n = ev[i + 1];
+      const ok = e.toSide !== e.fromSide || (n?.type === 'shot' && n.header && n.fromId === e.toId) || n?.type === 'looseBall' || n?.type === 'ballOut' || (n?.type === 'firstTouch' && n.fromId === e.toId);
+      if (!ok) bad.push(['next', n?.type]);
+    });
+  }
+  const per = k => t[k] / N;
+  assert.deepEqual(bad.slice(0, 5), [], 'crosses: ' + bad.length + ' out of place ' + JSON.stringify(bad.slice(0, 14)) + ' of ' + t.crosses);
+  assert.ok(per('crosses') >= 4, 'open-play crosses per match ' + per('crosses').toFixed(2));
+  assert.ok(t.headsOpen > 0 && t.heads / t.shots > 0.08 && t.heads / t.shots < 0.22, 'headers ' + t.heads + ' of ' + t.shots + ' shots (open play ' + t.headsOpen + ')');
+  assert.ok(t.headGoals > 0 && t.headGoals / t.goals < 0.3, 'header goals ' + t.headGoals + ' of ' + t.goals);
+  assert.ok(per('goals') > 2.2 && per('goals') < 4.2, 'goals per match ' + per('goals').toFixed(2));
+});

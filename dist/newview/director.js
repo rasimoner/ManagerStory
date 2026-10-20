@@ -181,7 +181,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
 
   // step up to the ball before the kick, so the wind-up only has a short step left to take
   function* approachKick(p, name, dir) {
-    if (p.dive) yield* until(() => !p.dive, 3);          // a keeper gets up before he kicks it out
+    if (p.dive || p.prone) yield* until(() => !p.dive && !p.prone, 3);          // a keeper gets up before he kicks it out
     // however far he is, he gets there (the time it takes is the time it takes): he keeps going
     // while he is still closing in on his plant spot, a little quicker than a rolling ball
     let ref = Infinity, since = S.t;
@@ -208,6 +208,43 @@ export function createDirector(rt, data, hooks, opts = {}) {
     return dir;
   }
 
+  // V7.9.3 the keeper's volley out of his hands: he turns to his target and takes a couple of steps with the
+  // ball held out in front, steps onto the left foot as he lets it go, and the right boot meets it in the air
+  // (never off the grass) and sends it high and long
+  function* gkVolley(gk, toW, range) {
+    const hd = Math.atan2(toW.x - gk.pos.x, toW.z - gk.pos.z);
+    gk.busy = true; gk.face = null; gk.faceLock = false; gk.loopsWant.keeperReady = 0;
+    const F = () => fwdOf(gk), R = () => rightOf(gk);
+    const holdAt = () => gk.pos.clone().addScaledVector(F(), 0.42).setY(1.0);
+    ball.held = rt.pickUp(holdAt, 0.3); ball.owner = gk;
+    const grip = side => ({ w: t => 1, at: () => ball.p.clone().addScaledVector(R(), side * 0.12).addScaledVector(F(), -0.04) });
+    gk.hands = { Left: grip(-1), Right: grip(1) };
+    // turn to the target, then a couple of steps forwards
+    yield* until(() => { gk.target.copy(gk.pos); gk.want = 0; const d = Math.atan2(Math.sin(hd - gk.heading), Math.cos(hd - gk.heading)); gk.heading += clamp(d, -0.1, 0.1); return Math.abs(d) < 0.05; }, 1);
+    gk.heading = hd;
+    const run = gk.pos.clone().addScaledVector(F(), 2.4);
+    yield* until(() => { gk.target.copy(run); gk.want = 2.6; gk.face = run.clone().addScaledVector(F(), 5); gk.faceLock = true; return gk.pos.distanceTo(run) < 1.2; }, 1.4);
+    // the strike: the ball is let go so that it falls to knee height as the boot comes through
+    const A = ACTIONS.gkVolley, tc = A.dur * A.contact, hit = 0.48, fall = Math.sqrt(2 * (1.0 - hit) / 9.81);
+    rt.startAction(gk, 'gkVolley'); const t0 = S.t;
+    gk.target.copy(gk.pos).addScaledVector(F(), 0.5); gk.want = 1.2;
+    const audit = { kind: 'gkvolley', low: 9 };
+    yield* until(() => S.t - t0 >= tc - fall, 1);
+    const drop = ball.p.clone();
+    ball.held = null; ball.through = S.t + 1.2; ball.v.copy(gk.vel).setY(0).multiplyScalar(0.9); audit.release = +drop.y.toFixed(2);
+    const hw = ramp(S.t, -1, 0, 0, 0.15); gk.hands = { Left: { w: hw, at: () => drop.clone().addScaledVector(R(), -0.12) }, Right: { w: hw, at: () => drop.clone().addScaledVector(R(), 0.12) } };
+    // the right boot goes to the falling ball
+    gk.feet = { Right: { w: ramp(t0 + tc, -0.2, -0.04, 0.06, 0.25), at: () => ball.p.clone().addScaledVector(F(), -0.06) } };
+    yield* until(() => { audit.low = Math.min(audit.low, ball.p.y); return S.t - t0 >= tc - 0.005 || (S.t - t0 > tc - 0.05 && toeGap(gk, 'Right') < 0.16); }, 1);
+    Object.assign(audit, { contact: +toeGap(gk, 'Right').toFixed(3), h: +ball.p.y.toFixed(2), low: +audit.low.toFixed(2), range: +range.toFixed(1) });
+    ball.owner = gk;
+    rt.kickAir(V(toW.x, 0.3, toW.z), clamp(range / 22, 1.4, 3.2));      // (a long one flies flatter: never a 30 m high balloon)
+    gk.lastTouch = S.t;
+    (stats.gkVolleys ||= []).push(audit);
+    const feet = gk.feet; later(0.4, () => { if (gk.feet === feet) gk.feet = null; gk.hands = null; });
+    gk.faceLock = false; gk.target.copy(gk.pos); gk.want = 0;
+    yield* wait(0.25);
+  }
   function* pass(from, to, toW, travel, implicit = false, opts = {}) {
     from.busy = true;
     // settle the ball at the passer's feet first
@@ -240,7 +277,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
         to.busy = false;
         return;
       }
-      { const f = fwdOf(from); ball.held = null; ball.v.set(f.x * 0.9, 0, f.z * 0.9); yield* until(() => ball.p.y < BALL_R + 0.02, 1); }      // dropped in front of him for the kick
+      // V7.9.3: a longer one he volleys out of his hands (the ball dropped and struck before it lands)
+      yield* gkVolley(from, toW, range);
+      from.lastPass = S.t; from.busy = false;
+      if (!to) { yield* until(() => ball.v.length() < 2 || ball.p.distanceTo(V(toW.x, BALL_R, toW.z)) < 1.5, 5); return; }
+      to.busy = true;
+      if (!(yield* chase(to, toW))) { noteFix(to, 'pass'); ball.owner = to; ball.p.set(to.pos.x + Math.sin(to.heading) * .5, BALL_R, to.pos.z + Math.cos(to.heading) * .5); ball.v.set(0, 0, 0); }
+      to.busy = false;
+      return;
     }
     if (throwIn) {
       from.heading = Math.atan2(dir.x, dir.z); from.target.copy(from.pos); from.want = 0;
@@ -266,7 +310,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         let name = noLook ? 'nolook' : 'pass';
         dir = yield* approachAim(from, name, toW);
         // could not get set for it (the ball ran on, or it is still bouncing): an ordinary pass instead
-        if (noLook) { const k = rt.kickNeed(from, name, dir); if (k.dist > k.reach + 0.05 || ball.p.y > BALL_R + 0.05 || Math.abs(ball.v.y) > 0.5) { noLook = false; name = 'pass'; dir = yield* approachAim(from, name, toW); } }
+        if (noLook) { const k = rt.kickNeed(from, name, dir); if (k.dist > k.reach + 0.05 || ball.p.y > BALL_R + 0.05 || Math.abs(ball.v.y) > 0.5 || (!tryNL && !zoneOk('nolook', from))) { noLook = false; name = 'pass'; dir = yield* approachAim(from, name, toW); } }
         rt.startAction(from, name); rt.kickWarp(from, name, dir);
         if (noLook) hooks.slow(0.45);
         yield* until(() => rt.actionAtContact(from), 2);
@@ -286,9 +330,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
       chest = !trap && under && pick(opts.ev, 3) < 0.3;
       // V7.9: a high ball into his area that the keeper takes is caught at the top of a jump, arms up
       claim = !!to && to.role === 'GK' && to.side !== from.side && !opts.restart && !opts.meet && (travel === 'aerial' || dir.length() > 30)
-        && to.pos.distanceTo(toW) < Math.min(9, 1 + 5.5 * Math.max(0, dir.length() / 17 - 0.5)) && !to.motion && !to.dive && Math.abs(toW.x) > GOAL_X - 18;   // only one he can get under in time
+        && to.pos.distanceTo(toW) < Math.min(6.5, 1 + 4.2 * Math.max(0, dir.length() / 17 - 0.65)) && !to.motion && !to.dive && Math.abs(toW.x) > GOAL_X - 18;   // only one he can get under in time
       if (tryTrap) trapTried = true;
-      if (travel === 'aerial' || dir.length() > 30) { flight = Math.max(0.7, dir.length() / 17); rt.kickAir(V(toW.x, claim ? CLAIM_H : chest ? CHEST_H : trap ? TRAP_H : (opts.height ?? 0.25), toW.z), flight); }   // a long ball goes in the air
+      if (travel === 'aerial' || dir.length() > 30) { const L = dir.length(); flight = Math.max(0.7, L <= 45 ? L / 17 : 45 / 17 + (L - 45) / 35); rt.kickAir(V(toW.x, claim ? CLAIM_H : chest ? CHEST_H : trap ? TRAP_H : (opts.height ?? 0.25), toW.z), flight); }   // a long ball goes in the air
       else rt.kickGround(toW, opts.arrive ?? 4.5, 0.7);     // a played pass reaches its man at a receivable pace
     }
     if (opts.restart) { const outside = () => Math.abs(ball.p.z) > 34 + BALL_R || Math.abs(ball.p.x) > GOAL_X + BALL_R; if (outside()) yield* until(() => !outside(), 0.6); ball.allowOut = false; }      // once the restart is taken (and back over the line) the ball is in play
@@ -534,6 +578,60 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // V7.9: the keeper claims a high ball: he gets under it, goes up and takes it in both hands above his
   // head (the gloves reach for the ball), lands with it, and keeps it in his hands if his next touch is a pass
   const CLAIM_H = 2.2;
+  // V7.9.3 a high ball into his box with a man challenging: the keeper comes, goes up and punches it clear
+  // with both fists (arms driven out through the ball at the top of the jump); it flies out to where the
+  // engine says it lands
+  const PUNCH_H = 2.2;
+  function* keeperPunch(gk, spot, tArr, land, rival) {
+    gk.busy = true; gk.loopsWant.keeperReady = 0;
+    const lead = MOTIONS.header.contact;
+    let jumped = false;
+    if (rival && !rival.busy) jumpFor(rival, spot.clone().setY(rt.headHeight).add(V(-Math.sign(spot.x) * 0.6, 0, 0.3)), headingOf(V(spot.x - rival.pos.x, 0, spot.z - rival.pos.z).normalize(), V(0, 0, 0)), tArr, 0.12, 0.35);
+    const out = V(land.x - spot.x, 0, land.z - spot.z).normalize();
+    let best = Infinity;
+    yield* until(() => {
+      const left = tArr - S.t, toward = V(ball.p.x - gk.pos.x, 0, ball.p.z - gk.pos.z).normalize();
+      gk.face = ball.p; gk.faceLock = true;
+      if (!jumped) {
+        // he stands just past the spot along the ball's line, facing it, so the punch meets it in front of him
+        const fly = V(ball.v.x, 0, ball.v.z), down = fly.lengthSq() > 1 ? fly.normalize() : toward.clone().negate();
+        gk.target.copy(spot).addScaledVector(down, 0.3).setY(0);
+        const gap = Math.hypot(gk.target.x - gk.pos.x, gk.target.z - gk.pos.z);
+        gk.want = gap > 2 ? 7.5 : gap > 0.05 ? Math.max(2.2, 1.5 + gap * 3) : 0;
+      }
+      if (!jumped && left <= lead) {
+        rt.startMotion(gk, 'header'); jumped = true; gk.want = 0;
+        // fists cocked by his face, then driven out through the ball and on (the punch), then down
+        const t0 = S.t, R = () => rightOf(gk), hw = ramp(t0, 0, 0.12, lead + 0.18, lead + 0.45);
+        const face = () => gk.bones.Head.getWorldPosition(V()).addScaledVector(fwdOf(gk), 0.22).add(V(0, -0.05, 0));
+        let hit = null;
+        const fist = side => t => {
+          const k = smooth01(clamp((t - (t0 + lead - 0.16)) / 0.16, 0, 1));
+          if (t >= t0 + lead && !hit) hit = spot.clone();
+          const at = face().lerp(hit || spot.clone(), k);          // (the ball reaches the spot on the contact frame)
+          if (t > t0 + lead) at.addScaledVector(out, Math.min(0.3, (t - t0 - lead) * 2.5)).add(V(0, Math.min(0.15, (t - t0 - lead) * 1.2), 0));
+          return at.addScaledVector(R(), side * 0.045);
+        };
+        gk.hands = { Left: { w: hw, at: fist(-1) }, Right: { w: hw, at: fist(1) } };
+      }
+      // the contact is the frame the ball is closest to his fists (it passes the spot on about the planned frame)
+      if (!jumped) return false;
+      const d = rt.handsOf(gk).distanceTo(ball.p);
+      if (d < 0.2) return true;
+      if (S.t >= tArr - 0.08) { if (d > best + 0.02 || S.t > tArr + 0.1) return true; best = Math.min(best, d); }
+      return false;
+    }, Math.max(0.2, tArr - S.t) + 1);
+    const reach = Math.min(best, rt.handsOf(gk).distanceTo(ball.p));
+    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1), ...(DEBUG ? { t: +S.t.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)) } : {}) };
+    (stats.punches ||= []).push(audit);
+    if (reach < 0.45) {
+      (stats.contacts.punch ||= []).push(+reach.toFixed(2));
+      ball.owner = null; gk.lastTouch = S.t;
+      rt.kickAir(V(land.x, BALL_R, land.z), Math.max(0.9, Math.hypot(land.x - ball.p.x, land.z - ball.p.z) / 16));
+    } else stats.misses = (stats.misses || 0) + 1;
+    const hands = gk.hands;
+    later(0.6, () => { if (gk.hands === hands) gk.hands = null; gk.faceLock = false; gk.busy = false; });
+  }
   function* keeperClaim(gk, spot, tArr, ev) {
     gk.busy = true; gk.loopsWant.keeperReady = 0;
     const lead = MOTIONS.header.contact;
@@ -554,13 +652,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
       return jumped && (rt.handsOf(gk).distanceTo(ball.p) < 0.22 || S.t > tArr + 0.1);
     }, Math.max(0.2, tArr - S.t) + 1);
     const reach = rt.handsOf(gk).distanceTo(ball.p);
-    if (reach > 0.4) {      // he did not get there: no catch out of thin air, he gathers it as it comes
+    if (reach > 0.4 || ball.p.y < 1.6) {      // he did not get there (or it had dropped below his reach up): he gathers it as it comes instead: no catch out of thin air, he gathers it as it comes
       gk.hands = null; gk.faceLock = false; stats.lastFail = ['claim', 'reach', +S.t.toFixed(1)];
       const ok = yield* chase(gk, null);
       if (!ok) { noteFix(gk, 'pass'); ball.owner = gk; ball.p.set(gk.pos.x + Math.sin(gk.heading) * .5, BALL_R, gk.pos.z + Math.cos(gk.heading) * .5); ball.v.set(0, 0, 0); }
       gk.busy = false; return false;
     }
-    const audit = { kind: 'claim', hands: +reach.toFixed(3), h: +ball.p.y.toFixed(2) };
+    const audit = { kind: 'claim', hands: +reach.toFixed(3), h: +ball.p.y.toFixed(2), ...(DEBUG ? { t: +S.t.toFixed(2), tArr: +tArr.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)) } : {}) };
     (stats.claims ||= []).push(audit);
     ball.held = rt.pickUp(() => rt.handsOf(gk), 0.06); ball.owner = gk; ball.v.set(0, 0, 0); gk.lastTouch = S.t;
     // he gathers it into his chest as he comes down
@@ -708,7 +806,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const d = fromOwnGoal(p);
     if (d < 35) return false;                                         // his own third (and his own box)
     if (move === 'elastico') return d > GOAL_X && Math.abs(p.pos.z) < 31;
-    if (move === 'flairnutmeg' || move === 'flairpass' || SHOWBOAT.has(move)) return d > GOAL_X;
+    if (move === 'flairnutmeg') return d > GOAL_X && Math.abs(p.pos.z) < 31;         // (V7.9.4 not against the touchline: the ball is held in by the line)
+    if (move === 'flairpass' || SHOWBOAT.has(move)) return d > GOAL_X;
     if (move === 'nolook') return d > GOAL_X;
     return true;
   }
@@ -778,13 +877,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (gk) rt.place(gk, V(line - gs * 0.5, 0, 0));
         tryMove = kind;
         yield* shot({ eventId: -1, type: 'shot', fromId: star.id, fromSide: star.side, penalty: kind === 'panenka', outcome: 'goal', fromPos: pctOf(from), toPos: gs > 0 ? [100, 50] : [0, 50] }, events.length + 10);
-      } else if (kind === 'gkthrow') {
-        // (keeper review) our keeper with the ball in his hands throws it out to a full-back
+      } else if (kind === 'gkthrow' || kind === 'gkvolley') {
+        // (keeper review) our keeper with the ball in his hands throws it out to a full-back (or volleys it
+        // up to a man near halfway)
         const gk = rt.players.find(q => q.side === star.side && q.role === 'GK' && !q.offPitch), own = Math.sign(ownGoalX(star.side));
         rt.place(gk, V(own * 45, 0, 2), Math.atan2(-own, 0)); ball.owner = gk; ball.v.set(0, 0, 0); ball.p.copy(rt.handsOf(gk));
         ball.held = rt.pickUp(() => rt.handsOf(gk), 0.01); gk.holding = true;
         const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== gk && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(gk.pos) - b.pos.distanceTo(gk.pos))[0];
-        rt.place(mate, V(own * 30, 0, 16));
+        rt.place(mate, kind === 'gkvolley' ? V(own * 2, 0, -10) : V(own * 30, 0, 16));
         yield* wait(0.8);
         yield* pass(gk, mate, mate.pos.clone(), 'ground', false, { ev: { eventId: -1 } });
         yield* wait(1.5);
@@ -813,6 +913,39 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (gk) rt.place(gk, V(line - gs * 2.5, 0, 0), Math.atan2(-gs, 0));
         yield* shot({ eventId: -6, type: 'shot', fromId: star.id, fromSide: star.side, outcome: 'save', fromPos: pctOf(from), toPos: [gs > 0 ? 100 : 0, 51], devSave: { saveType: 'PARRY', toPos: [gs > 0 ? 88 : 12, 70] }, devFoot: true }, events.length + 10);
         yield* wait(2);
+      } else if (kind === 'gkpunch') {
+        // (keeper review) a cross into our box with their man going for it: our keeper comes and punches it clear
+        const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
+        const crosser = rt.players.find(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch), striker = rt.players.filter(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch && q !== crosser)[0];
+        const from = V(line - gs * 20, 0, 28), spot = V(line - gs * 6.5, 0, 1.5);
+        rt.place(crosser, from.clone().add(V(0, 0, 1)), Math.atan2(0, -1)); ball.owner = crosser; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
+        rt.place(striker, V(line - gs * 11, 0, 3));
+        if (gk) rt.place(gk, V(line - gs * 1.5, 0, 0), Math.atan2(-gs, 0));
+        yield* wait(0.5);
+        let meet = null;
+        gk.busy = true; gk.loopsWant.keeperReady = 0;
+        yield* pass(crosser, null, spot, 'aerial', false, { height: PUNCH_H, meet: tArr => { meet = tArr; }, ev: { eventId: -31 } });
+        yield* keeperPunch(gk, spot.clone().setY(PUNCH_H), meet, V(line - gs * 26, 0, 12), striker);
+        yield* wait(2.5);
+      } else if (kind === 'gkrush' || kind === 'gkrushgoal') {
+        // (keeper review) a man through on our goal: our keeper comes out; saved at his feet, or beaten
+        const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
+        const shooter = rt.players.find(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch);
+        const from = V(line - gs * 13, 0, -4);
+        for (const q of rt.players) if (!q.offPitch && q.side === 'user' && q.role !== 'GK' && Math.abs(q.pos.x - line) < 30) rt.place(q, V(line - gs * 34, 0, q.pos.z * 0.5));
+        rt.place(shooter, from.clone().addScaledVector(V(gs, 0, 0), -1), Math.atan2(gs, 0)); ball.owner = shooter; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
+        if (gk) rt.place(gk, V(line - gs * 1.5, 0, 0), Math.atan2(-gs, 0));
+        yield* shot({ eventId: kind === 'gkrush' ? -21 : -22, type: 'shot', devRush: true, fromId: shooter.id, fromSide: 'opp', outcome: kind === 'gkrush' ? 'save' : 'goal', fromPos: pctOf(from), toPos: [gs > 0 ? 100 : 0, 46], devSave: { saveType: kind === 'gkrush' ? 'CATCH' : 'PARRY' } }, events.length + 10);
+        yield* wait(2.5);
+      } else if (kind === 'gkpen' || kind === 'gkpengoal') {
+        // (keeper review) a penalty against us: our keeper on his line saves it, or is beaten
+        const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
+        const shooter = rt.players.find(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch);
+        const spot = V(line - gs * 11, 0, 0);
+        rt.place(shooter, spot.clone().add(V(-gs * 1.8, 0, 0)), Math.atan2(gs, 0)); ball.owner = shooter; ball.p.copy(spot).setY(BALL_R); ball.v.set(0, 0, 0);
+        if (gk) rt.place(gk, V(line - gs * 1.5, 0, 1), Math.atan2(-gs, 0));
+        yield* shot({ eventId: kind === 'gkpen' ? -11 : -12, type: 'shot', penalty: true, fromId: shooter.id, fromSide: 'opp', outcome: kind === 'gkpen' ? 'save' : 'goal', fromPos: pctOf(spot), toPos: [gs > 0 ? 100 : 0, 58], devSave: { saveType: 'PARRY', toPos: [gs > 0 ? 92 : 8, 80] } }, events.length + 10);
+        yield* wait(2.5);
       } else if (kind === 'scorpion') {
         // our keeper, a looping shot from distance dropping onto him
         const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
@@ -823,7 +956,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         tryMove = 'scorpion';
         yield* shot({ eventId: -1, type: 'shot', fromId: shooter.id, fromSide: 'opp', outcome: 'save', fromPos: pctOf(from), toPos: [gs > 0 ? 100 : 0, 50], devSave: { saveType: 'PARRY', toPos: [gs > 0 ? 80 : 20, 40] } }, events.length + 10);
         yield* wait(2.5);
-      } else if (kind === 'gksave' || kind === 'gkcatch' || kind === 'gkmove' || kind === 'gkstar') {
+      } else if (kind === 'gksave' || kind === 'gkcatch' || kind === 'gkmove' || kind === 'gkstar' || kind === 'gkcorner') {
         // (keeper review) a shot saved: a dive and a parry, one straight at him and caught, or the
         // keeper shuffling across his goal as the man carries it across the box first
         const gs = fx, line = gs * GOAL_X, gk = rt.players.find(q => q.side !== star.side && q.role === 'GK' && !q.offPitch);
@@ -831,8 +964,18 @@ export function createDirector(rt, data, hooks, opts = {}) {
         rt.place(star, from.clone().addScaledVector(V(gs, 0, 0), -1), Math.atan2(gs, 0)); ball.owner = star; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
         if (gk) rt.place(gk, V(line - gs * 2.5, 0, 0), Math.atan2(-gs, 0));
         if (kind === 'gkmove') yield* carry(star, V(line - gs * 19, 0, 9), 3.2);
-        yield* shot({ eventId: kind === 'gkstar' ? 16 : -1, type: 'shot', fromId: star.id, fromSide: star.side, outcome: 'save', fromPos: pctOf(star.pos), toPos: [gs > 0 ? 100 : 0, kind === 'gkcatch' ? 50 : kind === 'gkmove' ? 42 : 60], devSave: { saveType: kind === 'gkcatch' ? 'CATCH' : 'PARRY' } }, events.length + 10);
+        yield* shot({ eventId: kind === 'gkstar' ? 16 : -1, type: 'shot', fromId: star.id, fromSide: star.side, outcome: 'save', fromPos: pctOf(star.pos), toPos: [gs > 0 ? 100 : 0, kind === 'gkcatch' ? 50 : kind === 'gkmove' ? 42 : 60], devSave: { saveType: kind === 'gkcatch' ? 'CATCH' : kind === 'gkcorner' ? 'DEFLECT_CORNER' : 'PARRY' } }, events.length + 10);
+        if (kind === 'gkcorner') { ball.allowOut = true; yield* until(() => ball.out, 3); stats.cornerOut = ball.p.toArray().map(v => +v.toFixed(2)); }
         yield* wait(2.5);
+      } else if (kind === 'crosshead') {
+        // (review) an open-play cross from out wide met with a header at the near post
+        const mate = mateOf(), gs = fx, line = gs * GOAL_X;
+        const spot = V(line - gs * 7, rt.headHeight, 3);
+        rt.place(mate, V(line - gs * 16, 0, 27)); ball.owner = mate; ball.p.copy(mate.pos).add(V(gs * 0.5, 0, 0)).setY(BALL_R); ball.v.set(0, 0, 0);
+        rt.place(star, V(spot.x - gs * 6, 0, spot.z - 4));
+        yield* pass(mate, star, spot.clone().setY(0), 'aerial', false, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6.5; } });
+        yield* shot({ eventId: -41, type: 'shot', header: true, fromId: star.id, fromSide: star.side, outcome: 'goal', fromPos: pctOf(spot), toPos: gs > 0 ? [100, 47] : [0, 53] }, events.length + 10);
+        yield* wait(1.5);
       } else if (kind === 'bicycle') {
         const mate = mateOf(), gs = fx, line = gs * GOAL_X;
         const spot = V(line - gs * 9, rt.headHeight, 1.5);
@@ -1418,6 +1561,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // a defender closes the carrier down and commits; success decides who gets the ball
   function* tackle(def, car, success, closeUp, slide) {
     if (!def || !car) return;
+    if (keeperDown(car)) yield* until(() => !keeperDown(car), 3);          // (a keeper gets up before he is challenged)
     if (ball.owner !== car) yield* ensureOwner(car);
     if (def.motion) yield* until(() => !def.motion, 2);
     def.busy = car.busy = true;
@@ -1533,7 +1677,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // (he stops) and the defender wins it with his next effort.
       const m = def.motion?.dir || V(Math.sin(def.heading), 0, Math.cos(def.heading));
       const side = V(-m.z, 0, m.x).multiplyScalar((pick(def.lastEvent, 3) - 0.5) * 0.8);
-      if (rt.contactDistance(def, ball.p) > 0.45) {
+      if (rt.contactDistance(def, ball.p) > 0.44) {
         stats.misses = (stats.misses || 0) + 1;
         car.vel.multiplyScalar(0.3); car.want = 0; car.target.copy(car.pos); ball.v.multiplyScalar(0.3); ball.owner = null;
         rt.startAction(car, 'feint');
@@ -1599,6 +1743,38 @@ export function createDirector(rt, data, hooks, opts = {}) {
     S.aerial = { at: tArr, to, winner };
   }
 
+  // V7.9.3 a save turned behind for a corner: tipped over the bar, or round the post, on the side the corner is
+  // given from (the engine puts the ball out at the corner flag: it does not fly there from the keeper's gloves)
+  function cornerSide(i) {
+    const out = events.slice(i + 1, i + 6).find(x => x.type === 'ballOut' && x.restartType === 'CORNER');
+    const z = out ? toWorld(out.fromPos || out.toPos).z : ball.p.z;
+    return Math.sign(z || 1);
+  }
+  function deflectBehind(goalSide, side) {
+    const lineX = goalSide * GOAL_X, z0 = ball.p.z;
+    if (Math.abs(z0) < 3.0) {
+      // inside the posts: up over the bar, dropping behind the net, drifting to the corner's side
+      const to = V(lineX + goalSide * 4.6, BALL_R, clamp(z0 + side * 1.6, -3.4, 3.4));
+      for (let t = 0.7; t < 2.4; t += 0.05) {
+        rt.kickAir(to, t);
+        const tl = (lineX - ball.p.x) / ball.v.x, tb = (lineX + goalSide * 2 - ball.p.x) / ball.v.x;
+        const y = tt => ball.p.y + ball.v.y * tt - 4.905 * tt * tt;
+        if (tl > 0 && y(tl) > 2.8 && y(tb) > 1.9) break;
+      }
+    } else {
+      // beside a post: round it and out over the line, away from the goal
+      rt.kickAir(V(lineX + goalSide * 2.5, BALL_R, side * Math.max(Math.abs(z0) + 2.2, 5.5)), 0.7);
+    }
+    S.deflected = side;
+  }
+  const HOLD_THROUGH = new Set(['offBallRun', 'chance', 'sub', 'yellow', 'red', 'injury', 'half', 'end', 'firstTouch']);
+  function* dropFromHands(gk) {
+    gk.holding = false;
+    if (gk.dive || gk.prone) yield* until(() => !gk.dive && !gk.prone, 3);
+    const f = fwdOf(gk); ball.held = null; ball.v.set(f.x * 0.9, 0, f.z * 0.9);
+    yield* until(() => ball.p.y < BALL_R + 0.02, 1);
+  }
+  const keeperDown = gk => !!(gk.prone || gk.dive || (gk.motion?.name === 'gkGetUp' && S.t - gk.motion.t0 < gk.motion.dur - 0.35));
   // ---- shot: aim from the engine outcome, keeper dives, outcome plays out physically ----
   function* shot(e, i) {
     const sh = P(e.fromId, e.fromSide); if (!sh) return;
@@ -1631,7 +1807,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
     // V7.9: Higuita's scorpion — a looping ball dropping onto a keeper who has it; never when his team is losing
     // (the test button: the next saved shot at our goal of any kind but a penalty or a header)
     const tryScorp = gk?.side === 'user' && tryMove === 'scorpion' && outcome === 'save' && !hc && !e.penalty && !e.header;
-    const scorpion = !!gk && (tryScorp || (outcome === 'save' && !hc && !e.penalty && !e.freeKick && !e.header && save?.saveType !== 'CATCH' && fromGoal > 16
+    // (V7.9.4 only a keeper set and facing the shot: running back towards his goal he cannot throw himself at it)
+    const gkFacing = !!gk && gk.vel.length() < 2.5 && Math.abs(Math.atan2(Math.sin(Math.atan2(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) - gk.heading), Math.cos(Math.atan2(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) - gk.heading))) < 0.6;
+    const scorpion = !!gk && gkFacing && (tryScorp || (outcome === 'save' && !hc && !e.penalty && !e.freeKick && !e.header && save?.saveType !== 'CATCH' && fromGoal > 16
       && has(gk, 'scorpion') && !losing(gk.side) && (gk.used?.scorpion || 0) < 1 && pick(e, 47) < 0.08));
     if (scorpion && tryMove === 'scorpion') tryMove = null;
     if ((panenka && tryShot === 'panenka') || (chip && tryShot === 'chip') || (bicycle && tryShot === 'bicycle')) tryMove = null;
@@ -1646,16 +1824,33 @@ export function createDirector(rt, data, hooks, opts = {}) {
       return 0;
     };
     if (chip) aim = outcome === 'goal' ? V(lineX + goalSide * 0.3, 1.35, clamp(tz, -2.4, 2.4)) : V(lineX, 2.75, clamp(tz, -2.6, 2.6));
-    if (e.penalty) { rt.place(sh, toWorld(e.fromPos).add(V(-goalSide * 1.2, 0, 0)), goalSide > 0 ? Math.PI / 2 : -Math.PI / 2); ball.p.copy(toWorld(e.fromPos)).setY(BALL_R); ball.v.set(0, 0, 0); ball.owner = sh; }
+    if (e.penalty) {
+      const spot = toWorld(e.fromPos);
+      if (sh.pos.distanceTo(spot) > 3.5) rt.place(sh, spot.clone().add(V(-goalSide * 1.2, 0, 0)), goalSide > 0 ? Math.PI / 2 : -Math.PI / 2);
+      ball.p.copy(spot).setY(BALL_R); ball.v.set(0, 0, 0); ball.owner = sh;
+    }
+    // V7.9.3 a penalty: the keeper on his line, centred, in his set position; the taker walks back for a
+    // short run-up from a little to one side (not a Panenka, which keeps its own build-up)
+    const pen = !!e.penalty && !!gk && !panenka ? { lineX } : null;
+    if (pen) {
+      const spot = ball.p.clone().setY(0), mark = V(lineX - goalSide * 0.2, 0, 0);
+      hooks.cam('pen', sh, gk, true);
+      gk.busy = true; gk.face = spot; gk.faceLock = false; gk.target.copy(mark); gk.want = 4; gk.loopsWant.keeperReady = 1;
+      const side = pick(e, 53) < 0.5 ? 1 : -1, back = spot.clone().add(V(-goalSide * 3.4, 0, side * 1.6));
+      sh.busy = true; sh.target.copy(back); sh.want = 2.2; sh.face = spot; sh.faceLock = true;
+      yield* until(() => { gk.target.copy(mark); return gk.pos.distanceTo(mark) < 0.3 && sh.pos.distanceTo(back) < 0.4; }, 4.5);
+      sh.faceLock = false; sh.want = 0; gk.target.copy(gk.pos); gk.want = 0;
+      yield* wait(0.7);                          // a moment's stillness before the run-up
+    }
     if (!hc) yield* ensureOwner(sh);
     sh.busy = true; if (gk) gk.busy = true;
-    hooks.cam('shot', sh, gk);
-    let scoopAudit = null;
+    hooks.cam(pen ? 'pen' : 'shot', sh, gk);
+    let scoopAudit = null, rush = null;
     if (gk) {
       // the keeper sets himself on the line between the ball and the middle of his goal, a few
       // metres off it (further out for a shot from close in, to narrow the angle)
       const centre = V(lineX, 0, 0), toBall = V(ball.p.x - lineX, 0, ball.p.z), dist = toBall.length();
-      const set = chip ? V(ball.p.x, 0, ball.p.z).addScaledVector(toBall.clone().normalize(), -Math.min(4.5, dist * 0.5)) : centre.clone().addScaledVector(toBall.normalize(), clamp(dist * 0.12, 1.2, 4));
+      const set = pen ? V(lineX - goalSide * 0.2, 0, 0) : chip ? V(ball.p.x, 0, ball.p.z).addScaledVector(toBall.clone().normalize(), -Math.min(4.5, dist * 0.5)) : centre.clone().addScaledVector(toBall.normalize(), clamp(dist * 0.12, 1.2, 4));
       gk.loopsWant.keeperReady = chip ? 0 : 1; gk.face = ball.p; gk.target.copy(set); gk.want = chip ? 7 : 5;
     }
     if (hc && bicycle) {
@@ -1665,13 +1860,51 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // header: he times his jump so the forehead meets the cross, and nods it towards the aim
       const out = V(aim.x - hc.spot.x, 0, aim.z - hc.spot.z).normalize(), inc = V(-ball.v.x, 0, -ball.v.z).normalize();
       if (!sh.motion) rt.headerAt(sh, hc.spot, headingOf(out.clone().multiplyScalar(1.6), inc), Math.max(0, hc.tArr - MOTIONS.header.contact - S.t));
-      yield* until(() => S.t >= hc.tArr, hc.tArr - S.t + 0.5);
+      // the contact is the frame the ball is closest to his forehead (the ball reaches it on about the planned frame)
+      let bestH = Infinity;
+      yield* until(() => {
+        if (S.t < hc.tArr - 0.1) return false;
+        const d = sh.motion ? rt.contactDistance(sh, ball.p) : Infinity;
+        if (d < 0.12 || S.t > hc.tArr + 0.1 || (d > bestH + 0.02 && S.t >= hc.tArr)) return true;
+        bestH = Math.min(bestH, d); return false;
+      }, hc.tArr - S.t + 0.5);
       noteContact('header', sh);
       ball.owner = null; sh.lastTouch = S.t;
     } else {
+      // V7.9.3 one on one: through on goal with nobody left to beat, the keeper comes off his line to narrow
+      // the angle while the man runs at him; close in, a save is made by going down at his feet
+      const goalC = V(lineX, 0, 0);
+      const clearRun = () => {
+        const b = V(ball.p.x, 0, ball.p.z), seg = goalC.clone().sub(b), L = seg.length(); seg.normalize();
+        return !rt.players.some(q => !q.offPitch && q.side !== sh.side && q.role !== 'GK' && (() => { const r = V(q.pos.x - b.x, 0, q.pos.z - b.z), a = r.dot(seg); return a > 0.5 && a < L && Math.abs(r.x * seg.z - r.z * seg.x) < 2.6; })());
+      };
+      if (gk && !pen && !panenka && !chip && !scorpion && !e.penalty && !e.freeKick && ['save', 'goal', 'wide'].includes(outcome)
+        && !e.devFoot && !gk.dive && !gk.prone && !gk.motion && Math.abs(gk.pos.x - lineX) < Math.abs(ball.p.x - lineX) - 4
+        && (e.devRush || (fromGoal < 19 && Math.abs(ball.p.z) < 13 && Math.abs(ball.p.x - lineX) > 7 && clearRun()))) {
+        rush = { line0: +Math.abs(gk.pos.x - lineX).toFixed(2) };
+        const spotFor = () => { const b = V(ball.p.x, 0, ball.p.z), toB = b.clone().sub(goalC), L = toB.length(); return goalC.clone().addScaledVector(toB.normalize(), clamp(L - clamp(L * 0.2, 2.2, 3.2), 1.2, 11)); };     // (never out of his box)
+        const t0 = S.t; gk.face = ball.p; gk.faceLock = false;
+        // the two of them from the side as the keeper closes in (when they are close enough to share a side-on
+        // picture; further apart, from behind the man, the goal and the keeper ahead of him)
+        hooks.cam(Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z) < 9 ? 'side' : 'shot', sh, gk);
+        // the man steadies himself with the ball at his feet while the keeper races out to meet him
+        yield* ensureOwner(sh); sh.busy = true;
+        const s = spotFor(); gk.target.copy(s);
+        yield* until(() => {
+          const far = gk.pos.distanceTo(s);
+          gk.want = far > 1.2 ? 7.5 : 2.5; gk.loopsWant.keeperReady = far > 2 ? 0 : 1;
+          sh.target.copy(sh.pos); sh.want = 0; sh.face = ball.p;
+          const g = Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z);
+          if (g < 9 && !rush.sideCam) { rush.sideCam = true; hooks.cam('side', sh, gk); }
+          // (he stops about 4.5 m off: still coming at full speed he needs room to pull up)
+          return g - gk.vel.lengthSq() / 18 < 4.5 || far < 0.5;
+        }, 2.4);
+        gk.target.copy(gk.pos); gk.want = 0; gk.loopsWant.keeperReady = 1;
+        yield* until(() => gk.vel.length() < 1.2, 0.8);            // he pulls up and sets himself
+      }
       // a save needs a keeper in front of the shot: caught out of position, he races back while the
       // shooter steadies himself (never a save by a keeper standing behind the shooter)
-      if (gk && outcome === 'save' && !e.penalty && !e.freeKick && gk.pos.distanceTo(gk.target) > 3) {
+      if (gk && !rush && outcome === 'save' && !e.penalty && !e.freeKick && gk.pos.distanceTo(gk.target) > 3) {
         gk.want = 7.5;
         yield* until(() => gk.pos.distanceTo(gk.target) < 1.2, Math.min(2.5, gk.pos.distanceTo(gk.target) / 6.5 + 0.4));
         gk.want = 5;
@@ -1679,17 +1912,36 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (chip && gk) yield* until(() => gk.pos.distanceTo(gk.target) < 1.2 || Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z) < 6.5, 2.4);        // he waits for the keeper to commit
       // no chip that cannot get over him (a tight angle, the keeper right on top of him): he just shoots
       if (chip && !chipArc()) { chip = false; aim.copy(aim0); if (tryShot === 'chip') tryMove = 'chip'; }
+      // V7.9.3 a keeper still down (or getting up) from the last save cannot dive for this one: a shot he saves
+      // waits until he is up (the man takes a touch); a shot that beats him beats him on the ground
+      if (gk && outcome === 'save' && !pen && !scorpion && keeperDown(gk)) yield* until(() => !keeperDown(gk), 2.2);
       const kname = panenka || chip ? 'pass' : 'shot';
       const dir = yield* approachAim(sh, kname, aim);
+      if (rush) {
+        rush.gap = Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z); if (DEBUG) rush.gap0 = +rush.gap.toFixed(2);
+        // close in and saved: he goes down sideways across the ball's path, hands first at the man's feet
+        if (outcome === 'save' && rush.gap < 6.5) {
+          rush.smother = pick(e, 59) < 0.5 ? 1 : -1;
+          const toB = V(ball.p.x - gk.pos.x, 0, ball.p.z - gk.pos.z).normalize(), a = rush.smother * 1.25;
+          const f = toB.clone().applyAxisAngle(V(0, 1, 0), -a);         // turned side-on: he goes down hands first towards the ball
+          gk.face = gk.pos.clone().addScaledVector(f, 10); gk.faceLock = true; gk.loopsWant.keeperReady = 0;
+        }
+      }
       rt.startAction(sh, kname); rt.kickWarp(sh, kname, dir);
       if (panenka || chip) hooks.slow(0.4);
       yield* until(() => rt.actionAtContact(sh), 2);
+      if (pen) { pen.strike = S.t; pen.onLine = +Math.abs(gk.pos.x - lineX).toFixed(2); }
+      if (rush) { rush.out = +Math.abs(gk.pos.x - lineX).toFixed(2); rush.gap = +Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z).toFixed(2); }
       if (panenka || chip) { const toe = sh.toes[1].getWorldPosition(V()); scoopAudit = { kind: panenka ? 'panenka' : 'chip', contact: +Math.hypot(toe.x - ball.p.x, toe.z - ball.p.z).toFixed(3) }; }
     }
     // a save happens in the keeper's hands, in front of his line: the shot is aimed at the spot his
     // gloves can reach (within a dive and an arm of where he stands), not at the goal line
     let smother = 0;
-    if (outcome === 'save' && gk) {
+    if (outcome === 'save' && gk && rush?.smother) {
+      const toK = V(gk.pos.x - ball.p.x, 0, gk.pos.z - ball.p.z), d = toK.length();
+      aim = ball.p.clone().addScaledVector(toK.normalize(), Math.max(0.6, d - 1.3)).setY(0.22);
+      smother = Math.min(1, Math.max(0.45, d / 6));
+    } else if (outcome === 'save' && gk) {
       const gz = gk.pos.z, front = gk.pos.x - goalSide * 0.3;
       if (Math.abs(ball.p.x) > Math.abs(front) - 0.6 && Math.hypot(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) < 7) {
         // the shooter is level with or past the keeper: he smothers it on its way to the line
@@ -1731,7 +1983,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       } else {
         // plan the dive first, then send the ball exactly to where his gloves will be on the save frame
         starReach = aim.y > 1.3 && Math.abs(lat) > 1.9 && (e.eventId === 16 || pick(e, 45) < 0.3) && { aimH: +aim.y.toFixed(2), lat: +Math.abs(lat).toFixed(2) };          // high and far into a corner (about a third of them)
-        rt.planDive(gk, aim.clone(), flight, true);
+        rt.planDive(gk, aim.clone(), flight, true, pen ? 0.02 : rush?.smother ? 0.03 : 0.12);
         const g = rt.diveHands(gk);
         aim.set(g.x, Math.max(0.2, g.y), g.z);
       }
@@ -1758,7 +2010,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
     hooks.slow(0.45);
     const tArrive = outcome === 'save' ? flight : flight * Math.max(0.2, (Math.abs(gk ? gk.pos.x : lineX) - Math.abs(ball.p.x)) / Math.max(0.5, Math.abs(lineX - ball.p.x)));
     if (gk && outcome === 'save') { /* planned above */ }
-    else if (gk && panenka) {
+    else if (gk && pen) {
+      const r = pick(e, 55), z = aim.z || 0.01, side = r < 0.6 ? -Math.sign(z) : Math.sign(z);
+      if (r < 0.88) rt.planDive(gk, V(lineX - goalSide * 0.4, r < 0.6 ? 0.5 + pick(e, 57) * 0.9 : aim.y, r < 0.6 ? side * 2.6 : z), Math.max(0.3, flight), false, 0.02);
+      pen.guess = r < 0.6 ? 'wrong' : r < 0.88 ? 'beaten' : 'stood';
+    } else if (gk && panenka) {
       // he guesses a corner and goes early
       const side = pick(e, 31) < 0.5 ? 1 : -1;
       rt.planDive(gk, V(lineX - goalSide * 0.4, 0.6, side * 2.5), 0.5, false);
@@ -1766,6 +2022,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // caught off his line: he stretches up, the ball is already over him
       const at = ball.p.clone().addScaledVector(ball.v, tArrive); at.y = Math.min(1.9, ball.p.y + ball.v.y * tArrive - 0.5 * 9.81 * tArrive * tArrive - 0.8);
       rt.planDive(gk, at, Math.max(0.3, tArrive), false);
+    } else if (gk && keeperDown(gk)) {
+      /* still on the ground: no dive from there */
     } else if (gk && outcome !== 'wide' && outcome !== 'block') {
       const at = ball.p.clone().addScaledVector(ball.v, tArrive); at.y = ball.p.y + ball.v.y * tArrive - 0.5 * 9.81 * tArrive * tArrive;
       rt.planDive(gk, at, tArrive, outcome === 'save');
@@ -1773,18 +2031,22 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const at = ball.p.clone().addScaledVector(ball.v, tArrive); at.y = 0.8;
       rt.planDive(gk, at, tArrive, false);
     }
+    if (pen && gk.dive) pen.early = +(gk.dive.start - pen.strike).toFixed(2);
     sh.busy = false;
     // flight
     const t0 = S.t;
     if (outcome === 'save' && gk && scorpion) {
       yield* scorpionSave(gk, t0 + flight, scorp);
       if (save?.saveType === 'CATCH') { ball.v.set(-goalSide * 1.2, 4.5, 0); ball.owner = null; }       // it loops up off his heels and he gathers it
-      else if (save?.saveType === 'DEFLECT_CORNER') { ball.v.set(goalSide * 2.5, 6, Math.sign(ball.p.z || -1) * 5); ball.owner = null; }
+      else if (save?.saveType === 'DEFLECT_CORNER') { ball.owner = null; deflectBehind(goalSide, cornerSide(i)); }
       else { const r = toWorld(save?.toPos || [goalSide > 0 ? 88 : 12, 50]); ball.v.set((r.x - ball.p.x) * 0.55, 6.5, (r.z - ball.p.z) * 0.55); ball.owner = null; }
     } else if (outcome === 'save' && gk) {
-      yield* until(() => savePoint().distanceTo(ball.p) < 0.3 || S.t - t0 >= flight, flight + 0.2);
+      yield* until(() => (savePoint().distanceTo(ball.p) < 0.3 && S.t - t0 > flight * 0.6) || S.t - t0 >= flight, flight + 0.2);
       (stats.contacts.save ||= []).push(+savePoint().distanceTo(ball.p).toFixed(2));
+      if (rush) Object.assign(rush, { contact: +savePoint().distanceTo(ball.p).toFixed(2), hips: +gk.bones.Hips.getWorldPosition(V()).y.toFixed(2) });
       if (footSide) { (stats.footSaves ||= []).push(+savePoint().distanceTo(ball.p).toFixed(2)); const fe = gk.feet; later(0.6, () => { if (gk.feet === fe) gk.feet = null; }); }
+      // V7.9.3: a penalty saved — on his line at the strike, gone the right way as it was struck: its replay follows
+      else if (pen) noteSkill({ kind: 'pensave', hands: +savePoint().distanceTo(ball.p).toFixed(3), onLine: pen.onLine, early: pen.early ?? null, h: +ball.p.y.toFixed(2), bz: +ball.p.z.toFixed(2) }, gk);
       // V7.9: a full-stretch save into the top of the goal is a star moment: its replay follows (once a match for him)
       else if (starReach && gk.dive && (gk.used?.starsave || 0) < 1 && savePoint().distanceTo(ball.p) < 0.35)
         noteSkill({ kind: 'starsave', hands: +savePoint().distanceTo(ball.p).toFixed(3), h: +ball.p.y.toFixed(2), ...starReach }, gk);
@@ -1793,12 +2055,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (catchIt) {      // held — on the ground and while he gets up — then dropped to his feet
         ball.held = rt.pickUp(() => rt.handsOf(gk), 0.12); ball.owner = gk;
         yield* wait(1.4); yield* until(() => !gk.dive && (!gk.motion || S.t - gk.motion.t0 > gk.motion.dur - 0.3), 3);
-        // V7.9: if his next action is a pass he keeps it in his hands for it (a throw or a kick from the hands)
-        const next = events.slice(i + 1, i + 5).find(x => ['pass', 'cross', 'press', 'tackle', 'hold', 'dribble', 'ballCarry', 'interception'].includes(x.type));
-        if (next && next.type === 'pass' && next.fromId === gk.id && next.fromSide === gk.side) { gk.holding = true; ball.owner = gk; }
-        else { ball.held = null; ball.v.set(0, 0, 0); }
+        // V7.9.3: he keeps it in his hands (getting up and after) until his next action with it: a pass is thrown
+        // or volleyed from the hands; anything else and he drops it to his feet then (see run)
+        gk.holding = true; ball.owner = gk;
       }
-      else if (save?.saveType === 'DEFLECT_CORNER') { ball.v.set(goalSide * 2.5, 2.2, Math.sign(ball.p.z || -1) * 6); ball.owner = null; }
+      else if (save?.saveType === 'DEFLECT_CORNER') { ball.owner = null; stats.deflects = (stats.deflects || 0) + 1; deflectBehind(goalSide, cornerSide(i)); }
       else { const r = toWorld(save?.toPos || [goalSide > 0 ? 90 : 10, 50]); ball.v.set((r.x - ball.p.x) * 0.9, 2.5, (r.z - ball.p.z) * 0.9); ball.owner = null; }
     } else if (outcome === 'post') {
       yield* until(() => Math.abs(ball.p.x) >= GOAL_X - 0.15, flight + 0.5);
@@ -1814,6 +2075,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     } else {
       yield* until(() => Math.abs(ball.p.x) > GOAL_X + 0.5, flight + 1);
     }
+    if (rush) { (stats.rushes ||= []).push({ ...rush, outcome }); gk.faceLock = false; }
+    if (pen) (stats.pens ||= []).push({ outcome, onLine: pen.onLine, guess: pen.guess || 'save', early: pen.early ?? null });
     // a parry, rebound or block stays in play; a goal or a ball over the line does not
     const leaves = outcome === 'goal' || outcome === 'wide' || (outcome === 'save' && save?.saveType === 'DEFLECT_CORNER');
     if (!leaves) { yield* wait(0.25); ball.allowOut = false; }
@@ -1871,9 +2134,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (u < SCORP_LEAD) { const k = smooth01(u / SCORP_LEAD); return { pitch: -1.45 * k, lift: 0.16 * Math.sin(Math.PI * k) }; }
         const v = u - SCORP_LEAD;
         if (v < 0.4) { const k = smooth01(v / 0.4); return { pitch: -1.45 - 0.11 * k, lift: -0.82 * k }; }
-        if (v < 1.0) return { pitch: -1.56, lift: -0.82 };
-        if (v < 1.8) { const k = smooth01((v - 1.0) / 0.8); return { pitch: -1.56 * (1 - k), lift: -0.82 * (1 - k) }; }
-        return null;
+        return { pitch: -1.56, lift: -0.82 };          // he lies there until he rolls over to get up (runtime)
       },
     };
   }
@@ -1912,7 +2173,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
     (stats.contacts.save ||= []).push(+near().toFixed(2));
     noteSkill(audit, gk);
     const feet = gk.feet, hands = gk.hands;
-    later(1.9, () => { gk.drive = null; gk.flip = null; if (gk.feet === feet) gk.feet = null; if (gk.hands === hands) gk.hands = null; gk.faceLock = false; gk.busy = false; hooks.slow(1); });
+    // V7.9.3: down on his hands and chest, he lies a moment, rolls over onto his back and gets up the way
+    // he does after a dive (the recorded get-up), not tipped back up like a board
+    later(0.9, () => {
+      if (gk.feet === feet) gk.feet = null; if (gk.hands === hands) gk.hands = null;
+      rt.riseFromFront(gk, pick({ eventId: Math.round(T * 10) }, 49) < 0.5 ? 1 : -1);
+      if (DEBUG) audit.rise = { t0: S.t };
+    });
+    later(0.9 + 0.55 + 0.35 + 1.0, () => { gk.faceLock = false; gk.busy = false; hooks.slow(1); });
   }
   function* celebrate(scorer) {
     if (!scorer) return;
@@ -1956,6 +2224,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const r = P(offAhead.toId, offAhead.toSide);
       if (r && !r.busy && ball.owner !== r) { S.offRun = offAhead.eventId; r.target.copy(toWorld(offAhead.toPos)); r.want = 6.8; r.runUntil = S.t + 8; r.face = null; }
     }
+    // V7.9.3 a keeper holding the ball after a catch keeps it in his hands through moments without the ball;
+    // when the play needs it on the grass (he runs with it, he is closed down, …) he drops it to his feet
+    const hk = rt.players.find(p => p.holding);
+    if (hk && (!ball.held || ball.owner !== hk)) hk.holding = false;
+    else if (hk && !HOLD_THROUGH.has(e.type) && !(e.type === 'pass' && e.fromId === hk.id && e.fromSide === hk.side)) yield* dropFromHands(hk);
     const from = P(e.fromId, e.fromSide), to = P(e.toId, e.toSide);
     switch (e.type) {
       case 'kickoff': {
@@ -2009,19 +2282,46 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const target = toWorld(e.toPos);
         const receiver = to && to !== from ? to : null;
         const popts = { throwIn: e.type === 'throwIn' || e.restartType === 'THROW_IN', restart: !!e.restartType, ev: e };
-        if (receiver && (e.type === 'corner' || e.type === 'cross')) {
+        const pk = events[i + 1]?.type === 'looseBall' && events[i + 1].reason === 'punch' ? events[i + 1] : null, pgk = pk && P(pk.punchBy, pk.punchSide);
+        if (pgk && (e.type === 'corner' || e.type === 'cross' || e.travelType === 'aerial')) {
+          // V7.9.3 the keeper punches it: the ball is aimed where he can get to it in time
+          // he meets it around his six-yard box (where a keeper comes for a ball), never further than he can run to in time
+          const gx = ownGoalX(pgk.side), sg = Math.sign(gx);
+          target.set(gx - sg * clamp(Math.abs(target.x - gx), 3.5, 8.5), 0, clamp(target.z, -8, 8));
+          const flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+          const gap = V(target.x - pgk.pos.x, 0, target.z - pgk.pos.z), reach = 4.3 * Math.max(0, flight - MOTIONS.header.contact - 0.35) + 0.4;
+          if (gap.length() > reach) target.copy(pgk.pos).addScaledVector(gap.normalize(), reach).setY(0);
+          pgk.busy = true; pgk.target.copy(target).setY(0); pgk.want = 7.5; pgk.loopsWant.keeperReady = 0;
+          const rival = receiver && receiver.side !== pgk.side ? receiver : null;
+          popts.height = PUNCH_H; popts.meet = tArr => { S.punch = { gk: pgk, spot: target.clone().setY(PUNCH_H), tArr, land: toWorld(pk.toPos), rival }; };
+        } else if (receiver && (e.type === 'corner' || e.type === 'cross')) {
           const nx = events[i + 1];
           const hs = nx?.type === 'shot' && nx.header && nx.fromId === e.toId ? nx : null;
-          const lb = !hs && e.type === 'corner' && nx?.type === 'looseBall' && (nx.reason === 'clearance' || nx.reason === 'aerial') ? nx : null;
+          const lb = !hs && (e.type === 'corner' || e.type === 'cross') && nx?.type === 'looseBall' && (nx.reason === 'clearance' || nx.reason === 'aerial') ? nx : null;   // (V7.9.4 open-play crosses are contested the same way)
           if (hs || lb) {
             // the cross is aimed where the man who meets it can actually get to (a header taker runs onto it)
             const jumper = hs || lb.reason !== 'clearance' ? receiver : rivalFor(receiver, target) || receiver;
-            const flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            let flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            // V7.9.4 an open-play cross: the man on the ball waits (a touch, a look up) while the runner gets into
+            // the box, so the cross is put where the engine says it goes, not wherever the runner happens to be
+            if (e.type === 'cross' && jumper && ball.owner === from) {
+              // he crosses from where the engine has him (out wide in the attacking third): if the picture has him
+              // further back, he runs it up there first
+              const fp = toWorld(e.fromPos || [50, 50]);
+              if (Math.hypot(fp.x - from.pos.x, fp.z - from.pos.z) > 6) {
+                from.busy = true;
+                yield* until(() => { rt.dribble(from, fp, 6.5); return ball.owner !== from || Math.hypot(ball.p.x - fp.x, ball.p.z - fp.z) < 4; }, 3);   // (a few seconds at most)
+              }
+              if (ball.owner !== from) yield* ensureOwner(from);
+              from.busy = true; jumper.target.copy(target).setY(0); jumper.want = 7.4; jumper.runUntil = S.t + 6; jumper.face = null;
+              yield* until(() => { from.target.copy(from.pos); from.want = 0; return Math.hypot(target.x - jumper.pos.x, target.z - jumper.pos.z) < 3.7 * Math.max(0, flight - MOTIONS.header.contact - 0.1) + 1.0; }, 3.5);
+              flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            }
             // he sprints from a standing start while the ball is in the air, then steps into the jump
             const gap = V(target.x - jumper.pos.x, 0, target.z - jumper.pos.z);
             // time lost turning round if he is running the other way
             const lost = Math.max(0, jumper.vel.length() - jumper.vel.dot(gap.clone().normalize())) / 9;
-            const reach = 4.2 * Math.max(0, flight - MOTIONS.header.contact - lost) + 1.2;
+            const reach = 3.7 * Math.max(0, flight - MOTIONS.header.contact - lost - 0.1) + 1.0;
             if (gap.length() > reach) target.copy(jumper.pos).addScaledVector(gap.normalize(), reach).setY(0);
             // he sets off as the kick is struck, not when the ball is already in the air
             jumper.target.copy(target).setY(0); jumper.want = 7.4; jumper.runUntil = S.t + flight + 2; jumper.face = null;
@@ -2035,10 +2335,17 @@ export function createDirector(rt, data, hooks, opts = {}) {
       }
       case 'firstTouch': if (from && ball.owner !== from) yield* ensureOwner(from); break;
       case 'looseBall': {
+        if (S.punch) { const k = S.punch; S.punch = null; yield* keeperPunch(k.gk, k.spot, k.tArr, k.land, k.rival); break; }
         if (S.aerial) {
           // headed away (or flicked on) at the top of the jump
           const a = S.aerial; S.aerial = null;
-          yield* until(() => S.t >= a.at, a.at - S.t + 0.5);
+          { let bestA = Infinity;       // (the frame the ball is closest to his forehead)
+            yield* until(() => {
+              if (S.t < a.at - 0.1) return false;
+              const d = a.winner.motion ? rt.contactDistance(a.winner, ball.p) : Infinity;
+              if (d < 0.12 || S.t > a.at + 0.1 || (d > bestA + 0.02 && S.t >= a.at)) return true;
+              bestA = Math.min(bestA, d); return false;
+            }, a.at - S.t + 0.5); }
           // nobody got his head to it: it drops and runs loose
           if (!a.winner.motion || rt.contactDistance(a.winner, ball.p) > 0.45) { stats.misses = (stats.misses || 0) + 1; break; }
           noteContact('aerial', a.winner);
@@ -2072,14 +2379,23 @@ export function createDirector(rt, data, hooks, opts = {}) {
         }
         ball.allowOut = true;
         const outW = toWorld(e.fromPos || e.toPos || [50, 50]);
+        // a corner: it goes out over the goal line (beside the goal), not at the flag the engine marks
+        if (e.restartType === 'CORNER') { outW.x = Math.sign(outW.x || 1) * (GOAL_X + 0.6); outW.z = Math.sign(outW.z || 1) * clamp(Math.abs(ball.p.z) + 3, 5.5, 32); }
+        const out0 = ball.p.clone();
+        S.deflected = null;
         if (!ball.out && !ball.held) {
           // the ball runs out where the engine says it went out (a ball in the air carries on and drops)
           ball.owner = null;
           const far = Math.hypot(outW.x - ball.p.x, outW.z - ball.p.z);
-          if (ball.p.y > 0.3 || far > 12) rt.kickAir(V(outW.x, BALL_R, outW.z), Math.max(0.6, far / 15));
+          const corner = e.restartType === 'CORNER';
+          if (corner && far > 30) { /* the picture is elsewhere: no 80 m flight, the ball is placed at the flag for the corner */ }
+          else if (corner && Math.abs(ball.p.z) < 4.2 && Math.abs(ball.p.x) > GOAL_X - 14) deflectBehind(Math.sign(outW.x), Math.sign(outW.z || 1));   // in front of goal: over the bar
+          else if (corner) { rt.kickAir(V(outW.x, BALL_R, outW.z), Math.max(0.9, far / 15)); ball.through = S.t + Math.max(0.9, far / 15); }
+          else if (ball.p.y > 0.3 || far > 12) rt.kickAir(V(outW.x, BALL_R, outW.z), Math.max(0.6, far / 15));
           else rt.kickGround(outW, Math.max(2.5, Math.min(6, Math.hypot(ball.v.x, ball.v.z) * 0.6)));
         }
-        yield* until(() => ball.out, 3);
+        yield* until(() => ball.out || (e.restartType === 'CORNER' && Math.hypot(outW.x - out0.x, outW.z - out0.z) > 30), 3);
+        if (e.restartType === 'CORNER' && ball.out) (stats.cornerOuts ||= []).push([...ball.p.toArray().map(v => +v.toFixed(2)), +ball.p.distanceTo(out0).toFixed(1), +out0.z.toFixed(1), +out0.x.toFixed(1), events[i - 1]?.type]);
         S.dead = true;
         if (RESTART_LABEL[e.restartType]) hooks.banner(RESTART_LABEL[e.restartType], 1500);
         if (e.restartType === 'CORNER') { hooks.excite(0.7); hooks.cam('stand'); }
@@ -2102,6 +2418,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           }
         }
         ball.p.set(spot.x, BALL_R, spot.z);
+        if (type === 'CORNER') hooks.cam('stand', null, null, true);     // (V7.9.3 a cut to the corner picture once the ball is at the flag)
         S.restartSpot = taker && (type === 'FREE_KICK' || type === 'CORNER') ? { spot: spot.clone(), side: taker.side } : null;
         if (taker) {
           taker.busy = true;
@@ -2245,7 +2562,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // a move played between two events (test button, staging): the event it interrupted is not
       // resumed — it would put the ball back where the engine had it — the next one starts from the pitch as it is
       if (r.done) { staged = null; if (r.value) { task = null; for (const p of rt.players) { p.busy = false; p.faceLock = false; } } }
-      for (const p of rt.players) if (p.dive) rt.updateDive(p);          // (a keeper's dive goes on during a staged move too)
+      for (const p of rt.players) { if (p.dive) rt.updateDive(p); if (p.prone) rt.updateProne(p); }          // (a keeper's dive goes on during a staged move too)
       return;
     }
     // (temporary test button) our man on the ball, between two actions, plays the move asked for now
@@ -2270,7 +2587,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       task = nextTask();
     }
     if (sayQ && ((S.kicks || 0) > sayQ.kicks || !task || task.i !== sayQ.i)) flushSay();
-    for (const p of rt.players) if (p.dive) rt.updateDive(p);
+    for (const p of rt.players) { if (p.dive) rt.updateDive(p); if (p.prone) rt.updateProne(p); }
   }
 
   // jump straight to the next shot: everybody to the engine positions of that moment
