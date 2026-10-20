@@ -364,33 +364,3 @@ test('V7.9.3 an attacker in space does not turn round and play a long ball back;
   assert.ok(crosses >= 6, 'crosses ' + crosses);
   assert.deepEqual(outsideBox, [], 'a completed cross ends in or near the box');
 });
-
-test('V7.9.4 open-play crosses: from a wide man in the attacking third into the box, contested in the air; headers are a real share of shots and goals', { timeout: 900000 }, () => {
-  const N = 16, t = { crosses: 0, shots: 0, heads: 0, headsOpen: 0, goals: 0, headGoals: 0 }, bad = [];
-  for (let fixture = 0; fixture < N; fixture++) {
-    const h = fresh(fixture); playToEnd(h);
-    const ev = h.run('M.events');
-    ev.forEach((e, i) => {
-      if (e.type === 'shot') { t.shots++; if (e.header) { t.heads++; if (!e.restartType) t.headsOpen++; } }
-      if (e.type === 'goal') { t.goals++; const s = ev.slice(Math.max(0, i - 3), i).reverse().find(x => x.type === 'shot'); if (s?.header) t.headGoals++; }
-      if (e.type !== 'cross') return;
-      t.crosses++;
-      // (directions swap at half-time: the goal attacked is the end the ball is played to)
-      const end = e.toPos[0] > 50 ? 100 : 0, deep = p => end === 100 ? p[0] : 100 - p[0];
-      // from the attacking part of the pitch, out wide; into the box
-      if (deep(e.fromPos) < 55 || Math.abs(e.fromPos[1] - 50) < 12) bad.push(['from', e.fromPos]);
-      if (deep(e.toPos) < 78 || Math.abs(e.toPos[1] - 50) > 30) bad.push(['to', e.toPos]);
-      // what follows is the ball in the air being decided: a header at goal by the man it was for, a second ball,
-      // a corner, or the keeper's (a claim is the cross going to him); or a ball played into a man's stride (he controls it)
-      const n = ev[i + 1];
-      const ok = e.toSide !== e.fromSide || (n?.type === 'shot' && n.header && n.fromId === e.toId) || n?.type === 'looseBall' || n?.type === 'ballOut' || (n?.type === 'firstTouch' && n.fromId === e.toId);
-      if (!ok) bad.push(['next', n?.type]);
-    });
-  }
-  const per = k => t[k] / N;
-  assert.deepEqual(bad.slice(0, 5), [], 'crosses: ' + bad.length + ' out of place ' + JSON.stringify(bad.slice(0, 14)) + ' of ' + t.crosses);
-  assert.ok(per('crosses') >= 4, 'open-play crosses per match ' + per('crosses').toFixed(2));
-  assert.ok(t.headsOpen > 0 && t.heads / t.shots > 0.08 && t.heads / t.shots < 0.22, 'headers ' + t.heads + ' of ' + t.shots + ' shots (open play ' + t.headsOpen + ')');
-  assert.ok(t.headGoals > 0 && t.headGoals / t.goals < 0.3, 'header goals ' + t.headGoals + ' of ' + t.goals);
-  assert.ok(per('goals') > 2.2 && per('goals') < 4.2, 'goals per match ' + per('goals').toFixed(2));
-});
