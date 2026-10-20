@@ -265,7 +265,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     return best;
   }
   function kickGround(to, arrive = 3, k = ROLL_K) {
-    S.kicks = (S.kicks || 0) + 1;
+    S.kicks = (S.kicks || 0) + 1; ball.meetUntil = 0;
     const d = Math.hypot(to.x - ball.p.x, to.z - ball.p.z);
     // a struck pass skims over the grass (k), a touch or a loose ball drags (ROLL_K);
     // a driven pass, not a cannon shot: past ~26 m/s it simply arrives slower
@@ -287,6 +287,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const k = AIR_K, f = k / (1 - Math.exp(-k * flight));
     ball.v.set((to.x - ball.p.x) * f, (to.y - ball.p.y + G * flight / k) * f - G / k, (to.z - ball.p.z) * f);
     ball.owner = null;
+    // V7.9.5: a ball played to a point inside the pitch flies there untouched by the keep-in brake
+    ball.meetUntil = Math.abs(to.x) < GOAL_X && Math.abs(to.z) < 34 ? S.t + flight + 0.3 : 0;
   }
   function dribble(p, goal, speed) {
     // run with the ball, not at it: aim a little past it towards where he is taking it, so he
@@ -826,8 +828,10 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       if (ball.p.y < 0.35) {
         const natural = outward / ROLL_K;                     // where grass friction alone would stop it
         if (natural > room) ball.v[ax] = s * Math.max(0, outward - (outward * outward / (2 * room)) * dt);
-      } else if (outward * 0.6 > room) {
+      } else if (outward * 0.6 > room && !(ball.meetUntil > S.t)) {
         ball.v[ax] = s * room / 0.6;                          // a dropping ball lands inside
+        // (V7.9.5: not a ball played to a point inside the pitch — a cross met by a head or the fists, a long
+        //  ball killed on the touchline; braking it made it arrive late, short and low)
       }
     }
   }

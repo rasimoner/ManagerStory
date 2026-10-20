@@ -588,6 +588,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     gk.busy = true; gk.loopsWant.keeperReady = 0;
     const lead = MOTIONS.header.contact;
     let jumped = false;
+    const trace = DEBUG ? [[+S.t.toFixed(2), ...ball.p.toArray().map(v => +v.toFixed(2)), ...ball.v.toArray().map(v => +v.toFixed(1))]] : null;
     if (rival && !rival.busy) jumpFor(rival, spot.clone().setY(rt.headHeight).add(V(-Math.sign(spot.x) * 0.6, 0, 0.3)), headingOf(V(spot.x - rival.pos.x, 0, spot.z - rival.pos.z).normalize(), V(0, 0, 0)), tArr, 0.12, 0.35);
     const out = V(land.x - spot.x, 0, land.z - spot.z).normalize();
     let best = Infinity;
@@ -607,16 +608,20 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const t0 = S.t, R = () => rightOf(gk), hw = ramp(t0, 0, 0.12, lead + 0.18, lead + 0.45);
         const face = () => gk.bones.Head.getWorldPosition(V()).addScaledVector(fwdOf(gk), 0.22).add(V(0, -0.05, 0));
         let hit = null;
+        // V7.9.5: the fists go for the ball itself once it is close to the spot (a steep, dropping cross passes
+        // the spot a little early or low; a keeper punches the ball, not the place he expected it)
+        const aim = () => (ball.p.distanceTo(spot) < 1.6 ? ball.p.clone() : spot.clone());
         const fist = side => t => {
           const k = smooth01(clamp((t - (t0 + lead - 0.16)) / 0.16, 0, 1));
-          if (t >= t0 + lead && !hit) hit = spot.clone();
-          const at = face().lerp(hit || spot.clone(), k);          // (the ball reaches the spot on the contact frame)
+          if (t >= t0 + lead + 0.1 && !hit) hit = aim();     // (tracks the ball through the planned contact frame)
+          const at = face().lerp(hit || aim(), k);          // (the ball reaches the spot on the contact frame)
           if (t > t0 + lead) at.addScaledVector(out, Math.min(0.3, (t - t0 - lead) * 2.5)).add(V(0, Math.min(0.15, (t - t0 - lead) * 1.2), 0));
           return at.addScaledVector(R(), side * 0.045);
         };
         gk.hands = { Left: { w: hw, at: fist(-1) }, Right: { w: hw, at: fist(1) } };
       }
       // the contact is the frame the ball is closest to his fists (it passes the spot on about the planned frame)
+      if (trace && trace.length < 400) trace.push([+S.t.toFixed(2), ...ball.p.toArray().map(v => +v.toFixed(2)), ...ball.v.toArray().map(v => +v.toFixed(1))]);
       if (!jumped) return false;
       const d = rt.handsOf(gk).distanceTo(ball.p);
       if (d < 0.2) return true;
@@ -624,7 +629,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       return false;
     }, Math.max(0.2, tArr - S.t) + 1);
     const reach = Math.min(best, rt.handsOf(gk).distanceTo(ball.p));
-    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1), ...(DEBUG ? { t: +S.t.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)) } : {}) };
+    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1), ...(DEBUG ? { t: +S.t.toFixed(2), late: +(S.t - tArr).toFixed(2), jumped, kick: stats.crossLog?.at(-1), trace: trace?.filter((x, i, a) => i % 10 === 0 || i === a.length - 1), bv: ball.v.toArray().map(v => +v.toFixed(1)), via: gk.punchVia, gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)) } : {}) };
     (stats.punches ||= []).push(audit);
     if (reach < 0.45) {
       (stats.contacts.punch ||= []).push(+reach.toFixed(2));
@@ -1882,6 +1887,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       };
       if (gk && !pen && !panenka && !chip && !scorpion && !e.penalty && !e.freeKick && ['save', 'goal', 'wide'].includes(outcome)
         && !e.devFoot && !gk.dive && !gk.prone && !gk.motion && Math.abs(gk.pos.x - lineX) < Math.abs(ball.p.x - lineX) - 4
+        && Math.abs(gk.pos.x - lineX) < 14          // (V7.9.5: a keeper caught far upfield races back instead: he does not come out from out there)
         && (e.devRush || (fromGoal < 19 && Math.abs(ball.p.z) < 13 && Math.abs(ball.p.x - lineX) > 7 && clearRun()))) {
         rush = { line0: +Math.abs(gk.pos.x - lineX).toFixed(2) };
         const spotFor = () => { const b = V(ball.p.x, 0, ball.p.z), toB = b.clone().sub(goalC), L = toB.length(); return goalC.clone().addScaledVector(toB.normalize(), clamp(L - clamp(L * 0.2, 2.2, 3.2), 1.2, 11)); };     // (never out of his box)
@@ -2294,6 +2300,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           const gap = V(target.x - pgk.pos.x, 0, target.z - pgk.pos.z), reach = 4.3 * Math.max(0, flight - MOTIONS.header.contact - 0.35) + 0.4;
           if (gap.length() > reach) target.copy(pgk.pos).addScaledVector(gap.normalize(), reach).setY(0);
           pgk.busy = true; pgk.target.copy(target).setY(0); pgk.want = 7.5; pgk.loopsWant.keeperReady = 0;
+          if (DEBUG) pgk.punchVia = [e.type, e.restartType || '', +flight.toFixed(2), +gap.length().toFixed(1), +reach.toFixed(1), +Math.hypot(target.x - ball.p.x, target.z - ball.p.z).toFixed(1)];
           const rival = receiver && receiver.side !== pgk.side ? receiver : null;
           popts.height = PUNCH_H; popts.meet = tArr => { S.punch = { gk: pgk, spot: target.clone().setY(PUNCH_H), tArr, land: toWorld(pk.toPos), rival }; };
         } else if (receiver && (e.type === 'corner' || e.type === 'cross')) {

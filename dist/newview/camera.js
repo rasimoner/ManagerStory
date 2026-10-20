@@ -4,7 +4,7 @@ import * as THREE from '../vendor/three/three.module.min.js';
 
 export function createBroadcastCamera(camera) {
   const pos = new THREE.Vector3(-8, 12, 26), look = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
-  let wantFov = 46, cut = true, lastMode = null, lastSide = null;
+  let wantFov = 46, cut = true, lastMode = null, lastSide = null, lastSideS = null;
   let cornerKey = '', cornerPos = null;
   const fit = new THREE.PerspectiveCamera(46, 1, 0.1, 400), V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
   function shot(rt, cam, aspect) {
@@ -27,7 +27,11 @@ export function createBroadcastCamera(camera) {
     } else if (mode === 'side' && a && o) {
       // V7.9.3 a one-on-one: the man and the keeper side by side from the TV side, the goal behind the keeper
       const mid = a.pos.clone().lerp(o.pos, 0.5), d = o.pos.clone().sub(a.pos).setY(0); if (d.lengthSq() < 1e-4) d.set(1, 0, 0); d.normalize();
-      const side = new THREE.Vector3(-d.z, 0, d.x); if (side.z < 0) side.negate();
+      const side = new THREE.Vector3(-d.z, 0, d.x);
+      // (V7.9.5: as in the close-up, when the two stand across the pitch it keeps the side it is on —
+      //  flipping to the other side of them made the camera swing in one frame)
+      if (lastSideS && Math.abs(side.z) < 0.35) { if (side.dot(lastSideS) < 0) side.negate(); } else if (side.z < 0) side.negate();
+      lastSideS = side.clone();
       const span = Math.max(4, a.pos.distanceTo(o.pos));
       // (never further back than the near touchline, never into a stand: past that it would show the inside of the stand)
       const back = Math.min((tall ? 4 : 5) + span * (tall ? 2.2 : 0.9), 22);
