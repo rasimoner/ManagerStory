@@ -967,6 +967,15 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* shot({ eventId: kind === 'gkstar' ? 16 : -1, type: 'shot', fromId: star.id, fromSide: star.side, outcome: 'save', fromPos: pctOf(star.pos), toPos: [gs > 0 ? 100 : 0, kind === 'gkcatch' ? 50 : kind === 'gkmove' ? 42 : 60], devSave: { saveType: kind === 'gkcatch' ? 'CATCH' : kind === 'gkcorner' ? 'DEFLECT_CORNER' : 'PARRY' } }, events.length + 10);
         if (kind === 'gkcorner') { ball.allowOut = true; yield* until(() => ball.out, 3); stats.cornerOut = ball.p.toArray().map(v => +v.toFixed(2)); }
         yield* wait(2.5);
+      } else if (kind === 'crosshead') {
+        // (review) an open-play cross from out wide met with a header at the near post
+        const mate = mateOf(), gs = fx, line = gs * GOAL_X;
+        const spot = V(line - gs * 7, rt.headHeight, 3);
+        rt.place(mate, V(line - gs * 16, 0, 27)); ball.owner = mate; ball.p.copy(mate.pos).add(V(gs * 0.5, 0, 0)).setY(BALL_R); ball.v.set(0, 0, 0);
+        rt.place(star, V(spot.x - gs * 6, 0, spot.z - 4));
+        yield* pass(mate, star, spot.clone().setY(0), 'aerial', false, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6.5; } });
+        yield* shot({ eventId: -41, type: 'shot', header: true, fromId: star.id, fromSide: star.side, outcome: 'goal', fromPos: pctOf(spot), toPos: gs > 0 ? [100, 47] : [0, 53] }, events.length + 10);
+        yield* wait(1.5);
       } else if (kind === 'bicycle') {
         const mate = mateOf(), gs = fx, line = gs * GOAL_X;
         const spot = V(line - gs * 9, rt.headHeight, 1.5);
