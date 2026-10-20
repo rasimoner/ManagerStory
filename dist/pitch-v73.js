@@ -738,6 +738,10 @@ function actionMinute(userPoss,effect,opponent){
   // V7.9.3: in the attacking part of the pitch and not under pressure, a long ball back (over 25 m, well
   // backwards) is almost never the choice: he plays on, carries it or shoots
   if(role!=='GK'&&forward>60&&pressure<.4)for(const o of options)if(o.progress<-15&&o.range>25)o.weight*=.08;
+  // V7.9.5: ...and while there is any other pass, those long balls back are not on his list at all (several
+  // of them, each one rare, still added up to a real chance of one)
+  if(role!=='GK'&&forward>60&&pressure<.4&&options.some(o=>!(o.progress<-15&&o.range>25)))
+   for(let k=options.length-1;k>=0;k--)if(options[k].progress<-15&&options[k].range>25)options.splice(k,1);
   const readsLine=attributeEdge(playerAttribute(from,side,'vision',68));
   for(const o of options)if(offsideAt(o.point,point,side))o.weight*=clamp(.12-readsLine*.08,.03,.2);
   const actions=[{type:'pass',weight:Math.max(.4,3-pressure*.7+(best?.weight||0)*.22)*clamp(1.2-sv*5,.35,1)},
@@ -890,7 +894,8 @@ function crossOption(from,side,point,dir,forward,pressure){
  const delivery=normalizeAttribute(playerAttribute(from,side,'passing',65)*.6+playerAttribute(from,side,'technique',65)*.4);
  const wideMan=['LW','RW','LB','RB','LM','RM'].includes(role||'');
  let weight=(1.5+delivery*1.8)*(wideMan?1:.4)*(.7+.3*Math.min(3,runners.length))*(forward>78?1.15:forward<64?.65:1)*(1-pressure*.35);   // (an early cross from deeper is rarer)
- if(T.approach==='Kanatlar')weight*=1.35;else if(T.approach==='Merkez')weight*=.7;
+ // (V7.9.5: through the middle, a wide man with real runners in the box still looks inside first)
+ if(T.approach==='Kanatlar')weight*=1.35;else if(T.approach==='Merkez')weight*=.5;
  if(T.width>0)weight*=1.15;else if(T.width<0)weight*=.85;
  return {weight,runners,delivery,role};
 }

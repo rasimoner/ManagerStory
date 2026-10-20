@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const base = path.resolve(__dirname, '../dist');
-const FILES = ['match-support.js', 'career-events.js', 'live-match.js', 'opponents-v731.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js'];
+const FILES = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js'];
 const sources = FILES.map(f => fs.readFileSync(path.join(base, f), 'utf8'));
 
 function harness(existing = new Map(), sourceOverride = sources) {
@@ -51,7 +51,8 @@ const PROBES = `(function(){
  const meanX=side=>{const ids=pool(side).filter(id=>!(side==='user'?M.matchRoles[id]==='GK':id==='o0'));
    return ids.reduce((n,id)=>n+P(id,side)[0],0)/Math.max(1,ids.length)};
  // corners and penalties deliberately put many players in the box; shape/crowding checks skip that window
- const setPiece=M.events.some(e=>(e.restartType==='CORNER'||e.restartType==='PENALTY')&&M.min-e.minute<=1);
+ // (V7.9.5: so does a free kick within shooting range of goal — the wall and the markers stand around the ball)
+ const setPiece=M.events.some(e=>(e.restartType==='CORNER'||e.restartType==='PENALTY'||(e.type==='freeKick'&&e.fromPos&&Math.min(e.fromPos[0],100-e.fromPos[0])<30))&&M.min-e.minute<=1);
  return {problems,minPair,setPiece,nearUser:near('user',14),nearOpp:near('opp',14),meanXUser:meanX('user'),meanXOpp:meanX('opp'),dir,
    state:bs.state,owner:M.ballOwner,side:M.ballSide,events:M.events.length};
 })()`;

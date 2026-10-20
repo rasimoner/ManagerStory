@@ -247,6 +247,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
   function* pass(from, to, toW, travel, implicit = false, opts = {}) {
     from.busy = true;
+    // V7.9.5: a keeper still down from his dive gets up (with his get-up) before he plays it
+    if (from.role === 'GK' && keeperDown(from)) yield* until(() => !keeperDown(from), 3);
     // settle the ball at the passer's feet first
     if (ball.owner !== from) yield* ensureOwner(from);
     from.busy = true;
