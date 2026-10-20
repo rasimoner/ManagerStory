@@ -79,12 +79,20 @@ export function createBroadcastCamera(camera) {
       wantPos.set(b.x - 2, (tall ? 10.5 : 14) + lift * 0.9, z); wantLook.set(b.x + 2, 0, b.z - 2); wantFov = tall ? 46 : 34;
     }
   }
+  // V7.9.4 no shot puts the camera inside a stand: low down it stays in front of the rows (a close-up of a
+  // man by the near touchline or the goal line is taken from just inside the boards)
+  function keepOutOfStands() {
+    const lowNear = 2.75 + Math.max(0, wantPos.z - 38.8) / 0.82 * 0.64;
+    if (wantPos.z > 38.3 && wantPos.y < lowNear) wantPos.z = 38.3;
+    if (wantPos.z < -38.3) wantPos.z = -38.3;
+    if (Math.abs(wantPos.x) > 58.5) { const lowEnd = 2.75 + (Math.abs(wantPos.x) - 59) / 0.82 * 0.62; if (wantPos.y < lowEnd) wantPos.x = Math.sign(wantPos.x) * 58.5; }
+  }
   const api = {
     pos, look, cutFrame: false,
     cut() { cut = true; },
     // eases towards the shot in real time, as a TV operator would
     update(rt, cam, dtReal, aspect) {
-      shot(rt, cam, aspect);
+      shot(rt, cam, aspect); keepOutOfStands();
       // a new shot far from the current one is a cut, as a director would make it, not a fast swing
       if (cam.mode !== lastMode && lastMode != null && pos.distanceTo(wantPos) > 12) cut = true;
       lastMode = cam.mode;
