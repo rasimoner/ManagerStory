@@ -616,7 +616,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       return jumped && (rt.handsOf(gk).distanceTo(ball.p) < 0.2 || S.t >= tArr);
     }, Math.max(0.2, tArr - S.t) + 1);
     const reach = rt.handsOf(gk).distanceTo(ball.p);
-    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1) };
+    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1), ...(DEBUG ? { t: +S.t.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)) } : {}) };
     (stats.punches ||= []).push(audit);
     if (reach < 0.45) {
       (stats.contacts.punch ||= []).push(+reach.toFixed(2));
@@ -2264,7 +2264,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           const gx = ownGoalX(pgk.side), sg = Math.sign(gx);
           target.set(gx - sg * clamp(Math.abs(target.x - gx), 3.5, 8.5), 0, clamp(target.z, -8, 8));
           const flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
-          const gap = V(target.x - pgk.pos.x, 0, target.z - pgk.pos.z), reach = 5.2 * Math.max(0, flight - MOTIONS.header.contact - 0.3) + 0.8;
+          const gap = V(target.x - pgk.pos.x, 0, target.z - pgk.pos.z), reach = 4.3 * Math.max(0, flight - MOTIONS.header.contact - 0.35) + 0.4;
           if (gap.length() > reach) target.copy(pgk.pos).addScaledVector(gap.normalize(), reach).setY(0);
           pgk.busy = true; pgk.target.copy(target).setY(0); pgk.want = 7.5; pgk.loopsWant.keeperReady = 0;
           const rival = receiver && receiver.side !== pgk.side ? receiver : null;
@@ -2272,7 +2272,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         } else if (receiver && (e.type === 'corner' || e.type === 'cross')) {
           const nx = events[i + 1];
           const hs = nx?.type === 'shot' && nx.header && nx.fromId === e.toId ? nx : null;
-          const lb = !hs && e.type === 'corner' && nx?.type === 'looseBall' && (nx.reason === 'clearance' || nx.reason === 'aerial') ? nx : null;
+          const lb = !hs && (e.type === 'corner' || e.type === 'cross') && nx?.type === 'looseBall' && (nx.reason === 'clearance' || nx.reason === 'aerial') ? nx : null;   // (V7.9.4 open-play crosses are contested the same way)
           if (hs || lb) {
             // the cross is aimed where the man who meets it can actually get to (a header taker runs onto it)
             const jumper = hs || lb.reason !== 'clearance' ? receiver : rivalFor(receiver, target) || receiver;
@@ -2281,7 +2281,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
             const gap = V(target.x - jumper.pos.x, 0, target.z - jumper.pos.z);
             // time lost turning round if he is running the other way
             const lost = Math.max(0, jumper.vel.length() - jumper.vel.dot(gap.clone().normalize())) / 9;
-            const reach = 4.2 * Math.max(0, flight - MOTIONS.header.contact - lost) + 1.2;
+            const reach = 3.7 * Math.max(0, flight - MOTIONS.header.contact - lost - 0.1) + 1.0;
             if (gap.length() > reach) target.copy(jumper.pos).addScaledVector(gap.normalize(), reach).setY(0);
             // he sets off as the kick is struck, not when the ball is already in the air
             jumper.target.copy(target).setY(0); jumper.want = 7.4; jumper.runUntil = S.t + flight + 2; jumper.face = null;
