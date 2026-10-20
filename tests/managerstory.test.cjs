@@ -196,6 +196,13 @@ test('live save resumes at the same second and V7.1 career is backed up without 
  assert.equal(reopened.run('M.clockSeconds'),migrated.run('M.clockSeconds'));
  assert.equal(reopened.run('M.events.length'),migrated.run('M.events.length'));
  assert.equal(reopened.run('M.pause'),true);
+ // (a reopened career draws a fresh match salt, so now and then an injury in these first minutes
+ //  rightly blocks the restart until the forced substitution is made — the save must carry it too)
+ assert.equal(reopened.run('JSON.stringify(M.requiredSubstitution)'),migrated.run('JSON.stringify(M.requiredSubstitution)'));
+ if(reopened.run('M.requiredSubstitution')){
+  reopened.run('subUI()');
+  assert.equal(reopened.run('doSub(S.players.find(p=>!M.active.includes(p.id)&&!p.injury&&!(M.subbedOff||[]).includes(p.id)).id)'),true);
+ }
  reopened.run('resumeLive();advanceLive(1)');assert.ok(reopened.run('M.clockSeconds')>migrated.run('M.clockSeconds'));
 });
 test('shouts have a ten-minute effect cooldown and tactical state survives pause',()=>{
