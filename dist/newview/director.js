@@ -330,7 +330,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       chest = !trap && under && pick(opts.ev, 3) < 0.3;
       // V7.9: a high ball into his area that the keeper takes is caught at the top of a jump, arms up
       claim = !!to && to.role === 'GK' && to.side !== from.side && !opts.restart && !opts.meet && (travel === 'aerial' || dir.length() > 30)
-        && to.pos.distanceTo(toW) < Math.min(9, 1 + 5.5 * Math.max(0, dir.length() / 17 - 0.5)) && !to.motion && !to.dive && Math.abs(toW.x) > GOAL_X - 18;   // only one he can get under in time
+        && to.pos.distanceTo(toW) < Math.min(6.5, 1 + 4.2 * Math.max(0, dir.length() / 17 - 0.65)) && !to.motion && !to.dive && Math.abs(toW.x) > GOAL_X - 18;   // only one he can get under in time
       if (tryTrap) trapTried = true;
       if (travel === 'aerial' || dir.length() > 30) { const L = dir.length(); flight = Math.max(0.7, L <= 45 ? L / 17 : 45 / 17 + (L - 45) / 35); rt.kickAir(V(toW.x, claim ? CLAIM_H : chest ? CHEST_H : trap ? TRAP_H : (opts.height ?? 0.25), toW.z), flight); }   // a long ball goes in the air
       else rt.kickGround(toW, opts.arrive ?? 4.5, 0.7);     // a played pass reaches its man at a receivable pace
@@ -588,6 +588,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     let jumped = false;
     if (rival && !rival.busy) jumpFor(rival, spot.clone().setY(rt.headHeight).add(V(-Math.sign(spot.x) * 0.6, 0, 0.3)), headingOf(V(spot.x - rival.pos.x, 0, spot.z - rival.pos.z).normalize(), V(0, 0, 0)), tArr, 0.12, 0.35);
     const out = V(land.x - spot.x, 0, land.z - spot.z).normalize();
+    let best = Infinity;
     yield* until(() => {
       const left = tArr - S.t, toward = V(ball.p.x - gk.pos.x, 0, ball.p.z - gk.pos.z).normalize();
       gk.face = ball.p; gk.faceLock = true;
@@ -613,9 +614,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
         };
         gk.hands = { Left: { w: hw, at: fist(-1) }, Right: { w: hw, at: fist(1) } };
       }
-      return jumped && (rt.handsOf(gk).distanceTo(ball.p) < 0.2 || S.t >= tArr);
+      // the contact is the frame the ball is closest to his fists (it passes the spot on about the planned frame)
+      if (!jumped) return false;
+      const d = rt.handsOf(gk).distanceTo(ball.p);
+      if (d < 0.2) return true;
+      if (S.t >= tArr - 0.08) { if (d > best + 0.02 || S.t > tArr + 0.1) return true; best = Math.min(best, d); }
+      return false;
     }, Math.max(0.2, tArr - S.t) + 1);
-    const reach = rt.handsOf(gk).distanceTo(ball.p);
+    const reach = Math.min(best, rt.handsOf(gk).distanceTo(ball.p));
     const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1), ...(DEBUG ? { t: +S.t.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)) } : {}) };
     (stats.punches ||= []).push(audit);
     if (reach < 0.45) {
@@ -2276,7 +2282,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
           if (hs || lb) {
             // the cross is aimed where the man who meets it can actually get to (a header taker runs onto it)
             const jumper = hs || lb.reason !== 'clearance' ? receiver : rivalFor(receiver, target) || receiver;
-            const flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            let flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            // V7.9.4 an open-play cross: the man on the ball waits (a touch, a look up) while the runner gets into
+            // the box, so the cross is put where the engine says it goes, not wherever the runner happens to be
+            if (e.type === 'cross' && jumper && ball.owner === from) {
+              from.busy = true; jumper.target.copy(target).setY(0); jumper.want = 7.4; jumper.runUntil = S.t + 6; jumper.face = null;
+              yield* until(() => { from.target.copy(from.pos); from.want = 0; return Math.hypot(target.x - jumper.pos.x, target.z - jumper.pos.z) < 3.7 * Math.max(0, flight - MOTIONS.header.contact - 0.1) + 1.0; }, 3.5);
+              flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            }
             // he sprints from a standing start while the ball is in the air, then steps into the jump
             const gap = V(target.x - jumper.pos.x, 0, target.z - jumper.pos.z);
             // time lost turning round if he is running the other way

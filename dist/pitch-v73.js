@@ -752,7 +752,10 @@ function actionMinute(userPoss,effect,opponent){
   // a forward whose best option is a long ball back to his defence holds it up instead
   {const top=options.slice().sort((a,b)=>b.weight-a.weight)[0];
    if(top&&top.progress<-5&&freeAhead(point,side,dir)&&role!=='GK')actions[0].weight*=.3;
-   if(top&&['ST','LW','RW','CAM'].includes(role||'')&&top.range>25&&top.progress<-12){actions[0].weight*=.35;actions[2].weight=Math.max(actions[2].weight,.6);}}
+   if(top&&['ST','LW','RW','CAM'].includes(role||'')&&top.range>25&&top.progress<-12){actions[0].weight*=.35;actions[2].weight=Math.max(actions[2].weight,.6);}
+   // V7.9.3: in the attacking part without pressure, when the only passes left are long balls back he does
+   // something else with it (a cross, a carry, a shot, holding it up)
+   if(top&&role!=='GK'&&forward>60&&pressure<.4&&top.range>25&&top.progress<-15)actions[0].weight*=.12;}
   // V7.8.1: through on goal (no outfield defender between him and the goal, inside the last 30 m):
   // he goes for goal — a shot, or a team-mate better placed across the box — instead of turning back
   {const defName=side==='user'?'opp':'user';
