@@ -264,7 +264,7 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
         if (k.kind === 'rabona') assert.ok(k.fromOwn > 52.5, 'rabona only in the opponents\' half: ' + JSON.stringify(k));
         if (['rainbow', 'sombrero', 'juggle', 'scorpion'].includes(k.kind)) assert.ok(!k.losing, 'no showboating when losing: ' + JSON.stringify(k));
         if (['elastico', 'nolook', 'flairnutmeg', 'flairpass', 'rainbow', 'sombrero', 'juggle'].includes(k.kind)) assert.ok(k.fromOwn > 52.5, k.kind + ' only in the opponents\' half: ' + JSON.stringify(k));
-        if (k.kind === 'elastico') assert.ok(Math.abs(k.z) < 31, 'no elastico against the touchline: ' + JSON.stringify(k));
+        if (k.kind === 'elastico' || k.kind === 'flairnutmeg') assert.ok(Math.abs(k.z) < 31, 'no ' + k.kind + ' against the touchline: ' + JSON.stringify(k));
       }
     }
   });

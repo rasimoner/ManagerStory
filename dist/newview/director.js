@@ -330,7 +330,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       chest = !trap && under && pick(opts.ev, 3) < 0.3;
       // V7.9: a high ball into his area that the keeper takes is caught at the top of a jump, arms up
       claim = !!to && to.role === 'GK' && to.side !== from.side && !opts.restart && !opts.meet && (travel === 'aerial' || dir.length() > 30)
-        && to.pos.distanceTo(toW) < Math.min(9, 1 + 5.5 * Math.max(0, dir.length() / 17 - 0.5)) && !to.motion && !to.dive && Math.abs(toW.x) > GOAL_X - 18;   // only one he can get under in time
+        && to.pos.distanceTo(toW) < Math.min(6.5, 1 + 4.2 * Math.max(0, dir.length() / 17 - 0.65)) && !to.motion && !to.dive && Math.abs(toW.x) > GOAL_X - 18;   // only one he can get under in time
       if (tryTrap) trapTried = true;
       if (travel === 'aerial' || dir.length() > 30) { const L = dir.length(); flight = Math.max(0.7, L <= 45 ? L / 17 : 45 / 17 + (L - 45) / 35); rt.kickAir(V(toW.x, claim ? CLAIM_H : chest ? CHEST_H : trap ? TRAP_H : (opts.height ?? 0.25), toW.z), flight); }   // a long ball goes in the air
       else rt.kickGround(toW, opts.arrive ?? 4.5, 0.7);     // a played pass reaches its man at a receivable pace
@@ -588,6 +588,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     let jumped = false;
     if (rival && !rival.busy) jumpFor(rival, spot.clone().setY(rt.headHeight).add(V(-Math.sign(spot.x) * 0.6, 0, 0.3)), headingOf(V(spot.x - rival.pos.x, 0, spot.z - rival.pos.z).normalize(), V(0, 0, 0)), tArr, 0.12, 0.35);
     const out = V(land.x - spot.x, 0, land.z - spot.z).normalize();
+    let best = Infinity;
     yield* until(() => {
       const left = tArr - S.t, toward = V(ball.p.x - gk.pos.x, 0, ball.p.z - gk.pos.z).normalize();
       gk.face = ball.p; gk.faceLock = true;
@@ -613,10 +614,15 @@ export function createDirector(rt, data, hooks, opts = {}) {
         };
         gk.hands = { Left: { w: hw, at: fist(-1) }, Right: { w: hw, at: fist(1) } };
       }
-      return jumped && (rt.handsOf(gk).distanceTo(ball.p) < 0.2 || S.t >= tArr);
+      // the contact is the frame the ball is closest to his fists (it passes the spot on about the planned frame)
+      if (!jumped) return false;
+      const d = rt.handsOf(gk).distanceTo(ball.p);
+      if (d < 0.2) return true;
+      if (S.t >= tArr - 0.08) { if (d > best + 0.02 || S.t > tArr + 0.1) return true; best = Math.min(best, d); }
+      return false;
     }, Math.max(0.2, tArr - S.t) + 1);
-    const reach = rt.handsOf(gk).distanceTo(ball.p);
-    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1) };
+    const reach = Math.min(best, rt.handsOf(gk).distanceTo(ball.p));
+    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1), ...(DEBUG ? { t: +S.t.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)) } : {}) };
     (stats.punches ||= []).push(audit);
     if (reach < 0.45) {
       (stats.contacts.punch ||= []).push(+reach.toFixed(2));
@@ -646,13 +652,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
       return jumped && (rt.handsOf(gk).distanceTo(ball.p) < 0.22 || S.t > tArr + 0.1);
     }, Math.max(0.2, tArr - S.t) + 1);
     const reach = rt.handsOf(gk).distanceTo(ball.p);
-    if (reach > 0.4) {      // he did not get there: no catch out of thin air, he gathers it as it comes
+    if (reach > 0.4 || ball.p.y < 1.6) {      // he did not get there (or it had dropped below his reach up): he gathers it as it comes instead: no catch out of thin air, he gathers it as it comes
       gk.hands = null; gk.faceLock = false; stats.lastFail = ['claim', 'reach', +S.t.toFixed(1)];
       const ok = yield* chase(gk, null);
       if (!ok) { noteFix(gk, 'pass'); ball.owner = gk; ball.p.set(gk.pos.x + Math.sin(gk.heading) * .5, BALL_R, gk.pos.z + Math.cos(gk.heading) * .5); ball.v.set(0, 0, 0); }
       gk.busy = false; return false;
     }
-    const audit = { kind: 'claim', hands: +reach.toFixed(3), h: +ball.p.y.toFixed(2) };
+    const audit = { kind: 'claim', hands: +reach.toFixed(3), h: +ball.p.y.toFixed(2), ...(DEBUG ? { t: +S.t.toFixed(2), tArr: +tArr.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)) } : {}) };
     (stats.claims ||= []).push(audit);
     ball.held = rt.pickUp(() => rt.handsOf(gk), 0.06); ball.owner = gk; ball.v.set(0, 0, 0); gk.lastTouch = S.t;
     // he gathers it into his chest as he comes down
@@ -800,7 +806,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const d = fromOwnGoal(p);
     if (d < 35) return false;                                         // his own third (and his own box)
     if (move === 'elastico') return d > GOAL_X && Math.abs(p.pos.z) < 31;
-    if (move === 'flairnutmeg' || move === 'flairpass' || SHOWBOAT.has(move)) return d > GOAL_X;
+    if (move === 'flairnutmeg') return d > GOAL_X && Math.abs(p.pos.z) < 31;         // (V7.9.4 not against the touchline: the ball is held in by the line)
+    if (move === 'flairpass' || SHOWBOAT.has(move)) return d > GOAL_X;
     if (move === 'nolook') return d > GOAL_X;
     return true;
   }
@@ -1661,7 +1668,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // (he stops) and the defender wins it with his next effort.
       const m = def.motion?.dir || V(Math.sin(def.heading), 0, Math.cos(def.heading));
       const side = V(-m.z, 0, m.x).multiplyScalar((pick(def.lastEvent, 3) - 0.5) * 0.8);
-      if (rt.contactDistance(def, ball.p) > 0.45) {
+      if (rt.contactDistance(def, ball.p) > 0.44) {
         stats.misses = (stats.misses || 0) + 1;
         car.vel.multiplyScalar(0.3); car.want = 0; car.target.copy(car.pos); ball.v.multiplyScalar(0.3); ball.owner = null;
         rt.startAction(car, 'feint');
@@ -1791,7 +1798,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
     // V7.9: Higuita's scorpion — a looping ball dropping onto a keeper who has it; never when his team is losing
     // (the test button: the next saved shot at our goal of any kind but a penalty or a header)
     const tryScorp = gk?.side === 'user' && tryMove === 'scorpion' && outcome === 'save' && !hc && !e.penalty && !e.header;
-    const scorpion = !!gk && (tryScorp || (outcome === 'save' && !hc && !e.penalty && !e.freeKick && !e.header && save?.saveType !== 'CATCH' && fromGoal > 16
+    // (V7.9.4 only a keeper set and facing the shot: running back towards his goal he cannot throw himself at it)
+    const gkFacing = !!gk && gk.vel.length() < 2.5 && Math.abs(Math.atan2(Math.sin(Math.atan2(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) - gk.heading), Math.cos(Math.atan2(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) - gk.heading))) < 0.6;
+    const scorpion = !!gk && gkFacing && (tryScorp || (outcome === 'save' && !hc && !e.penalty && !e.freeKick && !e.header && save?.saveType !== 'CATCH' && fromGoal > 16
       && has(gk, 'scorpion') && !losing(gk.side) && (gk.used?.scorpion || 0) < 1 && pick(e, 47) < 0.08));
     if (scorpion && tryMove === 'scorpion') tryMove = null;
     if ((panenka && tryShot === 'panenka') || (chip && tryShot === 'chip') || (bicycle && tryShot === 'bicycle')) tryMove = null;
@@ -1842,7 +1851,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // header: he times his jump so the forehead meets the cross, and nods it towards the aim
       const out = V(aim.x - hc.spot.x, 0, aim.z - hc.spot.z).normalize(), inc = V(-ball.v.x, 0, -ball.v.z).normalize();
       if (!sh.motion) rt.headerAt(sh, hc.spot, headingOf(out.clone().multiplyScalar(1.6), inc), Math.max(0, hc.tArr - MOTIONS.header.contact - S.t));
-      yield* until(() => S.t >= hc.tArr, hc.tArr - S.t + 0.5);
+      // the contact is the frame the ball is closest to his forehead (the ball reaches it on about the planned frame)
+      let bestH = Infinity;
+      yield* until(() => {
+        if (S.t < hc.tArr - 0.1) return false;
+        const d = sh.motion ? rt.contactDistance(sh, ball.p) : Infinity;
+        if (d < 0.12 || S.t > hc.tArr + 0.1 || (d > bestH + 0.02 && S.t >= hc.tArr)) return true;
+        bestH = Math.min(bestH, d); return false;
+      }, hc.tArr - S.t + 0.5);
       noteContact('header', sh);
       ball.owner = null; sh.lastTouch = S.t;
     } else {
@@ -2264,7 +2280,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           const gx = ownGoalX(pgk.side), sg = Math.sign(gx);
           target.set(gx - sg * clamp(Math.abs(target.x - gx), 3.5, 8.5), 0, clamp(target.z, -8, 8));
           const flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
-          const gap = V(target.x - pgk.pos.x, 0, target.z - pgk.pos.z), reach = 5.2 * Math.max(0, flight - MOTIONS.header.contact - 0.3) + 0.8;
+          const gap = V(target.x - pgk.pos.x, 0, target.z - pgk.pos.z), reach = 4.3 * Math.max(0, flight - MOTIONS.header.contact - 0.35) + 0.4;
           if (gap.length() > reach) target.copy(pgk.pos).addScaledVector(gap.normalize(), reach).setY(0);
           pgk.busy = true; pgk.target.copy(target).setY(0); pgk.want = 7.5; pgk.loopsWant.keeperReady = 0;
           const rival = receiver && receiver.side !== pgk.side ? receiver : null;
@@ -2272,16 +2288,31 @@ export function createDirector(rt, data, hooks, opts = {}) {
         } else if (receiver && (e.type === 'corner' || e.type === 'cross')) {
           const nx = events[i + 1];
           const hs = nx?.type === 'shot' && nx.header && nx.fromId === e.toId ? nx : null;
-          const lb = !hs && e.type === 'corner' && nx?.type === 'looseBall' && (nx.reason === 'clearance' || nx.reason === 'aerial') ? nx : null;
+          const lb = !hs && (e.type === 'corner' || e.type === 'cross') && nx?.type === 'looseBall' && (nx.reason === 'clearance' || nx.reason === 'aerial') ? nx : null;   // (V7.9.4 open-play crosses are contested the same way)
           if (hs || lb) {
             // the cross is aimed where the man who meets it can actually get to (a header taker runs onto it)
             const jumper = hs || lb.reason !== 'clearance' ? receiver : rivalFor(receiver, target) || receiver;
-            const flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            let flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            // V7.9.4 an open-play cross: the man on the ball waits (a touch, a look up) while the runner gets into
+            // the box, so the cross is put where the engine says it goes, not wherever the runner happens to be
+            if (e.type === 'cross' && jumper && ball.owner === from) {
+              // he crosses from where the engine has him (out wide in the attacking third): if the picture has him
+              // further back, he runs it up there first
+              const fp = toWorld(e.fromPos || [50, 50]);
+              if (Math.hypot(fp.x - from.pos.x, fp.z - from.pos.z) > 6) {
+                from.busy = true;
+                yield* until(() => { rt.dribble(from, fp, 6.5); return ball.owner !== from || Math.hypot(ball.p.x - fp.x, ball.p.z - fp.z) < 4; }, 3);   // (a few seconds at most)
+              }
+              if (ball.owner !== from) yield* ensureOwner(from);
+              from.busy = true; jumper.target.copy(target).setY(0); jumper.want = 7.4; jumper.runUntil = S.t + 6; jumper.face = null;
+              yield* until(() => { from.target.copy(from.pos); from.want = 0; return Math.hypot(target.x - jumper.pos.x, target.z - jumper.pos.z) < 3.7 * Math.max(0, flight - MOTIONS.header.contact - 0.1) + 1.0; }, 3.5);
+              flight = Math.max(0.7, Math.hypot(target.x - ball.p.x, target.z - ball.p.z) / 17);
+            }
             // he sprints from a standing start while the ball is in the air, then steps into the jump
             const gap = V(target.x - jumper.pos.x, 0, target.z - jumper.pos.z);
             // time lost turning round if he is running the other way
             const lost = Math.max(0, jumper.vel.length() - jumper.vel.dot(gap.clone().normalize())) / 9;
-            const reach = 4.2 * Math.max(0, flight - MOTIONS.header.contact - lost) + 1.2;
+            const reach = 3.7 * Math.max(0, flight - MOTIONS.header.contact - lost - 0.1) + 1.0;
             if (gap.length() > reach) target.copy(jumper.pos).addScaledVector(gap.normalize(), reach).setY(0);
             // he sets off as the kick is struck, not when the ball is already in the air
             jumper.target.copy(target).setY(0); jumper.want = 7.4; jumper.runUntil = S.t + flight + 2; jumper.face = null;
@@ -2299,7 +2330,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (S.aerial) {
           // headed away (or flicked on) at the top of the jump
           const a = S.aerial; S.aerial = null;
-          yield* until(() => S.t >= a.at, a.at - S.t + 0.5);
+          { let bestA = Infinity;       // (the frame the ball is closest to his forehead)
+            yield* until(() => {
+              if (S.t < a.at - 0.1) return false;
+              const d = a.winner.motion ? rt.contactDistance(a.winner, ball.p) : Infinity;
+              if (d < 0.12 || S.t > a.at + 0.1 || (d > bestA + 0.02 && S.t >= a.at)) return true;
+              bestA = Math.min(bestA, d); return false;
+            }, a.at - S.t + 0.5); }
           // nobody got his head to it: it drops and runs loose
           if (!a.winner.motion || rt.contactDistance(a.winner, ball.p) > 0.45) { stats.misses = (stats.misses || 0) + 1; break; }
           noteContact('aerial', a.winner);
