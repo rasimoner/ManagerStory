@@ -2,7 +2,7 @@
    Probabilistic systems are tested as distributions over seeded repeated trials, never as single events. */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { harness, PROBES, playToEnd } = require('./engine-harness.cjs');
+const { harness, PROBES, playToEnd, SUBSTITUTE } = require('./engine-harness.cjs');
 
 const fresh = (fixture = 0) => { const h = harness(); h.run(`S=fresh();init();S.fixture=${fixture};startMatch();resumeLive()`); return h; };
 const same = (a, b, msg) => assert.equal(JSON.stringify(a), JSON.stringify(b), msg);
@@ -193,7 +193,7 @@ test('11. a fresh substitute has a real physical edge over a player who started'
   let guard = 0;
   while (h.run('M.min') < 70 && !h.run('M.finished') && guard++ < 60) {
     if (h.run('M.reason') === 'half') h.run('startSecondHalf()');
-    else if (h.run('M.pause')) { if (h.run('M.reason') === 'injury') { h.run("(function(){const out=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);if(out)S.players.find(p=>p.id===out).injury=0;resumeLive()})()"); } else h.run('resumeLive()'); }
+    else if (h.run('M.pause')) { if (h.run('M.reason') === 'injury') { h.run(SUBSTITUTE); /* V7.9.5: a forced substitution, as a manager makes it */ } else h.run('resumeLive()'); }
     h.run('advanceLive(5)');
   }
   assert.ok(h.run('M.min') >= 60, 'reached the later part of the match: ' + h.run('M.min'));

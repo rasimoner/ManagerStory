@@ -381,7 +381,8 @@ test('V7.9.4 open-play crosses: from a wide man in the attacking third into the 
       const end = e.toPos[0] > 50 ? 100 : 0, deep = p => end === 100 ? p[0] : 100 - p[0];
       // from the attacking part of the pitch, out wide; into the box
       if (deep(e.fromPos) < 55 || Math.abs(e.fromPos[1] - 50) < 12) bad.push(['from', e.fromPos]);
-      if (deep(e.toPos) < 78 || Math.abs(e.toPos[1] - 50) > 30) bad.push(['to', e.toPos]);
+      // (V7.9.5: a cross cut out on its way in ends where it was cut out, at the edge of the box)
+      if (deep(e.toPos) < (e.success === false ? 70 : 78) || Math.abs(e.toPos[1] - 50) > 30) bad.push(['to', e.toPos]);
       // what follows is the ball in the air being decided: a header at goal by the man it was for, a second ball,
       // a corner, or the keeper's (a claim is the cross going to him); or a ball played into a man's stride (he controls it)
       const n = ev[i + 1];

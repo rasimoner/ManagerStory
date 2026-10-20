@@ -413,8 +413,12 @@ function switchPitchOwner(id,side) {
   const pool=side==='user'?M.active:M.oppIds;
   if(!pool.includes(id)||(typeof id==='number')!==(side==='user'))id=occupant(side,id);
   if(M.looseBall)M.looseBall=null;
+  M.gkHands=null;   // (V7.9.5: a catch sets it again right after)
   if(side==='user')setUserOwner(id);else setOppOwner(Number(String(id).slice(1)));
 }
+// V7.9.5 a keeper with the ball in his hands (a catch, a claimed cross): nobody may challenge him, and he
+// gives it out from his hands — thrown to a free man close by, or kicked long out of his hands
+function keeperHasItInHands(){const k=M.gkHands;return !!k&&M.ballOwner===k.id&&M.ballSide===k.side;}
 // The authoritative, transient positions are advanced by the existing match tick.
 // Velocity and commitment persist across possession changes and are safe for old saves.
 const LEASH={GK:[8,12],CB:[24,15],LB:[44,14],RB:[44,14],CM:[34,24],CAM:[34,26],LW:[36,12],RW:[36,12],ST:[32,22]};
@@ -697,7 +701,7 @@ function actionMinute(userPoss,effect,opponent){
   const carrier=M.ballOwner,side=M.ballSide,point=eventPoint(carrier,side),defSide=desired;
   const defender=nearestMarker(defSide,point);
   const reach=13*[.8,1,1.25][tacticProfile(defSide).press+1];   // pressure distance threshold
-  if(defender&&defender.d<reach){
+  if(defender&&defender.d<reach&&!keeperHasItInHands()){
    const press=(()=>{const P=tacticProfile(defSide).press;return P>0?.11:P<0?-.07:0;})();
    const success=M.rand()<tackleChance(defender.id,defSide,carrier,side,{distance:defender.d,press});
    const gainStart=window.ManagerStoryLive3D?.enabled?{attackerId:carrier,attackerSide:side,defenderId:defender.id,defenderSide:defSide,attackerStart:[...point],point:[...point],defenderStart:[...eventPoint(defender.id,defSide)],decision:"actionMinute"}:null;
@@ -770,6 +774,15 @@ function actionMinute(userPoss,effect,opponent){
   // V7.9.4: a cross — a wide man in the attacking third with team-mates in the box can put it in
   const crossPlan=role!=='GK'?crossOption(from,side,point,dir,forward,pressure):null;
   if(crossPlan)actions.push({type:'cross',weight:crossPlan.weight});
+  const inHands=keeperHasItInHands()&&M.gkHands.id===from&&options.length>0;
+  if(keeperHasItInHands()&&!options.length)M.gkHands=null;   // (nobody to give it to: he puts it down and plays on)
+  if(inHands){
+   // V7.9.5 out of his hands: a throw to a free man within throwing range (about two in three), otherwise
+   // a long kick out of his hands; never carried out or held under pressure
+   for(const o of options){const free=(nearestMarker(side==='user'?'opp':'user',o.point)?.d??99)>7;
+    o.weight*=o.range<=32?(free?3:.6):(o.range>45?1.4:.5);}
+   actions.length=0;actions.push({type:'pass',weight:1});
+  }
   const choice=weightedPitchChoice(actions);
   if(choice.type==='cross'){crossV79(from,side,point,crossPlan);break;}
   if(choice.type==='shoot'){chanceV73(side==='user');M.minuteShot=true;break;}
@@ -852,7 +865,8 @@ function actionMinute(userPoss,effect,opponent){
   const landing=newOwner==null?[...(M.ballState?.position||to)]:eventPoint(newOwner,newSide);
   const cross=wing&&range>22&&forward>58&&intoBox;
   const rName=playerAtMarker(target,side)?.name||'takım arkadaşına',pz=(to[0]-point[0])*dir,sw=Math.abs(to[1]-point[1])>34,kv=M.events.length;
-  const passLine=cross?lineVariant(kv,[' orta yaptı.',' ceza sahasına ortaladı.',' içeri ortaladı.'])
+  const passLine=inHands?(range<=32?lineVariant(kv,[` topu eliyle ${rName}'e oyuna soktu.`,` elle ${rName}'e attı.`]):lineVariant(kv,[' topu elinden vole vurarak ileri gönderdi.',' elinden uzun vurdu.']))
+   :cross?lineVariant(kv,[' orta yaptı.',' ceza sahasına ortaladı.',' içeri ortaladı.'])
    :!success?' pas verdi.'
    :selected.forward&&range>24?lineVariant(kv,[` ara pasıyla ${rName}'i koşturdu.`,` ${rName}'i savunma arkasına gönderdi.`])
    :sw?lineVariant(kv,[` oyunun yönünü ${rName} ile değiştirdi.`,` topu öbür kanada, ${rName}'e taşıdı.`])
@@ -862,8 +876,8 @@ function actionMinute(userPoss,effect,opponent){
   matchEvent(cross?'cross':'pass',M.min+'’ '+(passer?.name||'Rakip')+passLine+
     (success?'':pendingCorner?' Savunma topu kornere gönderdi.':aerialLost?' Havadaki mücadele ikinci topa düştü.':pendingPunch?' Kaleci çıktı.':' Top rakibe geçti.'),{side:index,fromId:from,toId:newOwner,fromSide:side,toSide:newSide,
      ballSide:newSide,fromPos:point,toPos:success?to:landing,success,
-     passKind:cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
-     distance:range,passing});
+     passKind:inHands?(range<=32?'throw':'long'):cross?'cross':selected.forward&&range>24?'through':range>29?'long':'short',travelType:longBall?'aerial':'ground',
+     distance:range,passing,...(inHands?{fromHands:true}:{})});
   if(cutPresentation)window.ManagerStoryLive3D.linkPassCut?.(cutPresentation);
   if(success){
    const receiver=playerAtMarker(target,side);
@@ -895,7 +909,7 @@ function crossOption(from,side,point,dir,forward,pressure){
  const wideMan=['LW','RW','LB','RB','LM','RM'].includes(role||'');
  let weight=(1.5+delivery*1.8)*(wideMan?1:.4)*(.7+.3*Math.min(3,runners.length))*(forward>78?1.15:forward<64?.65:1)*(1-pressure*.35);   // (an early cross from deeper is rarer)
  // (V7.9.5: through the middle, a wide man with real runners in the box still looks inside first)
- if(T.approach==='Kanatlar')weight*=1.35;else if(T.approach==='Merkez')weight*=.5;
+ if(T.approach==='Kanatlar')weight*=1.6;else if(T.approach==='Merkez')weight*=.5;
  if(T.width>0)weight*=1.15;else if(T.width<0)weight*=.85;
  return {weight,runners,delivery,role};
 }
@@ -931,7 +945,7 @@ function crossV79(from,side,point,plan){
  if(gk!=null&&gkD<11&&M.rand()<clamp(.42-gkD*.025,.08,.34)){
   if(M.rand()<.5){   // claimed
    ev(gk,other,' Kaleci çıkıp topu aldı.');
-   switchPitchOwner(gk,other);setBallState(eventPoint(gk,other),gk);
+   switchPitchOwner(gk,other);setBallState(eventPoint(gk,other),gk);M.gkHands={id:M.ballOwner,side:other};
    M.stats.possessionsWon[other==='user'?userSide():1-userSide()]++;return;
   }
   ev(runner.id,side);
@@ -1236,7 +1250,7 @@ function resolveShot(user,shooter,p,opts={}) {
       {side,playerId:user?null:gk?.id,fromId:shooter,toId:opponentGK,
         fromSide:user?'user':'opp',toSide:user?'opp':'user',ballSide:user?'opp':'user',
         fromPos:destination,toPos:basePitchPosition(opponentGK,user?'opp':'user'),saveType});
-    if(saveType==='CATCH')switchPitchOwner(opponentGK,user?'opp':'user');
+    if(saveType==='CATCH'){switchPitchOwner(opponentGK,user?'opp':'user');M.gkHands={id:M.ballOwner,side:user?'opp':'user'};}
     else if(saveType==='PARRY')makeLooseBall(destination,[destination[0]-dir*10,limitPitch(destination[1]+5,18,82)],'parry',user?'opp':'user');
     else {M.stats.corners[side]++;startPitchRestart('CORNER',user?'user':'opp',[dir>0?102:-2,destination[1]<50?-3:103]);}
     if(!user&&gk){M.playerStats[gk.id].saves++;M.playerStats[gk.id].rating=clamp(M.playerStats[gk.id].rating+.12,1,10);}

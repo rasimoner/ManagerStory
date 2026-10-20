@@ -72,4 +72,4 @@ function playToEnd(h, onTick) {
   return guard;
 }
 
-module.exports = { harness, PROBES, base, playToEnd };
+module.exports = { harness, PROBES, base, playToEnd, SUBSTITUTE };

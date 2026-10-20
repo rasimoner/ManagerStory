@@ -196,3 +196,5 @@ body.in-match{padding:0;background:#04100c}#app.match-mode{padding:0!important;m
 .focusbtns{display:flex;flex-wrap:wrap;gap:6px}
 .focusbtns button{flex:1 1 40%;margin:0}
 .skillmove.newmove{background:#8be28b33;color:#8be28b;border-color:#8be28b77}
+.vbtns{display:flex;flex-direction:column;gap:6px}
+.vbtns button{width:auto;margin:0}
