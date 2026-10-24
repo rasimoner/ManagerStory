@@ -216,3 +216,4 @@ body.in-match .navtop{display:none}
 .typefilter{display:flex;align-items:center;gap:10px;margin:0 0 12px}
 .typefilter span{flex:none;font-size:13px;color:#c9b66a;font-weight:700;letter-spacing:.02em}
 .typefilter select{flex:1;min-width:0;min-height:44px;border:1px solid #456152;border-radius:10px;background:#14251d;color:#fff;padding:9px 12px;font-size:15px}
+.nowrap{white-space:nowrap}

@@ -78,3 +78,14 @@ test('academy list shows each prospect\'s stars', () => {
   h.run("goMain('academy')");
   assert.ok((h.html().match(/class=liststars/g) || []).length >= h.run('S.v6.academy.length'));
 });
+
+test('transfer list: "Yıldız ↓" sorts by skill stars, highest first', () => {
+  const h = harness();
+  h.run("showV6Transfers('ALL','stars','ALL')");
+  assert.match(h.html(), /aria-pressed="true" onclick="showV6Transfers\(undefined,'stars'\)">Yıldız ↓/);
+  assert.match(h.html(), />POT ↓</);
+  const stars = [...h.html().matchAll(/aria-label="Yetenek (\d) yıldız"/g)].map(m => +m[1]);
+  assert.ok(stars.length > 5, 'cards rendered');
+  assert.deepEqual(stars, [...stars].sort((a, b) => b - a));
+  assert.ok(stars[0] > stars[stars.length - 1], 'not all the same');
+});
