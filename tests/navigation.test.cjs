@@ -56,3 +56,25 @@ test('detail screens carry their back button in the header', () => {
     h.run('modal=null;render()');
   }
 });
+
+test('transfer list: player-type dropdown filters, filters survive a profile visit, every card shows its stars', () => {
+  const h = harness();
+  h.run("goMain('transfer')");
+  assert.match(h.html(), /<select id=transferType/);
+  h.run("showV6Transfers(undefined,undefined,'wingBack')");
+  const types = [...h.html().matchAll(/<small class=ptype>([^<]+)<\/small>/g)].map(m => m[1]);
+  assert.ok(types.length > 0 && types.every(t => t === 'Bindiren bek'), types.join(','));
+  assert.equal((h.html().match(/class=liststars/g) || []).length, types.length, 'stars on every card');
+  h.run('showMarketProfile(S.v6.transferPool.find(x=>x.profile?.type==="wingBack").id)');
+  h.run('showV6Transfers()');
+  assert.match(h.html(), /<option value="wingBack" selected>/, 'filter kept after the profile');
+  h.run("showV6Transfers('GK')");
+  assert.match(h.html(), /Bu filtreyle listede oyuncu yok/);
+  h.run("showV6Transfers('ALL',undefined,'ALL')");
+});
+
+test('academy list shows each prospect\'s stars', () => {
+  const h = harness();
+  h.run("goMain('academy')");
+  assert.ok((h.html().match(/class=liststars/g) || []).length >= h.run('S.v6.academy.length'));
+});

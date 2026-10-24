@@ -207,3 +207,12 @@ body.in-match{padding:0;background:#04100c}#app.match-mode{padding:0!important;m
 .navtop.show{opacity:1;transform:none;pointer-events:auto}
 body.in-match .navtop{display:none}
 @media (prefers-reduced-motion:reduce){.navtop{transition:none}}
+/* V7.9.5 lists: skill stars on every card, the chosen filter is marked, player-type dropdown */
+.liststars{display:flex;align-items:center;gap:6px;margin-top:5px}
+.liststars small{color:#9fb8aa;font-size:12px}
+.liststars .skillstars{font-size:15px}
+.sortbar button,.filters button{background:#10241d;color:#d8e6dd;border:1px solid #2c4a3d}
+.sortbar button.on,.filters button.on{background:linear-gradient(#ffd83e,#ffc21d);color:#14110a;border-color:transparent}
+.typefilter{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.typefilter span{flex:none;font-size:13px;color:#c9b66a;font-weight:700;letter-spacing:.02em}
+.typefilter select{flex:1;min-width:0;min-height:44px;border:1px solid #456152;border-radius:10px;background:#14251d;color:#fff;padding:9px 12px;font-size:15px}
