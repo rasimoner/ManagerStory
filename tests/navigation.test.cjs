@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const base = path.resolve(__dirname, '../dist');
-const sources = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js'].map(f => fs.readFileSync(path.join(base, f), 'utf8'));
+const sources = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'season.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js'].map(f => fs.readFileSync(path.join(base, f), 'utf8'));
 
 function harness() {
   const store = new Map();
