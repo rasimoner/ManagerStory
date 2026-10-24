@@ -7,7 +7,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const base = path.resolve(__dirname, '../dist');
-const files = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js', 'star-transfer.js'];
+const files = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'season.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js', 'star-transfer.js'];
 const sources = files.map(f => fs.readFileSync(path.join(base, f), 'utf8'));
 
 function harness() {
@@ -153,4 +153,23 @@ test('the page loads the scene files and the offline cache keeps them', () => {
   const t = scene.match(/export const TIMES = (\{[^}]+\})/)[1];
   const T = Function(`return ${t}`)();
   assert.ok(T.walk + T.cheer + T.fade + T.showMax + T.after + T.closing <= 30, 'the 3D part stays short');
+});
+
+test('with the season transition: the star keeps his number and his clip into the next season', () => {
+  const h = harness();
+  const FAST = fs.readFileSync(path.join(__dirname, 'season-transition.test.cjs'), 'utf8').match(/const FAST = `([\s\S]*?)`;/)[1];
+  h.run(FAST);
+  const id = pick(h, 'r.stars>=4&&!r.keeper');
+  h.run(`S.budget=9e8;S.week=3;v6Sign('${id}',12000000);starFlow=null`);
+  const star = h.json('(({id,number,name})=>({id,number,name}))(S.players.at(-1))');
+  const season0 = h.run('S.season');
+  h.run('fastSeason();autoSeasonEnd();render()');
+  assert.notEqual(h.run('S.season'), season0, 'a new season started');
+  assert.equal(h.run(`S.players.find(p=>p.id===${star.id})?.number`), star.number, 'he kept his number');
+  assert.ok(!h.json(`freeShirtNumbers(-1)`).includes(star.number), 'nobody else can take it');
+  assert.equal(h.run('S.highlights.length'), 1, 'the clip stays in the archive');
+  assert.equal(h.run('S.highlights[0].season'), season0);
+  assert.equal(h.run('latestStarTransfer()'), null, 'the flash card belongs to the season of the signing');
+  h.run('S=validateCareerImport(JSON.parse(JSON.stringify(S)));init();render()');
+  assert.equal(h.run('S.highlights.length'), 1);
 });

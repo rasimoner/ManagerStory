@@ -1,5 +1,5 @@
 /* ManagerStory V7.2: additive migration and shared match state. */
-const GAME_VERSION = "7.9.6";
+const GAME_VERSION = "7.9.7";
 const MATCH_TACTICS = {
   mentality: ["Temkinli", "Dengeli", "Cesur"],
   press: ["Düşük", "Normal", "Yüksek"],
@@ -478,7 +478,7 @@ function validateCareerImport(data) {
   // Imported saves are data, never a source of HTML or inline event handlers.
   if (/[<>]/.test(JSON.stringify(data)) ||
       data.event?.choices?.some(choice => !Array.isArray(choice) || typeof choice[1] !== 'string' || !/^[\w:-]+$/.test(choice[1])) ||
-      data.v6?.transferPool?.some(player => typeof player.id !== 'string' || !/^v6\d+$/.test(player.id))) {
+      data.v6?.transferPool?.some(player => typeof player.id !== 'string' || !/^v6(?:wk|fa|n)?\d+$/.test(player.id))) {
     throw new Error("Kariyer yedeğinde güvenli olmayan içerik var.");
   }
   return data;

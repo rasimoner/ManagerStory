@@ -50,10 +50,10 @@ function evolveOpponentSquads(fixture){
  ensureOpponentSquads();if(S.v731.lastEvolvedFixture>=fixture)return;
  for(const [teamIndex,team] of OPP.entries()){
   for(const [index,p] of S.opponentSquads[team[0]].entries()){
-   const rng=R(731700+fixture*721+teamIndex*43+index*7);
-   let change=p.age<=23&&rng()<.14?1:p.age>=31&&rng()<.13?-1:0;
+   const rng=R(731700+fixture*721+teamIndex*43+index*7+(typeof seasonSeedOffset==='function'?seasonSeedOffset():0));
+   let change=p.age<=23&&rng()<.14?1:p.age>=(p.position==='GK'?34:31)&&rng()<.13?-1:0;
    // V7.9.5: a wonderkid grows like one (his own draw, so nobody else's development changes)
-   if(p.profile?.special&&R(731900+fixture*37+index)()<.5)change=1;
+   if(p.profile?.special&&R(731900+fixture*37+index+(typeof seasonSeedOffset==='function'?seasonSeedOffset():0))()<.5)change=1;
    p.overall=Math.max(50,Math.min(p.potential,p.overall+change));
    if(change)refreshPlayerProfile(p);
    p.form=Math.max(40,Math.min(95,p.form+Math.round((rng()-.5)*5)));
