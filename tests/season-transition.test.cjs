@@ -207,6 +207,7 @@ test('an old V7.9.5 save opens: season fields, contracts spread once, players an
   const again = harness(h.storage);
   assert.deepEqual(json(again, 'S.players.map(p=>p.contract)'), contracts);
   assert.doesNotThrow(() => h.run('validateCareerImport(JSON.parse(JSON.stringify(S)))'));
+  assert.equal(h.storage.get('msv4-v71-backup'), JSON.stringify(old), 'the pre-upgrade save is backed up untouched');
   // it then reaches its season end like a new career
   h.run('fastSeason()');
   assert.equal(h.run('S.seasonEnd.steps[S.seasonEnd.at]'), 'summary');
