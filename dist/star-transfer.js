@@ -87,7 +87,7 @@ function starFlowPlayer() { return starFlow?.trial ? starFlow.player : S.players
 function beginStarTransfer(p, x, fee) {
   const rating = starShowRating(p), move = starShowMove(rating);
   if (!Number.isInteger(p.number)) p.number = defaultShirtNumber(p.id);
-  const rec = addStarTransferHighlight(p, { move, stars: rating.stars, keeper: rating.keeper, fee, fromClub: x?.club });
+  const rec = addStarTransferHighlight(p, { move, stars: rating.stars, keeper: rating.keeper, fee, fromClub: x?.free ? 'Serbest oyuncu' : x?.club });
   const moves = rating.moves.length;
   pushInbox('Spor Servisi', `SON DAKİKA • ${p.name} resmen bizde`, `${'★'.repeat(rating.stars)} ${p.pos} • ${moves ? moves + ' özel hareket' : 'özel hareketi yok'} • ${money(rec.fee)}. Taraftar stadın önüne akın etti; yıldız bu akşam tünelden çıkıp sahada ilk şovunu yapacak.`, 'board');
   save();
@@ -184,7 +184,7 @@ function starFlashCard() {
   if (!S) return '';
   const h = latestStarTransfer(); if (!h) return '';
   const p = S.players.find(q => q.id === h.playerId), club = resolveClubIdentity('career');
-  return `<section class="card stflashcard" style="--club:${clubColor(club.primaryColor) || '#c8102e'}"><div class="stflashtag">SON DAKİKA</div><div class="row between"><div><h3>${escapeHTML(h.playerName)} <span class="stno">${p?.number ?? ''}</span></h3><small>${escapeHTML(h.pos)} • ${money(h.fee)}${h.fromClub ? ' • ' + escapeHTML(h.fromClub) + "'dan" : ''}</small></div>${starStarsHTML(h.stars, 'mid')}</div><p class="muted">${h.keeper ? 'Kaleci şovu: ' : 'Gösterisi: '}${escapeHTML(starMoveName(h.move))}</p><button class="ghost" onclick="starWalkOut(latestStarTransfer())">▶ Sahneyi izle</button></section>`;
+  return `<section class="card stflashcard" style="--club:${clubColor(club.primaryColor) || '#c8102e'}"><div class="stflashtag">SON DAKİKA</div><div class="row between"><div><h3>${escapeHTML(h.playerName)} <span class="stno">${p?.number ?? ''}</span></h3><small>${escapeHTML(h.pos)} • ${money(h.fee)}${h.fromClub ? ' • Önceki kulüp: ' + escapeHTML(h.fromClub) : ''}</small></div>${starStarsHTML(h.stars, 'mid')}</div><p class="muted">${h.keeper ? 'Kaleci şovu: ' : 'Gösterisi: '}${escapeHTML(starMoveName(h.move))}</p><button class="ghost" onclick="starWalkOut(latestStarTransfer())">▶ Sahneyi izle</button></section>`;
 }
 
 // ---- hooks into the signing and the transfer screen (no edits to those lines in app.js) ----
