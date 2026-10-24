@@ -88,6 +88,10 @@ async function playMatch(rec) {
       ndc.copy(ball.p).project(camera); screen.push([ndc.x, ndc.y, ndc.z < 1 && !cutNow]); camMoves.push(cutNow ? 0 : before.distanceTo(broadcast.pos)); if (process.env.NV_DEBUG) (out.camAt ||= []).push([+rt.S.t.toFixed(2), director.current?.type, shotPlan?.mode]); cutNow = false;
     }
     const current = director.current?.type;
+    // V7.9.5 after half-time the teams come out in their new halves: between the half-time whistle and the
+    // second-half kickoff a keeper does not run the length of the pitch to his other goal
+    if (current === 'half') out.halfOn = true; else if (out.halfOn && current === 'kickoff') { out.halfOn = false; out.halfDone = true; }
+    if (out.halfOn) for (const p of players) if (p.role === 'GK' && prev.has(p)) { const d = p.pos.distanceTo(prev.get(p)); if (d < 1) out.gkHalfRun = (out.gkHalfRun || 0) + d; }
     // how long each engine event takes to play on the pitch (the match clock waits for it)
     const cid = director.current?.eventId ?? null;
     if (cid !== out.paceId) { if (out.paceId != null) (out.pace ||= []).push({ id: out.paceId, type: out.paceType, d: rt.S.t - out.paceT0 }); out.paceId = cid; out.paceType = current; out.paceT0 = rt.S.t; }
@@ -136,7 +140,7 @@ async function playMatch(rec) {
         if (p.dive) { if (v > out.maxDive) out.maxDive = v; }
         else if (v > out.maxSpeed && d < 1) out.maxSpeed = v;
         if (d > 0.3) out.playerJumps.push({ t: +rt.S.t.toFixed(2), event: current, id: p.id, d: +d.toFixed(2) });
-        if (process.env.NV_DEBUG && v > 9.5) (out.fast ||= []).push({ t: +rt.S.t.toFixed(2), event: current, id: p.id, role: p.role, v: +v.toFixed(1), warp: !!p.warp, motion: p.motion?.name, dive: !!p.dive, act: p.act?.name, busy: p.busy, want: p.want });
+        if (process.env.NV_DEBUG && v > 9.5) (out.fast ||= []).push({ t: +rt.S.t.toFixed(2), event: current, id: p.id, role: p.role, v: +v.toFixed(1), warp: !!p.warp, motion: p.motion?.name, dive: !!p.dive, act: p.act?.name, busy: p.busy, want: p.want, vel: +p.vel.length().toFixed(1), near: +Math.min(...players.filter(q => q !== p && !q.offPitch).map(q => q.pos.distanceTo(p.pos))).toFixed(2), root: +p.pos.distanceTo(prev.get(p) || p.pos).toFixed(3) });
       }
       placed.clear();
     }
@@ -182,11 +186,15 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
 
   test(`fixture ${fixture}: no teleports — players move at football speeds (a keeper's dive a little faster), the ball only jumps for a placed restart`, async () => {
     const { view } = await match(fixture);
+    if (process.env.NV_DEBUG) console.log('fastest', JSON.stringify((view.fast || []).filter(f => f.v >= 10.5)));
     if (process.env.NV_DEBUG) { const by = {}; for (const f of view.fast || []) { const k = [f.event, f.warp && 'warp', f.motion, f.dive && 'dive', f.act].filter(Boolean).join('/'); by[k] = (by[k] || 0) + 1; } console.log('fast', JSON.stringify(by)); const seen = {}; for (const f of view.fast || []) { const k = [f.event, f.warp && 'warp', f.motion, f.dive && 'dive', f.act].filter(Boolean).join('/'); if ((seen[k] = (seen[k] || 0) + 1) <= 2) console.log('ex', k, JSON.stringify(f)); } }
     assert.ok(view.maxSpeed < 10.5, 'top speed ' + view.maxSpeed.toFixed(2) + ' m/s');
     assert.ok(view.maxDive < 13, 'keeper dive peak ' + view.maxDive.toFixed(2) + ' m/s');   // explosive, but a body
     assert.deepEqual(view.playerJumps, [], 'player position jumps');
     assert.deepEqual(view.ballJumps, [], 'ball position jumps');
+    // V7.9.5 the keepers start the second half in their new goals (placed with the restart), not run there
+    if (process.env.NV_DEBUG) console.log('halftime', JSON.stringify({ done: !!view.halfDone, gkRun: +(view.gkHalfRun || 0).toFixed(1) }));
+    if (view.halfDone) assert.ok((view.gkHalfRun || 0) < 12, 'keepers ran ' + (view.gkHalfRun || 0).toFixed(1) + ' m at half-time');
   });
 
   test(`fixture ${fixture}: skill moves are readable and special — boots on and round the ball, only the players who have them, only where they fit`, async () => {
@@ -294,7 +302,7 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     for (const pk of view.stats.pens || []) assert.ok(pk.onLine < 0.6 && (pk.early == null || (pk.early >= -0.05 && pk.early <= 0.1)), 'penalty: keeper on his line, going as it is struck: ' + JSON.stringify(pk));
     if (process.env.NV_DEBUG) console.log('gkVolleys', JSON.stringify(view.stats.gkVolleys || []), 'pens', JSON.stringify(view.stats.pens || []));
     for (const t of view.stats.gkThrows || []) assert.ok(t.hand < 0.3 && t.h > 1.2, 'an overarm throw leaves his hand above his head: ' + JSON.stringify(t));
-    if (process.env.NV_DEBUG) console.log('gkThrows', JSON.stringify(view.stats.gkThrows || []));
+    if (process.env.NV_DEBUG) console.log('gkThrows', JSON.stringify(view.stats.gkThrows || []), 'gkPasses', JSON.stringify(view.stats.gkPassLog || []), 'gkDrops', JSON.stringify(view.stats.gkDrops || []));
     if (process.env.NV_DEBUG) console.log('carryDbg', JSON.stringify((view.carryDbg || []).slice(0, 20)));
     if (process.env.NV_DEBUG) console.log('gkUp', JSON.stringify(view.gkUp || []), 'prone', JSON.stringify((view.proneBody || []).filter((x, i) => i % 6 === 0)));
     for (const u of view.gkUp || []) assert.ok(u.clip > 0.8, 'a keeper gets up from the grass with the recorded get-up, not tipped up: ' + JSON.stringify(u));

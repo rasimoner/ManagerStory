@@ -356,7 +356,9 @@ test('V7.9.3 an attacker in space does not turn round and play a long ball back;
     h.run(`window.__bp=[];const _m=matchEvent;matchEvent=function(type,text,o){if((type==='pass'||type==='cross')&&o&&o.fromPos&&o.toPos&&o.fromId!=null){const side=o.fromSide,dir=(side==='user'?1:-1)*userDirection();const fwd=dir>0?o.fromPos[0]:100-o.fromPos[0];const nb=nearestMarker(side==='user'?'opp':'user',o.fromPos);const role=side==='user'?M.matchRoles[o.fromId]:playerAtMarker(o.fromId,side)?.position;window.__bp.push({type,fwd,prog:(o.toPos[0]-o.fromPos[0])*dir,range:o.distance,d:nb?nb.d:99,role,success:o.success,deep:dir>0?o.toPos[0]:100-o.toPos[0],y:o.toPos[1]})}return _m.apply(this,arguments)}`);
     playToEnd(h);
     for (const b of h.run('window.__bp')) {
-      if (b.role !== 'GK' && b.fwd > 60 && b.d > 8.5 && b.prog < -15 && b.range > 25) back++;
+      // (V7.9.5: a pull-back from the byline into the box — the edge of the area, central — is a chance, not a ball back)
+      const cutback = b.deep >= 72 && Math.abs(b.y - 50) < 22;
+      if (b.role !== 'GK' && b.fwd > 60 && b.d > 8.5 && b.prog < -15 && b.range > 25 && !cutback) back++;
       if (b.type === 'cross') { crosses++; if (b.success !== false && (b.deep < 70 || Math.abs(b.y - 50) > 34)) outsideBox.push(b); }
     }
   }
@@ -379,7 +381,8 @@ test('V7.9.4 open-play crosses: from a wide man in the attacking third into the 
       const end = e.toPos[0] > 50 ? 100 : 0, deep = p => end === 100 ? p[0] : 100 - p[0];
       // from the attacking part of the pitch, out wide; into the box
       if (deep(e.fromPos) < 55 || Math.abs(e.fromPos[1] - 50) < 12) bad.push(['from', e.fromPos]);
-      if (deep(e.toPos) < 78 || Math.abs(e.toPos[1] - 50) > 30) bad.push(['to', e.toPos]);
+      // (V7.9.5: a cross cut out on its way in ends where it was cut out, at the edge of the box)
+      if (deep(e.toPos) < (e.success === false ? 70 : 78) || Math.abs(e.toPos[1] - 50) > 30) bad.push(['to', e.toPos]);
       // what follows is the ball in the air being decided: a header at goal by the man it was for, a second ball,
       // a corner, or the keeper's (a claim is the cross going to him); or a ball played into a man's stride (he controls it)
       const n = ev[i + 1];

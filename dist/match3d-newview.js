@@ -417,12 +417,13 @@ function frame(now) {
   const active = isActive();
   if (!active) { if (wasActive) needResync = true; wasActive = false; last = now; return; }
   if (match !== M) { startMatchView(); needResync = false; }
+  // the engine generated a minute: record where everyone stands after it (V7.9.5: before a resync, so a view
+  // coming back — after half-time, from 2D — lays the players out where they stand now, not a minute ago)
+  if (M.events.length !== lastEvents) { snaps.push({ n: M.events.length, pl: enginePositions(), ball: [...(M.ballState?.position || [50, 50])] }); if (snaps.length > 40) snaps.splice(1, snaps.length - 40); lastEvents = M.events.length; }
   // back from 2D or another tab: the match went on without this view, so start from "now"
   if (needResync) { if (rp) endReplay(); replay.clear(); starPending = null; if (director.index < M.events.length) director.resync(M.ballOwner, M.ballSide, M.ballState?.position); needResync = false; cut = true; }
   wasActive = true;
   const dtReal = FIXED_DT || Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
-  // the engine generated a minute: record where everyone stands after it
-  if (M.events.length !== lastEvents) { snaps.push({ n: M.events.length, pl: enginePositions(), ball: [...(M.ballState?.position || [50, 50])] }); if (snaps.length > 40) snaps.splice(1, snaps.length - 40); lastEvents = M.events.length; }
   const roster = rosterList(), key = JSON.stringify(roster.map(r => [r.side, r.id]));
   if (key !== rosterKey) { director.syncRoster(roster); rosterKey = key; }
   // after the final whistle the view still plays the match's last actions, unless the drain is paused

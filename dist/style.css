@@ -183,3 +183,18 @@ body.in-match{padding:0;background:#04100c}#app.match-mode{padding:0!important;m
 .skillstars{color:#f4c430;font-size:13px;letter-spacing:1px;margin-right:4px;white-space:nowrap}
 .skillstars i{font-style:normal;color:#ffffff33}
 .skillmove{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;background:#f4c43022;color:#f4c430;border:1px solid #f4c43055;white-space:nowrap}
+/* V7.9.5 player profile */
+.ptype{font-size:11px;color:#9fd3ff;border:1px solid #9fd3ff55;border-radius:999px;padding:1px 7px;margin-left:4px;white-space:nowrap}
+.pfocus{display:block;margin-top:4px;font-size:11px;color:#8be28b}
+.profilehero h1{margin:4px 0}
+.attrs h3{margin:0 0 8px}
+.attr{display:grid;grid-template-columns:118px 1fr 52px;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+.attr i{display:block;height:8px;border-radius:99px;background:#ffffff1a;overflow:hidden}
+.attr i b{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#f4c430,#ff8a3d)}
+.attr em{font-style:normal;font-weight:700;text-align:right}
+.attr em small{color:#8be28b;font-weight:600}
+.focusbtns{display:flex;flex-wrap:wrap;gap:6px}
+.focusbtns button{flex:1 1 40%;margin:0}
+.skillmove.newmove{background:#8be28b33;color:#8be28b;border-color:#8be28b77}
+.vbtns{display:flex;flex-direction:column;gap:6px}
+.vbtns button{width:auto;margin:0}
