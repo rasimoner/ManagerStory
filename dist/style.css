@@ -198,3 +198,12 @@ body.in-match{padding:0;background:#04100c}#app.match-mode{padding:0!important;m
 .skillmove.newmove{background:#8be28b33;color:#8be28b;border-color:#8be28b77}
 .vbtns{display:flex;flex-direction:column;gap:6px}
 .vbtns button{width:auto;margin:0}
+/* V7.9.5 navigation: overflow-x:hidden turned #app into a scroll container, which broke the sticky header.
+   clip hides the sideways overflow the same way without that side effect (older browsers keep hidden). */
+#app{overflow-x:clip}
+.hisarhead .navback{flex:none;width:40px;height:40px;border-radius:12px;color:#ffd644;font-size:26px;line-height:1;display:grid;place-items:center;touch-action:manipulation}
+.hisarhead .navback span{margin-top:-3px}
+.navtop{position:fixed;z-index:56;right:max(14px,calc((100vw - 520px)/2 + 14px));bottom:96px;width:46px;height:46px;margin:0;padding:0;border-radius:50%;background:#0b1d19f2;border:1px solid #f3c62366;color:#ffd644;font-size:20px;box-shadow:0 6px 18px #0009;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transform:translateY(8px) scale(.9);pointer-events:none;transition:opacity .18s,transform .18s;touch-action:manipulation}
+.navtop.show{opacity:1;transform:none;pointer-events:auto}
+body.in-match .navtop{display:none}
+@media (prefers-reduced-motion:reduce){.navtop{transition:none}}
