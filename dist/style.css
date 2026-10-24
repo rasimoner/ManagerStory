@@ -198,3 +198,22 @@ body.in-match{padding:0;background:#04100c}#app.match-mode{padding:0!important;m
 .skillmove.newmove{background:#8be28b33;color:#8be28b;border-color:#8be28b77}
 .vbtns{display:flex;flex-direction:column;gap:6px}
 .vbtns button{width:auto;margin:0}
+/* V7.9.5 navigation: overflow-x:hidden turned #app into a scroll container, which broke the sticky header.
+   clip hides the sideways overflow the same way without that side effect (older browsers keep hidden). */
+#app{overflow-x:clip}
+.hisarhead .navback{flex:none;width:40px;height:40px;border-radius:12px;color:#ffd644;font-size:26px;line-height:1;display:grid;place-items:center;touch-action:manipulation}
+.hisarhead .navback span{margin-top:-3px}
+.navtop{position:fixed;z-index:56;right:max(14px,calc((100vw - 520px)/2 + 14px));bottom:96px;width:46px;height:46px;margin:0;padding:0;border-radius:50%;background:#0b1d19f2;border:1px solid #f3c62366;color:#ffd644;font-size:20px;box-shadow:0 6px 18px #0009;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transform:translateY(8px) scale(.9);pointer-events:none;transition:opacity .18s,transform .18s;touch-action:manipulation}
+.navtop.show{opacity:1;transform:none;pointer-events:auto}
+body.in-match .navtop{display:none}
+@media (prefers-reduced-motion:reduce){.navtop{transition:none}}
+/* V7.9.5 lists: skill stars on every card, the chosen filter is marked, player-type dropdown */
+.liststars{display:flex;align-items:center;gap:6px;margin-top:5px}
+.liststars small{color:#9fb8aa;font-size:12px}
+.liststars .skillstars{font-size:15px}
+.sortbar button,.filters button{background:#10241d;color:#d8e6dd;border:1px solid #2c4a3d}
+.sortbar button.on,.filters button.on{background:linear-gradient(#ffd83e,#ffc21d);color:#14110a;border-color:transparent}
+.typefilter{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.typefilter span{flex:none;font-size:13px;color:#c9b66a;font-weight:700;letter-spacing:.02em}
+.typefilter select{flex:1;min-width:0;min-height:44px;border:1px solid #456152;border-radius:10px;background:#14251d;color:#fff;padding:9px 12px;font-size:15px}
+.nowrap{white-space:nowrap}
