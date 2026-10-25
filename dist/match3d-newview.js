@@ -69,7 +69,17 @@ html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:non
 .nv-rp-skip{position:absolute;right:10px;bottom:10px;pointer-events:auto;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:#f3f5f7;background:#0d1117c4;border:1px solid #ffffff30;border-radius:9px;padding:10px 12px;cursor:pointer;touch-action:manipulation}
 .nv-full .nv-rp-skip{bottom:calc(env(safe-area-inset-bottom,0px) + 16px);right:max(10px,env(safe-area-inset-right,0px))}
 .nv-replaying .nv-dir,.nv-replaying .nv-who,.nv-replaying .nv-banner,.nv-replaying .career3d-radar,.nv-replaying .nv-bug,.nv-replaying .nv-bottom,.nv-replaying .nv-tbtn,.nv-replaying .nv-tune{visibility:hidden}
-.nv-tune .tries{display:flex;flex-wrap:wrap;gap:6px}.nv-tune .tries button{font-size:13px;padding:0 10px;border-color:#f4c43066;color:#f4c430}.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}`;
+.nv-tune .tries{display:flex;flex-wrap:wrap;gap:6px}.nv-tune .tries button{font-size:13px;padding:0 10px;border-color:#f4c43066;color:#f4c430}.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}
+/* V7.9.12 phone on its side: the picture is short, so the banner (GOL, KORNER…) and the replay's move card sat
+   on the action. The banner becomes one small line at the top, the card goes to the bottom-left corner. */
+@media (orientation:landscape) and (max-height:520px){
+.nv-banner{top:calc(env(safe-area-inset-top,0px) + 34px);transform:translate(-50%,0) skewX(-8deg);font-size:20px;white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis;padding:2px 12px}
+.nv-full .nv-banner{top:calc(env(safe-area-inset-top,0px) + 66px)}
+.nv-rp-card,.nv-full .nv-rp-card{left:max(12px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:none;width:min(320px,38vw);text-align:left}
+.nv-rp-card strong{font-size:18px;padding:2px 10px}
+.nv-rp-card em{font-size:11px;margin-top:5px}
+.nv-rp-card span{font-size:12px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+}`;
 document.head.append(css);
 
 const surface = document.createElement('div'); surface.className = 'career3d v73pitch';
