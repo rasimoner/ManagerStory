@@ -1,4 +1,4 @@
-# ManagerStory V7.9.10
+# ManagerStory V7.9.11
 
 Offline-capable football management game for mobile browsers.
 

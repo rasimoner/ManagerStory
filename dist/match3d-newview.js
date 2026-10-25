@@ -255,7 +255,9 @@ function startMatchView() {
   if (rt) for (const p of rt.players) scene.remove(p.model);
   for (const m of crowd) scene.remove(m);
   const t = teams();
-  crowd = stadium.buildCrowd(t.home.primaryColor, t.home.secondaryColor, t.away.primaryColor, t.away.secondaryColor) || [];
+  // (each club's flag is split the way its crest is: CLUBSTYLE in app.js)
+  const flagOf = name => (typeof CLUBSTYLE !== 'undefined' && CLUBSTYLE[name]?.[2]) || 'v';
+  crowd = stadium.buildCrowd(t.home.primaryColor, t.home.secondaryColor, t.away.primaryColor, t.away.secondaryColor, flagOf(M.home), flagOf(M.away)) || [];
   rt = createRuntime({ scene, rig: assets.rig, gait: assets.gait, ramp: stadium.toonRamp, numberTexture, cadence: CADENCE, stride: STRIDE });
   rt.S.tune = tune; sayLine = null;
   replay.clear(); starPending = null; rp = null; lastReplay = -99; rpEl.hidden = true; surface.classList.remove('nv-replaying');
