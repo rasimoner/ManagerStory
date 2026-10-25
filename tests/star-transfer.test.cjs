@@ -15,7 +15,10 @@ function harness() {
   const app = { innerHTML: '', classList: { toggle() {} }, insertAdjacentHTML(_w, html) { this.innerHTML = html + this.innerHTML; } };
   const ctx = { console: { ...console, warn() {} }, structuredClone, AbortController, URL, Blob, setTimeout, clearTimeout, Math,
     localStorage: { getItem: k => store.get(k) || null, setItem: (k, v) => store.set(k, v), removeItem: k => store.delete(k) },
-    document: { body: { classList: { toggle() {} } }, querySelector(q) { if (q === '#app') return app; if (q === '.bottomnav') return app.innerHTML.includes('class=bottomnav') ? {} : null; return null; } },
+    document: { body: { classList: { toggle() {} } }, querySelector(q) { if (q === '#app') return app;
+      // the transfer office picture: the test card goes right after it (V7.9.8: no longer before the header)
+      if (q === '#app .vscene' && app.innerHTML.includes('<div class="vscene')) return { insertAdjacentHTML(_w, html) { const a = app.innerHTML.indexOf('<div class="vscene'), e = app.innerHTML.indexOf('</div>', a) + 6; app.innerHTML = app.innerHTML.slice(0, e) + html + app.innerHTML.slice(e); } };
+      if (q === '.bottomnav') return app.innerHTML.includes('class=bottomnav') ? {} : null; return null; } },
     alert() {}, confirm: () => true, prompt: () => null };
   ctx.window = ctx; ctx.window.scrollTo = () => {};
   vm.createContext(ctx);
@@ -119,6 +122,7 @@ test('the test button plays the scene on a copy: nothing is bought, numbered or 
   const h = harness();
   h.run('showV6Transfers()');
   assert.match(h.html(), /Transfer sahnesi dene/);
+  assert.ok(h.html().indexOf('sttry') > h.html().indexOf('hisarhead'), 'the test card sits under the header, not above it');
   const before = h.run('JSON.stringify(S)');
   h.run(`starTransferTrial('out')`);
   assert.match(h.html(), /DENEME/);

@@ -54,12 +54,18 @@ export function buildFootballerGeometry(skeleton, style = {}) {
       }
       return row;
     });
+    // V7.9.8: the faces must point out of the tube whichever way it runs. A tube drawn downwards (thighs,
+    // shins), along +x (the left arm) or heel to toe (boots) used to come out inside-out: the near side was
+    // culled and the outline pass painted it, so shorts and socks showed as dark grey and a sleeve looked swollen
+    const along = rings[Math.min(1, rings.length - 1)].c.clone().sub(rings[0].c);
+    const out = along.lengthSq() < 1e-12 || along.cross(rings[0].v).dot(rings[0].u) >= 0;
     for (let i = 0; i < ids.length - 1; i++) for (let k = 0; k < SEG; k++) {
       const a = ids[i][k], b = ids[i][(k + 1) % SEG], c = ids[i + 1][k], d = ids[i + 1][(k + 1) % SEG];
-      idx.push(a, c, b, b, c, d);
+      if (out) idx.push(a, c, b, b, c, d); else idx.push(a, b, c, b, d, c);
     }
     const cap = (row, r, flip, dir) => {
       const c = vert(r.c.clone().addScaledVector(dir, Math.min(r.ru, r.rv) * .55), W(r.w), r.part);
+      if (!out) flip = !flip;
       for (let k = 0; k < SEG; k++) { const a = row[k], b = row[(k + 1) % SEG]; flip ? idx.push(c, a, b) : idx.push(c, b, a); }
     };
     if (capStart) { const r0 = rings[0], r1 = rings[1]; cap(ids[0], r0, true, r0.c.clone().sub(r1.c).normalize()); }

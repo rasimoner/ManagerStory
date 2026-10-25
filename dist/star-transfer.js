@@ -206,8 +206,9 @@ function starFlashCard() {
     const list = showV6Transfers;
     showV6Transfers = function () {
       const r = list.apply(this, arguments);
-      const main = document.querySelector('#app .appcontent') || document.querySelector('#app');
-      main?.insertAdjacentHTML?.('afterbegin', `<section class="card sttry"><small>GEÇİCİ TEST</small><b>Transfer sahnesi dene</b><div class="row"><button class="ghost" onclick="starTransferTrial('out')">Oyuncuyla</button><button class="ghost" onclick="starTransferTrial('gk')">Kaleciyle</button></div></section>`);
+      // (under the transfer office picture: before the header it pushed the sticky header down the page)
+      const anchor = document.querySelector('#app .vscene') || document.querySelector('#app .weekstrip');
+      anchor?.insertAdjacentHTML?.('afterend', `<section class="card sttry"><small>GEÇİCİ TEST</small><b>Transfer sahnesi dene</b><div class="row"><button class="ghost" onclick="starTransferTrial('out')">Oyuncuyla</button><button class="ghost" onclick="starTransferTrial('gk')">Kaleciyle</button></div></section>`);
       return r;
     };
   }
@@ -217,7 +218,7 @@ function starFlashCard() {
   if (typeof document === 'undefined' || !document.createElement || !document.head) return;
   const css = document.createElement('style');
   css.textContent = `
-.stflash{position:relative;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(120% 80% at 50% 20%,var(--club) 0%,#0b0f14 70%);color:#fff;overflow:hidden;padding:0 0 calc(env(safe-area-inset-bottom,0px) + 18px)}
+.stflash{position:fixed;inset:0;z-index:1100;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;justify-content:space-between;background:radial-gradient(120% 80% at 50% 20%,var(--club) 0%,#0b0f14 70%);color:#fff;overflow:hidden;padding:0 0 calc(env(safe-area-inset-bottom,0px) + 18px)}
 .stticker{background:#f4c430;color:#0d1117;font:900 14px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em;white-space:nowrap;overflow:hidden;padding:9px 0;margin-top:env(safe-area-inset-top,0px)}
 .stticker span{display:inline-block;padding-left:100%;animation:stticker 9s linear infinite}
 @keyframes stticker{to{transform:translateX(-100%)}}
@@ -233,7 +234,7 @@ function starFlashCard() {
 .stmoves b{font-size:clamp(34px,11vw,52px);color:#f4c430;line-height:1}.stmoves span{font-weight:700;font-size:16px}
 .stfee{margin-top:12px;color:#cfd8e2}.stfee b{color:#fff}
 .stnext{margin:0 16px;min-height:52px}
-.stsign{min-height:100vh;min-height:100dvh;background:#0b0f14;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+.stsign{position:fixed;inset:0;z-index:1100;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:#0b0f14;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
 .stsignphoto{position:relative;height:min(58vh,420px);overflow:hidden}
 .stsignphoto>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .stshirt{position:absolute;right:14px;top:calc(env(safe-area-inset-top,0px) + 14px);width:96px;height:104px;background:var(--club);color:var(--club2);border-radius:14px 14px 10px 10px;clip-path:polygon(22% 0,78% 0,100% 18%,88% 34%,84% 100%,16% 100%,12% 34%,0 18%);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 20px #000a;animation:stpop .45s cubic-bezier(.2,1.4,.4,1)}
@@ -245,10 +246,10 @@ function starFlashCard() {
 .stnumbers button{min-height:46px;font-size:18px;font-weight:800;padding:0;border-radius:10px;background:#1f2731;color:#f3f5f7;border:1px solid #ffffff22}
 .stnumbers button.on{background:#f4c430;color:#0d1117;border-color:#f4c430}
 .stmore{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:14px}.stmore select{min-height:40px;font-size:16px}
-.stloading{min-height:100vh;min-height:100dvh;display:grid;place-content:center;text-align:center;background:#10251a;color:#cfe0d3}
+.stloading{position:fixed;inset:0;z-index:1100;display:grid;place-content:center;text-align:center;background:#10251a;color:#cfe0d3}
 .stflashcard{position:relative;border:1px solid var(--club);overflow:hidden}.stflashcard h3{margin:6px 0 2px}.stflashcard .stno{display:inline-block;min-width:28px;text-align:center;background:var(--club);color:#fff;border-radius:6px;padding:0 5px;font-size:15px}
 .stflashtag{display:inline-block;background:#e0182d;color:#fff;font-weight:900;font-size:12px;letter-spacing:.1em;padding:3px 8px;transform:skewX(-8deg)}
-.sttry{border:1px dashed #f4c43088}.sttry b{display:block;margin:2px 0 8px}.sttry .row{gap:8px}
+.sttry{border:1px dashed #f4c43088;margin-top:12px}.sttry b{display:block;margin:2px 0 8px}.sttry .row{gap:8px}
 .stclose h2{margin:6px 0}
 @media (prefers-reduced-motion:reduce){.stticker span,.stflashbody,.stshirt{animation:none}}`;
   document.head.append(css);
