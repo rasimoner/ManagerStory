@@ -464,6 +464,7 @@ function frame(now) {
   if (rp) starCamera(dtReal, w / Math.max(1, h), ballAt); else updateCamera(dtReal, w / Math.max(1, h));
   const hidden = hideOccluders();
   renderer.render(scene, camera);
+  rt.scaleOutlines(camera, canvas.width, canvas.height);
   camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
   for (const p of hidden) p.model.visible = true;
   if (frameNo++ % 3 === 0) { drawRadar(); paintDirection(); }

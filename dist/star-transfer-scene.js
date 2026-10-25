@@ -364,6 +364,7 @@ export function playStarTransferScene(opts) {
           broadcast.update(rt, autoCam, dtReal, aspect);
           stadium.sun.target.position.copy(broadcast.look); stadium.sun.position.copy(broadcast.look).add(new THREE.Vector3(-30, 60, 40));
         }
+        rt.scaleOutlines(camera, canvas.width, canvas.height);
         renderer.render(scene, camera);
         camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
       }
