@@ -57,7 +57,7 @@ async function playMatch(rec) {
   const screen = [], camMoves = [], ndc = new THREE.Vector3();
   const meta = { user: rec.roster.filter(r => r.side === 'user'), opp: rec.roster.filter(r => r.side === 'opp'), teams: rec.teams, userHome: rec.userHome };
   const director = createDirector(rt, { events: rec.events, snaps: rec.snaps, meta }, {
-    say() {}, banner() {}, flash() {}, excite() {}, minute() {}, slow() {}, whistle() {}, finished() {},
+    say() {}, banner() {}, flash() {}, excite: (v, team) => { if (v >= 1) (shown.goalCheers ||= []).push(team); }, minute() {}, slow() {}, whistle() {}, finished() {},
     cam: (mode, a = null, b = null, hard = false) => { shotPlan = { mode, a, b }; if (hard) { broadcast.cut(); cutNow = true; } },
     score: (h, a) => { shown.score = [h, a]; },
   }, { startIndex: 0, debug: true });
@@ -182,6 +182,10 @@ for (const fixture of (process.env.NV_FIXTURES || "3,7").split(",").map(Number))
     if (process.env.NV_DEBUG) console.log('stall', JSON.stringify(view.stats.stallDetail || []));
     assert.equal(view.stats.stalls, 0, 'no event had to be skipped: ' + view.stats.stallLog.join(','));
     assert.deepEqual(JSON.parse(JSON.stringify(view.shown.score)), JSON.parse(JSON.stringify(rec.score)));
+    // V7.9.10 at each goal the scorers' fans go up and the other end falls quiet: home goals cheer the home
+    // stands, away goals the away block
+    const home = rec.userHome ? 'user' : 'opp', want = rec.events.filter(e => e.type === 'goal').map(e => (e.fromSide === home ? 'home' : 'away'));
+    assert.deepEqual(JSON.parse(JSON.stringify(view.shown.goalCheers || [])), JSON.parse(JSON.stringify(want)), 'the right fans cheer each goal');
   });
 
   test(`fixture ${fixture}: no teleports — players move at football speeds (a keeper's dive a little faster), the ball only jumps for a placed restart`, async () => {

@@ -270,7 +270,11 @@ function startMatchView() {
     offsideLine: x => {
       if (!offLine) { offLine = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 68), stadium.noOutline(new THREE.MeshBasicMaterial({ color: '#ffd400', transparent: true, opacity: .9, depthWrite: false }))); offLine.rotation.x = -Math.PI / 2; offLine.position.y = 0.03; scene.add(offLine); }
       offLine.position.x = x; offLine.visible = true; clearTimeout(offLineTimer); offLineTimer = setTimeout(() => { offLine.visible = false; }, 2600);
-    }, excite: v => { stadium.crowdMat.uniforms.uExcite.value = stadium.flagMat.uniforms.uExcite.value = v; },
+    }, excite: (v, team) => {
+      // V7.9.10 a goal: that team's fans go up and the other end falls quiet (team: 'home' | 'away'; none: both)
+      const quiet = Math.min(v, 0.04), home = team === 'away' ? quiet : v, away = team === 'home' ? quiet : v;
+      for (const m of [stadium.crowdMat, stadium.flagMat]) { m.uniforms.uExcite.value = home; m.uniforms.uExciteAway.value = away; }
+    },
     score() {}, minute() {},
     cam: (mode, a = null, b = null, hard = false) => { autoCam = { mode, a, b }; if (hard) cut = true; },
     slow: s => { simSlow = s < 1 ? tune.slowmo : s; }, whistle() {}, finished() {},
