@@ -50,17 +50,20 @@ function kitMaterial(kit, skin, hair, ramp) {
   const u = { kPal: { value: pal }, kStripe: { value: C(kit.stripe || kit.shirt) }, kStripes: { value: kit.stripes || 0 } };
   m.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, u);
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float part;\nvarying float vPart;\nvarying vec3 vBind;')
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float part;\nflat varying float vPart;\nvarying vec3 vBind;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvPart = part; vBind = position;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
-      varying float vPart; varying vec3 vBind; uniform vec3 kPal[11]; uniform vec3 kStripe; uniform float kStripes;`)
+      flat varying float vPart; varying vec3 vBind; uniform vec3 kPal[11]; uniform vec3 kStripe; uniform float kStripes;`)
       .replace('vec4 diffuseColor = vec4( diffuse, opacity );', `
       int pid = int(vPart + 0.5);
       vec3 kc = kPal[pid];
       if (pid == 1 && kStripes > 0.5) kc = mix(kc, kStripe, step(0.5, fract(vBind.x * 7.0 + 0.25)));
       vec4 diffuseColor = vec4(kc, opacity);`);
   };
-  m.customProgramCacheKey = () => 'footballer-kit-v2';
+  // V7.9.9: the part id is not blended across a triangle (flat). Blended, a triangle from skin (0) to hair (8)
+  // or to the eyes (9) ran through every id in between, so a band of shirt, shorts and sock colours showed
+  // round the hairline and the eyes
+  m.customProgramCacheKey = () => 'footballer-kit-v3';
   return m;
 }
 
