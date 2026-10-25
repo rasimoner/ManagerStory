@@ -240,7 +240,8 @@ export function playStarTransferScene(opts) {
     try { stadium = buildStadium({ scene, renderer, boardName: String(opts.club.name || '').toLocaleUpperCase('tr') }); } catch (e) { finish(null); return; }
     const opp = { name: 'Rakip', primaryColor: '#55646b', secondaryColor: '#d8dedc', shortName: 'RK' };
     // (a presentation, not a match: the whole ground is his new club's, the visitors' block included)
-    const crowd = stadium.buildCrowd(opts.club.primaryColor, opts.club.secondaryColor, opts.club.primaryColor, opts.club.secondaryColor) || [];
+    const flag = (typeof CLUBSTYLE !== 'undefined' && CLUBSTYLE[opts.club.name]?.[2]) || 'v';
+    const crowd = stadium.buildCrowd(opts.club.primaryColor, opts.club.secondaryColor, opts.club.primaryColor, opts.club.secondaryColor, flag, flag) || [];
     clearTunnelSeats(crowd);
     buildTunnel(scene, stadium, opts.club);
     clipStandForTunnel(scene, renderer);

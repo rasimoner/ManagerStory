@@ -178,8 +178,8 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     side: THREE.DoubleSide,
     uniforms: { uTime: { value: 0 }, uExcite: { value: .15 }, uExciteAway: { value: .15 } },
     vertexShader: `
-      attribute vec3 aPos; attribute float aYaw; attribute float aSeed; attribute vec3 aC1; attribute vec3 aC2; attribute float aAway;
-      uniform float uTime, uExcite, uExciteAway; varying vec2 vUv; varying float vSeed; varying vec3 vC1; varying vec3 vC2;
+      attribute vec3 aPos; attribute float aYaw; attribute float aSeed; attribute vec3 aC1; attribute vec3 aC2; attribute float aAway; attribute float aPat;
+      uniform float uTime, uExcite, uExciteAway; varying vec2 vUv; varying float vSeed; varying vec3 vC1; varying vec3 vC2; varying float vPat;
       void main(){
         vec3 p = position;
         float ex = mix(uExcite, uExciteAway, aAway);
@@ -189,16 +189,17 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
         float c = cos(yaw), s = sin(yaw);
         vec3 w = vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c) + aPos;
         w.y += max(0.0, sin(uTime * 3.0 + aSeed * 30.0)) * .25 * ex;
-        vUv = uv; vSeed = aSeed; vC1 = aC1; vC2 = aC2;
+        vUv = uv; vSeed = aSeed; vC1 = aC1; vC2 = aC2; vPat = aPat;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(w, 1.0);
       }`,
     fragmentShader: `
-      varying vec2 vUv; varying float vSeed; varying vec3 vC1; varying vec3 vC2;
+      varying vec2 vUv; varying float vSeed; varying vec3 vC1; varying vec3 vC2; varying float vPat;
       void main(){
-        // V7.9.10 each flag in its club's two colours: halves, bands or a border (was a fixed red and white)
-        vec3 c = vSeed > .62 ? mix(vC1, vC2, step(.5, vUv.y))
-               : vSeed > .3 ? mix(vC1, vC2, step(.5, fract(vUv.y * 2.5)))
-               : mix(vC2, vC1, step(.14, min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y) * 1.5)));
+        // V7.9.11 every flag of a club is the club's own flag: its crest's two colours split the crest's way
+        // (0 side by side, 1 one above the other, 2 diagonally), so each end waves one recognisable flag
+        vec3 c = vPat < .5 ? mix(vC1, vC2, step(.5, vUv.x))
+               : vPat < 1.5 ? mix(vC2, vC1, step(.5, vUv.y))
+               : mix(vC1, vC2, step(1.0, vUv.x + (1.0 - vUv.y)));
         gl_FragColor = vec4(c * (.8 + .2 * vUv.y), 1.0);
         #include <colorspace_fragment>
       }`
@@ -207,7 +208,9 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
   // V7.9.10 the visiting fans: a block at one end, kept apart from the home end by a strip of empty seats
   const AWAY = { end: -1, from: 15, gap: 3.2 };
   const awaySeat = s => s.end === AWAY.end && s.z > AWAY.from;
-  function buildCrowd(homeCol, homeAlt, awayCol, awayAlt) {
+  // pattern: how the club's crest splits its colours ('v' side by side, 'h' one above the other, 'd' diagonal)
+  const FLAG_PATTERN = { v: 0, h: 1, d: 2 };
+  function buildCrowd(homeCol, homeAlt, awayCol, awayAlt, homePattern = 'v', awayPattern = 'v') {
     const seats = [];
     // V7.9.10 the corners are mitred: the side stands' rows reach out to the end stands' rows of the same
     // height and the end stands stop where they meet, so no gap (dark backing or sky) shows between them
@@ -260,13 +263,14 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     // home flags in the home club's colours all round the ground; the away block waves more, in theirs
     const picks = []; seats.forEach((s, i) => { if (i % (awaySeat(s) ? 17 : 37) === 0) picks.push(s); });
     const fPos = new Float32Array(picks.length * 3), fYaw = new Float32Array(picks.length), fSeed = new Float32Array(picks.length);
-    const fC1 = new Float32Array(picks.length * 3), fC2 = new Float32Array(picks.length * 3), fAway = new Float32Array(picks.length);
+    const fC1 = new Float32Array(picks.length * 3), fC2 = new Float32Array(picks.length * 3), fAway = new Float32Array(picks.length), fPat = new Float32Array(picks.length);
     const flagCols = (a, b) => [new THREE.Color(a), new THREE.Color(b)];
     const homeFlag = flagCols(homeCol, homeAlt), awayFlag = flagCols(awayCol, awayAlt);
     picks.forEach((s, i) => {
       fPos.set([s.x, s.y + 1.75, s.z], i * 3); fYaw[i] = s.yaw + (rand() - .5); fSeed[i] = rand();
       const away = awaySeat(s), [c1, c2] = away ? awayFlag : homeFlag;
       fC1.set([c1.r, c1.g, c1.b], i * 3); fC2.set([c2.r, c2.g, c2.b], i * 3); fAway[i] = away ? 1 : 0;
+      fPat[i] = FLAG_PATTERN[away ? awayPattern : homePattern] ?? 0;
     });
     fg.setAttribute('aPos', new THREE.InstancedBufferAttribute(fPos, 3));
     fg.setAttribute('aYaw', new THREE.InstancedBufferAttribute(fYaw, 1));
@@ -274,6 +278,7 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     fg.setAttribute('aC1', new THREE.InstancedBufferAttribute(fC1, 3));
     fg.setAttribute('aC2', new THREE.InstancedBufferAttribute(fC2, 3));
     fg.setAttribute('aAway', new THREE.InstancedBufferAttribute(fAway, 1));
+    fg.setAttribute('aPat', new THREE.InstancedBufferAttribute(fPat, 1));
     fg.instanceCount = picks.length;
     const flags = new THREE.Mesh(fg, flagMat); flags.frustumCulled = false; scene.add(flags);
     return [mesh, flags];
