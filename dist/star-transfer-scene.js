@@ -11,8 +11,10 @@ import { createDirector } from './newview/director.js';
 import { createBroadcastCamera } from './newview/camera.js';
 
 // timings (seconds): the whole scene stays short on a phone
-export const TIMES = { walk: 5.6, cheer: 2.2, fade: 0.35, showMax: 12, after: 1.6, closing: 4, cap: 40 };
-const TUNNEL_Z = 37.4, TUNNEL_BLACK = 38.7, WALK_FROM = 41.2, WALK_TO = 31;
+export const TIMES = { walk: 6.2, cheer: 2.2, fade: 0.35, showMax: 12, after: 1.6, closing: 4, cap: 40 };
+// V7.9.8 the tunnel is a real corridor (about 7.5 m deep, lit, the club stripe along the walls, a bright
+// doorway at the far end) instead of a black hole: the stand's backing is clipped where it would cut through it
+const TUNNEL_Z = 37.4, TUNNEL_END = 44.9, TUNNEL_W = 4.4, TUNNEL_H = 3.0, WALK_FROM = 42.6, WALK_TO = 31;
 
 const css = `.sts{position:fixed;inset:0;z-index:1200;background:#0b0f14;overflow:hidden;touch-action:none}
 .sts canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -74,35 +76,96 @@ export function clearTunnelSeats(meshes) {
     const a = m?.geometry?.attributes?.aPos; if (!a) continue;
     for (let i = 0; i < a.count; i++) {
       const x = a.getX(i), y = a.getY(i), z = a.getZ(i);
-      if (Math.abs(x) < 2.8 && z > TUNNEL_Z && z < 48 && y < 3.8) { a.setY(i, -80); n++; }
+      if (Math.abs(x) < 2.8 && z > TUNNEL_Z && z < TUNNEL_END + 3 && y < 3.8) { a.setY(i, -80); n++; }
     }
     a.needsUpdate = true;
   }
   return n;
 }
 
+function tunnelTexture(w, h, paint) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; paint(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+}
+// the stand's dark backing (one sloped plane per stand) would cut through the corridor: it is clipped inside
+// the tunnel's box only (the other stands never reach it)
+export function clipStandForTunnel(scene, renderer) {
+  const planes = [
+    new THREE.Plane(new THREE.Vector3(1, 0, 0), -(TUNNEL_W / 2 + 0.05)), new THREE.Plane(new THREE.Vector3(-1, 0, 0), -(TUNNEL_W / 2 + 0.05)),
+    new THREE.Plane(new THREE.Vector3(0, 1, 0), -(TUNNEL_H + 0.05)), new THREE.Plane(new THREE.Vector3(0, 0, -1), TUNNEL_Z - 0.1),
+    new THREE.Plane(new THREE.Vector3(0, 0, 1), -(TUNNEL_END + 0.2)),
+  ];
+  const mats = new Set();
+  scene.traverse(o => { const m = o.material; if (o.isMesh && m?.isMeshBasicMaterial && m.side === THREE.DoubleSide && m.color?.getHexString() === '232a36') mats.add(m); });
+  for (const m of mats) { m.clippingPlanes = planes; m.clipIntersection = true; m.needsUpdate = true; }
+  renderer.localClippingEnabled = true;
+  return mats.size;
+}
+
 function buildTunnel(scene, stadium, club) {
-  const g = new THREE.Group();
-  // inside the mouth it is dark: a short dark passage ending in black just before the stand's backing
-  // (which would show through a deeper tunnel); he comes out of that black
-  const dark = stadium.noOutline(new THREE.MeshBasicMaterial({ color: '#07090c', side: THREE.DoubleSide }));
-  const depth = TUNNEL_BLACK - TUNNEL_Z;
-  const back = new THREE.Mesh(new THREE.PlaneGeometry(4.6, 3.1), stadium.noOutline(new THREE.MeshBasicMaterial({ color: '#000000' }))); back.rotation.y = Math.PI; back.position.set(0, 1.55, TUNNEL_BLACK); g.add(back);
-  for (const x of [-2.2, 2.2]) { const w = new THREE.Mesh(new THREE.PlaneGeometry(depth, 3.0), dark); w.rotation.y = Math.PI / 2; w.position.set(x, 1.5, TUNNEL_Z + depth / 2); g.add(w); }
-  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(4.4, depth), dark); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 3.0, TUNNEL_Z + depth / 2); g.add(ceil);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(4.4, depth + 0.1), stadium.noOutline(new THREE.MeshBasicMaterial({ color: '#15191f' }))); floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0.02, TUNNEL_Z + depth / 2); g.add(floor);
-  const wallMat = stadium.noOutline(new THREE.MeshToonMaterial({ color: '#232a36', gradientMap: stadium.toonRamp }));
-  for (const [w, h, x, y] of [[6, 4.6, -5.2, 2.3], [6, 4.6, 5.2, 2.3], [4.4, 1.6, 0, 3.8]]) {
+  const g = new THREE.Group(), depth = TUNNEL_END - TUNNEL_Z, mid = TUNNEL_Z + depth / 2, W = TUNNEL_W, H = TUNNEL_H;
+  const basic = (opts) => stadium.noOutline(new THREE.MeshBasicMaterial(opts));
+  const lamps = Math.round(depth / 1.25);
+  // walls: panels, the club's stripe at hip height, light falling off with depth (u runs from the mouth inwards)
+  const wallTex = tunnelTexture(512, 192, (x, w, h) => {
+    const grad = x.createLinearGradient(0, 0, w, 0); grad.addColorStop(0, '#5b6472'); grad.addColorStop(0.55, '#3b434f'); grad.addColorStop(1, '#2a3039');
+    x.fillStyle = grad; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < lamps; i++) {           // a pool of light on the wall under each ceiling lamp
+      const cx = (i + 0.5) / lamps * w, r = x.createRadialGradient(cx, 0, 4, cx, 0, h * 0.75);
+      r.addColorStop(0, 'rgba(255,240,205,.32)'); r.addColorStop(1, 'rgba(255,240,205,0)'); x.fillStyle = r; x.fillRect(cx - h, 0, h * 2, h);
+    }
+    x.fillStyle = club.primaryColor; x.fillRect(0, h * 0.56, w, h * 0.12);
+    x.fillStyle = club.secondaryColor; x.fillRect(0, h * 0.68, w, h * 0.03);
+    x.fillStyle = 'rgba(0,0,0,.28)'; for (let i = 1; i < 8; i++) x.fillRect(i / 8 * w - 1, 0, 2, h * 0.56);
+    const fall = x.createLinearGradient(0, 0, w, 0); fall.addColorStop(0, 'rgba(0,0,0,0)'); fall.addColorStop(1, 'rgba(0,0,0,.35)'); x.fillStyle = fall; x.fillRect(0, 0, w, h);
+  });
+  for (const sx of [-1, 1]) {
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(depth, H), basic({ map: wallTex, side: THREE.DoubleSide }));
+    wall.rotation.y = sx * Math.PI / 2; wall.position.set(-sx * W / 2, H / 2, mid);
+    if (sx > 0) wall.scale.x = -1;           // (both walls read mouth → back the same way)
+    g.add(wall);
+  }
+  // ceiling with a row of lamps, floor with a runner and the lamps' light pools
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W, depth), basic({ color: '#20252d' })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, H, mid); g.add(ceil);
+  const lampMat = basic({ color: '#fff4d8' });
+  for (let i = 0; i < lamps; i++) {
+    const lamp = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.22), lampMat); lamp.rotation.x = Math.PI / 2;
+    lamp.position.set(0, H - 0.01, TUNNEL_Z + (i + 0.5) / lamps * depth); g.add(lamp);
+  }
+  const floorTex = tunnelTexture(128, 512, (x, w, h) => {
+    x.fillStyle = '#2b3038'; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#3a414c'; x.fillRect(w * 0.22, 0, w * 0.56, h);
+    for (let i = 0; i < lamps; i++) {
+      const cy = (i + 0.5) / lamps * h, r = x.createRadialGradient(w / 2, cy, 2, w / 2, cy, w * 0.6);
+      r.addColorStop(0, 'rgba(255,238,200,.35)'); r.addColorStop(1, 'rgba(255,238,200,0)'); x.fillStyle = r; x.fillRect(0, cy - w, w, w * 2);
+    }
+    const fall = x.createLinearGradient(0, 0, 0, h); fall.addColorStop(0, 'rgba(0,0,0,0)'); fall.addColorStop(1, 'rgba(0,0,0,.3)'); x.fillStyle = fall; x.fillRect(0, 0, w, h);
+  });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, depth + 0.1), basic({ map: floorTex })); floor.rotation.x = -Math.PI / 2;
+  floor.position.set(0, 0.015, mid); g.add(floor);
+  // the far end: a lit doorway to the dressing rooms
+  const backTex = tunnelTexture(256, 192, (x, w, h) => {
+    x.fillStyle = '#262c35'; x.fillRect(0, 0, w, h);
+    const glow = x.createRadialGradient(w / 2, h * 0.6, 8, w / 2, h * 0.6, w * 0.55); glow.addColorStop(0, 'rgba(255,236,190,.55)'); glow.addColorStop(1, 'rgba(255,236,190,0)');
+    x.fillStyle = glow; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#fff3d2'; x.fillRect(w * 0.36, h * 0.2, w * 0.28, h * 0.8);
+    x.fillStyle = club.primaryColor; x.fillRect(w * 0.33, h * 0.14, w * 0.34, h * 0.06);
+  });
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(W, H), basic({ map: backTex })); back.rotation.y = Math.PI; back.position.set(0, H / 2, TUNNEL_END); g.add(back);
+  // the mouth: the stand's face round it, the club's posts and its name above
+  // (a concrete face, not a black slab when the camera turns round him; its inner sides sit just behind the
+  // corridor's walls, where they used to flicker against them)
+  const wallMat = stadium.noOutline(new THREE.MeshToonMaterial({ color: '#46505f', gradientMap: stadium.toonRamp }));
+  for (const [w, h, x, y] of [[6, 4.6, -5.25, 2.3], [6, 4.6, 5.25, 2.3], [4.6, 1.6, 0, 3.85]]) {
     const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 1.2), wallMat); b.position.set(x, y, TUNNEL_Z + 0.6); b.receiveShadow = true; g.add(b);
   }
   const clubMat = new THREE.MeshToonMaterial({ color: club.primaryColor, gradientMap: stadium.toonRamp });
   for (const x of [-2.35, 2.35]) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.1, 0.4), clubMat); p.position.set(x, 1.55, TUNNEL_Z - 0.05); p.castShadow = true; p.layers.enable(1); g.add(p); }
-  // the club's name over the mouth
-  const c = document.createElement('canvas'); c.width = 512; c.height = 96; const x2 = c.getContext('2d');
-  x2.fillStyle = club.primaryColor; x2.fillRect(0, 0, 512, 96); x2.fillStyle = club.secondaryColor; x2.fillRect(0, 84, 512, 12);
-  x2.font = '900 52px "Arial Narrow", "Helvetica Neue", Arial, sans-serif'; x2.textAlign = 'center'; x2.textBaseline = 'middle'; x2.fillText(String(club.name || '').toLocaleUpperCase('tr'), 256, 44, 490);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  const sign = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 0.95), stadium.noOutline(new THREE.MeshBasicMaterial({ map: t }))); sign.rotation.y = Math.PI; sign.position.set(0, 3.55, TUNNEL_Z - 0.03); g.add(sign);
+  const signTex = tunnelTexture(512, 96, (x2) => {
+    x2.fillStyle = club.primaryColor; x2.fillRect(0, 0, 512, 96); x2.fillStyle = club.secondaryColor; x2.fillRect(0, 84, 512, 12);
+    x2.font = '900 52px "Arial Narrow", "Helvetica Neue", Arial, sans-serif'; x2.textAlign = 'center'; x2.textBaseline = 'middle'; x2.fillText(String(club.name || '').toLocaleUpperCase('tr'), 256, 44, 490);
+  });
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 0.95), basic({ map: signTex })); sign.rotation.y = Math.PI; sign.position.set(0, 3.55, TUNNEL_Z - 0.03); g.add(sign);
   scene.add(g);
   return g;
 }
@@ -127,6 +190,19 @@ function numberTextureFactory() {
     g.lineWidth = 10; g.strokeStyle = kit.numberEdge; g.strokeText(String(no), 64, 70); g.fillStyle = kit.number; g.fillText(String(no), 64, 70);
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; cache.set(k, t); return t;
   };
+}
+
+function screenTilt(p, camera) {
+  if (!p) return null;
+  const head = p.bones.Head.getWorldPosition(new THREE.Vector3()).project(camera);
+  const feet = p.bones.LeftFoot.getWorldPosition(new THREE.Vector3()).add(p.bones.RightFoot.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5).project(camera);
+  const dx = (head.x - feet.x) * camera.aspect, dy = head.y - feet.y;
+  return Math.atan2(dx, dy) * 180 / Math.PI;
+}
+// world-space: head above the hips (1), level (0) or below them (-1)
+function uprightness(p) {
+  const head = p.bones.Head.getWorldPosition(new THREE.Vector3()), hips = p.bones.Hips.getWorldPosition(new THREE.Vector3());
+  const d = head.sub(hips); return d.y / Math.max(1e-6, d.length());
 }
 
 /* opts: { player:{id,name,no,pos,keeper}, move, moveName, stars, excite (0..1), club:{name,primaryColor,secondaryColor,shortName}, closing, trial }
@@ -166,6 +242,7 @@ export function playStarTransferScene(opts) {
     const crowd = stadium.buildCrowd(opts.club.primaryColor, opts.club.secondaryColor, opp.primaryColor, opp.secondaryColor) || [];
     clearTunnelSeats(crowd);
     buildTunnel(scene, stadium, opts.club);
+    clipStandForTunnel(scene, renderer);
     const ballObj = makeBall(scene, stadium);
 
     loadAssets().then(assets => {
@@ -189,9 +266,10 @@ export function playStarTransferScene(opts) {
       // walk: only the star, from the dark of the tunnel onto the grass, towards the camera
       for (const p of rt.players) p.model.visible = p === star;
       ballObj.mesh.visible = ballObj.shadow.visible = false;
-      rt.place(star, V(0.6, 0, WALK_FROM), Math.PI);
+      rt.place(star, V(0, 0, WALK_FROM), Math.PI);
       const walkSpeed = (WALK_FROM - WALK_TO) / TIMES.walk;
-      star.drive = { pos: t => V(0.6 - Math.min(1, (t - t0) / TIMES.walk) * 0.9, 0, Math.max(WALK_TO, WALK_FROM - (t - t0) * walkSpeed)), heading: () => Math.PI };
+      // (straight down the middle of the tunnel towards the camera: a sideways drift read as him falling over)
+      star.drive = { pos: t => V(0, 0, Math.max(WALK_TO, WALK_FROM - (t - t0) * walkSpeed)), heading: () => Math.PI };
       const t0 = rt.S.t;
       loadEl.remove();
       requestAnimationFrame(() => fadeEl.classList.add('off'));
@@ -225,7 +303,7 @@ export function playStarTransferScene(opts) {
       function frame(now) {
         if (finished) return;
         raf = requestAnimationFrame(frame);
-        const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+        const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)) * (window.__stsTimeScale ?? 1); last = now;   // (time scale: automated checks only)
         total += dtReal; phaseT += dtReal;
         if (total > TIMES.cap) { finish(opts.closing ? { closed: true } : { done: true }); return; }
         let dt = dtReal;
@@ -237,8 +315,9 @@ export function playStarTransferScene(opts) {
           // the camera walks backwards in front of him, the stand rising behind: first wide on the tunnel's
           // dark mouth (never inside it), closing in as he comes out onto the grass
           const k = Math.min(1, phaseT / TIMES.walk), e = k * k * (3 - 2 * k), d = 13.5 - 7 * e;
-          wantPos.set(star.pos.x + 2.2 + e * 0.8, 2.5 - e * 0.9, star.pos.z - d);
-          wantLook.set(star.pos.x * 0.6, 1.9 - e * 0.5, star.pos.z + 0.6);
+          // (only a little off his line and looking straight at him: from the side and off-centre on a wide lens he leaned)
+          wantPos.set(star.pos.x + 0.9 + e * 0.5, 2.3 - e * 0.8, star.pos.z - d);
+          wantLook.set(star.pos.x, 1.55 - e * 0.35, star.pos.z + 0.6);
           if (phaseT >= TIMES.walk) { phase = 'cheer'; phaseT = 0; star.drive = null; rt.place(star, star.pos.clone(), Math.PI); rt.startMotion(star, 'cheer'); excite = Math.min(1, opts.excite + 0.15); setExcite(excite); }
         } else if (phase === 'cheer') {
           rt.S.t += dt; rt.move(star, dt);
@@ -290,7 +369,9 @@ export function playStarTransferScene(opts) {
       }
       raf = requestAnimationFrame(frame);
       // automated checks only: where the scene is
-      window.ManagerStoryStarScene = { get phase() { return phase; }, get total() { return total; }, get star() { return star && { x: star.pos.x, z: star.pos.z, no: star.no }; }, get excite() { return stadium.crowdMat.uniforms.uExcite.value; }, skipToEnd: () => finish({ closed: true }) };
+      window.ManagerStoryStarScene = { get phase() { return phase; }, get total() { return total; }, get star() { return star && { x: star.pos.x, z: star.pos.z, no: star.no }; }, get excite() { return stadium.crowdMat.uniforms.uExcite.value; }, skipToEnd: () => finish({ closed: true }),
+        // how upright he stands on screen (degrees; head over the feet = 0) and where the keeper's head is
+        get tilt() { return screenTilt(star, camera); }, players: () => rt.players.map(p => ({ id: p.id, side: p.side, role: p.role, upright: uprightness(p) })) };
     }).catch(e => { console.warn('Yıldız sahnesi', e); finish(null); });
   });
 }

@@ -2200,14 +2200,14 @@ export function createDirector(rt, data, hooks, opts = {}) {
     (stats.contacts.save ||= []).push(+near().toFixed(2));
     noteSkill(audit, gk);
     const feet = gk.feet, hands = gk.hands;
-    // V7.9.3: down on his hands and chest, he lies a moment, rolls over onto his back and gets up the way
-    // he does after a dive (the recorded get-up), not tipped back up like a board
+    // down on his hands and chest, he lies a moment, pushes himself up into a crouch and stands up from it
+    // (V7.9.8: he no longer rolls over onto his back first)
     later(0.9, () => {
       if (gk.feet === feet) gk.feet = null; if (gk.hands === hands) gk.hands = null;
-      rt.riseFromFront(gk, pick({ eventId: Math.round(T * 10) }, 49) < 0.5 ? 1 : -1);
+      rt.riseFromFront(gk);
       if (DEBUG) audit.rise = { t0: S.t };
     });
-    later(0.9 + 0.55 + 0.35 + 1.0, () => { gk.faceLock = false; gk.busy = false; hooks.slow(1); });
+    later(0.9 + 0.25 + 0.7 + 0.7 + 0.6, () => { gk.faceLock = false; gk.busy = false; hooks.slow(1); });
   }
   function* celebrate(scorer) {
     if (!scorer) return;

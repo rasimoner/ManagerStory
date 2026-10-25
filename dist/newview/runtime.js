@@ -389,38 +389,51 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     startMotion(gk, 'gkGetUp');
     if (D.rise.act) gk.act = { name: D.rise.act, t0: -99, held: true };     // the dive's last pose, fading out
   }
-  // V7.9.3 getting up from lying face down (after the scorpion): he rolls over onto his back along his
-  // own length (head where it was), then gets up as he does after a dive — the recorded get-up clip, the
-  // pose he lay in fading out as it fades in. While he is down he does not move.
-  const PRONE_ROLL = 0.55;
-  function riseFromFront(p, side = 1) {
+  // V7.9.8 getting up from lying face down (after the scorpion), the way Higuita did: he pushes himself up
+  // off his hands and chest into a crouch and stands up from it. (V7.9.3 rolled him over onto his back first,
+  // which on screen read as the keeper turning upside down.) The body pitches up about the line across his
+  // hips while the pose he lay in fades into the recorded get-up, held on its crouch frame; from the crouch
+  // the get-up plays on to standing. While he is down he does not move.
+  const PRONE_LIE = 0.25, PRONE_PUSH = 0.7, CROUCH_T = 0.86;
+  const trackAt = (tr, t) => {
+    if (!tr) return null;
+    const ts = tr.times, n = ts.length; let i = 0; while (i < n - 1 && ts[i + 1] < t) i++;
+    const j = Math.min(n - 1, i + 1), k = j === i ? 0 : clamp((t - ts[i]) / (ts[j] - ts[i]), 0, 1), v = tr.values;
+    return V(lerp(v[i * 3], v[j * 3], k), lerp(v[i * 3 + 1], v[j * 3 + 1], k), lerp(v[i * 3 + 2], v[j * 3 + 2], k));
+  };
+  const crouchHip = trackAt(clips.gkGetUp?.tracks.find(t => t.name.endsWith('.position')), CROUCH_T) || V(0.03, 0.42, -0.11);
+  function riseFromFront(p) {
     p.model.updateMatrixWorld(true);
-    const F = V(Math.sin(p.heading), 0, Math.cos(p.heading));
-    p.prone = { t0: S.t, side: Math.sign(side) || 1, axis: F, q0: p.model.quaternion.clone(), p0: p.model.position.clone(), pivot: p.bones.Hips.getWorldPosition(V()), rise: null };
+    const F = V(Math.sin(p.heading), 0, Math.cos(p.heading)), pivot = p.bones.Hips.getWorldPosition(V());
+    p.prone = { t0: S.t, axis: F, q0: p.model.quaternion.clone(), p0: p.model.position.clone(), pivot, hipLocal: pivot.clone().sub(p.model.position).applyQuaternion(p.model.quaternion.clone().invert()), rise: null };
     if (p.act) p.act = { name: p.act.name, t0: -99, hold: clamp((S.t - p.act.t0) / ACTIONS[p.act.name].dur, 0, 1) };
     p.flip = null; p.drive = null; p.vel.set(0, 0, 0); p.motion = null;
   }
-  const qRoll = new THREE.Quaternion(), tmpLow = V();
+  const tmpLow = V();
   const PRONE_BONES = ['Hips', 'Head', 'LeftHand', 'RightHand', 'LeftLeg', 'RightLeg', 'LeftToeBase', 'RightToeBase', 'Spine2', 'LeftFoot', 'RightFoot', 'LeftForeArm', 'RightForeArm'];
-  function proneTransform(P, k) {
-    // roll about the line of his body through the hips; the shoulder lifts him a touch as he goes over
-    qRoll.setFromAxisAngle(P.axis, P.side * Math.PI * smooth(k, 0, 1));
-    const q = qRoll.clone().multiply(P.q0), pos = P.p0.clone().sub(P.pivot).applyQuaternion(qRoll).add(P.pivot);
-    pos.y += 0.1 * Math.sin(Math.PI * smooth(k, 0, 1));
-    return { q, pos };
+  // the body during the push-up, k from 0 to 1: first the knees come under him while he is still face down
+  // (the crouch pose, pitched forward, is kneeling on his shins with his chest low), then he rises over his
+  // feet to the upright crouch. The hips travel from where they lay to just behind it; the height comes from
+  // keeping his hands, knees and feet on the grass (pose())
+  const PUSH_CURL = 0.55;
+  function pushTransform(P, k) {
+    const R = P.rise, curl = smooth(k, 0, PUSH_CURL), up = smooth(k, 0.3, 1), q = R.fromQ.clone().slerp(R.q, up);
+    const hip = P.pivot.clone().lerp(R.hip, curl); hip.y = lerp(P.pivot.y, R.hip.y, up);
+    const local = P.hipLocal.clone().lerp(crouchHip, curl);
+    return { q, pos: hip.sub(local.applyQuaternion(q)) };
   }
   function updateProne(p) {
     const P = p.prone; if (!P) return;
-    if (!P.rise && S.t - P.t0 >= PRONE_ROLL) {
-      // on his back, head where it was: the recorded get-up starts where he lies (he stands facing his feet)
-      const end = proneTransform(P, 1);
-      p.model.position.copy(end.pos); p.model.quaternion.copy(end.q); p.model.updateMatrixWorld(true);
-      const f = P.axis.clone().negate(), hg = Math.atan2(f.x, f.z), q = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), hg);
-      const hip = p.bones.Hips.getWorldPosition(V()), gpos = hip.sub(riseHip.clone().applyQuaternion(q)).setY(0);
-      P.rise = { t0: S.t, hg, q, gpos, fromP: end.pos, fromQ: end.q };
-      const held = p.act; startMotion(p, 'gkGetUp'); p.act = held;      // (the pose he lay in fades out under it)
+    if (!P.rise && S.t - P.t0 >= PRONE_LIE) {
+      // he faces the way he flew (up the pitch), the crouch's hips just behind where his hips lay
+      const hg = Math.atan2(P.axis.x, P.axis.z), q = new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), hg);
+      const hip = P.pivot.clone().addScaledVector(P.axis, -0.2); hip.y = crouchHip.y;
+      const gpos = hip.clone().sub(crouchHip.clone().applyQuaternion(q)).setY(0);
+      P.rise = { t0: S.t, dur: PRONE_PUSH, blend: PRONE_PUSH * PUSH_CURL, hg, q, gpos, hip, fromP: P.p0, fromQ: P.q0 };
+      // the recorded get-up waits on its crouch frame while he pushes up, then plays on from it
+      const held = p.act; startMotion(p, 'gkGetUp', PRONE_PUSH - CROUCH_T, { hold: { until: S.t + PRONE_PUSH, at: CROUCH_T, from: S.t, blend: PRONE_PUSH * PUSH_CURL } }); p.act = held;
     }
-    if (P.rise && S.t - P.rise.t0 >= GK_RISE) {
+    if (P.rise && S.t - P.rise.t0 >= P.rise.dur) {
       p.pos.copy(P.rise.gpos); p.heading = P.rise.hg; p.vel.set(0, 0, 0);
       p.prone = null; if (p.act?.hold != null) p.act = null;
     }
@@ -652,9 +665,11 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     let mw = 0, mel = 0;
     if (p.motion) {
       const M = MOTIONS[p.motion.name]; mel = S.t - p.motion.t0;
-      if (mel >= p.motion.dur) p.motion = null;
+      const H = p.motion.hold;
+      if (H && S.t < H.until) { mel = H.at; mw = smooth(S.t - H.from, 0, H.blend ?? (H.until - H.from)); p.A[p.motion.name].time = mel; }   // (held on one frame, fading in)
+      else if (mel >= p.motion.dur) p.motion = null;
       else if (mel >= 0) {
-        mw = Math.min(smooth(mel, 0, M.fadeIn), 1 - smooth(mel, p.motion.dur - M.fadeOut, p.motion.dur));
+        mw = Math.min(H ? 1 : smooth(mel, 0, M.fadeIn), 1 - smooth(mel, p.motion.dur - M.fadeOut, p.motion.dur));
         p.A[p.motion.name].time = mel;
       }
     }
@@ -707,7 +722,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
       }
     } else if (p.act?.hold != null) {
       // V7.9.3 the pose he lay in, held while he rolls over and fading out as the get-up comes in
-      const R = p.prone?.rise, fade = R ? 1 - smooth(S.t - R.t0, 0, GK_RISE) : 1;
+      const R = p.prone?.rise, fade = R ? 1 - smooth(S.t - R.t0, 0, R.blend ?? GK_RISE) : 1;
       applyAction(p.bones, p.act.name, p.act.hold, fade);
     } else if (p.act) {
       const a = ACTIONS[p.act.name], el = S.t - p.act.t0;
@@ -731,14 +746,13 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     }
     if (p.prone) {
       const P = p.prone;
-      if (P.rise) { const u = smooth(S.t - P.rise.t0, 0, GK_RISE); p.model.position.copy(P.rise.fromP).lerp(P.rise.gpos, u); p.model.quaternion.copy(P.rise.fromQ).slerp(P.rise.q, u); }
-      else {
-        const T = proneTransform(P, (S.t - P.t0) / PRONE_ROLL); p.model.position.copy(T.pos); p.model.quaternion.copy(T.q);
-        // rolling over, no part of him goes into the grass: lifted by however much the lowest one would
+      if (P.rise) {
+        const T = pushTransform(P, clamp((S.t - P.rise.t0) / P.rise.dur, 0, 1)); p.model.position.copy(T.pos); p.model.quaternion.copy(T.q);
+        // pushing up, his hands and knees stay on the grass: nothing goes into it, nothing floats above it
         p.model.updateMatrixWorld(true);
         let low = Infinity; for (const b of PRONE_BONES) low = Math.min(low, p.bones[b].getWorldPosition(tmpLow).y);
-        if (low < 0.03) p.model.position.y += 0.03 - low;
-      }
+        if (low < 0.03) p.model.position.y += 0.03 - low; else if (low > 0.07) p.model.position.y -= low - 0.07;
+      } else { p.model.position.copy(P.p0); p.model.quaternion.copy(P.q0); }
       groundW = 0;
     }
     // a bicycle kick: the body tips over backwards round the hips and goes up (and comes down on its back)
