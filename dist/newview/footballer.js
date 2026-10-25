@@ -45,6 +45,18 @@ export function buildFootballerGeometry(skeleton, style = {}) {
   // A loft: rings of SEG vertices around a centre line, joined into a tube, capped at both ends.
   // ring = { c, u, v, ru, rv, w:[[bone,weight]...], part, partFn?(angle) }
   function loft(rings, capStart = true, capEnd = true) {
+    // V7.9.9: the part id is flat per triangle (runtime.js), so where one part meets the next (shirt to sleeve
+    // hem, skin to sock top, a hem stepping over the waistband) the edge is drawn as a ring of its own, half
+    // way between the two: a clean line where the blend used to sit, not the triangles' saw teeth
+    const split = [];
+    rings.forEach((r, i) => {
+      const n = rings[i + 1];
+      split.push(r);
+      if (!n || r.partFn || n.partFn || r.part === n.part || (r.c.distanceToSquared(n.c) < 1e-10 && Math.abs(r.ru - n.ru) < 1e-9 && Math.abs(r.rv - n.rv) < 1e-9)) return;
+      const mid = part => ({ c: r.c.clone().lerp(n.c, 0.5), u: r.u, v: r.v, ru: (r.ru + n.ru) / 2, rv: (r.rv + n.rv) / 2, w: Object.entries([...r.w, ...n.w].reduce((m, [b, x]) => (m[b] = (m[b] || 0) + x / 2, m), {})), part });
+      split.push(mid(r.part), mid(n.part));
+    });
+    rings = split;
     const ids = rings.map(r => {
       const wts = W(r.w), row = [];
       for (let k = 0; k < SEG; k++) {

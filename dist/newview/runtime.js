@@ -50,17 +50,20 @@ function kitMaterial(kit, skin, hair, ramp) {
   const u = { kPal: { value: pal }, kStripe: { value: C(kit.stripe || kit.shirt) }, kStripes: { value: kit.stripes || 0 } };
   m.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, u);
-    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float part;\nvarying float vPart;\nvarying vec3 vBind;')
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float part;\nflat varying float vPart;\nvarying vec3 vBind;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvPart = part; vBind = position;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
-      varying float vPart; varying vec3 vBind; uniform vec3 kPal[11]; uniform vec3 kStripe; uniform float kStripes;`)
+      flat varying float vPart; varying vec3 vBind; uniform vec3 kPal[11]; uniform vec3 kStripe; uniform float kStripes;`)
       .replace('vec4 diffuseColor = vec4( diffuse, opacity );', `
       int pid = int(vPart + 0.5);
       vec3 kc = kPal[pid];
       if (pid == 1 && kStripes > 0.5) kc = mix(kc, kStripe, step(0.5, fract(vBind.x * 7.0 + 0.25)));
       vec4 diffuseColor = vec4(kc, opacity);`);
   };
-  m.customProgramCacheKey = () => 'footballer-kit-v2';
+  // V7.9.9: the part id is not blended across a triangle (flat). Blended, a triangle from skin (0) to hair (8)
+  // or to the eyes (9) ran through every id in between, so a band of shirt, shorts and sock colours showed
+  // round the hairline and the eyes
+  m.customProgramCacheKey = () => 'footballer-kit-v3';
   return m;
 }
 
@@ -850,7 +853,24 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     }
   }
 
+  // V7.9.9 the outline (the dark edge drawn round every player) follows how big he is on screen. The outline
+  // effect draws it as a fixed share of the screen, so on a wide landscape picture a far-away player (a few
+  // dozen pixels tall) was wrapped in a 4–5 pixel grey halo that swallowed his legs and kit. widthPx/heightPx:
+  // the drawing buffer in device pixels.
+  const OUTLINE_PX = { per: 0.012, min: 0.6, max: 3.2 }, camPos = V();
+  function scaleOutlines(camera, widthPx, heightPx) {
+    const focal = (heightPx / 2) / Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2), half = Math.max(widthPx, heightPx) / 2;
+    camera.getWorldPosition(camPos);
+    for (const p of players) {
+      const d = Math.max(0.5, camPos.distanceTo(tmp.copy(p.model.position).setY(p.model.position.y + 1)));
+      const tall = 1.8 * focal / d, px = clamp(tall * OUTLINE_PX.per, OUTLINE_PX.min, OUTLINE_PX.max);
+      const o = (p.body.material.userData.outlineParameters ||= {});
+      o.thickness = px / half; o.alpha = clamp(tall / 220, 0.45, 1);
+    }
+  }
+
   return {
+    scaleOutlines,
     players, ball, S, addPlayer, calibrate, place, startAction, actionDone, actionAtContact, predictBall, kickWarp, kickNeed, toeNear, pickUp,
     startMotion, motionAtContact, slideAt, headerAt, contactPoint, contactDistance, get headHeight() { return headAt.y; }, get slideReach() { return Math.hypot(slideToe.x, slideToe.z); },
     kickGround, kickAir, dribble, receive, planDive, updateDive, riseFromFront, updateProne, handsOf, diveHands, move, pose, contacts, stepBall, footIK,

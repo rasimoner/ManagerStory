@@ -51,3 +51,28 @@ test('footballer mesh: every body part faces outwards (shorts, socks, sleeves, b
     }
   }
 });
+
+// V7.9.9: a part id is never blended across a triangle. Blended (a smooth varying), a triangle from skin (0) to
+// hair (8) or the eyes (9) ran through every id in between: a band of shirt, shorts and sock colours round
+// the hairline and the eyes. The id is flat, and where two parts of a tube meet there is an edge ring of its
+// own, so no visible triangle is half one part and half another (except the hairline, eyes and sole, drawn
+// whole-triangle by design).
+test('footballer mesh: kit colours never bleed into the head, part edges are clean rings', async () => {
+  const src = fs.readFileSync(path.join(dist, 'newview/runtime.js'), 'utf8');
+  assert.equal((src.match(/flat varying float vPart/g) || []).length, 2, 'the part id is flat in both shaders');
+  const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
+  const { loadRig } = await import(path.join(dist, 'newview/rig.js'));
+  const { buildFootballerGeometry, PART } = await import(path.join(dist, 'newview/footballer.js'));
+  const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
+  const g = buildFootballerGeometry(rig.newInstance().skeleton, { hair: 'short' }), pos = g.attributes.position, part = g.attributes.part, idx = g.index.array;
+  const byDesign = new Set([PART.hair, PART.dark, PART.sole, PART.boot]), v = [0, 1, 2].map(() => new THREE.Vector3());
+  let mixed = 0;
+  for (let i = 0; i < idx.length; i += 3) {
+    const ps = [0, 1, 2].map(k => Math.round(part.getX(idx[i + k])));
+    if (ps[0] === ps[1] && ps[1] === ps[2]) continue;
+    if (ps.some(p => byDesign.has(p))) continue;
+    for (let k = 0; k < 3; k++) v[k].fromBufferAttribute(pos, idx[i + k]);
+    if (v[1].clone().sub(v[0]).cross(v[2].clone().sub(v[0])).length() > 1e-7) mixed++;
+  }
+  assert.equal(mixed, 0, 'triangles that are half one part, half another');
+});
