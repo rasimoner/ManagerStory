@@ -113,10 +113,12 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     m.position.set(0, 1.2 + rise / 2, -d / 2); o.add(m);
   }
   // stand geometry is drawn by the crowd itself; a dark backing fills gaps
-  slope(124, 38, 30, new THREE.Vector3(-2, 0, -38.5), 0);
-  slope(156, 36, 28, new THREE.Vector3(59, 0, 0), -Math.PI / 2);
-  slope(156, 36, 28, new THREE.Vector3(-59, 0, 0), Math.PI / 2);
-  slope(120, 34, 26, new THREE.Vector3(0, 0, 38.5), Math.PI);
+  // (V7.9.10 the side stands' backing runs out into the corners, under the mitred rows, so no sky shows
+  // between the seats there; behind the end stands it meets their own backing along the corner's diagonal)
+  slope(196, 38, 30, new THREE.Vector3(0, 0, -38.5), 0);
+  slope(160, 36, 28, new THREE.Vector3(59, 0, 0), -Math.PI / 2);
+  slope(160, 36, 28, new THREE.Vector3(-59, 0, 0), Math.PI / 2);
+  slope(192, 34, 26, new THREE.Vector3(0, 0, 38.5), Math.PI);
 
   function crowdAtlas() {
     // 4 poses x 64 px. R channel = shirt mask, G = shade, alpha = silhouette.
@@ -140,15 +142,16 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     const t = new THREE.CanvasTexture(c); t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; return t;
   }
   const crowdMat = new THREE.ShaderMaterial({
-    uniforms: { uAtlas: { value: crowdAtlas() }, uTime: { value: 0 }, uExcite: { value: .15 }, uFog: { value: new THREE.Color('#9fb8cf') } },
+    uniforms: { uAtlas: { value: crowdAtlas() }, uTime: { value: 0 }, uExcite: { value: .15 }, uExciteAway: { value: .15 }, uFog: { value: new THREE.Color('#9fb8cf') } },
     vertexShader: `
-      attribute vec3 aPos; attribute float aYaw; attribute vec3 aColor; attribute float aSeed; attribute float aWave;
-      uniform float uTime, uExcite;
+      attribute vec3 aPos; attribute float aYaw; attribute vec3 aColor; attribute float aSeed; attribute float aWave; attribute float aAway;
+      uniform float uTime, uExcite, uExciteAway;
       varying vec2 vUv; varying vec3 vColor; varying float vFrame; varying float vDepth;
       void main(){
         float ph = uTime * (2.4 + aSeed * 2.2) + aSeed * 40.0;
         float wave = pow(sin(uTime * 1.3 - aWave * 0.11) * .5 + .5, 8.0);
-        float act = clamp(uExcite + wave, 0.0, 1.0);
+        float ex = mix(uExcite, uExciteAway, aAway);          // V7.9.10 the away end has a mood of its own
+        float act = clamp(ex + wave * (1.0 - aAway * .6), 0.0, 1.0);
         float jump = max(0.0, sin(ph)) * 0.22 * act;
         float up = step(0.8 - act * 1.5, sin(ph * .5 + aSeed * 9.0));
         vFrame = up > .5 ? (aSeed > .55 ? 1.0 : (aSeed > .25 ? 2.0 : 3.0)) : 0.0;
@@ -173,58 +176,72 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
   });
   const flagMat = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
-    uniforms: { uTime: { value: 0 }, uExcite: { value: .15 } },
+    uniforms: { uTime: { value: 0 }, uExcite: { value: .15 }, uExciteAway: { value: .15 } },
     vertexShader: `
-      attribute vec3 aPos; attribute float aYaw; attribute float aSeed;
-      uniform float uTime, uExcite; varying vec2 vUv; varying float vSeed;
+      attribute vec3 aPos; attribute float aYaw; attribute float aSeed; attribute vec3 aC1; attribute vec3 aC2; attribute float aAway;
+      uniform float uTime, uExcite, uExciteAway; varying vec2 vUv; varying float vSeed; varying vec3 vC1; varying vec3 vC2;
       void main(){
         vec3 p = position;
-        float sway = sin(uTime * (1.4 + aSeed) + aSeed * 20.0) * (0.35 + uExcite * .5);
+        float ex = mix(uExcite, uExciteAway, aAway);
+        float sway = sin(uTime * (1.4 + aSeed) + aSeed * 20.0) * (0.35 + ex * .5);
         p.z += sin(p.x * 3.5 - uTime * 7.0 + aSeed * 9.0) * 0.12 * (p.x + .7);
         float yaw = aYaw + sway;
         float c = cos(yaw), s = sin(yaw);
         vec3 w = vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c) + aPos;
-        w.y += max(0.0, sin(uTime * 3.0 + aSeed * 30.0)) * .25 * uExcite;
-        vUv = uv; vSeed = aSeed;
+        w.y += max(0.0, sin(uTime * 3.0 + aSeed * 30.0)) * .25 * ex;
+        vUv = uv; vSeed = aSeed; vC1 = aC1; vC2 = aC2;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(w, 1.0);
       }`,
     fragmentShader: `
-      varying vec2 vUv; varying float vSeed;
+      varying vec2 vUv; varying float vSeed; varying vec3 vC1; varying vec3 vC2;
       void main(){
-        vec3 red = vec3(.83,.10,.18), white = vec3(.96);
-        vec3 c = vSeed > .3 ? mix(red, white, step(.5, fract(vUv.y * 2.5))) : mix(white, red, step(.5, fract(vUv.x * 3.0)));
+        // V7.9.10 each flag in its club's two colours: halves, bands or a border (was a fixed red and white)
+        vec3 c = vSeed > .62 ? mix(vC1, vC2, step(.5, vUv.y))
+               : vSeed > .3 ? mix(vC1, vC2, step(.5, fract(vUv.y * 2.5)))
+               : mix(vC2, vC1, step(.14, min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y) * 1.5)));
         gl_FragColor = vec4(c * (.8 + .2 * vUv.y), 1.0);
         #include <colorspace_fragment>
       }`
   });
 
+  // V7.9.10 the visiting fans: a block at one end, kept apart from the home end by a strip of empty seats
+  const AWAY = { end: -1, from: 15, gap: 3.2 };
+  const awaySeat = s => s.end === AWAY.end && s.z > AWAY.from;
   function buildCrowd(homeCol, homeAlt, awayCol, awayAlt) {
     const seats = [];
+    // V7.9.10 the corners are mitred: the side stands' rows reach out to the end stands' rows of the same
+    // height and the end stands stop where they meet, so no gap (dark backing or sky) shows between them
+    const reach = r => 59 + r * .82;
     // far stand: rows climb away from the far touchline (z < -38)
-    for (let r = 0; r < 46; r++) for (let x = -62; x <= 57; x += 0.62)
-      seats.push({ x: x + (r % 2) * .31, z: -38.8 - r * .82, y: 1.25 + r * .64, yaw: 0 });
-    // end stands behind both goals, wrapping the corners
-    for (let r = 0; r < 44; r++) for (let z = -76; z <= 76; z += 0.62) {
-      seats.push({ x: 59 + r * .82, z: z + (r % 2) * .31, y: 1.25 + r * .62, yaw: -Math.PI / 2, end: 1 });
-      seats.push({ x: -59 - r * .82, z: z + (r % 2) * .31, y: 1.25 + r * .62, yaw: Math.PI / 2, end: -1 });
+    for (let r = 0; r < 46; r++) { const X = reach(r) - 0.31; for (let x = -X; x <= X - 0.3; x += 0.62)
+      seats.push({ x: x + (r % 2) * .31, z: -38.8 - r * .82, y: 1.25 + r * .64, yaw: 0 }); }
+    // end stands behind both goals, each row ending where it meets the side stands
+    for (let r = 0; r < 44; r++) {
+      const zFar = -(38.8 + r * .82) + 0.31, zNear = r < 40 ? 38.8 + r * .82 - 0.31 : 76;
+      for (let z = zFar; z <= zNear; z += 0.62) {
+        const zz = z + (r % 2) * .31;
+        seats.push({ x: 59 + r * .82, z: zz, y: 1.25 + r * .62, yaw: -Math.PI / 2, end: 1 });
+        // (the strip of empty seats between the home end and the visiting fans)
+        if (zz < AWAY.from - AWAY.gap || zz > AWAY.from) seats.push({ x: -59 - r * .82, z: zz, y: 1.25 + r * .62, yaw: Math.PI / 2, end: -1 });
+      }
     }
     // near stand behind the broadcast cameras
-    for (let r = 0; r < 40; r++) for (let x = -58; x <= 58; x += 0.62)
-      seats.push({ x: x + (r % 2) * .31, z: 38.8 + r * .82, y: 1.25 + r * .64, yaw: Math.PI });
+    for (let r = 0; r < 40; r++) { const X = reach(r) - 0.31; for (let x = -X; x <= X - 0.3; x += 0.62)
+      seats.push({ x: x + (r % 2) * .31, z: 38.8 + r * .82, y: 1.25 + r * .64, yaw: Math.PI }); }
     const n = seats.length;
     const base = new THREE.PlaneGeometry(.62, .98); base.translate(0, .49, 0); base.deleteAttribute('normal');
     const geo = new THREE.InstancedBufferGeometry(); geo.index = base.index;
     geo.setAttribute('position', base.attributes.position); geo.setAttribute('uv', base.attributes.uv);
-    const aPos = new Float32Array(n * 3), aYaw = new Float32Array(n), aCol = new Float32Array(n * 3), aSeed = new Float32Array(n), aWave = new Float32Array(n);
+    const aPos = new Float32Array(n * 3), aYaw = new Float32Array(n), aCol = new Float32Array(n * 3), aSeed = new Float32Array(n), aWave = new Float32Array(n), aAway = new Float32Array(n);
     const red = new THREE.Color(homeCol), dark = new THREE.Color(homeCol).multiplyScalar(.55), white = new THREE.Color(homeAlt), black = new THREE.Color('#1b1b22');
     const aw1 = new THREE.Color(awayCol), aw2 = new THREE.Color(awayAlt);
     let rnd = 7; const rand = () => (rnd = (rnd * 16807) % 2147483647) / 2147483647;
     seats.forEach((s, i) => {
       aPos.set([s.x + (rand() - .5) * .12, s.y, s.z], i * 3); aYaw[i] = s.yaw + (rand() - .5) * .3;
       const k = rand();
-      const awayEnd = s.end === -1 && s.z > 8;   // visiting fans in one corner of the left end
+      const awayEnd = awaySeat(s);   // the visiting fans' block
       const c = (awayEnd ? (k < .6 ? aw1 : k < .92 ? aw2 : black) : (k < .62 ? red : k < .8 ? dark : k < .96 ? white : black)).clone().multiplyScalar(.85 + rand() * .2);
-      aCol.set([c.r, c.g, c.b], i * 3); aSeed[i] = rand();
+      aCol.set([c.r, c.g, c.b], i * 3); aSeed[i] = rand(); aAway[i] = awayEnd ? 1 : 0;
       aWave[i] = s.yaw === 0 ? s.x : s.end === 1 ? 60 + (s.z + 76) : s.end === -1 ? -60 - (s.z + 76) : 300 - s.x;
     });
     geo.setAttribute('aPos', new THREE.InstancedBufferAttribute(aPos, 3));
@@ -232,6 +249,7 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     geo.setAttribute('aColor', new THREE.InstancedBufferAttribute(aCol, 3));
     geo.setAttribute('aSeed', new THREE.InstancedBufferAttribute(aSeed, 1));
     geo.setAttribute('aWave', new THREE.InstancedBufferAttribute(aWave, 1));
+    geo.setAttribute('aAway', new THREE.InstancedBufferAttribute(aAway, 1));
     geo.instanceCount = n;
     const mesh = new THREE.Mesh(geo, crowdMat); mesh.frustumCulled = false; scene.add(mesh);
 
@@ -239,12 +257,23 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
     const flagBase = new THREE.PlaneGeometry(1.3, .85, 8, 2); flagBase.translate(.65, 0, 0); flagBase.deleteAttribute('normal');
     const fg = new THREE.InstancedBufferGeometry(); fg.index = flagBase.index;
     fg.setAttribute('position', flagBase.attributes.position); fg.setAttribute('uv', flagBase.attributes.uv);
-    const picks = []; for (let i = 0; i < n; i += 37) picks.push(seats[i]);
+    // home flags in the home club's colours all round the ground; the away block waves more, in theirs
+    const picks = []; seats.forEach((s, i) => { if (i % (awaySeat(s) ? 17 : 37) === 0) picks.push(s); });
     const fPos = new Float32Array(picks.length * 3), fYaw = new Float32Array(picks.length), fSeed = new Float32Array(picks.length);
-    picks.forEach((s, i) => { fPos.set([s.x, s.y + 1.75, s.z], i * 3); fYaw[i] = s.yaw + (rand() - .5); fSeed[i] = rand(); });
+    const fC1 = new Float32Array(picks.length * 3), fC2 = new Float32Array(picks.length * 3), fAway = new Float32Array(picks.length);
+    const flagCols = (a, b) => [new THREE.Color(a), new THREE.Color(b)];
+    const homeFlag = flagCols(homeCol, homeAlt), awayFlag = flagCols(awayCol, awayAlt);
+    picks.forEach((s, i) => {
+      fPos.set([s.x, s.y + 1.75, s.z], i * 3); fYaw[i] = s.yaw + (rand() - .5); fSeed[i] = rand();
+      const away = awaySeat(s), [c1, c2] = away ? awayFlag : homeFlag;
+      fC1.set([c1.r, c1.g, c1.b], i * 3); fC2.set([c2.r, c2.g, c2.b], i * 3); fAway[i] = away ? 1 : 0;
+    });
     fg.setAttribute('aPos', new THREE.InstancedBufferAttribute(fPos, 3));
     fg.setAttribute('aYaw', new THREE.InstancedBufferAttribute(fYaw, 1));
     fg.setAttribute('aSeed', new THREE.InstancedBufferAttribute(fSeed, 1));
+    fg.setAttribute('aC1', new THREE.InstancedBufferAttribute(fC1, 3));
+    fg.setAttribute('aC2', new THREE.InstancedBufferAttribute(fC2, 3));
+    fg.setAttribute('aAway', new THREE.InstancedBufferAttribute(fAway, 1));
     fg.instanceCount = picks.length;
     const flags = new THREE.Mesh(fg, flagMat); flags.frustumCulled = false; scene.add(flags);
     return [mesh, flags];

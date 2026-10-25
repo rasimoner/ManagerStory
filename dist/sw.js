@@ -1,9 +1,9 @@
-const CACHE = "managerstory-v7.9.9-release-20261025c";
+const CACHE = "managerstory-v7.9.10-release-20261025d";
 const ASSETS = [
   "./match3d-career.css", "./match3d-live-clock.js",
   "./match-view-adapter.js", "./vendor/three/three.module.min.js", "./vendor/three/three.core.min.js",
   "./match3d-newview.js", "./newview/runtime.js", "./newview/director.js", "./newview/actions.js", "./newview/footballer.js", "./newview/stadium.js", "./newview/rig.js", "./newview/camera.js", "./assets/models/footballer-rig.json", "./vendor/three/addons/effects/OutlineEffect.js",
-  "./", "./index.html", "./style.css", "./app.js?v=7.9.9", "./nav.js?v=7.9.9", "./match-support.js?v=7.9.9", "./career-events.js?v=7.9.9", "./live-match.js?v=7.9.9", "./pitch-v73.js?v=7.9.9", "./pitch-v731.js?v=7.9.9", "./player-profiles.js?v=7.9.9", "./opponents-v731.js?v=7.9.9", "./season.js?v=7.9.9", "./manifest.json", "./webmcp.js?v=7.9.9", "./star-transfer.js?v=7.9.9", "./star-transfer-scene.js",
+  "./", "./index.html", "./style.css", "./app.js?v=7.9.10", "./nav.js?v=7.9.10", "./match-support.js?v=7.9.10", "./career-events.js?v=7.9.10", "./live-match.js?v=7.9.10", "./pitch-v73.js?v=7.9.10", "./pitch-v731.js?v=7.9.10", "./player-profiles.js?v=7.9.10", "./opponents-v731.js?v=7.9.10", "./season.js?v=7.9.10", "./manifest.json", "./webmcp.js?v=7.9.10", "./star-transfer.js?v=7.9.10", "./star-transfer-scene.js",
   "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png",
   "./assets/stadium.jpg", "./assets/training.jpg", "./assets/office.jpg",
   "./assets/fans.jpg", "./assets/press.jpg",

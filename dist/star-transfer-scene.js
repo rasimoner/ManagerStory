@@ -239,7 +239,8 @@ export function playStarTransferScene(opts) {
     let stadium;
     try { stadium = buildStadium({ scene, renderer, boardName: String(opts.club.name || '').toLocaleUpperCase('tr') }); } catch (e) { finish(null); return; }
     const opp = { name: 'Rakip', primaryColor: '#55646b', secondaryColor: '#d8dedc', shortName: 'RK' };
-    const crowd = stadium.buildCrowd(opts.club.primaryColor, opts.club.secondaryColor, opp.primaryColor, opp.secondaryColor) || [];
+    // (a presentation, not a match: the whole ground is his new club's, the visitors' block included)
+    const crowd = stadium.buildCrowd(opts.club.primaryColor, opts.club.secondaryColor, opts.club.primaryColor, opts.club.secondaryColor) || [];
     clearTunnelSeats(crowd);
     buildTunnel(scene, stadium, opts.club);
     clipStandForTunnel(scene, renderer);
@@ -261,7 +262,7 @@ export function playStarTransferScene(opts) {
       const broadcast = createBroadcastCamera(camera);
       let cut = true, phase = 'walk', phaseT = 0, total = 0, last = performance.now();
       const camPos = new THREE.Vector3(), camLook = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
-      const setExcite = v => { stadium.crowdMat.uniforms.uExcite.value = stadium.flagMat.uniforms.uExcite.value = v; };
+      const setExcite = v => { for (const m of [stadium.crowdMat, stadium.flagMat]) m.uniforms.uExcite.value = m.uniforms.uExciteAway.value = v; };
 
       // walk: only the star, from the dark of the tunnel onto the grass, towards the camera
       for (const p of rt.players) p.model.visible = p === star;

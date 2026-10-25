@@ -2392,7 +2392,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
       case 'recovery': if (to) yield* ensureOwner(to); break;
       case 'shot': yield* shot(e, i); break;
       case 'goal': {
-        hooks.banner('GOL', 2600); hooks.excite(1);
+        // (V7.9.10 the scorers' fans go up, the other end falls silent)
+        hooks.banner('GOL', 2600); hooks.excite(1, (e.fromSide === 'user') === !!meta.userHome ? 'home' : 'away');
         const scorer = P(e.fromId, e.fromSide) || P(e.playerId);
         yield* celebrate(scorer);
         hooks.excite(0.2);
