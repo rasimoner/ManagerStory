@@ -548,6 +548,14 @@ const SEASON_CSS = `<style>
 .seasonend .stickycta{position:sticky;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:3;margin-top:12px;padding-right:58px}
 .seasonend .stickycta button{width:100%}
 </style>`;
+/* Refactor C2: the season-end screens' buttons */
+defineActions({
+  seasonEndCheck: () => { seasonEndCheck(); save(); render(); },
+  seasonEndNext: d => seasonEndNext(d.step),
+  seasonContractAll: d => seasonContractAll(+d.years),
+  seasonContractPick: d => seasonContractPick(+d.id, +d.years),
+});
+
 function seasonStepsBar(se) {
   const labels = [['summary', 'Özet'], ['report', 'Sezon arası'], ['contracts', 'Sözleşmeler'], ['newSeason', 'Yeni sezon']];
   const current = se.steps[se.at];
@@ -556,7 +564,7 @@ function seasonStepsBar(se) {
 }
 function seasonEndUI() {
   const se = S.seasonEnd, step = seasonStepById(se?.steps?.[se.at]);
-  const body = step?.screen ? step.screen(se) : `<section class=card><p>Sezon sonu işlemleri tamamlanıyor…</p><button onclick="seasonEndCheck();save();render()">Devam</button></section>`;
+  const body = step?.screen ? step.screen(se) : `<section class=card><p>Sezon sonu işlemleri tamamlanıyor…</p><button data-action="seasonEndCheck">Devam</button></section>`;
   return `${header()}${SEASON_CSS}<main class="appcontent seasonend"><small class=muted>SEZON SONU • ${seasonEsc(se.season)}</small>${seasonStepsBar(se)}${body}</main>${bottomNav('home')}`;
 }
 function seasonTopList(title, rows, unit) {
@@ -573,7 +581,7 @@ function seasonSummaryUI(se) {
   <section class=card><h3>Sezonun öne çıkanları</h3>${seasonTopList('GOL', d.goals, '')}${seasonTopList('ASİST', d.assists, '')}${seasonTopList('ORTALAMA PUAN', d.rating, '')}</section>
   <section class=card><h3>Final puan durumu</h3><div class=leaguehead><span>Takım</span><span>O</span><span>AV</span><span>P</span></div>
    ${d.table.map((x, i) => `<div class="leaguerow${x.n === club ? ' me' : ''}"><span>${i + 1}. ${seasonEsc(x.n)}</span><span>${x.p}</span><span>${x.gf - x.ga}</span><b>${x.pts}</b></div>`).join('')}</section>
-  <div class=stickycta><button class=goldbtn onclick="seasonEndNext('summary')">Sezon arasına geç</button></div>`;
+  <div class=stickycta><button class=goldbtn data-action="seasonEndNext" data-step="summary">Sezon arasına geç</button></div>`;
 }
 function seasonReportUI(se) {
   const L = se.data.log, aging = (L.aging || []).slice().sort((a, b) => (b.to - b.from) - (a.to - a.from) || b.to - a.to);
@@ -581,7 +589,7 @@ function seasonReportUI(se) {
   return `<section class=card><h3>Bir yaş büyüdüler</h3><p class=muted>Gençler potansiyellerine yaklaştı, 30 yaş üstünde düşüş başladı (kalecilerde daha geç).</p>${aging.map(row).join('') || '<p class=muted>—</p>'}</section>
   <section class=card><h3>Emekli olanlar</h3>${(L.retired || []).length ? L.retired.map(x => `<div class=toprow><span>${seasonEsc(x.name)} <small class=muted>${seasonEsc(x.pos)}</small></span><b>${x.age} yaş</b></div>`).join('') : '<p class=muted>Bu yaz kimse futbolu bırakmadı.</p>'}</section>
   ${(L.loans || []).length ? `<section class=card><h3>Kiralıktan dönenler</h3><p>${L.loans.map(seasonEsc).join(', ')}</p></section>` : ''}
-  <div class=stickycta><button class=goldbtn onclick="seasonEndNext('report')">Devam</button></div>`;
+  <div class=stickycta><button class=goldbtn data-action="seasonEndNext" data-step="report">Devam</button></div>`;
 }
 function seasonContractsUI(se) {
   const rows = se.data.expiring.map(x => ({ x, p: S.players.find(q => q.id === x.id) })).filter(r => r.p);
@@ -594,11 +602,11 @@ function seasonContractsUI(se) {
    ${keptAfter.some(p => isGK(p.pos)) ? '' : `<p class=warn>Bu kararlarla kadroda kaleci kalmıyor; altyapıdan acil bir kaleci yukarı alınır.</p>`}
    <div class=toprow><span>Gelecek sezon kadro</span><b class="${keptAfter.length < SEASON_MIN_SQUAD ? 'warn' : ''}">${keptAfter.length} oyuncu</b></div>
    ${keptAfter.length < SEASON_MIN_SQUAD ? `<p class=muted>Kadro ${SEASON_MIN_SQUAD} oyuncunun altına inerse eksik kalan yerler altyapıdan doldurulur.</p>` : ''}
-   <div class="row between" style="gap:8px;margin-top:8px"><button class=secondary onclick="seasonContractAll(1)">Hepsini 1 yıl yenile</button><button class=secondary onclick="seasonContractAll(0)">Hepsini bırak</button></div></section>
+   <div class="row between" style="gap:8px;margin-top:8px"><button class=secondary data-action="seasonContractAll" data-years="1">Hepsini 1 yıl yenile</button><button class=secondary data-action="seasonContractAll" data-years="0">Hepsini bırak</button></div></section>
   <section class=card>${rows.map(({ x, p }) => `<div class=contract><div class="row between"><div><span class=badge>${seasonEsc(p.pos)}</span> <b>${seasonEsc(p.name)}</b><br><small class=muted>${p.age} yaş • OVR ${p.overall} / POT ${p.potential}</small></div>
      <div style="text-align:right"><small class=muted>Talep</small><br><b>${money(x.demand)}</b><small class=muted>/yıl</small></div></div>
      <small class=muted>Şimdiki maaş ${money(p.wage || 0)}</small>
-     <div class=choices>${[1, 2, 3].map(y => `<button class="secondary${dec[p.id] === y ? ' on' : ''}" ${y > x.maxYears ? 'disabled' : ''} onclick="seasonContractPick(${p.id},${y})">${y} yıl</button>`).join('')}
-     <button class="secondary release${dec[p.id] === 0 ? ' on' : ''}" onclick="seasonContractPick(${p.id},0)">Bırak</button></div></div>`).join('')}</section>
-  <div class=stickycta><button class=goldbtn ${open ? 'aria-disabled="true"' : ''} onclick="seasonEndNext('contracts')">${open ? `${open} karar bekliyor` : 'Kararları onayla, yeni sezona geç'}</button></div>`;
+     <div class=choices>${[1, 2, 3].map(y => `<button class="secondary${dec[p.id] === y ? ' on' : ''}" ${y > x.maxYears ? 'disabled' : ''} data-action="seasonContractPick" data-id="${p.id}" data-years="${y}">${y} yıl</button>`).join('')}
+     <button class="secondary release${dec[p.id] === 0 ? ' on' : ''}" data-action="seasonContractPick" data-id="${p.id}" data-years="0">Bırak</button></div></div>`).join('')}</section>
+  <div class=stickycta><button class=goldbtn ${open ? 'aria-disabled="true"' : ''} data-action="seasonEndNext" data-step="contracts">${open ? `${open} karar bekliyor` : 'Kararları onayla, yeni sezona geç'}</button></div>`;
 }
