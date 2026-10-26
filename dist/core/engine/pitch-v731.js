@@ -736,5 +736,5 @@ function softenPlayerOverlap(positions){
 function openOpponentPlayer(id){
  const p=opponentPlayer(id);if(!M||!p)return;
  beginMatchOverlay();
- document.querySelector('#app').innerHTML=`<section class=playerorderoverlay role=dialog aria-modal=true aria-label="Rakip oyuncu bilgisi"><div class=playerorderhead><button class=ghost onclick="closeMatchOverlay()">‹ Maça dön</button><span>⏸ ${matchClock()}</span></div><div class=playerhero><small>${escapeHTML(M.userHome?M.away:M.home)}</small><h1>${escapeHTML(p.name)}</h1><p>${p.position} • OVR ${p.overall}<br>Yaş ${p.age} • Fitness %${Math.round(p.fitness)}<br>Hız ${p.pace} • Pas ${p.passing} • Top sürme ${p.dribbling}</p></div></section>`;
+ document.querySelector('#app').innerHTML=`<section class=playerorderoverlay role=dialog aria-modal=true aria-label="Rakip oyuncu bilgisi"><div class=playerorderhead><button class=ghost data-action="closeMatchOverlay">‹ Maça dön</button><span>⏸ ${matchClock()}</span></div><div class=playerhero><small>${escapeHTML(M.userHome?M.away:M.home)}</small><h1>${escapeHTML(p.name)}</h1><p>${p.position} • OVR ${p.overall}<br>Yaş ${p.age} • Fitness %${Math.round(p.fitness)}<br>Hız ${p.pace} • Pas ${p.passing} • Top sürme ${p.dribbling}</p></div></section>`;
 }

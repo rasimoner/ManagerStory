@@ -295,7 +295,7 @@ function matchPossession() {
 }
 function matchFitnessUI() {
   const ps = S.players.filter(p => M.active.includes(p.id)).sort((a, b) => a.fitness - b.fitness);
-  return `<div class="fitnessstrip" aria-label="Sahadaki oyuncuların fitness durumu">${ps.map(p => `<button class="fitnessmini ${p.fitness < 45 ? "critical" : p.fitness < 60 ? "warning" : ""}" onclick="openMatchPlayer(${p.id})" aria-label="${escapeHTML(p.name)}, fitness yüzde ${Math.round(p.fitness)}${p.fitness < 45 ? ', kritik' : p.fitness < 60 ? ', yorgun' : ''}"><b>${escapeHTML(p.name)}</b><span>%${Math.round(p.fitness)} ${p.fitness < 45 ? "‼" : p.fitness < 60 ? "!" : ""}</span><i style="--fitness:${clamp(p.fitness, 0, 100)}%"></i></button>`).join("")}</div>`;
+  return `<div class="fitnessstrip" aria-label="Sahadaki oyuncuların fitness durumu">${ps.map(p => `<button class="fitnessmini ${p.fitness < 45 ? "critical" : p.fitness < 60 ? "warning" : ""}" data-action="openMatchPlayer" data-id="${p.id}" aria-label="${escapeHTML(p.name)}, fitness yüzde ${Math.round(p.fitness)}${p.fitness < 45 ? ', kritik' : p.fitness < 60 ? ', yorgun' : ''}"><b>${escapeHTML(p.name)}</b><span>%${Math.round(p.fitness)} ${p.fitness < 45 ? "‼" : p.fitness < 60 ? "!" : ""}</span><i style="--fitness:${clamp(p.fitness, 0, 100)}%"></i></button>`).join("")}</div>`;
 }
 function matchStatsUI() {
   const st = M.stats, poss = matchPossession();
@@ -316,12 +316,12 @@ function matchDetailsUI() {
 function assistHint(target, key) {
   if (target !== "match" || typeof assistantAdvice !== "function") return "";
   const a = assistantAdvice().tactics?.[key];
-  return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" onclick="applyAssistantAdvice('${key}','${a.value}')">💡 ${a.value}<small>${escapeHTML(a.reason)}</small></button>` : "";
+  return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" data-action="applyAssistantAdvice" data-value="${escapeHTML(a.value)}">💡 ${a.value}<small>${escapeHTML(a.reason)}</small></button>` : "";
 }
 function assistTeamHint(target, key) {
   if (target !== "match" || typeof assistantAdvice !== "function") return "";
   const a = assistantAdvice().team?.[key];
-  return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" onclick="applyAssistantAdvice('${key}',true)">💡<small>${escapeHTML(a.reason)}</small></button>` : "";
+  return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" data-action="applyAssistantAdvice">💡<small>${escapeHTML(a.reason)}</small></button>` : "";
 }
 // Tapping a recommendation is the user's own action: it selects exactly that control's option.
 function applyAssistantAdvice(key, value) {
@@ -331,7 +331,7 @@ function applyAssistantAdvice(key, value) {
 }
 function tacticsControls(target = "match") {
   const plan = target === "match" ? M : S.plan;
-  return `<div class="tacticfields">${Object.entries(MATCH_TACTICS).map(([key, values]) => `<label>${TACTIC_LABELS[key]}<select aria-label="${TACTIC_LABELS[key]}" onchange="${target === 'match' ? 'setMatchTactic' : 'setCareerTactic'}('${key}',this.value)">${values.map(value => `<option${plan[key] === value ? ' selected' : ''}>${value}</option>`).join("")}</select>${assistHint(target, key)}</label>`).join("")}</div><h3>Takım Talimatları</h3><div class="teamorders">${Object.entries(TEAM_ORDERS).map(([key, label]) => `<button class="${plan.teamInstructions?.includes(key) ? 'selected' : 'secondary'}" aria-pressed="${!!plan.teamInstructions?.includes(key)}" onclick="toggleTeamOrder('${key}','${target}')">${label}</button>${assistTeamHint(target, key)}`).join("")}</div>`;
+  return `<div class="tacticfields">${Object.entries(MATCH_TACTICS).map(([key, values]) => `<label>${TACTIC_LABELS[key]}<select aria-label="${TACTIC_LABELS[key]}" data-action="${target === 'match' ? 'setMatchTactic' : 'setCareerTactic'}" data-key="${key}">${values.map(value => `<option${plan[key] === value ? ' selected' : ''}>${value}</option>`).join("")}</select>${assistHint(target, key)}</label>`).join("")}</div><h3>Takım Talimatları</h3><div class="teamorders">${Object.entries(TEAM_ORDERS).map(([key, label]) => `<button class="${plan.teamInstructions?.includes(key) ? 'selected' : 'secondary'}" aria-pressed="${!!plan.teamInstructions?.includes(key)}" data-action="toggleTeamOrder" data-key="${key}" data-scope="${target}">${label}</button>${assistTeamHint(target, key)}`).join("")}</div>`;
 }
 function setCareerTactic(key, value) {
   if (!MATCH_TACTICS[key]?.includes(value)) return;
@@ -369,6 +369,16 @@ function closeMatchOverlay() {
   if (M) delete M.uiOverlay;
   render();
 }
+/* Refactor C2: the match controls this file draws */
+defineActions({
+  applyAssistantAdvice: d => applyAssistantAdvice(d.assist, d.value ?? true),
+  setMatchTactic: (d, el) => setMatchTactic(d.key, el.value),
+  setCareerTactic: (d, el) => setCareerTactic(d.key, el.value),
+  toggleTeamOrder: d => toggleTeamOrder(d.key, d.scope),
+  switchMatchTab: d => switchMatchTab(d.key),
+  closeMatchOverlay: () => closeMatchOverlay(),
+});
+
 function goMain(section) {
   if (M) return;
   modal = ["squad", "plan", "formation", "settings"].includes(section) ? section : null;

@@ -161,7 +161,7 @@ test('assistant coach UI: recommendation sits next to its control; tapping selec
   const h = fresh(0);
   h.run("M.matchElapsedSeconds=3900;M.min=65;M.hg=0;M.ag=2;if(!M.userHome){M.hg=2;M.ag=0}S.players.forEach(p=>p.fitness=95);M.pause=true;M.reason='manual'");
   const html = h.run("tacticsControls('match')");
-  assert.match(html, /data-assist="mentality"[^>]*onclick="applyAssistantAdvice\('mentality','Cesur'\)"/);
+  assert.match(html, /data-assist="mentality"[^>]*data-action="applyAssistantAdvice" data-value="Cesur"/);
   // the hint is inside the same <label> as its own select, not in a generic list
   const label = html.match(/<label>Mentalite[\s\S]*?<\/label>/)[0];
   assert.match(label, /data-assist="mentality"/);
