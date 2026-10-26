@@ -69,7 +69,7 @@ test('academy list shows each prospect\'s stars', () => {
 test('transfer list: "Yıldız ↓" sorts by skill stars, highest first', () => {
   const h = harness();
   h.run("showV6Transfers('ALL','stars','ALL')");
-  assert.match(h.html(), /aria-pressed="true" onclick="showV6Transfers\(undefined,'stars'\)">Yıldız ↓/);
+  assert.match(h.html(), /aria-pressed="true" data-action="transferSort" data-sort="stars">Yıldız ↓/);
   assert.match(h.html(), />POT ↓</);
   const stars = [...h.html().matchAll(/aria-label="Yetenek (\d) yıldız"/g)].map(m => +m[1]);
   assert.ok(stars.length > 5, 'cards rendered');
