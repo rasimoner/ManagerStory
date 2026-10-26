@@ -74,6 +74,7 @@ function roleAtSlot(p, slot) {
 }
 function userSide() { return M.userHome ? 0 : 1; }
 function matchEvent(type, text, data = {}) {
+  runHooks('matchEvent', type, text, data); // observers (tests, tools) see every event as it is made
   if (!M || M.finished || M.lifecycle === 'FINISHING' || M.lifecycle === 'FINISHED') return null;
   const gameSecond=Math.floor(matchSecond()),minute=Math.floor(gameSecond/60);
   if(type==='goal'){
@@ -364,7 +365,7 @@ function switchMatchTab(tab) {
   if (tab === 'tactics' && !M.pause && !M.finished) { M.pause = true; M.reason = 'manual'; }
   render();
 }
-function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} liveLastFrame = null; save(); } }
+function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} resetLiveFrame(); save(); } }
 function closeMatchOverlay() {
   if (M) delete M.uiOverlay;
   render();

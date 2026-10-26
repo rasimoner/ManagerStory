@@ -302,12 +302,18 @@ function resolveUnfillableSubstitution(){
 /* A challenge inside the defender's OWN penalty area can be a foul, and then it is a penalty for the
    attacking side. This is where real penalties come from; the rate follows the two players' quality
    (dribbling draws fouls, clean tackling avoids them). Returns true when a penalty was awarded and taken. */
-function boxChallengePenalty(defId,defSide,carrier,carrierSide,point){
- if(engineFrozen()||defSide===carrierSide)return false;
+// the chance a challenge at point gives a penalty: 0 outside the defender's own box (and when the
+// engine is frozen or both are on one side), otherwise 2–9% from the dribbler and the tackler
+function penaltyFoulChance(defId,defSide,carrier,carrierSide,point){
+ if(engineFrozen()||defSide===carrierSide)return 0;
  const ownGoalX=attackDirection(defSide)>0?0:100;
- if(!(Math.abs(point[0]-ownGoalX)<17&&Math.abs(point[1]-50)<30))return false;
- const pFoul=clamp(.05+(normalizeAttribute(playerAttribute(carrier,carrierSide,'dribbling',65))-.5)*.04-
+ if(!(Math.abs(point[0]-ownGoalX)<17&&Math.abs(point[1]-50)<30))return 0;
+ return clamp(.05+(normalizeAttribute(playerAttribute(carrier,carrierSide,'dribbling',65))-.5)*.04-
   (normalizeAttribute(playerAttribute(defId,defSide,'tackling',65))-.5)*.05,.02,.09);
+}
+function boxChallengePenalty(defId,defSide,carrier,carrierSide,point){
+ const pFoul=penaltyFoulChance(defId,defSide,carrier,carrierSide,point);
+ if(!pFoul)return false;
  if(M.rand()>=pFoul)return false;
  const idx=defSide==='user'?userSide():1-userSide();
  M.stats.fouls[idx]++;

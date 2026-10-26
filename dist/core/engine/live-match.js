@@ -4,6 +4,8 @@ const MATCH_MINUTE_MS = 30000 / 45;
 const MATCH_PLAYBACK_SCALE = .5;
 const matchPlaybackRate = () => (M?.speed || 1) * MATCH_PLAYBACK_SCALE;
 let liveFrame = null, liveLastFrame = null, liveLastPaint = 0, liveTickBusy = false;
+// the next frame starts the live clock afresh (no catching up on the time the match screen was away)
+function resetLiveFrame() { liveLastFrame = null; }
 const matchSecond = () => Math.min(5400,Math.max(0,Number.isFinite(M?.matchElapsedSeconds)?M.matchElapsedSeconds:0));
 const clockFromSeconds = seconds => {
   const total=Math.floor(Math.min(5400,Math.max(0,seconds)));

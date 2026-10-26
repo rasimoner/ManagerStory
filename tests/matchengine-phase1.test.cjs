@@ -296,10 +296,11 @@ test('no second simulation path: legacy duplicates are gone and the live loop is
 
 test('one football minute cannot be processed twice (no re-entrant tick)', () => {
   const h = fresh(0);
-  h.run("window.__n=0;const _t=tick;tick=function(){window.__n++;if(window.__n===1)advanceLive(5);_t()}");
+  // during the minute's first event (inside the tick), the clock is asked to run five more minutes
+  h.run("window.__n=0;onHook('matchEvent',()=>{if(window.__n++===0)advanceLive(5)})");
   h.run('advanceLive(60/90)');
-  assert.equal(h.run('window.__n'), 1, 'nested advanceLive during a tick is ignored');
-  assert.equal(h.run('M.min'), 1);
+  assert.ok(h.run('window.__n') >= 1, 'the nested call was made during the minute');
+  assert.equal(h.run('M.min'), 1, 'nested advanceLive during a tick is ignored');
 });
 
 test('V7.9.3 a keeper punch: only the defending keeper, only from a high ball into his own box, and the ball is loose afterwards', { timeout: 300000 }, () => {
@@ -334,7 +335,7 @@ test('V7.9.3 an attacker in space does not turn round and play a long ball back;
   const N = 12;
   for (let fixture = 0; fixture < N; fixture++) {
     const h = fresh(fixture);
-    h.run(`window.__bp=[];const _m=matchEvent;matchEvent=function(type,text,o){if((type==='pass'||type==='cross')&&o&&o.fromPos&&o.toPos&&o.fromId!=null){const side=o.fromSide,dir=(side==='user'?1:-1)*userDirection();const fwd=dir>0?o.fromPos[0]:100-o.fromPos[0];const nb=nearestMarker(side==='user'?'opp':'user',o.fromPos);const role=side==='user'?M.matchRoles[o.fromId]:playerAtMarker(o.fromId,side)?.position;window.__bp.push({type,fwd,prog:(o.toPos[0]-o.fromPos[0])*dir,range:o.distance,d:nb?nb.d:99,role,success:o.success,deep:dir>0?o.toPos[0]:100-o.toPos[0],y:o.toPos[1]})}return _m.apply(this,arguments)}`);
+    h.run(`window.__bp=[];onHook('matchEvent',function(type,text,o){if((type==='pass'||type==='cross')&&o&&o.fromPos&&o.toPos&&o.fromId!=null){const side=o.fromSide,dir=(side==='user'?1:-1)*userDirection();const fwd=dir>0?o.fromPos[0]:100-o.fromPos[0];const nb=nearestMarker(side==='user'?'opp':'user',o.fromPos);const role=side==='user'?M.matchRoles[o.fromId]:playerAtMarker(o.fromId,side)?.position;window.__bp.push({type,fwd,prog:(o.toPos[0]-o.fromPos[0])*dir,range:o.distance,d:nb?nb.d:99,role,success:o.success,deep:dir>0?o.toPos[0]:100-o.toPos[0],y:o.toPos[1]})}})`);
     playToEnd(h);
     for (const b of h.run('window.__bp')) {
       // (V7.9.5: a pull-back from the byline into the box — the edge of the area, central — is a chance, not a ball back)

@@ -100,7 +100,7 @@ test('the home page carries the flash card for the week of the signing and the n
   const id = pick(h, 'r.stars>=4&&!r.keeper');
   h.run('S.budget=9e8;S.week=4');
   h.run(`v6Sign('${id}',12000000)`);
-  h.run('starFlow=null;modal=null;render()');
+  h.run('endStarFlow();modal=null;render()');
   assert.match(h.html(), /stflashcard/);
   assert.match(h.html(), /Sahneyi izle/);
   h.run('S.week=5;render()'); assert.match(h.html(), /stflashcard/);
@@ -153,7 +153,7 @@ test('with the season transition: the star keeps his number and his clip into th
   const { FAST } = require('./support/career-sim.cjs');
   h.run(FAST);
   const id = pick(h, 'r.stars>=4&&!r.keeper');
-  h.run(`S.budget=9e8;S.week=3;v6Sign('${id}',12000000);starFlow=null`);
+  h.run(`S.budget=9e8;S.week=3;v6Sign('${id}',12000000);endStarFlow()`);
   const star = h.json('(({id,number,name})=>({id,number,name}))(S.players.at(-1))');
   const season0 = h.run('S.season');
   h.run('fastSeason();autoSeasonEnd();render()');

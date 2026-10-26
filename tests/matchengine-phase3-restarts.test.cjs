@@ -290,11 +290,12 @@ test('PENALTY SOURCE: only a challenge inside the defender\'s own box can give a
   const carrier = h.run("M.active.find(id=>M.matchRoles[id]==='ST')"), def = 'o3';
   const dir = h.run("attackDirection('opp')"), ownX = dir > 0 ? 0 : 100;           // opponent's own goal line
   const inBox = [ownX === 0 ? 8 : 92, 50], outside = [50, 50], wideOfBox = [ownX === 0 ? 8 : 92, 5];
-  const rate = (pt, n = 3000) => h.run(`(function(){let k=0;const snap=JSON.stringify([M.events.length]);
-    for(let i=0;i<${n};i++){M.rand=R(700+i);const ev=M.events.length;
-      const orig=startPitchRestart;let fired=false;startPitchRestart=function(){fired=true;return null};
-      if(boxChallengePenalty('${def}','opp',${carrier},'user',${JSON.stringify(pt)}))k++;
-      startPitchRestart=orig;M.events.length=ev;}
+  // the share of challenges that give a penalty: the same roll boxChallengePenalty makes, against its chance
+  // (penaltyFoulChance), without running the restart each time
+  const rate = (pt, n = 3000) => h.run(`(function(){let k=0;
+    for(let i=0;i<${n};i++){M.rand=R(700+i);
+      const p=penaltyFoulChance('${def}','opp',${carrier},'user',${JSON.stringify(pt)});
+      if(p&&M.rand()<p)k++;}
     return k/${n}})()`);
   assert.equal(rate(outside), 0, 'never outside the box');
   assert.equal(rate(wideOfBox), 0, 'never outside the box width');

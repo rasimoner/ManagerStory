@@ -81,6 +81,7 @@ function latestStarTransfer() {
 // ---- the flow ----
 // one flow at a time; a trial ("Transfer sahnesi dene") works on a copy and saves nothing
 let starFlow = null;
+function endStarFlow() { starFlow = null; }
 function starFlowPlayer() { return starFlow?.trial ? starFlow.player : S.players.find(p => p.id === starFlow?.playerId); }
 
 function beginStarTransfer(p, x, fee) {
@@ -160,7 +161,7 @@ function starWalkOut(replayRec) {
     club: { name: club.name, primaryColor: clubColor(club.primaryColor) || '#c8102e', secondaryColor: clubColor(club.secondaryColor) || '#ffffff', shortName: club.shortName },
     closing: !replay, trial: f.trial,
   };
-  const done = () => { starFlow = null; render(); };
+  const done = () => { endStarFlow(); render(); };
   const fallback = () => {
     // no 3D on this device: the old photo scene of the fans waiting for him
     cinematic('assets/atmosphere/fans-neutral.webp', 'TESİSLERİN ÖNÜ', 'TARAFTARLAR YENİ YILDIZI BEKLİYOR', `${p.name} ${p.number} numaralı formayla selamladı. Gösterisi: ${starMoveName(f.move)}.`, replay ? 'Kulübe dön' : 'Devam', replay ? done : () => starClosingScreen(), `${p.name}! ${p.name}! ${club.name}’a hoş geldin!`, 'fans');
@@ -186,7 +187,7 @@ defineActions({
   starPickNumber: (d, el) => starPickNumber(+(d.number ?? el.value)),
   starWalkOut: () => starWalkOut(),
   starReplay: () => starWalkOut(latestStarTransfer()),
-  closeStarFlow: () => { starFlow = null; render(); },
+  closeStarFlow: () => { endStarFlow(); render(); },
   starTransferTrial: d => starTransferTrial(d.kind),
 });
 

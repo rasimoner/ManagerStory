@@ -522,7 +522,7 @@ presentation.newView = {
 
 presentation.view?.subscribe?.(snapshot => {
   if (!snapshot || match !== M || !surface.isConnected) return;
-  try { window.paintPitchGoalFeedback?.(surface.querySelector('.pitch-goal-overlay'), snapshot.presentation?.goalFeedback); } catch (e) { /* overlay is optional */ }
+  try { paintPitchGoalFeedback(surface.querySelector('.pitch-goal-overlay'), snapshot.presentation?.goalFeedback); } catch (e) { /* overlay is optional */ }
 });
 
 presentation.career3d = {
