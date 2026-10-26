@@ -10,11 +10,16 @@
    S.version is a different thing: the game version that last wrote the save (backups are keyed by it).
    What the chain does not do: fill content a career needs whenever it is missing — a market, an academy,
    rival squads, player profiles, defaults for a newly signed player. That is init()'s job on every start. */
-const SAVE_KEY = "msv4";
-const SAVE_SCHEMA = 1;
-let saveWarning = false;
+import { CLUB_DATA } from '../data/clubs.js';
+import { newMatchSalt } from './random.js';
+import { M, S, setCareer, setLoadError, setMatch, setModal } from './state.js';
+import { GAME_VERSION, MATCH_TACTICS, restoreActiveMatch } from './engine/match-support.js';
+import { init, render, save } from '../modes/manager/app.js';
+export const SAVE_KEY = "msv4";
+export const SAVE_SCHEMA = 1;
+export let saveWarning = false;
 
-const SAVE_MIGRATIONS = [
+export const SAVE_MIGRATIONS = [
   {
     from: 0, to: 1,
     about: "saves from V7.0 to V7.9.13 (no schemaVersion): managed club, conversation and press state, a full " +
@@ -52,7 +57,7 @@ const SAVE_MIGRATIONS = [
 ];
 
 /* Bring a save (or a new career) up to the current format. Changes and returns the same object. */
-function migrateSave(state) {
+export function migrateSave(state) {
   let format = Number.isInteger(state.schemaVersion) ? state.schemaVersion : 0;
   if (format > SAVE_SCHEMA) throw new Error("Bu kariyer kaydı oyunun daha yeni bir sürümünden. Oyunu güncelleyip tekrar dene.");
   for (const step of SAVE_MIGRATIONS) {
@@ -65,7 +70,7 @@ function migrateSave(state) {
   return state;
 }
 
-function loadCareer() {
+export function loadCareer() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return null;
@@ -88,7 +93,7 @@ function loadCareer() {
     return null;
   }
 }
-function persistCareer() {
+export function persistCareer() {
   if (!S) return;
   if (M) {
     const { rand, ...snapshot } = M;
@@ -100,7 +105,7 @@ function persistCareer() {
     saveWarning = true;
   }
 }
-function exportCareer() {
+export function exportCareer() {
   if (!S) return;
   save();
   const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
@@ -108,7 +113,7 @@ function exportCareer() {
   a.href = url; a.download = `ManagerStory-V7.3-Hafta-${S.week}.json`; a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function validateCareerImport(data) {
+export function validateCareerImport(data) {
   if (!data || !Array.isArray(data.players) || !data.players.length || !Array.isArray(data.xi) ||
       !Array.isArray(data.table) || data.table.length !== 18 || !Number.isFinite(data.budget) ||
       !Number.isInteger(data.fixture) || data.fixture < 0 || data.fixture > 33 ||
@@ -124,7 +129,7 @@ function validateCareerImport(data) {
   }
   return data;
 }
-async function importCareer(file) {
+export async function importCareer(file) {
   if (!file) return;
   try {
     if (file.size > 8 * 1024 * 1024) throw new Error("Yedek dosyası çok büyük.");

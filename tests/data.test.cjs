@@ -1,20 +1,20 @@
 /* Game data lives apart from the code, as plain data (V7.9.13, refactor B):
    - every file in dist/data is one constant whose value is JSON (no functions, no references, no
      comments inside), so it can become a .json file at build time and be read by another engine;
-   - index.html loads every data file, before any code;
+   - the game loads every data file, before any code (main.js imports them first);
    - the data says what the code used to say: the moves table matches the move names, the clubs cover the
      league, the starting squad is a full squad. */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { loadGame, pageScripts, DIST } = require('./support/game.cjs');
+const { loadGame, gameSources, DIST } = require('./support/game.cjs');
 
 const files = fs.readdirSync(path.join(DIST, 'data')).filter(f => f.endsWith('.js')).sort().map(f => 'data/' + f);
 const parse = file => {
   const text = fs.readFileSync(path.join(DIST, file), 'utf8');
-  const m = /^\s*(?:\/\*[\s\S]*?\*\/\s*)?const ([A-Z][A-Z0-9_]*) = ([\s\S]*);\s*$/.exec(text);
-  assert.ok(m, `${file}: one "const NAME = …;" after an optional leading comment`);
+  const m = /^\s*(?:\/\*[\s\S]*?\*\/\s*)?export const ([A-Z][A-Z0-9_]*) = ([\s\S]*);\s*$/.exec(text);
+  assert.ok(m, `${file}: one "export const NAME = …;" after an optional leading comment`);
   return { name: m[1], value: JSON.parse(m[2]) };
 };
 
@@ -24,8 +24,8 @@ test('every data file is a single constant whose value is JSON', () => {
   assert.equal(new Set(names).size, names.length, 'one name per file');
 });
 
-test('index.html loads every data file, before any code', () => {
-  const scripts = pageScripts().map(s => s.file);
+test('the game loads every data file, before any code', () => {
+  const scripts = gameSources().find(s => s.file === 'main.js').imports; // main.js imports the game in order
   for (const f of files) assert.ok(scripts.includes(f), `${f} is loaded`);
   const lastData = Math.max(...files.map(f => scripts.indexOf(f)));
   const firstCode = scripts.findIndex(f => !f.startsWith('data/'));

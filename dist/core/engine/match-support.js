@@ -1,20 +1,31 @@
 /* ManagerStory: shared match state, match events and the in-match panel. (Saves: save.js.) */
-const GAME_VERSION = "7.9.13";
+import { TACTIC_DATA } from '../../data/tactics.js';
+import { R, newMatchSalt } from '../random.js';
+import { M, S, setMatch, setModal } from '../state.js';
+import { presentation } from '../presentation/registry.js';
+import { defineActions } from '../../ui/actions.js';
+import { runHooks } from '../hooks.js';
+import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame } from './live-match.js';
+import { opponentLineup } from '../league/opponents-v731.js';
+import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
+import { assistantAdvice, attackDirection, isKeeper, matchTeamName, playerAtMarker, startPitchRestart } from './pitch-v731.js';
+import { $, bottomNav, currentOpponent, decorateAtmosphereScenes, matchOrderOptions, render, save, showAcademy, showLeague, showV6Transfers } from '../../modes/manager/app.js';
+export const GAME_VERSION = "7.9.13";
 // tactic settings, their labels and the team orders (data/tactics.js)
-const MATCH_TACTICS = TACTIC_DATA.options;
-const TACTIC_LABELS = TACTIC_DATA.labels;
-const TEAM_ORDERS = TACTIC_DATA.orders;
-const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
-const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
-const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
-const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+export const MATCH_TACTICS = TACTIC_DATA.options;
+export const TACTIC_LABELS = TACTIC_DATA.labels;
+export const TEAM_ORDERS = TACTIC_DATA.orders;
+export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
+export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
+export const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 // V7.8: every match gets its own dice. A career made in the app carries a salt that is drawn anew at
 // each kickoff, so a new career's first match (or a fixture replayed from an older save) is a new
 // match, not a rerun. Without a salt (automated checks) the seed is the fixture's, as before.
 // (the salt itself is drawn by newMatchSalt in random.js, outside the engine)
-function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0); }
-function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
-function restoreActiveMatch() {
+export function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0); }
+export function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
+export function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
   setMatch(structuredClone(S.activeMatchV71));
   M.rand = R(M.rngState ?? matchSeed());
@@ -22,7 +33,7 @@ function restoreActiveMatch() {
   ensureMatchState();
   ensureLiveState();
 }
-function ensureMatchState() {
+export function ensureMatchState() {
   if (!M) return;
   M.activeTab ??= "pitch";
   M.events ??= [];
@@ -62,7 +73,7 @@ function ensureMatchState() {
     M.matchRoles[id] ??= roleAtSlot(p, M.matchPositions?.[id] || S.positions[id]);
   }
 }
-function roleAtSlot(p, slot) {
+export function roleAtSlot(p, slot) {
   if (!slot) return p.pos.split("/")[0];
   const [x, y] = slot;
   if (y > 82) return "GK";
@@ -72,8 +83,8 @@ function roleAtSlot(p, slot) {
   if (x > 72) return "RW";
   return y < 25 ? "ST" : "CAM";
 }
-function userSide() { return M.userHome ? 0 : 1; }
-function matchEvent(type, text, data = {}) {
+export function userSide() { return M.userHome ? 0 : 1; }
+export function matchEvent(type, text, data = {}) {
   runHooks('matchEvent', type, text, data); // observers (tests, tools) see every event as it is made
   if (!M || M.finished || M.lifecycle === 'FINISHING' || M.lifecycle === 'FINISHED') return null;
   const gameSecond=Math.floor(matchSecond()),minute=Math.floor(gameSecond/60);
@@ -89,7 +100,7 @@ function matchEvent(type, text, data = {}) {
   return event;
 }
 // Read-only actor classification. Generic engine blocks can be keeper contacts.
-function shotInterventionActor(e){
+export function shotInterventionActor(e){
  if(!e||!['block','save'].includes(e.type))return {kind:'unknown',id:null,side:null};
  const id=e.toId,side=e.toSide,player=id==null||!['user','opp'].includes(side)?null:playerAtMarker(id,side);
  const role=side==='user'?M?.matchRoles?.[id]:player?.position;
@@ -97,8 +108,8 @@ function shotInterventionActor(e){
 }
 // V7.8: commentary variety. The sentence is picked from the event's own number (no dice), so the same
 // match always reads the same, but a match no longer repeats one sentence per event type.
-function lineVariant(seed, lines) { return lines[((Math.imul((seed | 0) + 7, 2654435761) >>> 0) >>> 3) % lines.length]; }   // (unsigned shift: a negative index read "undefined")
-function presentationEvent(e){
+export function lineVariant(seed, lines) { return lines[((Math.imul((seed | 0) + 7, 2654435761) >>> 0) >>> 3) % lines.length]; }   // (unsigned shift: a negative index read "undefined")
+export function presentationEvent(e){
  if(!e)return e;
  if(['press','tackle','interception'].includes(e.type)){
   const id=e.type==='interception'?e.toId:e.defenderId,side=e.type==='tackle'?(e.fromSide==='user'?'opp':e.fromSide==='opp'?'user':null):e.toSide;
@@ -120,7 +131,7 @@ function presentationEvent(e){
  const text=actor.kind==='keeper'?(actor.name||'Kaleci')+(corner?' şutu çelerek kornere gönderdi.':' şutu çeldi.'):actor.kind==='field'?(actor.name||'Oyuncu')+' şutu engelledi.':'Şut engellendi.';
  return {...e,text:(e.minute??M.min)+'’ '+text,presentationActor:actor,presentationLabel:actor.kind==='keeper'?'KURTARIŞ':actor.kind==='field'?'BLOK':'MÜDAHALE'};
 }
-function liveCommentaryLines(){
+export function liveCommentaryLines(){
   if(presentation.live3d?.enabled&&!(!livePresentationPending()&&M.finished)){
     const s=currentPitchState(),e=s.controlMotion?.event||s.shotMotion?.event||s.contestMotion?.event||s.looseMotion?.event||s.holdMotion?.event||s.active;
     const text=e&&!['enginePositionGap','presentationSync'].includes(e.type)?presentationEvent(e).text:null;
@@ -138,7 +149,7 @@ function liveCommentaryLines(){
 // an attack, a late foul from behind or a persistent offender is booked; denying a clear goal-scoring
 // chance as the last man is a red card. Before, the side, the player and the card were drawn at random,
 // anywhere on the pitch, and play carried on.
-function recordMatchFoul() {
+export function recordMatchFoul() {
   const carrier = M.ballOwner, victimSide = M.ballSide;
   if (carrier == null || (victimSide !== 'user' && victimSide !== 'opp') || M.minuteShot) return;
   if (M.restart && M.restart.restartPhase && M.restart.restartPhase !== 'LIVE') return;
@@ -183,7 +194,7 @@ function recordMatchFoul() {
     startPitchRestart('PENALTY', victimSide, ball);
   } else startPitchRestart('FREE_KICK', victimSide, ball);
 }
-function recordMatchCard(side, id, directRed = false) {
+export function recordMatchCard(side, id, directRed = false) {
   const own = side === userSide(), p = own ? S.players.find(x => x.id === id) : null;
   if (own ? !M.active.includes(id) : !M.oppIds.includes(id)) return;
   const name = p?.name || `${side === 0 ? M.home : M.away} oyuncusu`;
@@ -197,7 +208,7 @@ function recordMatchCard(side, id, directRed = false) {
     matchEvent('red', `🟥 ${M.min}' ${name}, ${directRed ? 'doğrudan' : 'ikinci sarıdan'} kırmızı kart gördü.`, { side, playerId: id });
   } else matchEvent('yellow', `🟨 ${M.min}' ${name} sarı kart gördü.`, { side, playerId: id });
 }
-function matchSummary(match = M) {
+export function matchSummary(match = M) {
   const side = match.userHome ? 0 : 1;
   // Keep replayable chains around chances without multiplying every routine pass across 34 saved rounds.
   const replayEvents = match.events.filter((event, index, all) => event.type !== 'pass' ||
@@ -212,12 +223,12 @@ function matchSummary(match = M) {
     userGoals: side === 0 ? match.hg : match.ag, opponentGoals: side === 0 ? match.ag : match.hg
   };
 }
-function orderKey(p) {
+export function orderKey(p) {
   if (M.orderKeys[p.id]) return M.orderKeys[p.id];
   const label = M.playerOrders[p.id] || S.instructions[p.id] || "Dengeli";
   return matchOrderOptions(p, M.matchRoles[p.id] || p.pos.split("/")[0]).find(x => x.label === label)?.key || "balanced";
 }
-function tacticalEffects() {
+export function tacticalEffects() {
   const players = S.players.filter(p => M.active.includes(p.id));
   let control = 1, attack = 1, defence = 1, fatigue = 1, frequency = 1, passing = 0, passDistance = 0;
   if (M.mentality === "Cesur") { attack += .09; defence -= .07; frequency += .09; passing -= .015; }
@@ -261,7 +272,7 @@ function tacticalEffects() {
   }
   return { control, attack, defence, fatigue, frequency, passing, passDistance };
 }
-function applyConversationEffect(context,choice,participants){
+export function applyConversationEffect(context,choice,participants){
   if(!S)return null;
   S.v732 ??={schema:1,conversationHistory:[],feedback:null};
   const players=(participants||S.players.filter(p=>p.status!=='Transfer oldu'&&p.status!=='Kirada'));
@@ -289,16 +300,16 @@ function applyConversationEffect(context,choice,participants){
   S.v732.feedback=result;
   return result;
 }
-function matchPossession() {
+export function matchPossession() {
   const total = M.userPossTicks + M.oppPossTicks;
   const user = total ? Math.round(M.userPossTicks * 100 / total) : 50;
   return M.userHome ? [user, 100 - user] : [100 - user, user];
 }
-function matchFitnessUI() {
+export function matchFitnessUI() {
   const ps = S.players.filter(p => M.active.includes(p.id)).sort((a, b) => a.fitness - b.fitness);
   return `<div class="fitnessstrip" aria-label="Sahadaki oyuncuların fitness durumu">${ps.map(p => `<button class="fitnessmini ${p.fitness < 45 ? "critical" : p.fitness < 60 ? "warning" : ""}" data-action="openMatchPlayer" data-id="${p.id}" aria-label="${escapeHTML(p.name)}, fitness yüzde ${Math.round(p.fitness)}${p.fitness < 45 ? ', kritik' : p.fitness < 60 ? ', yorgun' : ''}"><b>${escapeHTML(p.name)}</b><span>%${Math.round(p.fitness)} ${p.fitness < 45 ? "‼" : p.fitness < 60 ? "!" : ""}</span><i style="--fitness:${clamp(p.fitness, 0, 100)}%"></i></button>`).join("")}</div>`;
 }
-function matchStatsUI() {
+export function matchStatsUI() {
   const st = M.stats, poss = matchPossession();
   const percent = side => st.passes[side] ? Math.round(st.completedPasses[side] * 100 / st.passes[side]) + "%" : "—";
   const rows = [
@@ -309,36 +320,36 @@ function matchStatsUI() {
   ];
   return `<section class="matchstats"><h2>Maç İstatistikleri</h2><div class="statteamnames"><b>${M.home}</b><b>${M.away}</b></div>${rows.map(([label, a, b]) => `<div class="statrow"><b>${a}</b><span>${label}</span><b>${b}</b></div>`).join("")}</section>`;
 }
-function matchDetailsUI() {
+export function matchDetailsUI() {
   const labels = { goal: "Gol", yellow: "Sarı kart", red: "Kırmızı kart", sub: "Değişiklik", chance: "Pozisyon", injury: "Sakatlık", half: "Devre arası", end: "Son düdük", tactic: "Taktik", order: "Talimat", corner: "Korner", penalty: "Penaltı", freeKick: "Serbest vuruş", offside:"Ofsayt",save: "Kurtarış", block: "Blok", post: "Direk", wide: "Aut", throwIn: "Taç", goalKick: "Kale vuruşu", tackle: "Müdahale" };
   const events = M.events.filter(e => labels[e.type]).slice().reverse();
   return `<section class="matchdetails"><h2>${M.min}' • ${M.home} ${M.hg}–${M.ag} ${M.away}</h2><ol>${events.map(e => `<li class="event-${e.type}"><span>${e.minute}' · ${presentationEvent(e).presentationLabel||labels[e.type]}</span><p>${escapeHTML(presentationEvent(e).text)}</p></li>`).join("") || "<li>Henüz önemli bir olay yaşanmadı.</li>"}</ol></section>`;
 }
-function assistHint(target, key) {
+export function assistHint(target, key) {
   if (target !== "match" || typeof assistantAdvice !== "function") return "";
   const a = assistantAdvice().tactics?.[key];
   return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" data-action="applyAssistantAdvice" data-value="${escapeHTML(a.value)}">💡 ${a.value}<small>${escapeHTML(a.reason)}</small></button>` : "";
 }
-function assistTeamHint(target, key) {
+export function assistTeamHint(target, key) {
   if (target !== "match" || typeof assistantAdvice !== "function") return "";
   const a = assistantAdvice().team?.[key];
   return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" data-action="applyAssistantAdvice">💡<small>${escapeHTML(a.reason)}</small></button>` : "";
 }
 // Tapping a recommendation is the user's own action: it selects exactly that control's option.
-function applyAssistantAdvice(key, value) {
+export function applyAssistantAdvice(key, value) {
   if (!M || M.finished) return;
   if (MATCH_TACTICS[key]) { setMatchTactic(key, value); return; }
   if (TEAM_ORDERS[key] && value === true && !M.teamInstructions?.includes(key)) toggleTeamOrder(key, "match");
 }
-function tacticsControls(target = "match") {
+export function tacticsControls(target = "match") {
   const plan = target === "match" ? M : S.plan;
   return `<div class="tacticfields">${Object.entries(MATCH_TACTICS).map(([key, values]) => `<label>${TACTIC_LABELS[key]}<select aria-label="${TACTIC_LABELS[key]}" data-action="${target === 'match' ? 'setMatchTactic' : 'setCareerTactic'}" data-key="${key}">${values.map(value => `<option${plan[key] === value ? ' selected' : ''}>${value}</option>`).join("")}</select>${assistHint(target, key)}</label>`).join("")}</div><h3>Takım Talimatları</h3><div class="teamorders">${Object.entries(TEAM_ORDERS).map(([key, label]) => `<button class="${plan.teamInstructions?.includes(key) ? 'selected' : 'secondary'}" aria-pressed="${!!plan.teamInstructions?.includes(key)}" data-action="toggleTeamOrder" data-key="${key}" data-scope="${target}">${label}</button>${assistTeamHint(target, key)}`).join("")}</div>`;
 }
-function setCareerTactic(key, value) {
+export function setCareerTactic(key, value) {
   if (!MATCH_TACTICS[key]?.includes(value)) return;
   S.plan[key] = value; S.v71.lastTacticWeek = S.week; save(); render();
 }
-function setMatchTactic(key, value) {
+export function setMatchTactic(key, value) {
   if (!M || M.finished || !MATCH_TACTICS[key]?.includes(value)) return;
   if (M[key] === value) return;
   if (!M.pause) { M.pause = true; M.reason = 'manual'; }
@@ -348,7 +359,7 @@ function setMatchTactic(key, value) {
   matchEvent("tactic", `🧠 ${M.min}' ${matchTeamName('user')} ${descriptions[key]?.[value] || `${TACTIC_LABELS[key]}: ${value}`}.`,{key,value});
   save(); render();
 }
-function toggleTeamOrder(key, target) {
+export function toggleTeamOrder(key, target) {
   if (!TEAM_ORDERS[key]) return;
   const plan = target === "match" ? M : S.plan;
   if (!plan || (target === "match" && M.finished)) return;
@@ -359,14 +370,14 @@ function toggleTeamOrder(key, target) {
   else S.v71.lastTacticWeek = S.week;
   save(); render();
 }
-function switchMatchTab(tab) {
+export function switchMatchTab(tab) {
   if (!M || !["details", "pitch", "stats", "tactics"].includes(tab)) return;
   M.activeTab = tab;
   if (tab === 'tactics' && !M.pause && !M.finished) { M.pause = true; M.reason = 'manual'; }
   render();
 }
-function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} resetLiveFrame(); save(); } }
-function closeMatchOverlay() {
+export function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} resetLiveFrame(); save(); } }
+export function closeMatchOverlay() {
   if (M) delete M.uiOverlay;
   render();
 }
@@ -380,7 +391,7 @@ defineActions({
   closeMatchOverlay: () => closeMatchOverlay(),
 });
 
-function goMain(section) {
+export function goMain(section) {
   if (runHooks('goMain', section).includes(true)) return;
   if (M) return;
   setModal(["squad", "plan", "formation", "settings"].includes(section) ? section : null);
@@ -389,11 +400,11 @@ function goMain(section) {
   if (section === "academy") return showAcademy();
   render(); window.scrollTo?.(0, 0);
 }
-function setScreenMode() {
+export function setScreenMode() {
   document.body.classList.toggle("in-match", !!M);
   $("#app").classList.toggle("match-mode", !!M);
 }
-function decorateMainScreen(section) {
+export function decorateMainScreen(section) {
   setScreenMode();
   if (M || !S) return;
   if (typeof decorateAtmosphereScenes === "function") decorateAtmosphereScenes();

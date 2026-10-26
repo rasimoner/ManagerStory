@@ -11,6 +11,13 @@ import { loadRig } from './newview/rig.js';
 import { createDirector } from './newview/director.js';
 import { createBroadcastCamera } from './newview/camera.js';
 import { createReplay, STAR_MOVES } from './newview/replay.js';
+import { M, S } from '../../state.js';
+import { presentation } from '../registry.js';
+import { liveCommentaryLines, presentationEvent } from '../../engine/match-support.js';
+import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
+import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js';
+import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js';
+import { CLUBSTYLE, openDecisionSheet, render, resolveClubIdentity } from '../../../modes/manager/app.js';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');

@@ -9,10 +9,10 @@
    element and the page, innermost first, along the path the click took (composedPath). No inline on*
    handlers: nothing on the page needs a function to be global for an attribute to reach it.
    In the test harness there is no real document: tests call runAction (or loadGame().click) directly. */
-const ACTIONS = Object.create(null);
-const FORM_CONTROLS = new Set(['SELECT', 'INPUT', 'TEXTAREA']);
+export const ACTIONS = Object.create(null);
+export const FORM_CONTROLS = new Set(['SELECT', 'INPUT', 'TEXTAREA']);
 
-function defineActions(table) {
+export function defineActions(table) {
   for (const [name, run] of Object.entries(table)) {
     if (name in ACTIONS) throw new Error(`action "${name}" is defined twice`);
     if (typeof run !== 'function') throw new Error(`action "${name}" is not a function`);
@@ -22,20 +22,20 @@ function defineActions(table) {
 
 /* Values as data-* attributes, for a screen that passes them on as an object: { id: 12, outId: 3 }
    → ' data-id="12" data-out-id="3"'. */
-function actionData(values) {
+export function actionData(values) {
   if (!values) return '';
   const attr = key => key.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
   const text = value => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   return Object.entries(values).filter(([, v]) => v != null).map(([k, v]) => ` data-${attr(k)}="${text(v)}"`).join('');
 }
 
-function runAction(name, element, event) {
+export function runAction(name, element, event) {
   const run = ACTIONS[name];
   if (!run) { console.warn(`Tanımsız eylem: ${name}`); return; }
   return run(element.dataset || {}, element, event);
 }
 
-function dispatchAction(event) {
+export function dispatchAction(event) {
   const onChange = event.type === 'change';
   const path = event.composedPath ? event.composedPath() : [];
   for (const element of path) {
@@ -47,7 +47,7 @@ function dispatchAction(event) {
 }
 
 // main.js installs the dispatcher (nothing to install without a document)
-function installActions() {
+export function installActions() {
   if (typeof document === 'undefined' || typeof document.addEventListener !== 'function') return;
   document.addEventListener('click', dispatchAction);
   document.addEventListener('change', dispatchAction);

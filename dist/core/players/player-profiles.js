@@ -7,16 +7,19 @@
    better dribbler and his new skill moves unlock by themselves; training focus adds a capped bonus on
    top. Nothing here draws match randomness: every profile comes from its own seed. */
 // the tables a profile is built from live in data/players.js; the training cap in data/balance.js
-const PROFILE_ATTRS = PLAYER_DATA.attributes;
-const POSITION_SHAPE = PLAYER_DATA.positionShape;   // a typical player of the position, as offsets from his overall
-const POSITION_KEYS = PLAYER_DATA.positionKeys;     // the attributes a position is judged by
-const PLAYER_TYPES = PLAYER_DATA.types;
-const POSITION_TYPES = PLAYER_DATA.positionTypes;   // which types a position can have, with weights
-const WONDER_TYPES = PLAYER_DATA.wonderTypes;       // a wonderkid: the dribbler, the playmaker or the goalscorer
-const TRAINING_FOCUS = PLAYER_DATA.trainingFocus;   // what a player works on, and which attributes it builds
-const TRAINING_CAP = BALANCE.training.cap;
+import { PLAYER_DATA } from '../../data/players.js';
+import { BALANCE } from '../../data/balance.js';
+import { R } from '../random.js';
+export const PROFILE_ATTRS = PLAYER_DATA.attributes;
+export const POSITION_SHAPE = PLAYER_DATA.positionShape;   // a typical player of the position, as offsets from his overall
+export const POSITION_KEYS = PLAYER_DATA.positionKeys;     // the attributes a position is judged by
+export const PLAYER_TYPES = PLAYER_DATA.types;
+export const POSITION_TYPES = PLAYER_DATA.positionTypes;   // which types a position can have, with weights
+export const WONDER_TYPES = PLAYER_DATA.wonderTypes;       // a wonderkid: the dribbler, the playmaker or the goalscorer
+export const TRAINING_FOCUS = PLAYER_DATA.trainingFocus;   // what a player works on, and which attributes it builds
+export const TRAINING_CAP = BALANCE.training.cap;
 
-function profilePositionGroup(pos) {
+export function profilePositionGroup(pos) {
   const p = String(pos || 'CM').split('/')[0].toUpperCase();
   if (p === 'GK') return 'GK';
   if (p === 'CB') return 'CB';
@@ -26,7 +29,7 @@ function profilePositionGroup(pos) {
   if (['ST', 'CF'].includes(p)) return 'ST';
   return 'CM';
 }
-function pickPlayerType(pos, rnd) {
+export function pickPlayerType(pos, rnd) {
   const list = POSITION_TYPES[profilePositionGroup(pos)];
   const total = list.reduce((n, x) => n + x[1], 0);
   let r = rnd() * total;
@@ -34,7 +37,7 @@ function pickPlayerType(pos, rnd) {
   return list[0][0];
 }
 // the profile itself: pure, from the player's position, overall, age, type and seed
-function playerProfile({ pos, overall, age = 24, type, seed = 1, special = false }) {
+export function playerProfile({ pos, overall, age = 24, type, seed = 1, special = false }) {
   const group = profilePositionGroup(pos), shape = POSITION_SHAPE[group], keys = POSITION_KEYS[group];
   const kind = PLAYER_TYPES[type] ? type : POSITION_TYPES[group][0][0];
   const rnd = R(0x51ed + (seed >>> 0) * 2654435761);
@@ -63,12 +66,12 @@ function playerProfile({ pos, overall, age = 24, type, seed = 1, special = false
   return { type: kind, attrs: a, gk };
 }
 // write a profile's numbers onto a player record, under the field names every part of the game reads
-function writeProfileAttributes(p, attrs, gk) {
+export function writeProfileAttributes(p, attrs, gk) {
   for (const n of PROFILE_ATTRS) p[n] = attrs[n];
   p.defending = attrs.tackling; p.physical = attrs.strength; p.shooting = attrs.finishing;
   p.gk = gk || null;
 }
-function profileOf(p) {
+export function profileOf(p) {
   const pos = p.pos || p.position, prof = p.profile;
   const base = playerProfile({ pos, overall: p.overall, age: p.age, type: prof.type, seed: prof.seed, special: !!prof.special });
   for (const n of PROFILE_ATTRS) {
@@ -78,7 +81,7 @@ function profileOf(p) {
   return base;
 }
 // re-derive a player's numbers from his profile (after his overall, age or training changed)
-function refreshPlayerProfile(p) {
+export function refreshPlayerProfile(p) {
   if (!p?.profile) return p;
   const { attrs, gk } = profileOf(p);
   writeProfileAttributes(p, attrs, gk);
@@ -86,7 +89,7 @@ function refreshPlayerProfile(p) {
 }
 // give a player a profile. `keep`: his hand-set numbers stay exactly as they are, as a fixed offset
 // (our own squad, the hand-picked market); without it everything is generated (league, academy, market)
-function assignPlayerProfile(p, { seed, type, special = false, keep = false } = {}) {
+export function assignPlayerProfile(p, { seed, type, special = false, keep = false } = {}) {
   const pos = p.pos || p.position, s = (seed ?? hashProfileSeed(`${p.id}|${p.name}|${pos}`)) >>> 0;
   const rnd = R(s ^ 0x9e3779b9);
   const kind = type || (keep ? bestProfileType(p, s) : pickPlayerType(pos, rnd));
@@ -98,7 +101,7 @@ function assignPlayerProfile(p, { seed, type, special = false, keep = false } = 
   }
   return refreshPlayerProfile(p);
 }
-function handSetAttributes(p) {
+export function handSetAttributes(p) {
   const own = {}, num = v => Number.isFinite(+v) && v !== null && v !== '' ? +v : null;
   const map = { pace: 'pace', finishing: p.finishing != null ? 'finishing' : 'shooting', passing: 'passing', dribbling: 'dribbling',
     tackling: p.tackling != null ? 'tackling' : 'defending', strength: p.strength != null ? 'strength' : 'physical', stamina: 'stamina',
@@ -107,7 +110,7 @@ function handSetAttributes(p) {
   return own;
 }
 // the type whose shape is closest to a hand-made player's own numbers
-function bestProfileType(p, seed) {
+export function bestProfileType(p, seed) {
   const pos = p.pos || p.position, own = handSetAttributes(p);
   let best = null, err = Infinity;
   for (const [type] of POSITION_TYPES[profilePositionGroup(pos)]) {
@@ -117,13 +120,13 @@ function bestProfileType(p, seed) {
   }
   return best;
 }
-function hashProfileSeed(text) {
+export function hashProfileSeed(text) {
   let h = 2166136261;
   for (const ch of String(text)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); }
   return h >>> 0;
 }
 // one week of training focus: young players learn fastest; returns true if anything changed
-function trainFocusWeek(p) {
+export function trainFocusWeek(p) {
   const f = TRAINING_FOCUS[p?.focus];
   if (!f || !p.profile) return false;
   const rate = p.age <= 21 ? .45 : p.age <= 25 ? .3 : p.age <= 29 ? .18 : .1;
@@ -135,4 +138,4 @@ function trainFocusWeek(p) {
   if (changed) refreshPlayerProfile(p);
   return changed;
 }
-function playerTypeLabel(p) { return PLAYER_TYPES[p?.profile?.type]?.label || ''; }
+export function playerTypeLabel(p) { return PLAYER_TYPES[p?.profile?.type]?.label || ''; }

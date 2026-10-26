@@ -1,5 +1,7 @@
 /* A read-only career tool for the browser's model context, where the browser offers one. main.js installs it. */
-function installWebMcp() {
+import { M, S } from '../core/state.js';
+import { managedClubName } from '../modes/manager/app.js';
+export function installWebMcp() {
   const context = typeof document !== 'undefined' ? document.modelContext : null;
   if (!context?.registerTool) return;
   const lifecycle = new AbortController();

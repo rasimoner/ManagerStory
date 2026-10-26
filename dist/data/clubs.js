@@ -3,7 +3,7 @@
    the 0–100 attack, midfield, defence, keeper, pressing and physical ratings), and its style of play.
    colorNames: how the colours are said on the club card. startingClub: the club a new career manages.
    Data only: everything after "=" is JSON (tests/data.test.cjs). */
-const CLUB_DATA = {
+export const CLUB_DATA = {
   "startingClub": "Anadolu Hisarı",
   "clubs": [
     {"name":"Anadolu Hisarı","colors":["#f3c623","#b3132b"],"colorNames":["SARI","KIRMIZI"],"pattern":"v"},

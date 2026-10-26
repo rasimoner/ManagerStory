@@ -8,39 +8,46 @@
    season-transition branch (contracts, free agents) can change those lines without conflicts here. */
 
 // the one place that says which transfers get the scene
-const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
+import { MOVE_DATA } from '../../data/moves.js';
+import { BALANCE } from '../../data/balance.js';
+import { S } from '../../core/state.js';
+import { defineActions } from '../../ui/actions.js';
+import { onHook } from '../../core/hooks.js';
+import { escapeHTML } from '../../core/engine/match-support.js';
+import { $, SKILL_NAMES, asking, cinematic, clearCinematicNext, clubColor, clubProps, header, money, pushInbox, recordMoves, render, resolveClubIdentity, save } from './app.js';
+export const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
 // the most spectacular move he has is the one he shows (data/moves.js starShow); without one, the fallback
-const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;
-const STAR_SHOW_FALLBACK = MOVE_DATA.starShow.fallback;
-const STAR_SHOW_NAMES = MOVE_DATA.starShow.names;
+export const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;
+export const STAR_SHOW_FALLBACK = MOVE_DATA.starShow.fallback;
+export const STAR_SHOW_NAMES = MOVE_DATA.starShow.names;
 // the numbers a star asks for first, when they are free
-const STAR_SHIRT_WISH = BALANCE.starScene.shirtWish;
+export const STAR_SHIRT_WISH = BALANCE.starScene.shirtWish;
 
-function starIsKeeper(rec) { return String(rec?.pos || rec?.position || '').split('/')[0] === 'GK'; }
+export function starIsKeeper(rec) { return String(rec?.pos || rec?.position || '').split('/')[0] === 'GK'; }
 // a keeper's skill stars are always 1 (his only special is the scorpion), so for this scene his class
 // comes from his overall instead
-function keeperShowStars(ovr) { return 1 + MOVE_DATA.starShow.keeperStars.filter(at => ovr >= at).length; }
-function starShowRating(rec) {
+export function keeperShowStars(ovr) { return 1 + MOVE_DATA.starShow.keeperStars.filter(at => ovr >= at).length; }
+export function starShowRating(rec) {
   let k = { stars: 1, moves: [] };
   try { k = typeof recordMoves === 'function' ? recordMoves(rec) : k; } catch (e) { /* no rating: 1 star */ }
   if (starIsKeeper(rec)) return { stars: keeperShowStars(Number(rec.overall) || 0), moves: k.moves || [], keeper: true };
   return { stars: k.stars || 1, moves: k.moves || [], keeper: false };
 }
-function starSceneQualifies(rec) { return !!rec && starShowRating(rec).stars >= STAR_SCENE_MIN_STARS; }
-function starShowMove(rating) {
+export function starSceneQualifies(rec) { return !!rec && starShowRating(rec).stars >= STAR_SCENE_MIN_STARS; }
+export function starShowMove(rating) {
   if (rating.keeper) return rating.moves.includes(MOVE_DATA.starShow.keeperMove) ? MOVE_DATA.starShow.keeperMove : MOVE_DATA.starShow.keeperFallback;
   return STAR_SHOW_ORDER.find(m => rating.moves.includes(m)) || STAR_SHOW_FALLBACK;
 }
-function starMoveName(kind) { return STAR_SHOW_NAMES[kind] || (typeof SKILL_NAMES === 'object' && SKILL_NAMES[kind]) || kind; }
+export function starMoveName(kind) { return STAR_SHOW_NAMES[kind] || (typeof SKILL_NAMES === 'object' && SKILL_NAMES[kind]) || kind; }
 // how loud the stand is: more stars and a bigger fee, more noise (0.45 … 1)
-function starTransferExcite(stars, fee) {
+export function starTransferExcite(stars, fee) {
   const f = Math.max(0, Math.min(1, (Number(fee) || 0) / 30e6));
   return Math.max(0.3, Math.min(1, 0.45 + (stars - 4) * 0.25 + f * 0.3));
 }
 
 // ---- shirt numbers ----
 // a player without a number wears his place in the squad list (that is what the 3D match shows)
-function takenShirtNumbers(exceptId) {
+export function takenShirtNumbers(exceptId) {
   const taken = new Set();
   (S.players || []).forEach((p, i) => {
     if (p.status === 'Transfer oldu' || p.id === exceptId) return;
@@ -48,12 +55,12 @@ function takenShirtNumbers(exceptId) {
   });
   return taken;
 }
-function freeShirtNumbers(exceptId) { const t = takenShirtNumbers(exceptId), out = []; for (let n = 1; n <= 99; n++) if (!t.has(n)) out.push(n); return out; }
-function defaultShirtNumber(exceptId) { const free = freeShirtNumbers(exceptId); return STAR_SHIRT_WISH.find(n => free.includes(n)) ?? free[0] ?? 99; }
+export function freeShirtNumbers(exceptId) { const t = takenShirtNumbers(exceptId), out = []; for (let n = 1; n <= 99; n++) if (!t.has(n)) out.push(n); return out; }
+export function defaultShirtNumber(exceptId) { const free = freeShirtNumbers(exceptId); return STAR_SHIRT_WISH.find(n => free.includes(n)) ?? free[0] ?? 99; }
 
 // ---- the highlight archive (minimal: the archive screen and "İzle" come later) ----
-function ensureHighlights() { if (!Array.isArray(S.highlights)) S.highlights = []; return S.highlights; }
-function addStarTransferHighlight(p, info) {
+export function ensureHighlights() { if (!Array.isArray(S.highlights)) S.highlights = []; return S.highlights; }
+export function addStarTransferHighlight(p, info) {
   const list = ensureHighlights();
   const old = list.find(h => h.kind === 'star-transfer' && h.playerId === p.id);
   if (old) return old;
@@ -67,7 +74,7 @@ function addStarTransferHighlight(p, info) {
   return rec;
 }
 // the home-page flash card stays for the week of the signing and the next
-function latestStarTransfer() {
+export function latestStarTransfer() {
   const list = Array.isArray(S?.highlights) ? S.highlights : [];
   for (let i = list.length - 1; i >= 0; i--) {
     const h = list[i];
@@ -80,11 +87,11 @@ function latestStarTransfer() {
 
 // ---- the flow ----
 // one flow at a time; a trial ("Transfer sahnesi dene") works on a copy and saves nothing
-let starFlow = null;
-function endStarFlow() { starFlow = null; }
-function starFlowPlayer() { return starFlow?.trial ? starFlow.player : S.players.find(p => p.id === starFlow?.playerId); }
+export let starFlow = null;
+export function endStarFlow() { starFlow = null; }
+export function starFlowPlayer() { return starFlow?.trial ? starFlow.player : S.players.find(p => p.id === starFlow?.playerId); }
 
-function beginStarTransfer(p, x, fee) {
+export function beginStarTransfer(p, x, fee) {
   const rating = starShowRating(p), move = starShowMove(rating);
   if (!Number.isInteger(p.number)) p.number = defaultShirtNumber(p.id);
   const rec = addStarTransferHighlight(p, { move, stars: rating.stars, keeper: rating.keeper, fee, fromClub: x?.free ? 'Serbest oyuncu' : x?.club });
@@ -96,7 +103,7 @@ function beginStarTransfer(p, x, fee) {
   starAnnounceScreen();
 }
 
-function starTransferTrial(which) {
+export function starTransferTrial(which) {
   const pool = (S.v6?.transferPool || []).filter(x => which === 'gk' ? starIsKeeper(x) : !starIsKeeper(x));
   if (!pool.length) return alert('Transfer listesinde uygun oyuncu yok.');
   const best = pool.map(x => ({ x, r: starShowRating(x) })).sort((a, b) => (b.r.stars - a.r.stars) || (b.r.moves.length - a.r.moves.length) || (b.x.overall - a.x.overall))[0];
@@ -107,10 +114,10 @@ function starTransferTrial(which) {
   starAnnounceScreen();
 }
 
-function starStarsHTML(n, cls = '') { return `<span class="ststars ${cls}" aria-label="${n} yıldız">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span>`; }
+export function starStarsHTML(n, cls = '') { return `<span class="ststars ${cls}" aria-label="${n} yıldız">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span>`; }
 
 // 1. the announcement: breaking news, big stars and the number of special moves (cannot be skipped)
-function starAnnounceScreen() {
+export function starAnnounceScreen() {
   const p = starFlowPlayer(), f = starFlow, club = resolveClubIdentity('career'), n = f.rating.moves.length;
   $('#app').innerHTML = `<div class="stflash" style="--club:${clubColor(club.primaryColor) || '#c8102e'};--club2:${clubColor(club.secondaryColor) || '#fff'}">
 <div class="stticker" aria-hidden="true"><span>SON DAKİKA • ${escapeHTML(p.name.toLocaleUpperCase('tr'))} ${escapeHTML(club.name.toLocaleUpperCase('tr'))}’NDA • SON DAKİKA • YILDIZ TRANSFER •</span></div>
@@ -122,7 +129,7 @@ ${starStarsHTML(f.rating.stars, 'big')}
 }
 
 // 2. the signing: the handshake, the shirt, and the number he picks (can be skipped)
-function starSigningScreen() {
+export function starSigningScreen() {
   const p = starFlowPlayer(), club = resolveClubIdentity('career'), free = freeShirtNumbers(p.id);
   const wish = STAR_SHIRT_WISH.filter(n => free.includes(n)), shown = [...new Set([...wish, ...free.slice(0, 12)])].slice(0, 12).sort((a, b) => a - b);
   if (!free.includes(p.number)) p.number = defaultShirtNumber(p.id);
@@ -135,18 +142,18 @@ function starSigningScreen() {
 <label class="stmore">Diğer boş numaralar <select data-action="starPickNumber">${free.map(n => `<option value="${n}" ${n === p.number ? 'selected' : ''}>${n}</option>`).join('')}</select></label></section>
 <button class="goldbtn stnext" data-action="starWalkOut">${p.number} numarayla sahaya çık</button></div>`;
 }
-function starPickNumber(n) {
+export function starPickNumber(n) {
   const p = starFlowPlayer();
   if (!p || !freeShirtNumbers(p.id).includes(n)) return;
   p.number = n;
   if (!starFlow.trial) save();
   starSigningScreen();
 }
-function starSkipSigning() { starWalkOut(); }
+export function starSkipSigning() { starWalkOut(); }
 
 // 3 and 4. out of the tunnel in front of a full stand, then his move (3D; cannot be skipped)
-let starSceneModule = null;
-function starWalkOut(replayRec) {
+export let starSceneModule = null;
+export function starWalkOut(replayRec) {
   const replay = !!replayRec;
   if (replay) {
     const p = S.players.find(q => q.id === replayRec.playerId);
@@ -174,7 +181,7 @@ function starWalkOut(replayRec) {
 
 // 5. closing: "added to the career highlight archive" (can be skipped; shown on its own only when the 3D
 // scene could not show it)
-function starClosingScreen() {
+export function starClosingScreen() {
   const p = starFlowPlayer(), f = starFlow;
   $('#app').innerHTML = `${header()}<main class="appcontent"><section class="card stclose"><small>KAPANIŞ</small><h2>Kariyer highlight arşivine eklendi</h2><p>${escapeHTML(p?.name || '')} • ${escapeHTML(starMoveName(f?.move))}${f?.trial ? ' (deneme: arşive yazılmadı)' : ''}</p><div class="row"><button class="goldbtn" data-action="closeStarFlow">Kulübe dön</button><button class="ghost" data-action="closeStarFlow">Atla</button></div></section></main>`;
 }
@@ -191,7 +198,7 @@ defineActions({
   starTransferTrial: d => starTransferTrial(d.kind),
 });
 
-function starFlashCard() {
+export function starFlashCard() {
   if (!S) return '';
   const h = latestStarTransfer(); if (!h) return '';
   const p = S.players.find(q => q.id === h.playerId), club = resolveClubIdentity('career');
@@ -199,7 +206,7 @@ function starFlashCard() {
 }
 
 // ---- what this file adds to the signing and to the transfer list (core/hooks.js); main.js installs it ----
-function installStarTransfer() {
+export function installStarTransfer() {
   let big = false;
   // decided before the signing, as the player stood on the market
   onHook('beforeSigning', x => { big = starSceneQualifies(x); });
@@ -216,7 +223,7 @@ function installStarTransfer() {
   starTransferStyles();
 }
 
-function starTransferStyles() {
+export function starTransferStyles() {
   if (typeof document === 'undefined' || !document.createElement || !document.head) return;
   const css = document.createElement('style');
   css.textContent = `

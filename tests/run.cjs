@@ -17,7 +17,8 @@ const rank = f => { const i = SLOW.indexOf(f.replace('.test.cjs', '')); return i
 let files = fs.readdirSync(__dirname).filter(f => f.endsWith('.test.cjs')).sort().sort((a, b) => rank(a) - rank(b));
 if (fast) files = files.filter(f => !/^(match-clock|matchengine-|newview-director)/.test(f));
 
-const env = { ...process.env };
+// the game is ES modules, loaded in a vm context (tests/support/game.cjs)
+const env = { ...process.env, NODE_OPTIONS: [process.env.NODE_OPTIONS, '--experimental-vm-modules', '--disable-warning=ExperimentalWarning'].filter(Boolean).join(' ') };
 if (fast && !env.GOLDEN_FIXTURES) env.GOLDEN_FIXTURES = '0,11,22,33';
 const workers = Math.max(2, os.availableParallelism?.() || os.cpus().length);
 const result = spawnSync(process.execPath, ['--test', `--test-concurrency=${workers}`, ...files.map(f => path.join(__dirname, f))], { stdio: 'inherit', env });

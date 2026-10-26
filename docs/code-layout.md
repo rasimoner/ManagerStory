@@ -71,10 +71,19 @@ Genişletme noktaları (`core/hooks.js`):
 - Geri düğmesi gittiği eylemi adlandırır: `header(['Kadro','openSquad'])`, değerleriyle `header(['Oyuncu','lineupPlayer',{id}])`.
 - Testlerde: `loadGame().click('eylem', {değerler})` ekranda çizilmiş düğmeye basar; `tests/actions.test.cjs` her çizilen eylemin kayıtlı olduğunu ve hiç satır içi işleyici kalmadığını denetler.
 
+## ES modülleri (C3)
+
+- Sayfada klasik script yok. `index.html` dört modül girişi yükler: `main.js` (oyun) ve sunum katmanları `core/presentation/match3d/match3d-live-clock.js` (`data-layer="clock"`), `match-view-adapter.js` (`view`), `modes/manager/match-3d.js` (`3d`: 3D görünümü yükler, olmazsa 2D).
+- Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (D'de dışa açık olanlar daralacak).
+- Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok; tek istisna yıldız sahnesinin otomasyon için zaman ölçeği `window.__stsTimeScale`. three.js `dist/vendor`'dan modül olarak gelir (E'de npm).
+- `core/` henüz `modes/manager`'dan bazı şeyler alıyor (motor kalbi, lig, kulüp kimliği `app.js`'te). Liste `tests/structure.test.cjs` içinde sabit; sadece kısalabilir, D'de sıfırlanır.
+- Testler aynı modülleri `vm.SourceTextModule` ile yükler (`tests/support/game.cjs`); `npm test` gereken `--experimental-vm-modules` bayrağını verir. Tek dosya için: `NODE_OPTIONS=--experimental-vm-modules node --test tests/<dosya>`.
+- Service worker girişleri `?v=<sürüm>` ile, içe aktarılan modülleri yalın adıyla listeler.
+
 ## Yolları etkileyen kurallar
 
-- Sayfa scriptleri `index.html` sırasıyla yüklenir; test yükleyicisi listeyi oradan okur (`tests/support/game.cjs`).
+- Test yükleyicisi modül listesini `index.html` girişlerinden ve importlardan çıkarır (`tests/support/game.cjs`).
 - ES modüllerinin importları ve `new URL(..., import.meta.url)` dosyanın kendi yerine göredir.
-- Bir scriptteki `import('...')` o scriptin adresine göre çözülür.
+- Bir modüldeki `import('...')` o modülün adresine göre çözülür.
 - Görsel yolları (`assets/...`) sayfaya göredir; scriptin yeri değişince değişmez.
 - Testler tek dosya okurken `locate(ad)` / `readDist(ad)` kullanır (`tests/support/game.cjs`): dosya klasör değiştirince test değişmez.

@@ -19,12 +19,13 @@ test('one version everywhere: README, lock file, game, page, manifest, cache-bus
   const html = read('dist/index.html');
   assert.ok(html.includes(`<title>ManagerStory V${v} `), 'page title');
   const busters = [...html.matchAll(/\?v=([\d.]+)/g)].map(m => m[1]);
-  assert.ok(busters.length >= 7 && busters.every(x => x === v), 'index.html ?v= ' + [...new Set(busters)]);
+  // the page's module entries carry the release (the modules they import are cached under the release's cache key)
+  assert.ok(busters.length >= 4 && busters.every(x => x === v), 'index.html ?v= ' + [...new Set(busters)]);
   assert.match(JSON.parse(read('dist/manifest.json')).name, new RegExp(`^ManagerStory V${v.replace(/\./g, '\\.')} `), 'manifest name');
   const sw = read('dist/sw.js');
   assert.match(sw, new RegExp(`const CACHE = "managerstory-v${v.replace(/\./g, '\\.')}-`), 'service-worker cache key');
   const swBusters = [...sw.matchAll(/\?v=([\d.]+)/g)].map(m => m[1]);
-  assert.ok(swBusters.length >= 7 && swBusters.every(x => x === v), 'sw.js ?v= ' + [...new Set(swBusters)]);
+  assert.ok(swBusters.length >= 4 && swBusters.every(x => x === v), 'sw.js ?v= ' + [...new Set(swBusters)]);
   const app = readDist('app.js');
   assert.ok(app.includes(`V${v} • Hisar Matchday`), 'start screen');
   assert.ok(app.includes(`ManagerStory • V${v} • MatchEngine`), 'settings');

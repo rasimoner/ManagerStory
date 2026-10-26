@@ -1,6 +1,6 @@
 /* Team tactics: the options of each setting, their labels, and the team orders.
    Data only: everything after "=" is JSON (tests/data.test.cjs). */
-const TACTIC_DATA = {
+export const TACTIC_DATA = {
   "options": {
     "mentality": ["Temkinli","Dengeli","Cesur"],
     "press": ["Düşük","Normal","Yüksek"],

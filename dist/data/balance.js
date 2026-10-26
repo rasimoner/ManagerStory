@@ -11,7 +11,7 @@
    the market is filled with. engine: match tuning — the pass success base, which kind each attribute is and
    how much tiredness weighs on each kind, and how much each skill suffers out of position, by role group.
    Data only: everything after "=" is JSON (tests/data.test.cjs). */
-const BALANCE = {
+export const BALANCE = {
   "league": {"lift":5},
   "starScene": {"minStars":4,"shirtWish":[10,7,9,11,8,17,19,21,23,99]},
   "training": {"cap":8},

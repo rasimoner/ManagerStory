@@ -2,11 +2,18 @@
    V7.9.5: each player's attributes come from player-profiles.js. */
 // V7.9.5: with real profiles a league player is a specialist like ours (before, every attribute sat at his
 // overall, which made him artificially strong); the league's level is set by its players' overall instead
-const LEAGUE_LIFT=BALANCE.league.lift;
-const OPPONENT_ROLES=['GK','LB','CB','CB','RB','CM','CM','LW','CAM','RW','ST','GK','CB','CM','RW','ST'];
-const OPPONENT_FIRST=NAME_DATA.rivals.first;
-const OPPONENT_LAST=NAME_DATA.rivals.last;
-function makeOpponentSquads(){
+import { NAME_DATA } from '../../data/names.js';
+import { BALANCE } from '../../data/balance.js';
+import { R } from '../random.js';
+import { M, S } from '../state.js';
+import { assignPlayerProfile, refreshPlayerProfile } from '../players/player-profiles.js';
+import { seasonSeedOffset } from '../season/season.js';
+import { OPP, syncWonderOffers } from '../../modes/manager/app.js';
+export const LEAGUE_LIFT=BALANCE.league.lift;
+export const OPPONENT_ROLES=['GK','LB','CB','CB','RB','CM','CM','LW','CAM','RW','ST','GK','CB','CM','RW','ST'];
+export const OPPONENT_FIRST=NAME_DATA.rivals.first;
+export const OPPONENT_LAST=NAME_DATA.rivals.last;
+export function makeOpponentSquads(){
  const squads={};
  OPP.forEach((team,teamIndex)=>{
   const rng=R(731000+teamIndex*1301),base=team[1];
@@ -27,7 +34,7 @@ function makeOpponentSquads(){
  });
  return squads;
 }
-function ensureOpponentSquads(){
+export function ensureOpponentSquads(){
  S.opponentSquads ??=makeOpponentSquads();
  for(const team of OPP)if(!Array.isArray(S.opponentSquads[team[0]])||S.opponentSquads[team[0]].length<11)
   S.opponentSquads[team[0]]=makeOpponentSquads()[team[0]];
@@ -36,17 +43,17 @@ function ensureOpponentSquads(){
  for(const [teamIndex,team] of OPP.entries())for(const [index,p] of S.opponentSquads[team[0]].entries())
   if(!p.profile){p.overall+=LEAGUE_LIFT;p.potential=Math.min(92,(p.potential||p.overall)+LEAGUE_LIFT);assignPlayerProfile(p,{seed:731000+teamIndex*1301+index*17});}
 }
-function opponentPlayer(id){
+export function opponentPlayer(id){
  if(!M||typeof id!=='string'||!/^o\d+$/.test(id))return null;
  const team=M.userHome?M.away:M.home;
  const identity=M.oppLineup?.[id];
  return S.opponentSquads?.[team]?.find(p=>p.id===identity)||S.opponentSquads?.[team]?.[Number(id.slice(1))]||null;
 }
-function opponentLineup(name){
+export function opponentLineup(name){
  const players=S.opponentSquads[name]||[];
  return Object.fromEntries(Array.from({length:11},(_,index)=>['o'+index,players[index]?.id]));
 }
-function evolveOpponentSquads(fixture){
+export function evolveOpponentSquads(fixture){
  ensureOpponentSquads();if(S.v731.lastEvolvedFixture>=fixture)return;
  for(const [teamIndex,team] of OPP.entries()){
   for(const [index,p] of S.opponentSquads[team[0]].entries()){

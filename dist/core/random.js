@@ -10,11 +10,11 @@
    the session generator's seed. (V7.9.13: R and newMatchSalt moved here from app.js unchanged.) */
 
 // mulberry32; random.state is the generator's position (R(random.state) carries on where it stopped)
-function R(seed){let x=seed>>>0;const random=()=>{x=(x+0x6D2B79F5)|0;random.state=x;let t=x;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};random.state=x;return random;}
+export function R(seed){let x=seed>>>0;const random=()=>{x=(x+0x6D2B79F5)|0;random.state=x;let t=x;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};random.state=x;return random;}
 
 // a new salt for a career's match dice (see matchSeed): drawn from the device, never inside the engine
-function newMatchSalt(){try{if(globalThis.crypto?.getRandomValues)return(globalThis.crypto.getRandomValues(new Uint32Array(1))[0]%2147483646)+1;}catch(e){}return((Date.now()^Math.floor((globalThis.performance?.now?.()||0)*1000))>>>1)%2147483646+1;}
+export function newMatchSalt(){try{if(globalThis.crypto?.getRandomValues)return(globalThis.crypto.getRandomValues(new Uint32Array(1))[0]%2147483646)+1;}catch(e){}return((Date.now()^Math.floor((globalThis.performance?.now?.()||0)*1000))>>>1)%2147483646+1;}
 
 // career draws that have no seed of their own; seeded from the device the first time it is used
-let sessionRng = null;
-function sessionRandom() { sessionRng ??= R(newMatchSalt()); return sessionRng(); }
+export let sessionRng = null;
+export function sessionRandom() { sessionRng ??= R(newMatchSalt()); return sessionRng(); }

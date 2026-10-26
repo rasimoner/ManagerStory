@@ -4,7 +4,7 @@
    target man against a deep block). The first eleven and bench (by id), their places on the pitch, the captain,
    and the opening plan (aras: the playmaker's role, the save's own name for it).
    Data only: everything after "=" is JSON (tests/data.test.cjs). */
-const STARTING_SQUAD = {
+export const STARTING_SQUAD = {
   "players": [
     {"id":0,"name":"Onur","age":28,"pos":"GK","overall":70,"potential":71,"pace":45,"finishing":20,"passing":57,"dribbling":42,"defending":71,"physical":68,"stamina":73,"contract":2},
     {"id":1,"name":"Berkay","age":24,"pos":"LB","overall":68,"potential":72,"pace":76,"finishing":43,"passing":66,"dribbling":69,"defending":67,"physical":65,"stamina":76,"contract":2},

@@ -6,13 +6,22 @@
      -> current fitness (physical > technical > mental sensitivity)
      -> age (small, bounded, match-only)
      = effective attribute.   Base player records are never written to by any of this.            */
-function playerRecord(id,side){return side==='user'?S.players.find(x=>x.id===Number(id)):opponentPlayer(id);}
-const normalizeAttribute=v=>clamp((finite(v,60)-35)/65,0,1);            // 35→0, 100→1
-const attributeEdge=v=>normalizeAttribute(v)-.5;                         // centred: average player ≈ +0.05
-const contestProbability=(a,b,scale=16)=>1/(1+Math.exp(-(a-b)/scale));   // smooth, never 0 or 1
-function baseAttribute(id,side,name,fallback){return recordAttribute(playerRecord(id,side),name,fallback);}
+import { MOVE_DATA } from '../../data/moves.js';
+import { BALANCE } from '../../data/balance.js';
+import { M, S } from '../state.js';
+import { presentation } from '../presentation/registry.js';
+import { beginMatchOverlay, clamp, escapeHTML, finite, lineVariant, matchEvent, matchPossession, orderKey, userSide } from './match-support.js';
+import { matchClock } from './live-match.js';
+import { opponentPlayer } from '../league/opponents-v731.js';
+import { basePitchPosition, eventPoint, limitPitch, moveTowards, nearestMarker, opponentAttitude, passLanePressure, pitchDistance, pitchSpace, resolveShot, switchPitchOwner } from './pitch-v73.js';
+import { currentOpponent, positionPenaltyV61, setOppOwner, setUserOwner } from '../../modes/manager/app.js';
+export function playerRecord(id,side){return side==='user'?S.players.find(x=>x.id===Number(id)):opponentPlayer(id);}
+export const normalizeAttribute=v=>clamp((finite(v,60)-35)/65,0,1);            // 35→0, 100→1
+export const attributeEdge=v=>normalizeAttribute(v)-.5;                         // centred: average player ≈ +0.05
+export const contestProbability=(a,b,scale=16)=>1/(1+Math.exp(-(a-b)/scale));   // smooth, never 0 or 1
+export function baseAttribute(id,side,name,fallback){return recordAttribute(playerRecord(id,side),name,fallback);}
 // an attribute of a player record (a squad player, an opponent, a market player)
-function recordAttribute(p,name,fallback){
+export function recordAttribute(p,name,fallback){
  if(!p)return fallback;
  const ovr=finite(p.overall,65),pos=String(p.pos||p.position||'CM').split('/')[0];
  const pace=finite(p.pace,fallback??68),drib=finite(p.dribbling,ovr),pass=finite(p.passing,ovr),stam=finite(p.stamina,70);
@@ -36,33 +45,33 @@ function recordAttribute(p,name,fallback){
  }
 }
 // how much tiredness weighs on each kind of attribute (data/balance.js engine)
-const ATTR_KIND=BALANCE.engine.attributeKind;
-const FITNESS_SENSITIVITY=BALANCE.engine.fitnessSensitivity;
+export const ATTR_KIND=BALANCE.engine.attributeKind;
+export const FITNESS_SENSITIVITY=BALANCE.engine.fitnessSensitivity;
 // 100% → 1.0; 85% → ~0.95 (physical); 60% → ~0.84; 40% → ~0.75. Smooth, no cliff.
-function fitnessFactor(fitness,kind){
+export function fitnessFactor(fitness,kind){
  const loss=Math.pow(clamp(100-finite(fitness,90),0,100)/100,1.15);
  return 1-(FITNESS_SENSITIVITY[kind]??.2)*loss;
 }
 // Age is a modest match modifier only (bounded 0.93–1.0). It never edits the stored attribute.
-function ageFactor(age,name){
+export function ageFactor(age,name){
  const a=finite(age,26);
  if(name==='pace')return 1-Math.min(.05,Math.max(0,a-30)*.006);
  if(name==='acceleration')return 1-Math.min(.07,Math.max(0,a-29)*.008);
  if(name==='strength'||name==='physical')return 1-Math.min(.05,Math.max(0,21-a)*.012);
  return 1;
 }
-function ageFatigueFactor(age){return clamp(1+(finite(age,26)-27)*.012,.95,1.12);}
+export function ageFatigueFactor(age){return clamp(1+(finite(age,26)-27)*.012,.95,1.12);}
 // Suitability of a player in the role he is actually filling right now. Opponents play their natural role.
-function positionSuitability(id,side){
+export function positionSuitability(id,side){
  if(side!=='user'||!M?.matchRoles)return 1;
  const p=playerRecord(id,side),role=M.matchRoles[id];
  return p&&role?positionPenaltyV61(p,role):1;
 }
-const roleGroup=r=>['CB','LB','RB'].includes(r)?'def':r==='GK'?'gk':['LW','RW','ST'].includes(r)?'att':'mid';
+export const roleGroup=r=>['CB','LB','RB'].includes(r)?'def':r==='GK'?'gk':['LW','RW','ST'].includes(r)?'att':'mid';
 // How much of the misfit loss each skill takes, per role being played. Pace/strength/stamina are NOT
 // reduced: an out-of-position player is still just as quick, he simply reads the game worse.
-const MISFIT_WEIGHT=BALANCE.engine.misfitWeight;
-function effectiveAttribute(id,side,name,fallback){
+export const MISFIT_WEIGHT=BALANCE.engine.misfitWeight;
+export function effectiveAttribute(id,side,name,fallback){
  const p=playerRecord(id,side);
  if(!p)return fallback;
  let v=baseAttribute(id,side,name,fallback);
@@ -74,13 +83,13 @@ function effectiveAttribute(id,side,name,fallback){
  v*=fitnessFactor(p.fitness,ATTR_KIND[name]||'tech')*ageFactor(p.age,name);
  return clamp(v,1,100);
 }
-function playerAttribute(id,side,name,fallback){return effectiveAttribute(id,side,name,fallback);}
+export function playerAttribute(id,side,name,fallback){return effectiveAttribute(id,side,name,fallback);}
 /* V7.9: a player's skill moves, from his ability (not his fitness on the day). The engine decides a
    duel exactly as before; the 3D view shows a beaten defender with one of the moves the attacker has.
    Step-over and nutmeg need a good dribbler, the elastico is for the rare few, the no-look pass for a
    technician who sees the pass. */
 // rec: the player record, when it is not one of the match's (a market or academy player: recordMoves)
-function skillMoves(id,side,rec=playerRecord(id,side)){
+export function skillMoves(id,side,rec=playerRecord(id,side)){
  const live=typeof M!=='undefined'&&M;
  const role=(side==='user'?(live?M.matchRoles?.[id]:null):(live?playerAtMarker(id,side)?.position:null))||String(rec?.pos||rec?.position||'').split('/')[0];
  // a keeper's one special is Higuita's scorpion, for a good keeper; the others' moves follow data/moves.js
@@ -89,7 +98,7 @@ function skillMoves(id,side,rec=playerRecord(id,side)){
 }
 // an outfield player's skill stars and special moves from his attributes and position (data/moves.js):
 // stars from the weighted flair against the thresholds; a move is his when any of its alternatives holds
-function movesFor(attr,role){
+export function movesFor(attr,role){
  const R=MOVE_DATA.rating,flair=Object.entries(R.flair).reduce((n,[k,w])=>n+attr(k)*w,0);
  const stars=1+R.starsAt.filter(at=>flair>=at).length,moves=[],value={stars};
  const holds=alt=>Object.entries(alt).every(([k,v])=>
@@ -100,33 +109,33 @@ function movesFor(attr,role){
 }
 
 // Stamina, age and existing on-pitch activity drive in-match fitness loss (per football minute).
-function matchFatigueDrain(p,activity=1,tactical=1){
+export function matchFatigueDrain(p,activity=1,tactical=1){
  return (.10+(100-clamp(finite(p.stamina,70),20,100))*.0040)*ageFatigueFactor(p.age)*activity*tactical;
 }
 
 // --- physical model: pace = top speed, acceleration = time to reach it, positioning/accel = reaction
-const topSpeed=(id,side)=>3.6+(playerAttribute(id,side,'pace',68)-40)*.045;              // pitch units / s
-const accelerationTime=(id,side)=>clamp(3.6-(playerAttribute(id,side,'acceleration',68)-40)*.045,1,3.8);
-function reactionDelay(id,side){
+export const topSpeed=(id,side)=>3.6+(playerAttribute(id,side,'pace',68)-40)*.045;              // pitch units / s
+export const accelerationTime=(id,side)=>clamp(3.6-(playerAttribute(id,side,'acceleration',68)-40)*.045,1,3.8);
+export function reactionDelay(id,side){
  const n=normalizeAttribute(playerAttribute(id,side,'acceleration',68)*.5+playerAttribute(id,side,'positioning',65)*.5);
  return (.10+M.rand()*.95)*(1.3-.6*n);
 }
 // Shoulder-to-shoulder / shielding / contested-ball strength contest (0..1 for player A).
-function physicalContest(aId,aSide,bId,bSide){
+export function physicalContest(aId,aSide,bId,bSide){
  const a=playerAttribute(aId,aSide,'strength',68)*.85+playerAttribute(aId,aSide,'composure',65)*.15;
  const b=playerAttribute(bId,bSide,'strength',68)*.85+playerAttribute(bId,bSide,'composure',65)*.15;
  return contestProbability(a,b,14);
 }
 
 // --- duels (pure probability functions: the engine and the tests use the same ones)
-function dribbleChance(from,side,defenderId,defSide,ctx={}){
+export function dribbleChance(from,side,defenderId,defSide,ctx={}){
  const A=id=>playerAttribute(from,side,id,65);
  const att=A('dribbling')*.42+A('technique')*.15+A('acceleration')*.18+A('strength')*.15+A('composure')*.10;
  const def=defenderId==null?0:playerAttribute(defenderId,defSide,'tackling',65)*.42+playerAttribute(defenderId,defSide,'positioning',65)*.23+
   playerAttribute(defenderId,defSide,'acceleration',65)*.15+playerAttribute(defenderId,defSide,'strength',65)*.20;
  return clamp(.60+(att-def)*.0085-(ctx.pressure||0)*.03,.2,.92);
 }
-function tackleChance(defenderId,defSide,carrier,side,ctx={}){
+export function tackleChance(defenderId,defSide,carrier,side,ctx={}){
  const D=playerAttribute(defenderId,defSide,'tackling',65)*.50+playerAttribute(defenderId,defSide,'positioning',65)*.22+
   playerAttribute(defenderId,defSide,'strength',65)*.14+playerAttribute(defenderId,defSide,'acceleration',65)*.14;
  const A=playerAttribute(carrier,side,'dribbling',65)*.40+playerAttribute(carrier,side,'technique',65)*.15+
@@ -134,7 +143,7 @@ function tackleChance(defenderId,defSide,carrier,side,ctx={}){
  return clamp(.39+(D-A)*.0075+(13-(ctx.distance??8))*.017+(ctx.press||0),.14,.80);
 }
 // Execution quality only: decision (vision) is handled in passOptions().
-function passSuccessProbability(from,side,sel,ctx={}){
+export function passSuccessProbability(from,side,sel,ctx={}){
  const passN=normalizeAttribute(playerAttribute(from,side,'passing',65)),techN=normalizeAttribute(playerAttribute(from,side,'technique',65)),
   compN=normalizeAttribute(playerAttribute(from,side,'composure',65)),pressure=ctx.pressure||0;
  const difficulty=clamp(Math.max(0,sel.range-18)/46*.55+sel.lane*.35+(sel.space?.danger||0)*.12+pressure*(.25+.06*(ctx.tempo||0)),0,1.3);
@@ -142,19 +151,19 @@ function passSuccessProbability(from,side,sel,ctx={}){
   (ctx.effect?.passing||0)-(ctx.risk?.05:0)-(ctx.tempo>0?.035:ctx.tempo<0?-.02:0);
  return clamp(p,.25,.97);
 }
-const PASS_BASE=BALANCE.engine.passBase; // keeps league-average completion near the Phase 1 level so skill effects are not confounded with a level shift
-function keeperRating(id,side){
+export const PASS_BASE=BALANCE.engine.passBase; // keeps league-average completion near the Phase 1 level so skill effects are not confounded with a level shift
+export function keeperRating(id,side){
  const p=playerRecord(id,side);if(!p)return 28;
  const g=p.gk;
  const raw=side==='opp'?(g?g.reflexes*.72+g.handling*.14+g.oneOnOne*.14:28):(positionSuitability(id,side)>=.9?finite(p.overall,60):finite(p.overall,60)*.3);
  return raw*fitnessFactor(p.fitness,'tech')*(1-Math.min(.04,Math.max(0,finite(p.age,26)-33)*.006));
 }
-function keeperHandling(id,side){
+export function keeperHandling(id,side){
  const p=playerRecord(id,side);if(!p)return 50;
  return side==='opp'?(p.gk?p.gk.handling:40):finite(p.overall,60)*.96;
 }
 // Shot decision lives in the action chooser; this is execution: placement (on target) and conversion.
-function shotProbabilities(shooter,side,ctx={}){
+export function shotProbabilities(shooter,side,ctx={}){
  const A=n=>playerAttribute(shooter,side,n,65);
  const fin=A('finishing');
  const q=(fin*.55+A('composure')*.12+A('technique')*.08+A('pace')*.08+A('strength')*.07+A('dribbling')*.10)*1.05*(ctx.qMod??1);
@@ -169,7 +178,7 @@ function shotProbabilities(shooter,side,ctx={}){
    (M.mentality, M.press, ...). 'opp' reads M.oppTactics (explicit override) over a default derived
    from the opponent's style and current scoreline. The engine only ever asks teamTactics(side), so a
    setting on one team can never leak into the other.                                              */
-function opponentDefaultTactics(){
+export function opponentDefaultTactics(){
  const r=currentOpponent()||[],att=opponentAttitude();
  const t={mentality:'Dengeli',press:'Normal',tempo:'Normal',line:'Normal',approach:'Dengeli',passingStyle:'Dengeli',width:'Normal',instr:[]};
  switch(r[2]){
@@ -184,37 +193,37 @@ function opponentDefaultTactics(){
  if(att.press>1)t.press='Yüksek';else if(att.press<1)t.press='Düşük';
  return t;
 }
-function teamTactics(side){
+export function teamTactics(side){
  if(side==='user')return {mentality:M.mentality||'Dengeli',press:M.press||'Normal',tempo:M.tempo||'Normal',line:M.line||'Normal',
   approach:M.approach||'Dengeli',passingStyle:M.passingStyle||'Dengeli',width:M.width||'Normal',instr:M.teamInstructions||[]};
  return {...opponentDefaultTactics(),...(M.oppTactics||{}),instr:(M.oppTactics?.instr)||[]};
 }
-const tacticLevel=(v,low,high)=>v===high?1:v===low?-1:0;
-function tacticProfile(side){
+export const tacticLevel=(v,low,high)=>v===high?1:v===low?-1:0;
+export function tacticProfile(side){
  const t=teamTactics(side);
  return {mentality:tacticLevel(t.mentality,'Temkinli','Cesur'),press:tacticLevel(t.press,'Düşük','Yüksek'),tempo:tacticLevel(t.tempo,'Düşük','Yüksek'),
   line:tacticLevel(t.line,'Geride','Önde'),width:tacticLevel(t.width,'Dar','Geniş'),approach:t.approach,passingStyle:t.passingStyle,
   compact:t.instr.includes('compact'),patience:t.instr.includes('patience'),quick:t.instr.includes('quick')};
 }
 // Physical cost of the team's tactics (same scale the user's tacticalEffects().fatigue uses).
-function tacticFatigue(side){
+export function tacticFatigue(side){
  const T=tacticProfile(side);
  return 1+(T.press>0?.27:T.press<0?-.12:0)+(T.tempo>0?.15:T.tempo<0?-.08:0)+(T.quick?.08:0)+(T.line>0?.05:0);
 }
 // Individual instructions are keyed by exact side + player id. Opponent instructions live in M.oppOrders.
-function orderFor(id,side){
+export function orderFor(id,side){
  if(id==null)return 'balanced';
  if(side==='user'){const p=playerRecord(id,'user');return p?orderKey(p):'balanced';}
  return M.oppOrders?.[id]||'balanced';
 }
 // The moment right after a team regains the ball: fast-transition / counter tactics act here.
-function transitionActive(side){return !!M.regain&&M.regain.side===side&&M.min-M.regain.min<=1;}
+export function transitionActive(side){return !!M.regain&&M.regain.side===side&&M.min-M.regain.min<=1;}
 
 /* ===== V7.3.6.1 Phase 3: assistant coach =====================================================
    Recommendations come from the REAL current state of the MANAGED team only (read-only: nothing here
    writes to M, to either team's tactics, or to the opponent). Each entry maps to exactly one control
    and is shown next to it; tapping it selects that option. Nothing is ever auto-applied.          */
-function assistantAdvice(){
+export function assistantAdvice(){
  if(!M||M.finished||M.lifecycle==='FINISHED')return {};
  const u=userSide(),cur=teamTactics('user'),active=S.players.filter(p=>M.active.includes(p.id));
  const avgFit=active.length?active.reduce((n,p)=>n+p.fitness,0)/active.length:100;
@@ -251,20 +260,20 @@ function assistantAdvice(){
  return {tactics:adv,team:teamAdv};
 }
 
-const RESTART_TYPES=new Set(['KICK_OFF','GOAL_KICK','CORNER','THROW_IN','FREE_KICK','PENALTY']);
+export const RESTART_TYPES=new Set(['KICK_OFF','GOAL_KICK','CORNER','THROW_IN','FREE_KICK','PENALTY']);
 /* V7.3.6.1 engine-integrity helpers. Sides are 'user' (numeric player ids) and 'opp' ('o0'..'o10'). */
 // Team names come from the live match state, never a hardcoded club.
-function matchTeamName(side){return side==='user'?(M.userHome?M.home:M.away):(M.userHome?M.away:M.home);}
-function engineFrozen(){return !M||M.finished===true||['FINISHING','FINISHED'].includes(M.lifecycle);}
+export function matchTeamName(side){return side==='user'?(M.userHome?M.home:M.away):(M.userHome?M.away:M.home);}
+export function engineFrozen(){return !M||M.finished===true||['FINISHING','FINISHED'].includes(M.lifecycle);}
 // +1 = this side attacks toward x=100, -1 = toward x=0. Flips at half-time via M.secondHalf.
-function attackDirection(side){return (side==='user'?1:-1)*(M&&M.secondHalf?-1:1);}
+export function attackDirection(side){return (side==='user'?1:-1)*(M&&M.secondHalf?-1:1);}
 // Team-safe lookup: a player is only returned if it is actually on that side's pitch roster.
-function getPlayer(side,id){
+export function getPlayer(side,id){
  const pool=side==='user'?M.active:M.oppIds;
  if(id==null||!pool.includes(id))return undefined;
  return side==='user'?S.players.find(p=>p.id===id):opponentPlayer(id);
 }
-function keeperId(side){
+export function keeperId(side){
  const pool=side==='user'?M.active:M.oppIds;
  const gk=side==='user'?pool.find(id=>M.matchRoles[id]==='GK'):pool.includes('o0')?'o0':undefined;
  if(gk!=null)return gk;
@@ -272,24 +281,24 @@ function keeperId(side){
  return pool.slice().sort((a,b)=>{const pa=eventPoint(a,side)[0],pb=eventPoint(b,side)[0];
    return attackDirection(side)>0?pa-pb:pb-pa})[0];
 }
-function isKeeper(side,id){return side==='user'?M.matchRoles[id]==='GK':id==='o0';}
-function setBallState(position,ownerId,state='LIVE',target=null,travelType='ground',travelDuration=0){
+export function isKeeper(side,id){return side==='user'?M.matchRoles[id]==='GK':id==='o0';}
+export function setBallState(position,ownerId,state='LIVE',target=null,travelType='ground',travelDuration=0){
  M.ballState={position:[...position],ownerId:ownerId??null,state,target:target?[...target]:null,
   travelType,travelDuration,height:0};
 }
-function playerAtMarker(id,side){return side==='user'?S.players.find(p=>p.id===id):opponentPlayer(id);}
-function opponentName(id){return opponentPlayer(id)?.name||'Rakip';}
-function occupant(side,preferred){
+export function playerAtMarker(id,side){return side==='user'?S.players.find(p=>p.id===id):opponentPlayer(id);}
+export function opponentName(id){return opponentPlayer(id)?.name||'Rakip';}
+export function occupant(side,preferred){
  const pool=side==='user'?M.active:M.oppIds;
  return pool.includes(preferred)?preferred:pool.find(id=>!isKeeper(side,id))??pool[0];
 }
 /* A required injury substitution can only be demanded when a fit bench player exists. If nobody can come on,
    the injured player plays on (reduced condition) instead of the match staying paused forever.            */
-function eligibleSubstitutes(){
+export function eligibleSubstitutes(){
  return S.players.filter(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&
   !['Kirada','Transfer oldu'].includes(p.status)&&p.injury===0);
 }
-function resolveUnfillableSubstitution(){
+export function resolveUnfillableSubstitution(){
  const req=M?.requiredSubstitution;
  if(!req||!M.active.includes(req.playerId)||eligibleSubstitutes().length)return false;
  const p=S.players.find(x=>x.id===req.playerId);
@@ -304,14 +313,14 @@ function resolveUnfillableSubstitution(){
    (dribbling draws fouls, clean tackling avoids them). Returns true when a penalty was awarded and taken. */
 // the chance a challenge at point gives a penalty: 0 outside the defender's own box (and when the
 // engine is frozen or both are on one side), otherwise 2–9% from the dribbler and the tackler
-function penaltyFoulChance(defId,defSide,carrier,carrierSide,point){
+export function penaltyFoulChance(defId,defSide,carrier,carrierSide,point){
  if(engineFrozen()||defSide===carrierSide)return 0;
  const ownGoalX=attackDirection(defSide)>0?0:100;
  if(!(Math.abs(point[0]-ownGoalX)<17&&Math.abs(point[1]-50)<30))return 0;
  return clamp(.05+(normalizeAttribute(playerAttribute(carrier,carrierSide,'dribbling',65))-.5)*.04-
   (normalizeAttribute(playerAttribute(defId,defSide,'tackling',65))-.5)*.05,.02,.09);
 }
-function boxChallengePenalty(defId,defSide,carrier,carrierSide,point){
+export function boxChallengePenalty(defId,defSide,carrier,carrierSide,point){
  const pFoul=penaltyFoulChance(defId,defSide,carrier,carrierSide,point);
  if(!pFoul)return false;
  if(M.rand()>=pFoul)return false;
@@ -325,49 +334,49 @@ function boxChallengePenalty(defId,defSide,carrier,carrierSide,point){
  startPitchRestart('PENALTY',carrierSide,point);
  return true;
 }
-const RESTART_PHASES=['BALL_OUT','DETERMINE_RESTART','POSITION_BALL','POSITION_PLAYERS','WAIT_FOR_RESTART','EXECUTE_RESTART','LIVE'];
+export const RESTART_PHASES=['BALL_OUT','DETERMINE_RESTART','POSITION_BALL','POSITION_PLAYERS','WAIT_FOR_RESTART','EXECUTE_RESTART','LIVE'];
 /* Every restart (kick-off, goal kick, throw-in, corner, free kick, penalty) runs the same ordered machine.
    A transition out of order throws, so a half-finished restart can never be silently left behind.        */
-function restartStep(R,phase){
+export function restartStep(R,phase){
  const from=R.trail.length?R.trail[R.trail.length-1]:null;
  if(RESTART_PHASES.indexOf(phase)!==(from==null?0:RESTART_PHASES.indexOf(from)+1))throw Error('Illegal restart transition '+from+' -> '+phase);
  R.restartPhase=phase;R.trail.push(phase);
 }
-const roleOf=(id,side)=>side==='user'?M.matchRoles[id]:opponentPlayer(id)?.position;
-const outfieldOf=side=>(side==='user'?M.active:M.oppIds).filter(id=>!isKeeper(side,id));
-function shooterRecord(id,side){
+export const roleOf=(id,side)=>side==='user'?M.matchRoles[id]:opponentPlayer(id)?.position;
+export const outfieldOf=side=>(side==='user'?M.active:M.oppIds).filter(id=>!isKeeper(side,id));
+export function shooterRecord(id,side){
  const p=playerRecord(id,side);if(side==='user')return p;
  const r=currentOpponent();
  return {...(p||{}),name:p?.name||r[0]+' oyuncusu',finishing:p?.shooting??r[3],physical:p?.overall??r[8],fitness:p?.fitness??90};
 }
-const aerialRating=(id,side)=>playerAttribute(id,side,'strength',65)*.5+playerAttribute(id,side,'positioning',65)*.3+playerAttribute(id,side,'pace',65)*.2;
+export const aerialRating=(id,side)=>playerAttribute(id,side,'strength',65)*.5+playerAttribute(id,side,'positioning',65)*.3+playerAttribute(id,side,'pace',65)*.2;
 // Probability that the attacker wins a high ball against the defender (never certain either way).
-const aerialWinProbability=(att,attSide,def,defSide)=>contestProbability(aerialRating(att,attSide),aerialRating(def,defSide),14)*.8+.15;
-function penaltyTaker(side){
+export const aerialWinProbability=(att,attSide,def,defSide)=>contestProbability(aerialRating(att,attSide),aerialRating(def,defSide),14)*.8+.15;
+export function penaltyTaker(side){
  return outfieldOf(side).slice().sort((a,b)=>
   (playerAttribute(b,side,'finishing',65)*.6+playerAttribute(b,side,'composure',65)*.4)-
   (playerAttribute(a,side,'finishing',65)*.6+playerAttribute(a,side,'composure',65)*.4))[0];
 }
-function kickoffTaker(side){
+export function kickoffTaker(side){
  const pool=outfieldOf(side);
  return pool.find(id=>roleOf(id,side)==='CM')??pool.find(id=>roleOf(id,side)==='CAM')??pool[0];
 }
 /* V7.8: a free kick within shooting range, in front of goal, is struck at goal over a wall */
-function directFreeKick(side,pos){
+export function directFreeKick(side,pos){
  const dir=attackDirection(side),toGoal=dir>0?100-pos[0]:pos[0];
  return toGoal>=16.5&&toGoal<=31&&Math.abs(pos[1]-50)<21;
 }
-function freeKickSpecialist(side){
+export function freeKickSpecialist(side){
  return outfieldOf(side).slice().sort((a,b)=>playerAttribute(b,side,'finishing',60)+playerAttribute(b,side,'technique',60)-playerAttribute(a,side,'finishing',60)-playerAttribute(a,side,'technique',60))[0];
 }
-function restartTaker(type,side,position){
+export function restartTaker(type,side,position){
  if(type==='FREE_KICK'&&directFreeKick(side,position))return freeKickSpecialist(side);
  if(type==='GOAL_KICK')return keeperId(side);
  if(type==='PENALTY')return penaltyTaker(side);
  if(type==='KICK_OFF')return kickoffTaker(side);
  return outfieldOf(side).slice().sort((a,b)=>pitchDistance(eventPoint(a,side),position)-pitchDistance(eventPoint(b,side),position))[0];
 }
-function placeRestartPlayers(type,side,pos,taker){
+export function placeRestartPlayers(type,side,pos,taker){
  M.dynamicPositions??={};M.pitchMotion??={};
  const other=side==='user'?'opp':'user',dir=attackDirection(side),atkGoal=dir>0?100:0;
  const setP=(id,p,exact)=>{
@@ -429,13 +438,13 @@ function placeRestartPlayers(type,side,pos,taker){
 /* Corner / penalty positions are a temporary set-piece arrangement. Once the ball is live again the players
    who were pulled into the box run back to their shape at full running speed (a set-piece recovery run),
    instead of drifting at the normal positional-adjustment rate for several minutes.                    */
-function markSetPieceReturn(type){M.setPieceReturn={type,min:M.min};}
-function setPieceRecovering(){
+export function markSetPieceReturn(type){M.setPieceReturn={type,min:M.min};}
+export function setPieceRecovering(){
  const r=M.setPieceReturn;if(!r)return false;
  if(M.min-r.min>2||(M.restart&&M.restart.restartPhase!=='LIVE')){M.setPieceReturn=null;return false;}
  return M.min>r.min;
 }
-function goalKickKind(side,taker){
+export function goalKickKind(side,taker){
  const order=orderFor(taker,side),T=tacticProfile(side);
  let s=.46,m=.33,l=.21;
  if(order==='shortGK'){s=.78;m=.17;l=.05;}else if(order==='longGK'){s=.12;m=.23;l=.65;}
@@ -445,7 +454,7 @@ function goalKickKind(side,taker){
  const r=M.rand()*(s+m+l);
  return r<s?'short':r<s+m?'medium':'long';
 }
-function restartReceiver(side,taker,kind,pos){
+export function restartReceiver(side,taker,kind,pos){
  const pool=outfieldOf(side).filter(id=>id!==taker);
  const roles=kind==='short'?['CB','LB','RB']:kind==='medium'?['CM','CAM']:['ST','LW','RW'];
  let c=pool.filter(id=>roles.includes(roleOf(id,side)));
@@ -459,7 +468,7 @@ function restartReceiver(side,taker,kind,pos){
  return c.at(-1).id;
 }
 // Hand the ball to a player of `side` or, if the delivery failed, to the nearest opponent / a loose ball.
-function restartDelivery(side,taker,receiver,from,target,ok,aerial){
+export function restartDelivery(side,taker,receiver,from,target,ok,aerial){
  const other=side==='user'?'opp':'user';
  const index=side==='user'?userSide():1-userSide();
  M.stats.passes[index]++;
@@ -476,7 +485,7 @@ function restartDelivery(side,taker,receiver,from,target,ok,aerial){
  }else makeLooseBall(from,target,aerial?'aerial':'restart',other);
  return false;
 }
-function executeRestart(type,side,taker,pos,R){
+export function executeRestart(type,side,taker,pos,R){
  const other=side==='user'?'opp':'user',dir=attackDirection(side),atkGoal=dir>0?100:0;
  const idx=side==='user'?userSide():1-userSide();
  const who=side==='user'?matchTeamName('user'):opponentName(taker);
@@ -557,12 +566,12 @@ function executeRestart(type,side,taker,pos,R){
    fromPos:pos,toPos:target,passKind:kind,travelType:aerial?'aerial':'ground',distance:range,success:ok});
  restartDelivery(side,taker,receiver,pos,target,ok,aerial);
 }
-function startPitchRestart(type,side,outPosition){
+export function startPitchRestart(type,side,outPosition){
  if(!RESTART_TYPES.has(type))throw Error('Unknown restart: '+type);
  if(type==='KICK_OFF')throw Error('Kickoff is reserved for match/half/goal');
  return runRestart(type,side,outPosition);
 }
-function runRestart(type,side,outPosition){
+export function runRestart(type,side,outPosition){
  if(engineFrozen())return null;
  const R={restartType:type,restartTeam:side,restartPosition:null,restartPhase:null,taker:null,trail:[]};
  const dir=attackDirection(side),op=outPosition||[50,50];
@@ -598,7 +607,7 @@ function runRestart(type,side,outPosition){
  if(M.restart===R)restartStep(R,'LIVE');else{R.restartPhase='LIVE';R.trail.push('LIVE');}
  return R;
 }
-function looseCandidates(land){
+export function looseCandidates(land){
  const out=[];
  for(const side of ['user','opp']){
   const ownGoalX=attackDirection(side)>0?0:100;
@@ -613,7 +622,7 @@ function looseCandidates(land){
 }
 /* The ball is unowned (ballOwner=null, ballSide='none', state LOOSE_BALL) until a player physically
    reaches it. Candidates run toward it at their own speed; ownership changes only on arrival. */
-function resolveLooseBall(maxSeconds=8,force=false){
+export function resolveLooseBall(maxSeconds=8,force=false){
  const lb=M&&M.looseBall;if(!lb||engineFrozen())return null;
  const land=lb.position,step=.4,radius=2.2;
  const chasers=looseCandidates(land);
@@ -664,7 +673,7 @@ function resolveLooseBall(maxSeconds=8,force=false){
  switchPitchOwner(winner.id,winner.side);
  return winner;
 }
-function makeLooseBall(from,to,reason,preferSide,extra=null){
+export function makeLooseBall(from,to,reason,preferSide,extra=null){
  if(engineFrozen())return null;
  const raw=to||from,land=[limitPitch(raw[0],4,96),limitPitch(raw[1],6,94)];
  M.ballOwner=null;M.ballSide='none';
@@ -677,18 +686,18 @@ function makeLooseBall(from,to,reason,preferSide,extra=null){
 }
 // Half-time / full-time: no sequence may be left half-resolved.
 // End-of-minute shape pass: events above may have moved players onto each other (duels, recoveries).
-function settleShape(){
+export function settleShape(){
  if(engineFrozen())return;
  M.dynamicPositions??={};separatePlayers(M.dynamicPositions,6); // restarts/duels can stack several players; settle them fully
  if(M.ballOwner!=null&&M.ballSide!=='none'&&M.ballState?.state==='LIVE')M.ballState.position=eventPoint(M.ballOwner,M.ballSide);
 }
-function settlePlay(){
+export function settlePlay(){
  if(!M||engineFrozen())return;
  if(M.looseBall)resolveLooseBall(30,true);
  enforceBallInvariants();
 }
 // Ball owner, side, possession and ballState must agree; repair through the same loose-ball path.
-function enforceBallInvariants(){
+export function enforceBallInvariants(){
  if(engineFrozen()||M.looseBall)return;
  const pool=M.ballSide==='user'?M.active:M.ballSide==='opp'?M.oppIds:null;
  const valid=M.ballOwner!=null&&pool&&pool.includes(M.ballOwner)&&((typeof M.ballOwner==='number')===(M.ballSide==='user'));
@@ -700,7 +709,7 @@ function enforceBallInvariants(){
  makeLooseBall(at,at,'recovery',pool?M.ballSide:null);
 }
 /* Lightweight spacing on the AUTHORITATIVE positions: gentle push-apart, never a bounce. */
-function separatePlayers(positions,passes=2){
+export function separatePlayers(positions,passes=2){
  const ids=[...M.active.map(id=>[id,'user']),...M.oppIds.map(id=>[id,'opp'])].filter(([id])=>positions[String(id)]);
  const ball=M.ballState?.position||[50,50];
  // duel code can hand the same array object to two players; separate them before nudging in place
@@ -719,12 +728,12 @@ function separatePlayers(positions,passes=2){
   B[0]=limitPitch(B[0]-nx*push,4,96);B[1]=limitPitch(B[1]-ny*push,6,94);
  }
 }
-function aerialHeight(event,progress){
+export function aerialHeight(event,progress){
  if(!event||!['long','cross','lofted'].includes(event.passKind)&&event.travelType!=='aerial')return 0;
  const flight=limitPitch((progress-.19)/.57,0,1);
  return Math.sin(Math.PI*flight);
 }
-function softenPlayerOverlap(positions){
+export function softenPlayerOverlap(positions){
  const ids=[...M.active,...M.oppIds].filter(id=>positions[String(id)]);
  // 22² comparisons; keep close marking while separating 24 px markers.
  for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){
@@ -741,7 +750,7 @@ function softenPlayerOverlap(positions){
   if(distance<.7)b[1]=limitPitch(b[1]+1.2,5,95);
  }
 }
-function openOpponentPlayer(id){
+export function openOpponentPlayer(id){
  const p=opponentPlayer(id);if(!M||!p)return;
  beginMatchOverlay();
  document.querySelector('#app').innerHTML=`<section class=playerorderoverlay role=dialog aria-modal=true aria-label="Rakip oyuncu bilgisi"><div class=playerorderhead><button class=ghost data-action="closeMatchOverlay">‹ Maça dön</button><span>⏸ ${matchClock()}</span></div><div class=playerhero><small>${escapeHTML(M.userHome?M.away:M.home)}</small><h1>${escapeHTML(p.name)}</h1><p>${p.position} • OVR ${p.overall}<br>Yaş ${p.age} • Fitness %${Math.round(p.fitness)}<br>Hız ${p.pace} • Pas ${p.passing} • Top sürme ${p.dribbling}</p></div></section>`;

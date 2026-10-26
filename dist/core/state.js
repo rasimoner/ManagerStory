@@ -6,9 +6,9 @@
    Code reads them by name and changes them only through the setters below (an ES module cannot assign
    another module's variable; one place to change them is also one place to look). A setter returns the
    new value, so it stands wherever the assignment stood. */
-let S = null, M = null, modal = null, loadError = "";
+export let S = null, M = null, modal = null, loadError = "";
 
-function setCareer(career) { return S = career; }
-function setMatch(match) { return M = match; }
-function setModal(screen) { return modal = screen; }
-function setLoadError(message) { return loadError = message; }
+export function setCareer(career) { return S = career; }
+export function setMatch(match) { return M = match; }
+export function setModal(screen) { return modal = screen; }
+export function setLoadError(message) { return loadError = message; }

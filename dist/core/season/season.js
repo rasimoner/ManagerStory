@@ -7,22 +7,31 @@
    Season 1 is untouched: seed offsets are zero while S.seasonIndex is 0, so existing careers, the 34-match
    tests and determinism stay exactly as they were. Every draw here comes from its own hashed seed, never
    from match randomness. */
-const SEASON_BASE_YEAR = BALANCE.season.baseYear;
-const SEASON_DEPARTED = 'Transfer oldu';
-const SEASON_POOL_SIZE = BALANCE.season.marketSize;
-const SEASON_MIN_SQUAD = BALANCE.season.minSquad;
+import { STARTING_SQUAD } from '../../data/squad.js';
+import { BALANCE } from '../../data/balance.js';
+import { R } from '../random.js';
+import { M, S } from '../state.js';
+import { defineActions } from '../../ui/actions.js';
+import { escapeHTML } from '../engine/match-support.js';
+import { WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, profilePositionGroup, refreshPlayerProfile } from '../players/player-profiles.js';
+import { LEAGUE_LIFT, OPPONENT_FIRST, OPPONENT_LAST, ensureOpponentSquads } from '../league/opponents-v731.js';
+import { CLUBSTYLE, OPP, SKILL_NAMES, SLOT_POS, V6FN, V6LN, V6POS, allTeams, bottomNav, createUniqueAcademyCandidate, crest, ensureLeague, header, makeLeagueSchedule, managedClubName, marketProfile, money, movesNow, normalizeFormation, pushInbox, refreshAcademy, render, save, setClock, syncWonderOffers } from '../../modes/manager/app.js';
+export const SEASON_BASE_YEAR = BALANCE.season.baseYear;
+export const SEASON_DEPARTED = 'Transfer oldu';
+export const SEASON_POOL_SIZE = BALANCE.season.marketSize;
+export const SEASON_MIN_SQUAD = BALANCE.season.minSquad;
 
-function seasonLabel(index) { const y = SEASON_BASE_YEAR + index; return `${y}/${String((y + 1) % 100).padStart(2, '0')}`; }
+export function seasonLabel(index) { const y = SEASON_BASE_YEAR + index; return `${y}/${String((y + 1) % 100).padStart(2, '0')}`; }
 // added to the fixed per-week seeds (AI results, league development): 0 in the first season
-function seasonSeedOffset() { return (typeof S !== 'undefined' && S ? S.seasonIndex || 0 : 0) * 100003; }
-function seasonRnd(tag) { return R(hashProfileSeed(`${tag}|${S.seasonIndex || 0}|${S.matchSalt || 0}`)); }
-function seasonClamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-function seasonEsc(v) { return typeof escapeHTML === 'function' ? escapeHTML(String(v)) : String(v).replace(/[<>&"]/g, ''); }
-function seasonClub() { return managedClubName(); }
-function seasonActive(p) { return p && p.status !== SEASON_DEPARTED; }
+export function seasonSeedOffset() { return (typeof S !== 'undefined' && S ? S.seasonIndex || 0 : 0) * 100003; }
+export function seasonRnd(tag) { return R(hashProfileSeed(`${tag}|${S.seasonIndex || 0}|${S.matchSalt || 0}`)); }
+export function seasonClamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+export function seasonEsc(v) { return typeof escapeHTML === 'function' ? escapeHTML(String(v)) : String(v).replace(/[<>&"]/g, ''); }
+export function seasonClub() { return managedClubName(); }
+export function seasonActive(p) { return p && p.status !== SEASON_DEPARTED; }
 
 /* ---------- state and save migration ---------- */
-function ensureSeasonState() {
+export function ensureSeasonState() {
   if (!S) return;
   S.seasonIndex ??= 0;
   S.season ??= seasonLabel(S.seasonIndex);
@@ -41,7 +50,7 @@ function ensureSeasonState() {
   }
   for (const r of S.results || []) r.season ??= 0;
 }
-function seasonInitialContract(p) {
+export function seasonInitialContract(p) {
   const r = R(hashProfileSeed(`contract|${p.id}|${p.name}|${S.matchSalt || 0}`))();
   if (p.status === 'Altyapıdan A takım') return 3;
   if (p.status === 'Yeni transfer') return 4;
@@ -49,11 +58,11 @@ function seasonInitialContract(p) {
   return lo + Math.floor(r * (hi - lo + 1));
 }
 // ids only ever grow, so a departed player's id (and anything keyed by it, like a highlight archive) is never reused
-function nextPlayerId() {
+export function nextPlayerId() {
   return Math.max(S.v796?.maxPlayerId ?? -1, ...S.players.map(p => +p.id || 0)) + 1;
 }
 // the captain for event texts: the leader in the dressing room, not a fixed name
-function captainName() {
+export function captainName() {
   const on = (S?.players || []).filter(p => seasonActive(p) && p.status !== 'Kirada');
   // the starting captain (data/squad.js) wears the armband from the first day; when he is gone the dressing room's
   // leader takes it and keeps it
@@ -64,7 +73,7 @@ function captainName() {
   if (lead && S.v796) S.v796.captainId = lead.id;
   return lead?.name || 'Kaptan';
 }
-function youngestTalentName() {
+export function youngestTalentName() {
   const on = (S?.players || []).filter(seasonActive).sort((a, b) => a.age - b.age || b.potential - a.potential);
   return on[0]?.name || 'gençler';
 }
@@ -72,7 +81,7 @@ function youngestTalentName() {
 /* ---------- match records: season tag and assists ---------- */
 // an assist: the last completed pass or cross to the scorer in the same move (a rebound, a set piece or a
 // penalty has none). Read from the saved match events, the engine is not touched.
-function seasonMatchAssists(match) {
+export function seasonMatchAssists(match) {
   const events = match?.events || [], out = {};
   const neutral = new Set(['shot', 'chance', 'offBallRun', 'run', 'ballCarry', 'firstTouch', 'hold', 'shout', 'order', 'press']);
   events.forEach((e, i) => {
@@ -87,7 +96,7 @@ function seasonMatchAssists(match) {
   });
   return out;
 }
-function seasonRecordMatch(match, result) {
+export function seasonRecordMatch(match, result) {
   if (!result) return;
   result.season = S.seasonIndex || 0;
   const assists = seasonMatchAssists(match);
@@ -102,7 +111,7 @@ function seasonRecordMatch(match, result) {
 // the off-season step on top of the weekly development (evolveV6 / evolveOpponentSquads stay the only
 // in-season growth): the young close in on their potential, 30+ slows down, keepers decline about three years later
 // (the ages, chances and steps are in data/balance.js: development, retirement)
-function offseasonChange(age, overall, potential, gk, rnd) {
+export function offseasonChange(age, overall, potential, gk, rnd) {
   const D = BALANCE.development, kind = gk ? 'keeper' : 'outfield';
   const gap = potential - overall, peakEnd = D.peakEnd[kind], declineAt = D.declineAt[kind];
   if (age <= D.youngUntil) return gap > 0 ? Math.min(gap, D.youngGain[0] + Math.floor(rnd() * D.youngGain[1])) : 0;
@@ -111,7 +120,7 @@ function offseasonChange(age, overall, potential, gk, rnd) {
   if (age < declineAt) return rnd() < D.plateauDropChance ? -1 : 0;
   return -Math.min(D.maxDecline, D.decline[0] + Math.floor(rnd() * D.decline[1]) + Math.floor((age - declineAt) / D.declineStepYears));
 }
-function agedPotential(age, overall, potential, gk) {
+export function agedPotential(age, overall, potential, gk) {
   const D = BALANCE.development, kind = gk ? 'keeper' : 'outfield';
   const late = D.potentialLate[kind], declineAt = D.declineAt[kind];
   let pot = potential;
@@ -119,14 +128,14 @@ function agedPotential(age, overall, potential, gk) {
   else if (age >= late) pot = Math.max(overall, potential - 1);
   return Math.max(overall, pot);
 }
-function retireChance(age, overall, gk) {
+export function retireChance(age, overall, gk) {
   const T = BALANCE.retirement, eff = age - (gk ? T.keeperYearsYounger : 0);
   const base = eff < T.fromAge ? 0 : eff >= T.certainAt ? 1 : T.chanceByAge[eff];
   if (base >= 1) return 1;
   return Math.min(1, base * (overall >= T.starOverall ? T.starFactor : overall < T.weakBelow ? T.weakFactor : 1));
 }
-function isGK(pos) { return String(pos || '').split('/')[0] === 'GK'; }
-function seasonDevelop(p, pos, rnd, minOverall = 40) {
+export function isGK(pos) { return String(pos || '').split('/')[0] === 'GK'; }
+export function seasonDevelop(p, pos, rnd, minOverall = 40) {
   p.age++;
   const gk = isGK(pos), before = p.overall;
   p.overall = seasonClamp(p.overall + offseasonChange(p.age, p.overall, p.potential, gk, rnd), minOverall, 99);
@@ -135,7 +144,7 @@ function seasonDevelop(p, pos, rnd, minOverall = 40) {
 }
 
 /* ---------- leaving the club ---------- */
-function departPlayer(p, reason) {
+export function departPlayer(p, reason) {
   const st = S.v796;
   st.maxPlayerId = Math.max(st.maxPlayerId ?? -1, +p.id || 0);
   st.former.push({ id: p.id, name: p.name, pos: p.pos, age: p.age, overall: p.overall, reason, season: S.season,
@@ -150,7 +159,7 @@ function departPlayer(p, reason) {
   if (S.v71?.playerMeetings) delete S.v71.playerMeetings[p.id];
   for (const k of S.v795?.wonderkids || []) if (k.where === 'squad' && k.playerId === p.id) k.where = reason === 'retired' ? 'retired' : 'left';
 }
-function seasonFreeAgent(p) {
+export function seasonFreeAgent(p) {
   const st = S.v796, r = seasonRnd(`fa|${p.id}`);
   const fee = Math.round(Math.max(1, p.overall - 50) ** 2 * 21000 * (.75 + r() * .6) * .15);
   const x = { id: `v6fa${st.faSerial++}`, name: p.name, pos: p.pos, age: p.age, overall: p.overall, potential: p.potential,
@@ -160,41 +169,41 @@ function seasonFreeAgent(p) {
   S.v6.transferPool.unshift(x);
   return x;
 }
-function seasonWageDemand(p) {
+export function seasonWageDemand(p) {
   const W = BALANCE.contracts.wage;
   const base = (p.overall * p.overall) * W.perOverallSquared;
   const happy = (p.happiness ?? 70) < W.unhappyBelow ? W.unhappyRaise : W.raise;
   return Math.round(Math.max(p.wage || 0, base) * (p.age >= W.veteranAge ? W.veteranFactor : happy) / W.roundTo) * W.roundTo;
 }
-function seasonMaxYears(p) { const C = BALANCE.contracts; return (C.maxYears.find(([age]) => p.age >= age) || [0, C.defaultMaxYears])[1]; }
+export function seasonMaxYears(p) { const C = BALANCE.contracts; return (C.maxYears.find(([age]) => p.age >= age) || [0, C.defaultMaxYears])[1]; }
 
 /* ---------- the pipeline ---------- */
-const SEASON_END_STEPS = [];
-function seasonEndStep(step, where = {}) {
+export const SEASON_END_STEPS = [];
+export function seasonEndStep(step, where = {}) {
   let i = SEASON_END_STEPS.length;
   if (where.after) { const k = SEASON_END_STEPS.findIndex(s => s.id === where.after); if (k >= 0) i = k + 1; }
   else if (where.before) { const k = SEASON_END_STEPS.findIndex(s => s.id === where.before); if (k >= 0) i = k; }
   SEASON_END_STEPS.splice(i, 0, step);
 }
-function seasonStepById(id) { return SEASON_END_STEPS.find(s => s.id === id) || null; }
-function seasonComplete() {
+export function seasonStepById(id) { return SEASON_END_STEPS.find(s => s.id === id) || null; }
+export function seasonComplete() {
   if (!S?.leagueSchedule || S.leagueSchedule.length !== 34) return false;
   return S.leagueSchedule.every(round => round.every(g => g.played));
 }
 // called first thing in nextEvent: true while the season-end screens own the career
-function seasonEndCheck() {
+export function seasonEndCheck() {
   if (!S || (typeof M !== 'undefined' && M)) return false;
   if (S.seasonEnd) { runSeasonEnd(); return !!S.seasonEnd; }
   if (!seasonComplete()) return false;
   beginSeasonEnd();
   return !!S.seasonEnd;
 }
-function beginSeasonEnd() {
+export function beginSeasonEnd() {
   S.seasonEnd = { season: S.season, index: S.seasonIndex || 0, steps: SEASON_END_STEPS.map(s => s.id), at: 0, done: {}, prepared: {}, data: { log: {} } };
   S.event = { kind: 'seasonEnd', title: 'Sezon Sonu', speaker: 'Yönetim', text: `${S.season} sezonu tamamlandı.`, choices: [] };
   runSeasonEnd();
 }
-function runSeasonEnd() {
+export function runSeasonEnd() {
   const se = S.seasonEnd; if (!se) return;
   while (S.seasonEnd === se && se.at < se.steps.length) {
     const step = seasonStepById(se.steps[se.at]);
@@ -206,7 +215,7 @@ function runSeasonEnd() {
   }
   if (S.seasonEnd === se && se.at >= se.steps.length) delete S.seasonEnd;
 }
-function seasonEndNext(id) {
+export function seasonEndNext(id) {
   const se = S.seasonEnd; if (!se || se.steps[se.at] !== id) return;
   const step = seasonStepById(id);
   if (step?.canContinue && !step.canContinue(se)) { alert(step.blockedText || 'Devam etmeden önce kararlarını tamamla.'); return; }
@@ -219,8 +228,8 @@ function seasonEndNext(id) {
 }
 
 /* step 1 — season summary (screen) */
-function seasonTableSorted() { return [...S.table].sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga) || b.gf - a.gf); }
-function seasonPlayerStats(index) {
+export function seasonTableSorted() { return [...S.table].sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga) || b.gf - a.gf); }
+export function seasonPlayerStats(index) {
   const stats = new Map();
   for (const r of (S.results || []).filter(r => (r.season ?? 0) === index)) {
     for (const row of r.matchSummary?.players || []) {
@@ -312,13 +321,13 @@ seasonEndStep({ id: 'contracts', screen: seasonContractsUI,
     if (kept.length || gone.length) pushInbox('Sportif Direktör', 'Sözleşme kararları',
       `${kept.length ? `Yenilenen: ${kept.join(', ')}.` : ''}${gone.length ? ` Ayrılan: ${gone.join(', ')} (serbest oyuncu havuzunda).` : ''}`.trim(), 'board');
   } });
-function seasonContractPick(id, years) {
+export function seasonContractPick(id, years) {
   const se = S.seasonEnd; if (!se?.data?.decisions) return;
   se.data.decisions[id] = years;
   save();
   const y = window.scrollY || 0; render(); window.scrollTo?.(0, y);
 }
-function seasonContractAll(years) {
+export function seasonContractAll(years) {
   const se = S.seasonEnd; if (!se?.data?.expiring) return;
   for (const x of se.data.expiring) se.data.decisions[x.id] = years > 0 ? Math.min(years, x.maxYears) : 0;
   save(); render();
@@ -384,14 +393,14 @@ seasonEndStep({ id: 'newSeason', run(se) {
 
 /* ---------- helpers for the automatic steps ---------- */
 // a new fixture order each season: the same round-robin, with the clubs drawn into different places
-function seasonSchedule() {
+export function seasonSchedule() {
   const teams = allTeams(), rnd = seasonRnd('schedule'), order = [...teams];
   for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
   const map = Object.fromEntries(teams.map((t, i) => [t, order[i]]));
   return makeLeagueSchedule().map(round => round.map(g => ({ ...g, home: map[g.home], away: map[g.away] })));
 }
-function seasonStarterAvg(squad) { const xi = squad.slice(0, 11); return xi.reduce((n, p) => n + p.overall, 0) / Math.max(1, xi.length); }
-function seasonMakeRival(teamIndex, slot, position, overall, age, rnd, ceiling = 94) {
+export function seasonStarterAvg(squad) { const xi = squad.slice(0, 11); return xi.reduce((n, p) => n + p.overall, 0) / Math.max(1, xi.length); }
+export function seasonMakeRival(teamIndex, slot, position, overall, age, rnd, ceiling = 94) {
   const st = S.v796, n = st.rivalSerial++;
   overall = seasonClamp(Math.round(overall), 50, 92);
   const potential = Math.min(ceiling, 94, overall + (age <= 21 ? 6 + Math.floor(rnd() * 12) : age <= 24 ? 2 + Math.floor(rnd() * 6) : Math.floor(rnd() * 3)));
@@ -404,7 +413,7 @@ function seasonMakeRival(teamIndex, slot, position, overall, age, rnd, ceiling =
 }
 // league squads age, retire and renew; each club is pulled back toward its own level (base + LEAGUE_LIFT)
 // so the league keeps its shape over many seasons. A club's wonderkid is never replaced or sold.
-function seasonRefreshRivals() {
+export function seasonRefreshRivals() {
   const stats = { retired: 0, signings: 0, sales: 0, clubs: {} };
   ensureOpponentSquads();
   OPP.forEach((team, ti) => {
@@ -441,7 +450,7 @@ function seasonRefreshRivals() {
   if (typeof syncWonderOffers === 'function') syncWonderOffers();
   return stats;
 }
-function seasonMarketPlayer(rnd) {
+export function seasonMarketPlayer(rnd) {
   const st = S.v796, n = st.poolSerial++, clubs = Object.keys(CLUBSTYLE).filter(x => x !== managedClubName());
   const pos = V6POS[Math.floor(rnd() * V6POS.length)], age = 18 + Math.floor(rnd() * 15), ov = 57 + Math.floor(rnd() * 21);
   const pot = Math.min(93, Math.max(ov, ov + Math.floor(rnd() * 15) - (age >= 29 ? 8 : 0)));
@@ -450,12 +459,12 @@ function seasonMarketPlayer(rnd) {
   marketProfile(x);
   return x;
 }
-function seasonMarketPrice(ov, age, pot, rnd) {
+export function seasonMarketPrice(ov, age, pot, rnd) {
   return Math.round(Math.max(1, ov - 50) ** 2 * 21000 * (.75 + rnd() * .6) * (age <= 21 && pot - ov >= 10 ? 1.3 : 1) * (age >= 31 ? .7 : 1));
 }
 // the market ages with everyone else: players develop, old ones retire, last summer's unsigned free agents
 // move on, and new names fill it back to its usual size
-function seasonRefreshMarket() {
+export function seasonRefreshMarket() {
   const pool = S.v6.transferPool, rnd = seasonRnd('market'), stats = { retired: 0, added: 0, freeAgents: 0 };
   const keep = [];
   for (const x of pool) {
@@ -475,7 +484,7 @@ function seasonRefreshMarket() {
   return stats;
 }
 // a squad never starts a season unplayable: below SEASON_MIN_SQUAD the best academy prospects step up
-function seasonTopUpSquad(se) {
+export function seasonTopUpSquad(se) {
   const promoted = [];
   while (S.players.filter(p => seasonActive(p) && p.status !== 'Kirada').length < SEASON_MIN_SQUAD && (S.v6.academy || []).length) {
     const a = S.v6.academy.slice().sort((x, y) => y.overall - x.overall || y.potential - x.potential)[0];
@@ -490,7 +499,7 @@ function seasonTopUpSquad(se) {
   if (promoted.length) pushInbox('Altyapı Sorumlusu', 'Altyapıdan takviye', `Kadro çok daraldığı için ${promoted.join(', ')} A takıma alındı.`, 'player');
   se.data.log.promoted = promoted;
 }
-function seasonPromoteQuiet(a) {
+export function seasonPromoteQuiet(a) {
   S.v6.academy = S.v6.academy.filter(q => q !== a);
   S.v6.usedAcademyCandidateIds?.push(a.id);
   const p = { id: nextPlayerId(), academyCandidateId: a.id, name: a.name, age: a.age, pos: a.pos, overall: a.overall, potential: a.potential, fitness: 100,
@@ -503,7 +512,7 @@ function seasonPromoteQuiet(a) {
   return p;
 }
 // gaps in the first eleven (retired, released, sold) are filled with the best fitting man on the bench
-function seasonFillXI() {
+export function seasonFillXI() {
   normalizeFormation();
   const slots = Object.entries(SLOT_POS), taken = new Set();
   for (const id of S.xi) { const pos = S.positions[id]; const slot = slots.find(([, xy]) => pos && Math.abs(xy[0] - pos[0]) < 3 && Math.abs(xy[1] - pos[1]) < 3); if (slot) taken.add(slot[0]); }
@@ -522,7 +531,7 @@ function seasonFillXI() {
 }
 
 /* ---------- screens ---------- */
-const SEASON_CSS = `<style>
+export const SEASON_CSS = `<style>
 .seasonend .seasonsteps{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
 .seasonend .seasonsteps span{font-size:12px;padding:4px 9px;border-radius:999px;background:rgba(127,127,127,.16);opacity:.7}
 .seasonend .seasonsteps span.on{background:#f2c94c;color:#1d1d1d;opacity:1;font-weight:700}
@@ -556,22 +565,22 @@ defineActions({
   seasonContractPick: d => seasonContractPick(+d.id, +d.years),
 });
 
-function seasonStepsBar(se) {
+export function seasonStepsBar(se) {
   const labels = [['summary', 'Özet'], ['report', 'Sezon arası'], ['contracts', 'Sözleşmeler'], ['newSeason', 'Yeni sezon']];
   const current = se.steps[se.at];
   return `<div class=seasonsteps>${labels.filter(([id]) => se.steps.includes(id)).map(([id, l]) =>
     `<span class="${id === current ? 'on' : se.done[id] ? 'ok' : ''}">${se.done[id] ? '✓ ' : ''}${l}</span>`).join('')}</div>`;
 }
-function seasonEndUI() {
+export function seasonEndUI() {
   const se = S.seasonEnd, step = seasonStepById(se?.steps?.[se.at]);
   const body = step?.screen ? step.screen(se) : `<section class=card><p>Sezon sonu işlemleri tamamlanıyor…</p><button data-action="seasonEndCheck">Devam</button></section>`;
   return `${header()}${SEASON_CSS}<main class="appcontent seasonend"><small class=muted>SEZON SONU • ${seasonEsc(se.season)}</small>${seasonStepsBar(se)}${body}</main>${bottomNav('home')}`;
 }
-function seasonTopList(title, rows, unit) {
+export function seasonTopList(title, rows, unit) {
   return `<div><small>${title}</small>${rows.length ? rows.map((r, i) => `<div class=toprow><span>${i + 1}. ${seasonEsc(r.name)} <small class=muted>${r.apps} maç</small></span><b>${r.value}${unit}</b></div>`).join('')
     : `<p class=muted>—</p>`}</div>`;
 }
-function seasonSummaryUI(se) {
+export function seasonSummaryUI(se) {
   const d = se.data.summary, club = seasonClub();
   return `<section class="card champion">${typeof crest === 'function' ? crest(d.champion, 52) : ''}<div><small>ŞAMPİYON</small><h2>${seasonEsc(d.champion)}</h2>
    <p class=muted>${d.champion === club ? 'Tebrikler hocam, kupa bizim!' : `${seasonEsc(club)} sezonu ${d.rank}. sırada bitirdi.`}</p></div></section>
@@ -583,7 +592,7 @@ function seasonSummaryUI(se) {
    ${d.table.map((x, i) => `<div class="leaguerow${x.n === club ? ' me' : ''}"><span>${i + 1}. ${seasonEsc(x.n)}</span><span>${x.p}</span><span>${x.gf - x.ga}</span><b>${x.pts}</b></div>`).join('')}</section>
   <div class=stickycta><button class=goldbtn data-action="seasonEndNext" data-step="summary">Sezon arasına geç</button></div>`;
 }
-function seasonReportUI(se) {
+export function seasonReportUI(se) {
   const L = se.data.log, aging = (L.aging || []).slice().sort((a, b) => (b.to - b.from) - (a.to - a.from) || b.to - a.to);
   const row = x => { const d = x.to - x.from; return `<div class=toprow><span><span class=badge>${seasonEsc(x.pos)}</span> ${seasonEsc(x.name)} <small class=muted>${x.age} yaş</small>${x.learned?.length ? ' ✨' : ''}</span><span>OVR ${x.to} <span class="delta ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d > 0 ? '▲' + d : d < 0 ? '▼' + (-d) : '–'}</span></span></div>`; };
   return `<section class=card><h3>Bir yaş büyüdüler</h3><p class=muted>Gençler potansiyellerine yaklaştı, 30 yaş üstünde düşüş başladı (kalecilerde daha geç).</p>${aging.map(row).join('') || '<p class=muted>—</p>'}</section>
@@ -591,7 +600,7 @@ function seasonReportUI(se) {
   ${(L.loans || []).length ? `<section class=card><h3>Kiralıktan dönenler</h3><p>${L.loans.map(seasonEsc).join(', ')}</p></section>` : ''}
   <div class=stickycta><button class=goldbtn data-action="seasonEndNext" data-step="report">Devam</button></div>`;
 }
-function seasonContractsUI(se) {
+export function seasonContractsUI(se) {
   const rows = se.data.expiring.map(x => ({ x, p: S.players.find(q => q.id === x.id) })).filter(r => r.p);
   const dec = se.data.decisions;
   const keptAfter = S.players.filter(p => seasonActive(p) && !(rows.some(r => r.p === p) && dec[p.id] === 0));

@@ -8,7 +8,7 @@
    without one, the fallback; a keeper shows the scorpion or a volley from his hands. Keepers' scene stars come
    from their overall (keeperStars: the overall for 2, 3, 4, 5 stars).
    Data only: everything after "=" is JSON (tests/data.test.cjs). */
-const MOVE_DATA = {
+export const MOVE_DATA = {
   "moves": [
     {"id":"scorpion","name":"Akrep vuruşu","keeper":true},
     {"id":"nutmeg","name":"Bacak arası","requires":[{"stars":4},{"stars":3,"technique":76}]},

@@ -6,7 +6,9 @@
    - After a short scroll (360px at most) an "up" button appears bottom right, above the tab bar and the decision tray.
    Browser only: without a document (the test harness) it installs nothing. main.js installs it.
    It works through extension points (core/hooks.js): goMain, navBack and screenDrawn. */
-function installNavigation() {
+import { S } from '../core/state.js';
+import { onHook } from '../core/hooks.js';
+export function installNavigation() {
   if (typeof document === 'undefined' || !document.addEventListener) return;
   const NAV = { key: null, y: 0, saved: {}, back: false, queued: false };
   const inMatch = () => document.body.classList.contains('in-match');

@@ -1,4 +1,11 @@
 /* Read-only boundary. Never calls tick, random, save or presentation advancement. */
+import { M, S } from '../../state.js';
+import { presentation } from '../registry.js';
+import { matchPossession } from '../../engine/match-support.js';
+import { matchSecond } from '../../engine/live-match.js';
+import { eventAnimationTime, eventPoint, pitchV73 } from '../../engine/pitch-v73.js';
+import { attackDirection, playerAtMarker } from '../../engine/pitch-v731.js';
+import { OPP, currentOpponent, resolveClubIdentity } from '../../../modes/manager/app.js';
 (() => {
   const listeners = new Set();
   const copy = value => value == null ? null : structuredClone(value);

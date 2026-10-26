@@ -3,7 +3,7 @@
    can have (with weights), the wonderkid type per position, training focuses and the attribute groups shown on
    a profile.
    Data only: everything after "=" is JSON (tests/data.test.cjs). */
-const PLAYER_DATA = {
+export const PLAYER_DATA = {
   "attributes": ["pace","acceleration","finishing","passing","dribbling","technique","vision","composure","tackling","positioning","offBall","strength","stamina"],
   "positionShape": {
     "GK": {"pace":-18,"acceleration":-12,"finishing":-45,"passing":-12,"dribbling":-30,"technique":-20,"vision":-10,"composure":4,"tackling":-35,"positioning":6,"offBall":-35,"strength":2,"stamina":-6},

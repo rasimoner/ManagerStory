@@ -1,5 +1,8 @@
 /* V7.1: context-driven press questions and player conversations. No network calls. */
-const PRE_PRESS = [
+import { M, S } from '../../core/state.js';
+import { applyConversationEffect, clamp, roleAtSlot } from '../../core/engine/match-support.js';
+import { advance, currentFixture, currentOpponent, managedClubName, pushInbox, save } from './app.js';
+export const PRE_PRESS = [
   ['strongOpponent', c => c.r[1]>=73, c => `${c.r[0]} ligin güçlü ekiplerinden. Maça hangi düşünceyle çıkıyorsunuz?`, ['Rakibe saygılıyız, kendi dengemizden ödün vermeyeceğiz.', 'Bu düzeydeki takımlara karşı cesur davranacağız.', 'Bireysel eşleşmelerin üzerinde çalıştık.']],
   ['weakOpponent', c => c.r[1]<70, c => `${c.r[0]} karşısında herkes üç puanı bekliyor. Bu beklenti takımı etkiler mi?`, ['Kolay maç yok; oyunumuzu kurmalıyız.', 'Sorumluluğu alıp tempoyu belirleyeceğiz.', 'Oyuncularıma güveniyorum.']],
   ['upperTable', c => c.ourRank<=6, c => `İlk altı içindesiniz. ${c.r[0]} karşısında konumunuzu korumak önemli mi?`, ['Puan durumundan önce oyunumuz önemli.', 'Hedefimizin gerektirdiği gibi oynayacağız.', 'Bu hafta detayları doğru yapmamız lazım.']],
@@ -31,7 +34,7 @@ const PRE_PRESS = [
   ['generalRead', () => true, c => `${c.r[0]} karşısında oyunun anahtarı nedir?`, ['Dengeyi korumak.', 'İnisiyatif almak.', 'Doğru bireysel eşleşmeler.']],
   ['generalSquad', () => true, () => `Kadrodaki rekabet ilk 11 kararınızı zorlaştırıyor mu?`, ['Kararları form durumuna göre veriyorum.', 'Herkes hazır olmalı.', 'Takımın genel planını öne koyuyorum.']]
 ];
-const POST_PRESS = [
+export const POST_PRESS = [
   ['comfortableWin','win', c => c.margin>=3, c => `${c.margin} farklı galibiyette oyuncuların en iyi yaptığı şey neydi?`, ['Oyunu baştan sona disiplinle oynadılar.', 'Bitiriciliğimiz belirleyiciydi.', 'Bu performansı sürdürmelerini bekliyorum.']],
   ['lateWin','win', c => c.lateWinner, c => `Son dakikalarda gelen golü nasıl yaşadınız?`, ['Takım son ana kadar inandı.', 'Kenardan yaptığımız hamleler yardımcı oldu.', 'Bu mücadeleyi taraftarımız hak etti.']],
   ['comebackWin','win', c => c.comeback, c => `Geriden gelip kazanırken soyunma odasında neyi değiştirdiniz?`, ['Oyuncularımı sakin tuttum.', 'Daha cesur oynamalarını istedim.', 'Bu geri dönüş onların karakterini gösteriyor.']],
@@ -61,11 +64,11 @@ const POST_PRESS = [
   ['shotProfile','tactic', c => c.shots>=8, c => `${c.shots} şut ürettiniz. Bu kadar girişim planın bir parçası mıydı?`, ['Fırsat geldiğinde değerlendirmeliyiz.', 'Şut kalitesi de sayı kadar önemli.', 'Oyuncular cesaret gösterdi.']],
   ['generalResult','general', () => true, () => 'Maçın ardından ilk değerlendirmeniz nedir?', ['Oyuncuların emeğine odaklanacağım.', 'Planımızdaki ayrıntıları gözden geçireceğim.', 'Takımın bir sonraki adımını düşünmeliyiz.']]
 ];
-function questionChoicePool(template, kind) {
+export function questionChoicePool(template, kind) {
   const codes=kind==='pre'?['pressCalm','pressBold','pressTactical','pressTrust']:['postMe','postDemand','postTeam','postTactical'];
   return template[4].map((answer,i)=>[answer,codes[i]]);
 }
-function selectPress(pool, used, context, eligibleResultTypes) {
+export function selectPress(pool, used, context, eligibleResultTypes) {
   let candidates=pool.filter(item=>eligibleResultTypes.includes(item[1])&&item[2](context));
   if(!candidates.length)candidates=pool.filter(item=>item[1]==='general');
   const recent=used.slice(-Math.min(5,pool.length-1)), available=candidates.filter(item=>!recent.includes(item[0]));
@@ -74,7 +77,7 @@ function selectPress(pool, used, context, eligibleResultTypes) {
   candidates.sort((a,b)=>counts.get(a[0])-counts.get(b[0]) || ((S.week*17+S.fixture*11+a[0].length*3)%41)-((S.week*17+S.fixture*11+b[0].length*3)%41));
   const selected=candidates[0];used.push(selected[0]);if(used.length>50)used.splice(0,used.length-50);return selected;
 }
-function prePressContext() {
+export function prePressContext() {
   const r=currentOpponent(),table=[...S.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)),form=S.form[managedClubName()]||[];
   const xi=S.players.filter(p=>S.xi.includes(p.id)), fx=currentFixture();
   return { r,home:fx.home,ourRank:table.findIndex(x=>x.n===managedClubName())+1,rivalRank:table.findIndex(x=>x.n===r[0])+1,
@@ -83,11 +86,11 @@ function prePressContext() {
     star:xi.slice().sort((a,b)=>b.overall-a.overall)[0],young:xi.find(p=>p.age<=20),tired:xi.find(p=>p.fitness<65),injured:xi.find(p=>p.injury>0),
     newcomer:S.players.find(p=>p.status==='Yeni transfer'&&p.minutes<180),changedTactics:S.v71.lastTacticWeek>=S.week-1,cupAlive:S.v6.cup.alive,fans:S.fans };
 }
-function makeV71PrePress() {
+export function makeV71PrePress() {
   const c=prePressContext(),question=selectPress(PRE_PRESS.map(([id,condition,prompt,answers])=>[id,'pre',condition,prompt,answers]),S.v71.preUsed,c,['pre']);
   return {kind:'press',title:'Maç Öncesi Basın Toplantısı',speaker:'Muhabir',text:question[3](c),choices:questionChoicePool(question,'pre'),questionId:question[0]};
 }
-function postPressContext(ug,og) {
+export function postPressContext(ug,og) {
   const side=M.userHome?0:1,events=M.events,userGoals=events.filter(e=>e.type==='goal'&&e.side===side),oppGoals=events.filter(e=>e.type==='goal'&&e.side!==side);
   let lead=0,trail=0;for(const event of events){if(event.type==='goal'){const d=(event.homeGoals-event.awayGoals)*(M.userHome?1:-1);if(d>0)lead=1;if(d<0)trail=1;}}
   const players=Object.entries(M.playerStats).map(([id,stat])=>({name:S.players.find(p=>p.id===+id)?.name||'Oyuncu',age:S.players.find(p=>p.id===+id)?.age||30,...stat}));
@@ -97,12 +100,12 @@ function postPressContext(ug,og) {
     lossStreak:form.slice(-4).reverse().findIndex(x=>x!=='M')===-1?Math.min(4,form.length):form.slice(-4).reverse().findIndex(x=>x!=='M'),
     star:players.filter(p=>p.minutes>=30).sort((a,b)=>b.rating-a.rating)[0],young:players.find(p=>p.age<=20&&p.minutes>=15),keeper:players.find(p=>p.saves>=2),scorer:players.find(p=>p.goals>0),lowRated:players.find(p=>p.rating<6),substitutions:M.substitutions.length,press:M.press,tactics:M.tacticChanges.length,secondHalfGoals:userGoals.filter(e=>e.minute>45).length };
 }
-function makeV71PostPress(ug,og) {
+export function makeV71PostPress(ug,og) {
   const context=postPressContext(ug,og),type=ug>og?'win':ug<og?'loss':'draw';
   const question=selectPress(POST_PRESS,S.v71.postUsed,context,[type,'player','tactic','general']);
   return [question[3](context),questionChoicePool(question,'post'),question[0],question[1]];
 }
-const PLAYER_MEETINGS = [
+export const PLAYER_MEETINGS = [
   ['minutes',p=>!S.xi.includes(p.id)&&p.minutes<(S.fixture+1)*45,p=>`${p.age<=20?'Hocam, gelişmek için süreye ihtiyacım var.':'Hocam, daha fazla oynayabileceğimi düşünüyorum.'} Bana şans verir misiniz?`],
   ['starter',p=>!S.xi.includes(p.id)&&p.overall>=69,p=>'İlk 11 için yeterince hazır olduğumu düşünüyorum. Bana güvenmenizi istiyorum.'],
   ['position',p=>S.xi.includes(p.id)&&S.positions[p.id]&&!p.pos.split('/').includes(roleAtSlot(p,S.positions[p.id])),p=>`Kendi pozisyonum ${p.pos}. Sahada oynadığım rol bana doğal gelmiyor hocam.`],
@@ -119,7 +122,7 @@ const PLAYER_MEETINGS = [
   ['newCompetition',p=>S.players.some(x=>x.status==='Yeni transfer'&&x.id!==p.id&&x.pos===p.pos),p=>'Yeni transferle rekabetten kaçmıyorum; yine de takımdaki yerimi bilmek isterim.'],
   ['happyClub',p=>p.happiness>=82,p=>'Bu kulüpte gerçekten mutluyum hocam. Burada daha fazlasını başarmak istiyorum.']
 ];
-function buildPlayerMeeting() {
+export function buildPlayerMeeting() {
   const used=S.v71.conversations.slice(-7),last=S.v71.playerMeetings,categoryWeek=S.v71.categoryMeetings,candidates=[];
   for(const p of S.players.filter(p=>p.status!=='Transfer oldu'&&p.status!=='Kirada')){
     if(S.week-(last[p.id]??-10)<3)continue;
@@ -134,14 +137,14 @@ function buildPlayerMeeting() {
   const {p,kind,utterance}=selected;S.v71.conversations.push(kind);S.v71.conversations=S.v71.conversations.slice(-30);last[p.id]=S.week;categoryWeek[kind]=S.week;
   return {kind:'meeting',player:p.id,meetingKind:kind,title:`${p.name} kapını çalıyor`,speaker:p.name,text:utterance(p),choices:[['Seni dinliyorum; birlikte bir plan yapalım.',`meeting:${p.id}:support`],['Sahadaki performansınla cevap ver.',`meeting:${p.id}:challenge`],['Şimdilik takımın ihtiyacına göre karar vereceğim.',`meeting:${p.id}:honest`]]};
 }
-function settlePlayerPromises(){
+export function settlePlayerPromises(){
   for(const promise of S.promises){if(promise.type!=='minutes'||promise.resolved)continue;
     const p=S.players.find(x=>x.id===promise.player);if(!p)continue;
     if((p.minutes-(promise.atMinutes??0))>=45){promise.resolved=true;p.happiness=clamp((p.happiness??70)+2,20,100);p.morale=clamp(p.morale+1,20,100)}
     else if(promise.due<=S.week){promise.resolved=true;p.happiness=clamp((p.happiness??70)-3,20,100);p.morale=clamp(p.morale-2,20,100);pushInbox(p.name,'Verilen süre sözü',`Hocam, süre sözü yerine gelmedi. Önümüzdeki haftaları konuşmak istiyorum.`,'player')}
   }
 }
-function resolvePlayerMeeting(id,response){
+export function resolvePlayerMeeting(id,response){
   const event=S.event,p=S.players.find(x=>x.id===id);if(!p||event?.kind!=='meeting'||event.player!==id||!['support','challenge','honest'].includes(response))return;
   const mod=response==='support'?2:response==='challenge'?-2:0;
   p.morale=clamp((p.morale??70)+mod,20,100);p.happiness=clamp((p.happiness??70)+mod,20,100);p.relation=clamp((p.relation??65)+(response==='support'?1:response==='challenge'?-1:0),20,100);

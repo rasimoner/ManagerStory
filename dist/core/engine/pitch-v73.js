@@ -1,38 +1,45 @@
 /* Presentation reads MatchEvents. It never advances the seeded simulation. */
-let pitchV73 = null;
-const PITCH_ACTIONS = new Set(['kickoff','pass','cross','interception','press','tackle','dribble','ballCarry','offBallRun','counterAttack','run','shot','save','block','post','wide','goal','throwIn','restart','goalKick','corner','freeKick','penalty','hold','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery']);
-const IMPORTANT_ACTIONS = new Set(['kickoff','shot','save','block','post','wide','goal','throwIn','goalKick','corner','offBallRun','dribble','ballCarry','tackle']);
-const limitPitch = (n,min,max) => Math.max(min,Math.min(max,n));
-const userDirection = () => M && M.secondHalf ? -1 : 1;
-function basePitchPosition(id,side) {
+import { M, S } from '../state.js';
+import { presentation } from '../presentation/registry.js';
+import { clamp, lineVariant, liveCommentaryLines, matchEvent, matchPossession, presentationEvent, tacticalEffects, userSide } from './match-support.js';
+import { MATCH_PLAYBACK_SCALE, clockFromSeconds, matchClock, matchSecond } from './live-match.js';
+import { opponentPlayer } from '../league/opponents-v731.js';
+import { aerialHeight, aerialRating, aerialWinProbability, attributeEdge, boxChallengePenalty, dribbleChance, engineFrozen, isKeeper, keeperHandling, keeperId, keeperRating, makeLooseBall, normalizeAttribute, occupant, opponentName, orderFor, outfieldOf, passSuccessProbability, physicalContest, playerAtMarker, playerAttribute, playerRecord, resolveLooseBall, runRestart, separatePlayers, setBallState, setPieceRecovering, shooterRecord, shotProbabilities, softenPlayerOverlap, startPitchRestart, tackleChance, tacticProfile, teamTactics, topSpeed, transitionActive } from './pitch-v731.js';
+import { currentOpponent, fanPhoto, oppRadarPos, resolveClubIdentity, setOppOwner, setUserOwner } from '../../modes/manager/app.js';
+export let pitchV73 = null;
+export const PITCH_ACTIONS = new Set(['kickoff','pass','cross','interception','press','tackle','dribble','ballCarry','offBallRun','counterAttack','run','shot','save','block','post','wide','goal','throwIn','restart','goalKick','corner','freeKick','penalty','hold','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery']);
+export const IMPORTANT_ACTIONS = new Set(['kickoff','shot','save','block','post','wide','goal','throwIn','goalKick','corner','offBallRun','dribble','ballCarry','tackle']);
+export const limitPitch = (n,min,max) => Math.max(min,Math.min(max,n));
+export const userDirection = () => M && M.secondHalf ? -1 : 1;
+export function basePitchPosition(id,side) {
   if (id == null || side==='none') return [50,50];
   const old=side==='user'?(M.matchPositions?.[id]||S.positions?.[id]||[50,50]):oppRadarPos(Math.max(0,Number(String(id).slice(1))||0));
   const x=100-old[1];
   return [limitPitch(M.secondHalf?100-x:x,3,97),limitPitch(old[0],5,95)];
 }
-function eventPoint(id,side) {
+export function eventPoint(id,side) {
   if (id==null || side==='none') return [50,50];
   if (M.dynamicPositions && M.dynamicPositions[String(id)]) return [...M.dynamicPositions[String(id)]];
   return basePitchPosition(id,side);
 }
-const pitchDistance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
-function nearestMarker(side,point,exclude=null){
+export const pitchDistance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+export function nearestMarker(side,point,exclude=null){
  const pool=side==='user'?M.active:M.oppIds;
  return pool.filter(id=>id!==exclude).map(id=>({id,d:pitchDistance(eventPoint(id,side),point)}))
    .sort((a,b)=>a.d-b.d)[0]||null;
 }
-function pitchSpace(point,side){
+export function pitchSpace(point,side){
  const opponents=side==='user'?M.oppIds:M.active,allies=side==='user'?M.active:M.oppIds;
  const danger=opponents.reduce((n,id)=>n+Math.max(0,16-pitchDistance(eventPoint(id,side==='user'?'opp':'user'),point))/16,0);
  const support=allies.reduce((n,id)=>n+Math.max(0,17-pitchDistance(eventPoint(id,side),point))/17,0);
  return {danger,support};
 }
-function opponentAttitude(){
+export function opponentAttitude(){
  const goals=M.userHome?M.ag-M.hg:M.hg-M.ag;
  return {press:goals<0&&M.min>=55?1.2:goals>0&&M.min>=72?.76:1,
   risk:goals<0&&M.min>=70?1.2:goals>0&&M.min>=70?.76:1};
 }
-function pitchInstructionTarget(id,side,ball,attacking) {
+export function pitchInstructionTarget(id,side,ball,attacking) {
   const q=basePitchPosition(id,side),own=side==='user',dir=(own?1:-1)*userDirection();
   const role=own?M.matchRoles[id]:opponentPlayer(id)?.position||null;
   const p=playerAtMarker(id,side);
@@ -81,7 +88,7 @@ function pitchInstructionTarget(id,side,ball,attacking) {
   x+=(ball[0]-50)*(attacking===side?.035:.03)*ballProximity;
   return [limitPitch(x,6,94),limitPitch(y,8,92)];
 }
-function eventAnimationTime(e) {
+export function eventAnimationTime(e) {
   if(e.presentationDuration)return e.presentationDuration;
   const a=e.fromPos||[50,50],b=e.toPos||a,dist=Math.hypot(a[0]-b[0],a[1]-b[1]);
   const viewing=typeof window!=='undefined'&&presentation.live3d?.enabled?1:M?.speed===.5?1.18:M?.speed===2?.85:1;
@@ -106,7 +113,7 @@ function eventAnimationTime(e) {
   if(e.type==='kickoff')return .8;
   return .44;
 }
-function currentPitchState() {
+export function currentPitchState() {
   if(!M)return null;
   if(!pitchV73||pitchV73.match!==M) {
     pitchV73={match:M,queue:[],active:null,progress:0,lastTime:null,positions:{},
@@ -117,7 +124,7 @@ function currentPitchState() {
   }
   return pitchV73;
 }
-function enqueuePitchEvent(e) {
+export function enqueuePitchEvent(e) {
   if(!M||!PITCH_ACTIONS.has(e.type))return;
   const state=currentPitchState();
   if(e.type==='goal'&&!(typeof window!=='undefined'&&presentation.live3d?.enabled)){
@@ -167,10 +174,10 @@ function enqueuePitchEvent(e) {
     state.queue.push({...copy,enginePositions,sampleTime:{gameSecond:e.gameSecond,stage:presentation.live3d.inPositionUpdate?'during-position-update':'event-after-position-update',sequence:e.eventId},engineStatistics:{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()}});
   }else state.queue.push(e);
 }
-function pitchEventPhase(progress) {
+export function pitchEventPhase(progress) {
   return progress<.19?'PREPARATION':progress<.76?'ACTION':progress<.91?'RESULT':'SETTLE';
 }
-function animationPoint(e,progress,previous) {
+export function animationPoint(e,progress,previous) {
   const from=e.fromPos||eventPoint(e.fromId,e.fromSide),to=e.toPos||from;
   const phase=pitchEventPhase(progress),fraction=progress<.19?0:progress<.76?(progress-.19)/.57:1;
   if(['offBallRun','press','tackle','counterAttack','hold','restartPlayers','restartWait'].includes(e.type))return null;
@@ -182,7 +189,7 @@ function animationPoint(e,progress,previous) {
   if(e.type==='goal'&&progress>=.76)return to;
   return [from[0]+(to[0]-from[0])*fraction,from[1]+(to[1]-from[1])*fraction];
 }
-function finishPitchAction(state,e,now) {
+export function finishPitchAction(state,e,now) {
   // Score and goal feedback were committed by the GOAL event, not by this renderer.
   if(e.type==='kickoff') {state.ball=[50,50];state.carrier=e.toId;state.side=e.toSide;}
   else if(['restart','firstTouch','recovery','goalKick','corner','throwIn','freeKick'].includes(e.type)) {state.carrier=e.toId;state.side=e.toSide;}
@@ -194,7 +201,7 @@ function finishPitchAction(state,e,now) {
   state.ballState.ownerId=state.carrier;state.ballState.state=state.carrier==null?'LOOSE_BALL':'LIVE';
   state.label=e.type==='corner'?'KORNER':e.type==='throwIn'?'TAÇ':e.type==='goalKick'?'KALE VURUŞU':e.type==='shot'?'ŞUT':e.type==='save'?'KURTARIŞ':e.type==='block'?(presentationEvent(e).presentationLabel||'BLOK'):e.type==='post'?'DİREK':e.type==='goal'?'GOL':'';
 }
-function advancePitchPresentation(dt,now) {
+export function advancePitchPresentation(dt,now) {
   const state=currentPitchState();if(!state||M.pause||M.finished||M.lifecycle==='FINISHED'||M.reason==='half')return state;
   let remaining=limitPitch(dt,0,.12);
   while(remaining>0&&!M.finished) {
@@ -215,17 +222,17 @@ function advancePitchPresentation(dt,now) {
   }
   return state;
 }
-function playerMoveRate(id,side) {
+export function playerMoveRate(id,side) {
   const pace=playerAttribute(id,side,'pace',68),acc=playerAttribute(id,side,'acceleration',pace);
   const pressure=side==='user'&&M?.press==='Yüksek'&&M.ballSide==='opp'?1.16:1;
   return limitPitch((6+(pace-60)*.3+(acc-60)*.08)*pressure,3,27); // fitness/age/position already in the effective attributes
 }
-function moveTowards(current,target,max) {
+export function moveTowards(current,target,max) {
   const dx=target[0]-current[0],dy=target[1]-current[1],dist=Math.hypot(dx,dy);
   if(dist<=max||dist<.01)return [...target];
   return [current[0]+dx/dist*max,current[1]+dy/dist*max];
 }
-function pitchFrameState(dt,now) {
+export function pitchFrameState(dt,now) {
   const state=advancePitchPresentation(dt,now),e=state?.active;if(!state)return null;
   if(M.pause||M.finished)return state;
   const phase=e?pitchEventPhase(state.progress):'SETTLE';
@@ -271,7 +278,7 @@ function pitchFrameState(dt,now) {
   }
   return state;
 }
-function queuePresentationCatchup(state,target,gameSecond){
+export function queuePresentationCatchup(state,target,gameSecond){
   if(!target)return;
   const distance=Math.hypot(target[0]-state.ball[0],target[1]-state.ball[1]);
   if(distance<.7)return;
@@ -279,7 +286,7 @@ function queuePresentationCatchup(state,target,gameSecond){
     fromPos:[...state.ball],toPos:[...target],presentationDuration:limitPitch(.16+distance*.004,.18,.34)};
   state.progress=0;state.eventStartBall=[...state.ball];
 }
-function synchronizePitchPresentation(state){
+export function synchronizePitchPresentation(state){
   if(!M||M.pause||M.finished)return;
   // At 1× one game minute is only 667 ms. Drop events that can no longer be
   // depicted at the authoritative clock instead of playing historical football.
@@ -297,12 +304,12 @@ function synchronizePitchPresentation(state){
     state.ballState.height=0;
   }
 }
-const pitchGoalPhotoCache=new Map();
-function preparePitchGoalPhotos(){
+export const pitchGoalPhotoCache=new Map();
+export function preparePitchGoalPhotos(){
  if(typeof Image!=='function'||!M)return;
  for(const team of [M.home,M.away]){const src=fanPhoto(team);if(pitchGoalPhotoCache.has(src))continue;const image=new Image();pitchGoalPhotoCache.set(src,image);image.onload=()=>{image.decode?.().catch(()=>{});};image.src=src;}
 }
-function paintPitchGoalFeedback(overlay,feedback){
+export function paintPitchGoalFeedback(overlay,feedback){
  if(!overlay)return;overlay.hidden=!feedback?.visible;if(!feedback)return;
  const colors=feedback.colors;overlay.style.setProperty('--goal-primary',colors[0]);overlay.style.setProperty('--goal-secondary',colors[1]);
  overlay.dataset.team=feedback.team;overlay.dataset.variant=String(feedback.variant);
@@ -319,7 +326,7 @@ function paintPitchGoalFeedback(overlay,feedback){
  img.src=fanPhoto(feedback.team);ready();
 }
 
-function paintLivePitch() {
+export function paintLivePitch() {
   if(!M||typeof document==='undefined')return;
   const clock=document.querySelector('#live-clock');if(clock)clock.textContent=matchClock();
   const now=typeof performance!=='undefined'?performance.now():0;
@@ -373,7 +380,7 @@ function paintLivePitch() {
     const details=overlay.querySelector('small');if(details)details.textContent=frame.goalText;
   }
 }
-function resetPitchHalf() {
+export function resetPitchHalf() {
   if(!M)return;
   // Second half: sides swap. Stale first-half coordinates would leave both teams in the wrong half,
   // so authoritative positions fall back to the mirrored formation anchors.
@@ -381,11 +388,11 @@ function resetPitchHalf() {
   M.passMemory=[];M.previousPossessionSide=null;M.pitchRunMinute={};M.regain=null;M.setPieceReturn=null;
   pitchV73=null;
 }
-function emitPitchKickoff(side) {
+export function emitPitchKickoff(side) {
   if(!M||engineFrozen()||M.min>=90)return;
   runRestart('KICK_OFF',side,[50,50]);   // same ordered restart machine as every other restart
 }
-function nearestOpponent(fromSide,point) {
+export function nearestOpponent(fromSide,point) {
   const candidates=fromSide==='user'?M.oppIds:M.active;
   if(!candidates.length)return null;
   const side=fromSide==='user'?'opp':'user';
@@ -394,7 +401,7 @@ function nearestOpponent(fromSide,point) {
     return Math.hypot(x[0]-point[0],x[1]-point[1])-Math.hypot(y[0]-point[0],y[1]-point[1]);
   })[0];
 }
-function recordPitchTackle(defender,defenderSide,carrier,carrierSide,success,point) {
+export function recordPitchTackle(defender,defenderSide,carrier,carrierSide,success,point) {
   const origin=eventPoint(defender,defenderSide);
   matchEvent('press',M.min+'’ '+(defenderSide==='user'?S.players.find(p=>p.id===defender)?.name:'Rakip')+' topa baskıya çıktı.',
     {defenderId:defender,fromId:carrier,fromSide:carrierSide,toSide:defenderSide,fromPos:origin,toPos:point,ballSide:carrierSide});
@@ -408,7 +415,7 @@ function recordPitchTackle(defender,defenderSide,carrier,carrierSide,success,poi
       fromSide:carrierSide,toSide:success?defenderSide:carrierSide,ballSide:success?defenderSide:carrierSide,
       success,fromPos:origin,toPos:point});
 }
-function switchPitchOwner(id,side) {
+export function switchPitchOwner(id,side) {
   // Ownership can only move to a player who is on THAT side's pitch roster; anything else is repaired, never cross-team.
   const pool=side==='user'?M.active:M.oppIds;
   if(!pool.includes(id)||(typeof id==='number')!==(side==='user'))id=occupant(side,id);
@@ -418,20 +425,20 @@ function switchPitchOwner(id,side) {
 }
 // V7.9.5 a keeper with the ball in his hands (a catch, a claimed cross): nobody may challenge him, and he
 // gives it out from his hands — thrown to a free man close by, or kicked long out of his hands
-function keeperHasItInHands(){const k=M.gkHands;return !!k&&M.ballOwner===k.id&&M.ballSide===k.side;}
+export function keeperHasItInHands(){const k=M.gkHands;return !!k&&M.ballOwner===k.id&&M.ballSide===k.side;}
 // The authoritative, transient positions are advanced by the existing match tick.
 // Velocity and commitment persist across possession changes and are safe for old saves.
-const LEASH={GK:[8,12],CB:[24,15],LB:[44,14],RB:[44,14],CM:[34,24],CAM:[34,26],LW:[36,12],RW:[36,12],ST:[32,22]};
-function anchorLeash(role,anchor,target){
+export const LEASH={GK:[8,12],CB:[24,15],LB:[44,14],RB:[44,14],CM:[34,24],CAM:[34,26],LW:[36,12],RW:[36,12],ST:[32,22]};
+export function anchorLeash(role,anchor,target){
  const [rx,ry]=LEASH[role]||LEASH.CM;
  return [limitPitch(anchor[0]+limitPitch(target[0]-anchor[0],-rx,rx),4,96),limitPitch(anchor[1]+limitPitch(target[1]-anchor[1],-ry,ry),6,94)];
 }
 // Only the nearest few defenders may close the ball down; the block stays a block.
-function nearestSet(side,point,count,filter){
+export function nearestSet(side,point,count,filter){
  const pool=(side==='user'?M.active:M.oppIds).filter(id=>!isKeeper(side,id)&&(!filter||filter(id)));
  return new Set(pool.map(id=>({id,d:pitchDistance(eventPoint(id,side),point)})).sort((a,b)=>a.d-b.d).slice(0,count).map(x=>String(x.id)));
 }
-function evolvePitchPositions(){
+export function evolvePitchPositions(){
  if(engineFrozen())return;
  M.dynamicPositions ??={};M.pitchMotion ??={};
  presentation.live3d?.beginMotionSample?.();
@@ -552,7 +559,7 @@ function evolvePitchPositions(){
  }
  presentation.live3d?.endMotionSample?.();
 }
-function passLanePressure(a,b,side){
+export function passLanePressure(a,b,side){
  const others=side==='user'?M.oppIds:M.active;
  let risk=0;
  for(const id of others){
@@ -563,12 +570,12 @@ function passLanePressure(a,b,side){
  }
  return risk;
 }
-function weightedPitchChoice(options){
+export function weightedPitchChoice(options){
  const sum=options.reduce((n,x)=>n+Math.max(0,x.weight),0);
  let draw=M.rand()*sum;
  return options.find(x=>(draw-=Math.max(0,x.weight))<=0)||options.at(-1);
 }
-function passOptions(side,from,style){
+export function passOptions(side,from,style){
  if(style===undefined)style=teamTactics(side).passingStyle;
  const T=tacticProfile(side),quickBreak=transitionActive(side)&&(T.quick||T.approach==='Kontra');
  const point=eventPoint(from,side),dir=(side==='user'?1:-1)*userDirection();
@@ -630,11 +637,11 @@ function passOptions(side,from,style){
  return raw.filter(o=>o.range<=64).map(o=>o.progress<-6&&usable?{...o,weight:o.weight*.7}:o);
 }
 /* V7.8: open grass ahead of the ball: no opponent within 15 (pitch %) in a forward cone */
-function freeAhead(point,side,dir){
+export function freeAhead(point,side,dir){
  const other=side==='user'?'opp':'user';
  return !(other==='user'?M.active:M.oppIds).some(id=>{const q=eventPoint(id,other),dx=(q[0]-point[0])*dir,dy=q[1]-point[1];return dx>0&&Math.abs(dy)<dx*1.1+2&&Math.hypot(dx,dy)<15;});
 }
-function pitchDribble(from,side,opponent){
+export function pitchDribble(from,side,opponent){
  const owner=playerAtMarker(from,side),start=eventPoint(from,side),dir=(side==='user'?1:-1)*userDirection();
  const defendingSide=side==='user'?'opp':'user';
  const defender=(defendingSide==='user'?M.active:M.oppIds)
@@ -690,7 +697,7 @@ function pitchDribble(from,side,opponent){
  return success;
 }
 /* Existing tick owns all outcomes; each choice uses positions, skills, tactics and seeded RNG. */
-function actionMinute(userPoss,effect,opponent){
+export function actionMinute(userPoss,effect,opponent){
  if(engineFrozen())return;
  evolvePitchPositions();
  if(M.looseBall)resolveLooseBall(8);
@@ -896,8 +903,8 @@ function actionMinute(userPoss,effect,opponent){
    can deliver it: into a zone (near post, penalty spot, far post) that one of them attacks. The ball is
    contested in the air exactly like a corner: a header at goal, a knock-down, a clearance (sometimes
    behind for a corner), or the keeper comes and claims or punches it. */
-const CROSS_ZONES=[{deep:94,y:-8},{deep:89,y:0},{deep:93,y:9}];   // near post, penalty spot, far post (y towards the far side)
-function crossOption(from,side,point,dir,forward,pressure){
+export const CROSS_ZONES=[{deep:94,y:-8},{deep:89,y:0},{deep:93,y:9}];   // near post, penalty spot, far post (y towards the far side)
+export function crossOption(from,side,point,dir,forward,pressure){
  const wide=Math.abs(point[1]-50);
  if(forward<55||wide<12)return null;
  const role=side==='user'?M.matchRoles[from]:opponentPlayer(from)?.position;
@@ -913,7 +920,7 @@ function crossOption(from,side,point,dir,forward,pressure){
  if(T.width>0)weight*=1.15;else if(T.width<0)weight*=.85;
  return {weight,runners,delivery,role};
 }
-function crossV79(from,side,point,plan){
+export function crossV79(from,side,point,plan){
  const other=side==='user'?'opp':'user',dir=(side==='user'?1:-1)*userDirection(),atkGoal=dir>0?100:0;
  const index=side==='user'?userSide():1-userSide();
  const passer=playerAtMarker(from,side),who=passer?.name||(side==='user'?'Oyuncumuz':'Rakip');
@@ -972,9 +979,9 @@ function crossV79(from,side,point,plan){
    Most real corners come from defenders, not keepers: a cross or a ball into the box cut out
    under pressure, or a challenge won on the byline, often only finds the safe touch behind.
    `deepFor` is how far into the attacking end a point is for the attacking side (0..100). */
-function deepFor(side,point){const dir=(side==='user'?1:-1)*userDirection();return dir>0?point[0]:100-point[0];}
-function cornerOff(side,point){return[deepFor(side,[100,50])>50?102:-2,point[1]<50?-3:103];}
-function concedeCorner(side,point){
+export function deepFor(side,point){const dir=(side==='user'?1:-1)*userDirection();return dir>0?point[0]:100-point[0];}
+export function cornerOff(side,point){return[deepFor(side,[100,50])>50?102:-2,point[1]<50?-3:103];}
+export function concedeCorner(side,point){
  M.stats.corners[side==='user'?userSide():1-userSide()]++;
  M.ballOwner=null;M.ballSide='none';M.looseBall=null;
  startPitchRestart('CORNER',side,cornerOff(side,point));
@@ -982,7 +989,7 @@ function concedeCorner(side,point){
 /* V7.6 full time: the referee does not blow in the middle of a promising attack. When the 90th
    minute ends with an attacker on the ball in the final third and no shot came that minute, the
    move is finished first (one more chance step: a shot, or the final ball being cut out). */
-function playLastAttack(){
+export function playLastAttack(){
  if(M.minuteShot)return;
  // a few steps at most: a carry or a lay-off keeps the move alive, a shot or a turnover ends it
  for(let step=0;step<5;step++){
@@ -1000,7 +1007,7 @@ function playLastAttack(){
    What a shot from a point is worth, on a realistic distance/angle curve (about .33 at 6 m,
    .17 at 11 m, .07 at 18 m, .03 at 25 m). Used only to DECIDE; the shot outcome model is unchanged.
    Pure: reads positions and attributes, never the RNG. */
-function shotValueAt(id,side,point){
+export function shotValueAt(id,side,point){
  const dir=(side==='user'?1:-1)*userDirection();
  const dx=(dir>0?100-point[0]:point[0])*1.05,dy=Math.abs(point[1]-50)*.68;
  if(dx<=0)return 0;
@@ -1013,8 +1020,8 @@ function shotValueAt(id,side,point){
    second-last defender (goalkeeper included). Engine positions are where a player is heading
    during the minute, so a forward up to OFFSIDE_RUN beyond the line is read as a run timed from
    an onside start; only a run that is clearly early is flagged. */
-const OFFSIDE_RUN=1.4;
-function offsideMargin(receiverPoint,ballPoint,side){
+export const OFFSIDE_RUN=1.4;
+export function offsideMargin(receiverPoint,ballPoint,side){
  const dir=(side==='user'?1:-1)*userDirection(),prog=p=>dir>0?p[0]:100-p[0];
  const r=prog(receiverPoint);
  if(r<=50||r<=prog(ballPoint))return -99;
@@ -1022,23 +1029,23 @@ function offsideMargin(receiverPoint,ballPoint,side){
  const line=(defSide==='user'?M.active:M.oppIds).map(id=>prog(eventPoint(id,defSide))).sort((a,b)=>b-a);
  return r-(line[1]??100);
 }
-function offsideLineX(side){
+export function offsideLineX(side){
  const dir=(side==='user'?1:-1)*userDirection(),prog=p=>dir>0?p[0]:100-p[0],defSide=side==='user'?'opp':'user';
  const line=(defSide==='user'?M.active:M.oppIds).map(id=>prog(eventPoint(id,defSide))).sort((a,b)=>b-a)[1]??100;
  return dir>0?line:100-line;
 }
-function offsideAt(receiverPoint,ballPoint,side){return offsideMargin(receiverPoint,ballPoint,side)>OFFSIDE_RUN;}
+export function offsideAt(receiverPoint,ballPoint,side){return offsideMargin(receiverPoint,ballPoint,side)>OFFSIDE_RUN;}
 /* Is the pass flagged? Only a receiver who IS beyond the line at the pass can be. The engine moves
    players a minute at a time, so how early the run started is uncertain: the further beyond the
    line, and the poorer his movement, the likelier the flag. */
-function offsideFlag(receiverId,receiverPoint,ballPoint,side){
+export function offsideFlag(receiverId,receiverPoint,ballPoint,side){
  const margin=offsideMargin(receiverPoint,ballPoint,side);
  if(margin<=OFFSIDE_RUN)return false;
  const offBall=normalizeAttribute(playerAttribute(receiverId,side,'offBall',65));
  const t=clamp((margin-OFFSIDE_RUN)/5,0,1),p=t*t*(3-2*t)*clamp(1.15-offBall*.7,.35,1);
  return M.rand()<p;
 }
-function callOffside(receiverId,receiverSide,receiverPoint,passerId){
+export function callOffside(receiverId,receiverSide,receiverPoint,passerId){
  const user=receiverSide==='user',player=playerAtMarker(receiverId,receiverSide);
  const name=player?.name||(user?'Oyuncumuz':'Rakip forvet');
  matchEvent('offside',`${M.min}’ ${name} pas çıktığı anda son savunmacının gerisindeydi; ofsayt.`,
@@ -1048,7 +1055,7 @@ function callOffside(receiverId,receiverSide,receiverPoint,passerId){
  startPitchRestart('FREE_KICK',user?'opp':'user',[...receiverPoint]);
 }
 
-function chanceV73(user) {
+export function chanceV73(user) {
   if(engineFrozen())return;
   const r=currentOpponent(),side=user?userSide():1-userSide();
   const sideName=user?'user':'opp';
@@ -1169,7 +1176,7 @@ function chanceV73(user) {
 }
 
 /* Shared shot resolution: open play (chanceV73), corner headers and penalties all end here. */
-function resolveShot(user,shooter,p,opts={}) {
+export function resolveShot(user,shooter,p,opts={}) {
   if(engineFrozen()||!p)return;
   const r=currentOpponent(),side=user?userSide():1-userSide(),sideName=user?'user':'opp';
   const dir=(user?1:-1)*userDirection();
