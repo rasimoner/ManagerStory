@@ -14,7 +14,7 @@ Bu belge sadece analiz ve plandır. Kodda, testlerde ve `dist` içinde hiçbir �
 - **app.js bir "her şey" dosyası.** 163 fonksiyon: kariyer akışı, transfer, akademi, ekranlar, maç arayüzü ve maç motorunun kalbi (`tick`, `chance`) aynı dosyada. Tek satırı 3.000 karakteri geçen yerler var.
 - **Maç motoru 5 dosyaya dağılmış ve kariyer verisine doğrudan yazıyor.** Oyuncu kariyeri modu için en büyük düğüm bu: motor "bizim takım = yönetilen takım" varsayımıyla yazılmış.
 - **Her şey global.** Dosyalar sırayla yüklenip birbirinin fonksiyonlarını çağırıyor; bazı dosyalar başka dosyanın fonksiyonunu çalışma anında değiştiriyor (ör. `star-transfer.js`, `v6Sign`'ı sarıyor). 137 satır içi `onclick` var.
-- **İyi haber:** 3D tarafı (`newview/*`) zaten temiz ES modülleri; `player-profiles.js` ve `match-view-adapter.js` iyi örnekler. Testler güçlü: 184 test, gerçek maçlar oynanıyor.
+- **İyi haber:** 3D tarafı (`newview/*`) zaten temiz ES modülleri; `player-profiles.js` ve `match-view-adapter.js` iyi örnekler. Testler güçlü: 188 test (V7.9.12), hepsi yeşil; gerçek maçlar oynanıyor.
 - **Bulunan gerçek hata:** `newview/replay.js` service worker listesinde yok; çevrimdışı açılışta 3D maç yüklenemeyebilir.
 - **Önerilen yol:** önce güvenlik ağı (karakterizasyon testleri, tek test yükleyici), sonra ölü kod ve varlık temizliği, sonra dosyaları sorumluluğa göre bölme, en son motoru kariyerden ayırma ve ES modülü + build'e geçiş.
 - **Süre:** odaklı çalışmayla kabaca 5–7 hafta. Yeni özellikler yaklaşık **3–4 hafta** (dosya taşıma ve motor ayrımı dönemi) dondurulmalı.
@@ -284,8 +284,8 @@ Oyunda hiçbir yerden çağrılmayan fonksiyonlar:
 ## 5. Test kapsaması
 
 ### 5.1 Mevcut durum
-- 18 test dosyası; `node --test` ile **184 test**. Bu dalda yerelde tam test çalıştırıldı; sonuç aşağıdaki satırda.
-  - Yerel sonuç: (çalışıyor; tamamlanınca güncellenecek)
+- 18 test dosyası; `node --test` ile **188 test** (V7.9.7 notlarındaki 184, sonraki sürümlerle 188 oldu).
+  - Bu dalda yerelde çalıştırıldı (Node 22): **188/188 geçti**, 0 hata, süre ~11 dk. 3D yönetmen testleri varsayılan 2 fikstürle (3 ve 7) koştu.
 - Ne koruyor:
   - Maç motoru bütünlüğü (faz 1–3): top sahipliği, takım izolasyonu, saha sınırları, taktiklerin etkisi, duran toplar, tam süre dondurma, hızdan bağımsız aynı olay akışı.
   - Maç saati, devre arası, oyuncu değişikliği, sakatlık.
