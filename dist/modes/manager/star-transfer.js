@@ -117,7 +117,7 @@ function starAnnounceScreen() {
 ${starStarsHTML(f.rating.stars, 'big')}
 <div class="stmoves"><b>${f.rating.keeper ? (f.move === 'scorpion' ? 'AKREP' : 'KALECİ') : n}</b><span>${f.rating.keeper ? (f.move === 'scorpion' ? 'Higuita’nın akrep vuruşu' : 'Yıldız kaleci') : n ? 'özel hareket' : 'özel hareketi yok'}</span></div>
 <div class="stfee">Bonservis <b>${money(f.rec.fee)}</b></div></div>
-<button class="goldbtn stnext" onclick="starSigningScreen()">İmza törenine geç</button></div>`;
+<button class="goldbtn stnext" data-action="starSigningScreen">İmza törenine geç</button></div>`;
 }
 
 // 2. the signing: the handshake, the shirt, and the number he picks (can be skipped)
@@ -129,10 +129,10 @@ function starSigningScreen() {
 <div class="stsignphoto"><img src="assets/atmosphere/signing-base.webp" alt="İmza töreni">${typeof clubProps === 'function' ? clubProps('career', { kind: 'signing' }) : ''}<div class="cinematicshade"></div>
 <div class="stshirt" style="--club:${clubColor(club.primaryColor) || '#c8102e'};--club2:${clubColor(club.secondaryColor) || '#fff'}"><span>${escapeHTML(p.name.split(' ').slice(-1)[0].toLocaleUpperCase('tr'))}</span><b>${p.number}</b></div>
 <div class="stsigncopy"><small>İMZA TÖRENİ</small><h2>Teknik direktörle el sıkıştı</h2><p>${escapeHTML(p.name)} formayla poz veriyor. Sırtındaki numarayı o seçiyor.</p></div>
-<button class="ghost stskip" onclick="starSkipSigning()">Atla ›</button></div>
-<section class="card"><small>FORMA NUMARASI</small><h3>Boş numaralardan seç</h3><div class="stnumbers">${shown.map(n => `<button class="${n === p.number ? 'on' : ''}" onclick="starPickNumber(${n})">${n}</button>`).join('')}</div>
-<label class="stmore">Diğer boş numaralar <select onchange="starPickNumber(+this.value)">${free.map(n => `<option value="${n}" ${n === p.number ? 'selected' : ''}>${n}</option>`).join('')}</select></label></section>
-<button class="goldbtn stnext" onclick="starWalkOut()">${p.number} numarayla sahaya çık</button></div>`;
+<button class="ghost stskip" data-action="starSkipSigning">Atla ›</button></div>
+<section class="card"><small>FORMA NUMARASI</small><h3>Boş numaralardan seç</h3><div class="stnumbers">${shown.map(n => `<button class="${n === p.number ? 'on' : ''}" data-action="starPickNumber" data-number="${n}">${n}</button>`).join('')}</div>
+<label class="stmore">Diğer boş numaralar <select data-action="starPickNumber">${free.map(n => `<option value="${n}" ${n === p.number ? 'selected' : ''}>${n}</option>`).join('')}</select></label></section>
+<button class="goldbtn stnext" data-action="starWalkOut">${p.number} numarayla sahaya çık</button></div>`;
 }
 function starPickNumber(n) {
   const p = starFlowPlayer();
@@ -175,15 +175,26 @@ function starWalkOut(replayRec) {
 // scene could not show it)
 function starClosingScreen() {
   const p = starFlowPlayer(), f = starFlow;
-  $('#app').innerHTML = `${header()}<main class="appcontent"><section class="card stclose"><small>KAPANIŞ</small><h2>Kariyer highlight arşivine eklendi</h2><p>${escapeHTML(p?.name || '')} • ${escapeHTML(starMoveName(f?.move))}${f?.trial ? ' (deneme: arşive yazılmadı)' : ''}</p><div class="row"><button class="goldbtn" onclick="starFlow=null;render()">Kulübe dön</button><button class="ghost" onclick="starFlow=null;render()">Atla</button></div></section></main>`;
+  $('#app').innerHTML = `${header()}<main class="appcontent"><section class="card stclose"><small>KAPANIŞ</small><h2>Kariyer highlight arşivine eklendi</h2><p>${escapeHTML(p?.name || '')} • ${escapeHTML(starMoveName(f?.move))}${f?.trial ? ' (deneme: arşive yazılmadı)' : ''}</p><div class="row"><button class="goldbtn" data-action="closeStarFlow">Kulübe dön</button><button class="ghost" data-action="closeStarFlow">Atla</button></div></section></main>`;
 }
 
 // the home-page flash card while the signing is fresh
+/* Refactor C2: the star transfer screens' buttons. starPickNumber: a number button, or the select of the other free numbers. */
+defineActions({
+  starSigningScreen: () => starSigningScreen(),
+  starSkipSigning: () => starSkipSigning(),
+  starPickNumber: (d, el) => starPickNumber(+(d.number ?? el.value)),
+  starWalkOut: () => starWalkOut(),
+  starReplay: () => starWalkOut(latestStarTransfer()),
+  closeStarFlow: () => { starFlow = null; render(); },
+  starTransferTrial: d => starTransferTrial(d.kind),
+});
+
 function starFlashCard() {
   if (!S) return '';
   const h = latestStarTransfer(); if (!h) return '';
   const p = S.players.find(q => q.id === h.playerId), club = resolveClubIdentity('career');
-  return `<section class="card stflashcard" style="--club:${clubColor(club.primaryColor) || '#c8102e'}"><div class="stflashtag">SON DAKİKA</div><div class="row between"><div><h3>${escapeHTML(h.playerName)} <span class="stno">${p?.number ?? ''}</span></h3><small>${escapeHTML(h.pos)} • ${money(h.fee)}${h.fromClub ? ' • Önceki kulüp: ' + escapeHTML(h.fromClub) : ''}</small></div>${starStarsHTML(h.stars, 'mid')}</div><p class="muted">${h.keeper ? 'Kaleci şovu: ' : 'Gösterisi: '}${escapeHTML(starMoveName(h.move))}</p><button class="ghost" onclick="starWalkOut(latestStarTransfer())">▶ Sahneyi izle</button></section>`;
+  return `<section class="card stflashcard" style="--club:${clubColor(club.primaryColor) || '#c8102e'}"><div class="stflashtag">SON DAKİKA</div><div class="row between"><div><h3>${escapeHTML(h.playerName)} <span class="stno">${p?.number ?? ''}</span></h3><small>${escapeHTML(h.pos)} • ${money(h.fee)}${h.fromClub ? ' • Önceki kulüp: ' + escapeHTML(h.fromClub) : ''}</small></div>${starStarsHTML(h.stars, 'mid')}</div><p class="muted">${h.keeper ? 'Kaleci şovu: ' : 'Gösterisi: '}${escapeHTML(starMoveName(h.move))}</p><button class="ghost" data-action="starReplay">▶ Sahneyi izle</button></section>`;
 }
 
 // ---- hooks into the signing and the transfer screen (no edits to those lines in app.js) ----
@@ -207,7 +218,7 @@ function starFlashCard() {
       const r = list.apply(this, arguments);
       // (under the transfer office picture: before the header it pushed the sticky header down the page)
       const anchor = document.querySelector('#app .vscene') || document.querySelector('#app .weekstrip');
-      anchor?.insertAdjacentHTML?.('afterend', `<section class="card sttry"><small>GEÇİCİ TEST</small><b>Transfer sahnesi dene</b><div class="row"><button class="ghost" onclick="starTransferTrial('out')">Oyuncuyla</button><button class="ghost" onclick="starTransferTrial('gk')">Kaleciyle</button></div></section>`);
+      anchor?.insertAdjacentHTML?.('afterend', `<section class="card sttry"><small>GEÇİCİ TEST</small><b>Transfer sahnesi dene</b><div class="row"><button class="ghost" data-action="starTransferTrial" data-kind="out">Oyuncuyla</button><button class="ghost" data-action="starTransferTrial" data-kind="gk">Kaleciyle</button></div></section>`);
       return r;
     };
   }
