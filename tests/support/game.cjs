@@ -12,6 +12,7 @@
      document   extra querySelector(q, app) handlers tried before the defaults
      prepend    insertAdjacentHTML on #app prepends instead of appends (as the star-transfer test expects)
      quiet      console.warn is silenced
+     skip       script files to leave out (only for old releases whose index.html has no data-layer tags)
      entropy    seed for the stand-in crypto.getRandomValues (the device entropy behind new careers and
                 kickoffs); a fixed default keeps tests repeatable. Pass null for no crypto at all. */
 const fs = require('node:fs');
@@ -41,7 +42,7 @@ function fakeCrypto(seed) {
   return { getRandomValues(array) { for (let i = 0; i < array.length; i++) array[i] = next(); return array; } };
 }
 
-function loadGame({ storage = new Map(), layers = [], document: extra = null, prepend = false, quiet = false, entropy = 0x5eed, dist = DIST } = {}) {
+function loadGame({ storage = new Map(), layers = [], document: extra = null, skip = [], prepend = false, quiet = false, entropy = 0x5eed, dist = DIST } = {}) {
   const alerts = [], confirms = [];
   const app = {
     innerHTML: '', classList: { toggle() {} },
@@ -66,7 +67,7 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, pr
   ctx.window = ctx; ctx.window.scrollTo = () => {};
   vm.createContext(ctx);
   for (const { file, layer, code } of sources(dist)) {
-    if (layer !== 'game' && !layers.includes(layer)) continue;
+    if ((layer !== 'game' && !layers.includes(layer)) || skip.includes(file)) continue;
     vm.runInContext(code, ctx, { filename: file });
   }
   const run = code => vm.runInContext(code, ctx);

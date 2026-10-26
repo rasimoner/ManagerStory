@@ -53,6 +53,26 @@ test('every file index.html loads, and every ES module it imports, is in the ser
   assert.ok(modules.has('newview/replay.js'), 'module graph reaches newview/replay.js');
 });
 
+// published but deliberately not cached for offline play
+const NOT_CACHED = new Set([
+  'sw.js',                    // the service worker itself
+  '.nojekyll', 'README.txt', 'assets/.gitkeep', 'assets/atmosphere/.gitkeep', 'vendor/three/LICENSE',
+  // kept for weather and night matches, not used yet (tests/assets.test.cjs)
+  'assets/atmosphere/fans-day.webp', 'assets/atmosphere/fans-rain.webp', 'assets/atmosphere/fans-night.webp',
+]);
+function published(dir = '') {
+  return fs.readdirSync(path.join(dist, dir), { withFileTypes: true }).flatMap(d =>
+    d.isDirectory() ? published(path.posix.join(dir, d.name)) : [path.posix.join(dir, d.name)]);
+}
+
+test('every published file is in the service-worker list, or on the short not-cached list', () => {
+  const list = swList();
+  const missing = published().filter(f => !list.has(f) && !NOT_CACHED.has(f));
+  assert.deepEqual(missing, [], 'published but not cached: ' + missing.join(', '));
+  const stale = [...NOT_CACHED].filter(f => !fs.existsSync(path.join(dist, f)));
+  assert.deepEqual(stale, [], 'not-cached list names files that are gone');
+});
+
 test('every file in the service-worker list exists', () => {
   const missing = [...swList()].filter(f => f && !fs.existsSync(path.join(dist, f)));
   assert.deepEqual(missing, []);
