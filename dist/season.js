@@ -7,10 +7,10 @@
    Season 1 is untouched: seed offsets are zero while S.seasonIndex is 0, so existing careers, the 34-match
    tests and determinism stay exactly as they were. Every draw here comes from its own hashed seed, never
    from match randomness. */
-const SEASON_BASE_YEAR = 2025;
+const SEASON_BASE_YEAR = BALANCE.season.baseYear;
 const SEASON_DEPARTED = 'Transfer oldu';
-const SEASON_POOL_SIZE = 110;
-const SEASON_MIN_SQUAD = 16;
+const SEASON_POOL_SIZE = BALANCE.season.marketSize;
+const SEASON_MIN_SQUAD = BALANCE.season.minSquad;
 
 function seasonLabel(index) { const y = SEASON_BASE_YEAR + index; return `${y}/${String((y + 1) % 100).padStart(2, '0')}`; }
 // added to the fixed per-week seeds (AI results, league development): 0 in the first season
@@ -100,26 +100,29 @@ function seasonRecordMatch(match, result) {
 /* ---------- ageing, retirement and development rules ---------- */
 // the off-season step on top of the weekly development (evolveV6 / evolveOpponentSquads stay the only
 // in-season growth): the young close in on their potential, 30+ slows down, keepers decline about three years later
+// (the ages, chances and steps are in data/balance.js: development, retirement)
 function offseasonChange(age, overall, potential, gk, rnd) {
-  const gap = potential - overall, peakEnd = gk ? 32 : 29, declineAt = gk ? 34 : 31;
-  if (age <= 21) return gap > 0 ? Math.min(gap, 1 + Math.floor(rnd() * 3)) : 0;
-  if (age <= 24) return gap > 0 ? Math.min(gap, Math.floor(rnd() * 3)) : 0;
-  if (age <= peakEnd) return gap > 0 && rnd() < .35 ? 1 : 0;
-  if (age < declineAt) return rnd() < .4 ? -1 : 0;
-  return -Math.min(5, 1 + Math.floor(rnd() * 2) + Math.floor((age - declineAt) / 2));
+  const D = BALANCE.development, kind = gk ? 'keeper' : 'outfield';
+  const gap = potential - overall, peakEnd = D.peakEnd[kind], declineAt = D.declineAt[kind];
+  if (age <= D.youngUntil) return gap > 0 ? Math.min(gap, D.youngGain[0] + Math.floor(rnd() * D.youngGain[1])) : 0;
+  if (age <= D.growingUntil) return gap > 0 ? Math.min(gap, D.growingGain[0] + Math.floor(rnd() * D.growingGain[1])) : 0;
+  if (age <= peakEnd) return gap > 0 && rnd() < D.peakGainChance ? 1 : 0;
+  if (age < declineAt) return rnd() < D.plateauDropChance ? -1 : 0;
+  return -Math.min(D.maxDecline, D.decline[0] + Math.floor(rnd() * D.decline[1]) + Math.floor((age - declineAt) / D.declineStepYears));
 }
 function agedPotential(age, overall, potential, gk) {
-  const late = gk ? 31 : 28, declineAt = gk ? 34 : 31;
+  const D = BALANCE.development, kind = gk ? 'keeper' : 'outfield';
+  const late = D.potentialLate[kind], declineAt = D.declineAt[kind];
   let pot = potential;
   if (age >= declineAt) pot = overall;
   else if (age >= late) pot = Math.max(overall, potential - 1);
   return Math.max(overall, pot);
 }
 function retireChance(age, overall, gk) {
-  const eff = age - (gk ? 2 : 0);
-  const base = eff <= 32 ? 0 : eff === 33 ? .08 : eff === 34 ? .2 : eff === 35 ? .4 : eff === 36 ? .6 : eff === 37 ? .8 : 1;
+  const T = BALANCE.retirement, eff = age - (gk ? T.keeperYearsYounger : 0);
+  const base = eff < T.fromAge ? 0 : eff >= T.certainAt ? 1 : T.chanceByAge[eff];
   if (base >= 1) return 1;
-  return Math.min(1, base * (overall >= 78 ? .6 : overall < 65 ? 1.4 : 1));
+  return Math.min(1, base * (overall >= T.starOverall ? T.starFactor : overall < T.weakBelow ? T.weakFactor : 1));
 }
 function isGK(pos) { return String(pos || '').split('/')[0] === 'GK'; }
 function seasonDevelop(p, pos, rnd, minOverall = 40) {
@@ -157,11 +160,12 @@ function seasonFreeAgent(p) {
   return x;
 }
 function seasonWageDemand(p) {
-  const base = (p.overall * p.overall) * 900;
-  const happy = (p.happiness ?? 70) < 55 ? 1.2 : 1.1;
-  return Math.round(Math.max(p.wage || 0, base) * (p.age >= 32 ? .85 : happy) / 1e4) * 1e4;
+  const W = BALANCE.contracts.wage;
+  const base = (p.overall * p.overall) * W.perOverallSquared;
+  const happy = (p.happiness ?? 70) < W.unhappyBelow ? W.unhappyRaise : W.raise;
+  return Math.round(Math.max(p.wage || 0, base) * (p.age >= W.veteranAge ? W.veteranFactor : happy) / W.roundTo) * W.roundTo;
 }
-function seasonMaxYears(p) { return p.age >= 33 ? 1 : p.age >= 31 ? 2 : 3; }
+function seasonMaxYears(p) { const C = BALANCE.contracts; return (C.maxYears.find(([age]) => p.age >= age) || [0, C.defaultMaxYears])[1]; }
 
 /* ---------- the pipeline ---------- */
 const SEASON_END_STEPS = [];

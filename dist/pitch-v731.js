@@ -33,10 +33,9 @@ function baseAttribute(id,side,name,fallback){
   default:return finite(p[name],fallback);
  }
 }
-const ATTR_KIND={pace:'phys',acceleration:'phys',strength:'phys',physical:'phys',stamina:'phys',
- dribbling:'tech',passing:'tech',technique:'tech',finishing:'tech',tackling:'tech',
- composure:'mental',vision:'mental',positioning:'mental',offBall:'mental'};
-const FITNESS_SENSITIVITY={phys:.45,tech:.20,mental:.09};
+// how much tiredness weighs on each kind of attribute (data/balance.js engine)
+const ATTR_KIND=BALANCE.engine.attributeKind;
+const FITNESS_SENSITIVITY=BALANCE.engine.fitnessSensitivity;
 // 100% → 1.0; 85% → ~0.95 (physical); 60% → ~0.84; 40% → ~0.75. Smooth, no cliff.
 function fitnessFactor(fitness,kind){
  const loss=Math.pow(clamp(100-finite(fitness,90),0,100)/100,1.15);
@@ -60,12 +59,7 @@ function positionSuitability(id,side){
 const roleGroup=r=>['CB','LB','RB'].includes(r)?'def':r==='GK'?'gk':['LW','RW','ST'].includes(r)?'att':'mid';
 // How much of the misfit loss each skill takes, per role being played. Pace/strength/stamina are NOT
 // reduced: an out-of-position player is still just as quick, he simply reads the game worse.
-const MISFIT_WEIGHT={
- def:{tackling:.6,positioning:.6,composure:.2,vision:.15,offBall:.1,passing:.1},
- mid:{passing:.3,vision:.35,positioning:.3,tackling:.25,technique:.25,offBall:.25,composure:.2},
- att:{finishing:.6,offBall:.55,dribbling:.3,technique:.25,composure:.25,positioning:.15,vision:.1},
- gk:{}
-};
+const MISFIT_WEIGHT=BALANCE.engine.misfitWeight;
 function effectiveAttribute(id,side,name,fallback){
  const p=playerRecord(id,side);
  if(!p)return fallback;
@@ -87,32 +81,19 @@ function skillMoves(id,side){
  const live=typeof M!=='undefined'&&M;
  const rec=playerRecord(id,side);
  const role=(side==='user'?(live?M.matchRoles?.[id]:null):(live?playerAtMarker(id,side)?.position:null))||String(rec?.pos||rec?.position||'').split('/')[0];
- // V7.9: a keeper's one special: Higuita's scorpion — only a good keeper (overall 70+)
- if(role==='GK'||(live&&isKeeper(side,id)))return {stars:1,moves:(rec?.overall??0)>=70?['scorpion']:[]};
- const A=n=>baseAttribute(id,side,n,60),d=A('dribbling'),t=A('technique'),v=A('vision'),fin=A('finishing'),comp=A('composure');
- const stopper=role==='CB';
- const flair=d*.6+t*.4,stars=flair>=84?5:flair>=77?4:flair>=69?3:flair>=60?2:1,moves=[];
- if(stars>=4||(stars===3&&t>=76))moves.push('nutmeg');
- if(stars>=4&&!stopper)moves.push('stepover');
- if(!stopper&&(stars>=5||(stars>=4&&t>=80&&d>=80)))moves.push('elastico');
- if(v>=78&&t>=74)moves.push('nolook');
- if(stars>=3&&t>=70)moves.push('cruyff');
- const mid=/M/.test(role||'');
- if(stars>=4&&(mid||t>=80))moves.push('croqueta');
- if(!stopper&&(stars>=5||(stars>=4&&t>=80)))moves.push('roulette');
- if(moves.includes('nutmeg')&&stars>=4&&d>=78)moves.push('flairnutmeg');
- if(moves.includes('stepover')&&v>=75)moves.push('flairpass');
- if(!stopper&&(stars>=5||(stars>=4&&d>=82)))moves.push('rainbow');
- if(!stopper&&(stars>=5||(stars>=4&&d>=81&&t>=81)))moves.push('sombrero');
- if(!stopper&&stars>=5)moves.push('juggle');
- // passes, finishes and touches (V7.9 batch 3)
- if(t>=75)moves.push('backheel');
- if(!stopper&&(stars>=5||t>=86))moves.push('rabona');
- if(comp>=80&&t>=78)moves.push('panenka');
- if(role==='ST'&&(stars>=4||(t>=78&&fin>=80)))moves.push('bicycle');
- if(fin>=78&&t>=76)moves.push('chip');
- if(t>=78)moves.push('trap');
- if((role==='ST'||role==='CAM'||role==='CF')&&stars>=4&&t>=80)moves.push('pirouette');
+ // a keeper's one special is Higuita's scorpion, for a good keeper; the others' moves follow data/moves.js
+ if(role==='GK'||(live&&isKeeper(side,id))){const K=MOVE_DATA.keeper;return {stars:K.stars,moves:(rec?.overall??0)>=K.minOverall?[...K.moves]:[]};}
+ return movesFor(n=>baseAttribute(id,side,n,MOVE_DATA.rating.defaultAttribute),role);
+}
+// an outfield player's skill stars and special moves from his attributes and position (data/moves.js):
+// stars from the weighted flair against the thresholds; a move is his when any of its alternatives holds
+function movesFor(attr,role){
+ const R=MOVE_DATA.rating,flair=Object.entries(R.flair).reduce((n,[k,w])=>n+attr(k)*w,0);
+ const stars=1+R.starsAt.filter(at=>flair>=at).length,moves=[],value={stars};
+ const holds=alt=>Object.entries(alt).every(([k,v])=>
+  k==='role'?v.includes(role):k==='notRole'?!v.includes(role):k==='roleContains'?String(role||'').includes(v):
+  k==='move'?moves.includes(v):(value[k]??=attr(k))>=v);
+ for(const m of MOVE_DATA.moves)if(m.requires&&m.requires.some(holds))moves.push(m.id);
  return {stars,moves};
 }
 
@@ -159,7 +140,7 @@ function passSuccessProbability(from,side,sel,ctx={}){
   (ctx.effect?.passing||0)-(ctx.risk?.05:0)-(ctx.tempo>0?.035:ctx.tempo<0?-.02:0);
  return clamp(p,.25,.97);
 }
-const PASS_BASE=.935; // keeps league-average completion near the Phase 1 level so skill effects are not confounded with a level shift
+const PASS_BASE=BALANCE.engine.passBase; // keeps league-average completion near the Phase 1 level so skill effects are not confounded with a level shift
 function keeperRating(id,side){
  const p=playerRecord(id,side);if(!p)return 28;
  const g=p.gk;

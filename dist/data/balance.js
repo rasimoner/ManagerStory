@@ -1,0 +1,44 @@
+/* Balance: the numbers that tune the game, in one place.
+   league.lift: every league club plays this much above its listed level (difficulty; measured over 136
+   matches, our points per match 1.20). starScene: the skill stars that make a signing a star-transfer scene,
+   and the shirt numbers a star asks for first. training.cap: the most a training focus adds to an attribute.
+   season: the first season's year, the size of the transfer market and the smallest squad a club keeps.
+   development (summer, on top of weekly growth): the young close in on their potential, the peak years hold,
+   then a decline; keepers peak and decline later (gains and declines: [base, random span]).
+   retirement: the chance by age (keepers count as this many years younger), certain from certainAt; stars
+   retire less often, weak players more. contracts: the longest renewal by age and the wage demand.
+   wonderkid: the week he appears and the chance he is ours. market.positions: the cycle of positions
+   the market is filled with. engine: match tuning — the pass success base, which kind each attribute is and
+   how much tiredness weighs on each kind, and how much each skill suffers out of position, by role group.
+   Data only: everything after "=" is JSON (tests/data.test.cjs). */
+const BALANCE = {
+  "league": {"lift":5},
+  "starScene": {"minStars":4,"shirtWish":[10,7,9,11,8,17,19,21,23,99]},
+  "training": {"cap":8},
+  "season": {"baseYear":2025,"marketSize":110,"minSquad":16},
+  "development": {
+    "youngUntil": 21, "youngGain": [1,3],
+    "growingUntil": 24, "growingGain": [0,3],
+    "peakEnd": {"outfield":29,"keeper":32}, "peakGainChance": 0.35,
+    "declineAt": {"outfield":31,"keeper":34}, "plateauDropChance": 0.4,
+    "decline": [1,2], "declineStepYears": 2, "maxDecline": 5,
+    "potentialLate": {"outfield":28,"keeper":31}
+  },
+  "retirement": {
+    "keeperYearsYounger": 2,
+    "chanceByAge": {"33":0.08,"34":0.2,"35":0.4,"36":0.6,"37":0.8}, "fromAge": 33, "certainAt": 38,
+    "starOverall": 78, "starFactor": 0.6, "weakBelow": 65, "weakFactor": 1.4
+  },
+  "contracts": {
+    "maxYears": [[33,1],[31,2]], "defaultMaxYears": 3,
+    "wage": {"perOverallSquared":900,"unhappyBelow":55,"unhappyRaise":1.2,"raise":1.1,"veteranAge":32,"veteranFactor":0.85,"roundTo":10000}
+  },
+  "wonderkid": {"firstWeek":3,"weekSpan":10,"oursChance":0.3},
+  "engine": {
+    "passBase": 0.935,
+    "attributeKind": {"pace":"phys","acceleration":"phys","strength":"phys","physical":"phys","stamina":"phys","dribbling":"tech","passing":"tech","technique":"tech","finishing":"tech","tackling":"tech","composure":"mental","vision":"mental","positioning":"mental","offBall":"mental"},
+    "fitnessSensitivity": {"phys":0.45,"tech":0.2,"mental":0.09},
+    "misfitWeight": {"def":{"tackling":0.6,"positioning":0.6,"composure":0.2,"vision":0.15,"offBall":0.1,"passing":0.1},"mid":{"passing":0.3,"vision":0.35,"positioning":0.3,"tackling":0.25,"technique":0.25,"offBall":0.25,"composure":0.2},"att":{"finishing":0.6,"offBall":0.55,"dribbling":0.3,"technique":0.25,"composure":0.25,"positioning":0.15,"vision":0.1},"gk":{}}
+  },
+  "market": {"positions":["GK","LB","CB","CB","RB","CM","CM","CAM","LW","RW","ST"]}
+};

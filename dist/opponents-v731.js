@@ -2,10 +2,10 @@
    V7.9.5: each player's attributes come from player-profiles.js. */
 // V7.9.5: with real profiles a league player is a specialist like ours (before, every attribute sat at his
 // overall, which made him artificially strong); the league's level is set by its players' overall instead
-const LEAGUE_LIFT=5;   // measured: 136 matches, our points per match 1.20 (1.01 before profiles, 1.62 with them and no lift)
+const LEAGUE_LIFT=BALANCE.league.lift;
 const OPPONENT_ROLES=['GK','LB','CB','CB','RB','CM','CM','LW','CAM','RW','ST','GK','CB','CM','RW','ST'];
-const OPPONENT_FIRST=['Mehmet','Emir','Kaan','Eren','Ali','Kerem','Mert','Bora','Yiğit','Deniz','Tuna','Baran','Ozan','Yusuf','Ahmet','Arda','Sinan','Umut','Ferhat','Cem','Levent','Rıza','Sarp','Selim'];
-const OPPONENT_LAST=['Kaya','Demir','Aksoy','Yılmaz','Aydın','Çelik','Yıldız','Koç','Arslan','Kurt','Güneş','Polat','Şahin','Tekin','Yalçın','Özkan','Erdem','Altun','Aslan','Işık','Karaca','Öztürk','Doğan','Özer'];
+const OPPONENT_FIRST=NAME_DATA.rivals.first;
+const OPPONENT_LAST=NAME_DATA.rivals.last;
 function makeOpponentSquads(){
  const squads={};
  OPP.forEach((team,teamIndex)=>{

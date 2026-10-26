@@ -8,19 +8,18 @@
    season-transition branch (contracts, free agents) can change those lines without conflicts here. */
 
 // the one place that says which transfers get the scene
-const STAR_SCENE_MIN_STARS = 4;
-// the most spectacular move he has is the one he shows (the 19 special moves; keepers have their own)
-const STAR_SHOW_ORDER = ['elastico', 'rainbow', 'sombrero', 'roulette', 'flairnutmeg', 'juggle', 'croqueta', 'stepover', 'pirouette', 'rabona', 'bicycle', 'cruyff', 'nutmeg', 'flairpass', 'chip', 'panenka', 'backheel', 'nolook', 'trap'];
-// a player without a special move keeps the ball up instead
-const STAR_SHOW_FALLBACK = 'juggle';
-const STAR_SHOW_NAMES = { gkvolley: 'Elden vole', juggle: 'Top sektirme' };
+const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
+// the most spectacular move he has is the one he shows (data/moves.js starShow); without one, the fallback
+const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;
+const STAR_SHOW_FALLBACK = MOVE_DATA.starShow.fallback;
+const STAR_SHOW_NAMES = MOVE_DATA.starShow.names;
 // the numbers a star asks for first, when they are free
-const STAR_SHIRT_WISH = [10, 7, 9, 11, 8, 17, 19, 21, 23, 99];
+const STAR_SHIRT_WISH = BALANCE.starScene.shirtWish;
 
 function starIsKeeper(rec) { return String(rec?.pos || rec?.position || '').split('/')[0] === 'GK'; }
 // a keeper's skill stars are always 1 (his only special is the scorpion), so for this scene his class
 // comes from his overall instead
-function keeperShowStars(ovr) { return ovr >= 85 ? 5 : ovr >= 80 ? 4 : ovr >= 74 ? 3 : ovr >= 67 ? 2 : 1; }
+function keeperShowStars(ovr) { return 1 + MOVE_DATA.starShow.keeperStars.filter(at => ovr >= at).length; }
 function starShowRating(rec) {
   let k = { stars: 1, moves: [] };
   try { k = typeof recordMoves === 'function' ? recordMoves(rec) : k; } catch (e) { /* no rating: 1 star */ }
@@ -29,7 +28,7 @@ function starShowRating(rec) {
 }
 function starSceneQualifies(rec) { return !!rec && starShowRating(rec).stars >= STAR_SCENE_MIN_STARS; }
 function starShowMove(rating) {
-  if (rating.keeper) return rating.moves.includes('scorpion') ? 'scorpion' : 'gkvolley';
+  if (rating.keeper) return rating.moves.includes(MOVE_DATA.starShow.keeperMove) ? MOVE_DATA.starShow.keeperMove : MOVE_DATA.starShow.keeperFallback;
   return STAR_SHOW_ORDER.find(m => rating.moves.includes(m)) || STAR_SHOW_FALLBACK;
 }
 function starMoveName(kind) { return STAR_SHOW_NAMES[kind] || (typeof SKILL_NAMES === 'object' && SKILL_NAMES[kind]) || kind; }

@@ -1,26 +1,9 @@
 
-const P0=[
-["Onur",28,"GK",70,71,45,20,57,42,71,68,73],["Berkay",24,"LB",68,72,76,43,66,69,67,65,76],["Furkan",25,"CB",70,73,61,35,61,55,75,77,72],["Serkan",34,"CB",71,71,49,33,67,52,79,82,64],["Emre",22,"CB",67,75,66,34,60,57,71,73,74],["Diallo",25,"RB",70,74,81,45,64,71,68,72,78],["Burak",29,"CM",73,73,67,61,78,72,70,76,80],["Taylan",24,"CM",69,74,71,58,73,70,65,68,77],["Can",22,"CM",68,76,72,60,74,72,61,66,79],["Kerem",23,"RW",72,77,84,70,69,79,39,58,76],["Okoro",24,"LW",73,78,87,72,66,80,36,64,78],["Aras",19,"CAM",71,88,78,68,79,82,44,57,75],["Mensah",25,"ST",74,77,92,78,60,72,31,67,76],["Oğuz",28,"ST",72,72,63,76,67,64,39,89,72],["Yasin",21,"RW/LW",67,75,82,64,63,73,38,57,74],["Deniz",17,"CM",62,84,70,54,69,68,55,58,72]
-].map((x,i)=>({id:i,name:x[0],age:x[1],pos:x[2],overall:x[3],potential:x[4],pace:x[5],finishing:x[6],passing:x[7],dribbling:x[8],defending:x[9],physical:x[10],stamina:x[11],fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x[3]*x[3]*1200),contract:i==11?3:2,status:"Takımın parçası"}));
-const OPP=[
-["Boğaz Yıldızı",69,"deep",66,68,74,72,58,82,"Derin savunma ve kontra"],
-["Marmara 1912",72,"possession",73,76,70,71,66,74,"Pas oyunu ve sabır"],
-["Kadıköy Rüzgârı",71,"high",75,70,67,69,88,78,"Yüksek pres ve hızlı kanatlar"],
-["Haliç Spor",68,"physical",68,65,72,68,62,88,"Fizik ve duran toplar"],
-["Çınar FK",70,"balanced",70,70,70,70,68,72,"Dengeli ve kompakt"],
-["Üsküdar Martıları",73,"attack",78,73,68,72,75,71,"Cesur hücum"],
-["Mavişehir",71,"high",74,71,68,70,85,75,"Önde baskı"],
-["Hisar Gençlik",68,"youth",70,68,65,67,76,68,"Genç ve tempolu"],
-["Kuzey Liman",72,"high",75,71,70,71,82,79,"Agresif geçiş oyunu"],
-["Güneşli Atletik",67,"deep",64,66,72,68,52,80,"Kapalı savunma"],
-["Beykoz Kalesi",70,"balanced",69,71,73,72,64,78,"Savunma disiplini"],
-["Adalar Spor",66,"youth",69,66,62,65,80,64,"Hızlı ama tecrübesiz"],
-["Altınboynuz",74,"elite",79,77,75,76,78,80,"Geniş ve kaliteli kadro"],
-["Çamlıca 1908",71,"balanced",71,72,72,70,67,76,"Orta saha kontrolü"],
-["Moda Birlik",69,"high",73,67,65,68,86,69,"Riskli yüksek pres"],
-["Kıyıspor",68,"balanced",68,69,68,69,65,70,"Dengeli geçişler"],
-["Ormanşehir",70,"deep",67,69,76,71,55,84,"Fiziksel derin blok"]
-];
+// the squad a new career starts with (data/squad.js)
+const P0=STARTING_SQUAD.map((x,i)=>({id:i,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
+// the clubs we play against, as rows the engine reads by position: [name, level, style, attack, midfield, defence,
+// keeper, pressing, physical, description] (data/clubs.js)
+const OPP=CLUB_DATA.clubs.filter(c=>c.team).map(({name,team:t})=>[name,t.level,t.style,t.attack,t.midfield,t.defence,t.keeper,t.pressing,t.physical,t.description]);
 let S=loadCareer(), M=null, modal=null;
 const $=q=>document.querySelector(q), money=n=>"₺"+(n/1e6).toFixed(1)+"M";
 function fresh(){return{players:structuredClone(P0),currentClubId:"Anadolu Hisarı",week:1,day:1,fixture:0,budget:18e6,board:72,fans:68,rep:45,xi:[0,1,2,3,5,6,7,9,10,11,12],bench:[4,8,13,14,15],positions:{0:[50,90],1:[15,72],2:[38,73],3:[62,73],5:[85,72],6:[40,54],7:[60,54],10:[16,31],9:[84,31],11:[50,36],12:[50,13]},plan:{mentality:"Dengeli",press:"Normal",aras:"Serbest 10"},scheduled:[],promises:[],events:[],history:[],results:[],instructions:{},schedule:makeSchedule(),table:["Anadolu Hisarı",...OPP.map(x=>x[0])].map(n=>({n,p:0,gf:0,ga:0,pts:0})),event:null}}
@@ -37,7 +20,8 @@ function defaultPosFor(p,used=[]){let candidates=p.pos.split("/");let key=candid
 function normalizeFormation(){if(!S||!S.players)return;S.positions=S.positions||{};S.xi=S.xi.filter(id=>{let p=S.players.find(x=>x.id==id);return p&&p.status!="Transfer oldu"});let used=S.xi.map(id=>S.positions[id]).filter(Boolean);for(let id of S.xi){let p=S.players.find(x=>x.id==id);if(!S.positions[id]){S.positions[id]=defaultPosFor(p,used);used.push(S.positions[id])}}}
 function pushInbox(from,title,text,tone="normal"){S.inbox.unshift({from,title,text,tone,week:S.week,day:S.day,time:S.clock});S.inbox=S.inbox.slice(0,12)}
 function setClock(t){S.clock=t}
-const CLUBSTYLE={"Anadolu Hisarı":["#f3c623","#b3132b","v"],"Boğaz Yıldızı":["#111","#eee","h"],"Marmara 1912":["#1746a2","#ff7a00","d"],"Kadıköy Rüzgârı":["#6a1b9a","#f7d117","v"],"Haliç Spor":["#8b1e1e","#f1c75b","h"],"Çınar FK":["#146b3a","#eee","d"],"Üsküdar Martıları":["#0f4c81","#eee","v"],"Mavişehir":["#1557ff","#ffcf00","h"],"Hisar Gençlik":["#7a1010","#ddd","d"],"Kuzey Liman":["#151515","#e45d20","v"],"Güneşli Atletik":["#f3b300","#243447","h"],"Beykoz Kalesi":["#54278f","#f3c623","d"],"Adalar Spor":["#17a2a4","#fff","v"],"Altınboynuz":["#101820","#d4af37","h"],"Çamlıca 1908":["#18723a","#eee","d"],"Moda Birlik":["#e83e8c","#1d2433","v"],"Kıyıspor":["#0b7285","#ffdd57","h"],"Ormanşehir":["#235c2b","#eee","d"]};
+// club colours and crest pattern: name → [primary, secondary, pattern] (data/clubs.js)
+const CLUBSTYLE=Object.fromEntries(CLUB_DATA.clubs.map(c=>[c.name,[...c.colors,c.pattern]]));
 function crest(n,s=42){let c=CLUBSTYLE[n]||["#333","#ddd","v"],bg=c[2]=="h"?`linear-gradient(${c[0]} 0 50%,${c[1]} 50%)`:c[2]=="d"?`linear-gradient(135deg,${c[0]} 0 49%,${c[1]} 50%)`:`linear-gradient(90deg,${c[0]} 0 50%,${c[1]} 50%)`;return `<span class=crest style="width:${s}px;height:${s}px;background:${bg}"><i>${n.split(" ").map(x=>x[0]).join("").slice(0,2)}</i></span>`}
 // Presentation identity is resolved from the career or event, never from a second color state.
 function managedClubName(){return S?.currentClubId&&CLUBSTYLE[S.currentClubId]?S.currentClubId:'Anadolu Hisarı'}
@@ -74,9 +58,9 @@ function decorateAtmosphereScenes(){
  }
  document.querySelectorAll?.('.realfans,.goalflash,.fanscene')?.forEach(scene=>scene.style.setProperty('--fan-photo',`url("${fanPhoto(managedClubName())}")`));
 }
-const V6FN=["Ali","Efe","Mert","Doruk","Baran","Emir","Kaan","Tolga","Yiğit","Arda","Kerem","Eren","Umut","Bora","Demir","Atlas","Mete","Caner","Ozan","Levent","Mamadou","Ibrahima","Leo","Niko"],V6LN=["Kaya","Demir","Akın","Karaca","Erdem","Aydın","Koç","Şahin","Yalçın","Aslan","Tekin","Bulut","Kurt","Özer","Duran","Keita","N'Diaye","Mensah","Costa","Marin"],V6POS=["GK","LB","CB","CB","RB","CM","CM","CAM","LW","RW","ST"];
+const V6FN=NAME_DATA.market.first,V6LN=NAME_DATA.market.last,V6POS=BALANCE.market.positions;
 function vr(i,k=1){let x=Math.sin((i+S.week*13)*997.31+k*17.7)*43758.5453;return x-Math.floor(x)}
-function makeV6Market(){let clubs=Object.keys(CLUBSTYLE).filter(x=>x!="Anadolu Hisarı"),a=[];for(let i=0;i<110;i++){let pos=V6POS[i%V6POS.length],age=18+Math.floor(vr(i,2)*15),ov=57+Math.floor(vr(i,3)*21),pot=Math.min(93,ov+Math.floor(vr(i,4)*15)),price=Math.round((ov-50)*(ov-50)*21000*(.75+vr(i,5)*.6));a.push({id:"v6"+i,name:V6FN[i%V6FN.length]+" "+V6LN[(i*7)%V6LN.length],pos,age,overall:ov,potential:pot,club:clubs[i%clubs.length],price,happiness:40+Math.floor(vr(i,6)*61),pace:55+Math.floor(vr(i,7)*34),finishing:pos=="ST"?65+Math.floor(vr(i,8)*20):40+Math.floor(vr(i,8)*28),passing:52+Math.floor(vr(i,9)*31),physical:52+Math.floor(vr(i,10)*31),star:ov>=75&&pot>=84});marketProfile(a[a.length-1])}return a}
+function makeV6Market(){let clubs=Object.keys(CLUBSTYLE).filter(x=>x!="Anadolu Hisarı"),a=[];for(let i=0;i<BALANCE.season.marketSize;i++){let pos=V6POS[i%V6POS.length],age=18+Math.floor(vr(i,2)*15),ov=57+Math.floor(vr(i,3)*21),pot=Math.min(93,ov+Math.floor(vr(i,4)*15)),price=Math.round((ov-50)*(ov-50)*21000*(.75+vr(i,5)*.6));a.push({id:"v6"+i,name:V6FN[i%V6FN.length]+" "+V6LN[(i*7)%V6LN.length],pos,age,overall:ov,potential:pot,club:clubs[i%clubs.length],price,happiness:40+Math.floor(vr(i,6)*61),pace:55+Math.floor(vr(i,7)*34),finishing:pos=="ST"?65+Math.floor(vr(i,8)*20):40+Math.floor(vr(i,8)*28),passing:52+Math.floor(vr(i,9)*31),physical:52+Math.floor(vr(i,10)*31),star:ov>=75&&pot>=84});marketProfile(a[a.length-1])}return a}
 function transferOpen(){return S.week<=6||(S.week>=18&&S.week<=21)}
 function asking(x){return Math.round(x.price*(.72+(x.happiness/100)*.58)*(x.star?1.15:1))}
 let transferFilter={pos:"ALL",sort:"potential",type:"ALL"};
@@ -111,7 +95,7 @@ function ensureSeasonWonder(){
  S.v795??={wonderkids:[],seasons:{}};
  const season=S.season||"2025/26";
  if(!S.v795.seasons[season]){const seed=hashProfileSeed(`wonder|${season}|${S.matchSalt||0}`),r=R(seed);
-  S.v795.seasons[season]={week:3+Math.floor(r()*10),ours:r()<.3,seed,done:false}}
+  S.v795.seasons[season]={week:BALANCE.wonderkid.firstWeek+Math.floor(r()*BALANCE.wonderkid.weekSpan),ours:r()<BALANCE.wonderkid.oursChance,seed,done:false}}
  return S.v795.seasons[season];
 }
 function seasonWonderTick(){const plan=ensureSeasonWonder();if(plan.done||S.fixture<plan.week)return null;plan.done=true;return revealWonderkid(plan)}
@@ -332,12 +316,12 @@ function showTransferArrival(id){let p=S.players.find(x=>x.id==id),same=S.xi.map
 function newSigningRole(id,role){let p=S.players.find(x=>x.id==id);p.morale+=role=="bench"?0:2;S.history.push(`${p.name} için ilk rol belirlendi: rotasyon.`);save();showTransfers()}
 function newSigningReplace(id,outId){let idx=S.xi.indexOf(outId),slot=S.positions[outId]||defaultPosFor(S.players.find(x=>x.id==outId));if(idx>=0){S.xi[idx]=id;S.positions[id]=[...slot];delete S.positions[outId]}let p=S.players.find(x=>x.id==id),o=S.players.find(x=>x.id==outId);S.history.push(`${p.name}, ${o.name} yerine ilk 11'e yerleştirildi.`);save();modal="formation";render()}
 // V7.9: a player's skill stars and the special moves he can show in a match (pitch-v731 skillMoves)
-const SKILL_NAMES={scorpion:'Akrep vuruşu',nutmeg:'Bacak arası',stepover:'Makas',elastico:'Elastico',nolook:'Bakmadan pas',cruyff:'Cruyff dönüşü',croqueta:'La Croqueta',roulette:'Marsilya dönüşü',flairnutmeg:'Flair bacak arası',flairpass:'Makasla pas',rainbow:'Gökkuşağı',sombrero:'Aşırtma çalım',juggle:'Sektirip geçme',backheel:'Topuk pası',rabona:'Rabona',panenka:'Panenka',bicycle:'Röveşata',chip:'Kaleciyi aşırtma',trap:'Ayakla öldürme',pirouette:'Bergkamp dönüşü'};
+const SKILL_NAMES=Object.fromEntries(MOVE_DATA.moves.map(m=>[m.id,m.name]));
 // V7.9.5 list cards: the 1–5 skill stars at a glance, with how many special moves he has
 function listStars(k){if(!k||!k.stars)return '';const n=k.moves?.length||0;return `<div class=liststars><span class=skillstars aria-label="Yetenek ${k.stars} yıldız">${'★'.repeat(k.stars)}<i>${'★'.repeat(5-k.stars)}</i></span><small>${n?`${n} özel hareket`:'Özel hareketi yok'}</small></div>`}
 function skillLine(p){try{if(typeof skillMoves!=='function')return '';const k=skillMoves(p.id,'user');return `<div class=skills><span class=skillstars aria-label="Yetenek ${k.stars} yıldız">${'★'.repeat(k.stars)}<i>${'★'.repeat(5-k.stars)}</i></span>${k.moves.length?k.moves.map(m=>`<span class=skillmove>${SKILL_NAMES[m]||m}</span>`).join(''):'<small class=muted>Özel hareketi yok</small>'}</div>`}catch(e){return ''}}
 /* V7.9.5 player profile: type, every attribute, skill moves, training focus and the next move within reach */
-const ATTR_GROUPS=[["Hücum",[["finishing","Bitiricilik"],["offBall","Topsuz koşu"],["composure","Soğukkanlılık"]]],["Teknik",[["dribbling","Çalım"],["technique","Teknik"],["passing","Pas"],["vision","Oyun görüşü"]]],["Fizik",[["pace","Hız"],["acceleration","Çabukluk"],["strength","Güç"],["stamina","Dayanıklılık"]]],["Savunma",[["tackling","Top kapma"],["positioning","Pozisyon alma"]]]];
+const ATTR_GROUPS=PLAYER_DATA.attributeGroups;
 // the smallest training gain in the focus area (or dribbling) that would unlock a new move, if one is near
 function nextMoveHint(p){
  const focus=TRAINING_FOCUS[p.focus]||TRAINING_FOCUS.dribbling,keep={},now=movesNow(p);

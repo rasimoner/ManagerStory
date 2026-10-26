@@ -1,16 +1,9 @@
 /* ManagerStory V7.2: additive migration and shared match state. */
 const GAME_VERSION = "7.9.13";
-const MATCH_TACTICS = {
-  mentality: ["Temkinli", "Dengeli", "Cesur"],
-  press: ["Düşük", "Normal", "Yüksek"],
-  tempo: ["Düşük", "Normal", "Yüksek"],
-  line: ["Geride", "Normal", "Önde"],
-  approach: ["Dengeli", "Kanatlar", "Merkez", "Kontra"],
-  passingStyle: ["Kısa", "Dengeli", "Direkt"],
-  width: ["Dar", "Normal", "Geniş"]
-};
-const TACTIC_LABELS = { mentality: "Mentalite", press: "Pres", tempo: "Tempo", line: "Savunma çizgisi", approach: "Hücum yaklaşımı", passingStyle:"Pas stili", width:"Genişlik" };
-const TEAM_ORDERS = { compact: "Alanı daralt", patience: "Topu dolaştır", quick: "Hızlı geçiş yap" };
+// tactic settings, their labels and the team orders (data/tactics.js)
+const MATCH_TACTICS = TACTIC_DATA.options;
+const TACTIC_LABELS = TACTIC_DATA.labels;
+const TEAM_ORDERS = TACTIC_DATA.orders;
 const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 let loadError = "", saveWarning = false;
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));

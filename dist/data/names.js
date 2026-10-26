@@ -1,0 +1,12 @@
+/* Names for generated players: market and academy players (market), league clubs' players (rivals).
+   Data only: everything after "=" is JSON (tests/data.test.cjs). */
+const NAME_DATA = {
+  "market": {
+    "first": ["Ali","Efe","Mert","Doruk","Baran","Emir","Kaan","Tolga","Yiğit","Arda","Kerem","Eren","Umut","Bora","Demir","Atlas","Mete","Caner","Ozan","Levent","Mamadou","Ibrahima","Leo","Niko"],
+    "last": ["Kaya","Demir","Akın","Karaca","Erdem","Aydın","Koç","Şahin","Yalçın","Aslan","Tekin","Bulut","Kurt","Özer","Duran","Keita","N'Diaye","Mensah","Costa","Marin"]
+  },
+  "rivals": {
+    "first": ["Mehmet","Emir","Kaan","Eren","Ali","Kerem","Mert","Bora","Yiğit","Deniz","Tuna","Baran","Ozan","Yusuf","Ahmet","Arda","Sinan","Umut","Ferhat","Cem","Levent","Rıza","Sarp","Selim"],
+    "last": ["Kaya","Demir","Aksoy","Yılmaz","Aydın","Çelik","Yıldız","Koç","Arslan","Kurt","Güneş","Polat","Şahin","Tekin","Yalçın","Özkan","Erdem","Altun","Aslan","Işık","Karaca","Öztürk","Doğan","Özer"]
+  }
+};
