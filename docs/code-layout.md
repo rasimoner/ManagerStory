@@ -35,6 +35,7 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 
 | Dosya | Önceki yer | Ne |
 |---|---|---|
+| `ui/actions.js` | (yeni, C2) | Tek olay dağıtıcı: `data-action` ile isimli eylemler, değerler `data-*` özniteliklerinde |
 | `ui/nav.js` | `nav.js` | Gezinme: geri, kaydırma konumu, sekme |
 | `ui/webmcp.js` | `webmcp.js` | Tarayıcı model bağlamına salt-okunur kariyer aracı |
 
@@ -44,6 +45,14 @@ Header (`header`), alt menü (`bottomNav`), ekran kabuğu (`render`) ve listeler
 
 - `data/*.js`: oyun verisi (JSON değerler).
 - `index.html`, `sw.js`, `manifest.json`, ikonlar, `style.css`, `assets/`, `vendor/three/` (E'de npm'e geçer).
+
+## Ekrandaki düğmeler (C2)
+
+- Satır içi `onclick`/`onchange` yok. Bir düğme yaptığı işi isimle, değerlerini `data-*` ile taşır: `<button data-action="showPlayerProfile" data-id="12">`.
+- Eylemi ekranı çizen dosya kaydeder: `defineActions({ showPlayerProfile: d => showPlayerProfile(+d.id) })`. Değerler metin gelir; sayıya eylem çevirir.
+- Düğmeler tıklamada, form öğeleri (select, input) değişimde çalışır. Tıklanan öğe ile sayfa arasındaki her eylem içten dışa çalışır (eski satır içi işleyiciler gibi).
+- Geri düğmesi gittiği eylemi adlandırır: `header(['Kadro','openSquad'])`, değerleriyle `header(['Oyuncu','lineupPlayer',{id}])`.
+- Testlerde: `loadGame().click('eylem', {değerler})` ekranda çizilmiş düğmeye basar; `tests/actions.test.cjs` her çizilen eylemin kayıtlı olduğunu ve hiç satır içi işleyici kalmadığını denetler.
 
 ## Yolları etkileyen kurallar
 
