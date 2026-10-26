@@ -265,7 +265,7 @@ test('15. determinism: same seed, same lineups, same ratings give the same match
   const sig = fixture => { const h = fresh(fixture); playToEnd(h); return JSON.stringify(h.run("[M.hg,M.ag,M.events.map(e=>[e.type,e.fromId,e.toId,e.gameSecond,e.success]),S.players.map(p=>p.fitness.toFixed(4))]")); };
   assert.equal(sig(5), sig(5));
   assert.notEqual(sig(5), sig(6));
-  const src = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../dist/pitch-v731.js'), 'utf8') + require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../dist/pitch-v73.js'), 'utf8');
+  const src = require('./support/game.cjs').scriptsDefining(['actionMinute', 'executeRestart']).map(x => x.code).join('\n');
   assert.doesNotMatch(src, /Math\.random/);
 });
 

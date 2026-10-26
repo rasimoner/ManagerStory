@@ -59,9 +59,9 @@ test('tactical state is one config per team and only ever read through teamTacti
   h.run("M.press='Normal'");
   same(h.run("teamTactics('opp').press"), 'Yüksek');
   // the engine never reads the raw user fields for an opponent decision
-  const fs = require('node:fs'), path = require('node:path');
-  const src = fs.readFileSync(path.resolve(__dirname, '../dist/pitch-v73.js'), 'utf8');
-  assert.doesNotMatch(src, /M\.(press|tempo|line|width|mentality|passingStyle)\b/, 'pitch-v73.js reads tactics only through the team-scoped profile');
+  // (the script that holds the minute decision, today pitch-v73.js)
+  const src = require('./support/game.cjs').scriptsDefining(['actionMinute']).map(x => x.code).join('\n');
+  assert.doesNotMatch(src, /M\.(press|tempo|line|width|mentality|passingStyle)\b/, 'the minute decision reads tactics only through the team-scoped profile');
 });
 
 test('HIGH vs LOW press: more engagement and recovery pressure, more fatigue', { timeout: 300000 }, () => {
@@ -489,8 +489,8 @@ test('determinism: same seed, lineups, ratings and tactics give the same match; 
   const a = { press: 'Yüksek', passingStyle: 'Direkt', tempo: 'Yüksek' };
   assert.equal(sig(6, a), sig(6, a));
   assert.notEqual(sig(6, a), sig(6, {}));
-  const fs = require('node:fs'), path = require('node:path');
-  const src = ['pitch-v73.js', 'pitch-v731.js', 'match-support.js', 'live-match.js'].map(f => fs.readFileSync(path.resolve(__dirname, '../dist', f), 'utf8')).join('\n');
+  // the engine's scripts: minute decision, restarts, match state, full time
+  const src = require('./support/game.cjs').scriptsDefining(['actionMinute', 'executeRestart', 'ensureMatchState', 'finalizeMatch']).map(x => x.code).join('\n');
   assert.doesNotMatch(src, /Math\.random/);
 });
 

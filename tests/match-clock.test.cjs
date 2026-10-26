@@ -11,13 +11,12 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const vm = require('node:vm');
 const path = require('node:path');
-const { harness, playToEnd } = require('./engine-harness.cjs');
+const { harness, playToEnd, SUBSTITUTE } = require('./engine-harness.cjs');
 
 const root = path.join(__dirname, '..');
 const read = f => fs.readFileSync(path.join(root, 'dist', f), 'utf8');
-const SUBSTITUTE = vm.runInNewContext(fs.readFileSync(path.join(__dirname, 'engine-harness.cjs'), 'utf8').match(/const SUBSTITUTE = ('[^\n]+');/)[1]);
+
 const ENGINE = 'JSON.stringify([M.events,M.hg,M.ag,M.stats])';
 
 function engineOnly(fixture) {
@@ -28,10 +27,9 @@ function engineOnly(fixture) {
 }
 
 function withClock(fixture, { failPhotoEvery = 0 } = {}) {
-  const h = harness();
+  const h = harness(undefined, { layers: ['clock', 'view'] });
   // as in a browser: the goal graphic loads the team photo (node has no Image, the clock would skip the wait)
   h.run('if(typeof Image!=="function")globalThis.Image=function(){}');
-  h.run(read('match3d-live-clock.js')); h.run(read('match-view-adapter.js'));
   h.run(`S=fresh();init();S.fixture=${fixture};ManagerStoryLive3D.enable();startMatch();resumeLive()`);
   const seen = { minutesMixed: 0, halfEvents: 0, goals: 0, photoWaits: 0, jumps: [], steps: 0, speedRestarts: 0 };
   let prev = null, goalsAcked = 0;
@@ -98,8 +96,7 @@ for (const fixture of (process.env.CLOCK_FIXTURES || '0,7').split(',').map(Numbe
 }
 
 test('pause freezes the clock, positions, ball and event phase', () => {
-  const h = harness();
-  h.run(read('match3d-live-clock.js')); h.run(read('match-view-adapter.js'));
+  const h = harness(undefined, { layers: ['clock', 'view'] });
   h.run('S=fresh();init();ManagerStoryLive3D.enable();startMatch();resumeLive()');
   for (let i = 0; i < 300; i++) h.run(`ManagerStoryLive3D.step(.1,${i * 100})`);
   h.run('M.pause=true');
@@ -112,8 +109,7 @@ test('pause freezes the clock, positions, ball and event phase', () => {
 });
 
 test('the score and statistics on screen never run ahead of the engine', () => {
-  const h = harness();
-  h.run(read('match3d-live-clock.js')); h.run(read('match-view-adapter.js'));
+  const h = harness(undefined, { layers: ['clock', 'view'] });
   h.run('S=fresh();init();ManagerStoryLive3D.enable();startMatch();resumeLive()');
   for (let i = 0; i < 2800; i++) {
     h.run(`ManagerStoryLive3D.step(1/60,${i * 1000 / 60})`);
@@ -126,8 +122,7 @@ test('the score and statistics on screen never run ahead of the engine', () => {
 });
 
 test('switching 2D/3D and the match tabs keeps the engine, RNG, events and pending presentation', () => {
-  const h = harness();
-  h.run(read('match3d-live-clock.js')); h.run(read('match-view-adapter.js'));
+  const h = harness(undefined, { layers: ['clock', 'view'] });
   h.run('S=fresh();init();startMatch();resumeLive()');
   h.run('window.originalMatch=M;setMatchView("3d");for(let i=0;i<20;i++)ManagerStoryLive3D.step(.05,i*50);');
   const state = 'JSON.stringify([M.events,M.rand.state,pitchV73.active,pitchV73.queue,pitchV73.progress,ManagerStoryLive3D.time])';

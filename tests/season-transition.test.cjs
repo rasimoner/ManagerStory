@@ -6,50 +6,14 @@
    - season 2 plays a real live match to the end (assists and the compact archive come from real events) */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const vm = require('node:vm');
-const path = require('node:path');
-const base = path.resolve(__dirname, '../dist');
-const sources = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'season.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js']
-  .map(f => fs.readFileSync(path.join(base, f), 'utf8'));
+const { loadGame } = require('./support/game.cjs');
+const { FAST } = require('./support/career-sim.cjs');
 function harness(existing = new Map()) {
-  const alerts = [];
-  const app = { innerHTML: '', classList: { toggle() {} }, insertAdjacentHTML(_w, html) { this.innerHTML += html; } };
-  const ctx = { console, structuredClone, AbortController, URL, Blob, setTimeout, clearTimeout, Math,
-    localStorage: { getItem: k => existing.get(k) || null, setItem: (k, v) => existing.set(k, v), removeItem: k => existing.delete(k) },
-    document: { body: { classList: { toggle() {} } }, querySelector(q) { if (q === '#app') return app; if (q === '.bottomnav') return app.innerHTML.includes('class=bottomnav') ? {} : null; return null; } },
-    alert: m => alerts.push(m), confirm: () => true, prompt: () => null };
-  ctx.window = ctx; ctx.window.scrollTo = () => {}; vm.createContext(ctx);
-  for (const s of sources) vm.runInContext(s, ctx);
-  const h = { run: c => vm.runInContext(c, ctx), app, storage: existing, alerts };
+  const g = loadGame({ storage: existing });
+  const h = { run: g.run, app: g.app, storage: g.storage, alerts: g.alerts };
   h.run(FAST);
   return h;
 }
-// one league round without the live engine: our game through the league model, then everything finishMatch
-// does after a match (other games, league development, our development, wonderkid, academy reports)
-const FAST = `function fastRound(){
- const g=currentFixture().game,i=S.leagueSchedule[S.fixture].indexOf(g);
- simAIGame(g,S.fixture,90+i);
- const xi=S.xi.map(id=>S.players.find(p=>p.id===id)).filter(Boolean);
- const ug=g.home==='Anadolu Hisarı'?g.hg:g.ag,rnd=R(5000+S.fixture*31+(S.seasonIndex||0)*977);
- const rows=xi.map(p=>({id:p.id,name:p.name,minutes:90,goals:0,rating:+(6+rnd()*2).toFixed(1)})),evs=[];
- for(let k=0;k<ug;k++){const front=rows.filter(r=>!/GK|CB/.test(S.players.find(p=>p.id===r.id).pos)),s=front[Math.floor(rnd()*front.length)]||rows[0];
-  s.goals++;S.players.find(p=>p.id===s.id).goals++;const a=rows[Math.floor(rnd()*rows.length)];
-  if(a!==s)evs.push({type:'pass',fromId:a.id,toId:s.id,fromSide:'user',toSide:'user',success:true});evs.push({type:'goal',fromId:s.id,fromSide:'user'})}
- xi.forEach(p=>p.minutes=(p.minutes||0)+90);
- simulateRoundOthers();evolveOpponentSquads(S.fixture);
- S.results.push({home:g.home,away:g.away,hg:g.hg,ag:g.ag,week:S.fixture+1,matchSummary:{players:rows,events:evs}});
- seasonRecordMatch({events:evs},S.results[S.results.length-1]);
- S.v6.academyCounter++;evolveV6();seasonWonderTick();if(S.v6.academyCounter>=3+(S.fixture%2))refreshAcademy();
- S.fixture=Math.min(33,S.fixture+1);S.week++;S.day=1;
-}
-// the last round is played, the post-match press is answered: the next day starts the season end
-function fastSeason(){while(!seasonComplete())fastRound();S.week=34;S.day=4;S.event=null;advance();}
-// a manager's summer: keep the useful men, release the old and the weak
-function autoSeasonEnd(){let guard=0;while(S.seasonEnd&&guard++<20){const id=S.seasonEnd.steps[S.seasonEnd.at];
- if(id==='contracts'){const avg=S.players.reduce((n,p)=>n+p.overall,0)/S.players.length;
-  for(const x of S.seasonEnd.data.expiring){const p=S.players.find(q=>q.id===x.id);seasonContractPick(x.id,p.overall>=avg-3&&p.age<33||isGK(p.pos)?Math.min(2,x.maxYears):0)}}
- seasonEndNext(id)}}`;
 const json = (h, code) => JSON.parse(h.run(`JSON.stringify(${code})`));
 
 test('five seasons in a row: squads, strength spread and league balance stay sensible; every save round-trips', () => {

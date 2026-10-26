@@ -4,28 +4,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const vm = require('node:vm');
 const path = require('node:path');
 const base = path.resolve(__dirname, '../dist');
-const files = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'season.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js', 'star-transfer.js'];
-const sources = files.map(f => fs.readFileSync(path.join(base, f), 'utf8'));
+const { loadGame } = require('./support/game.cjs');
 
 function harness() {
-  const store = new Map();
-  const app = { innerHTML: '', classList: { toggle() {} }, insertAdjacentHTML(_w, html) { this.innerHTML = html + this.innerHTML; } };
-  const ctx = { console: { ...console, warn() {} }, structuredClone, AbortController, URL, Blob, setTimeout, clearTimeout, Math,
-    localStorage: { getItem: k => store.get(k) || null, setItem: (k, v) => store.set(k, v), removeItem: k => store.delete(k) },
-    document: { body: { classList: { toggle() {} } }, querySelector(q) { if (q === '#app') return app;
-      // the transfer office picture: the test card goes right after it (V7.9.8: no longer before the header)
-      if (q === '#app .vscene' && app.innerHTML.includes('<div class="vscene')) return { insertAdjacentHTML(_w, html) { const a = app.innerHTML.indexOf('<div class="vscene'), e = app.innerHTML.indexOf('</div>', a) + 6; app.innerHTML = app.innerHTML.slice(0, e) + html + app.innerHTML.slice(e); } };
-      if (q === '.bottomnav') return app.innerHTML.includes('class=bottomnav') ? {} : null; return null; } },
-    alert() {}, confirm: () => true, prompt: () => null };
-  ctx.window = ctx; ctx.window.scrollTo = () => {};
-  vm.createContext(ctx);
-  sources.forEach((s, i) => vm.runInContext(s, ctx, { filename: files[i] }));
-  const run = code => vm.runInContext(code, ctx);
-  run('S=fresh();S.matchSalt=newMatchSalt();init();save();render()');
-  return { run, html: () => app.innerHTML, json: code => JSON.parse(run(`JSON.stringify(${code})`)) };
+  const g = loadGame({ prepend: true, quiet: true, document(q, app) {
+    // the transfer office picture: the test card goes right after it (V7.9.8: no longer before the header)
+    if (q === '#app .vscene' && app.innerHTML.includes('<div class="vscene')) return { insertAdjacentHTML(_w, html) { const a = app.innerHTML.indexOf('<div class="vscene'), e = app.innerHTML.indexOf('</div>', a) + 6; app.innerHTML = app.innerHTML.slice(0, e) + html + app.innerHTML.slice(e); } };
+  } });
+  g.run('S=fresh();S.matchSalt=newMatchSalt();init();save();render()');
+  return { run: g.run, html: g.html, json: g.json };
 }
 // the best outfield star on the market and a player below the threshold
 const pick = (h, cond) => h.run(`S.v6.transferPool.find(x=>{const r=starShowRating(x);return ${cond}})?.id`);
@@ -34,7 +23,7 @@ test('one threshold decides: 4–5 star players get the scene, keepers by their 
   const h = harness();
   assert.equal(h.run('STAR_SCENE_MIN_STARS'), 4);
   // defined once (the only place to change it)
-  assert.equal(fs.readFileSync(path.join(base, 'star-transfer.js'), 'utf8').match(/const STAR_SCENE_MIN_STARS\b/g).length, 1);
+  assert.equal(require('./support/game.cjs').gameSources().map(x => x.code).join('\n').match(/const STAR_SCENE_MIN_STARS\b/g).length, 1);
   assert.equal(h.run(`starSceneQualifies({pos:'CAM',overall:80,dribbling:90,technique:90,vision:80,finishing:70,composure:70})`), true);
   assert.equal(h.run(`starSceneQualifies({pos:'CB',overall:80,dribbling:50,technique:55,vision:50,finishing:30,composure:60})`), false);
   // a keeper's skill stars are always 1; for the scene his overall counts
@@ -161,7 +150,7 @@ test('the page loads the scene files and the offline cache keeps them', () => {
 
 test('with the season transition: the star keeps his number and his clip into the next season', () => {
   const h = harness();
-  const FAST = fs.readFileSync(path.join(__dirname, 'season-transition.test.cjs'), 'utf8').match(/const FAST = `([\s\S]*?)`;/)[1];
+  const { FAST } = require('./support/career-sim.cjs');
   h.run(FAST);
   const id = pick(h, 'r.stars>=4&&!r.keeper');
   h.run(`S.budget=9e8;S.week=3;v6Sign('${id}',12000000);starFlow=null`);

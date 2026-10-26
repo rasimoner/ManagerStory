@@ -1,11 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
 const { harness, playToEnd } = require('./engine-harness.cjs');
-const adapter = fs.readFileSync(require('node:path').join(__dirname, '../dist/match-view-adapter.js'), 'utf8');
 function setup() {
-  const h = harness();
-  h.run(adapter);
+  const h = harness(undefined, { layers: ['view'] });
   return h;
 }
 test('view reads never initialize or mutate match/presentation/save state', () => {

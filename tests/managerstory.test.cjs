@@ -1,20 +1,12 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const vm=require('node:vm');
 const path=require('node:path');
 const base=path.resolve(__dirname,'../dist');
-const sources=['match-support.js','career-events.js','live-match.js','player-profiles.js','opponents-v731.js','season.js','pitch-v73.js','pitch-v731.js','app.js'].map(file=>fs.readFileSync(path.join(base,file),'utf8'));
+const {loadGame}=require('./support/game.cjs');
 function harness(existing=new Map()){
- const alerts=[],confirms=[];
- const app={innerHTML:'',classList:{toggle(){}},insertAdjacentHTML(_where,html){this.innerHTML+=html}};
- const ctx={console,structuredClone,AbortController,URL,Blob,setTimeout,clearTimeout,Math,
-  localStorage:{getItem:key=>existing.get(key)||null,setItem:(key,val)=>existing.set(key,val),removeItem:key=>existing.delete(key)},
-  document:{body:{classList:{toggle(){}}},querySelector(q){if(q==='#app')return app;if(q==='.bottomnav')return app.innerHTML.includes('class=bottomnav')?{}:null;return null;}},
-  alert:message=>alerts.push(message),confirm:message=>{confirms.push(message);return true},prompt:()=>null};
- ctx.window=ctx;ctx.window.scrollTo=()=>{};vm.createContext(ctx);
- for(const source of sources)vm.runInContext(source,ctx);
- return {run:code=>vm.runInContext(code,ctx),app,storage:existing,alerts,confirms};
+ const g=loadGame({storage:existing});
+ return {run:g.run,app:g.app,storage:g.storage,alerts:g.alerts,confirms:g.confirms};
 }
 function finishLiveGame(h){
  h.run('resumeLive();advanceLive(30)');
@@ -141,8 +133,7 @@ test('every offline asset exists',()=>{
  const assets=[...sw.matchAll(/"(\.\/[^"\n]+)"/g)].map(x=>x[1].slice(2).split('?')[0]);
  assert.ok(assets.length>=29);
  for(const rel of assets)assert.ok(fs.statSync(path.join(base,rel)).size>0,rel);
- assert.ok(assets.includes('match-support.js')&&assets.includes('career-events.js')&&assets.includes('live-match.js')&&assets.includes('pitch-v73.js'));
- assert.ok(assets.includes('opponents-v731.js')&&assets.includes('pitch-v731.js'));
+ // (that every script the page loads is cached: tests/service-worker.test.cjs)
  // V7.9.13: the old photos and cinematic GIFs nothing referenced are gone (tests/assets.test.cjs keeps it so)
  assert.ok(!fs.existsSync(path.join(assetsDir,'cinematics')));
 });

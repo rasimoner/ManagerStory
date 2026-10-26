@@ -5,7 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const DIST = path.resolve(__dirname, '../dist');
+const { pageScripts, DIST } = require('./support/game.cjs');
 
 // kept on purpose, not yet used: crowd pictures for weather and night matches
 const KEPT = ['assets/atmosphere/fans-day.webp', 'assets/atmosphere/fans-rain.webp', 'assets/atmosphere/fans-night.webp'];
@@ -17,7 +17,7 @@ function files(dir) {
 
 // the code that can name a picture: the page scripts, the ES modules, the stylesheets and the page itself
 function gameCode() {
-  const sources = ['index.html', 'manifest.json',
+  const sources = [...pageScripts().map(s => s.file), 'index.html', 'manifest.json',
     ...files('.').filter(f => /\.(css|js)$/.test(f) && !f.startsWith('vendor/') && f !== 'sw.js')];
   return [...new Set(sources)].map(f => fs.readFileSync(path.join(DIST, f), 'utf8')).join('\n');
 }

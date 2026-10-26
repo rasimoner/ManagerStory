@@ -300,16 +300,14 @@ test('15/16. no NaN, Infinity, undefined players or out-of-bounds coordinates ov
 });
 
 test('no second simulation path: legacy duplicates are gone and the live loop is single-sourced', () => {
-  const fs = require('node:fs');
-  const dist = path.resolve(__dirname, '../dist');
-  const count = (file, name) => (fs.readFileSync(path.join(dist, file), 'utf8').match(new RegExp('function ' + name + '\\b', 'g')) || []).length;
+  const { gameSources } = require('./support/game.cjs');
+  const count = (code, name) => (code.match(new RegExp('function ' + name + '\\b', 'g')) || []).length;
   for (const fn of ['actionMinute', 'eventPoint', 'paintLivePitch', 'eventPosition']) {
-    const total = ['live-match.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js', 'match-support.js'].reduce((n, f) => n + count(f, fn), 0);
+    const total = gameSources().reduce((n, s) => n + count(s.code, fn), 0);
     assert.ok(total <= 1, fn + ' defined ' + total + ' times');
   }
   // rendering reads engine state: the pitch painter never advances the seeded simulation
-  const painter = fs.readFileSync(path.join(dist, 'pitch-v73.js'), 'utf8');
-  const paint = painter.slice(painter.indexOf('function paintLivePitch'), painter.indexOf('function resetPitchHalf'));
+  const paint = harness().run('paintLivePitch.toString()');
   assert.doesNotMatch(paint, /M\.rand\(|tick\(|actionMinute\(|switchPitchOwner\(/);
 });
 
