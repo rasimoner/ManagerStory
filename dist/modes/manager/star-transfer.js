@@ -90,7 +90,7 @@ function beginStarTransfer(p, x, fee) {
   const moves = rating.moves.length;
   pushInbox('Spor Servisi', `SON DAKİKA • ${p.name} resmen bizde`, `${'★'.repeat(rating.stars)} ${p.pos} • ${moves ? moves + ' özel hareket' : 'özel hareketi yok'} • ${money(rec.fee)}. Taraftar stadın önüne akın etti; yıldız bu akşam tünelden çıkıp sahada ilk şovunu yapacak.`, 'board');
   save();
-  window.__cinematicNext = null;
+  clearCinematicNext();
   starFlow = { playerId: p.id, rec, rating, move, excite: starTransferExcite(rating.stars, fee), trial: false };
   starAnnounceScreen();
 }

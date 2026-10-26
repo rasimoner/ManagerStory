@@ -16,7 +16,7 @@ function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0); }
 function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
 function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
-  M = structuredClone(S.activeMatchV71);
+  setMatch(structuredClone(S.activeMatchV71));
   M.rand = R(M.rngState ?? matchSeed());
   delete M.uiOverlay;
   ensureMatchState();
@@ -120,7 +120,7 @@ function presentationEvent(e){
  return {...e,text:(e.minute??M.min)+'’ '+text,presentationActor:actor,presentationLabel:actor.kind==='keeper'?'KURTARIŞ':actor.kind==='field'?'BLOK':'MÜDAHALE'};
 }
 function liveCommentaryLines(){
-  if(window.ManagerStoryLive3D?.enabled&&!(!livePresentationPending()&&M.finished)){
+  if(presentation.live3d?.enabled&&!(!livePresentationPending()&&M.finished)){
     const s=currentPitchState(),e=s.controlMotion?.event||s.shotMotion?.event||s.contestMotion?.event||s.looseMotion?.event||s.holdMotion?.event||s.active;
     const text=e&&!['enginePositionGap','presentationSync'].includes(e.type)?presentationEvent(e).text:null;
     if(M.commentaryOpen){const boundary=e?.eventId??s.queue.find(x=>x.eventId!=null)?.eventId;const lines=M.events.filter(x=>x.eventId!=null&&(boundary==null||x.eventId<boundary)).slice(-79).reverse().map(x=>presentationEvent(x).text);return [text||'Sahada oyun sürüyor.',...lines];}
@@ -364,7 +364,7 @@ function switchMatchTab(tab) {
   if (tab === 'tactics' && !M.pause && !M.finished) { M.pause = true; M.reason = 'manual'; }
   render();
 }
-function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())window.ManagerStoryLive3D.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} liveLastFrame = null; save(); } }
+function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} liveLastFrame = null; save(); } }
 function closeMatchOverlay() {
   if (M) delete M.uiOverlay;
   render();
@@ -382,7 +382,7 @@ defineActions({
 function goMain(section) {
   if (runHooks('goMain', section).includes(true)) return;
   if (M) return;
-  modal = ["squad", "plan", "formation", "settings"].includes(section) ? section : null;
+  setModal(["squad", "plan", "formation", "settings"].includes(section) ? section : null);
   if (section === "league") return showLeague();
   if (section === "transfer") return showV6Transfers();
   if (section === "academy") return showAcademy();

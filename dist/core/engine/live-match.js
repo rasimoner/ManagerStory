@@ -56,17 +56,17 @@ function setMatchSpeed(speed) {
   if (!M || ![0.5, 1, 2].includes(Number(speed))) return;
   M.speed = Number(speed); save(); render();
 }
-const livePresentationPending = () => !!(window.ManagerStoryLive3D?.finishing||window.ManagerStoryLive3D?.halfPending);
-const livePlaybackPaused = () => livePresentationPending() ? window.ManagerStoryLive3D.paused : M?.pause;
+const livePresentationPending = () => !!(presentation.live3d?.finishing||presentation.live3d?.halfPending);
+const livePlaybackPaused = () => livePresentationPending() ? presentation.live3d.paused : M?.pause;
 function pauseLive(reason = 'manual') {
-  if(livePresentationPending()){window.ManagerStoryLive3D.setTerminalPaused(true);liveLastFrame=null;render();return;}
+  if(livePresentationPending()){presentation.live3d.setTerminalPaused(true);liveLastFrame=null;render();return;}
   if (!M || M.finished || M.reason === 'half') return;
   M.pause = true; M.reason = reason; M.lifecycle=reason==='half'?'HALF_TIME':'PAUSED';liveLastFrame = null;
   if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;
   save(); render();
 }
 function resumeLive() {
-  if(livePresentationPending()){window.ManagerStoryLive3D.setTerminalPaused(false);liveLastFrame=null;render();return;}
+  if(livePresentationPending()){presentation.live3d.setTerminalPaused(false);liveLastFrame=null;render();return;}
   if (!M || M.finished || M.reason === 'half') return;
   if (M.requiredSubstitution) resolveUnfillableSubstitution();
   if (M.requiredSubstitution && M.active.includes(M.requiredSubstitution.playerId)) {
@@ -85,7 +85,7 @@ function liveFrameStep(now) {
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
   liveLastFrame = now;
   const oldMin = M.min, wasPlaybackPaused = livePlaybackPaused();
-  if(window.ManagerStoryLive3D?.enabled){window.ManagerStoryLive3D.step(dt,now);}
+  if(presentation.live3d?.enabled){presentation.live3d.step(dt,now);}
   else if (!M.finished) advanceLive(dt * MATCH_PLAYBACK_SCALE);
   // A draining half has M.pause=true but its presentation is still running.
   // Re-rendering every frame resets liveLastFrame through ensureLiveLoop, so
@@ -111,7 +111,7 @@ function installBackgroundPause(){
 function finalizeMatch(){
   if(!M||M.lifecycle==='FINISHED'||M.lifecycle==='FINISHING')return false;
   M.lifecycle='FINISHING';M.matchElapsedSeconds=5400;M.min=90;M.pause=true;M.reason='end';
-  if(window.ManagerStoryLive3D?.enabled)window.ManagerStoryLive3D.beginFinish();
+  if(presentation.live3d?.enabled)presentation.live3d.beginFinish();
   else {
    if(liveFrame!==null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(liveFrame);
    liveFrame=null;liveLastFrame=null;

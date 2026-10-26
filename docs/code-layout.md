@@ -7,6 +7,8 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 
 | Dosya | Önceki yer | Ne | Neden burada |
 |---|---|---|---|
+| `core/state.js` | (yeni, C3) | Paylaşılan durum: `S` (kariyer), `M` (canlı maç), `modal` (açık ekran), `loadError`; sadece `setCareer`/`setMatch`/`setModal`/`setLoadError` ile değişir | Herkesin okuduğu durum tek yerde |
+| `core/presentation/registry.js` | (yeni, C3) | Sunum parçaları için yuvalar: `presentation.live3d`, `.view`, `.newView`, `.career3d`, `.starScene` (eskiden `window.ManagerStory…`) | Oyun sunuma `window` yerine buradan ulaşır |
 | `core/hooks.js` | (yeni, C3) | Genişletme noktaları: `onHook`/`runHooks`. Bir dosya başkasının fonksiyonunu sarmaz, adlandırılmış ana kaydolur | Ortak altyapı |
 | `core/random.js` | `random.js` | Tohumlanabilir tek rastgele üretici (`R`) | Motorun ve kariyerin tek rastgelelik kaynağı |
 | `core/save.js` | `save.js` | Kayıt yükleme/kaydetme, dışa/içe aktarma, taşıma zinciri | Kayıt ortak; mod alanları zamanla ayrı bölüme |

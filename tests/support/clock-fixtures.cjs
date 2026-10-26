@@ -17,14 +17,14 @@ function withClock(fixture, { failPhotoEvery = 0 } = {}) {
   const h = harness(undefined, { layers: ['clock', 'view'] });
   // as in a browser: the goal graphic loads the team photo (node has no Image, the clock would skip the wait)
   h.run('if(typeof Image!=="function")globalThis.Image=function(){}');
-  h.run(`S=fresh();init();S.fixture=${fixture};ManagerStoryLive3D.enable();startMatch();resumeLive()`);
+  h.run(`S=fresh();init();S.fixture=${fixture};presentation.live3d.enable();startMatch();resumeLive()`);
   const seen = { minutesMixed: 0, halfEvents: 0, goals: 0, photoWaits: 0, jumps: [], steps: 0, speedRestarts: 0 };
   let prev = null, goalsAcked = 0;
-  for (let i = 0; i < 400000 && !(h.run('M.finished') && !h.run('ManagerStoryLive3D.finishing')); i++) {
+  for (let i = 0; i < 400000 && !(h.run('M.finished') && !h.run('presentation.live3d.finishing')); i++) {
     seen.steps++;
     const speed = [0.5, 1, 2][Math.floor(i / 400) % 3];
     const before = h.run('({id:pitchV73.active?.eventId??null,progress:pitchV73.progress})');
-    h.run(`M.speed=${speed};ManagerStoryLive3D.step(.1,${i * 100})`);
+    h.run(`M.speed=${speed};presentation.live3d.step(.1,${i * 100})`);
     const after = h.run('({id:pitchV73.active?.eventId??null,progress:pitchV73.progress})');
     if (before.id != null && before.id === after.id && after.progress + 1e-9 < before.progress) seen.speedRestarts++;
     // one engine minute at a time in the queue
@@ -34,10 +34,10 @@ function withClock(fixture, { failPhotoEvery = 0 } = {}) {
     if (g && g.stage === 'image') {
       seen.photoWaits++;
       const failed = failPhotoEvery > 0 && ++goalsAcked % failPhotoEvery === 0;
-      h.run(`ManagerStoryLive3D.goalImageReady(M,${JSON.stringify(g.id)},${failed})`);
+      h.run(`presentation.live3d.goalImageReady(M,${JSON.stringify(g.id)},${failed})`);
     }
     // 2D positions
-    const frame = h.run(`(()=>{const v=MatchView.read();return v&&{ball:v.ball.displayPosition,pl:v.players.map(p=>[p.side+':'+p.id,p.displayPosition]),ev:pitchV73.active&&(pitchV73.active.goalReset||pitchV73.active.restartReset)?'reset':pitchV73.active?.type??null,t:ManagerStoryLive3D.time}})()`);
+    const frame = h.run(`(()=>{const v=presentation.view.read();return v&&{ball:v.ball.displayPosition,pl:v.players.map(p=>[p.side+':'+p.id,p.displayPosition]),ev:pitchV73.active&&(pitchV73.active.goalReset||pitchV73.active.restartReset)?'reset':pitchV73.active?.type??null,t:presentation.live3d.time}})()`);
     if (frame && prev && !['kickoff', 'restartPosition', 'restartPlayers', 'reset', 'goal', 'half', 'end', 'sub', 'red'].includes(frame.ev) && !['kickoff', 'restartPosition', 'restartPlayers', 'reset', 'goal', 'half', 'end', 'sub', 'red'].includes(prev.ev)) {
       const m = (a, b) => Math.hypot((a[0] - b[0]) * 1.05, (a[1] - b[1]) * 0.68);
       const was = new Map(prev.pl);
@@ -51,7 +51,7 @@ function withClock(fixture, { failPhotoEvery = 0 } = {}) {
       else h.run('resumeLive()');
     }
   }
-  seen.finished = h.run('M.finished') && !h.run('ManagerStoryLive3D.finishing');
+  seen.finished = h.run('M.finished') && !h.run('presentation.live3d.finishing');
   seen.engine = h.run(ENGINE);
   seen.ends = h.run("M.events.filter(e=>e.type==='end').length");
   seen.halves = h.run("M.events.filter(e=>e.type==='half').length");

@@ -372,7 +372,7 @@ export function playStarTransferScene(opts) {
       }
       raf = requestAnimationFrame(frame);
       // automated checks only: where the scene is
-      window.ManagerStoryStarScene = { get phase() { return phase; }, get total() { return total; }, get star() { return star && { x: star.pos.x, z: star.pos.z, no: star.no }; }, get excite() { return stadium.crowdMat.uniforms.uExcite.value; }, skipToEnd: () => finish({ closed: true }),
+      presentation.starScene = { get phase() { return phase; }, get total() { return total; }, get star() { return star && { x: star.pos.x, z: star.pos.z, no: star.no }; }, get excite() { return stadium.crowdMat.uniforms.uExcite.value; }, skipToEnd: () => finish({ closed: true }),
         // how upright he stands on screen (degrees; head over the feet = 0) and where the keeper's head is
         get tilt() { return screenTilt(star, camera); }, players: () => rt.players.map(p => ({ id: p.id, side: p.side, role: p.role, upright: uprightness(p) })) };
     }).catch(e => { console.warn('Yıldız sahnesi', e); finish(null); });

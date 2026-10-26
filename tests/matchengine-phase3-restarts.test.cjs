@@ -209,7 +209,7 @@ test('SUBSTITUTION: an injured player replaced by a different-position player ex
     h.run(`(function(){const p=S.players.find(x=>x.id===${out});p.injury=1;M.requiredSubstitution={playerId:${out},reason:'injury',state:'SUBSTITUTION_REQUIRED'};M.pause=true;M.reason='injury';M.lifecycle='PAUSED'})()`);
     // pick a bench player who is NOT a natural striker (different-position warning) and accept the confirm
     const inc = h.run(`S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&p.injury===0&&p.pos.split('/')[0]!=='ST'&&p.pos!=='GK').id`);
-    h.run(`window.OUT=${out}`);
+    h.run(`setSubOut(${out})`);
     assert.equal(h.run(`doSub(${inc})`), true);
     assert.equal(h.run('M.requiredSubstitution'), null, 'no second substitution is demanded');
     assert.equal(h.run(`M.active.includes(${out})`), false);

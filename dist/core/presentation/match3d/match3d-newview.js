@@ -1,8 +1,8 @@
 // New 3D match view (since V7.5.0).
 // Same MatchEngine, same events, same pause/speed and the same presentation clock as the 2D view.
 // This view plays each engine event as football; the existing presentation clock follows it
-// (window.ManagerStoryNewView.gate) and the next engine minute is generated only after this view
-// has played the current one (window.ManagerStoryNewView.busy).
+// (presentation.newView.gate) and the next engine minute is generated only after this view
+// has played the current one (presentation.newView.busy).
 import * as THREE from '../../../vendor/three/three.module.min.js';
 import { OutlineEffect } from '../../../vendor/three/addons/effects/OutlineEffect.js';
 import { buildStadium } from './newview/stadium.js';
@@ -116,7 +116,7 @@ const GK_SCENES = { gkpunch: 'Yumrukla uzaklaştırma', gkrush: 'Birebir: ayağa
 const TRY_NAMES = { scorpion: 'Kaleci: akrep vuruşu', stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas', cruyff: 'Cruyff dönüşü', croqueta: 'La Croqueta', roulette: 'Marsilya dönüşü', flairnutmeg: 'Flair bacak arası', flairpass: 'Makasla pas', rainbow: 'Gökkuşağı', sombrero: 'Aşırtma çalım', juggle: 'Sektirip geçme', backheel: 'Topuk pası', rabona: 'Rabona', trap: 'Ayakla öldürme', chip: 'Kaleciyi aşırtma', bicycle: 'Röveşata', panenka: 'Panenka', pirouette: 'Bergkamp dönüşü' };
 tuneEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.gk) { if (window.ManagerStoryNewView.star(b.dataset.gk)) banner('SAHNE · ' + GK_SCENES[b.dataset.gk].toUpperCase(), 1500); tuneEl.hidden = true; return; }
+  if (b.dataset.gk) { if (presentation.newView.star(b.dataset.gk)) banner('SAHNE · ' + GK_SCENES[b.dataset.gk].toUpperCase(), 1500); tuneEl.hidden = true; return; }
   if (b.dataset.try) { if (director) { director.tryNext(b.dataset.try); lastReplay = -99; banner('DENEME · ' + TRY_NAMES[b.dataset.try].toUpperCase(), 1500); } tuneEl.hidden = true; return; }
   const k = b.dataset.tk;
   if (k === 'close') { tuneEl.hidden = true; return; }
@@ -144,7 +144,7 @@ function setFull(on) {
     camMode = 'auto'; syncButtons();
     try { if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {}); } catch (e) { /* optional */ }
     surface.remove();
-    if (typeof render === 'function' && typeof M !== 'undefined' && M) render(); else window.ManagerStoryCareer3D.mount();
+    if (typeof render === 'function' && typeof M !== 'undefined' && M) render(); else presentation.career3d.mount();
   }
   cut = true;
 }
@@ -179,7 +179,7 @@ function paintHud() {
 // leave the broadcast view when the match needs the manager's screen
 function shouldLeaveFull() {
   if (!M) return true;
-  const halfReady = M.reason === 'half' && !window.ManagerStoryLive3D?.halfPending;
+  const halfReady = M.reason === 'half' && !presentation.live3d?.halfPending;
   const done = M.finished && !(typeof livePresentationPending === 'function' && livePresentationPending()) && !director?.busy;
   return halfReady || done || M.reason === 'injury' || !!M.requiredSubstitution;
 }
@@ -309,7 +309,7 @@ function updateCamera(dtReal, aspect) {
     const b = rt.ball.p, near = rt.ball.owner || rt.players.filter(p => !p.offPitch).reduce((m, p) => (!m || p.pos.distanceTo(b) < m.pos.distanceTo(b) ? p : m), null);
     cam = { mode: camMode === 'close' ? 'close' : camMode, a: camMode === 'close' ? near : null, b: null };
   }
-  const dev = window.ManagerStoryNewView?.devCam?.(rt); if (dev) cam = dev;     // (development: a held camera for reviews)
+  const dev = presentation.newView?.devCam?.(rt); if (dev) cam = dev;     // (development: a held camera for reviews)
   broadcast ||= createBroadcastCamera(camera);
   if (cut) { broadcast.cut(); cut = false; }
   broadcast.update(rt, cam, dtReal * tune.cam, aspect);
@@ -443,7 +443,7 @@ function frame(now) {
   const roster = rosterList(), key = JSON.stringify(roster.map(r => [r.side, r.id]));
   if (key !== rosterKey) { director.syncRoster(roster); rosterKey = key; }
   // after the final whistle the view still plays the match's last actions, unless the drain is paused
-  const hold = M.finished ? !director.busy || (!!window.ManagerStoryLive3D?.finishing && paused()) : paused();
+  const hold = M.finished ? !director.busy || (!!presentation.live3d?.finishing && paused()) : paused();
   // while a star replay plays the match waits (the clock waits for this view)
   const dt = hold || rp ? 0 : dtReal * realSpeed() * simSlow * TEST_SCALE * (FIXED_DT ? fastForward : 1);
   if (dt > 0) {
@@ -489,7 +489,7 @@ function frame(now) {
 
 // ---------- the live presentation clock follows this view ----------
 const FAST = 6;
-window.ManagerStoryNewView = {
+presentation.newView = {
   get active() { return isActive() && !!director && match === M; },
   get subtitle() { return sayLine; },
   get busy() { return this.active && director.busy; },
@@ -506,7 +506,7 @@ window.ManagerStoryNewView = {
   get replay() { return rp ? { kind: rp.kind, who: rp.key, t: rp.t, t0: rp.t0, t1: rp.t1 } : null; },
   get replayKept() { return replay.count; },
   get starPending() { return starPending; },
-  // development: play a special move now (console: ManagerStoryNewView.star('elastico'))
+  // development: play a special move now (console: presentation.newView.star('elastico'))
   get devScene() { return FIXED_DT ? { renderer, scene, crowd, outline } : null; },
   star(kind) { if (!director || rp) return null; replay.clear(); starPending = null; lastReplay = -99; return director.stage(kind) || null; },
   // (?nvfixdt&nvmanual) draw n frames of 1/60 s now
@@ -520,19 +520,19 @@ window.ManagerStoryNewView = {
   },
 };
 
-window.MatchView?.subscribe?.(snapshot => {
+presentation.view?.subscribe?.(snapshot => {
   if (!snapshot || match !== M || !surface.isConnected) return;
   try { window.paintPitchGoalFeedback?.(surface.querySelector('.pitch-goal-overlay'), snapshot.presentation?.goalFeedback); } catch (e) { /* overlay is optional */ }
 });
 
-window.ManagerStoryCareer3D = {
+presentation.career3d = {
   // the app re-renders its screen often; a fullscreen view stays where it is
   detach() { if (!full) surface.remove(); },
   get fullscreen() { return full; },
   setFullscreen(on) { setFull(!!on); },
   mount() {
     if (failed && M?.fieldView === '3d') { M.fieldView = '2d'; render(); return; }
-    if (M?.fieldView === '3d' && window.ManagerStoryLive3D && !window.ManagerStoryLive3D.enabled) { window.ManagerStoryLive3D.enable(); window.ManagerStoryLive3D.setTempo(1); }
+    if (M?.fieldView === '3d' && presentation.live3d && !presentation.live3d.enabled) { presentation.live3d.enable(); presentation.live3d.setTempo(1); }
     if (full) { if (!M) setFull(false); return; }
     const host = document.querySelector('#career-3d-host'); if (!host) return;
     host.append(surface);
@@ -544,4 +544,4 @@ window.ManagerStoryCareer3D = {
   get view() { return null; },
 };
 canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); fail(new Error('WebGL context lost')); });
-window.ManagerStoryCareer3D.mount();
+presentation.career3d.mount();

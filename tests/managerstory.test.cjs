@@ -11,7 +11,7 @@ function harness(existing=new Map()){
 function finishLiveGame(h){
  h.run('resumeLive();advanceLive(30)');
  // a seeded injury can legitimately stop the first half; handle it like the second-half helper does
- for(let tries=0;h.run('M.reason')==='injury'&&tries<6;tries++){h.run('(function(){window.OUT=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const outP=S.players.find(p=>p.id===window.OUT);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[window.OUT])>=.7);if(subP)doSub(subP.id);else if(outP)outP.injury=0;resumeLive()})()');h.run('advanceLive(30)');}
+ for(let tries=0;h.run('M.reason')==='injury'&&tries<6;tries++){h.run('(function(){setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const outP=S.players.find(p=>p.id===subOut);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);if(subP)doSub(subP.id);else if(outP)outP.injury=0;resumeLive()})()');h.run('advanceLive(30)');}
  assert.equal(h.run('M.reason'),'half');
  h.run("teamTalk('belief');startSecondHalf()");
  completeSecondHalf(h);
@@ -24,7 +24,7 @@ function completeSecondHalf(h){
  while(!h.run('M.finished')&&tries++<12){
   h.run('advanceLive(40)');
   if(h.run('M.reason')==='injury'){
-   h.run("window.OUT=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const out=S.players.find(p=>p.id===window.OUT);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[window.OUT])>=.7);if(sub)doSub(sub.id);else S.players.find(p=>p.id===window.OUT).injury=0;resumeLive()");
+   h.run("setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const out=S.players.find(p=>p.id===subOut);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);if(sub)doSub(sub.id);else S.players.find(p=>p.id===subOut).injury=0;resumeLive()");
   } else if(h.run('M.pause')&&!h.run('M.finished'))h.run('resumeLive()');
  }
  assert.ok(tries<12,'second half completes after any required injury substitution');
@@ -46,7 +46,7 @@ test('career, press, tactical tabs, instruction, substitution, two league rounds
  h.run("setMatchTactic('tempo','Yüksek')");assert.equal(h.run('M.tempo'),'Yüksek');
  h.run("switchMatchTab('pitch');openMatchPlayer(12)");assert.match(h.app.innerHTML,/Maç puanı <b>6.5/);
  h.run("setMatchOrder(12,'runBehind')");assert.equal(h.run('M.orderKeys[12]'),'runBehind');
- h.run('window.OUT=12;subUI()');assert.match(h.app.innerHTML,/Mensah.*ST/);assert.match(h.app.innerHTML,/Oğuz/);
+ h.run('setSubOut(12);subUI()');assert.match(h.app.innerHTML,/Mensah.*ST/);assert.match(h.app.innerHTML,/Oğuz/);
  h.run('doSub(13)');assert.ok(h.run('M.active.includes(13)&&!M.active.includes(12)'));assert.equal(h.run('M.substitutions.length'),1);
  const state=h.storage.get('msv4');assert.ok(state.length>1000);
  const reloaded=harness(new Map([['msv4',state]]));assert.equal(reloaded.run('M.min'),0);assert.equal(reloaded.run('M.tempo'),'Yüksek');assert.ok(reloaded.run('M.active.includes(13)'));
@@ -83,7 +83,7 @@ test('goal, card, tactical and fitness events are tied to the running match',()=
  h.run("M.activeTab='details';render()");assert.match(h.app.innerHTML,/Kırmızı kart/);
  h.run("M.activeTab='stats';render()");assert.match(h.app.innerHTML,/Pas yüzdesi/);
  h.run("M.activeTab='tactics';setMatchTactic('line','Önde')");assert.equal(h.run('M.line'),'Önde');assert.equal(h.run('M.events.at(-1).type'),'tactic');
- h.run('window.OUT=0;subUI()');assert.equal(h.run('doSub(14)'),true);assert.ok(h.confirms.at(-1).includes('YİNE DE OYNAT'));assert.ok(h.run('M.positionSuitability[14]')<1);
+ h.run('setSubOut(0);subUI()');assert.equal(h.run('doSub(14)'),true);assert.ok(h.confirms.at(-1).includes('YİNE DE OYNAT'));assert.ok(h.run('M.positionSuitability[14]')<1);
  assert.ok(h.storage.get('msv4').includes('"rngState"'));
 });
 test('press pools have 25+ templates, choices, no near repeats and conditional player meetings',()=>{
@@ -157,7 +157,7 @@ test('pause, touch and substitution freeze simulation and preserve position and 
  h.run('openMatchPlayer(12)');assert.equal(h.run('M.pause'),true);assert.match(h.app.innerHTML,/Topla buluşma/);
  h.run('advanceLive(100)');assert.equal(h.run('M.clockSeconds'),sec);assert.equal(h.run('M.events.length'),before);
  h.run("setMatchOrder(12,'runBehind')");assert.equal(h.run('M.orderKeys[12]'),'runBehind');assert.equal(h.run('M.pause'),true);
- h.run('window.OUT=12;subUI();doSub(13)');assert.equal(h.run('M.active.includes(12)'),false);
+ h.run('setSubOut(12);subUI();doSub(13)');assert.equal(h.run('M.active.includes(12)'),false);
  const start=h.run('M.events.length');h.run('resumeLive();advanceLive(3)');
  assert.ok(h.run('M.clockSeconds')>sec);
  const departed=h.run(`M.events.slice(${start}).filter(e=>e.playerId===12||e.fromId===12||e.toId===12)`);
@@ -354,7 +354,7 @@ test('return fixture uses identical opponent identities after growth and save',(
 });
 test('forced injury substitution follows player ID and permits out-of-position CAM to CB',()=>{
  const h=harness();h.run('S=fresh();init();startMatch();S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};M.pause=true;M.reason="injury";M.lifecycle="PAUSED";subUI()');
- assert.equal(h.run('window.OUT'),11);
+ assert.equal(h.run('subOut'),11);
  assert.equal(h.run('doSub(4)'),true);
  assert.equal(h.run('M.active.includes(11)'),false);
  assert.equal(h.run('M.active.includes(4)'),true);
@@ -422,7 +422,7 @@ test('conversation response changes trust and happiness with personality, then p
 test('injury at halftime remains resolvable without skipping halftime side switch',()=>{
  const h=harness();h.run('S=fresh();init();startMatch();M.min=45;M.clockSeconds=2700;M.pause=true;M.reason="half";M.lifecycle="HALF_TIME";S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"}');
  h.run('startSecondHalf()');assert.equal(h.run('M.reason'),'half');assert.match(h.alerts.at(-1),/Sakatlanan/);
- h.run('window.OUT=11;doSub(4)');assert.equal(h.run('M.reason'),'half');assert.equal(h.run('M.requiredSubstitution'),null);
+ h.run('setSubOut(11);doSub(4)');assert.equal(h.run('M.reason'),'half');assert.equal(h.run('M.requiredSubstitution'),null);
  h.run('startSecondHalf()');assert.equal(h.run('M.secondHalf'),true);assert.equal(h.run('M.lifecycle'),'RUNNING_SECOND_HALF');
 });
 test('authoritative second stamps events; stale 02:00 animation cannot replay under 07:56',()=>{
@@ -488,7 +488,7 @@ test('pause at 23:41, injury and position warning never accumulate wall-time or 
  h.run('advanceLive(10);pitchFrameState(10,50000)');
  assert.equal(h.run('M.matchElapsedSeconds'),before);assert.equal(h.run('M.events.length'),eventCount);assert.equal(h.run('pitchV73.progress'),.3);
  h.run('resumeLive()');assert.equal(h.run('M.matchElapsedSeconds'),before);
- h.run('S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};pauseLive("injury");window.OUT=11;subUI()');
+ h.run('S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};pauseLive("injury");setSubOut(11);subUI()');
  h.run('advanceLive(10)');assert.equal(h.run('M.matchElapsedSeconds'),before);
  h.run('doSub(4)');assert.ok(h.confirms.at(-1).includes('YİNE DE OYNAT'));
  assert.equal(h.run('M.matchElapsedSeconds'),before);

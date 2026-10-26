@@ -27,7 +27,7 @@
       matchSeconds: M.matchElapsedSeconds, speed: M.speed,
       teams: { home: copy(resolveClubIdentity('goal',{teamId:M.home})), away: copy(resolveClubIdentity('goal',{teamId:M.away})), userHome: M.userHome },
       statistics: { shots: copy(M.shots), xg: copy(M.stats?.xg), possession: copy(matchPossession()) },
-      lifecycle: M.lifecycle, paused: window.ManagerStoryLive3D?.enabled ? window.ManagerStoryLive3D.paused : M.pause, engineFinished:M.finished, finished: M.finished&&!window.ManagerStoryLive3D?.finishing,
+      lifecycle: M.lifecycle, paused: presentation.live3d?.enabled ? presentation.live3d.paused : M.pause, engineFinished:M.finished, finished: M.finished&&!presentation.live3d?.finishing,
       secondHalf: M.secondHalf, score: [M.hg, M.ag], players,
       ball: {
         presentationHeight:frame?.displayBallHeight??.15,
@@ -45,17 +45,17 @@
         eventScore: copy(frame.eventScore), eventStatistics: copy(frame.eventStatistics),
         duration: frame.durationEvent === frame.active ? frame.activeDuration : (frame.active ? eventAnimationTime(frame.active) : 0),
         seconds: frame.presentationSeconds ?? null, delta: frame.presentationDelta ?? 0,
-        clockSource: window.ManagerStoryLive3D?.enabled ? 'shared-live-frame / atomic-minute-backpressure' : 'legacy-presentation',
+        clockSource: presentation.live3d?.enabled ? 'shared-live-frame / atomic-minute-backpressure' : 'legacy-presentation',
         positionSamples:copy(frame.positionSamples),
         matchSeconds:frame.displayMatchSeconds??matchSecond(),
         rawEngineLeadSeconds:matchSecond()-(frame.displayMatchSeconds??matchSecond()),
         interventionBoundary:'next-uncomputed-engine-minute; current atomic batch is already committed',
-        readableTempo: window.ManagerStoryLive3D?.enabled ? window.ManagerStoryLive3D.tempo : null
+        readableTempo: presentation.live3d?.enabled ? presentation.live3d.tempo : null
       } : null,
       missing: ['body-facing', 'foot-contact-time', 'physical-ball-height', 'continuous-engine-velocity']
     });
   }
-  window.MatchView = Object.freeze({
+  presentation.view = Object.freeze({
     read,
     describePass(event, firstTouch = null) {
       if (!event || !['pass','cross'].includes(event.type)) return null;

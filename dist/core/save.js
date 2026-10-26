@@ -12,7 +12,7 @@
    rival squads, player profiles, defaults for a newly signed player. That is init()'s job on every start. */
 const SAVE_KEY = "msv4";
 const SAVE_SCHEMA = 1;
-let loadError = "", saveWarning = false;
+let saveWarning = false;
 
 const SAVE_MIGRATIONS = [
   {
@@ -83,8 +83,8 @@ function loadCareer() {
     if (state.version === "7.3.3" && !localStorage.getItem("msv4-v733-backup")) localStorage.setItem("msv4-v733-backup", raw);
     return migrateSave(state);
   } catch (error) {
-    loadError = /daha yeni/.test(error?.message || "") ? error.message
-      : "Kariyer kaydı okunamadı. Kayıt silinmedi; Ayarlar’dan dışa aktardığın yedeği yükleyebilirsin.";
+    setLoadError(/daha yeni/.test(error?.message || "") ? error.message
+      : "Kariyer kaydı okunamadı. Kayıt silinmedi; Ayarlar’dan dışa aktardığın yedeği yükleyebilirsin.");
     return null;
   }
 }
@@ -131,6 +131,6 @@ async function importCareer(file) {
     const data = validateCareerImport(JSON.parse(await file.text()));
     if (S && !confirm("Bu yedek mevcut kariyerin yerine yüklensin mi? Mevcut kayıt ayrıca yedeklenecek.")) return;
     if (S) localStorage.setItem("msv4-before-import", JSON.stringify(S));
-    S = migrateSave(data); M = null; modal = null; loadError = ""; init(); restoreActiveMatch(); save(); render();
+    setCareer(migrateSave(data)); setMatch(null); setModal(null); setLoadError(""); init(); restoreActiveMatch(); save(); render();
   } catch (error) { alert(error.message || "Kariyer yedeği yüklenemedi. Mevcut kayıt korundu."); }
 }

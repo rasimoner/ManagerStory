@@ -319,14 +319,14 @@
   // The existing RAF allows 2s engine catch-up. Presentation never repays that
   // wall-time debt with a burst: use its documented .12s frame cap, no backlog.
   // New 3D view (V7.5.0): this clock follows the view, holding an event until the view has started it.
-  const state=currentPitchState(),viewGate=window.ManagerStoryNewView?.gate?.(state),delta=Math.min(.12,Math.max(0,dt))*matchPlaybackRate()/tempo*(viewGate??1);
+  const state=currentPitchState(),viewGate=presentation.newView?.gate?.(state),delta=Math.min(.12,Math.max(0,dt))*matchPlaybackRate()/tempo*(viewGate??1);
   // Same frame callback and queue. Wall time of the image is never clip debt.
   if(state.goalPresentation){
    const g=state.goalPresentation;state.presentationDelta=0;
    if(g.stage==='net'){const take=Math.min(delta,Math.max(0,g.netUntil-presentationSeconds));presentationSeconds+=take;state.presentationSeconds=presentationSeconds;state.presentationDelta=take;if(presentationSeconds>=g.netUntil-1e-9)startGoalFeedback(state,now);}
    else if(g.stage==='image'){if(g.imageReady){g.stage='overlay';g.until=now+2000;state.goalFeedback.visible=true;}else if(g.imageFailed){state.goalPresentation=null;state.goalFeedback.visible=false;state.goalImageError='Team and existing fallback image unavailable';}}
    else if(now>=g.until){state.goalPresentation=null;state.goalFeedback.visible=false;}
-   if(window.MatchView)window.MatchView.publish(state);return;
+   if(presentation.view)presentation.view.publish(state);return;
   }
   presentationSeconds+=delta;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
   // Drain only the current atomic engine minute. Never produce a future minute behind a queue.
@@ -346,7 +346,7 @@
     const tail=keyframeTransition(state,anchorTargets(state,structuredClone(last.positions)),anchored(state,last.owner,last.ball),last.gameSecond,last.owner,last.side,last.positions,last.ball);
     if(tail){tail.controlMapped=true;tail.sampleInterval={fromGameSecond:last.gameSecond,toGameSecond:last.gameSecond,phase:'post-event-settlement'};tail.homeGoals=last.score[0];tail.awayGoals=last.score[1];tail.engineStatistics=last.statistics;state.queue.push(tail);}else {state.eventScore=last.score;state.eventStatistics=last.statistics;}
    }
-   if(!state.queue.length&&!M.finished&&!M.pause&&!window.ManagerStoryNewView?.busy){
+   if(!state.queue.length&&!M.finished&&!M.pause&&!presentation.newView?.busy){
     const start=matchSecond(),oldScore=state.eventScore||[M.hg,M.ag],oldStatistics=state.eventStatistics||{shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};
     motionSample=null;advanceLive((60-start%60)/90/M.speed);
     if(motionSample?.toPositions){
@@ -762,13 +762,13 @@
   }
   const completed=finishing()&&!state.goalPresentation&&!state.active&&!state.queue.length&&!state.batchEnd;
   if(completed){state.terminalPhase='complete';state.terminalPaused=false;state.displayMatchSeconds=5400;state.eventScore=[M.hg,M.ag];}
-  if(window.MatchView)window.MatchView.publish(state);
+  if(presentation.view)presentation.view.publish(state);
   if(completed||M.reason==='half'&&!halfPending())render();
  }
  const finishing=()=>enabled&&pitchV73?.match===M&&pitchV73.terminalPhase==='draining';
  const halfPending=()=>enabled&&M?.reason==='half'&&pitchV73?.match===M&&!!(pitchV73.active||pitchV73.queue.length||pitchV73.batchEnd||pitchV73.goalPresentation);
  const paused=()=>finishing()?!!pitchV73.terminalPaused:halfPending()?!!pitchV73.halfPaused:!!M?.pause;
- window.ManagerStoryLive3D={
+ presentation.live3d={
   get finishing(){return finishing()},get halfPending(){return halfPending()},get paused(){return paused()},
   goalImageReady(match,eventId,failed=false){if(match!==M)return;const g=currentPitchState().goalPresentation;if(g?.stage==='image'&&g.goal.eventId===eventId){g.imageReady=!failed;g.imageFailed=failed;}},
   beginFinish(){const s=currentPitchState();s.terminalPhase='draining';s.terminalPaused=false;},
