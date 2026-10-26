@@ -124,7 +124,7 @@ test('old saves and saves with other new fields load; the archive starts empty',
   const h = harness();
   // an old save: no archive, no shirt numbers; plus fields another branch may add (contracts, free agents)
   h.run(`(()=>{const d=structuredClone(S);delete d.highlights;d.players.forEach(p=>{delete p.number;p.contractInfo={years:2,wage:1e5}});d.freeAgents=[{name:'Serbest'}];d.seasonState={phase:'regular'};
-    S=validateCareerImport(d);migrateV71();init();save();render()})()`);
+    S=migrateSave(validateCareerImport(d));init();save();render()})()`);
   assert.deepEqual(h.json('ensureHighlights()'), []);
   assert.equal(h.run('latestStarTransfer()'), null);
   assert.equal(h.run('S.freeAgents.length'), 1, 'unknown fields are kept');

@@ -67,7 +67,7 @@ test('career, press, tactical tabs, instruction, substitution, two league rounds
  assert.equal(reloaded.alerts.length,0);
 });
 test('old W/D/L saves migrate without losing fixtures, budgets, players, or archive',()=>{
- const h=harness();h.run('S=fresh();init();S.budget=7345678;S.players[0].fitness=63;S.form["Anadolu Hisarı"]=["W","D","L"];S.event={kind:"training",title:"Önceki kayıt",choices:[["İlerle","tactics"]]};S.v71=undefined;save()');
+ const h=harness();h.run('S=fresh();init();S.budget=7345678;S.players[0].fitness=63;S.form["Anadolu Hisarı"]=["W","D","L"];S.event={kind:"training",title:"Önceki kayıt",choices:[["İlerle","tactics"]]};S.v71=undefined;delete S.schemaVersion;save()');
  const raw=h.storage.get('msv4');h.storage.delete('msv4-v70-backup');
  const migrated=harness(h.storage);assert.equal(migrated.run('S.budget'),7345678);assert.equal(migrated.run('S.players[0].fitness'),63);
  assert.equal(JSON.stringify(migrated.run('S.form["Anadolu Hisarı"]')),JSON.stringify(['G','B','M']));
@@ -175,7 +175,7 @@ test('playback speeds change wall time only, while seeded MatchEvents remain ide
  assert.equal(signatures[0],signatures[1]);assert.equal(signatures[1],signatures[2]);
 });
 test('live save resumes at the same second and V7.1 career is backed up without replacing game data',()=>{
- const h=harness();h.run('S=fresh();init();S.version="7.1";delete S.v72;S.budget=7234567;save()');
+ const h=harness();h.run('S=fresh();init();S.version="7.1";delete S.v72;delete S.schemaVersion;S.budget=7234567;save()');
  const old=h.storage.get('msv4');const migrated=harness(h.storage);
  assert.equal(migrated.storage.get('msv4-v71-backup'),old);assert.equal(migrated.run('S.budget'),7234567);
  migrated.run('startMatch();advanceLive(9.18);pauseLive()');const snap=migrated.storage.get('msv4');
@@ -236,7 +236,7 @@ test('generated match events include carrying, off ball runs, pressure, tackles 
  assert.ok(h.run('M.stats.tackles.every(Number.isFinite)'));
 });
 test('V7.2 career save is preserved and upgraded on load',()=>{
- const h=harness();h.run('S=fresh();init();S.version="7.2";S.budget=7732100;delete S.v73;save()');
+ const h=harness();h.run('S=fresh();init();S.version="7.2";S.budget=7732100;delete S.v73;delete S.schemaVersion;save()');
  const original=h.storage.get('msv4'),restored=harness(h.storage);
  assert.equal(restored.storage.get('msv4-v72-backup'),original);
  assert.equal(restored.run('S.budget'),7732100);
@@ -326,7 +326,7 @@ test('opponent roster identities, attributes, fatigue, evolution and V7.3 migrat
  const eff=h.run('playerAttribute("o9","opp","pace",0)');
  assert.ok(eff<=other.pace&&eff>=other.pace*.8);
  h.run('evolveOpponentSquads(S.fixture)');assert.equal(h.run('S.v731.lastEvolvedFixture'),0);
- h.run('S.version="7.3";save()');const original=h.storage.get('msv4');
+ h.run('S.version="7.3";delete S.schemaVersion;save()');const original=h.storage.get('msv4');
  const reopened=harness(h.storage);
  assert.equal(reopened.storage.get('msv4-v73-backup'),original);
  assert.equal(reopened.run('S.version'),reopened.run('GAME_VERSION'));
@@ -550,7 +550,7 @@ test('club atmosphere: career, stadium and scoring identities resolve independen
  assert.equal(restored.run('officePhoto("Ormanşehir")'),'assets/atmosphere/office-club-17.webp');
  assert.equal(restored.run('fanPhoto("Ormanşehir")'),'assets/atmosphere/goal-club-17.webp');
  assert.equal(restored.run('fanPhoto("Anadolu Hisarı")'),'assets/atmosphere/goal-club-0.webp');
- restored.run('delete S.currentClubId;save()');const legacy=harness(restored.storage);
+ restored.run('delete S.currentClubId;delete S.schemaVersion;save()');const legacy=harness(restored.storage);
  assert.equal(legacy.run('S.currentClubId'),'Anadolu Hisarı','an old save gets the starting club');
  assert.equal(restored.run('resolveClubIdentity("goal",{teamId:"Unknown"}).primaryColor'),'#55646b');
  assert.equal(restored.run('Object.keys(CLUBSTYLE).length'),18);

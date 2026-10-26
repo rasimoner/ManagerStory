@@ -2,6 +2,9 @@
 
 Oyunun bugün ürettiği sonuçlar; yeniden yapılanma bunları değiştirmemeli. Kaydedildiği sürüm: V7.9.13.
 
+Yenilemeler:
+- Refactor B4 (sürümlü kayıt): kariyer hash'leri (`careerAfterHash`, `careerHash`, `afterSummerHash`) kayda eklenen `schemaVersion` alanı için yenilendi. Bu alan çıkarılınca eski değerlerin hepsi birebir tuttu; olay günlükleri, skorlar, maç özetleri ve ekranlar değişmedi.
+
 | Dosya | Testi | Ne |
 |---|---|---|
 | `matches.json` | `characterization-matches.test.cjs` | 34 fikstürün her biri yeni kariyerle sonuna kadar: olay günlüğünün tamamı (hash), skor, istatistik, maç sonrası kariyer (hash), okunur maç özeti, olay türü sayıları |

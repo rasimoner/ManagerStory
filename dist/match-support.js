@@ -1,11 +1,10 @@
-/* ManagerStory V7.2: additive migration and shared match state. */
+/* ManagerStory: shared match state, match events and the in-match panel. (Saves: save.js.) */
 const GAME_VERSION = "7.9.13";
 // tactic settings, their labels and the team orders (data/tactics.js)
 const MATCH_TACTICS = TACTIC_DATA.options;
 const TACTIC_LABELS = TACTIC_DATA.labels;
 const TEAM_ORDERS = TACTIC_DATA.orders;
 const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
-let loadError = "", saveWarning = false;
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
@@ -15,72 +14,6 @@ const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":
 // (the salt itself is drawn by newMatchSalt in random.js, outside the engine)
 function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0); }
 function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
-function loadCareer() {
-  try {
-    const raw = localStorage.getItem("msv4");
-    if (!raw) return null;
-    const state = JSON.parse(raw);
-    if (!state || !Array.isArray(state.players) || !Array.isArray(state.xi)) throw new Error("Kayıt biçimi tanınamadı.");
-    if (state.matchSalt == null) state.matchSalt = newMatchSalt();
-    if (!state.v71 && !localStorage.getItem("msv4-v70-backup")) localStorage.setItem("msv4-v70-backup", raw);
-    if (state.v71 && state.version !== GAME_VERSION && !localStorage.getItem("msv4-v71-backup")) localStorage.setItem("msv4-v71-backup", raw);
-    if (state.version === "7.2" && !localStorage.getItem("msv4-v72-backup")) localStorage.setItem("msv4-v72-backup", raw);
-    if (state.version === "7.3" && !localStorage.getItem("msv4-v73-backup")) localStorage.setItem("msv4-v73-backup", raw);
-    if (state.version === "7.3.1" && !localStorage.getItem("msv4-v731-backup")) localStorage.setItem("msv4-v731-backup", raw);
-    if (state.version === "7.3.2" && !localStorage.getItem("msv4-v732-backup")) localStorage.setItem("msv4-v732-backup", raw);
-    if (state.version === "7.3.3" && !localStorage.getItem("msv4-v733-backup")) localStorage.setItem("msv4-v733-backup", raw);
-    return state;
-  } catch (error) {
-    loadError = "Kariyer kaydı okunamadı. Kayıt silinmedi; Ayarlar’dan dışa aktardığın yedeği yükleyebilirsin.";
-    return null;
-  }
-}
-function migrateV71() {
-  if (!S) return;
-  S.currentClubId ??= CLUB_DATA.startingClub; // legacy saves have one managed club: the starting one
-  S.v71 ??= { schema: 1, preUsed: [], postUsed: [], conversations: [], serial: 0 };
-  for (const key of ["preUsed", "postUsed", "conversations"]) S.v71[key] ??= [];
-  S.v71.serial ??= 0;
-  S.v71.meetingClock ??= {};
-  S.v71.playerMeetings ??= {};
-  S.v71.categoryMeetings ??= {};
-  S.plan ??= {};
-  for (const [key, values] of Object.entries(MATCH_TACTICS)) {
-    if (!values.includes(S.plan[key])) S.plan[key] = ["mentality","approach","passingStyle"].includes(key) ? "Dengeli" : "Normal";
-  }
-  S.plan.teamInstructions ??= [];
-  if (S.form) for (const team of Object.keys(S.form)) S.form[team] = S.form[team].map(x => FORM_TR[x] || x);
-  S.promises ??= [];
-  for (const promise of S.promises) {
-    if (promise.type === "minutes" && promise.atMinutes == null) {
-      promise.atMinutes = S.players.find(p => p.id === promise.player)?.minutes || 0;
-    }
-  }
-  S.version = GAME_VERSION;
-  S.v72 ??= { schema: 1 };
-  S.v73 ??= { schema: 1 };
-  S.v731 ??= { schema: 1, lastEvolvedFixture: -1 };
-  S.v732 ??= { schema: 1, conversationHistory: [], feedback: null };
-  S.v733 ??= { schema: 1 };
-  for (const p of S.players) {
-    p.managerTrust ??= finite(p.relation,65);
-    p.confidence ??= clamp(finite(p.form,70)-20,35,75);
-    p.pressure ??= 50;
-    p.motivation ??= clamp(finite(p.morale,70)-20,35,75);
-  }
-}
-function persistCareer() {
-  if (!S) return;
-  if (M) {
-    const { rand, ...snapshot } = M;
-    S.activeMatchV71 = { ...snapshot, rngState: rand.state };
-  } else delete S.activeMatchV71;
-  try { localStorage.setItem("msv4", JSON.stringify(S)); saveWarning = false; }
-  catch (error) {
-    if (!saveWarning) alert("Cihazda kayıt için yeterli alan yok. Kariyer yedeğini Ayarlar’dan dışa aktar.");
-    saveWarning = true;
-  }
-}
 function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
   M = structuredClone(S.activeMatchV71);
@@ -453,36 +386,4 @@ function decorateMainScreen(section) {
   if (M || !S) return;
   if (typeof decorateAtmosphereScenes === "function") decorateAtmosphereScenes();
   if (!$(".bottomnav")) $("#app").insertAdjacentHTML("beforeend", bottomNav(section));
-}
-function exportCareer() {
-  if (!S) return;
-  save();
-  const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob), a = document.createElement("a");
-  a.href = url; a.download = `ManagerStory-V7.3-Hafta-${S.week}.json`; a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-function validateCareerImport(data) {
-  if (!data || !Array.isArray(data.players) || !data.players.length || !Array.isArray(data.xi) ||
-      !Array.isArray(data.table) || data.table.length !== 18 || !Number.isFinite(data.budget) ||
-      !Number.isInteger(data.fixture) || data.fixture < 0 || data.fixture > 33 ||
-      !data.players.every(p => Number.isInteger(p.id) && typeof p.name === 'string' && typeof p.pos === 'string') ||
-      !data.xi.every(id => data.players.some(p => p.id === id))) throw new Error("Geçerli bir ManagerStory kariyer yedeği seç.");
-  // Imported saves are data, never a source of HTML or inline event handlers.
-  if (/[<>]/.test(JSON.stringify(data)) ||
-      data.event?.choices?.some(choice => !Array.isArray(choice) || typeof choice[1] !== 'string' || !/^[\w:-]+$/.test(choice[1])) ||
-      data.v6?.transferPool?.some(player => typeof player.id !== 'string' || !/^v6(?:wk|fa|n)?\d+$/.test(player.id))) {
-    throw new Error("Kariyer yedeğinde güvenli olmayan içerik var.");
-  }
-  return data;
-}
-async function importCareer(file) {
-  if (!file) return;
-  try {
-    if (file.size > 8 * 1024 * 1024) throw new Error("Yedek dosyası çok büyük.");
-    const data = validateCareerImport(JSON.parse(await file.text()));
-    if (S && !confirm("Bu yedek mevcut kariyerin yerine yüklensin mi? Mevcut kayıt ayrıca yedeklenecek.")) return;
-    if (S) localStorage.setItem("msv4-before-import", JSON.stringify(S));
-    S = data; M = null; modal = null; loadError = ""; migrateV71(); init(); restoreActiveMatch(); save(); render();
-  } catch (error) { alert(error.message || "Kariyer yedeği yüklenemedi. Mevcut kayıt korundu."); }
 }
