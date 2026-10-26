@@ -43,14 +43,16 @@ test('every file index.html loads, and every ES module it imports, is in the ser
     ...[...html.matchAll(/href="([^"?]+\.(?:json|png))"/g)].map(m => m[1]),
   ];
   const inlineImports = [...html.matchAll(/import\(\s*'\.\/([^']+)'\s*\)/g)].map(m => m[1]);
+  // a dynamic import in a script resolves against that script's own address
   const lazyImports = [];
   for (const f of pageFiles.filter(f => f.endsWith('.js'))) {
-    for (const m of read(f).matchAll(/import\(\s*['"]\.\/([^'"]+)['"]\s*\)/g)) lazyImports.push(m[1]);
+    for (const m of read(f).matchAll(/import\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g)) lazyImports.push(path.posix.join(path.posix.dirname(f), m[1]));
   }
   const modules = moduleGraph([...inlineImports, ...lazyImports]);
   const missing = [...new Set([...pageFiles, ...modules])].filter(f => !list.has(f));
   assert.deepEqual(missing, [], 'missing from sw.js: ' + missing.join(', '));
-  assert.ok(modules.has('newview/replay.js'), 'module graph reaches newview/replay.js');
+  assert.ok([...modules].some(f => f.endsWith('newview/replay.js')), 'module graph reaches newview/replay.js');
+  assert.ok([...modules].some(f => f.endsWith('star-transfer-scene.js')), 'and the star transfer scene, imported on demand');
 });
 
 // published but deliberately not cached for offline play

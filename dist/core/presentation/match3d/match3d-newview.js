@@ -3,8 +3,8 @@
 // This view plays each engine event as football; the existing presentation clock follows it
 // (window.ManagerStoryNewView.gate) and the next engine minute is generated only after this view
 // has played the current one (window.ManagerStoryNewView.busy).
-import * as THREE from './vendor/three/three.module.min.js';
-import { OutlineEffect } from './vendor/three/addons/effects/OutlineEffect.js';
+import * as THREE from '../../../vendor/three/three.module.min.js';
+import { OutlineEffect } from '../../../vendor/three/addons/effects/OutlineEffect.js';
 import { buildStadium } from './newview/stadium.js';
 import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js';
 import { loadRig } from './newview/rig.js';
@@ -206,7 +206,7 @@ function initRenderer() {
 }
 
 function loadAssets() {
-  assetsPromise ??= fetch(new URL('./assets/models/footballer-rig.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('rig ' + r.status); return r.json(); }).then(data => {
+  assetsPromise ??= fetch(new URL('../../../assets/models/footballer-rig.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('rig ' + r.status); return r.json(); }).then(data => {
     const rig = loadRig(data), gait = {};
     for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
     assets = { rig, gait };

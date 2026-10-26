@@ -1,6 +1,6 @@
 // Shared pitch runtime: footballers, ball physics, locomotion, actions and keeper dives.
 // Used by the real-match director. No DOM.
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 import { buildFootballerGeometry, buildNumberGeometry } from './footballer.js';
 import { ACTIONS, applyAction, envelope, rigOf, footClearance } from './actions.js';
 

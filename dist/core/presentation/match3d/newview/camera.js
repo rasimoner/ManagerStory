@@ -1,6 +1,6 @@
 // The broadcast camera of the new view: where it wants to be for the current shot (tv, stand, close-up,
 // shot) and how it eases there. Shared by the page and the tests, so the tests watch the real camera.
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 
 export function createBroadcastCamera(camera) {
   const pos = new THREE.Vector3(-8, 12, 26), look = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();

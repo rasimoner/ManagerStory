@@ -165,7 +165,7 @@ function starWalkOut(replayRec) {
     // no 3D on this device: the old photo scene of the fans waiting for him
     cinematic('assets/atmosphere/fans-neutral.webp', 'TESİSLERİN ÖNÜ', 'TARAFTARLAR YENİ YILDIZI BEKLİYOR', `${p.name} ${p.number} numaralı formayla selamladı. Gösterisi: ${starMoveName(f.move)}.`, replay ? 'Kulübe dön' : 'Devam', replay ? done : () => starClosingScreen(), `${p.name}! ${p.name}! ${club.name}’a hoş geldin!`, 'fans');
   };
-  (starSceneModule ??= import('./star-transfer-scene.js'))
+  (starSceneModule ??= import('../../core/presentation/scenes/star-transfer-scene.js'))
     .then(m => m.playStarTransferScene(opts))
     .then(r => { if (!r) return fallback(); if (replay) return done(); if (r.closed) return done(); starClosingScreen(); })
     .catch(e => { console.warn('Yıldız sahnesi açılamadı', e); fallback(); });

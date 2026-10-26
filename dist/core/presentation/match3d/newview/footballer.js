@@ -1,7 +1,7 @@
 // Stylized footballer mesh, generated in the bind (T-pose) space of our own
 // skeleton so the recorded clips drive it directly. One geometry, one draw call;
 // a per-vertex "part" id selects skin / shirt / shorts / socks / boots / hair.
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 
 export const PART = { skin: 0, shirt: 1, trim: 2, shorts: 3, socks: 4, sockTrim: 5, boot: 6, sole: 7, hair: 8, dark: 9, glove: 10 };
 

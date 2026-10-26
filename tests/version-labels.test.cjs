@@ -2,6 +2,7 @@
    the lock file, the game (GAME_VERSION, the start screen, settings), the page title, the manifest, the script
    cache-busters and the service worker follow it. (V7.9.5: the README still said V7.9.2.) */
 const test = require('node:test');
+const { readDist } = require('./support/game.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -14,7 +15,7 @@ test('one version everywhere: README, lock file, game, page, manifest, cache-bus
   assert.equal(lock.version, v, 'package-lock.json');
   if (lock.packages?.['']) assert.equal(lock.packages[''].version, v, 'package-lock.json packages[""]');
   assert.equal(read('README.md').split('\n')[0], `# ManagerStory V${v}`, 'README title');
-  assert.match(read('dist/match-support.js'), new RegExp(`const GAME_VERSION = "${v.replace(/\./g, '\\.')}";`), 'GAME_VERSION');
+  assert.match(readDist('match-support.js'), new RegExp(`const GAME_VERSION = "${v.replace(/\./g, '\\.')}";`), 'GAME_VERSION');
   const html = read('dist/index.html');
   assert.ok(html.includes(`<title>ManagerStory V${v} `), 'page title');
   const busters = [...html.matchAll(/\?v=([\d.]+)/g)].map(m => m[1]);
@@ -24,7 +25,7 @@ test('one version everywhere: README, lock file, game, page, manifest, cache-bus
   assert.match(sw, new RegExp(`const CACHE = "managerstory-v${v.replace(/\./g, '\\.')}-`), 'service-worker cache key');
   const swBusters = [...sw.matchAll(/\?v=([\d.]+)/g)].map(m => m[1]);
   assert.ok(swBusters.length >= 7 && swBusters.every(x => x === v), 'sw.js ?v= ' + [...new Set(swBusters)]);
-  const app = read('dist/app.js');
+  const app = readDist('app.js');
   assert.ok(app.includes(`V${v} • Hisar Matchday`), 'start screen');
   assert.ok(app.includes(`ManagerStory • V${v} • MatchEngine`), 'settings');
 });

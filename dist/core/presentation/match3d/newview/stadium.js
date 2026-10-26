@@ -1,5 +1,5 @@
 // Toon stadium for the new match view: pitch, goals, flags, boards, stands and an animated crowd.
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 
 export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' }) {
   // ---------- lighting ----------

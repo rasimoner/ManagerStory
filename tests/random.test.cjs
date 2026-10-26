@@ -21,7 +21,7 @@ test('no game script calls Math.random', () => {
   const scripts = [...gameSources({ layers: ['clock', 'view'] }).map(s => s.file), ...moduleFiles()];
   const offenders = [...new Set(scripts)].filter(f => /Math\.random/.test(fs.readFileSync(path.join(DIST, f), 'utf8')));
   assert.deepEqual(offenders, []);
-  assert.ok(scripts.includes('random.js') && scripts.includes('newview/director.js'), 'page scripts and modules both checked');
+  assert.ok(scripts.some(f => f.endsWith('random.js')) && scripts.some(f => f.endsWith('newview/director.js')), 'page scripts and modules both checked');
 });
 
 test('R: a fixed seed gives the same numbers as always, and its state resumes the sequence', () => {

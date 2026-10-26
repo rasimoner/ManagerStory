@@ -5,7 +5,7 @@
 //   Spine x: + lean forward · y: + turn to own left · z: + bend to own right
 //   Arm z: Left −80 / Right +80 hangs the arm, Left +80 / Right −80 raises it · x: − swings forward
 //   ForeArm y: Left −, Right + bends the elbow · Head x: + look down
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 
 const D2R = Math.PI / 180;
 const BASE = {

@@ -10,8 +10,8 @@ const dist = path.join(__dirname, '..', 'dist');
 
 test('keeper after the scorpion: up off his front, never rolled onto his back', async () => {
   const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'newview/rig.js'));
-  const { createRuntime, analyseGait, V } = await import(path.join(dist, 'newview/runtime.js'));
+  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
+  const { createRuntime, analyseGait, V } = await import(path.join(dist, 'core/presentation/match3d/newview/runtime.js'));
   const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
   const gait = {}; for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null, stride: 0.75 });

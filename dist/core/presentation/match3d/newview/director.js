@@ -1,6 +1,6 @@
 // Plays a real MatchEngine event log on the pitch runtime.
 // The engine decides who does what and where; this file only decides how it looks.
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
 

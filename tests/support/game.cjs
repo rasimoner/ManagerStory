@@ -89,4 +89,17 @@ function scriptsDefining(names, options) {
   return found;
 }
 
-module.exports = { loadGame, pageScripts, gameSources, scriptsDefining, DIST };
+/* Where a file lives under dist, found by its name, so a test that reads one file (its source, a constant
+   in it) follows the file when it moves to another folder. One match only; vendor/ is not searched. */
+function locate(name, dist = DIST) {
+  const walk = dir => fs.readdirSync(path.join(dist, dir), { withFileTypes: true }).flatMap(d => {
+    const f = path.posix.join(dir, d.name);
+    return d.isDirectory() ? (f === 'vendor' ? [] : walk(f)) : [f];
+  });
+  const found = walk('').filter(f => f === name || f.endsWith('/' + name));
+  if (found.length !== 1) throw new Error(`locate(${name}): ${found.length} files`);
+  return found[0];
+}
+const readDist = (name, dist = DIST) => read(locate(name, dist), dist);
+
+module.exports = { loadGame, pageScripts, gameSources, scriptsDefining, locate, readDist, DIST };

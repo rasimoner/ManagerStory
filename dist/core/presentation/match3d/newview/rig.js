@@ -1,7 +1,7 @@
 // ManagerStory's own footballer skeleton and its locomotion clips.
 // Data: assets/models/footballer-rig.json, built by tools/build-rig.mjs from Quaternius'
 // Universal Animation Library (CC0 1.0). No third-party model files are loaded at runtime.
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 
 export function loadRig(data) {
   if (data?.format !== 'managerstory-rig-1') throw new Error('Unknown rig format');

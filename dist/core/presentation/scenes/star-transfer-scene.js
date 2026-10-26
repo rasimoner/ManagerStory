@@ -2,13 +2,13 @@
 // A small stage of its own, built from the match view's pieces (stadium, crowd, footballer runtime and the
 // director that plays the special moves): the star, one team-mate, one opponent and the keepers. Its own
 // WebGL renderer is created for the scene and released when it ends (phones keep little GPU memory).
-import * as THREE from './vendor/three/three.module.min.js';
-import { OutlineEffect } from './vendor/three/addons/effects/OutlineEffect.js';
-import { buildStadium } from './newview/stadium.js';
-import { createRuntime, analyseGait, BALL_R, V } from './newview/runtime.js';
-import { loadRig } from './newview/rig.js';
-import { createDirector } from './newview/director.js';
-import { createBroadcastCamera } from './newview/camera.js';
+import * as THREE from '../../../vendor/three/three.module.min.js';
+import { OutlineEffect } from '../../../vendor/three/addons/effects/OutlineEffect.js';
+import { buildStadium } from '../match3d/newview/stadium.js';
+import { createRuntime, analyseGait, BALL_R, V } from '../match3d/newview/runtime.js';
+import { loadRig } from '../match3d/newview/rig.js';
+import { createDirector } from '../match3d/newview/director.js';
+import { createBroadcastCamera } from '../match3d/newview/camera.js';
 
 // timings (seconds): the whole scene stays short on a phone
 export const TIMES = { walk: 6.2, cheer: 2.2, fade: 0.35, showMax: 12, after: 1.6, closing: 4, cap: 40 };
@@ -38,7 +38,7 @@ const css = `.sts{position:fixed;inset:0;z-index:1200;background:#0b0f14;overflo
 
 let rigPromise = null;
 function loadAssets() {
-  rigPromise ??= fetch(new URL('./assets/models/footballer-rig.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('rig ' + r.status); return r.json(); }).then(data => {
+  rigPromise ??= fetch(new URL('../../../assets/models/footballer-rig.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('rig ' + r.status); return r.json(); }).then(data => {
     const rig = loadRig(data), gait = {};
     for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
     return { rig, gait };

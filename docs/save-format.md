@@ -1,6 +1,6 @@
 # ManagerStory kayıt biçimi
 
-Kod: `dist/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri). Testler: `tests/save-format.test.cjs`, `tests/saves.test.cjs`.
+Kod: `dist/core/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri). Testler: `tests/save-format.test.cjs`, `tests/saves.test.cjs`.
 
 ## Kayıt nedir
 - Kariyer durumu `S`'nin JSON'u. Tarayıcıda `localStorage["msv4"]` içinde durur; dışa aktarılan dosya aynı JSON'dur (girintili).
@@ -18,7 +18,7 @@ Kod: `dist/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri).
 Şu anki biçim: **1** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
-- Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`dist/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
+- Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`dist/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
 - `migrateSave(state)` kaydın biçiminden başlayıp adımları sırayla çalıştırır, sonra `schemaVersion` ve `version` yazar.
 - Nerede çalışır:
   - tarayıcı kaydı açılırken (`loadCareer`);

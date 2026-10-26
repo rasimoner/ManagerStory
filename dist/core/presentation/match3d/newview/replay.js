@@ -1,7 +1,7 @@
 // V7.9 star replay: the last few seconds of the pitch are kept (every player's body and the ball), so a
 // special move can be shown again straight away, slowly, from a close camera. Only the picture is
 // replayed: the match itself (engine, director, clock) waits while it plays.
-import * as THREE from '../vendor/three/three.module.min.js';
+import * as THREE from '../../../../vendor/three/three.module.min.js';
 
 export function createReplay({ frames = 360, minDt = 1 / 100 } = {}) {
   const times = new Float64Array(frames), recs = new Map(), ballRec = new Float32Array(frames * 7);

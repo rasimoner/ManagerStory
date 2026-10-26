@@ -38,10 +38,10 @@ function recordMatch(fixture) {
 // ---- view side: director + runtime on the simulated pitch, at the view's own step ----
 async function playMatch(rec) {
   const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'newview/rig.js'));
-  const { createRuntime, analyseGait } = await import(path.join(dist, 'newview/runtime.js'));
-  const { createDirector } = await import(path.join(dist, 'newview/director.js'));
-  const { createBroadcastCamera } = await import(path.join(dist, 'newview/camera.js'));
+  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
+  const { createRuntime, analyseGait } = await import(path.join(dist, 'core/presentation/match3d/newview/runtime.js'));
+  const { createDirector } = await import(path.join(dist, 'core/presentation/match3d/newview/director.js'));
+  const { createBroadcastCamera } = await import(path.join(dist, 'core/presentation/match3d/newview/camera.js'));
   const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
   const gait = {}; for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null, stride: 0.75 });
