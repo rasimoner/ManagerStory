@@ -9,8 +9,8 @@ function harness() {
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();save();render()');
   return { run: g.run, html: g.html };
 }
-// the attribute is HTML-escaped; the browser hands nav.js the decoded value
-const backTarget = html => html.match(/class="iconbtn navback"[^>]*data-target="([^"]*)"/)?.[1].replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+// where the back button leads: the action it runs (data-to) and its values
+const backTarget = html => { const tag = html.match(/<button class="iconbtn navback"[^>]*>/)?.[0] || ''; const to = tag.match(/data-to="([^"]*)"/)?.[1], id = tag.match(/data-id="([^"]*)"/)?.[1]; return id ? `${to}:${id}` : to; };
 
 test('tab roots have no back button', () => {
   const h = harness();
@@ -26,13 +26,13 @@ test('tab roots have no back button', () => {
 test('detail screens carry their back button in the header', () => {
   const h = harness();
   const cases = [
-    ['showPlayerProfile(S.players[3].id)', "modal='squad';render()"],
-    ['showMarketProfile(S.v6.transferPool[0].id)', 'showV6Transfers()'],
-    ['showAcademyProfile(S.v6.academy[0].id)', 'showAcademy()'],
-    ['showInbox()', 'render()'],
-    ['showWorld()', 'render()'],
-    ['showSettings()', 'modal=null;render()'],
-    ["modal='formation';render()", 'modal=null;render()'],
+    ['showPlayerProfile(S.players[3].id)', 'openSquad'],
+    ['showMarketProfile(S.v6.transferPool[0].id)', 'showV6Transfers'],
+    ['showAcademyProfile(S.v6.academy[0].id)', 'showAcademy'],
+    ['showInbox()', 'redraw'],
+    ['showWorld()', 'redraw'],
+    ['showSettings()', 'openHome'],
+    ["modal='formation';render()", 'openHome'],
   ];
   for (const [open, target] of cases) {
     h.run(open);

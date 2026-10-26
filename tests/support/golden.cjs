@@ -40,9 +40,11 @@ function matchJSON(name, actual) {
   assert.deepEqual(actual, JSON.parse(fs.readFileSync(file, 'utf8')), `golden ${name} changed`);
 }
 
-/* Compare a text (an HTML screen) with tests/golden/<name>. GOLDEN_SCREENS=structure ignores inline
-   event handlers (onclick="…", data-action="…"), for the step that replaces one with the other. */
-const stripHandlers = html => html.replace(/\s(?:on[a-z]+|data-action|data-args)="[^"]*"/g, '');
+/* Compare a text (an HTML screen) with tests/golden/<name>. GOLDEN_SCREENS=structure ignores what wires
+   the page: inline event handlers (onclick="…", quoted or not) and data-* attributes (data-action and the
+   values it reads), for the step that replaces one with the other (refactor C2). Everything else, text,
+   tags, classes and the other attributes, must stay the same. */
+const stripHandlers = html => html.replace(/\s(?:on[a-z]+|data-[a-z-]+)=(?:"[^"]*"|'[^']*'|[^\s>"']+)/g, '');
 function matchText(name, actual) {
   actual = versionless(actual);
   const file = path.join(DIR, name);

@@ -1,5 +1,5 @@
 /* V7.9.5 navigation: one behaviour for every menu screen.
-   - Detail screens put their back button in the sticky header (header(['Kadro', "modal='squad';render()"])),
+   - Detail screens put their back button in the sticky header (header(['Kadro', 'openSquad']), an action name),
      so going back is one tap wherever you are on the page. Tab roots have no back button: the tab bar is the way out.
    - Going back returns to where you were on the list; opening a new screen starts at the top.
    - Tapping the active tab: on its root it scrolls to the top, on one of its detail screens it returns to the root.
@@ -36,7 +36,7 @@
     const back = backButton();
     if (!back) return 'root:' + activeTab();
     const title = document.querySelector('#app h1')?.textContent.trim() || '';
-    return 'detail:' + back.dataset.target + '|' + title;
+    return 'detail:' + back.dataset.to + ':' + (back.dataset.id ?? '') + '|' + title;
   }
 
   function settle() {

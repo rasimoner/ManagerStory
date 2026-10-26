@@ -71,11 +71,40 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
     vm.runInContext(code, ctx, { filename: file });
   }
   const run = code => vm.runInContext(code, ctx);
+  /* Press a button drawn on the screen, as the page's dispatcher would: the first element with that
+     data-action whose data-* values match (a value of undefined: the attribute is absent). Its data-*
+     values are handed to the action as the browser would (strings); extra element fields such as a
+     select's value go in `element`. A disabled button cannot be pressed. */
+  const click = (action, match = {}, element = {}) => {
+    const all = actionsOn(app.innerHTML).filter(a => a.action === action);
+    const found = all.find(a => Object.entries(match).every(([k, v]) => v === undefined ? !(k in a.data) : a.data[k] === String(v)));
+    if (!found) throw new Error(`no "${action}" button on the screen matching ${JSON.stringify(match)} (${all.length} with that action)`);
+    if ('disabled' in found.attrs) throw new Error(`"${action}" is disabled`);
+    return ctx.runAction(action, { tagName: found.tag, dataset: { ...found.data }, ...element }, { type: FORM_CONTROLS.has(found.tag) ? 'change' : 'click' });
+  };
   return {
-    run, ctx, app, storage, alerts, confirms,
+    run, ctx, app, storage, alerts, confirms, click, actionsOn,
     html: () => app.innerHTML,
     json: code => JSON.parse(run(`JSON.stringify(${code})`)),
   };
+}
+
+/* The elements in some HTML that run an action: [{ tag, action, data, attrs }]; data is the dataset
+   (camelCase keys, decoded values), attrs every attribute. */
+const FORM_CONTROLS = new Set(['SELECT', 'INPUT', 'TEXTAREA']);
+const decode = s => s.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const camel = k => k.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+function actionsOn(html) {
+  const out = [];
+  for (const tag of html.matchAll(/<([a-zA-Z]+)\s((?:[^>"']|"[^"]*"|'[^']*')*)>/g)) {
+    const attrs = {};
+    for (const a of tag[2].matchAll(/([a-zA-Z-]+)(?:=("[^"]*"|'[^']*'|[^\s"'>]+))?/g)) attrs[a[1].toLowerCase()] = a[2] == null ? '' : decode(a[2].replace(/^["']|["']$/g, ''));
+    if (!attrs['data-action']) continue;
+    const data = {};
+    for (const [k, v] of Object.entries(attrs)) if (k.startsWith('data-')) data[camel(k.slice(5))] = v;
+    out.push({ tag: tag[1].toUpperCase(), action: data.action, data, attrs });
+  }
+  return out;
 }
 
 /* For the few rules about the code itself ("the engine never calls Math.random"): the source of the page
@@ -102,4 +131,4 @@ function locate(name, dist = DIST) {
 }
 const readDist = (name, dist = DIST) => read(locate(name, dist), dist);
 
-module.exports = { loadGame, pageScripts, gameSources, scriptsDefining, locate, readDist, DIST };
+module.exports = { loadGame, actionsOn, pageScripts, gameSources, scriptsDefining, locate, readDist, DIST };
