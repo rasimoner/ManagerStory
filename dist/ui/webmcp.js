@@ -1,5 +1,6 @@
-(() => {
-  const context = document.modelContext;
+/* A read-only career tool for the browser's model context, where the browser offers one. main.js installs it. */
+function installWebMcp() {
+  const context = typeof document !== 'undefined' ? document.modelContext : null;
   if (!context?.registerTool) return;
   const lifecycle = new AbortController();
   addEventListener("pagehide", () => lifecycle.abort(), { once: true });
@@ -30,4 +31,4 @@
   } catch (error) {
     console.warn("Kariyer okuma aracı kaydedilemedi.", error);
   }
-})();
+}

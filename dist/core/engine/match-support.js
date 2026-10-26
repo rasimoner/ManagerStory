@@ -380,6 +380,7 @@ defineActions({
 });
 
 function goMain(section) {
+  if (runHooks('goMain', section).includes(true)) return;
   if (M) return;
   modal = ["squad", "plan", "formation", "settings"].includes(section) ? section : null;
   if (section === "league") return showLeague();

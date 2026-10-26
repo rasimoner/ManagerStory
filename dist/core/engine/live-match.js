@@ -100,7 +100,9 @@ function ensureLiveLoop() {
   liveLastFrame = null;
   liveFrame = requestAnimationFrame(liveFrameStep);
 }
-if(typeof document!=='undefined'&&typeof document.addEventListener==='function'){
+// the match pauses while the page is hidden and is drawn again when it comes back (main.js installs it)
+function installBackgroundPause(){
+  if(typeof document==='undefined'||typeof document.addEventListener!=='function')return;
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden&&M&&!livePlaybackPaused()&&(!M.finished||livePresentationPending())){pauseLive('background');}
     else if(!document.hidden&&M&&M.reason==='background')render();

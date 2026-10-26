@@ -46,7 +46,9 @@ function dispatchAction(event) {
   }
 }
 
-if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+// main.js installs the dispatcher (nothing to install without a document)
+function installActions() {
+  if (typeof document === 'undefined' || typeof document.addEventListener !== 'function') return;
   document.addEventListener('click', dispatchAction);
   document.addEventListener('change', dispatchAction);
 }

@@ -197,34 +197,25 @@ function starFlashCard() {
   return `<section class="card stflashcard" style="--club:${clubColor(club.primaryColor) || '#c8102e'}"><div class="stflashtag">SON DAKİKA</div><div class="row between"><div><h3>${escapeHTML(h.playerName)} <span class="stno">${p?.number ?? ''}</span></h3><small>${escapeHTML(h.pos)} • ${money(h.fee)}${h.fromClub ? ' • Önceki kulüp: ' + escapeHTML(h.fromClub) : ''}</small></div>${starStarsHTML(h.stars, 'mid')}</div><p class="muted">${h.keeper ? 'Kaleci şovu: ' : 'Gösterisi: '}${escapeHTML(starMoveName(h.move))}</p><button class="ghost" data-action="starReplay">▶ Sahneyi izle</button></section>`;
 }
 
-// ---- hooks into the signing and the transfer screen (no edits to those lines in app.js) ----
-(function hookStarTransfer() {
-  if (typeof v6Sign !== 'function' || v6Sign.__star) return;
-  const sign = v6Sign;
-  v6Sign = function (id, fee) {
-    const x = S?.v6?.transferPool?.find(q => q.id == id), before = S?.players?.length;
-    const big = starSceneQualifies(x);
-    const r = sign.apply(this, arguments);
-    if (big && S.players.length > before) { try { beginStarTransfer(S.players[S.players.length - 1], x, fee); } catch (e) { console.warn('Yıldız transfer sahnesi', e); } }
-    return r;
-  };
-  v6Sign.__star = true;
-  // the first screen is drawn by app.js before this file loads: add the flash card to it if it is home
-  try { const grid = typeof document !== 'undefined' && document.querySelector('#app .shortcutgrid'); if (grid && S && !document.querySelector('#app .stflashcard')) grid.insertAdjacentHTML('beforebegin', starFlashCard()); } catch (e) { /* the next render has it */ }
+// ---- what this file adds to the signing and to the transfer list (core/hooks.js); main.js installs it ----
+function installStarTransfer() {
+  let big = false;
+  // decided before the signing, as the player stood on the market
+  onHook('beforeSigning', x => { big = starSceneQualifies(x); });
+  onHook('afterSigning', (player, x, fee) => {
+    if (!big) return;
+    try { beginStarTransfer(player, x, fee); } catch (e) { console.warn('Yıldız transfer sahnesi', e); }
+  });
   // (temporary) "Transfer sahnesi dene" on the transfer screen, like the other test buttons
-  if (typeof showV6Transfers === 'function') {
-    const list = showV6Transfers;
-    showV6Transfers = function () {
-      const r = list.apply(this, arguments);
-      // (under the transfer office picture: before the header it pushed the sticky header down the page)
-      const anchor = document.querySelector('#app .vscene') || document.querySelector('#app .weekstrip');
-      anchor?.insertAdjacentHTML?.('afterend', `<section class="card sttry"><small>GEÇİCİ TEST</small><b>Transfer sahnesi dene</b><div class="row"><button class="ghost" data-action="starTransferTrial" data-kind="out">Oyuncuyla</button><button class="ghost" data-action="starTransferTrial" data-kind="gk">Kaleciyle</button></div></section>`);
-      return r;
-    };
-  }
-})();
+  onHook('transferListShown', () => {
+    // (under the transfer office picture: before the header it pushed the sticky header down the page)
+    const anchor = document.querySelector('#app .vscene') || document.querySelector('#app .weekstrip');
+    anchor?.insertAdjacentHTML?.('afterend', `<section class="card sttry"><small>GEÇİCİ TEST</small><b>Transfer sahnesi dene</b><div class="row"><button class="ghost" data-action="starTransferTrial" data-kind="out">Oyuncuyla</button><button class="ghost" data-action="starTransferTrial" data-kind="gk">Kaleciyle</button></div></section>`);
+  });
+  starTransferStyles();
+}
 
-(function starTransferStyles() {
+function starTransferStyles() {
   if (typeof document === 'undefined' || !document.createElement || !document.head) return;
   const css = document.createElement('style');
   css.textContent = `
@@ -263,4 +254,4 @@ function starFlashCard() {
 .stclose h2{margin:6px 0}
 @media (prefers-reduced-motion:reduce){.stticker span,.stflashbody,.stshirt{animation:none}}`;
   document.head.append(css);
-})();
+}

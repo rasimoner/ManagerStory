@@ -7,6 +7,7 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 
 | Dosya | Önceki yer | Ne | Neden burada |
 |---|---|---|---|
+| `core/hooks.js` | (yeni, C3) | Genişletme noktaları: `onHook`/`runHooks`. Bir dosya başkasının fonksiyonunu sarmaz, adlandırılmış ana kaydolur | Ortak altyapı |
 | `core/random.js` | `random.js` | Tohumlanabilir tek rastgele üretici (`R`) | Motorun ve kariyerin tek rastgelelik kaynağı |
 | `core/save.js` | `save.js` | Kayıt yükleme/kaydetme, dışa/içe aktarma, taşıma zinciri | Kayıt ortak; mod alanları zamanla ayrı bölüme |
 | `core/engine/match-support.js` | `match-support.js` | Maç durumu, maç olayları, faul/kart, taktik etkileri, maç özeti | Motorun durum ve olay tarafı. D'de ayrılacak: maç paneli arayüzü (`matchStatsUI`, `tacticsControls`…), `goMain`, `decorateMainScreen` |
@@ -40,6 +41,20 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `ui/webmcp.js` | `webmcp.js` | Tarayıcı model bağlamına salt-okunur kariyer aracı |
 
 Header (`header`), alt menü (`bottomNav`), ekran kabuğu (`render`) ve listeler bugün `app.js` içinde; D'de buraya gelir.
+
+## Giriş noktası (C3)
+
+`dist/main.js`: sayfa açılınca olan her şey burada, bu sırayla: kariyeri yükle, olay dağıtıcısını, arka plan duraklatmasını, yıldız transferini ve gezinmeyi kur, ilk ekranı çiz, tarayıcı aracını kaydet. Diğer dosyalar sadece tanımlar (ve eylemlerini, sezon sonu adımlarını, kancalarını kaydeder). `tests/structure.test.cjs` bunu ve hiçbir dosyanın başka dosyanın fonksiyonunu çalışma anında değiştirmediğini denetler.
+
+Genişletme noktaları (`core/hooks.js`):
+
+| An | Kim çalıştırır | Kim kaydolur |
+|---|---|---|
+| `beforeSigning(x)`, `afterSigning(player, x, fee)` | `v6Sign` (app.js) | yıldız transfer sahnesi (star-transfer.js) |
+| `transferListShown()` | `showV6Transfers` (app.js) | geçici "Transfer sahnesi dene" kartı (star-transfer.js) |
+| `goMain(section)` → `true`: işlendi | `goMain` (match-support.js) | aktif sekmeye dokunma (nav.js) |
+| `navBack()` | geri düğmesi eylemi (app.js) | kaydırma konumuna dönüş (nav.js) |
+| `screenDrawn()` | `header` (app.js) | ekran yerleşince kaydırma ve ↑ düğmesi (nav.js) |
 
 ## Yerinde kalanlar
 

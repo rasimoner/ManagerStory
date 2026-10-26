@@ -4,8 +4,9 @@
    - Going back returns to where you were on the list; opening a new screen starts at the top.
    - Tapping the active tab: on its root it scrolls to the top, on one of its detail screens it returns to the root.
    - After a short scroll (360px at most) an "up" button appears bottom right, above the tab bar and the decision tray.
-   Browser only: the test harness loads the game without this file. */
-(function () {
+   Browser only: without a document (the test harness) it installs nothing. main.js installs it.
+   It works through extension points (core/hooks.js): goMain, navBack and screenDrawn. */
+function installNavigation() {
   if (typeof document === 'undefined' || !document.addEventListener) return;
   const NAV = { key: null, y: 0, saved: {}, back: false, queued: false };
   const inMatch = () => document.body.classList.contains('in-match');
@@ -55,28 +56,28 @@
     placeTop();
   }
 
-  // header() calls this while a screen is being drawn; it settles once the screen is on the page
+  // a screen is being drawn (header() says so); settle once it is on the page
   function queue() {
     if (NAV.queued) return;
     NAV.queued = true;
     queueMicrotask(settle);
   }
 
-  window.navBack = () => { NAV.back = true; };
+  onHook('navBack', () => { NAV.back = true; });
 
-  const goMainBase = window.goMain;
-  window.goMain = function (section) {
+  // tapping a tab: true when it is dealt with here (its root is already on screen: scroll to the top)
+  onHook('goMain', section => {
     if (careerOpen() && !inMatch() && section === activeTab()) {
-      if (backButton()) { NAV.back = false; NAV.saved['root:' + section] = 0; return goMainBase(section); }
+      if (backButton()) { NAV.back = false; NAV.saved['root:' + section] = 0; return false; }
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
+      return true;
     }
     NAV.back = false;
-    return goMainBase(section);
-  };
+    return false;
+  });
 
   window.addEventListener('scroll', () => { NAV.y = window.scrollY; placeTop(); }, { passive: true });
   window.addEventListener('resize', placeTop, { passive: true });
-  window.ManagerStoryNav = { queue, settle };
+  onHook('screenDrawn', queue);
   queue();
-})();
+}

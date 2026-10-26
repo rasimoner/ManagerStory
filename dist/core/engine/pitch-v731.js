@@ -10,8 +10,10 @@ function playerRecord(id,side){return side==='user'?S.players.find(x=>x.id===Num
 const normalizeAttribute=v=>clamp((finite(v,60)-35)/65,0,1);            // 35→0, 100→1
 const attributeEdge=v=>normalizeAttribute(v)-.5;                         // centred: average player ≈ +0.05
 const contestProbability=(a,b,scale=16)=>1/(1+Math.exp(-(a-b)/scale));   // smooth, never 0 or 1
-function baseAttribute(id,side,name,fallback){
- const p=playerRecord(id,side);if(!p)return fallback;
+function baseAttribute(id,side,name,fallback){return recordAttribute(playerRecord(id,side),name,fallback);}
+// an attribute of a player record (a squad player, an opponent, a market player)
+function recordAttribute(p,name,fallback){
+ if(!p)return fallback;
  const ovr=finite(p.overall,65),pos=String(p.pos||p.position||'CM').split('/')[0];
  const pace=finite(p.pace,fallback??68),drib=finite(p.dribbling,ovr),pass=finite(p.passing,ovr),stam=finite(p.stamina,70);
  const tackling=finite(p.tackling,finite(p.defending,ovr));
@@ -77,13 +79,13 @@ function playerAttribute(id,side,name,fallback){return effectiveAttribute(id,sid
    duel exactly as before; the 3D view shows a beaten defender with one of the moves the attacker has.
    Step-over and nutmeg need a good dribbler, the elastico is for the rare few, the no-look pass for a
    technician who sees the pass. */
-function skillMoves(id,side){
+// rec: the player record, when it is not one of the match's (a market or academy player: recordMoves)
+function skillMoves(id,side,rec=playerRecord(id,side)){
  const live=typeof M!=='undefined'&&M;
- const rec=playerRecord(id,side);
  const role=(side==='user'?(live?M.matchRoles?.[id]:null):(live?playerAtMarker(id,side)?.position:null))||String(rec?.pos||rec?.position||'').split('/')[0];
  // a keeper's one special is Higuita's scorpion, for a good keeper; the others' moves follow data/moves.js
  if(role==='GK'||(live&&isKeeper(side,id))){const K=MOVE_DATA.keeper;return {stars:K.stars,moves:(rec?.overall??0)>=K.minOverall?[...K.moves]:[]};}
- return movesFor(n=>baseAttribute(id,side,n,MOVE_DATA.rating.defaultAttribute),role);
+ return movesFor(n=>recordAttribute(rec,n,MOVE_DATA.rating.defaultAttribute),role);
 }
 // an outfield player's skill stars and special moves from his attributes and position (data/moves.js):
 // stars from the weighted flair against the thresholds; a move is his when any of its alternatives holds
