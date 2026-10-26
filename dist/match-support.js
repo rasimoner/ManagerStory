@@ -19,7 +19,7 @@ const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":
 // V7.8: every match gets its own dice. A career made in the app carries a salt that is drawn anew at
 // each kickoff, so a new career's first match (or a fixture replayed from an older save) is a new
 // match, not a rerun. Without a salt (automated checks) the seed is the fixture's, as before.
-// (the salt itself is drawn by newMatchSalt in app.js, outside the engine)
+// (the salt itself is drawn by newMatchSalt in random.js, outside the engine)
 function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0); }
 function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
 function loadCareer() {
