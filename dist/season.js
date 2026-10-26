@@ -55,8 +55,9 @@ function nextPlayerId() {
 // the captain for event texts: the leader in the dressing room, not a fixed name
 function captainName() {
   const on = (S?.players || []).filter(p => seasonActive(p) && p.status !== 'Kirada');
-  // Burak wears the armband from the first day; when he is gone the dressing room's leader takes it and keeps it
-  const kept = on.find(p => p.id === S.v796?.captainId) || on.find(p => p.id === 6 && p.name === 'Burak');
+  // the starting captain (data/squad.js) wears the armband from the first day; when he is gone the dressing room's
+  // leader takes it and keeps it
+  const kept = on.find(p => p.id === S.v796?.captainId) || on.find(p => p.id === STARTING_SQUAD.captain);
   if (kept) return kept.name;
   const lead = on.filter(p => p.personality === 'Lider').sort((a, b) => (b.relation || 0) - (a.relation || 0) || b.age - a.age)[0]
     || on.slice().sort((a, b) => b.age - a.age || b.overall - a.overall)[0];
