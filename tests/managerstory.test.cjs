@@ -135,7 +135,7 @@ test('academy replenishment never repeats promoted candidate identities across s
  assert.equal(reopened.run(`S.v6.academy.some(x=>${JSON.stringify(promotedIds)}.includes(x.id)||${JSON.stringify(promotedPrints)}.includes(academyFingerprint(x)))`),false);
  assert.ok(reopened.run('S.v6.usedAcademyCandidateIds.length>=3'));
 });
-test('every offline asset exists and legacy GIFs are static atmospheric frames',()=>{
+test('every offline asset exists',()=>{
  const assetsDir=path.join(base,'assets');
  const sw=fs.readFileSync(path.join(base,'sw.js'),'utf8');
  const assets=[...sw.matchAll(/"(\.\/[^"\n]+)"/g)].map(x=>x[1].slice(2).split('?')[0]);
@@ -143,12 +143,8 @@ test('every offline asset exists and legacy GIFs are static atmospheric frames',
  for(const rel of assets)assert.ok(fs.statSync(path.join(base,rel)).size>0,rel);
  assert.ok(assets.includes('match-support.js')&&assets.includes('career-events.js')&&assets.includes('live-match.js')&&assets.includes('pitch-v73.js'));
  assert.ok(assets.includes('opponents-v731.js')&&assets.includes('pitch-v731.js'));
- for(const file of ['stadium','press','office','fans','training','signing','facilities']){
-  const image=path.join(assetsDir,'atmosphere',`${file}.webp`);assert.ok(fs.statSync(image).size>50000,file);
- }
- const {execFileSync}=require('node:child_process');
- const result=execFileSync('python',['-c',`from pathlib import Path\nfrom PIL import Image\nfor p in Path('${assetsDir}/cinematics').glob('*.gif'):\n im=Image.open(p); assert im.n_frames==1,p\nprint('static legacy GIFs verified')`],{encoding:'utf8'});
- assert.match(result,/verified/);
+ // V7.9.13: the old photos and cinematic GIFs nothing referenced are gone (tests/assets.test.cjs keeps it so)
+ assert.ok(!fs.existsSync(path.join(assetsDir,'cinematics')));
 });
 test('live clock runs 45 minutes unaided, stops at half, resumes to exact 90:00',()=>{
  const h=harness();h.run('S=fresh();init();startMatch()');
@@ -589,7 +585,7 @@ assert sum(abs(x-y) for x,y in zip(c.getpixel((460,175)),d.getpixel((460,175))))
 assert sum(abs(x-y) for x,y in zip(c.getpixel((830,210)),d.getpixel((830,210))))>35
 assert sum(abs(x-y) for x,y in zip(c.getpixel((700,175)),d.getpixel((700,175))))<10 # wall untouched
 `]);
- for(const name of ['fans-neutral','fans-day','fans-rain','fans-night','locker-base','press-base','signing-base','stadium-base','training-base','office-base','facilities-base'])
+ for(const name of ['fans-neutral','fans-day','fans-rain','fans-night','signing-base','stadium-base','training-base','office-base','facilities-base'])
   assert.ok(fs.existsSync(path.join(base,'assets/atmosphere',name+'.webp')),name);
 });
 test('carried positions survive turnovers, committed overlap and recovery use movement bounds',()=>{
