@@ -37,7 +37,7 @@ function loadCareer() {
 }
 function migrateV71() {
   if (!S) return;
-  S.currentClubId ??= "Anadolu Hisarı"; // legacy saves have one managed club; presentation-only identity pointer
+  S.currentClubId ??= CLUB_DATA.startingClub; // legacy saves have one managed club: the starting one
   S.v71 ??= { schema: 1, preUsed: [], postUsed: [], conversations: [], serial: 0 };
   for (const key of ["preUsed", "postUsed", "conversations"]) S.v71[key] ??= [];
   S.v71.serial ??= 0;

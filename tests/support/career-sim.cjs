@@ -7,7 +7,7 @@ const FAST = `function fastRound(){
  const g=currentFixture().game,i=S.leagueSchedule[S.fixture].indexOf(g);
  simAIGame(g,S.fixture,90+i);
  const xi=S.xi.map(id=>S.players.find(p=>p.id===id)).filter(Boolean);
- const ug=g.home==='Anadolu Hisarı'?g.hg:g.ag,rnd=R(5000+S.fixture*31+(S.seasonIndex||0)*977);
+ const ug=g.home===managedClubName()?g.hg:g.ag,rnd=R(5000+S.fixture*31+(S.seasonIndex||0)*977);
  const rows=xi.map(p=>({id:p.id,name:p.name,minutes:90,goals:0,rating:+(6+rnd()*2).toFixed(1)})),evs=[];
  for(let k=0;k<ug;k++){const front=rows.filter(r=>!/GK|CB/.test(S.players.find(p=>p.id===r.id).pos)),s=front[Math.floor(rnd()*front.length)]||rows[0];
   s.goals++;S.players.find(p=>p.id===s.id).goals++;const a=rows[Math.floor(rnd()*rows.length)];

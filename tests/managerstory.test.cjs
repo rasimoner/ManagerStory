@@ -523,17 +523,25 @@ test('background frame pauses match and resumed delta starts fresh',()=>{
  const before=h.run('M.matchElapsedSeconds');h.run('document.hidden=false;resumeLive();liveFrameStep(999999)');
  assert.equal(h.run('M.matchElapsedSeconds'),before);
 });
-test('club atmosphere resolves career, stadium and scoring identities independently without changing saved gameplay',()=>{
- const h=harness();h.run('S=fresh();init();S.currentClubId="Ormanşehir";save();render()');
- assert.equal(h.run('resolveClubIdentity("career").id'),'Ormanşehir');
- assert.match(h.app.innerHTML,/ORMANŞEHİR GAZETESİ/);
- assert.match(h.app.innerHTML,/goal-club-17\.webp/);
+// V7.9.13 (refactor B): S.currentClubId is the managed club for gameplay too (managedClubName()), not only for
+// pictures. The league is built around it, so a rival's name there (only an edited save can have one) falls back to
+// the starting club everywhere; other clubs' identities resolve through their own names.
+test('club atmosphere: career, stadium and scoring identities resolve independently; the career one is the managed club',()=>{
+ const home=harness();home.run('S=fresh();init();save();render()');
+ assert.equal(home.run('resolveClubIdentity("career").id'),'Anadolu Hisarı');
+ assert.match(home.app.innerHTML,/ANADOLU HİSARI GAZETESİ/);
+ assert.match(home.app.innerHTML,/goal-club-0\.webp/);
+ assert.equal(home.run('clubColorNames(managedClubName())'),'SARI • KIRMIZI');
+ const h=harness();h.run('S=fresh();init();S.currentClubId="Ormanşehir";save()');
+ assert.equal(h.run('managedClubName()'),'Anadolu Hisarı','a rival cannot be the managed club yet');
+ const restored=harness(h.storage);
+ assert.equal(restored.run('loadError'),'');assert.match(restored.app.innerHTML,/ANADOLU HİSARI GAZETESİ/);
+ assert.equal(restored.run('resolveClubIdentity("career").id'),'Anadolu Hisarı');
+ assert.equal(restored.run('S.table.length'),18);
  assert.equal(h.run('resolveClubIdentity("stadium",{homeTeam:"Anadolu Hisarı"}).id'),'Anadolu Hisarı');
  assert.equal(h.run('resolveClubIdentity("awaySupporters",{awayTeam:"Ormanşehir"}).id'),'Ormanşehir');
  assert.equal(h.run('resolveClubIdentity("goal",{teamId:"Ormanşehir"}).secondaryColor'),'#eee');
  assert.equal(h.run('resolveClubIdentity("goal",{teamId:"Anadolu Hisarı"}).primaryColor'),'#f3c623');
- const restored=harness(h.storage);assert.equal(restored.run('resolveClubIdentity("career").id'),'Ormanşehir');
- assert.equal(restored.run('S.table.length'),18);
  assert.match(restored.run("clubProps('career',{kind:'signing'})"),/club-emblem/);
  for(const kind of ['press','locker'])
   assert.doesNotMatch(restored.run(`clubProps('career',{kind:'${kind}'})`),/club-emblem|crest/);
@@ -543,7 +551,7 @@ test('club atmosphere resolves career, stadium and scoring identities independen
  assert.equal(restored.run('fanPhoto("Ormanşehir")'),'assets/atmosphere/goal-club-17.webp');
  assert.equal(restored.run('fanPhoto("Anadolu Hisarı")'),'assets/atmosphere/goal-club-0.webp');
  restored.run('delete S.currentClubId;save()');const legacy=harness(restored.storage);
- assert.equal(legacy.run('resolveClubIdentity("career").id'),'Anadolu Hisarı');
+ assert.equal(legacy.run('S.currentClubId'),'Anadolu Hisarı','an old save gets the starting club');
  assert.equal(restored.run('resolveClubIdentity("goal",{teamId:"Unknown"}).primaryColor'),'#55646b');
  assert.equal(restored.run('Object.keys(CLUBSTYLE).length'),18);
 });
@@ -708,14 +716,18 @@ test('scenario C: an unrelated primary/secondary pair reaches the stadium, locke
  const h=harness();setFixture(h,'Kadıköy Rüzgârı','Anadolu Hisarı');
  const stadium=layerStyle(stadiumSection(h),'stadium');
  assert.match(stadium,/--club-primary:#6a1b9a/);assert.match(stadium,/--club-secondary:#f7d117/);
- h.run('S.currentClubId="Marmara 1912";S.event={kind:"press",title:"Basın",text:"?",choices:[["Güven","pressTrust"]]};render()');
+ // (the press room takes the home team's colours, not the managed club's)
+ h.run('S.event={kind:"press",title:"Basın",text:"?",choices:[["Güven","pressTrust"]]};render()');
  const pre=layerStyle(h.app.innerHTML,'press');
  assert.match(pre,/--club-primary:#6a1b9a/);assert.match(pre,/--club-secondary:#f7d117/);
  h.run('S.event={kind:"postpress",title:"Maç Sonu",text:"?",choices:[["Güven","postTeam"]]};render()');
  assert.equal(layerStyle(h.app.innerHTML,'press'),pre,'pre- and post-match press share one identity path');
  h.run('S.event={kind:"matchday",title:"Maç günü",text:"?",choices:[["Devam","x"]]};render()');
+ // the locker room wears the managed club's colours, whoever is at home; any other pair reaches it the same way
  const locker=layerStyle(h.app.innerHTML,'locker');
- assert.match(locker,/--club-primary:#1746a2/);assert.match(locker,/--club-secondary:#ff7a00/);
+ assert.match(locker,/--club-primary:#f3c623/);assert.match(locker,/--club-secondary:#b3132b/);
+ const other=h.run("clubLayers('locker',resolveClubIdentity('goal',{teamId:'Marmara 1912'}))");
+ assert.match(other,/--club-primary:#1746a2/);assert.match(other,/--club-secondary:#ff7a00/);
  assert.doesNotMatch(h.app.innerHTML,/club-emblem/);
 });
 test('a missing or invalid colour never overwrites the other valid colour',()=>{

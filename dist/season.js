@@ -18,7 +18,7 @@ function seasonSeedOffset() { return (typeof S !== 'undefined' && S ? S.seasonIn
 function seasonRnd(tag) { return R(hashProfileSeed(`${tag}|${S.seasonIndex || 0}|${S.matchSalt || 0}`)); }
 function seasonClamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 function seasonEsc(v) { return typeof escapeHTML === 'function' ? escapeHTML(String(v)) : String(v).replace(/[<>&"]/g, ''); }
-function seasonClub() { return typeof managedClubName === 'function' ? managedClubName() : 'Anadolu Hisarı'; }
+function seasonClub() { return managedClubName(); }
 function seasonActive(p) { return p && p.status !== SEASON_DEPARTED; }
 
 /* ---------- state and save migration ---------- */
@@ -349,8 +349,8 @@ seasonEndStep({ id: 'newSeason', run(se) {
   S.season = seasonLabel(S.seasonIndex);
   S.week = 1; S.day = 1; S.fixture = 0;
   S.leagueSchedule = seasonSchedule();
-  S.schedule = S.leagueSchedule.map(g => { const x = g.find(m => m.home === 'Anadolu Hisarı' || m.away === 'Anadolu Hisarı');
-    return { opp: OPP.findIndex(o => o[0] === (x.home === 'Anadolu Hisarı' ? x.away : x.home)), home: x.home === 'Anadolu Hisarı' }; });
+  S.schedule = S.leagueSchedule.map(g => { const x = g.find(m => m.home === managedClubName() || m.away === managedClubName());
+    return { opp: OPP.findIndex(o => o[0] === (x.home === managedClubName() ? x.away : x.home)), home: x.home === managedClubName() }; });
   S.table = allTeams().map(n => ({ n, p: 0, gf: 0, ga: 0, pts: 0 }));
   S.form = {}; ensureLeague();
   if (S.v731) S.v731.lastEvolvedFixture = -1;
@@ -441,7 +441,7 @@ function seasonRefreshRivals() {
   return stats;
 }
 function seasonMarketPlayer(rnd) {
-  const st = S.v796, n = st.poolSerial++, clubs = Object.keys(CLUBSTYLE).filter(x => x !== 'Anadolu Hisarı');
+  const st = S.v796, n = st.poolSerial++, clubs = Object.keys(CLUBSTYLE).filter(x => x !== managedClubName());
   const pos = V6POS[Math.floor(rnd() * V6POS.length)], age = 18 + Math.floor(rnd() * 15), ov = 57 + Math.floor(rnd() * 21);
   const pot = Math.min(93, Math.max(ov, ov + Math.floor(rnd() * 15) - (age >= 29 ? 8 : 0)));
   const x = { id: `v6n${n}`, name: `${V6FN[Math.floor(rnd() * V6FN.length)]} ${V6LN[Math.floor(rnd() * V6LN.length)]}`, pos, age, overall: ov, potential: pot,

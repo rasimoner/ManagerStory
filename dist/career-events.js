@@ -75,9 +75,9 @@ function selectPress(pool, used, context, eligibleResultTypes) {
   const selected=candidates[0];used.push(selected[0]);if(used.length>50)used.splice(0,used.length-50);return selected;
 }
 function prePressContext() {
-  const r=currentOpponent(),table=[...S.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)),form=S.form['Anadolu Hisarı']||[];
+  const r=currentOpponent(),table=[...S.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)),form=S.form[managedClubName()]||[];
   const xi=S.players.filter(p=>S.xi.includes(p.id)), fx=currentFixture();
-  return { r,home:fx.home,ourRank:table.findIndex(x=>x.n==='Anadolu Hisarı')+1,rivalRank:table.findIndex(x=>x.n===r[0])+1,
+  return { r,home:fx.home,ourRank:table.findIndex(x=>x.n===managedClubName())+1,rivalRank:table.findIndex(x=>x.n===r[0])+1,
     lastOutcome:form.at(-1),winStreak:form.slice(-4).reverse().findIndex(x=>x!=='G')===-1?Math.min(4,form.length):form.slice(-4).reverse().findIndex(x=>x!=='G'),
     lossStreak:form.slice(-4).reverse().findIndex(x=>x!=='M')===-1?Math.min(4,form.length):form.slice(-4).reverse().findIndex(x=>x!=='M'),
     star:xi.slice().sort((a,b)=>b.overall-a.overall)[0],young:xi.find(p=>p.age<=20),tired:xi.find(p=>p.fitness<65),injured:xi.find(p=>p.injury>0),
@@ -91,7 +91,7 @@ function postPressContext(ug,og) {
   const side=M.userHome?0:1,events=M.events,userGoals=events.filter(e=>e.type==='goal'&&e.side===side),oppGoals=events.filter(e=>e.type==='goal'&&e.side!==side);
   let lead=0,trail=0;for(const event of events){if(event.type==='goal'){const d=(event.homeGoals-event.awayGoals)*(M.userHome?1:-1);if(d>0)lead=1;if(d<0)trail=1;}}
   const players=Object.entries(M.playerStats).map(([id,stat])=>({name:S.players.find(p=>p.id===+id)?.name||'Oyuncu',age:S.players.find(p=>p.id===+id)?.age||30,...stat}));
-  const form=S.form['Anadolu Hisarı']||[];
+  const form=S.form[managedClubName()]||[];
   return { margin:Math.abs(ug-og),goals:ug,opponent:currentOpponent()[0],bigOpponent:currentOpponent()[1]>=73,lateWinner:ug>og&&userGoals.some(e=>e.minute>=80),lateConcede:ug<og&&oppGoals.some(e=>e.minute>=80),comeback:ug>og&&!!trail,lostLead:ug===og&&!!lead,equalised:ug===og&&!!trail,shots:M.shots[side],
     winStreak:form.slice(-4).reverse().findIndex(x=>x!=='G')===-1?Math.min(4,form.length):form.slice(-4).reverse().findIndex(x=>x!=='G'),
     lossStreak:form.slice(-4).reverse().findIndex(x=>x!=='M')===-1?Math.min(4,form.length):form.slice(-4).reverse().findIndex(x=>x!=='M'),

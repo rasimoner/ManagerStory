@@ -1,12 +1,12 @@
 /* The league's clubs, in league order. colors: primary and secondary; pattern: how the crest and flags split
    (v vertical, h horizontal, d diagonal). team: the strength profile of a club the game plays against (level and
    the 0–100 attack, midfield, defence, keeper, pressing and physical ratings), and its style of play.
-   startingClub: the club a new career manages.
+   colorNames: how the colours are said on the club card. startingClub: the club a new career manages.
    Data only: everything after "=" is JSON (tests/data.test.cjs). */
 const CLUB_DATA = {
   "startingClub": "Anadolu Hisarı",
   "clubs": [
-    {"name":"Anadolu Hisarı","colors":["#f3c623","#b3132b"],"pattern":"v"},
+    {"name":"Anadolu Hisarı","colors":["#f3c623","#b3132b"],"colorNames":["SARI","KIRMIZI"],"pattern":"v"},
     {
       "name": "Boğaz Yıldızı",
       "colors": ["#111","#eee"],
