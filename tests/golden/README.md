@@ -3,6 +3,7 @@
 Oyunun bugün ürettiği sonuçlar; yeniden yapılanma bunları değiştirmemeli. Kaydedildiği sürüm: V7.9.13.
 
 Yenilemeler:
+- Refactor C2 (satır içi işleyiciler → `data-action`): 17 ekranın hepsi yenilendi. Olay öznitelikleri ve `data-*` çıkarılınca eski ve yeni ekranlar birebir aynı; her ekranda kaldırılan `onclick`/`onchange` sayısı eklenen `data-action` sayısına eşit (toplam 435). Yeni değer öznitelikleri: `data-id`, `data-section`, `data-to`, `data-choice`, `data-index`, `data-focus`, `data-topic`, `data-sort`, `data-pos`, `data-key`, `data-scope`, `data-value`, `data-view`, `data-step`, `data-years`; kalkan tek öznitelik geri düğmesinin `data-target`'ı (yerine `data-to`). `matches.json`, `seasons.json`, `saves.json` değişmedi.
 - Refactor B4 (sürümlü kayıt): kariyer hash'leri (`careerAfterHash`, `careerHash`, `afterSummerHash`) kayda eklenen `schemaVersion` alanı için yenilendi. Bu alan çıkarılınca eski değerlerin hepsi birebir tuttu; olay günlükleri, skorlar, maç özetleri ve ekranlar değişmedi.
 
 | Dosya | Testi | Ne |
