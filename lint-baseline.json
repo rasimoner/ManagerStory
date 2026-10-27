@@ -81,7 +81,6 @@
   },
   "src/core/presentation/match3d/newview/footballer.js": {
     "complexity": 2,
-    "id-match": 1,
     "max-lines-per-function": 1,
     "max-params": 7,
     "max-statements": 1
@@ -93,7 +92,6 @@
   },
   "src/core/presentation/match3d/newview/runtime.js": {
     "complexity": 9,
-    "id-match": 1,
     "max-depth": 3,
     "max-lines": 1,
     "max-lines-per-function": 3,

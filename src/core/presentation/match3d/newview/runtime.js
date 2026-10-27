@@ -255,8 +255,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     p.heading = k.h;
     // carry only his speed towards the plant spot into the step (a sideways drift would make it swerve)
     const along = V(k.to.x - p.pos.x, 0, k.to.z - p.pos.z), len = along.length();
-    const v0 = len > 1e-3 ? along.multiplyScalar(clamp(p.vel.dot(along) / len, 0, 4) / len) : V();
-    p.warp = { from: p.pos.clone(), to: k.to, t0: S.t, tc: k.tc, v0 };
+    const startVelocity = len > 1e-3 ? along.multiplyScalar(clamp(p.vel.dot(along) / len, 0, 4) / len) : V();
+    p.warp = { from: p.pos.clone(), to: k.to, t0: S.t, tc: k.tc, v0: startVelocity };
   }
   function toeNear(p, maxD) {
     let best = null;
