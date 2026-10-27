@@ -1,5 +1,5 @@
 /* Refactor C2: the page has no inline event handlers. Every button and form control names an action
-   (data-action) whose values are in data-* attributes, and one delegated dispatcher (dist/ui/actions.js)
+   (data-action) whose values are in data-* attributes, and one delegated dispatcher (src/ui/actions.js)
    runs it. These checks:
    - every action any screen draws is registered, so no button does nothing;
    - pressing the drawn buttons (their data-* values, as the browser hands them over) reaches the game;
