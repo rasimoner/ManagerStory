@@ -4,9 +4,8 @@ import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
 import { ramp, smooth01, spline } from './motion-curves.js';
 import { forwardOf, rightOf } from './facing.js';
-import { stepoverBeat, elasticoBeat, croquetaBeat } from './beats/feints.js';
-import { cruyffBeat, rouletteBeat } from './beats/turns.js';
-import { nutmegBeat, flairNutmegBeat } from './beats/through-the-legs.js';
+import { stepoverBeat } from './beats/feints.js';
+import { SKILL_BEATS } from './beats/skill-beats.js';
 
 const SAY_AT_START = new Set(['ballCarry', 'dribble', 'run', 'kickoff', 'foul', 'yellow', 'red', 'sub', 'injury', 'half', 'end', 'goal']);
 const SKIP_TEXT = new Set(['offBallRun', 'press', 'chance', 'restartPlayers', 'restartWait', 'restartPosition', 'firstTouch', 'looseBall']);
@@ -1010,7 +1009,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           return def.pos.distanceTo(star.pos) < 2.6;
         }, 4);
         for (let k = 0; k < 4; k++) {
-          if ((yield* SKILL_BEAT[kind](star, def, true)) !== false) break;
+          if ((yield* SKILL_BEATS[kind](beatContext, { car: star, def, closeUp: true })) !== false) break;
           def.target.copy(star.pos).addScaledVector(forwardOf(star), 2); def.want = 3;
           yield* wait(0.2);
         }
@@ -1034,151 +1033,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // ---- V7.9 more special moves (boots placed with the foot targets) ----
   const toeGap = (p, side) => { const t = p.feet?.[side]?.last; return t ? t.distanceTo(ball.p) : 9; };
   const heelOf = (p, side) => p.bones[side + 'Foot'].getWorldPosition(V());
-  function* squareUp(car) {
-    car.face = ball.p; car.faceLock = true;
-    yield* until(() => { const want = Math.atan2(ball.p.x - car.pos.x, ball.p.z - car.pos.z), d = Math.atan2(Math.sin(want - car.heading), Math.cos(want - car.heading)); return Math.abs(d) < 0.06; }, 0.25);
-  }
 
-  // ---- V7.9 showboating: the ball goes up and over (rare, the very best, never when losing) ----
+
+  // a showboat (the ball up and over) is never tried when losing
   function losing(side) {
     const sc = S.score || [0, 0], mine = (side === 'user') === !!meta.userHome ? sc[0] : sc[1], theirs = (side === 'user') === !!meta.userHome ? sc[1] : sc[0];
     return mine < theirs;
   }
-  // how high the ball is as it goes past a point (the defender), watched while it flies
-  function overWatch(at, f) {
-    let best = null;
-    return () => { const d = ball.p.clone().sub(at).dot(f); if (best == null && d >= 0) best = +ball.p.y.toFixed(2); return best; };
-  }
-  function* collectAir(car, def, closeUp, land) {
-    car.feet = null; car.faceLock = false; car.drive = null;
-    car.target.copy(land).setY(0); car.want = 6.5;
-    yield* until(() => ball.p.y < 0.5, 1.8);
-    hooks.slow(1);
-    def.busy = car.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; def.feet = null;
-    if (closeUp) hooks.cam('tv');          // he is away: back to the wide picture while he runs on
-    yield* chase(car, null);
-  }
-  const landing = (vx, vy, vz, from) => { const t = (vy + Math.sqrt(vy * vy + 2 * 9.81 * Math.max(0, from.y - BALL_R))) / 9.81; return from.clone().add(V(vx * t * 0.95, 0, vz * t * 0.95)).setY(0); };
-
-  // rainbow flick: the right sole rolls the ball back between his feet, the instep pops it up behind
-  // him and the left heel flicks it up over his own head and the defender's, and he runs on to it
-  function* rainbowBeat(car, def, closeUp) {
-    if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 5) return false;
-    yield* squareUp(car);
-    const f = forwardOf(car), r = rightOf(car), t0 = S.t;
-    if (closeUp) hooks.cam('close', car, def);
-    hooks.slow(0.4);
-    // the defender stands off a couple of metres, he takes it towards him at walking pace
-    def.target.copy(car.pos).addScaledVector(f, 2.6); def.want = 2; def.face = car.pos; def.faceLock = true; def.loopsWant.jockey = 1;
-    car.target.copy(car.pos).addScaledVector(f, 0.3); car.want = 0.5; car.vel.multiplyScalar(0.3);
-    car.face = car.pos.clone().addScaledVector(f, 30); car.faceLock = true;
-    ball.through = t0 + 2.5; ball.v.set(0, 0, 0);
-    const rel = (a, l, y) => car.pos.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
-    car.feet = {
-      Right: { w: t => { const u = t - t0; return u < 0.05 ? u / 0.05 : u < 0.42 ? 1 : 0; }, at: t => (t - t0) < 0.26 ? ball.p.clone().setY(0.2) : ball.p.clone().addScaledVector(f, 0.12).setY(Math.max(0.05, ball.p.y - 0.06)) },
-      Left: { w: t => { const u = t - t0; return u < 0.3 ? Math.min(1, u / 0.1) : u < 0.62 ? 1 : Math.max(0, 1 - (u - 0.62) / 0.12); }, at: t => (t - t0) < 0.34 ? rel(-0.02, -0.14, 0.03) : ball.p.clone().addScaledVector(f, 0.17 - 0.1).setY(ball.p.y) },
-    };
-    const audit = { kind: 'rainbow', roll: 9 };
-    // 1: rolled back under the sole to between his feet
-    ball.v.copy(f).multiplyScalar(-1.5);
-    yield* until(() => { audit.roll = Math.min(audit.roll, toeGap(car, 'Right')); const back = ball.p.clone().sub(car.pos).dot(f); if (back < 0.06) { ball.v.set(0, 0, 0); return true; } return false; }, 0.34);
-    // 2: the instep pops it up behind the left calf
-    ball.p.y = BALL_R + 0.01; ball.v.set(0, 2.3, 0).addScaledVector(f, -0.25);
-    yield* until(() => ball.v.y <= 0.2, 0.3);
-    // 3: the left heel flicks it up and over
-    yield* until(() => heelOf(car, 'Left').distanceTo(ball.p) < 0.22, 0.12);
-    audit.heel = +heelOf(car, 'Left').distanceTo(ball.p).toFixed(3);
-    const vf = 3.9, vy = 6.1;
-    ball.v.copy(f).multiplyScalar(vf).setY(vy); car.lastTouch = S.t;
-    if (closeUp) hooks.cam('tv');          // the ball is up: the wide picture shows it go over him (the replay shows it close)
-    const over = overWatch(def.pos.clone(), f);
-    let apex = 0;
-    def.target.copy(def.pos); def.want = 0.3; def.loopsWant.jockey = 0; def.face = ball.p; def.faceLock = true;
-    // he goes round the defender's side to meet it
-    const land = landing(ball.v.x, vy, ball.v.z, ball.p);
-    car.feet = null; car.faceLock = false; car.target.copy(land); car.want = 6.5;
-    yield* until(() => { apex = Math.max(apex, ball.p.y); over(); return ball.v.y < 0 && ball.p.y < 1.0; }, 1.6);
-    Object.assign(audit, { apex: +apex.toFixed(2), overDef: over() });
-    noteSkill(audit, car);
-    yield* collectAir(car, def, closeUp, land);
-  }
-
-  // sombrero: face to face with the defender, the toe scoops the ball up over his head; round him and
-  // collect it behind him
-  function* sombreroBeat(car, def, closeUp) {
-    if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 4) return false;
-    yield* squareUp(car);
-    const f = forwardOf(car), r = rightOf(car);
-    // the defender closes to just over a metre and a half
-    yield* until(() => { def.target.copy(car.pos).addScaledVector(f, 1.7); def.want = 3; def.face = car.pos; def.faceLock = true; def.loopsWant.jockey = 1; car.target.copy(car.pos); car.want = 0.3; return def.pos.distanceTo(car.pos) < 1.95; }, 0.7);
-    if (closeUp) hooks.cam('close', car, def);
-    hooks.slow(0.4);
-    ball.through = S.t + 2.5; ball.v.set(0, 0, 0);
-    const plantL = ball.p.clone().addScaledVector(r, -0.25).addScaledVector(f, -0.08).setY(0.03);
-    car.feet = {
-      Left: { w: ramp(S.t, [0, 0.08, 0.45, 0.6]), at: () => plantL },
-      Right: { w: ramp(S.t, [0, 0.06, 0.4, 0.55]), at: () => ball.p.clone().addScaledVector(f, -0.1).setY(0.03) },
-    };
-    const t1 = S.t;
-    yield* until(() => S.t - t1 > 0.16 && toeGap(car, 'Right') < 0.2, 0.32);
-    const audit = { kind: 'sombrero', toe: +toeGap(car, 'Right').toFixed(3) };
-    const vf = 2.7, vy = 6.4;
-    ball.v.copy(f).multiplyScalar(vf).setY(vy); car.lastTouch = S.t;
-    if (closeUp) hooks.cam('tv');          // the ball is up: the wide picture shows it go over him (the replay shows it close)
-    const over = overWatch(def.pos.clone(), f);
-    def.loopsWant.jockey = 0; def.face = ball.p; def.faceLock = true; def.want = 0.3; def.target.copy(def.pos);
-    const land = landing(ball.v.x, vy, ball.v.z, ball.p);
-    const side = r.clone().multiplyScalar(pick(def.lastEvent, 11) < 0.5 ? 1 : -1);
-    car.feet = null; car.faceLock = false;
-    car.target.copy(def.pos).addScaledVector(side, 1.2); car.want = 6;
-    let apex = 0, rounded = false;
-    yield* until(() => { apex = Math.max(apex, ball.p.y); over(); if (!rounded && car.pos.distanceTo(def.pos) < 1.5) { rounded = true; car.target.copy(land); } return ball.v.y < 0 && ball.p.y < 1.0; }, 1.6);
-    Object.assign(audit, { apex: +apex.toFixed(2), overDef: over() });
-    noteSkill(audit, car);
-    yield* collectAir(car, def, closeUp, land);
-  }
-
-  // keep it up and go: the toe flicks the ball up, a second touch in the air lifts it over the
-  // defender's lunging leg, and he skips past
-  function* juggleBeat(car, def, closeUp) {
-    if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 4) return false;
-    yield* squareUp(car);
-    const f = forwardOf(car), r = rightOf(car), t0 = S.t;
-    if (closeUp) hooks.cam('close', car, def);
-    hooks.slow(0.4);
-    def.target.copy(car.pos).addScaledVector(f, 2.1); def.want = 2.5; def.face = car.pos; def.faceLock = true; def.loopsWant.jockey = 1;
-    car.target.copy(car.pos); car.want = 0.3; car.vel.multiplyScalar(0.3);
-    car.face = car.pos.clone().addScaledVector(f, 30); car.faceLock = true;
-    ball.through = t0 + 2.5; ball.v.set(0, 0, 0);
-    const plantL = car.pos.clone().addScaledVector(r, -0.14).addScaledVector(f, 0.12).setY(0.03);
-    let stage = 0;
-    car.feet = {
-      Left: { w: ramp(t0, [0, 0.08, 0.8, 0.95]), at: () => plantL },
-      Right: { w: ramp(t0, [0, 0.06, 0.82, 0.95]), at: () => stage === 0 ? ball.p.clone().addScaledVector(f, -0.12).setY(0.03) : ball.p.clone().addScaledVector(f, -0.05).setY(Math.max(0.05, ball.p.y - 0.12)) },
-    };
-    const audit = { kind: 'juggle', low: 9 };
-    // 1: a flick up off the toe
-    yield* until(() => S.t - t0 > 0.12 && toeGap(car, 'Right') < 0.2, 0.3);
-    audit.touch1 = +toeGap(car, 'Right').toFixed(3);
-    ball.p.y = BALL_R + 0.01; ball.v.copy(f).multiplyScalar(0.25).setY(3.0); car.lastTouch = S.t; stage = 1;
-    // 2: met on the way down at knee height, up and over the leg
-    yield* until(() => { if (ball.v.y < 0) audit.low = Math.min(audit.low, ball.p.y); return ball.v.y < 0 && ball.p.y < 0.55 && toeGap(car, 'Right') < 0.25; }, 0.8);
-    audit.touch2 = +toeGap(car, 'Right').toFixed(3); audit.low = +audit.low.toFixed(2);
-    rt.startAction(def, 'lunge'); def.loopsWant.jockey = 0; def.target.copy(ball.p).setY(0); def.want = 3;
-    const vf = 3.4, vy = 4.4;
-    ball.v.copy(f).multiplyScalar(vf).setY(vy); car.lastTouch = S.t;
-    if (closeUp) hooks.cam('tv');          // the ball is up: the wide picture shows it go over him (the replay shows it close)
-    const over = overWatch(def.pos.clone(), f);
-    const land = landing(ball.v.x, vy, ball.v.z, ball.p);
-    car.feet = null; car.faceLock = false;
-    car.target.copy(def.pos).addScaledVector(r, pick(def.lastEvent, 11) < 0.5 ? 1.1 : -1.1); car.want = 5.5;
-    let rounded = false;
-    yield* until(() => { over(); if (!rounded && car.pos.distanceTo(def.pos) < 1.4) { rounded = true; car.target.copy(land); } return ball.v.y < 0 && ball.p.y < 0.7; }, 1.4);
-    audit.overDef = over();
-    noteSkill(audit, car);
-    yield* collectAir(car, def, closeUp, land);
-  }
-  const SKILL_BEAT = { stepover: (car, def, closeUp) => stepoverBeat(beatContext, { car, def, closeUp }), nutmeg: (car, def, closeUp) => nutmegBeat(beatContext, { car, def, closeUp }), elastico: (car, def, closeUp) => elasticoBeat(beatContext, { car, def, closeUp }), cruyff: (car, def, closeUp) => cruyffBeat(beatContext, { car, def, closeUp }), croqueta: (car, def, closeUp) => croquetaBeat(beatContext, { car, def, closeUp }), roulette: (car, def, closeUp) => rouletteBeat(beatContext, { car, def, closeUp }), flairnutmeg: (car, def, closeUp) => flairNutmegBeat(beatContext, { car, def, closeUp }), rainbow: rainbowBeat, sombrero: sombreroBeat, juggle: juggleBeat };
   // a defender closes the carrier down and commits; success decides who gets the ball
   function* tackle(def, car, success, closeUp, slide) {
     if (!def || !car) return;
@@ -1203,7 +1064,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const style = Math.floor(pick(def.lastEvent, 7) * 3);
     // V7.9: beaten by a special move — only a carrier who has it, only where it fits (feet placed on the ball)
     const move = success ? null : duelMove(car, def);
-    if (move && (yield* SKILL_BEAT[move](car, def, closeUp)) !== false) return;
+    if (move && (yield* SKILL_BEATS[move](beatContext, { car, def, closeUp })) !== false) return;
     if (success && style === 1) {
       // shoulder to shoulder: he leans in and takes the ball away with his body between man and ball
       rt.startAction(def, 'shoulder');
