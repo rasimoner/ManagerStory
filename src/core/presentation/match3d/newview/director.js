@@ -163,7 +163,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (p.motion) yield* until(() => !p.motion, 2.2);      // back on his feet first
     const o = ball.owner;
     if (o && o.side === p.side && o !== p && o.pos.distanceTo(p.pos) > 2.5 && !o.dive) {
-      yield* pass(o, p, p.pos.clone(), 'ground', true);
+      yield* pass({ from: o, to: p, toW: p.pos.clone(), travel: 'ground', implicit: true });
       return;
     }
     p.busy = true;
@@ -252,7 +252,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     gk.faceLock = false; gk.target.copy(gk.pos); gk.want = 0;
     yield* wait(0.25);
   }
-  function* pass(from, to, toW, travel, implicit = false, opts = {}) {
+  function* pass({ from, to, toW, travel, implicit = false }, opts = {}) {
     from.busy = true;
     // V7.9.5: a keeper still down from his dive gets up (with his get-up) before he plays it
     if (from.role === 'GK' && keeperDown(from)) yield* until(() => !keeperDown(from), 3);
@@ -303,11 +303,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
       yield* until(() => rt.actionAtContact(from), 2);
       ball.held = null;
       rt.kickAir(V(toW.x, 0.4, toW.z), Math.max(0.6, dir.length() / 13));
-    } else if (!(yield* flairPassTry(from, to, toW, travel, implicit, opts))) {
+    } else if (!(yield* flairPassTry({ from, to, toW, travel, implicit }, opts))) {
       // V7.9: a no-look pass — only a player who has it, in the opponents' half, not played backwards
       const fwdX = -Math.sign(ownGoalX(from.side)), len0 = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
       // V7.9: a backheel or a rabona — a player who has it, where it fits (or the staged scene)
-      const special = passSpecial(from, to, toW, travel, implicit, opts);
+      const special = passSpecial({ from, to, toW, travel, implicit }, opts);
       let specialDone = false;
       if (special) {
         specialDone = yield* (special.kind === 'backheel' ? backheelKick(from, toW) : rabonaKick(from, toW));
@@ -375,7 +375,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
 
   // ---- V7.9 batch 3: passes and touches (boots placed with the foot targets) ----
   // which special pass, if any: a player who has it, where it fits, or the staged scene
-  function passSpecial(from, to, toW, travel, implicit, opts) {
+  function passSpecial({ from, to, toW, travel, implicit }, opts) {
     if (!to || opts.restart || opts.meet || opts.throwIn || from.role === 'GK' || ball.owner !== from || ball.p.y > BALL_R + 0.05) return null;
     const len = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z), aim = V(toW.x - from.pos.x, 0, toW.z - from.pos.z).normalize(), fwdX = -Math.sign(ownGoalX(from.side));
     if (from.side === 'user' && tryMove === 'backheel' && len > 3 && len < 25) { tryMove = null; return { kind: 'backheel', tried: true }; }
@@ -598,7 +598,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const lead = MOTIONS.header.contact;
     let jumped = false;
     const trace = DEBUG ? [[+S.t.toFixed(2), ...ball.p.toArray().map(v => +v.toFixed(2)), ...ball.v.toArray().map(v => +v.toFixed(1))]] : null;
-    if (rival && !rival.busy) jumpFor(rival, spot.clone().setY(rt.headHeight).add(V(-Math.sign(spot.x) * 0.6, 0, 0.3)), headingOf(V(spot.x - rival.pos.x, 0, spot.z - rival.pos.z).normalize(), V(0, 0, 0)), tArr, 0.12, 0.35);
+    if (rival && !rival.busy) jumpFor(rival, { spot: spot.clone().setY(rt.headHeight).add(V(-Math.sign(spot.x) * 0.6, 0, 0.3)), heading: headingOf(V(spot.x - rival.pos.x, 0, spot.z - rival.pos.z).normalize(), V(0, 0, 0)), tArr, late: 0.12, short: 0.35 });
     const out = V(land.x - spot.x, 0, land.z - spot.z).normalize();
     let best = Infinity;
     yield* until(() => {
@@ -732,7 +732,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     return rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== p.side && q.role !== 'GK' && q.pos.distanceTo(p.pos) < maxD)
       .reduce((m, q) => (!m || q.pos.distanceTo(p.pos) < m.pos.distanceTo(p.pos) ? q : m), null);
   }
-  function* flairPassTry(from, to, toW, travel, implicit, opts) {
+  function* flairPassTry({ from, to, toW, travel, implicit }, opts) {
     if (!to || opts.restart || opts.meet || opts.throwIn || from.role === 'GK') return false;
     const len = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
     const tryIt = tryMove === 'flairpass' && from.side === 'user' && len > 4 && len < 30;
@@ -858,18 +858,18 @@ export function createDirector(rt, data, hooks, opts = {}) {
         rt.place(mate, spot.clone().addScaledVector(V(fx, 0, 0), kind === 'backheel' ? -1 : 2));
         yield* carry(star, V(at.x + fx * 4, 0, at.z), 3.5);
         tryMove = kind;
-        yield* pass(star, mate, spot, kind === 'rabona' ? 'aerial' : 'ground', false, { ev: { eventId: -1 } });
+        yield* pass({ from: star, to: mate, toW: spot, travel: kind === 'rabona' ? 'aerial' : 'ground', implicit: false }, { ev: { eventId: -1 } });
       } else if (kind === 'pirouette') {
         const mate = mateOf();
         rt.place(mate, V(at.x - fx * 18, 0, at.z - 4)); ball.owner = mate; ball.p.copy(mate.pos).addScaledVector(V(fx, 0, 0), 0.5).setY(BALL_R); ball.v.set(0, 0, 0);
         rt.place(star, V(at.x, 0, at.z), Math.atan2(-fx, 0)); tryMove = 'pirouette';
-        yield* pass(mate, star, V(at.x - fx * 0.6, 0, at.z), 'ground', false, { ev: { eventId: -1 } });
+        yield* pass({ from: mate, to: star, toW: V(at.x - fx * 0.6, 0, at.z), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
       } else if (kind === 'trap') {
         const mate = mateOf();
         rt.place(mate, V(at.x - fx * 30, 0, at.z - 6));
         ball.owner = mate; ball.p.copy(mate.pos).addScaledVector(V(fx, 0, 0), 0.5).setY(BALL_R);
         rt.place(star, V(at.x, 0, at.z)); tryMove = 'trap';
-        yield* pass(mate, star, V(at.x + fx * 0.5, 0, at.z), 'aerial', false, { ev: { eventId: -1 } });
+        yield* pass({ from: mate, to: star, toW: V(at.x + fx * 0.5, 0, at.z), travel: 'aerial', implicit: false }, { ev: { eventId: -1 } });
       } else if (kind === 'panenka' || kind === 'chip') {
         const gs = fx, line = gs * GOAL_X;
         const from = kind === 'panenka' ? V(line - gs * 11, 0, 0) : V(line - gs * 17, 0, 4);
@@ -887,7 +887,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== gk && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(gk.pos) - b.pos.distanceTo(gk.pos))[0];
         rt.place(mate, kind === 'gkvolley' ? V(own * 2, 0, -10) : V(own * 30, 0, 16));
         yield* wait(0.8);
-        yield* pass(gk, mate, mate.pos.clone(), 'ground', false, { ev: { eventId: -1 } });
+        yield* pass({ from: gk, to: mate, toW: mate.pos.clone(), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
         yield* wait(1.5);
       } else if (kind === 'gkclaim') {
         // (keeper review) a cross into the box that the keeper comes and takes in the air
@@ -895,7 +895,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const from = V(line - gs * 14, 0, 27);
         rt.place(star, from.clone().add(V(-gs * 1, 0, 0)), Math.atan2(gs, 0)); ball.owner = star; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
         if (gk) rt.place(gk, V(line - gs * 1.5, 0, 0), Math.atan2(-gs, 0));
-        yield* pass(star, gk, V(line - gs * 5.5, 0, 2.5), 'aerial', false, { ev: { eventId: -1 } });
+        yield* pass({ from: star, to: gk, toW: V(line - gs * 5.5, 0, 2.5), travel: 'aerial', implicit: false }, { ev: { eventId: -1 } });
         yield* wait(1.5);
       } else if (kind === 'gkcarry') {
         // (keeper review) our keeper runs out with the ball at his feet, then plays it
@@ -904,7 +904,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         rt.place(gk, from, Math.atan2(-own, 0)); ball.owner = gk; ball.held = null; ball.p.copy(from).addScaledVector(V(-own, 0, 0), 0.5).setY(BALL_R); ball.v.set(0, 0, 0);
         yield* carry(gk, V(own * 26, 0, 6), 5);
         const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== gk && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(gk.pos) - b.pos.distanceTo(gk.pos))[0];
-        yield* pass(gk, mate, mate.pos.clone(), 'ground', false, { ev: { eventId: -1 } });
+        yield* pass({ from: gk, to: mate, toW: mate.pos.clone(), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
         yield* wait(1.5);
       } else if (kind === 'gkfoot') {
         // (keeper review) a low shot just beside him, kept out with the foot
@@ -925,7 +925,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* wait(0.5);
         let meet = null;
         gk.busy = true; gk.loopsWant.keeperReady = 0;
-        yield* pass(crosser, null, spot, 'aerial', false, { height: PUNCH_H, meet: tArr => { meet = tArr; }, ev: { eventId: -31 } });
+        yield* pass({ from: crosser, to: null, toW: spot, travel: 'aerial', implicit: false }, { height: PUNCH_H, meet: tArr => { meet = tArr; }, ev: { eventId: -31 } });
         yield* keeperPunch(gk, spot.clone().setY(PUNCH_H), meet, V(line - gs * 26, 0, 12), striker);
         yield* wait(2.5);
       } else if (kind === 'gkrush' || kind === 'gkrushgoal') {
@@ -974,7 +974,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const spot = V(line - gs * 7, rt.headHeight, 3);
         rt.place(mate, V(line - gs * 16, 0, 27)); ball.owner = mate; ball.p.copy(mate.pos).add(V(gs * 0.5, 0, 0)).setY(BALL_R); ball.v.set(0, 0, 0);
         rt.place(star, V(spot.x - gs * 6, 0, spot.z - 4));
-        yield* pass(mate, star, spot.clone().setY(0), 'aerial', false, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6.5; } });
+        yield* pass({ from: mate, to: star, toW: spot.clone().setY(0), travel: 'aerial', implicit: false }, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6.5; } });
         yield* shot({ eventId: -41, type: 'shot', header: true, fromId: star.id, fromSide: star.side, outcome: 'goal', fromPos: pctOf(spot), toPos: gs > 0 ? [100, 47] : [0, 53] }, events.length + 10);
         yield* wait(1.5);
       } else if (kind === 'bicycle') {
@@ -982,7 +982,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const spot = V(line - gs * 9, rt.headHeight, 1.5);
         rt.place(mate, V(line - gs * 14, 0, 26)); ball.owner = mate; ball.p.copy(mate.pos).add(V(gs * 0.5, 0, 0)).setY(BALL_R); ball.v.set(0, 0, 0);
         rt.place(star, V(spot.x - gs * 1.5, 0, spot.z + 2)); tryMove = 'bicycle';
-        yield* pass(mate, star, spot.clone().setY(0), 'aerial', false, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6; } });
+        yield* pass({ from: mate, to: star, toW: spot.clone().setY(0), travel: 'aerial', implicit: false }, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6; } });
         yield* shot({ eventId: -1, type: 'shot', header: true, fromId: star.id, fromSide: star.side, outcome: 'goal', fromPos: pctOf(spot), toPos: gs > 0 ? [100, 47] : [0, 53] }, events.length + 10);
       } else if (kind === 'flairpass') {
         const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
@@ -990,13 +990,13 @@ export function createDirector(rt, data, hooks, opts = {}) {
         rt.place(mate, spot.clone().addScaledVector(V(fx, 0, 0), 2));
         yield* carry(star, V(at.x + fx * 5, 0, at.z), 3.5);
         tryMove = 'flairpass';
-        if (!(yield* flairPassTry(star, mate, spot, 'ground', false, { ev: { eventId: -1 } }))) { tryMove = null; forced = null; return true; }
+        if (!(yield* flairPassTry({ from: star, to: mate, toW: spot, travel: 'ground', implicit: false }, { ev: { eventId: -1 } }))) { tryMove = null; forced = null; return true; }
         star.busy = false; mate.busy = true; yield* chase(mate, spot); mate.busy = false;
       } else if (kind === 'nolook') {
         const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
         rt.place(mate, V(at.x + fx * 16, 0, at.z - 8));
         yield* carry(star, V(at.x + fx * 6, 0, at.z), 4.2);
-        yield* pass(star, mate, V(at.x + fx * 20, 0, at.z - 6), 'ground', false, { ev: { eventId: -1 } });
+        yield* pass({ from: star, to: mate, toW: V(at.x + fx * 20, 0, at.z - 6), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
       } else {
         // he runs at the defender, who comes out to meet him; then the move (again if he could not set it up)
         def.lastEvent = { eventId: -1 }; def.busy = star.busy = true;
@@ -1688,7 +1688,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const other = p.side === 'user' ? 'opp' : 'user';
     return rt.players.filter(q => q.side === other && q.role !== 'GK' && !q.offPitch).sort((a, b) => a.pos.distanceTo(spot) - b.pos.distanceTo(spot))[0];
   }
-  function jumpFor(p, spot, heading, tArr, late = 0, short = 0) {
+  function jumpFor(p, { spot, heading, tArr, late = 0, short = 0 }) {
     const H = MOTIONS.header;
     // a beaten jumper arrives a touch late and a little short of the ball
     const at = spot.clone().add(V(Math.sin(heading) * -short, 0, Math.cos(heading) * -short));
@@ -1698,7 +1698,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (Math.hypot(at.x - p.pos.x, at.z - p.pos.z) <= 4.2 * Math.max(0, lead) + 1.2) rt.headerAt(p, at, heading, Math.max(0, lead));
     return !!p.motion;
   }
-  function planAerial(e, receiver, target, tArr, hs, lb, jumper) {
+  function planAerial(e, { receiver, target, tArr, hs, lb, jumper }) {
     const spot = V(target.x, rt.headHeight, target.z);
     const rival = rivalFor(receiver, spot);
     const inc = V(-ball.v.x, 0, -ball.v.z).normalize();
@@ -1709,7 +1709,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // later; jumping only then he met the ball on the way up, short of it)
       if (!receiver.motion) { const aimW = toWorld(hs.toPos || [spot.x > 0 ? 100 : 0, 50]), out = V(aimW.x - spot.x, 0, aimW.z - spot.z).normalize();
         rt.headerAt(receiver, spot, headingOf(out.multiplyScalar(1.6), inc), Math.max(0, tArr - MOTIONS.header.contact - S.t)); }
-      if (rival) jumpFor(rival, spot.clone().add(V(-Math.sign(spot.x) * 0.7, 0, 0.35)), headingOf(inc, V(0, 0, 0)), tArr, 0.1, 0.25);
+      if (rival) jumpFor(rival, { spot: spot.clone().add(V(-Math.sign(spot.x) * 0.7, 0, 0.35)), heading: headingOf(inc, V(0, 0, 0)), tArr, late: 0.1, short: 0.25 });
       return;
     }
     // won by the marker (a clearance) or flicked on by whoever got the faintest touch (a scramble)
@@ -1719,8 +1719,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const winner = jumper || (lb.reason === 'clearance' ? rival : receiver), loser = winner === receiver ? rival : receiver;
     if (!winner) return;
     const out = V(to.x - spot.x, 0, to.z - spot.z).normalize();
-    jumpFor(winner, spot, headingOf(inc, out), tArr);
-    if (loser) jumpFor(loser, spot.clone().add(V(0.45, 0, -0.45)), headingOf(inc, V(0, 0, 0)), tArr, 0.08, 0.3);
+    jumpFor(winner, { spot, heading: headingOf(inc, out), tArr });
+    if (loser) jumpFor(loser, { spot: spot.clone().add(V(0.45, 0, -0.45)), heading: headingOf(inc, V(0, 0, 0)), tArr, late: 0.08, short: 0.3 });
     S.aerial = { at: tArr, to, winner };
   }
 
@@ -2229,9 +2229,9 @@ export function createDirector(rt, data, hooks, opts = {}) {
         if (from) {
           const mate = rt.players.filter(q => !q.offPitch && q.side === from.side && q !== from && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(from.pos) - b.pos.distanceTo(from.pos))[0];
           if (mate && mate.pos.distanceTo(from.pos) < 20) {
-            yield* pass(from, mate, mate.pos.clone(), 'ground');
+            yield* pass({ from, to: mate, toW: mate.pos.clone(), travel: 'ground' });
             yield* wait(0.3);
-            yield* pass(mate, from, from.pos.clone(), 'ground');
+            yield* pass({ from: mate, to: from, toW: from.pos.clone(), travel: 'ground' });
           }
         }
         break;
@@ -2314,10 +2314,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
             // (V7.9.5: and he holds that spot until the ball is struck — the cross can take a few seconds to come)
             jumper.target.copy(target).setY(0); jumper.want = 7.4; jumper.runUntil = S.t + flight + 8; jumper.face = null;
             if (DEBUG) (stats.jumpLog ||= []).push({ t: +S.t.toFixed(2), id: jumper.id, side: jumper.side, gap: +gap.length().toFixed(2), reach: +reach.toFixed(2), pos: jumper.pos.toArray().map(v => +v.toFixed(2)), busy: jumper.busy, motion: jumper.motion?.name });
-            popts.height = rt.headHeight; popts.meet = tArr => planAerial(e, receiver, target, tArr, hs, lb, jumper);
+            popts.height = rt.headHeight; popts.meet = tArr => planAerial(e, { receiver, target, tArr, hs, lb, jumper });
           }
         }
-        yield* pass(from, receiver, target, e.travelType === 'aerial' || e.type === 'cross' || e.type === 'corner' ? 'aerial' : 'ground', false, popts);
+        yield* pass({ from, to: receiver, toW: target, travel: e.travelType === 'aerial' || e.type === 'cross' || e.type === 'corner' ? 'aerial' : 'ground', implicit: false }, popts);
         if (e.restartType) ball.allowOut = false;
         break;
       }
