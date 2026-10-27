@@ -102,6 +102,7 @@ Genişletme noktaları (`core/hooks.js`):
 - `src/index.html` (sayfa), `src/style.css`, `src/sw.js` (service worker şablonu), `src/assets/models/footballer-rig.json` (3D iskelet; build hash'li yayınlar).
 - `public/`: olduğu gibi yayınlananlar: `assets/atmosphere/` (ekranların yol ile andığı resimler), ikonlar, `manifest.json` (adındaki `%APP_VERSION%`'ı build doldurur), `.nojekyll`.
 - `vite.config.js`: build. three.js npm'den (`three` 0.180.0; E5'te `vendor/` kalktı).
+- Çalışma kuralları: `AGENTS.md` (tek kaynak; `CLAUDE.md` onu içe aktarır). Lint: `eslint.config.js` (eşikler ve gerekçeleri), `lint-baseline.json` (bugünkü ihlaller, sadece küçülür), `tools/lint/` (`lint.js` komut, `ratchet.js` taban mantığı, `no-commented-out-code.js` yorumdaki kod kuralı). Testleri: `tests/lint-ratchet.test.cjs`, `tests/lint-rules.test.cjs`.
 
 ## Ekrandaki düğmeler (C2)
 

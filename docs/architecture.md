@@ -93,6 +93,7 @@ Modüller yüklenirken sadece tanımlar ve kaydeder; hiçbir şey çalışmaz:
 - Testler oyunu kaynaktan, tarayıcının yüklediği gibi yükler: `src/index.html` girişleri ve importları (JSON veri dahil), tek bir VM bağlamında (`tests/support/game.cjs`). Oyuna dosyayla değil adla ulaşırlar (`g.api.ad`, `run('…')`, `sourceDefining(ad)`); fonksiyon başka modüle taşınınca test değişmez.
 - Altın kayıtlar (`tests/golden`): 34 fikstürün olay günlüğü, skorlar, maç özetleri, 3 sezonluk kariyer, ekranlar, kayıtlar. Yeniden yapılanma bunları hiç değiştirmedi.
 - Kural testleri: çekirdek modları tanımaz, satır içi işleyici yok, `Math.random` yok, `window`'da oyun yok, modül sırası, veri saflığı, tek sürüm.
+- Lint (`npm run lint`, CI'da testlerden önce): ölçülebilir Clean Code kuralları (fonksiyon boyu ve deyim sayısı, karmaşıklık, iç içelik, parametre, dosya boyu, ölü kod, yutulan hata, sürüm ekli ad, `Math.random`, çekirdekten moda import). Bugünkü ihlaller `lint-baseline.json`'da; sadece yenisi hata verir, taban sadece küçülür. Kurallar: `AGENTS.md`.
 - Yayınlananla ilgili testler (service worker listesi ve kuralı, başlık, manifest, önbelleğe alınan resimler) geçici bir klasöre gerçek bir build alır (`tests/support/build.cjs`).
 - Duman testi (`npm run smoke`, `tests/smoke/smoke.mjs`): build GitHub Pages gibi sunulur ve Chromium'da açılır: açılış, ana ekranlar, eski ve yeni kayıtlar, sezon sonu, 3D maç, yeni sürüm bildirimi, çevrimdışı. CI her yayından önce çalıştırır.
 
