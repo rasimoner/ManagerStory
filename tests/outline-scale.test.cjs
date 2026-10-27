@@ -26,8 +26,8 @@ test('player outlines: thin and light far away, full close up, never wider than 
   assert.ok(nearPx > 2.5 && nearPx <= 3.21, `close up: a full outline (${nearPx.toFixed(2)} px)`);
   assert.ok(farPx < 1.2, `far away: a thin one (${farPx.toFixed(2)} px; the fixed outline was ${(0.0042 * W / 2).toFixed(1)} px)`);
   assert.ok(far.body.material.userData.outlineParameters.alpha < near.body.material.userData.outlineParameters.alpha, 'and lighter');
-  // the match view and the star transfer scene both scale before the outline pass
-  for (const f of ['match3d-newview.js', 'star-transfer-scene.js']) {
+  // the match view and the show stage (the star transfer scene and İzle draw with it) both scale before the outline pass
+  for (const f of ['match3d-newview.js', 'show-stage.js']) {
     const src = require('./support/game.cjs').readSource(f, srcDir);
     assert.ok(src.indexOf('rt.scaleOutlines(camera') >= 0 && src.indexOf('rt.scaleOutlines(camera') < src.indexOf('outline.renderOutline('), f);
   }

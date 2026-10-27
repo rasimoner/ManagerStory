@@ -144,9 +144,12 @@ test('with the season transition: the star keeps his number and his clip into th
   assert.notEqual(h.run('S.season'), season0, 'a new season started');
   assert.equal(h.run(`S.players.find(p=>p.id===${star.id})?.number`), star.number, 'he kept his number');
   assert.ok(!h.json(`freeShirtNumbers(-1)`).includes(star.number), 'nobody else can take it');
-  assert.equal(h.run('S.highlights.length'), 1, 'the clip stays in the archive');
-  assert.equal(h.run('S.highlights[0].season'), season0);
+  const clips = 'S.highlights.filter(h=>h.type==="starTransfer")';
+  assert.equal(h.run(`${clips}.length`), 1, 'the clip stays in the archive (beside the moves the squad learnt over the season)');
+  assert.equal(h.run(`${clips}[0].season`), season0);
   assert.equal(h.run('latestStarTransfer()'), null, 'the flash card belongs to the season of the signing');
+  const before = h.run('S.highlights.length');
   h.run('S=validateCareerImport(JSON.parse(JSON.stringify(S)));init();render()');
-  assert.equal(h.run('S.highlights.length'), 1);
+  assert.equal(h.run('S.highlights.length'), before);
+  assert.equal(h.run(`${clips}.length`), 1);
 });
