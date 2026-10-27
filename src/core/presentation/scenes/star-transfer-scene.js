@@ -1,17 +1,11 @@
 // Yıldız transfer sahnesi (3D): out of the tunnel in front of a full stand, then his best special move.
-// A small stage of its own, built from the match view's pieces (stadium, crowd, footballer runtime and the
-// director that plays the special moves): the star, one team-mate, one opponent and the keepers. Its own
-// WebGL renderer is created for the scene and released when it ends (phones keep little GPU memory).
+// A small stage of its own (show-stage.js, shared with "İzle"): the stadium, a full crowd, the star, one
+// team-mate, one opponent and the keepers, and the director that plays the special moves.
 import * as THREE from 'three';
-import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
-import { buildStadium } from '../match3d/newview/stadium.js';
-import { createRuntime, analyseGait, BALL_R, V } from '../match3d/newview/runtime.js';
-import { loadRig } from '../match3d/newview/rig.js';
-import { createDirector } from '../match3d/newview/director.js';
+import { V } from '../match3d/newview/runtime.js';
 import { createBroadcastCamera } from '../match3d/newview/camera.js';
-import { stageRoster } from '../match3d/newview/stage-roster.js';
 import { presentation } from '../registry.js';
-import { CLUBSTYLE } from '../../clubs/club-style.js';
+import { aimSun, drawBall, fitCanvas, loadFootballers, openShowStage, releaseShowStage, renderStage, setCrowdExcite, stageShow } from './show-stage.js';
 
 // timings (seconds): the whole scene stays short on a phone
 export const TIMES = { walk: 6.2, cheer: 2.2, fade: 0.35, showMax: 12, after: 1.6, closing: 4, cap: 40 };
@@ -38,16 +32,6 @@ const css = `.sts{position:fixed;inset:0;z-index:1200;background:#0b0f14;overflo
 .sts-close i{display:block;height:3px;margin-top:12px;border-radius:2px;background:#ffffff26;overflow:hidden}.sts-close i b{display:block;height:100%;width:100%;background:#f4c430;transform-origin:left;transition:transform linear}
 .sts-load{position:absolute;inset:0;display:grid;place-items:center;color:#cfe0d3;font:600 15px -apple-system,BlinkMacSystemFont,sans-serif;background:#10251a}
 @media (prefers-reduced-motion:reduce){.sts-fade,.sts-card{transition:none}}`;
-
-let rigPromise = null;
-function loadAssets() {
-  rigPromise ??= fetch(new URL('../../../assets/models/footballer-rig.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('rig ' + r.status); return r.json(); }).then(data => {
-    const rig = loadRig(data), gait = {};
-    for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
-    return { rig, gait };
-  });
-  return rigPromise;
-}
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // takes the seats out of the stand where the tunnel goes, so no fan sits inside it
@@ -151,28 +135,6 @@ function buildTunnel(scene, stadium, club) {
   return g;
 }
 
-function makeBall(scene, stadium) {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d');
-  g.fillStyle = '#fbfbfb'; g.fillRect(0, 0, 256, 128); g.fillStyle = '#16181d';
-  for (const [x, y] of [[32, 30], [96, 30], [160, 30], [224, 30], [0, 76], [64, 76], [128, 76], [192, 76], [256, 76], [32, 118], [160, 118]]) { g.beginPath(); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 - Math.PI / 2; g.lineTo(x + Math.cos(a) * 13, y + Math.sin(a) * 11); } g.fill(); }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  const mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 24, 16), new THREE.MeshToonMaterial({ map: t, gradientMap: stadium.toonRamp }));
-  mesh.castShadow = true; mesh.layers.enable(1); scene.add(mesh);
-  const shadow = new THREE.Mesh(new THREE.CircleGeometry(0.16, 20), stadium.noOutline(new THREE.MeshBasicMaterial({ color: '#0b1a08', transparent: true, opacity: .45, depthWrite: false })));
-  shadow.rotation.x = -Math.PI / 2; scene.add(shadow);
-  return { mesh, shadow };
-}
-function numberTextureFactory() {
-  const cache = new Map();
-  return (no, kit) => {
-    const k = no + kit.number + kit.numberEdge; if (cache.has(k)) return cache.get(k);
-    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
-    g.font = '800 100px "Arial Narrow", "Helvetica Neue", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.lineWidth = 10; g.strokeStyle = kit.numberEdge; g.strokeText(String(no), 64, 70); g.fillStyle = kit.number; g.fillText(String(no), 64, 70);
-    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; cache.set(k, t); return t;
-  };
-}
-
 function screenTilt(p, camera) {
   if (!p) return null;
   const head = p.bones.Head.getWorldPosition(new THREE.Vector3()).project(camera);
@@ -196,55 +158,36 @@ export function playStarTransferScene(opts) {
 <div class="sts-fade"></div><div class="sts-load">Tribünler doluyor…</div>`;
     document.body.append(root); document.documentElement.classList.add('nv-lock');
     const canvas = root.querySelector('canvas'), fadeEl = root.querySelector('.sts-fade'), cardEl = root.querySelector('.sts-card'), topEl = root.querySelector('.sts-top span'), loadEl = root.querySelector('.sts-load');
-    let renderer = null, raf = null, finished = false;
+    let raf = null, finished = false, stage = null;
     const finish = result => {
       if (finished) return; finished = true;
       if (raf) cancelAnimationFrame(raf);
-      try {
-        scene?.traverse(o => { o.geometry?.dispose?.(); const ms = Array.isArray(o.material) ? o.material : o.material ? [o.material] : []; for (const m of ms) { for (const v of Object.values(m)) if (v?.isTexture) v.dispose(); m.uniforms && Object.values(m.uniforms).forEach(u => u.value?.isTexture && u.value.dispose()); m.dispose?.(); } });
-        renderer?.dispose(); renderer?.forceContextLoss?.();
-      } catch (e) { /* releasing is best effort */ }
+      releaseShowStage(stage);
       document.documentElement.classList.remove('nv-lock'); root.remove();
       resolve(result);
     };
-    let scene;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    } catch (e) { finish(null); return; }
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
-    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap; renderer.outputColorSpace = THREE.SRGBColorSpace;
-    const outline = new OutlineEffect(renderer, { defaultThickness: 0.0042, defaultColor: [0.05, 0.06, 0.08] });
-    scene = new THREE.Scene(); scene.background = new THREE.Color('#9fb8cf'); scene.fog = new THREE.Fog('#9fb8cf', 90, 220);
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 400); camera.layers.enable(1);
+    stage = openShowStage(canvas, opts.club);
+    if (!stage) { finish(null); return; }
+    const { renderer, scene, camera, stadium } = stage;
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); finish(null); });
-    let stadium;
-    try { stadium = buildStadium({ scene, renderer, boardName: String(opts.club.name || '').toLocaleUpperCase('tr') }); } catch (e) { finish(null); return; }
-    const opp = { name: 'Rakip', primaryColor: '#55646b', secondaryColor: '#d8dedc', shortName: 'RK' };
-    // (a presentation, not a match: the whole ground is his new club's, the visitors' block included)
-    const flag = (typeof CLUBSTYLE !== 'undefined' && CLUBSTYLE[opts.club.name]?.[2]) || 'v';
-    const crowd = stadium.buildCrowd(opts.club.primaryColor, opts.club.secondaryColor, opts.club.primaryColor, opts.club.secondaryColor, flag, flag) || [];
-    clearTunnelSeats(crowd);
+    clearTunnelSeats(stage.crowd);
     buildTunnel(scene, stadium, opts.club);
     clipStandForTunnel(scene, renderer);
-    const ballObj = makeBall(scene, stadium);
+    const ballObj = stage.ball;
 
-    loadAssets().then(assets => {
+    loadFootballers().then(assets => {
       if (finished) return;
-      const rt = createRuntime({ scene, rig: assets.rig, gait: assets.gait, ramp: stadium.toonRamp, numberTexture: numberTextureFactory(), cadence: 1, stride: 0.75 });
-      const { user, opp: oppRoster, snaps } = stageRoster(opts.player, opts.move);
       let autoCam = { mode: 'tv', a: null, b: null }, simSlow = 1, excite = 0.2;
-      const director = createDirector(rt, { events: [], snaps, meta: { user, opp: oppRoster, teams: { home: opts.club, away: opp }, userHome: true } }, {
-        say() {}, banner() {}, flash() {}, offsideLine() {}, score() {}, minute() {}, whistle() {}, finished() {}, star() {},
+      const { rt, director, star } = stageShow(stage, { assets, player: opts.player, move: opts.move, club: opts.club, hooks: {
         excite: v => { excite = Math.max(excite, v); },
         // (the far TV picture is for matches: here the camera stays close on the move)
         cam: (mode, a = null, b = null, hard = false) => { autoCam = mode === 'tv' ? { mode: 'close', a: star, b: null } : { mode, a, b }; if (hard) cut = true; },
         slow: s => { simSlow = s < 1 ? 0.5 : 1; },
-      }, { startIndex: 0 });
-      const star = rt.players.find(p => p.side === 'user' && p.id === opts.player.id);
+      } });
       const broadcast = createBroadcastCamera(camera);
       let cut = true, phase = 'walk', phaseT = 0, total = 0, last = performance.now();
       const camPos = new THREE.Vector3(), camLook = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
-      const setExcite = v => { for (const m of [stadium.crowdMat, stadium.flagMat]) m.uniforms.uExcite.value = m.uniforms.uExciteAway.value = v; };
+      const setExcite = v => setCrowdExcite(stage, v);
 
       // walk: only the star, from the dark of the tunnel onto the grass, towards the camera
       for (const p of rt.players) p.model.visible = p === star;
@@ -325,31 +268,20 @@ export function playStarTransferScene(opts) {
         }
         // draw
         for (const p of rt.players) if (!p.offPitch && p.model.visible) rt.pose(p, dt);
-        const b = rt.ball;
-        ballObj.mesh.position.copy(b.p);
-        const sp = Math.hypot(b.v.x, b.v.z);
-        if (sp > 0.01 && dt > 0) ballObj.mesh.rotateOnWorldAxis(new THREE.Vector3(b.v.z, 0, -b.v.x).normalize(), sp * dt / BALL_R);
-        ballObj.shadow.position.set(b.p.x, .012, b.p.z);
-        const hgt = Math.max(0, b.p.y - BALL_R); ballObj.shadow.scale.setScalar(1 + hgt * .35); ballObj.shadow.material.opacity = .45 / (1 + hgt * 1.4);
-        const t3 = now / 1000; stadium.crowdMat.uniforms.uTime.value = t3; stadium.flagMat.uniforms.uTime.value = t3;
-        stadium.updateNets(rt.S.netHit, rt.S.t);
-        const w = canvas.clientWidth, h = canvas.clientHeight;
-        if (canvas.width !== Math.round(w * renderer.getPixelRatio()) || canvas.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
-        const aspect = w / Math.max(1, h);
+        drawBall(stage, rt, dt);
+        const aspect = fitCanvas(stage);
         if (phase === 'walk' || phase === 'cheer') {
           if (cut) { camPos.copy(wantPos); camLook.copy(wantLook); cut = false; }
           camPos.lerp(wantPos, Math.min(1, dtReal * 4)); camLook.lerp(wantLook, Math.min(1, dtReal * 5));
           camera.fov = aspect < 1 ? 58 : 44; camera.aspect = aspect; camera.updateProjectionMatrix();
           camera.position.copy(camPos); camera.lookAt(camLook);
-          stadium.sun.target.position.copy(camLook); stadium.sun.position.copy(camLook).add(new THREE.Vector3(-30, 60, 40));
+          aimSun(stage, camLook);
         } else if (phase !== 'fade') {
           if (cut) { broadcast.cut(); cut = false; }
           broadcast.update(rt, autoCam, dtReal, aspect);
-          stadium.sun.target.position.copy(broadcast.look); stadium.sun.position.copy(broadcast.look).add(new THREE.Vector3(-30, 60, 40));
+          aimSun(stage, broadcast.look);
         }
-        rt.scaleOutlines(camera, canvas.width, canvas.height);
-        renderer.render(scene, camera);
-        camera.layers.set(1); outline.renderOutline(scene, camera); camera.layers.enable(0);
+        renderStage(stage, { rt, now });
       }
       raf = requestAnimationFrame(frame);
       // automated checks only: where the scene is

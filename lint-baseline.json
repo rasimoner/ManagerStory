@@ -105,11 +105,11 @@
     "max-statements": 4
   },
   "src/core/presentation/scenes/star-transfer-scene.js": {
-    "complexity": 4,
+    "complexity": 2,
     "max-depth": 1,
     "max-lines-per-function": 5,
     "max-params": 1,
-    "max-statements": 6
+    "max-statements": 3
   },
   "src/core/save.js": {
     "complexity": 3,
