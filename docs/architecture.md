@@ -17,7 +17,8 @@ src/              kaynak (npm run build → dist/, depoda değil)
     league/ clubs/  lig, fikstür, puan tablosu, rakipler; kulüp kimliği
     players/        oyuncu tipleri, profiller, özel hareketler
     season/         sezon sonu adım hattı
-    presentation/   2D/3D maç görünümü, yıldız sahnesi (sadece okur)
+    highlights.js   highlight arşivi: tarif biçimi ve "en iyi" kuralı
+    presentation/   2D/3D maç görünümü (özel hareket koreografisi newview/beats/), yıldız ve "İzle" sahneleri (sadece okur)
   modes/manager/  teknik direktör modu: kariyer döngüsü, ekranlar, maç paneli, sezon sonu ekranları, yıldız transfer akışı
   ui/             ortak arayüz: olay dağıtıcısı, gezinme, tarayıcı aracı
   main.js         tek giriş: modülleri sırayla yükler, modu çekirdeğe bağlar, oyunu açar
@@ -107,7 +108,10 @@ Yeniden yapılanmadan sonra bilerek bırakılanlar:
 - Motorun kariyerde yazdıkları: kondisyon, sakatlık bayrağı, `S.matchSalt`. Ayrılmaları maça özel kadro kopyası ister (oyuncu kariyeri moduyla birlikte).
 - Motor kullanıcı takımının ayarlarını (`S.plan`, `S.instructions`, `S.positions`) kariyerden okuyor; `user-team.js`'e taşınabilir.
 - Çekirdekte DOM/tarayıcı kullanan yerler: `core/save.js` (alert, indirme), `live-match.js` (sekme görünürlüğü), `pitch-v73.js`'in 2D saha çizimi, sezon sonu "devam" (alert, kaydırma).
-- `modes/manager/app.js` hâlâ büyük (~111 KB): gelişim (`evolvePlayers`) → `core/players`, header ve alt menü → `ui`, highlight kaydı → `core/highlights`.
+- `modes/manager/app.js` hâlâ büyük (~111 KB): gelişim (`evolvePlayers`) → `core/players`, header ve alt menü → `ui` (highlight kaydı V7.14.0'da `core/highlights` ve `highlight-recorder.js`'e gitti).
+- Maçtaki yıldız anları sadece maç 3D izlenirken oluşur (özel hareketi motor değil 3D yönetmen seçer); 2D izlenen ya da hızlı geçilen maçtan arşive bir şey girmez. Motor özel hareketi kendisi seçerse arşiv her maçtan yazılabilir.
+- "İzle" maçtaki anı birebir değil, aynı beat'i aynı tohumla maç dışı sahnede oynatır: savunmacının yeri ve kamera sahnenin kendisinin. Kaleci kurtarışlarında tohum sahneyi değiştirmez (sahne sabit).
+- 3D sunum katmanında `director.js` hâlâ ~1550 satır (`shot`, `run`, `pass`); `createDirector` dört parametreli.
 - Sunum bazı yerlerde `S`/`M`'yi doğrudan okuyor ("sadece olay günlüğü" ilkesi tam değil).
 - Testler iç fonksiyonlara tek erişim noktasından ulaşıyor; modüllerin dışa açtıkları daraltılmadı.
 - 3D ayar panelinde geçici "Hız ayarları" (gerçek hızlar telefonda ayarlanınca kalkar).

@@ -221,3 +221,10 @@ body.in-match .navtop{display:none}
 /* the player's shirt number: the squad list and his profile show the number the 3D match puts on his back */
 .shirtno{display:inline-block;min-width:26px;padding:3px 6px;border-radius:7px;background:#f3c623;color:#1d1d1d;font-weight:800;font-size:12px;text-align:center}
 .profilehero h1 .shirtno{font-size:18px;vertical-align:middle}
+/* highlight archive (modes/manager/highlight-screens.js) */
+.hlentry{width:100%}
+.hlrow h3{margin:4px 0 2px}.hlrow .hlwatch{margin:0;min-height:44px;white-space:nowrap}
+.hltype{color:var(--gold);font-weight:800;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.hlfilters{display:grid;gap:8px}.hlfilters label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px}.hlfilters select{min-height:40px;font-size:16px;max-width:62%}
+.hlmini{padding:8px 0;border-top:1px solid #ffffff12}.hlmini:first-of-type{border-top:0}.hlmini button{margin:0;min-height:40px;white-space:nowrap}
+.inboxmsg .hlwatch{margin-right:8px}

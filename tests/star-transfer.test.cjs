@@ -55,7 +55,7 @@ test('a big signing: breaking news, a free shirt number, the highlight record, t
   assert.ok(Number.isInteger(p.number) && !before.includes(p.number), 'his number is not worn by anyone else');
   const hl = h.json('S.highlights');
   assert.equal(hl.length, 1);
-  assert.deepEqual({ ...hl[0], move: typeof hl[0].move }, { id: 'hl1', kind: 'star-transfer', playerId: p.id, playerName: p.name, pos: p.pos, move: 'string', stars: hl[0].stars, keeper: false, fee: 12000000, fromClub: hl[0].fromClub, season: '2025/26', week: 3, matchday: 3 });
+  assert.deepEqual({ ...hl[0], move: typeof hl[0].move }, { id: 'hl1', type: 'starTransfer', playerId: p.id, playerName: p.name, pos: p.pos, move: 'string', stars: hl[0].stars, season: '2025/26', week: 3, seed: -1, fee: 12000000, fromClub: hl[0].fromClub });
   assert.ok(hl[0].stars >= 4);
   assert.ok(h.run(`S.inbox.some(m=>m.title.startsWith('SON DAKİKA')&&m.title.includes(${JSON.stringify(p.name)}))`), 'breaking news in the inbox');
   assert.match(h.html(), /class="stflash"/, 'the announcement screen, not the old photo');
@@ -144,9 +144,12 @@ test('with the season transition: the star keeps his number and his clip into th
   assert.notEqual(h.run('S.season'), season0, 'a new season started');
   assert.equal(h.run(`S.players.find(p=>p.id===${star.id})?.number`), star.number, 'he kept his number');
   assert.ok(!h.json(`freeShirtNumbers(-1)`).includes(star.number), 'nobody else can take it');
-  assert.equal(h.run('S.highlights.length'), 1, 'the clip stays in the archive');
-  assert.equal(h.run('S.highlights[0].season'), season0);
+  const clips = 'S.highlights.filter(h=>h.type==="starTransfer")';
+  assert.equal(h.run(`${clips}.length`), 1, 'the clip stays in the archive (beside the moves the squad learnt over the season)');
+  assert.equal(h.run(`${clips}[0].season`), season0);
   assert.equal(h.run('latestStarTransfer()'), null, 'the flash card belongs to the season of the signing');
+  const before = h.run('S.highlights.length');
   h.run('S=validateCareerImport(JSON.parse(JSON.stringify(S)));init();render()');
-  assert.equal(h.run('S.highlights.length'), 1);
+  assert.equal(h.run('S.highlights.length'), before);
+  assert.equal(h.run(`${clips}.length`), 1);
 });

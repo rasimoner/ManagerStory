@@ -18,7 +18,7 @@ import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSec
 import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js';
 import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js';
 import { resolveClubIdentity } from '../../clubs/clubs.js';
-import { changed, decisionsRequested } from '../../hooks.js';
+import { changed, decisionsRequested, starMoment } from '../../hooks.js';
 import { CLUBSTYLE } from '../../clubs/club-style.js';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
@@ -290,7 +290,8 @@ function startMatchView() {
     cam: (mode, a = null, b = null, hard = false) => { autoCam = { mode, a, b }; if (hard) cut = true; },
     slow: s => { simSlow = s < 1 ? tune.slowmo : s; }, whistle() {}, finished() {},
     // a special move: shown again from the star camera once it is over
-    star: (a, p) => {
+    star: (a, p, moment) => {
+      keepStarMoment(a, p, moment);
       if (!STAR_MOVES[a.kind] || !(tune.replay > 0) || (TEST_SCALE > 1 && !REPLAY_IN_TEST)) return;
       if (rp || starPending || rt.S.t - lastReplay < REPLAY_GAP) return;
       starPending = { kind: a.kind, key: p.key, name: p.name, no: p.no, side: p.side, t: rt.S.t };
@@ -298,6 +299,11 @@ function startMatchView() {
   }, { startIndex: fresh ? 0 : M.events.length, debug: TEST_SCALE > 1 || /[?&]nvdebug/.test(location.search) });
   if (!fresh) director.resync(M.ballOwner, M.ballSide, M.ballState?.position);
   lastEvents = M.events.length; match = M; cut = true;
+}
+
+// a star moment of one of ours is the career's to keep (core/hooks.js starMoment), whether or not it is replayed
+function keepStarMoment(audit, player, moment) {
+  if (player.side === 'user' && STAR_MOVES[audit.kind]) starMoment({ move: audit.kind, playerId: player.id, ...moment });
 }
 
 // ---------- camera ----------

@@ -1,8 +1,8 @@
 /* Yıldız transfer sahnesi (feat/star-transfer-scene).
    A big signing (a 4–5 star player) is an event in the career: the breaking news, the signing with the
    shirt number he picks, the walk out of the tunnel in front of a full stand, and his best special move.
-   The clip is kept as the first entry of the career highlight archive (S.highlights), which the coming
-   archive screen and "İzle" will read.
+   The show is kept as a recipe in the career highlight archive (core/highlights.js): the archive screen and
+   "İzle" play it again.
 
    It joins the signing through hooks (beforeSigning, afterSigning; core/hooks.js), installed by main.js. */
 
@@ -19,6 +19,7 @@ import { save } from '../../core/save.js';
 import { pushInbox } from '../../core/inbox.js';
 import { SKILL_NAMES } from '../../core/players/move-names.js';
 import { firstFreeShirtNumber, numbersFreeIn } from '../../core/players/shirt-numbers.js';
+import { addHighlight, archiveView } from '../../core/highlights.js';
 export const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
 // the most spectacular move he has is the one he shows (data/moves.json starShow); without one, the fallback
 export const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;
@@ -55,31 +56,23 @@ export function freeShirtNumbers(exceptId) { return numbersFreeIn(S.players || [
 // the first free number a star asks for
 export function defaultShirtNumber(exceptId) { return firstFreeShirtNumber(S.players || [], { exceptId, wishes: STAR_SHIRT_WISH }); }
 
-// ---- the highlight archive (minimal: the archive screen and "İzle" come later) ----
+// ---- the highlight archive (core/highlights.js): the signing's show is its first recipe ----
 export function ensureHighlights() { if (!Array.isArray(S.highlights)) S.highlights = []; return S.highlights; }
+// the show plays as staged by the transfer scene (no match event: the default seed)
+export const STAR_SHOW_SEED = -1;
 export function addStarTransferHighlight(p, info) {
-  const list = ensureHighlights();
-  const old = list.find(h => h.kind === 'star-transfer' && h.playerId === p.id);
-  if (old) return old;
-  const n = list.reduce((m, h) => Math.max(m, Number(String(h.id).replace(/\D/g, '')) || 0), 0) + 1;
-  const rec = {
-    id: 'hl' + n, kind: 'star-transfer', playerId: p.id, playerName: p.name, pos: p.pos,
-    move: info.move, stars: info.stars, keeper: !!info.keeper, fee: Math.round(Number(info.fee) || 0), fromClub: info.fromClub || '',
-    season: S.season || '2025/26', week: S.week, matchday: (S.fixture ?? 0) + 1,
-  };
-  list.push(rec);
-  return rec;
+  return addHighlight(ensureHighlights(), {
+    type: 'starTransfer', playerId: p.id, playerName: p.name, pos: p.pos, move: info.move, stars: info.stars,
+    season: S.season || '2025/26', week: S.week, seed: STAR_SHOW_SEED, fee: Math.round(Number(info.fee) || 0), fromClub: info.fromClub || '',
+  });
 }
 // the home-page flash card stays for the week of the signing and the next
 export function latestStarTransfer() {
   const list = Array.isArray(S?.highlights) ? S.highlights : [];
-  for (let i = list.length - 1; i >= 0; i--) {
-    const h = list[i];
-    if (h.kind !== 'star-transfer') continue;
-    if (h.season === (S.season || '2025/26') && S.week - h.week <= 1 && S.players.some(p => p.id === h.playerId && p.status !== 'Transfer oldu')) return h;
-    return null;
-  }
-  return null;
+  const h = archiveView(list, { type: 'starTransfer' })[0];
+  if (!h) return null;
+  const fresh = h.season === (S.season || '2025/26') && S.week - h.week <= 1;
+  return fresh && S.players.some(p => p.id === h.playerId && p.status !== 'Transfer oldu') ? h : null;
 }
 
 // ---- the flow ----
@@ -91,7 +84,7 @@ export function starFlowPlayer() { return S.players.find(p => p.id === starFlow?
 export function beginStarTransfer(p, x, fee) {
   const rating = starShowRating(p), move = starShowMove(rating);
   p.number = defaultShirtNumber(p.id); // just signed: he asks for his wish before anything else
-  const rec = addStarTransferHighlight(p, { move, stars: rating.stars, keeper: rating.keeper, fee, fromClub: x?.free ? 'Serbest oyuncu' : x?.club });
+  const rec = addStarTransferHighlight(p, { move, stars: rating.stars, fee, fromClub: x?.free ? 'Serbest oyuncu' : x?.club });
   const moves = rating.moves.length;
   pushInbox('Spor Servisi', `SON DAKİKA • ${p.name} resmen bizde`, `${'★'.repeat(rating.stars)} ${p.pos} • ${moves ? moves + ' özel hareket' : 'özel hareketi yok'} • ${money(rec.fee)}. Taraftar stadın önüne akın etti; yıldız bu akşam tünelden çıkıp sahada ilk şovunu yapacak.`, 'board');
   save();
@@ -144,7 +137,7 @@ export function starWalkOut(replayRec) {
   if (replay) {
     const p = S.players.find(q => q.id === replayRec.playerId);
     if (!p) return render();
-    starFlow = { playerId: p.id, rec: replayRec, rating: { stars: replayRec.stars, moves: [], keeper: replayRec.keeper }, move: replayRec.move, excite: starTransferExcite(replayRec.stars, replayRec.fee), replay: true };
+    starFlow = { playerId: p.id, rec: replayRec, rating: { stars: replayRec.stars, moves: [], keeper: starIsKeeper(replayRec) }, move: replayRec.move, excite: starTransferExcite(replayRec.stars, replayRec.fee), replay: true };
   }
   const p = starFlowPlayer(), f = starFlow, club = resolveClubIdentity('career');
   $('#app').innerHTML = `<div class="stloading"><small>STADYUM</small><h2>Tribünler doluyor…</h2></div>`;
@@ -187,7 +180,7 @@ export function starFlashCard() {
   if (!S) return '';
   const h = latestStarTransfer(); if (!h) return '';
   const p = S.players.find(q => q.id === h.playerId), club = resolveClubIdentity('career');
-  return `<section class="card stflashcard" style="--club:${clubColor(club.primaryColor) || '#c8102e'}"><div class="stflashtag">SON DAKİKA</div><div class="row between"><div><h3>${escapeHTML(h.playerName)} <span class="stno">${p?.number ?? ''}</span></h3><small>${escapeHTML(h.pos)} • ${money(h.fee)}${h.fromClub ? ' • Önceki kulüp: ' + escapeHTML(h.fromClub) : ''}</small></div>${starStarsHTML(h.stars, 'mid')}</div><p class="muted">${h.keeper ? 'Kaleci şovu: ' : 'Gösterisi: '}${escapeHTML(starMoveName(h.move))}</p><button class="ghost" data-action="starReplay">▶ Sahneyi izle</button></section>`;
+  return `<section class="card stflashcard" style="--club:${clubColor(club.primaryColor) || '#c8102e'}"><div class="stflashtag">SON DAKİKA</div><div class="row between"><div><h3>${escapeHTML(h.playerName)} <span class="stno">${p?.number ?? ''}</span></h3><small>${escapeHTML(h.pos)} • ${money(h.fee)}${h.fromClub ? ' • Önceki kulüp: ' + escapeHTML(h.fromClub) : ''}</small></div>${starStarsHTML(h.stars, 'mid')}</div><p class="muted">${starIsKeeper(h) ? 'Kaleci şovu: ' : 'Gösterisi: '}${escapeHTML(starMoveName(h.move))}</p><button class="ghost" data-action="starReplay">▶ Sahneyi izle</button></section>`;
 }
 
 // ---- what this file adds to the signing and to the transfer list (core/hooks.js); main.js installs it ----

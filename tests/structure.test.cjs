@@ -48,7 +48,8 @@ test('extension points: the star transfer and the navigation register for named 
   const hooks = g.json('Object.fromEntries(Object.entries(HOOKS).map(([k,v])=>[k,v.length]))');
   // main.js: the manager mode redraws and readies a career when core says so (D4)
   // star-transfer.js: before and after a signing (nav.js needs a document)
-  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1 });
+  // highlight-recorder.js: a star moment of a match and the moves learnt over a summer
+  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1, starMoment: 1, movesLearned: 1 });
   // a big signing still starts the scene; a small one does not
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
   const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');

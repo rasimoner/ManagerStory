@@ -65,3 +65,12 @@ test('every field a career keeps is described in docs/save-format.md', () => {
   const playerKeys = [...new Set(state.players.flatMap(p => Object.keys(p)))];
   assert.deepEqual(playerKeys.filter(k => !doc.includes('`' + k + '`')), [], 'player fields not in the doc');
 });
+
+test('format 2 → 3: the star-transfer clips become starTransfer recipes; a save without an archive gets an empty one', () => {
+  const old = JSON.parse(legacy);
+  old.highlights = [{ id: 'hl1', kind: 'star-transfer', playerId: 40, playerName: 'Yıldız', pos: 'RW', move: 'elastico', stars: 5, keeper: false, fee: 12000000, fromClub: 'Rakip', season: '2025/26', week: 3, matchday: 3 }];
+  const g = loadGame({ storage: new Map([['msv4', JSON.stringify(old)]]) });
+  assert.deepEqual(g.json('S.highlights'), [{ id: 'hl1', type: 'starTransfer', playerId: 40, playerName: 'Yıldız', pos: 'RW', move: 'elastico', stars: 5, season: '2025/26', week: 3, seed: -1, fee: 12000000, fromClub: 'Rakip' }]);
+  const none = loadGame({ storage: new Map([['msv4', legacy]]) });
+  assert.deepEqual(none.json('S.highlights'), []);
+});

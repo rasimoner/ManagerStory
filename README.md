@@ -1,4 +1,4 @@
-# ManagerStory V7.13.2
+# ManagerStory V7.14.0
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/

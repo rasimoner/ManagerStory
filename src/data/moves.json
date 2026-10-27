@@ -23,6 +23,9 @@
   ],
   "rating": {"flair":{"dribbling":0.6,"technique":0.4},"starsAt":[60,69,77,84],"defaultAttribute":60},
   "keeper": {"stars":1,"moves":["scorpion"],"minOverall":70},
+  "keeperSaves": ["scorpion","pensave","starsave"],
+  "highlightStage": {"pensave":"gkpen","starsave":"gkstarown"},
+  "highlightNames": {"gkvolley":"Elden vole","starsave":"Yıldız kurtarış","pensave":"Penaltı kurtarışı"},
   "starShow": {
     "order": ["elastico","rainbow","sombrero","roulette","flairnutmeg","juggle","croqueta","stepover","pirouette","rabona","bicycle","cruyff","nutmeg","flairpass","chip","panenka","backheel","nolook","trap"],
     "fallback": "juggle",

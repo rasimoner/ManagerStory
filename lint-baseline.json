@@ -72,12 +72,12 @@
     "max-statements": 1
   },
   "src/core/presentation/match3d/newview/director.js": {
-    "complexity": 27,
+    "complexity": 16,
     "max-depth": 12,
     "max-lines": 1,
-    "max-lines-per-function": 18,
-    "max-params": 17,
-    "max-statements": 33
+    "max-lines-per-function": 6,
+    "max-params": 1,
+    "max-statements": 13
   },
   "src/core/presentation/match3d/newview/footballer.js": {
     "complexity": 2,
@@ -105,11 +105,11 @@
     "max-statements": 4
   },
   "src/core/presentation/scenes/star-transfer-scene.js": {
-    "complexity": 4,
+    "complexity": 2,
     "max-depth": 1,
     "max-lines-per-function": 5,
     "max-params": 1,
-    "max-statements": 6
+    "max-statements": 3
   },
   "src/core/save.js": {
     "complexity": 3,

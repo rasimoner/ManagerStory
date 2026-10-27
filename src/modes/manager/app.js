@@ -1,5 +1,7 @@
 
 // the squad a new career starts with (data/squad.json)
+import { announceNewMoves } from './highlight-recorder.js';
+import { highlightArchiveEntry, inboxHighlightButton, profileHighlights } from './highlight-screens.js';
 import CLUB_DATA from '../../data/clubs.json';
 import STARTING_SQUAD from '../../data/squad.json';
 import PLAYER_DATA from '../../data/players.json';
@@ -187,9 +189,7 @@ export function evolvePlayers(){S.players.filter(p=>p.status!="Transfer oldu").f
   // V7.9.5: his attributes follow his overall along his profile, training focus builds on top
   if(p.overall!==ovr0)refreshPlayerProfile(p);trainFocusWeek(p);
   const learned=movesNow(p).filter(m=>!before.includes(m));
-  if(learned.length){p.newMoves=[...new Set([...(p.newMoves||[]),...learned])];
-   pushInbox("Teknik Ekip",`${p.name} yeni hareket öğrendi`,`${p.name} antrenmanda artık ${learned.map(m=>SKILL_NAMES[m]||m).join(", ")} deniyor. Maçlarda bunu görebiliriz.`,"player");
-   S.history.push(`${p.name} yeni hareket açtı: ${learned.map(m=>SKILL_NAMES[m]||m).join(", ")}.`)}
+  if(learned.length)announceNewMoves(p,learned);
  })}
 export function academyFingerprint(p){return [String(p.name||'').trim().toLocaleLowerCase('tr'),p.age,p.pos,p.overall,p.potential].join('|')}
 export function ensureAcademyIdentityState(){
@@ -327,7 +327,7 @@ export function syncDecisionTray(){
  main.style.paddingBottom=(tray.offsetHeight+16)+'px';
 }
 
-export function showInbox(){setModal(null);$("#app").innerHTML=`${header(['Ana Sayfa','redraw'])}<div class="row between"><h1>Gelen Kutusu</h1>${S.inbox.length?`<button class=warn data-action="clearInbox">Tümünü Sil</button>`:""}</div>${S.inbox.length?S.inbox.map((m,i)=>`<div class="card inboxmsg ${m.tone}"><small>${m.time} • HAFTA ${m.week}</small><h3>${m.from} — ${m.title}</h3><p>${m.text}</p><button class=ghost data-action="deleteInbox" data-index="${i}">Sil</button></div>`).join(""):"<div class=card><p>Gelen kutusu boş.</p></div>"}`;decorateMainScreen("home");}
+export function showInbox(){setModal(null);$("#app").innerHTML=`${header(['Ana Sayfa','redraw'])}<div class="row between"><h1>Gelen Kutusu</h1>${S.inbox.length?`<button class=warn data-action="clearInbox">Tümünü Sil</button>`:""}</div>${S.inbox.length?S.inbox.map((m,i)=>`<div class="card inboxmsg ${m.tone}"><small>${m.time} • HAFTA ${m.week}</small><h3>${m.from} — ${m.title}</h3><p>${m.text}</p>${inboxHighlightButton(m)}<button class=ghost data-action="deleteInbox" data-index="${i}">Sil</button></div>`).join(""):"<div class=card><p>Gelen kutusu boş.</p></div>"}`;decorateMainScreen("home");}
 export function deleteInbox(i){S.inbox.splice(i,1);save();showInbox()}
 export function clearInbox(){if(confirm("Tüm mesajlar silinsin mi?")){S.inbox=[];save();showInbox()}}
 export function completeOfficeDay(){S.history.push("Teknik ekip toplantısını tamamladın. Maç planı artık hafta boyunca güncellenebilir.");save();advance()}
@@ -422,6 +422,7 @@ export function showPlayerProfile(id){
  const k=(()=>{try{return skillMoves(p.id,'user')}catch(e){return {stars:1,moves:[]}}})(),fresh=p.newMoves||[],hint=nextMoveHint(p);
  $("#app").innerHTML=`${header(['Kadro','openSquad'])}
  ${profileCards(p,{moves:k,fresh,hint})}
+ ${profileHighlights(p)}
  <div class="card focus"><h3>Bireysel antrenman odağı</h3><p class=muted>Seçtiğin alanda haftalık ek gelişim sağlar (en fazla +${TRAINING_CAP}). Gençler daha hızlı öğrenir.</p>
  <div class=focusbtns>${Object.entries(TRAINING_FOCUS).map(([key,f])=>`<button class="${p.focus===key?"":"secondary"}" data-action="setTrainingFocus" data-id="${p.id}" data-focus="${key}">${f.label}</button>`).join("")}<button class="${p.focus?"ghost":""}" data-action="setTrainingFocus" data-id="${p.id}">Odak yok</button></div></div>`;
  if(fresh.length){p.newMoves=[];save()}
@@ -452,7 +453,7 @@ export function showAcademyProfile(id){
  <div class=card><p class=muted>${a.special?"Altyapı sorumlusu: ‘Hocam, bu çocukta farklı bir şey var.’":"Altyapı sorumlusunun gözlem notları. A takıma alınırsa bu profille başlar ve oynadıkça gelişir."}</p><button data-action="academyMeeting" data-id="${a.id}">Oyuncuyla Görüş</button></div>`;
  decorateMainScreen("academy");
 }
-export function squadUI(){return `${header()}<h1>Kadro</h1><div class=card><div class="row between"><span>Transfer bütçesi</span><b>${money(S.budget)}</b></div><div class="row between"><span>Yıllık maaş</span><b>${money(wageBill())} / ${money(wageBudget())}</b></div><button class=secondary data-action="requestBoardBudget">Başkanla Bütçe Görüşmesi</button></div><button data-action="openFormation">Diziliş</button>${S.players.filter(p=>p.status!="Transfer oldu").map(p=>`<div class=player><div class="row between"><div><span class=shirtno>${p.number}</span> <span class=badge>${p.pos}</span> <b>${p.profile?.special?"💎 ":""}${p.name}${p.id===STARTING_SQUAD.captain?" ©":""}</b>${playerTypeLabel(p)?` <small class=ptype>${playerTypeLabel(p)}</small>`:""}<br><small>${p.age} yaş • OVR ${p.overall} • POT ${p.potential} • Mutluluk ${Math.round(p.happiness||70)}%</small>${skillLine(p)}${p.focus&&TRAINING_FOCUS[p.focus]?`<small class=pfocus>Antrenman: ${TRAINING_FOCUS[p.focus].label}</small>`:""}</div><div><b class=${p.fitness<65?"orange":"green"}>${Math.round(p.fitness)}%</b><br><small>${money(p.wage||0)}/yıl</small></div></div><div><button class=ghost data-action="showPlayerProfile" data-id="${p.id}">Profil</button><button class=ghost data-action="talk" data-id="${p.id}" data-topic="praise">Öv</button><button class=ghost data-action="talk" data-id="${p.id}" data-topic="minutes">Süre sözü</button><button class=ghost data-action="listPlayer" data-id="${p.id}">Satış Listesi</button><button class=ghost data-action="loanPlayer" data-id="${p.id}">Kirala</button></div></div>`).join("")}`}
+export function squadUI(){return `${header()}<h1>Kadro</h1><div class=card><div class="row between"><span>Transfer bütçesi</span><b>${money(S.budget)}</b></div><div class="row between"><span>Yıllık maaş</span><b>${money(wageBill())} / ${money(wageBudget())}</b></div><button class=secondary data-action="requestBoardBudget">Başkanla Bütçe Görüşmesi</button></div><button data-action="openFormation">Diziliş</button>${highlightArchiveEntry()}${S.players.filter(p=>p.status!="Transfer oldu").map(p=>`<div class=player><div class="row between"><div><span class=shirtno>${p.number}</span> <span class=badge>${p.pos}</span> <b>${p.profile?.special?"💎 ":""}${p.name}${p.id===STARTING_SQUAD.captain?" ©":""}</b>${playerTypeLabel(p)?` <small class=ptype>${playerTypeLabel(p)}</small>`:""}<br><small>${p.age} yaş • OVR ${p.overall} • POT ${p.potential} • Mutluluk ${Math.round(p.happiness||70)}%</small>${skillLine(p)}${p.focus&&TRAINING_FOCUS[p.focus]?`<small class=pfocus>Antrenman: ${TRAINING_FOCUS[p.focus].label}</small>`:""}</div><div><b class=${p.fitness<65?"orange":"green"}>${Math.round(p.fitness)}%</b><br><small>${money(p.wage||0)}/yıl</small></div></div><div><button class=ghost data-action="showPlayerProfile" data-id="${p.id}">Profil</button><button class=ghost data-action="talk" data-id="${p.id}" data-topic="praise">Öv</button><button class=ghost data-action="talk" data-id="${p.id}" data-topic="minutes">Süre sözü</button><button class=ghost data-action="listPlayer" data-id="${p.id}">Satış Listesi</button><button class=ghost data-action="loanPlayer" data-id="${p.id}">Kirala</button></div></div>`).join("")}`}
 /* Refactor C2: squad list and player profile */
 defineActions({
  setTrainingFocus:d=>setTrainingFocus(+d.id,d.focus??null),

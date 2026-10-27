@@ -19,7 +19,7 @@ import { MATCH_TACTICS } from './engine/tactics.js';
 import { GAME_VERSION } from './version.js';
 import { numberSquadKeepingShown } from './players/shirt-numbers.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 2;
+export const SAVE_SCHEMA = 3;
 export let saveWarning = false;
 
 export const SAVE_MIGRATIONS = [
@@ -64,6 +64,18 @@ export const SAVE_MIGRATIONS = [
     run(state) {
       if (state.v6) delete state.v6.wageBudget;
       numberSquadKeepingShown(state.players);
+    },
+  },
+  {
+    from: 2, to: 3,
+    about: "the highlight archive keeps recipes that play a moment again (type, player, move, when, seed): " +
+      "the star-transfer clips become starTransfer recipes; a save without an archive gets an empty one",
+    run(state) {
+      const clips = Array.isArray(state.highlights) ? state.highlights : [];
+      state.highlights = clips.filter(h => h?.kind === "star-transfer").map(h => ({
+        id: h.id, type: "starTransfer", playerId: h.playerId, playerName: h.playerName, pos: h.pos, move: h.move, stars: h.stars,
+        season: h.season, week: h.week, seed: -1, fee: h.fee, fromClub: h.fromClub,
+      }));
     },
   },
 ];

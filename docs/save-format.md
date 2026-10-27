@@ -17,7 +17,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | `schemaVersion` | Kaydın **biçimi**. Taşıma zinciri buna bakar. | Biçim değişince (yeni taşıma adımıyla). V7.9.13 öncesi kayıtlarda yok = biçim 0. |
 | `version` | Kaydı en son yazan **oyun sürümü** (ör. `"7.9.13"`). | Her yüklemede güncel sürüme yazılır. Yedek anahtarları buna göre. |
 
-Şu anki biçim: **2** (`SAVE_SCHEMA`).
+Şu anki biçim: **3** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
 - Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
@@ -43,7 +43,8 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 |---|---|---|
 | 0 | V7.0 – V7.9.13 (schemaVersion yok) | — |
 | 1 | V7.9.13 (yeniden yapılanma B) – V7.13.1 | 0 → 1 |
-| 2 | V7.13.2 sonrası | 1 → 2 |
+| 2 | V7.13.2 | 1 → 2 |
+| 3 | V7.14.0 sonrası | 2 → 3 |
 
 **0 → 1** (eski `migrateV71`'in yaptığı, artık tek seferlik):
 - `currentClubId` yoksa başlangıç kulübü (`data/clubs.json` `startingClub`).
@@ -57,9 +58,13 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 - `v6.wageBudget` silinir. Maaş alanı artık kayıtta durmaz; her an kulübün seviyesinden hesaplanır (`modes/manager/wages.js`, kural `data/balance.json` `contracts.wageBudget`). Eski değer sabit 24M'di ve kadronun gerçek maaş toplamının altında kalıyordu.
 - Her oyuncuya kendi forma numarası (`number`): kulüpten ayrılmamış her oyuncu (`status` "Transfer oldu" değil) o güne kadar maçta gördüğü numarayı alır, yani seçtiği numarayı, yoksa kadro listesindeki sırasını (`indexOf + 1`). Önce seçilmiş numaralar, sonra sıralar yerleşir; bir numarayı başkası zaten giyiyorsa sadece o oyuncu en küçük boş numarayı alır, kimsenin numarası kaymaz. Yeni kariyerde başlangıç kadrosu bu adımla 1–16 alır.
 
+**2 → 3** (V7.14.0, highlight arşivi):
+- `highlights` artık tarif listesi (aşağıda "Highlight tarifi"). V7.9.7'den beri yazılan yıldız transfer kayıtları (`kind: "star-transfer"`) `type: "starTransfer"` tarifine döner: `id`, `playerId`, `playerName`, `pos`, `move`, `stars`, `season`, `week`, `fee`, `fromClub` aynen kalır; `seed: -1` (transfer sahnesinin varsayılanı) eklenir; `keeper` (artık `pos`'tan çıkar) ve `matchday` düşer. Başka türde kayıt hiç yazılmadığı için tanınmayan kayıt bırakılmaz.
+- Arşivi olmayan kayıt boş arşiv (`[]`) alır.
+
 Ayrıca yükleyici (zincirden önce): zar tuzu (`matchSalt`) olmayan kariyere cihazdan bir tuz verir (V7.8 öncesi). Bu adım cihaza bağlı olduğu için zincirde değil; yeni kariyerin tuzunu çağıran taraf verir.
 
-## Alanlar (biçim 2)
+## Alanlar (biçim 3)
 Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabilir ama kayıttaki ad değişirse zincire bir adım yazılır.
 
 ### Kariyer
@@ -84,7 +89,7 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | `results` | dizi | Oynanan maçlarımız; eski sezonların özetleri sıkıştırılır. |
 | `opponentSquads` | nesne | Rakip kulüp → oyuncular (`'o0'` biçiminde kimlik). |
 | `event` | nesne | Bekleyen karar: `kind`, `title`, `text`, `choices` (`[metin, anahtar]`). Anahtarlar `choose()` dallarına bağlı, kayıt sözleşmesi. |
-| `inbox`, `history`, `news` | dizi | Gelen kutusu, kariyer geçmişi, haberler. |
+| `inbox`, `history`, `news` | dizi | Gelen kutusu, kariyer geçmişi, haberler. Gelen kutusu notu bir highlight'a bağlıysa `highlight` (tarifin `id`'si) taşır: "yeni hareket öğrendi" notunda ▶ İzle. |
 | `promises`, `scheduled`, `events` | dizi | Verilen sözler, planlı olaylar, geçmiş olaylar. |
 | `objectives` | dizi | Sezon hedefleri. |
 | `pressUsed`, `sundayEvents`, `cooldowns` | dizi / nesne | Kullanılmış basın soruları, pazar olayları, bekleme süreleri. |
@@ -95,7 +100,7 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | `v795` | nesne | Harika çocuklar (`wonderkids`) ve sezon planları. |
 | `v796` | nesne | Sezon geçişi: ayrılanlar (`former`), sezon özetleri, kimlik sayaçları, kaptan. |
 | `seasonEnd` | nesne | Yarım kalmış sezon sonu: `steps` (adım kimlikleri, kayıt sözleşmesi), `at`, `data`. |
-| `highlights` | dizi | Highlight arşivi: oyuncu, hareket, sezon/hafta. |
+| `highlights` | dizi | Highlight arşivi: her an onu yeniden oynatacak küçük bir tarif (aşağıda "Highlight tarifi"). Oyuncu başına en iyi 10 an. |
 | `activeMatchV71` | nesne | Yarım kalmış maç (yukarıda). |
 | `ui` | nesne | Arayüz tercihleri (karar çekmecesi). |
 
@@ -112,6 +117,23 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | `value`, `wage`, `contract`, `status` | Değer, yıllık maaş (imzada `OVR² × 900`, altyapıdan 480.000, yenilemede talep), kalan sözleşme yılı, durum (`"Takımın parçası"`, `"Kirada"`, `"Transfer oldu"`…). |
 | `personality`, `growth`, `secondary`, `debutDone`, `number` | Kişilik, gelişim, ek mevkiler, ilk maç, forma numarası (biçim 2'den beri herkeste, kulüpteki oyuncular arasında benzersiz, 1–99; kadro, profil ve 3D maç bunu gösterir). |
 | `newMoves` | Henüz duyurulmamış yeni özel hareketler (gelen kutusu notu için). |
+
+### Highlight tarifi (`highlights[]`, biçim 3)
+Bir highlight sahnenin kendisi değil, 3D görünümün aynı beat'i maç dışında yeniden oynatması için yeten tarif (`src/core/highlights.js`; sahne `newview/beats/staging.js`).
+
+| Alan | Ne |
+|---|---|
+| `id` | `"hl<n>"`, artan; arşivde yeniden eskiye sıralar. |
+| `type` | `starTransfer` (büyük transferin gösterisi), `skillMove` (maçta özel hareket), `keeperSave` (maçta yıldız kurtarış, penaltı kurtarışı ya da akrep), `newMove` (yeni açılan hareket). |
+| `playerId`, `playerName`, `pos` | Oyuncu; ad ve mevki o anki hali (oyuncu ayrılsa da arşivde kalır). |
+| `move` | Hareket kimliği (`data/moves.json`; kaleci için ayrıca `starsave`, `pensave`). Sahne: `stageKindFor` (`data/moves.json` `highlightStage`). |
+| `stars` | O anki yetenek yıldızı (kalecide OVR'den gelen sınıf). "En iyi" kuralı buna bakar. |
+| `season`, `week` | Ne zaman. |
+| `opponent`, `minute` | Maçta: rakip ve dakika. Maç dışında yok. |
+| `seed` | Hareketin dayandığı maç olayı (`eventId`); çalımda savunmacının hangi yanından geçtiğini belirler. Maç dışı anlarda `-1`. |
+| `fee`, `fromClub` | Sadece `starTransfer`: bonservis ve önceki kulüp. |
+
+Aynı an bir kez tutulur: bir hareket bir maçta (aynı hafta) bir kez; yeni hareket ve büyük transfer oyuncu başına bir kez. Oyuncu başına en iyi `highlights.perPlayer` (10) an kalır; kural `data/balance.json` `highlights`: önce tür önceliği (`typeRank`), sonra yıldız, ama aynı düzeyde oyuncunun henüz arşivde olmayan bir hareketi tekrarından önce gelir; sonra en yenisi.
 
 ## Godot ve diğer motorlar için
 - Kayıt düz JSON'dur; fonksiyon veya döngüsel referans yok.

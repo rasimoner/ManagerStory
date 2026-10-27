@@ -27,6 +27,11 @@ export function runHooks(name, ...args) {
                             letter, the board's question, the clock; modes/manager/season-end.js)
      minutePlayed(player)   a player of the user's team has played another minute: the mode counts it
                             (the manager: the season's minutes, modes/manager/match-career.js)
+     starMoment(moment)     the 3D match has just shown a special move or a star save by a player of the user's
+                            team: { move, playerId, seed, minute } (seed: the match event it was made in). The
+                            mode may keep it (the manager: its highlight archive, modes/manager/highlight-recorder.js)
+     movesLearned(player, moves)   a player of the user's team has learnt special moves over the summer (the
+                            season end): the mode may keep them (the manager: its highlight archive)
    And every match event is a hook of its own ('matchEvent', run by matchEvent): the mode writes the career's
    side of a goal, a card or a debut from it as it happens (modes/manager/match-career.js). */
 export function changed() { runHooks('changed'); }
@@ -35,3 +40,5 @@ export function decisionsRequested() { runHooks('decisionsRequested'); }
 export function opponentsEvolved() { runHooks('opponentsEvolved'); }
 export function seasonStarted(summary) { runHooks('seasonStarted', summary); }
 export function minutePlayed(player) { runHooks('minutePlayed', player); }
+export function starMoment(moment) { runHooks('starMoment', moment); }
+export function movesLearned(player, moves) { runHooks('movesLearned', player, moves); }
