@@ -13,7 +13,7 @@ import { presentation } from '../../core/presentation/registry.js';
 import { exportCareer, importCareer, migrateSave, save } from '../../core/save.js';
 import { actionData, defineActions, runAction } from '../../ui/actions.js';
 import { runHooks } from '../../core/hooks.js';
-import { FORM_TR, applyConversationEffect, beginMatchOverlay, clamp, closeMatchOverlay, decorateMainScreen, ensureMatchState, escapeHTML, finite, goMain, kickoffSeed, liveCommentaryLines, matchDetailsUI, matchEvent, matchFitnessUI, matchPossession, matchStatsUI, matchSummary, restoreActiveMatch, setScreenMode, tacticsControls, userSide } from '../../core/engine/match-support.js';
+import { FORM_TR, applyConversationEffect, beginMatchOverlay, clamp, closeMatchOverlay, ensureMatchState, escapeHTML, finite, kickoffSeed, liveCommentaryLines, matchDetailsUI, matchEvent, matchFitnessUI, matchOrderOptions, matchPossession, matchStatsUI, matchSummary, restoreActiveMatch, tacticsControls, userSide } from '../../core/engine/match-support.js';
 import { buildPlayerMeeting, makeV71PostPress, makeV71PrePress, resolvePlayerMeeting, settlePlayerPromises } from './career-events.js';
 import { advanceLive, ensureLiveLoop, ensureLiveState, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed, shoutLive } from '../../core/engine/live-match.js';
 import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js';
@@ -539,11 +539,6 @@ export function openMatchPlayer(id){
  beginMatchOverlay();ensureMatchState();const role=M.matchRoles[id],cur=M.playerOrders[id]||S.instructions[id]||"Dengeli",opts=matchOrderOptions(p,role),rating=finite(M.playerStats[id]?.rating,6.5).toFixed(1);
  $("#app").innerHTML=`<section class=playerorderoverlay role=dialog aria-modal=true aria-label="Oyuncu talimatı"><div class=playerorderhead><button class=ghost data-action="closeMatchOverlay">‹ Maça dön</button><span>⏸ ${matchClock()} • ${M.hg}–${M.ag}</span></div><div class=playerhero><small>${p.pos} • Rol: ${role}</small><h1>${escapeHTML(p.name)}</h1><p>Fitness <b>%${Math.round(p.fitness)}</b> • Maç puanı <b>${rating}</b><br>Şut: <b>${M.playerStats[id]?.shots||0}</b> • Topla buluşma: <b>${M.playerStats[id]?.touches||0}</b><br>Pas: <b>${M.playerStats[id]?.passesCompleted||0}/${M.playerStats[id]?.passesAttempted||0}</b> • Kilit pas: <b>${M.playerStats[id]?.keyPasses||0}</b><br>Dripling: <b>${M.playerStats[id]?.dribbles||0}/${M.playerStats[id]?.dribblesAttempted||0}</b> • Müdahale: <b>${M.playerStats[id]?.tackles||0}</b> • Mesafe: <b>${finite(M.playerStats[id]?.distanceKm,0).toFixed(1)} km</b></p><p>Mevcut talimat: <b>${escapeHTML(cur)}</b></p></div><div class="card decision actions"><small>BİREYSEL TALİMAT</small>${opts.map(o=>`<button ${M.finished?'disabled':''} class="${cur===o.label?'selected':''}" data-action="setMatchOrder" data-id="${id}" data-order="${o.key}">${o.label}<small>${o.desc}</small></button>`).join('')}<button class=secondary data-action="shoutLive" data-shout="brave" data-id="${id}">📣 Daha cesur oyna</button><button class=secondary data-action="subOut" data-id="${id}" ${M.finished?'disabled':''}>Oyuncuyu Değiştir</button></div></section>`;save();
 }
-export function matchOrderOptions(p,role){
- const items={balanced:["Dengeli","Mevcut rolünü koru."],runBehind:["Savunma arkasına koş","Hızına göre boşluğa koş; yorgunluk artar."],holdUp:["Topu sakla","Fiziğinle pas bağlantısını koru."],box:["Ceza sahasında kal","Bitiriş pozisyonlarını daha sık ara."],shoot:["Daha fazla şut","Şut tercihini artır."],press:["Presi artır","Top kazanma isteği ve yorgunluk artar."],creator:["Merkeze yaklaş","Pas bağlantılarını güçlendir."],riskPass:["Daha riskli pas","Fırsat kalitesini artır; pas kaybı riski yükselir."],free:["Serbest rol","Hatlar arasında boşluk ara."],wide:["Geniş oyna","Kanatta bire bir ara."],inside:["İçe kat et","Bitiriş bölgesine yaklaş."],overlap:["Bindirme yap","Hücuma destek ver; arkanda alan bırakabilirsin."],stay:["Geride kal","Savunma güvenliğini koru."],step:["Öne çık","Rakibi erken karşıla."],shortGK:["Kısa kullan","Pasla çıkışı artır."],longGK:["Uzun kullan","Hızlı hücuma çık; pas isabeti azalabilir."],sweeper:["Süpürücü kaleci","Öndeki savunmanın arkasını kapat."]};
- const keys=role==='GK'?['shortGK','longGK','sweeper']:role==='ST'?['runBehind','holdUp','shoot','press']:role==='CAM'?['creator','riskPass','free','shoot']:role==='CM'?['creator','riskPass','stay','press']:['LW','RW'].includes(role)?['wide','inside','runBehind','press']:['LB','RB'].includes(role)?['overlap','stay','press']:['stay','step','press'];
- return ['balanced',...keys].map(key=>({key,label:items[key][0],desc:items[key][1]}));
-}
 export function setMatchOrder(id,key){if(!M||M.finished||!M.active.includes(id))return;const p=S.players.find(x=>x.id===id),option=matchOrderOptions(p,M.matchRoles[id]).find(x=>x.key===key);if(!option)return;M.orderKeys[id]=key;M.playerOrders[id]=option.label;M.focus=key+":"+id;matchEvent("order",`🧠 ${M.min}' ${p.name}: ${option.label}.`,{playerId:id});save();closeMatchOverlay()}
 export function openDecisionSheet(){if(!M||M.finished)return;if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause=true;M.reason=M.reason==='injury'?'injury':'manual';}save();$("#app").innerHTML=`<div class=decisionoverlay><div class=decisiontop><span>⏸ ${matchClock()} • MAÇ DURAKLATILDI</span><b>${M.home} ${M.hg}–${M.ag} ${M.away}</b><button class=ghost data-action="redraw">✕</button></div>${managerDecisionV72()}</div>`}
 export function managerDecisionV72(){const due=S.scheduled.find(x=>!x.done&&M.min>=x.min);return `<div class="card decision actions"><h2>🧠 Teknik Direktör Müdahalesi</h2>${M.reason==='injury'?'<p>Sakatlanan oyuncuyu değiştirdikten sonra maça dön.</p>':''}${due?`<p>📋 ${escapeHTML(due.text)}</p><button data-action="applyScheduled">Planı uygula</button><button data-action="delayScheduled">5 dakika ertele</button>`:''}<button data-action="subUI">🔄 Oyuncu değişikliği</button><button data-action="showMatchTactics">⚙ Taktik</button><h3>📣 Kenardan Seslen</h3>${[['calm','Sakin olun!'],['forward','Öne çıkın!'],['press','Presi artırın!'],['hold','Topu tutun!'],['brave','Daha cesur!'],['fight','Sonuna kadar!']].map(([key,label])=>`<button class=secondary data-action="shoutLive" data-shout="${key}">${label}</button>`).join('')}<button data-action="resumeLive">▶ MAÇA DÖN</button></div>`}
@@ -590,3 +585,22 @@ export function finishMatch(){if(!M||!M.finished||livePresentationPending()||cur
 export function choosePost(x){ }
 // the day's choice: press and post-match answers here, every other choice in chooseBase
 export function choose(x){if(S.event&&["press","postpress","office"].includes(S.event.kind))applyConversationEffect(S.event.kind,x);if(S.event&&S.event.kind=="postpress"){if(x=="postTeam"){S.players.forEach(p=>p.morale=Math.min(100,p.morale+2));S.fans+=1;S.history.push("Maç sonunda oyuncularını övdün.")}if(x=="postMe"){S.players.forEach(p=>p.relation=Math.min(100,p.relation+1));S.board-=1;S.history.push("Sonucun sorumluluğunu üstlendin.")}if(x==="postTactical"){S.players.filter(p=>S.xi.includes(p.id)).forEach(p=>p.form=Math.min(100,p.form+1));S.history.push("Maçın taktik yönünü açıkladın.")}if(x=="postDemand"){S.board+=1;S.players.forEach(p=>p.morale=Math.max(35,p.morale-1));S.history.push("Takımdan daha fazlasını istedin.")}save();advance();return}return chooseBase(x)}
+export function goMain(section) {
+  if (runHooks('goMain', section).includes(true)) return;
+  if (M) return;
+  setModal(["squad", "plan", "formation", "settings"].includes(section) ? section : null);
+  if (section === "league") return showLeague();
+  if (section === "transfer") return showV6Transfers();
+  if (section === "academy") return showAcademy();
+  render(); window.scrollTo?.(0, 0);
+}
+export function setScreenMode() {
+  document.body.classList.toggle("in-match", !!M);
+  $("#app").classList.toggle("match-mode", !!M);
+}
+export function decorateMainScreen(section) {
+  setScreenMode();
+  if (M || !S) return;
+  if (typeof decorateAtmosphereScenes === "function") decorateAtmosphereScenes();
+  if (!$(".bottomnav")) $("#app").insertAdjacentHTML("beforeend", bottomNav(section));
+}

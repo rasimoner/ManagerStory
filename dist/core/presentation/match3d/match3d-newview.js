@@ -17,9 +17,8 @@ import { liveCommentaryLines, presentationEvent } from '../../engine/match-suppo
 import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
 import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js';
 import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js';
-import { openDecisionSheet } from '../../../modes/manager/app.js';
 import { CLUBSTYLE, resolveClubIdentity } from '../../clubs/clubs.js';
-import { changed } from '../../hooks.js';
+import { changed, decisionsRequested } from '../../hooks.js';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');
@@ -170,7 +169,7 @@ hud.addEventListener('click', e => {
   if (b.dataset.cam) { camMode = b.dataset.cam; cut = true; }
   else if (b.dataset.speed) { setMatchSpeed(Number(b.dataset.speed)); paintTune(); }
   else if (b.dataset.act === 'pause') { const p = typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : M.pause; if (p) resumeLive(); else pauseLive(); }
-  else if (b.dataset.act === 'intervene') { setFull(false); if (typeof openDecisionSheet === 'function') openDecisionSheet(); }
+  else if (b.dataset.act === 'intervene') { setFull(false); decisionsRequested(); }
   syncButtons();
 });
 function paintHud() {

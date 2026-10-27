@@ -38,7 +38,7 @@ import { onHook } from './core/hooks.js';
 import { loadCareer } from './core/save.js';
 import { installActions } from './ui/actions.js';
 import { installBackgroundPause } from './core/engine/live-match.js';
-import { init, render } from './modes/manager/app.js';
+import { init, openDecisionSheet, render, syncWonderOffers } from './modes/manager/app.js';
 import { installNavigation } from './ui/nav.js';
 import { installStarTransfer } from './modes/manager/star-transfer.js';
 import { installWebMcp } from './ui/webmcp.js';
@@ -46,6 +46,8 @@ import { installWebMcp } from './ui/webmcp.js';
 // the manager mode is the one playing: core tells it when to redraw and when a career has been put in place
 onHook('changed', render);
 onHook('careerOpened', init);
+onHook('decisionsRequested', openDecisionSheet);
+onHook('opponentsEvolved', syncWonderOffers);
 setCareer(loadCareer());
 installActions();
 installBackgroundPause();

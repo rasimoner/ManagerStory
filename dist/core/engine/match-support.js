@@ -1,7 +1,7 @@
 /* ManagerStory: shared match state, match events and the in-match panel. (Saves: save.js.) */
 import { TACTIC_DATA } from '../../data/tactics.js';
 import { R, newMatchSalt } from '../random.js';
-import { M, S, setMatch, setModal } from '../state.js';
+import { M, S, setMatch } from '../state.js';
 import { presentation } from '../presentation/registry.js';
 import { defineActions } from '../../ui/actions.js';
 import { changed, runHooks } from '../hooks.js';
@@ -9,7 +9,6 @@ import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame }
 import { opponentLineup } from '../league/opponents-v731.js';
 import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
 import { assistantAdvice, attackDirection, isKeeper, matchTeamName, playerAtMarker, startPitchRestart } from './pitch-v731.js';
-import { $, bottomNav, decorateAtmosphereScenes, matchOrderOptions, showAcademy, showLeague, showV6Transfers } from '../../modes/manager/app.js';
 import { currentOpponent } from '../league/league.js';
 import { save } from '../save.js';
 export const GAME_VERSION = "7.10.0";
@@ -392,23 +391,8 @@ defineActions({
   switchMatchTab: d => switchMatchTab(d.key),
   closeMatchOverlay: () => closeMatchOverlay(),
 });
-
-export function goMain(section) {
-  if (runHooks('goMain', section).includes(true)) return;
-  if (M) return;
-  setModal(["squad", "plan", "formation", "settings"].includes(section) ? section : null);
-  if (section === "league") return showLeague();
-  if (section === "transfer") return showV6Transfers();
-  if (section === "academy") return showAcademy();
-  changed(); window.scrollTo?.(0, 0);
-}
-export function setScreenMode() {
-  document.body.classList.toggle("in-match", !!M);
-  $("#app").classList.toggle("match-mode", !!M);
-}
-export function decorateMainScreen(section) {
-  setScreenMode();
-  if (M || !S) return;
-  if (typeof decorateAtmosphereScenes === "function") decorateAtmosphereScenes();
-  if (!$(".bottomnav")) $("#app").insertAdjacentHTML("beforeend", bottomNav(section));
+export function matchOrderOptions(p,role){
+ const items={balanced:["Dengeli","Mevcut rolünü koru."],runBehind:["Savunma arkasına koş","Hızına göre boşluğa koş; yorgunluk artar."],holdUp:["Topu sakla","Fiziğinle pas bağlantısını koru."],box:["Ceza sahasında kal","Bitiriş pozisyonlarını daha sık ara."],shoot:["Daha fazla şut","Şut tercihini artır."],press:["Presi artır","Top kazanma isteği ve yorgunluk artar."],creator:["Merkeze yaklaş","Pas bağlantılarını güçlendir."],riskPass:["Daha riskli pas","Fırsat kalitesini artır; pas kaybı riski yükselir."],free:["Serbest rol","Hatlar arasında boşluk ara."],wide:["Geniş oyna","Kanatta bire bir ara."],inside:["İçe kat et","Bitiriş bölgesine yaklaş."],overlap:["Bindirme yap","Hücuma destek ver; arkanda alan bırakabilirsin."],stay:["Geride kal","Savunma güvenliğini koru."],step:["Öne çık","Rakibi erken karşıla."],shortGK:["Kısa kullan","Pasla çıkışı artır."],longGK:["Uzun kullan","Hızlı hücuma çık; pas isabeti azalabilir."],sweeper:["Süpürücü kaleci","Öndeki savunmanın arkasını kapat."]};
+ const keys=role==='GK'?['shortGK','longGK','sweeper']:role==='ST'?['runBehind','holdUp','shoot','press']:role==='CAM'?['creator','riskPass','free','shoot']:role==='CM'?['creator','riskPass','stay','press']:['LW','RW'].includes(role)?['wide','inside','runBehind','press']:['LB','RB'].includes(role)?['overlap','stay','press']:['stay','step','press'];
+ return ['balanced',...keys].map(key=>({key,label:items[key][0],desc:items[key][1]}));
 }

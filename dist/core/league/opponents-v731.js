@@ -8,8 +8,8 @@ import { R } from '../random.js';
 import { M, S } from '../state.js';
 import { assignPlayerProfile, refreshPlayerProfile } from '../players/player-profiles.js';
 import { seasonSeedOffset } from '../season/season.js';
-import { syncWonderOffers } from '../../modes/manager/app.js';
 import { OPP } from './league.js';
+import { opponentsEvolved } from '../hooks.js';
 export const LEAGUE_LIFT=BALANCE.league.lift;
 export const OPPONENT_ROLES=['GK','LB','CB','CB','RB','CM','CM','LW','CAM','RW','ST','GK','CB','CM','RW','ST'];
 export const OPPONENT_FIRST=NAME_DATA.rivals.first;
@@ -69,5 +69,5 @@ export function evolveOpponentSquads(fixture){
   }
  }
  S.v731.lastEvolvedFixture=fixture;
- if(typeof syncWonderOffers==='function')syncWonderOffers();
+ opponentsEvolved();
 }
