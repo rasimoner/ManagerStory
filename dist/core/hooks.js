@@ -22,6 +22,9 @@ export function runHooks(name, ...args) {
      decisionsRequested()   the 3D view's "Değiştir" button: the mode opens its match decisions (openDecisionSheet)
      opponentsEvolved()     the rival squads grew after a round: the mode updates what it offers for their
                             players (the manager: wonderkid transfer offers, syncWonderOffers)
+     seasonStarted(summary) a new season has just been set up (the last step of the season end): what it
+                            means for the mode (the manager: the league prize to his budget, the chairman's
+                            letter, the board's question, the clock; modes/manager/season-end.js)
      minutePlayed(player)   a player of the user's team has played another minute: the mode counts it
                             (the manager: the season's minutes, modes/manager/match-career.js)
    And every match event is a hook of its own ('matchEvent', run by matchEvent): the mode writes the career's
@@ -30,4 +33,5 @@ export function changed() { runHooks('changed'); }
 export function careerOpened() { runHooks('careerOpened'); }
 export function decisionsRequested() { runHooks('decisionsRequested'); }
 export function opponentsEvolved() { runHooks('opponentsEvolved'); }
+export function seasonStarted(summary) { runHooks('seasonStarted', summary); }
 export function minutePlayed(player) { runHooks('minutePlayed', player); }

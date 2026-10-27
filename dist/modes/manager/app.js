@@ -17,7 +17,7 @@ import { applyConversationEffect, buildPlayerMeeting, makeV71PostPress, makeV71P
 import { advanceLive, ensureLiveLoop, ensureLiveState, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed } from '../../core/engine/live-match.js';
 import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js';
 import { ensureOpponentSquads, evolveOpponentSquads, opponentLineup, opponentPlayer } from '../../core/league/opponents-v731.js';
-import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonEndUI, seasonRecordMatch, youngestTalentName } from '../../core/season/season.js';
+import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonRecordMatch, youngestTalentName } from '../../core/season/season.js';
 import { basePitchPosition, currentPitchState, emitPitchKickoff, paintLivePitch, resetPitchHalf } from '../../core/engine/pitch-v73.js';
 import { openOpponentPlayer, resolveUnfillableSubstitution, skillMoves } from '../../core/engine/pitch-v731.js';
 import { starFlashCard } from './star-transfer.js';
@@ -27,6 +27,7 @@ import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute
 import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, shoutLive, tacticsControls } from './match-panel.js';
 import { SKILL_NAMES, movesNow } from '../../core/players/moves.js';
 import { pushInbox } from '../../core/inbox.js';
+import { seasonEndUI } from './season-end.js';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
 export function playerById(id){return S.players.find(p=>p.id===id)}
 // a bid as the press says it: ₺9.5M, ₺13M

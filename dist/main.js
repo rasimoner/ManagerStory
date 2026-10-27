@@ -34,6 +34,7 @@ import './core/engine/match-minute.js';
 import './core/engine/user-team.js';
 import './modes/manager/match-panel.js';
 import './modes/manager/match-career.js';
+import './modes/manager/season-end.js';
 import './modes/manager/app.js';
 import './ui/nav.js';
 import './modes/manager/star-transfer.js';
@@ -47,6 +48,7 @@ import { init, openDecisionSheet, render, syncWonderOffers } from './modes/manag
 import { installNavigation } from './ui/nav.js';
 import { installStarTransfer } from './modes/manager/star-transfer.js';
 import { recordMatchEvent, recordMinutePlayed } from './modes/manager/match-career.js';
+import { managerSeasonStarted } from './modes/manager/season-end.js';
 import { installWebMcp } from './ui/webmcp.js';
 
 // the manager mode is the one playing: core tells it when to redraw and when a career has been put in place
@@ -56,6 +58,7 @@ onHook('decisionsRequested', openDecisionSheet);
 onHook('opponentsEvolved', syncWonderOffers);
 onHook('matchEvent', recordMatchEvent);
 onHook('minutePlayed', recordMinutePlayed);
+onHook('seasonStarted', managerSeasonStarted);
 setCareer(loadCareer());
 installActions();
 installBackgroundPause();

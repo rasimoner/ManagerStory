@@ -18,7 +18,7 @@ const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs
 /* What core/ still takes from the manager mode, by file. Refactor D moves these into core (the engine
    core, the league, the clubs, the save) or passes them in; the list may only shrink. */
 const CORE_FROM_MODES = {
-  'core/season/season.js': 'SLOT_POS V6FN V6LN V6POS bottomNav createUniqueAcademyCandidate header marketProfile money normalizeFormation refreshAcademy render setClock syncWonderOffers',
+
 };
 
 const walk = dir => fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {
@@ -55,7 +55,7 @@ test('extension points: the star transfer and the navigation register for named 
   const hooks = g.json('Object.fromEntries(Object.entries(HOOKS).map(([k,v])=>[k,v.length]))');
   // main.js: the manager mode redraws and readies a career when core says so (D4)
   // star-transfer.js: before and after a signing, and the transfer list (nav.js needs a document)
-  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, beforeSigning: 1, afterSigning: 1, transferListShown: 1 });
+  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1, transferListShown: 1 });
   // a big signing still starts the scene; a small one does not
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
   const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');
