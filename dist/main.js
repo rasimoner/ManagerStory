@@ -31,6 +31,7 @@ import './core/engine/pitch-v731.js';
 import './core/engine/match-minute.js';
 import './core/engine/user-team.js';
 import './modes/manager/match-panel.js';
+import './modes/manager/match-career.js';
 import './modes/manager/app.js';
 import './ui/nav.js';
 import './modes/manager/star-transfer.js';
@@ -43,6 +44,7 @@ import { installBackgroundPause } from './core/engine/live-match.js';
 import { init, openDecisionSheet, render, syncWonderOffers } from './modes/manager/app.js';
 import { installNavigation } from './ui/nav.js';
 import { installStarTransfer } from './modes/manager/star-transfer.js';
+import { recordMatchEvent, recordMinutePlayed } from './modes/manager/match-career.js';
 import { installWebMcp } from './ui/webmcp.js';
 
 // the manager mode is the one playing: core tells it when to redraw and when a career has been put in place
@@ -50,6 +52,8 @@ onHook('changed', render);
 onHook('careerOpened', init);
 onHook('decisionsRequested', openDecisionSheet);
 onHook('opponentsEvolved', syncWonderOffers);
+onHook('matchEvent', recordMatchEvent);
+onHook('minutePlayed', recordMinutePlayed);
 setCareer(loadCareer());
 installActions();
 installBackgroundPause();

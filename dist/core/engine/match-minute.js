@@ -10,6 +10,7 @@ import { finalizeMatch, matchSecond } from './live-match.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { styleEdge } from '../players/player-profiles.js';
 import { userOpponent, userSquad } from './user-team.js';
+import { minutePlayed } from '../hooks.js';
 export function oppRadarPos(i){let pos=[[50,8],[15,25],[38,25],[62,25],[85,25],[30,45],[70,45],[15,65],[50,62],[85,65],[50,82]][i];return pos}
 export function setUserOwner(id){M.ballSide="user";M.ballOwner=id;if(typeof setBallState==="function")setBallState(eventPoint(id,"user"),id);M.playerTouches[id]=(M.playerTouches[id]||0)+1;M.playerStats[id]&&(M.playerStats[id].touches=(M.playerStats[id].touches||0)+1)}
 export function setOppOwner(i){M.ballSide="opp";M.ballOwner="o"+i;if(typeof setBallState==="function")setBallState(eventPoint("o"+i,"opp"),"o"+i)}
@@ -18,11 +19,11 @@ export function tick(){
  ensureMatchState();M.min=Math.floor(matchSecond()/60);if(M.goalScene&&M.min>M.goalScene.minute+3)M.goalScene=null;
  M.minuteShot=false;
  const effect=tacticalEffects();
- userSquad().forEach(p=>{if(M.active.includes(p.id)){const extra=['press','runBehind','overlap'].includes(orderKey(p))?1.35:1;p.fitness=Math.max(20,p.fitness-matchFatigueDrain(p,extra,effect.fatigue));p.minutes++;M.playerStats[p.id].minutes++;}});
+ userSquad().forEach(p=>{if(M.active.includes(p.id)){const extra=['press','runBehind','overlap'].includes(orderKey(p))?1.35:1;p.fitness=Math.max(20,p.fitness-matchFatigueDrain(p,extra,effect.fatigue));minutePlayed(p);M.playerStats[p.id].minutes++;}});
  for(const id of M.oppIds){const rival=opponentPlayer(id);if(rival)rival.fitness=Math.max(22,rival.fitness-matchFatigueDrain(rival,1,tacticFatigue('opp')));}
  const r=userOpponent(),u=strength(),opp=(r[3]+r[4]+r[5])/3*(M.oppIds.length/11),userPoss=M.rand()<u/(u+opp);
  actionMinute(userPoss,effect,r);
- for(const id of M.active){const p=userSquad().find(p=>p.id===id);if(p&&!p.debutDone&&!M.debutShown.includes(id)){M.debutShown.push(id);p.debutDone=true;p.morale=Math.min(100,p.morale+5);matchEvent('debut',`🌱 ${M.min}' ${p.name} profesyonel futboldaki ilk resmi maçına çıkıyor.`,{playerId:id});}}
+ for(const id of M.active){const p=userSquad().find(p=>p.id===id);if(p&&!p.debutDone&&!M.debutShown.includes(id)){M.debutShown.push(id);matchEvent('debut',`🌱 ${M.min}' ${p.name} profesyonel futboldaki ilk resmi maçına çıkıyor.`,{playerId:id});}}
  if(!M.minuteShot&&M.ballOwner!=null&&M.rand()<clamp(.34*effect.frequency,.17,.5))chanceV73(M.ballSide==="user");
  enforceBallInvariants();
  if(M.rand()<.42)recordMatchFoul();   // V7.8: a challenge that may be a foul (see recordMatchFoul)
@@ -74,7 +75,7 @@ export function chance(user){
  const goal=on&&M.rand()<goalProbability,seq=user?seqText(p):`${r[0]} paslarla çıkıyor. ${p.name} ceza sahasına yöneldi.`;
  const shooter=M.ballOwner,fromSide=M.ballSide,shotFrom=eventPoint(shooter,fromSide),shotTo=[50,user?3:97];
  matchEvent('shot',`${M.min}' ${p.name} şut çekti.`,{side,playerId:user?p.id:null,fromId:shooter,toId:null,fromSide,ballSide:fromSide,fromPos:shotFrom,toPos:shotTo,xg,onTarget:on});
- if(goal){matchEvent('goal',`⚽ ${M.min}' ${seq} ${p.name} vurdu... GOL!`,{side,playerId:user?p.id:null,scorer:p.name,xg,fromId:shooter,fromSide,ballSide:fromSide,fromPos:shotFrom,toPos:shotTo});M.goalScene={scorer:p.name,minute:M.min};if(user){p.goals=(p.goals||0)+1;p.morale=Math.min(100,p.morale+2);p.form=Math.min(100,p.form+2);M.playerStats[p.id].goals++;M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+1,1,10);}else if(gk)M.playerStats[gk.id].rating=clamp(M.playerStats[gk.id].rating-.35,1,10);
+ if(goal){matchEvent('goal',`⚽ ${M.min}' ${seq} ${p.name} vurdu... GOL!`,{side,playerId:user?p.id:null,scorer:p.name,xg,fromId:shooter,fromSide,ballSide:fromSide,fromPos:shotFrom,toPos:shotTo});M.goalScene={scorer:p.name,minute:M.min};if(user){M.playerStats[p.id].goals++;M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+1,1,10);}else if(gk)M.playerStats[gk.id].rating=clamp(M.playerStats[gk.id].rating-.35,1,10);
  }else{if(on)matchEvent('save',`${M.min}' ${user?'Rakip kaleci':gk?.name||'Kaleci'} topu kurtardı.`,{side,playerId:user?null:gk?.id,fromId:shooter,fromSide,ballSide:fromSide,fromPos:shotTo,toPos:[50,user?10:90]});matchEvent('chance',`${M.min}' ${seq} ${on?'Vuruşu kaleci çıkardı!':'Top dışarıda.'}`,{side,playerId:user?p.id:null,xg,onTarget:on});if(!user&&on&&gk){M.playerStats[gk.id].saves++;M.playerStats[gk.id].rating=clamp(M.playerStats[gk.id].rating+.12,1,10);}if(user&&on)M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+.06,1,10);if(M.rand()<(on?.42:.12)){M.stats.corners[side]++;matchEvent('corner',`🚩 ${M.min}' ${side===0?M.home:M.away} korner kullanacak.`,{side,ballSide:fromSide,fromId:shooter,toId:shooter,fromPos:shotTo,toPos:[user?95:5,user?5:95]});}}
 }
 export function seqText(p){if(p.pos.split("/").includes("ST")&&p.pace>=80)return `Orta saha baskıyı kırdı. ${p.name} savunmanın arkasındaki boşluğu gördü ve hızlandı.`;if(p.pos.split("/").includes("ST")&&p.physical>=78)return `${p.name} stoperi sırtına aldı, topu sakladı ve atağın devamını sağladı.`;if(["CAM","CM"].some(x=>p.pos.split("/").includes(x))&&p.passing>=74)return `${p.name} iki hat arasında topu aldı, yüzünü kaleye döndü ve boşluğu değerlendirdi.`;if(["RW","LW"].some(x=>p.pos.split("/").includes(x)))return `${p.name} kanatta bire biri gördü ve içeri kat etti.`;return `${p.name} boşluğu gördü ve hücuma katıldı.`}

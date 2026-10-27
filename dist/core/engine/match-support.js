@@ -196,12 +196,12 @@ export function recordMatchCard(side, id, directRed = false) {
   const own = side === userSide(), p = own ? userSquad().find(x => x.id === id) : null;
   if (own ? !M.active.includes(id) : !M.oppIds.includes(id)) return;
   const name = p?.name || `${side === 0 ? M.home : M.away} oyuncusu`;
-  if (!directRed) { M.stats.yellow[side]++; M.yellowByPlayer[id] = (M.yellowByPlayer[id] || 0) + 1; if (p) p.yellow++; }
+  if (!directRed) { M.stats.yellow[side]++; M.yellowByPlayer[id] = (M.yellowByPlayer[id] || 0) + 1; }
   const red = directRed || M.yellowByPlayer[id] >= 2;
   if (p) M.playerStats[id].rating = clamp(M.playerStats[id].rating - (red ? 1 : .25), 1, 10);
   if (red) {
     M.stats.red[side]++;
-    if (p) { p.red++; M.active = M.active.filter(x => x !== id); M.sentOff.push(id); }
+    if (p) { M.active = M.active.filter(x => x !== id); M.sentOff.push(id); }
     else M.oppIds = M.oppIds.filter(x => x !== id);
     matchEvent('red', `🟥 ${M.min}' ${name}, ${directRed ? 'doğrudan' : 'ikinci sarıdan'} kırmızı kart gördü.`, { side, playerId: id });
   } else matchEvent('yellow', `🟨 ${M.min}' ${name} sarı kart gördü.`, { side, playerId: id });

@@ -1245,7 +1245,6 @@ export function resolveShot(user,shooter,p,opts={}) {
     M.ballOwner=null;M.ballSide='none';setBallState(netPoint,null,'GOAL_NET');
     M.goalScene={scorer:p.name,minute:M.min};
     if(user){
-      p.goals=(p.goals||0)+1;p.morale=Math.min(100,p.morale+2);p.form=Math.min(100,p.form+2);
       M.playerStats[p.id].goals++;
       M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+1,1,10);
     }else if(gk)M.playerStats[gk.id].rating=clamp(M.playerStats[gk.id].rating-.35,1,10);

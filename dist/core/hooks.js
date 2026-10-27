@@ -21,8 +21,13 @@ export function runHooks(name, ...args) {
      careerOpened()   a career has just been put in place (an imported save): the mode makes it ready (init)
      decisionsRequested()   the 3D view's "Değiştir" button: the mode opens its match decisions (openDecisionSheet)
      opponentsEvolved()     the rival squads grew after a round: the mode updates what it offers for their
-                            players (the manager: wonderkid transfer offers, syncWonderOffers) */
+                            players (the manager: wonderkid transfer offers, syncWonderOffers)
+     minutePlayed(player)   a player of the user's team has played another minute: the mode counts it
+                            (the manager: the season's minutes, modes/manager/match-career.js)
+   And every match event is a hook of its own ('matchEvent', run by matchEvent): the mode writes the career's
+   side of a goal, a card or a debut from it as it happens (modes/manager/match-career.js). */
 export function changed() { runHooks('changed'); }
 export function careerOpened() { runHooks('careerOpened'); }
 export function decisionsRequested() { runHooks('decisionsRequested'); }
 export function opponentsEvolved() { runHooks('opponentsEvolved'); }
+export function minutePlayed(player) { runHooks('minutePlayed', player); }
