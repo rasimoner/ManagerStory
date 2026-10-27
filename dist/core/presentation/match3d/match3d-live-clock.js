@@ -1,12 +1,12 @@
 /* Opt-in presentation scheduler on the EXISTING liveFrameStep. No RNG or second engine. */
-import { M } from '../../state.js?v=7.10.0';
-import { presentation } from '../registry.js?v=7.10.0';
-import { matchPossession, presentationEvent, shotInterventionActor } from '../../engine/match-support.js?v=7.10.0';
-import { advanceLive, matchPlaybackRate, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js?v=7.10.0';
-import { animationPoint, currentPitchState, eventAnimationTime, eventPoint, finishPitchAction, limitPitch, pitchInstructionTarget, pitchV73, preparePitchGoalPhotos } from '../../engine/pitch-v73.js?v=7.10.0';
-import { aerialHeight, attackDirection, playerAtMarker, topSpeed } from '../../engine/pitch-v731.js?v=7.10.0';
-import { resolveClubIdentity } from '../../clubs/clubs.js?v=7.10.0';
-import { changed } from '../../hooks.js?v=7.10.0';
+import { M } from '../../state.js?v=7.11.0';
+import { presentation } from '../registry.js?v=7.11.0';
+import { matchPossession, presentationEvent, shotInterventionActor } from '../../engine/match-support.js?v=7.11.0';
+import { advanceLive, matchPlaybackRate, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js?v=7.11.0';
+import { animationPoint, currentPitchState, eventAnimationTime, eventPoint, finishPitchAction, limitPitch, pitchInstructionTarget, pitchV73, preparePitchGoalPhotos } from '../../engine/pitch-v73.js?v=7.11.0';
+import { aerialHeight, attackDirection, playerAtMarker, topSpeed } from '../../engine/pitch-v731.js?v=7.11.0';
+import { resolveClubIdentity } from '../../clubs/clubs.js?v=7.11.0';
+import { changed } from '../../hooks.js?v=7.11.0';
 (() => {
  let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
  function syncMatch(now=0,dt=0){if(observedMatch===M)return;observedMatch=M;presentationSeconds=0;wallSeconds=0;logs=[];wallOrigin=now-dt*1000;inPositionUpdate=false;motionSample=null;}

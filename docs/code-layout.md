@@ -117,7 +117,8 @@ Genişletme noktaları (`core/hooks.js`):
 - D'nin modül yolları V7.10.0 ile aynı, içerikleri farklı. Tarayıcı HTTP önbelleğinden eski bir modülü yeni sayfayla karıştırmasın diye her oyun modülü içe aktarması sürümü taşır: `import { S } from './core/state.js?v=7.10.0'`. Giriş dosyaları ve `sw.js` listesi de aynı adresleri taşır.
 - Bir ES modülü adresi başına tek örnektir: bir dosyanın bütün içe aktarmaları aynı adresi kullanmalı. Bu yüzden hepsini `node tools/stamp-version.cjs` tek sürümden basar; `--check` eksik ya da eski damgada hata verir, `tests/version-labels.test.cjs` onu çalıştırır. `vendor/` yalın kalır.
 - Yeni modül ya da yeni içe aktarma eklendikten sonra `node tools/stamp-version.cjs` çalıştırılır. Yayında sürüm yükseltilince (`package.json` ve etiketler) aynı komut her şeyi yeni sürüme taşır.
-- E'de Vite'ın içerik hash'leri bunun yerini alır.
+- `sw.js` (V7.11.0): `?v=` taşımayan bir oyun modülü isteği (`main.js`, `core/`, `modes/`, `ui/`, `data/` altında) ancak hâlâ açık duran eski bir sürüm sayfasından gelebilir. Service worker onu başarısız sayar; yoksa o yoldaki yeni dosya eski sayfaya ikinci bir oyun kopyası yüklerdi. Eski sayfa kendi yedeğine düşer (2D maç, foto sahne). Test: `tests/service-worker.test.cjs`.
+- E'de Vite'ın içerik hash'leri bunun yerini alır (damga da `sw.js`'teki bu kural da).
 
 ## Yolları etkileyen kurallar
 

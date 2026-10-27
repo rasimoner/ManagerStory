@@ -104,3 +104,40 @@ test('the service worker fills its cache past the HTTP cache', () => {
   assert.match(install, /addAll\(ASSETS\.map\(url => new Request\(url, \{ cache: "reload" \}\)\)\)/);
   assert.doesNotMatch(install, /addAll\(ASSETS\)/);
 });
+
+// V7.11.0: a game module asked for without ?v= can only come from an older release's page still open in a tab (since
+// V7.11.0 every address carries the release). Serving it would put this release's file into the old page's game, a
+// second copy of the game next to the old one (seen in the V7.10.0 -> V7.11.0 switch: the old tab's star transfer
+// scene brought 32 new modules with it). The service worker fails such a request, so the old page falls back.
+test('the service worker never serves a game module by its plain path (only an older page asks for one)', async () => {
+  const vm = require('node:vm');
+  const listeners = {}, opened = [];
+  const scope = 'https://rasimoner.github.io/ManagerStory/';
+  const self = {
+    location: new URL(scope + 'sw.js'), registration: { scope },
+    addEventListener: (type, fn) => { listeners[type] = fn; },
+    skipWaiting: () => Promise.resolve(), clients: { claim: () => Promise.resolve() },
+  };
+  const caches = { open: name => { opened.push(name); return Promise.resolve({ match: () => Promise.resolve(new Response('cached')) }); } };
+  vm.runInNewContext(read('sw.js'), { self, caches, URL, Request, Response, fetch: () => Promise.reject(new Error('offline')), console });
+  const ask = async address => {
+    let answer = null;
+    listeners.fetch({ request: { method: 'GET', url: scope + address, mode: 'no-cors' }, respondWith: r => { answer = r; } });
+    return answer && (await answer);
+  };
+  const release = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8')).version;
+  for (const old of ['main.js', 'core/state.js', 'core/presentation/scenes/star-transfer-scene.js',
+    'core/presentation/match3d/match3d-newview.js', 'modes/manager/app.js', 'ui/actions.js', 'data/clubs.js']) {
+    const r = await ask(old);
+    assert.equal(r?.type, 'error', `${old} without ?v= is failed`);
+  }
+  for (const ok of [`main.js?v=${release}`, `core/presentation/scenes/star-transfer-scene.js?v=${release}`,
+    'vendor/three/three.module.min.js', 'assets/models/footballer-rig.json', 'core/presentation/match3d/match3d-career.css',
+    'index.html', '', 'style.css']) {
+    const r = await ask(ok);
+    assert.equal(await r?.text(), 'cached', `${ok || './'} is served from the cache`);
+  }
+  // and every module address the page itself asks for carries the release (the stamp), so the rule never fails it
+  const stamped = require('node:child_process').spawnSync(process.execPath, [path.join(__dirname, '..', 'tools/stamp-version.cjs'), '--check'], { encoding: 'utf8' });
+  assert.equal(stamped.status, 0, stamped.stderr);
+});

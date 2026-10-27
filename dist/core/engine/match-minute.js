@@ -2,15 +2,15 @@
    (chance: who carries it, how it is built up, the shot), the strength of a side on the pitch, who gets
    the chance, who has the ball, and how well a player fits the role he plays. Moved from app.js with their
    bodies unchanged: the same seeded draws in the same order, so every match is the same match. */
-import { M, S } from '../state.js?v=7.10.0';
-import { enforceBallInvariants, matchFatigueDrain, setBallState, settlePlay, settleShape, tacticFatigue } from './pitch-v731.js?v=7.10.0';
-import { actionMinute, chanceV73, eventPoint, playLastAttack } from './pitch-v73.js?v=7.10.0';
-import { clamp, ensureMatchState, finite, matchEvent, orderKey, recordMatchFoul, roleAtSlot, tacticalEffects, userSide } from './match-support.js?v=7.10.0';
-import { finalizeMatch, matchSecond } from './live-match.js?v=7.10.0';
-import { opponentPlayer } from '../league/opponents-v731.js?v=7.10.0';
-import { styleEdge } from '../players/player-profiles.js?v=7.10.0';
-import { userOpponent, userSquad } from './user-team.js?v=7.10.0';
-import { minutePlayed } from '../hooks.js?v=7.10.0';
+import { M, S } from '../state.js?v=7.11.0';
+import { enforceBallInvariants, matchFatigueDrain, setBallState, settlePlay, settleShape, tacticFatigue } from './pitch-v731.js?v=7.11.0';
+import { actionMinute, chanceV73, eventPoint, playLastAttack } from './pitch-v73.js?v=7.11.0';
+import { clamp, ensureMatchState, finite, matchEvent, orderKey, recordMatchFoul, roleAtSlot, tacticalEffects, userSide } from './match-support.js?v=7.11.0';
+import { finalizeMatch, matchSecond } from './live-match.js?v=7.11.0';
+import { opponentPlayer } from '../league/opponents-v731.js?v=7.11.0';
+import { styleEdge } from '../players/player-profiles.js?v=7.11.0';
+import { userOpponent, userSquad } from './user-team.js?v=7.11.0';
+import { minutePlayed } from '../hooks.js?v=7.11.0';
 export function oppRadarPos(i){let pos=[[50,8],[15,25],[38,25],[62,25],[85,25],[30,45],[70,45],[15,65],[50,62],[85,65],[50,82]][i];return pos}
 export function setUserOwner(id){M.ballSide="user";M.ballOwner=id;if(typeof setBallState==="function")setBallState(eventPoint(id,"user"),id);M.playerTouches[id]=(M.playerTouches[id]||0)+1;M.playerStats[id]&&(M.playerStats[id].touches=(M.playerStats[id].touches||0)+1)}
 export function setOppOwner(i){M.ballSide="opp";M.ballOwner="o"+i;if(typeof setBallState==="function")setBallState(eventPoint("o"+i,"opp"),"o"+i)}

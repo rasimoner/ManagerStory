@@ -2,11 +2,11 @@
    this round's fixture and opponent, the other games of a round and the table they make. Every mode plays
    the same league. Whose fixture and whose opponent is asked for is a parameter (refactor D4): the club the
    user's team is; left out, it is the club the career manages (managedClubName, core/clubs), as always. */
-import { CLUB_DATA } from '../../data/clubs.js?v=7.10.0';
-import { managedClubName } from '../clubs/clubs.js?v=7.10.0';
-import { S } from '../state.js?v=7.10.0';
-import { R } from '../random.js?v=7.10.0';
-import { seasonSeedOffset } from '../season/season.js?v=7.10.0';
+import { CLUB_DATA } from '../../data/clubs.js?v=7.11.0';
+import { managedClubName } from '../clubs/clubs.js?v=7.11.0';
+import { S } from '../state.js?v=7.11.0';
+import { R } from '../random.js?v=7.11.0';
+import { seasonSeedOffset } from '../season/season.js?v=7.11.0';
 // the clubs we play against, as rows the engine reads by position: [name, level, style, attack, midfield, defence,
 // keeper, pressing, physical, description] (data/clubs.js)
 export const OPP=CLUB_DATA.clubs.filter(c=>c.team).map(({name,team:t})=>[name,t.level,t.style,t.attack,t.midfield,t.defence,t.keeper,t.pressing,t.physical,t.description]);

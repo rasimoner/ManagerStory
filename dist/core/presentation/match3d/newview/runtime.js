@@ -1,8 +1,8 @@
 // Shared pitch runtime: footballers, ball physics, locomotion, actions and keeper dives.
 // Used by the real-match director. No DOM.
 import * as THREE from '../../../../vendor/three/three.module.min.js';
-import { buildFootballerGeometry, buildNumberGeometry } from './footballer.js?v=7.10.0';
-import { ACTIONS, applyAction, envelope, rigOf, footClearance } from './actions.js?v=7.10.0';
+import { buildFootballerGeometry, buildNumberGeometry } from './footballer.js?v=7.11.0';
+import { ACTIONS, applyAction, envelope, rigOf, footClearance } from './actions.js?v=7.11.0';
 
 export const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 export const clamp = THREE.MathUtils.clamp, lerp = THREE.MathUtils.lerp;
