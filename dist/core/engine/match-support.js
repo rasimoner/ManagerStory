@@ -9,8 +9,9 @@ import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame }
 import { opponentLineup } from '../league/opponents-v731.js';
 import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
 import { assistantAdvice, attackDirection, isKeeper, matchTeamName, playerAtMarker, startPitchRestart } from './pitch-v731.js';
-import { $, bottomNav, decorateAtmosphereScenes, matchOrderOptions, render, save, showAcademy, showLeague, showV6Transfers } from '../../modes/manager/app.js';
+import { $, bottomNav, decorateAtmosphereScenes, matchOrderOptions, render, showAcademy, showLeague, showV6Transfers } from '../../modes/manager/app.js';
 import { currentOpponent } from '../league/league.js';
+import { save } from '../save.js';
 export const GAME_VERSION = "7.10.0";
 // tactic settings, their labels and the team orders (data/tactics.js)
 export const MATCH_TACTICS = TACTIC_DATA.options;

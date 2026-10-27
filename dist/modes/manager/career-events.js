@@ -1,9 +1,10 @@
 /* V7.1: context-driven press questions and player conversations. No network calls. */
 import { M, S } from '../../core/state.js';
 import { applyConversationEffect, clamp, roleAtSlot } from '../../core/engine/match-support.js';
-import { advance, pushInbox, save } from './app.js';
+import { advance, pushInbox } from './app.js';
 import { currentFixture, currentOpponent } from '../../core/league/league.js';
 import { managedClubName } from '../../core/clubs/clubs.js';
+import { save } from '../../core/save.js';
 export const PRE_PRESS = [
   ['strongOpponent', c => c.r[1]>=73, c => `${c.r[0]} ligin güçlü ekiplerinden. Maça hangi düşünceyle çıkıyorsunuz?`, ['Rakibe saygılıyız, kendi dengemizden ödün vermeyeceğiz.', 'Bu düzeydeki takımlara karşı cesur davranacağız.', 'Bireysel eşleşmelerin üzerinde çalıştık.']],
   ['weakOpponent', c => c.r[1]<70, c => `${c.r[0]} karşısında herkes üç puanı bekliyor. Bu beklenti takımı etkiler mi?`, ['Kolay maç yok; oyunumuzu kurmalıyız.', 'Sorumluluğu alıp tempoyu belirleyeceğiz.', 'Oyuncularıma güveniyorum.']],
