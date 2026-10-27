@@ -23,6 +23,7 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `core/players/moves.js` | `app.js` (D5) | Oyuncunun şu an açık hareketleri (`movesNow`) | Oyuncu modeli |
 | `core/players/move-names.js` | `core/players/moves.js` (E1) | Özel hareketlerin adları (`SKILL_NAMES`) | Sadece veriden (döngüden bağımsız) |
 | `core/players/player-profiles.js` | `player-profiles.js` | Oyuncu tipi, özellik profili, antrenman odağı; başlangıç kadrosundaki oyuncu ve onun rakip stiline göre avantajı (`startingPlayer`, `styleEdge`, D1) | Oyuncu modeli; DOM ve kayıt bilgisi yok |
+| `core/players/shirt-numbers.js` | (yeni, V7.13.2) | Forma numaraları: kadroda alınmış ve boş numaralar, yeni gelene boş numara (`giveShirtNumber`), numarasız bir kadroyu görünen numaralarıyla numaralandırma (`numberSquadKeepingShown`, kayıt taşıması) | Saf, kadro parametre; kayıt zinciri de kullandığı için sadece veriyi alır |
 | `core/league/league.js` | `app.js` (D2–D3) | Lig: takımlar, çift devreli fikstür, bu turun maçı ve rakibi (`currentFixture`, `currentOpponent`), turun diğer maçları (`simAIGame`, `simulateRoundOthers`), puan tablosu ve form | Her mod aynı ligi oynar |
 | `core/league/rivals.js` | `league.js`, `opponents-v731.js` (E1) | Rakip kulüp satırları (`OPP`), lig seviyesi (`LEAGUE_LIFT`), rakip kadro rolleri ve isimleri | Sadece veriden; lig ↔ kulüp ↔ sezon döngüsünde hangi modül önce çalışırsa çalışsın hazır |
 | `core/clubs/clubs.js` | `app.js` (D2) | Kulüp kimliği: arma, taraftar fotoğrafı, kariyerin kulübü (`managedClubName`), ekranın ve maçın gösterdiği kimlik (`resolveClubIdentity`) | `data/clubs.json`'dan; mod bilmez |
@@ -49,6 +50,7 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `modes/manager/season-end.js` | `season.js` (D5) | Teknik direktörün sezon sonu adımları (`report`, `contracts`, `academy`, `market`, `cleanup`; hatta id ile eski yerlerine), yeni sezonun onun için anlamı (ödül, başkan, yönetim, saat), sezon sonu ekranları | Adımların id'si ve sırası aynı: yarıda kalmış kayıt aynı adımdan devam eder |
 | `modes/manager/career-events.js` | `career-events.js` | Basın soruları, oyuncu görüşmeleri, konuşmanın etkisi (`applyConversationEffect`, D4) | Teknik direktöre özgü |
 | `modes/manager/star-transfer.js` | `star-transfer.js` | Yıldız transfer akışı (duyuru, imza, forma), highlight kaydı | Akış teknik direktöre özgü. D'de ayrılacak: highlight kaydı → `core/highlights` |
+| `modes/manager/wages.js` | `app.js`, `season-end.js` (V7.13.2) | Maaş: yeni sözleşme maaşı (`baseWage`), altyapı maaşı, maaş alanı (`wageBudget`, kulüp seviyesinden), maaş gideri (`wageBill`), kalan alan (`wageRoom`, `wageFits`) | Transfer ve sözleşme kararları teknik direktöre özgü; alan kayıtta durmaz |
 
 ## src/ui — ortak arayüz
 

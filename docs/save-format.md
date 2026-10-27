@@ -2,7 +2,7 @@
 
 Kod: `src/core/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri); kayda yazılan oyun sürümü `src/core/version.js` (`GAME_VERSION`). Testler: `tests/save-format.test.cjs`, `tests/saves.test.cjs`.
 
-Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V7.9.13'ten bu yana her kayıt (ve daha eskiler zincirle) açılır, `tests/golden/saves.json` aynı.
+Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2 biçimi 2'ye taşıdı (maaş alanı ve forma numarası); V7.9.13'ten bu yana her kayıt (ve daha eskiler zincirle) açılır.
 
 ## Kayıt nedir
 - Kariyer durumu `S`'nin JSON'u. Tarayıcıda `localStorage["msv4"]` içinde durur; dışa aktarılan dosya aynı JSON'dur (girintili).
@@ -17,7 +17,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V
 | `schemaVersion` | Kaydın **biçimi**. Taşıma zinciri buna bakar. | Biçim değişince (yeni taşıma adımıyla). V7.9.13 öncesi kayıtlarda yok = biçim 0. |
 | `version` | Kaydı en son yazan **oyun sürümü** (ör. `"7.9.13"`). | Her yüklemede güncel sürüme yazılır. Yedek anahtarları buna göre. |
 
-Şu anki biçim: **1** (`SAVE_SCHEMA`).
+Şu anki biçim: **2** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
 - Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
@@ -42,7 +42,8 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V
 | Biçim | Oyun sürümleri | Adım (`from → to`) |
 |---|---|---|
 | 0 | V7.0 – V7.9.13 (schemaVersion yok) | — |
-| 1 | V7.9.13 (yeniden yapılanma B) sonrası | 0 → 1 |
+| 1 | V7.9.13 (yeniden yapılanma B) – V7.13.1 | 0 → 1 |
+| 2 | V7.13.2 sonrası | 1 → 2 |
 
 **0 → 1** (eski `migrateV71`'in yaptığı, artık tek seferlik):
 - `currentClubId` yoksa başlangıç kulübü (`data/clubs.json` `startingClub`).
@@ -52,9 +53,13 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V
 - `promises`: dakika sözlerinde başlangıç dakikası (`atMinutes`).
 - `v72`, `v73`, `v731` (`lastEvolvedFixture`), `v732` (`conversationHistory`, `feedback`), `v733`: sürüm blokları.
 
+**1 → 2** (V7.13.2):
+- `v6.wageBudget` silinir. Maaş alanı artık kayıtta durmaz; her an kulübün seviyesinden hesaplanır (`modes/manager/wages.js`, kural `data/balance.json` `contracts.wageBudget`). Eski değer sabit 24M'di ve kadronun gerçek maaş toplamının altında kalıyordu.
+- Her oyuncuya kendi forma numarası (`number`): kulüpten ayrılmamış her oyuncu (`status` "Transfer oldu" değil) o güne kadar maçta gördüğü numarayı alır, yani seçtiği numarayı, yoksa kadro listesindeki sırasını (`indexOf + 1`). Önce seçilmiş numaralar, sonra sıralar yerleşir; bir numarayı başkası zaten giyiyorsa sadece o oyuncu en küçük boş numarayı alır, kimsenin numarası kaymaz. Yeni kariyerde başlangıç kadrosu bu adımla 1–16 alır.
+
 Ayrıca yükleyici (zincirden önce): zar tuzu (`matchSalt`) olmayan kariyere cihazdan bir tuz verir (V7.8 öncesi). Bu adım cihaza bağlı olduğu için zincirde değil; yeni kariyerin tuzunu çağıran taraf verir.
 
-## Alanlar (biçim 1)
+## Alanlar (biçim 2)
 Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabilir ama kayıttaki ad değişirse zincire bir adım yazılır.
 
 ### Kariyer
@@ -85,7 +90,7 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | `pressUsed`, `sundayEvents`, `cooldowns` | dizi / nesne | Kullanılmış basın soruları, pazar olayları, bekleme süreleri. |
 | `clubMood` | nesne | Başkan, ekip ve soyunma odası durumu (metin). |
 | `transferList` | dizi | Eski (V5) transfer listesi. |
-| `v6` | nesne | Pazar (`transferPool`), akademi, kupa durumu, maaş alanı (`wageBudget`), yönetim bütçe talebi haftası. |
+| `v6` | nesne | Pazar (`transferPool`), akademi, kupa durumu, yönetim bütçe talebi haftası. Maaş alanı kayıtta değil (biçim 2'den beri hesaplanır). |
 | `v71`, `v72`, `v73`, `v731`, `v732`, `v733` | nesne | Sürüm blokları: görüşmeler, basın, oyuncu gelişimi işaretleri. |
 | `v795` | nesne | Harika çocuklar (`wonderkids`) ve sezon planları. |
 | `v796` | nesne | Sezon geçişi: ayrılanlar (`former`), sezon özetleri, kimlik sayaçları, kaptan. |
@@ -104,8 +109,8 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | `profile` | Oyuncu tipi, tohum, özel oyuncu işareti, antrenman katkıları. |
 | `fitness`, `morale`, `form`, `relation`, `happiness`, `managerTrust`, `confidence`, `pressure`, `motivation` | Durum ve ilişki. |
 | `minutes`, `goals`, `assists`, `yellow`, `red`, `injury`, `careerGoals`, `careerApps` | İstatistik ve sakatlık. |
-| `value`, `wage`, `contract`, `status` | Değer, maaş, kalan sözleşme yılı, durum (`"Takımın parçası"`, `"Kirada"`, `"Transfer oldu"`…). |
-| `personality`, `growth`, `secondary`, `debutDone`, `number` | Kişilik, gelişim, ek mevkiler, ilk maç, forma numarası. |
+| `value`, `wage`, `contract`, `status` | Değer, yıllık maaş (imzada `OVR² × 900`, altyapıdan 480.000, yenilemede talep), kalan sözleşme yılı, durum (`"Takımın parçası"`, `"Kirada"`, `"Transfer oldu"`…). |
+| `personality`, `growth`, `secondary`, `debutDone`, `number` | Kişilik, gelişim, ek mevkiler, ilk maç, forma numarası (biçim 2'den beri herkeste, kulüpteki oyuncular arasında benzersiz, 1–99; kadro, profil ve 3D maç bunu gösterir). |
 | `newMoves` | Henüz duyurulmamış yeni özel hareketler (gelen kutusu notu için). |
 
 ## Godot ve diğer motorlar için

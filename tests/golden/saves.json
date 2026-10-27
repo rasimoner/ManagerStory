@@ -5,7 +5,7 @@
   "matchHash": "6a8c7af49ba88d479ca8d96e",
   "week": 1,
   "season": "2028/29",
-  "careerHash": "84527a554fa55203e3a4610b"
+  "careerHash": "00608d4f3006e8858fc65420"
  },
  "generated/mid-match.json": {
   "savedBy": "7.9.13",
@@ -15,7 +15,7 @@
   "matchHash": "238240d15f80dbfd1e0f606e",
   "week": 7,
   "season": "2025/26",
-  "careerHash": "93e7511adcf848346a77a93d"
+  "careerHash": "30681c168319106117b2a718"
  },
  "generated/mid-season.json": {
   "savedBy": "7.9.13",
@@ -23,7 +23,7 @@
   "matchHash": "5990607593103042742f74c4",
   "week": 18,
   "season": "2025/26",
-  "careerHash": "32c6145b85c7d766c8211411"
+  "careerHash": "9611dafd401c2186964a86c9"
  },
  "generated/season-end-contracts.json": {
   "savedBy": "7.9.13",
@@ -32,7 +32,7 @@
   "matchHash": "0c5a172e9d2ba7b0ad7ecd41",
   "week": 1,
   "season": "2026/27",
-  "careerHash": "6ff66b2daa5955445cdff679"
+  "careerHash": "02d0eb1f3c3e5f7343789486"
  },
  "generated/season-end-summary.json": {
   "savedBy": "7.9.13",
@@ -41,7 +41,7 @@
   "matchHash": "0c5a172e9d2ba7b0ad7ecd41",
   "week": 1,
   "season": "2026/27",
-  "careerHash": "6ff66b2daa5955445cdff679"
+  "careerHash": "02d0eb1f3c3e5f7343789486"
  },
  "legacy/v7.8.2.json": {
   "savedBy": "7.8.2",
@@ -49,7 +49,7 @@
   "matchHash": "d3088608a0c8baa8b572876b",
   "week": 1,
   "season": "2025/26",
-  "careerHash": "825b3b54d94c28d8eebbefda"
+  "careerHash": "a0ae2d08e607d1736e5c1c1d"
  },
  "legacy/v7.9.4.json": {
   "savedBy": "7.9.4",
@@ -57,7 +57,7 @@
   "matchHash": "d3088608a0c8baa8b572876b",
   "week": 1,
   "season": "2025/26",
-  "careerHash": "7f054a36503cc0da8e3c60c2"
+  "careerHash": "ee967c8d5107729af9c8c8e0"
  },
  "legacy/v7.9.5.json": {
   "savedBy": "7.9.5",
@@ -65,7 +65,7 @@
   "matchHash": "1be95e35cc804748750c4fc8",
   "week": 1,
   "season": "2025/26",
-  "careerHash": "b50533aef6165168d1a675f8"
+  "careerHash": "56a755a23ed29193c47a0493"
  },
  "legacy/v7.9.7.json": {
   "savedBy": "7.9.7",
@@ -73,6 +73,6 @@
   "matchHash": "1be95e35cc804748750c4fc8",
   "week": 1,
   "season": "2025/26",
-  "careerHash": "349743eb64485a4965fba0ae"
+  "careerHash": "62556f6ff41c46dfda49221c"
  }
 }

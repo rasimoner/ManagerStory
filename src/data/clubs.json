@@ -1,7 +1,7 @@
 {
   "startingClub": "Anadolu Hisarı",
   "clubs": [
-    {"name":"Anadolu Hisarı","colors":["#f3c623","#b3132b"],"colorNames":["SARI","KIRMIZI"],"pattern":"v"},
+    {"name":"Anadolu Hisarı","colors":["#f3c623","#b3132b"],"colorNames":["SARI","KIRMIZI"],"pattern":"v","level":70},
     {
       "name": "Boğaz Yıldızı",
       "colors": ["#111","#eee"],

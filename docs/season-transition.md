@@ -24,7 +24,7 @@ Adımlar sırayla çalışır. Ekran olan adımlar onay bekler, diğerleri kendi
 6. **Sözleşmeler (ekran):**
    - Herkesin kalan yılı 1 azalır; 0'a inenler karar ekranına gelir. Kimsenin sözleşmesi bitmiyorsa ekran atlanır.
    - Seçenekler: 1/2/3 yıl yenile ya da bırak. 31 yaş üstü en fazla 2 yıl, 33 yaş üstü 1 yıl alabilir.
-   - Yenilenen oyuncu maaş talebiyle kalır. Bırakılan oyuncu serbest oyuncu olarak transfer havuzuna düşer (kulüp "Serbest", bonservis yerine düşük imza parası).
+   - Yenilenen oyuncu maaş talebiyle kalır. Ekran şimdiki maaş giderini, kararlarla oluşacak gideri ve maaş alanını gösterir; kararlarla gider maaş alanını aşıyorsa uyarır (yenileme engellenmez, ama maaş alanı açılana kadar yeni transfer yapılamaz). Bırakılan oyuncu serbest oyuncu olarak transfer havuzuna düşer (kulüp "Serbest", bonservis yerine düşük imza parası).
    - Her oyuncu için karar vermeden devam edilemez. "Hepsini 1 yıl yenile" ve "Hepsini bırak" kısayolları var.
 7. **Altyapı:**
    - Altyapıdan çıkan oyuncuların satış kilidi kalkar.
@@ -65,6 +65,8 @@ Yarıda kapanan bir sezon sonu, kaydedildiği adımdan devam eder (`S.seasonEnd`
 | Haftalık gelişim | Aynı. Tek değişiklik: kalecinin düşüşü 3 yıl geç başlıyor (bizde 32/33, rakipte 34 yaş). |
 | Sözleşme dağıtımı (eski kayıtlar ve yeni kariyer, bir kez) | 21 yaş ve altı: 2–4 yıl. 22–26: 1–3. 27–30: 1–2. 31+: 1. Altyapıdan gelen 3, yeni transfer 4. |
 | Maaş talebi | max(şimdiki maaş, OVR² × 900) × 1,1 (mutsuzsa 1,2; 32 yaş üstü 0,85). |
+| Maaş alanı (V7.13.2) | Kulüp seviyesi² × 900 × 22, milyona yuvarlanır (seviye 70 → 97M). Kayıtta durmaz, her an hesaplanır. |
+| Forma numarası (V7.13.2) | Sezon geçişinde herkes numarasını korur; ayrılanın numarası boşa çıkar; altyapıdan takviye en küçük boş numarayı alır. |
 | Lig ödülü | 1. sıra 12M … 18. sıra 2M. |
 
 ## Diğer değişiklikler
@@ -88,6 +90,5 @@ Yarıda kapanan bir sezon sonu, kaydedildiği adımdan devam eder (`S.seasonEnd`
 - Kayıt boyutu sezon başına yaklaşık 30–35 KB büyüyor (eski sezonların olay zincirleri silindikten sonra).
 
 ## Açık konular
-- Maaş alanı (24M), kadronun gerçek maaş toplamının (yaklaşık 60M) çok altında. Transfer ekranındaki "Maaş alanı" hep 0 görünüyor. Bu V7.9.5'ten kalan bir veri tutarsızlığı. Sözleşme ekranı bu yüzden bütçe yerine "şimdiki gider → kararlarla gider" karşılaştırmasını gösteriyor.
 - Rakip oyuncuların golleri kayıtlı değil; sezonun öne çıkanları sadece bizim oyunculardan seçiliyor.
 - Diğer kulüplerin kendi aralarındaki maçlar sabit kulüp güçlerini kullanıyor. Rakip kadroları dengede tutmak bizim maçlarımızın zorluğunu korumak içindir.
