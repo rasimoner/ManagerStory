@@ -78,7 +78,7 @@ html.nv-lock,html.nv-lock body{overflow:hidden!important;overscroll-behavior:non
 .nv-rp-skip{position:absolute;right:10px;bottom:10px;pointer-events:auto;font:700 13px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:#f3f5f7;background:#0d1117c4;border:1px solid #ffffff30;border-radius:9px;padding:10px 12px;cursor:pointer;touch-action:manipulation}
 .nv-full .nv-rp-skip{bottom:calc(env(safe-area-inset-bottom,0px) + 16px);right:max(10px,env(safe-area-inset-right,0px))}
 .nv-replaying .nv-dir,.nv-replaying .nv-who,.nv-replaying .nv-banner,.nv-replaying .career3d-radar,.nv-replaying .nv-bug,.nv-replaying .nv-bottom,.nv-replaying .nv-tbtn,.nv-replaying .nv-tune{visibility:hidden}
-.nv-tune .tries{display:flex;flex-wrap:wrap;gap:6px}.nv-tune .tries button{font-size:13px;padding:0 10px;border-color:#f4c43066;color:#f4c430}.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}
+.nv-tune .now{color:#2fd17a;font-weight:700}.nv-tune .end{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.nv-tune .end button{font-size:14px;padding:0 12px}
 /* V7.9.12 phone on its side: the picture is short, so the banner (GOL, KORNER…) and the replay's move card sat
    on the action. The banner becomes one small line at the top, the card goes to the bottom-left corner. */
 @media (orientation:landscape) and (max-height:520px){
@@ -113,20 +113,11 @@ function paintTune() {
   if (tuneEl.hidden) return;
   tuneEl.innerHTML = '<h4>Hız ayarları (geçici)</h4><p>Şu an <span class="now">' + (M?.speed || 1) + '× tuşu → oyun ' + realSpeed().toFixed(2) + '</span>. Değerler bu cihazda saklanır.</p>'
     + TUNE_ROWS.map(([k, label]) => '<div class="r"><span>' + label + '</span><button type="button" data-tk="' + k + '" data-d="-1">−</button><b>' + tune[k].toFixed(2) + '</b><button type="button" data-tk="' + k + '" data-d="1">+</button></div>').join('')
-    + '<h4 style="margin-top:12px">Yıldız anı dene (geçici)</h4><p>' + (director?.trying ? 'Bekleniyor: ' + TRY_NAMES[director.trying] + (director.trying === 'scorpion' ? ' — rakibin kalemize gelen ve kurtarılan bir sonraki şutunda kalecimiz yapacak.' : ' — topu süren oyuncumuz sıradaki fırsatta yapacak.') : 'Seçince maç durmaz: topu süren oyuncumuz sıradaki fırsatta yapar (bu denemede oyuncu ve bölge kuralı yok), sonra oyun devam eder.') + '</p><div class="tries">'
-    + Object.entries(TRY_NAMES).map(([k, n]) => '<button type="button" data-try="' + k + '">' + n + '</button>').join('') + '</div>'
-    + '<h4 style="margin-top:12px">Kaleci sahnesi (geçici)</h4><p>Maç bekler, sahne kendi ceza sahamızda kurulur ve oynanır; bitince maç kaldığı yerden sürer.</p><div class="tries">'
-    + Object.entries(GK_SCENES).map(([k, n]) => '<button type="button" data-gk="' + k + '">' + n + '</button>').join('') + '</div>'
     + '<div class="end"><button type="button" data-tk="reset">Varsayılan</button><button type="button" data-tk="close">Kapat</button></div>';
 }
 tuneBtn.addEventListener('click', () => { tuneEl.hidden = !tuneEl.hidden; paintTune(); });
-// V7.9.3 (temporary) the keeper's part 3 moves, staged at our goal for a look on the phone
-const GK_SCENES = { gkpunch: 'Yumrukla uzaklaştırma', gkrush: 'Birebir: ayağa kapanma', gkrushgoal: 'Birebir: gol', gkpen: 'Penaltı kurtarışı', gkpengoal: 'Penaltı: gol', gkvolley: 'Elden vole', scorpion: 'Akrep + kalkış' };
-const TRY_NAMES = { scorpion: 'Kaleci: akrep vuruşu', stepover: 'Makas', nutmeg: 'Bacak arası', elastico: 'Elastico', nolook: 'Bakmadan pas', cruyff: 'Cruyff dönüşü', croqueta: 'La Croqueta', roulette: 'Marsilya dönüşü', flairnutmeg: 'Flair bacak arası', flairpass: 'Makasla pas', rainbow: 'Gökkuşağı', sombrero: 'Aşırtma çalım', juggle: 'Sektirip geçme', backheel: 'Topuk pası', rabona: 'Rabona', trap: 'Ayakla öldürme', chip: 'Kaleciyi aşırtma', bicycle: 'Röveşata', panenka: 'Panenka', pirouette: 'Bergkamp dönüşü' };
 tuneEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.gk) { if (presentation.newView.star(b.dataset.gk)) banner('SAHNE · ' + GK_SCENES[b.dataset.gk].toUpperCase(), 1500); tuneEl.hidden = true; return; }
-  if (b.dataset.try) { if (director) { director.tryNext(b.dataset.try); lastReplay = -99; banner('DENEME · ' + TRY_NAMES[b.dataset.try].toUpperCase(), 1500); } tuneEl.hidden = true; return; }
   const k = b.dataset.tk;
   if (k === 'close') { tuneEl.hidden = true; return; }
   if (k === 'reset') Object.assign(tune, TUNE_DEF);
@@ -515,9 +506,7 @@ presentation.newView = {
   get replay() { return rp ? { kind: rp.kind, who: rp.key, t: rp.t, t0: rp.t0, t1: rp.t1 } : null; },
   get replayKept() { return replay.count; },
   get starPending() { return starPending; },
-  // development: play a special move now (console: presentation.newView.star('elastico'))
   get devScene() { return FIXED_DT ? { renderer, scene, crowd, outline } : null; },
-  star(kind) { if (!director || rp) return null; replay.clear(); starPending = null; lastReplay = -99; return director.stage(kind) || null; },
   // (?nvfixdt&nvmanual) draw n frames of 1/60 s now
   step(n = 1, drawLastOnly = false) { if (!MANUAL) return; manualTick = true; try { for (let i = 0; i < n; i++) { manualNoDraw = drawLastOnly && i < n - 1; frame(performance.now()); } } finally { manualTick = false; manualNoDraw = false; } },
   set fastForward(v) { if (FIXED_DT) fastForward = Math.max(1, Number(v) || 1); },

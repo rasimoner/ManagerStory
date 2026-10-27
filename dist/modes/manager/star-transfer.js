@@ -90,10 +90,10 @@ export function latestStarTransfer() {
 }
 
 // ---- the flow ----
-// one flow at a time; a trial ("Transfer sahnesi dene") works on a copy and saves nothing
+// one flow at a time
 export let starFlow = null;
 export function endStarFlow() { starFlow = null; }
-export function starFlowPlayer() { return starFlow?.trial ? starFlow.player : S.players.find(p => p.id === starFlow?.playerId); }
+export function starFlowPlayer() { return S.players.find(p => p.id === starFlow?.playerId); }
 
 export function beginStarTransfer(p, x, fee) {
   const rating = starShowRating(p), move = starShowMove(rating);
@@ -103,18 +103,7 @@ export function beginStarTransfer(p, x, fee) {
   pushInbox('Spor Servisi', `SON DAKİKA • ${p.name} resmen bizde`, `${'★'.repeat(rating.stars)} ${p.pos} • ${moves ? moves + ' özel hareket' : 'özel hareketi yok'} • ${money(rec.fee)}. Taraftar stadın önüne akın etti; yıldız bu akşam tünelden çıkıp sahada ilk şovunu yapacak.`, 'board');
   save();
   clearCinematicNext();
-  starFlow = { playerId: p.id, rec, rating, move, excite: starTransferExcite(rating.stars, fee), trial: false };
-  starAnnounceScreen();
-}
-
-export function starTransferTrial(which) {
-  const pool = (S.v6?.transferPool || []).filter(x => which === 'gk' ? starIsKeeper(x) : !starIsKeeper(x));
-  if (!pool.length) return alert('Transfer listesinde uygun oyuncu yok.');
-  const best = pool.map(x => ({ x, r: starShowRating(x) })).sort((a, b) => (b.r.stars - a.r.stars) || (b.r.moves.length - a.r.moves.length) || (b.x.overall - a.x.overall))[0];
-  const x = best.x, fee = typeof asking === 'function' ? asking(x) : x.price;
-  const player = { id: -1, name: x.name, pos: x.pos, overall: x.overall, age: x.age, number: defaultShirtNumber(-1) };
-  const rec = { id: 'deneme', kind: 'star-transfer', playerId: -1, playerName: x.name, pos: x.pos, move: starShowMove(best.r), stars: best.r.stars, keeper: best.r.keeper, fee, fromClub: x.club };
-  starFlow = { player, rec, rating: best.r, move: rec.move, excite: starTransferExcite(best.r.stars, fee), trial: true };
+  starFlow = { playerId: p.id, rec, rating, move, excite: starTransferExcite(rating.stars, fee) };
   starAnnounceScreen();
 }
 
@@ -125,7 +114,7 @@ export function starAnnounceScreen() {
   const p = starFlowPlayer(), f = starFlow, club = resolveClubIdentity('career'), n = f.rating.moves.length;
   $('#app').innerHTML = `<div class="stflash" style="--club:${clubColor(club.primaryColor) || '#c8102e'};--club2:${clubColor(club.secondaryColor) || '#fff'}">
 <div class="stticker" aria-hidden="true"><span>SON DAKİKA • ${escapeHTML(p.name.toLocaleUpperCase('tr'))} ${escapeHTML(club.name.toLocaleUpperCase('tr'))}’NDA • SON DAKİKA • YILDIZ TRANSFER •</span></div>
-<div class="stflashbody"><small>SON DAKİKA${f.trial ? ' • DENEME' : ''}</small><h1>${escapeHTML(p.name)}</h1><p>${escapeHTML(p.pos)} • ${f.rec.fromClub ? escapeHTML(f.rec.fromClub) + ' → ' : ''}${escapeHTML(club.name)}</p>
+<div class="stflashbody"><small>SON DAKİKA</small><h1>${escapeHTML(p.name)}</h1><p>${escapeHTML(p.pos)} • ${f.rec.fromClub ? escapeHTML(f.rec.fromClub) + ' → ' : ''}${escapeHTML(club.name)}</p>
 ${starStarsHTML(f.rating.stars, 'big')}
 <div class="stmoves"><b>${f.rating.keeper ? (f.move === 'scorpion' ? 'AKREP' : 'KALECİ') : n}</b><span>${f.rating.keeper ? (f.move === 'scorpion' ? 'Higuita’nın akrep vuruşu' : 'Yıldız kaleci') : n ? 'özel hareket' : 'özel hareketi yok'}</span></div>
 <div class="stfee">Bonservis <b>${money(f.rec.fee)}</b></div></div>
@@ -150,7 +139,7 @@ export function starPickNumber(n) {
   const p = starFlowPlayer();
   if (!p || !freeShirtNumbers(p.id).includes(n)) return;
   p.number = n;
-  if (!starFlow.trial) save();
+  save();
   starSigningScreen();
 }
 export function starSkipSigning() { starWalkOut(); }
@@ -162,7 +151,7 @@ export function starWalkOut(replayRec) {
   if (replay) {
     const p = S.players.find(q => q.id === replayRec.playerId);
     if (!p) return render();
-    starFlow = { playerId: p.id, rec: replayRec, rating: { stars: replayRec.stars, moves: [], keeper: replayRec.keeper }, move: replayRec.move, excite: starTransferExcite(replayRec.stars, replayRec.fee), trial: false, replay: true };
+    starFlow = { playerId: p.id, rec: replayRec, rating: { stars: replayRec.stars, moves: [], keeper: replayRec.keeper }, move: replayRec.move, excite: starTransferExcite(replayRec.stars, replayRec.fee), replay: true };
   }
   const p = starFlowPlayer(), f = starFlow, club = resolveClubIdentity('career');
   $('#app').innerHTML = `<div class="stloading"><small>STADYUM</small><h2>Tribünler doluyor…</h2></div>`;
@@ -170,7 +159,7 @@ export function starWalkOut(replayRec) {
     player: { id: typeof p.id === 'number' && p.id > 0 ? p.id : 990001, name: p.name, no: p.number || 10, pos: p.pos, keeper: !!f.rating.keeper },
     move: f.move, moveName: starMoveName(f.move), stars: f.rec.stars, excite: f.excite,
     club: { name: club.name, primaryColor: clubColor(club.primaryColor) || '#c8102e', secondaryColor: clubColor(club.secondaryColor) || '#ffffff', shortName: club.shortName },
-    closing: !replay, trial: f.trial,
+    closing: !replay,
   };
   const done = () => { endStarFlow(); render(); };
   const fallback = () => {
@@ -187,7 +176,7 @@ export function starWalkOut(replayRec) {
 // scene could not show it)
 export function starClosingScreen() {
   const p = starFlowPlayer(), f = starFlow;
-  $('#app').innerHTML = `${header()}<main class="appcontent"><section class="card stclose"><small>KAPANIŞ</small><h2>Kariyer highlight arşivine eklendi</h2><p>${escapeHTML(p?.name || '')} • ${escapeHTML(starMoveName(f?.move))}${f?.trial ? ' (deneme: arşive yazılmadı)' : ''}</p><div class="row"><button class="goldbtn" data-action="closeStarFlow">Kulübe dön</button><button class="ghost" data-action="closeStarFlow">Atla</button></div></section></main>`;
+  $('#app').innerHTML = `${header()}<main class="appcontent"><section class="card stclose"><small>KAPANIŞ</small><h2>Kariyer highlight arşivine eklendi</h2><p>${escapeHTML(p?.name || '')} • ${escapeHTML(starMoveName(f?.move))}</p><div class="row"><button class="goldbtn" data-action="closeStarFlow">Kulübe dön</button><button class="ghost" data-action="closeStarFlow">Atla</button></div></section></main>`;
 }
 
 // the home-page flash card while the signing is fresh
@@ -199,7 +188,6 @@ defineActions({
   starWalkOut: () => starWalkOut(),
   starReplay: () => starWalkOut(latestStarTransfer()),
   closeStarFlow: () => { endStarFlow(); render(); },
-  starTransferTrial: d => starTransferTrial(d.kind),
 });
 
 export function starFlashCard() {
@@ -217,12 +205,6 @@ export function installStarTransfer() {
   onHook('afterSigning', (player, x, fee) => {
     if (!big) return;
     try { beginStarTransfer(player, x, fee); } catch (e) { console.warn('Yıldız transfer sahnesi', e); }
-  });
-  // (temporary) "Transfer sahnesi dene" on the transfer screen, like the other test buttons
-  onHook('transferListShown', () => {
-    // (under the transfer office picture: before the header it pushed the sticky header down the page)
-    const anchor = document.querySelector('#app .vscene') || document.querySelector('#app .weekstrip');
-    anchor?.insertAdjacentHTML?.('afterend', `<section class="card sttry"><small>GEÇİCİ TEST</small><b>Transfer sahnesi dene</b><div class="row"><button class="ghost" data-action="starTransferTrial" data-kind="out">Oyuncuyla</button><button class="ghost" data-action="starTransferTrial" data-kind="gk">Kaleciyle</button></div></section>`);
   });
   starTransferStyles();
 }
@@ -262,7 +244,6 @@ export function starTransferStyles() {
 .stloading{position:fixed;inset:0;z-index:1100;display:grid;place-content:center;text-align:center;background:#10251a;color:#cfe0d3}
 .stflashcard{position:relative;border:1px solid var(--club);overflow:hidden}.stflashcard h3{margin:6px 0 2px}.stflashcard .stno{display:inline-block;min-width:28px;text-align:center;background:var(--club);color:#fff;border-radius:6px;padding:0 5px;font-size:15px}
 .stflashtag{display:inline-block;background:#e0182d;color:#fff;font-weight:900;font-size:12px;letter-spacing:.1em;padding:3px 8px;transform:skewX(-8deg)}
-.sttry{border:1px dashed #f4c43088;margin-top:12px}.sttry b{display:block;margin:2px 0 8px}.sttry .row{gap:8px}
 .stclose h2{margin:6px 0}
 @media (prefers-reduced-motion:reduce){.stticker span,.stflashbody,.stshirt{animation:none}}`;
   document.head.append(css);

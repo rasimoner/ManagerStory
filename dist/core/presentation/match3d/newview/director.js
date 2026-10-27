@@ -2678,7 +2678,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
   if (idx === 0) { layout(0, true); ball.p.set(0, BALL_R, 0); }
   return {
     update, skipTo, stats, syncRoster, resync, stage,
-    tryNext(kind) { tryMove = kind || null; }, get trying() { return tryMove; },
     get tryDebug() { const b = ball.owner; return { tryMove, tryWait: +tryWait.toFixed(1), staged: !!staged, t: +S.t.toFixed(1), owner: b && [b.key, b.busy, !!b.motion, b.act?.name, b.role], dead: S.dead }; },
     get index() { return idx; }, get current() { return task ? events[task.i] : null; }, get total() { return events.length; },
     // the live presentation clock may show an engine event once the new view has started it;

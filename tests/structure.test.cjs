@@ -48,8 +48,8 @@ test('extension points: the star transfer and the navigation register for named 
   const g = loadGame({ quiet: true });
   const hooks = g.json('Object.fromEntries(Object.entries(HOOKS).map(([k,v])=>[k,v.length]))');
   // main.js: the manager mode redraws and readies a career when core says so (D4)
-  // star-transfer.js: before and after a signing, and the transfer list (nav.js needs a document)
-  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1, transferListShown: 1 });
+  // star-transfer.js: before and after a signing (nav.js needs a document)
+  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1 });
   // a big signing still starts the scene; a small one does not
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
   const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');
@@ -70,8 +70,8 @@ test('the page is ES modules: no classic script, every file in the game an ES mo
 });
 
 test('nothing of the game is on window', () => {
-  // the browser's own (scroll, size, events) and one automation knob for the star scene's clock
-  const BROWSER = new Set(['scrollTo', 'scrollY', 'innerHeight', 'addEventListener', '__stsTimeScale']);
+  // the browser's own (scroll, size, events)
+  const BROWSER = new Set(['scrollTo', 'scrollY', 'innerHeight', 'addEventListener']);
   const used = [];
   for (const file of walk('core').concat(walk('modes'), walk('ui'), ['main.js'])) {
     const code = fs.readFileSync(path.join(DIST, file), 'utf8');

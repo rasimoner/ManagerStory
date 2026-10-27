@@ -91,7 +91,6 @@ Genişletme noktaları (`core/hooks.js`):
 | An | Kim çalıştırır | Kim kaydolur |
 |---|---|---|
 | `beforeSigning(x)`, `afterSigning(player, x, fee)` | `v6Sign` (app.js) | yıldız transfer sahnesi (star-transfer.js) |
-| `transferListShown()` | `showV6Transfers` (app.js) | geçici "Transfer sahnesi dene" kartı (star-transfer.js) |
 | `goMain(section)` → `true`: işlendi | `goMain` (match-support.js) | aktif sekmeye dokunma (nav.js) |
 | `navBack()` | geri düğmesi eylemi (app.js) | kaydırma konumuna dönüş (nav.js) |
 | `screenDrawn()` | `header` (app.js) | ekran yerleşince kaydırma ve ↑ düğmesi (nav.js) |
@@ -113,7 +112,7 @@ Genişletme noktaları (`core/hooks.js`):
 
 - Sayfada klasik script yok. `index.html` dört modül girişi yükler: `main.js` (oyun) ve sunum katmanları `core/presentation/match3d/match3d-live-clock.js` (`data-layer="clock"`), `match-view-adapter.js` (`view`), `modes/manager/match-3d.js` (`3d`: 3D görünümü yükler, olmazsa 2D).
 - Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (D'de dışa açık olanlar daralacak).
-- Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok; tek istisna yıldız sahnesinin otomasyon için zaman ölçeği `window.__stsTimeScale`. three.js `dist/vendor`'dan modül olarak gelir (E'de npm).
+- Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok (E7'den beri istisnasız; yıldız sahnesinin otomasyon zaman ölçeği `window.__stsTimeScale` kalktı). three.js `dist/vendor`'dan modül olarak gelir (E'de npm).
 - `core/` henüz `modes/manager`'dan bazı şeyler alıyor (D3 sonunda 7 dosyada 36 ad; C sonunda 11 dosyada 63). Liste `tests/structure.test.cjs` içinde sabit; sadece kısalabilir, D'de sıfırlanır.
 - Testler aynı modülleri `vm.SourceTextModule` ile yükler (`tests/support/game.cjs`); `npm test` gereken `--experimental-vm-modules` bayrağını verir. Tek dosya için: `NODE_OPTIONS=--experimental-vm-modules node --test tests/<dosya>`.
 - Service worker girişleri `?v=<sürüm>` ile, içe aktarılan modülleri yalın adıyla listeler.

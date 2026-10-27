@@ -207,7 +207,7 @@ function uprightness(p) {
   const d = head.sub(hips); return d.y / Math.max(1e-6, d.length());
 }
 
-/* opts: { player:{id,name,no,pos,keeper}, move, moveName, stars, excite (0..1), club:{name,primaryColor,secondaryColor,shortName}, closing, trial }
+/* opts: { player:{id,name,no,pos,keeper}, move, moveName, stars, excite (0..1), club:{name,primaryColor,secondaryColor,shortName}, closing }
    resolves { closed:true } after the closing note, { done:true } without it, or null when 3D is not available */
 export function playStarTransferScene(opts) {
   return new Promise(resolve => {
@@ -298,7 +298,7 @@ export function playStarTransferScene(opts) {
         phase = 'closing'; phaseT = 0; cardEl.classList.remove('on');
         if (!opts.closing) { finish({ done: true }); return; }
         const box = document.createElement('div'); box.className = 'sts-close';
-        box.innerHTML = `<small>KAPANIŞ</small><h3>Kariyer highlight arşivine eklendi</h3><p>${esc(opts.player.name)} • ${esc(opts.moveName || '')}${opts.trial ? ' (deneme: arşive yazılmadı)' : ''}</p><button type="button">Atla ›</button><i><b></b></i>`;
+        box.innerHTML = `<small>KAPANIŞ</small><h3>Kariyer highlight arşivine eklendi</h3><p>${esc(opts.player.name)} • ${esc(opts.moveName || '')}</p><button type="button">Atla ›</button><i><b></b></i>`;
         root.append(box);
         box.querySelector('button').addEventListener('click', () => finish({ closed: true }));
         const bar = box.querySelector('i b'); bar.style.transitionDuration = TIMES.closing + 's'; requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; });
@@ -307,7 +307,7 @@ export function playStarTransferScene(opts) {
       function frame(now) {
         if (finished) return;
         raf = requestAnimationFrame(frame);
-        const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)) * (window.__stsTimeScale ?? 1); last = now;   // (time scale: automated checks only)
+        const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
         total += dtReal; phaseT += dtReal;
         if (total > TIMES.cap) { finish(opts.closing ? { closed: true } : { done: true }); return; }
         let dt = dtReal;
