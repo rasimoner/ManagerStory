@@ -8,8 +8,8 @@ import { actionMinute, chanceV73, eventPoint, playLastAttack } from './pitch-v73
 import { clamp, ensureMatchState, finite, matchEvent, orderKey, recordMatchFoul, roleAtSlot, tacticalEffects, userSide } from './match-support.js';
 import { finalizeMatch, matchSecond } from './live-match.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
-import { currentOpponent } from '../league/league.js';
 import { styleEdge } from '../players/player-profiles.js';
+import { userOpponent, userSquad } from './user-team.js';
 export function oppRadarPos(i){let pos=[[50,8],[15,25],[38,25],[62,25],[85,25],[30,45],[70,45],[15,65],[50,62],[85,65],[50,82]][i];return pos}
 export function setUserOwner(id){M.ballSide="user";M.ballOwner=id;if(typeof setBallState==="function")setBallState(eventPoint(id,"user"),id);M.playerTouches[id]=(M.playerTouches[id]||0)+1;M.playerStats[id]&&(M.playerStats[id].touches=(M.playerStats[id].touches||0)+1)}
 export function setOppOwner(i){M.ballSide="opp";M.ballOwner="o"+i;if(typeof setBallState==="function")setBallState(eventPoint("o"+i,"opp"),"o"+i)}
@@ -18,15 +18,15 @@ export function tick(){
  ensureMatchState();M.min=Math.floor(matchSecond()/60);if(M.goalScene&&M.min>M.goalScene.minute+3)M.goalScene=null;
  M.minuteShot=false;
  const effect=tacticalEffects();
- S.players.forEach(p=>{if(M.active.includes(p.id)){const extra=['press','runBehind','overlap'].includes(orderKey(p))?1.35:1;p.fitness=Math.max(20,p.fitness-matchFatigueDrain(p,extra,effect.fatigue));p.minutes++;M.playerStats[p.id].minutes++;}});
+ userSquad().forEach(p=>{if(M.active.includes(p.id)){const extra=['press','runBehind','overlap'].includes(orderKey(p))?1.35:1;p.fitness=Math.max(20,p.fitness-matchFatigueDrain(p,extra,effect.fatigue));p.minutes++;M.playerStats[p.id].minutes++;}});
  for(const id of M.oppIds){const rival=opponentPlayer(id);if(rival)rival.fitness=Math.max(22,rival.fitness-matchFatigueDrain(rival,1,tacticFatigue('opp')));}
- const r=currentOpponent(),u=strength(),opp=(r[3]+r[4]+r[5])/3*(M.oppIds.length/11),userPoss=M.rand()<u/(u+opp);
+ const r=userOpponent(),u=strength(),opp=(r[3]+r[4]+r[5])/3*(M.oppIds.length/11),userPoss=M.rand()<u/(u+opp);
  actionMinute(userPoss,effect,r);
- for(const id of M.active){const p=S.players.find(p=>p.id===id);if(p&&!p.debutDone&&!M.debutShown.includes(id)){M.debutShown.push(id);p.debutDone=true;p.morale=Math.min(100,p.morale+5);matchEvent('debut',`🌱 ${M.min}' ${p.name} profesyonel futboldaki ilk resmi maçına çıkıyor.`,{playerId:id});}}
+ for(const id of M.active){const p=userSquad().find(p=>p.id===id);if(p&&!p.debutDone&&!M.debutShown.includes(id)){M.debutShown.push(id);p.debutDone=true;p.morale=Math.min(100,p.morale+5);matchEvent('debut',`🌱 ${M.min}' ${p.name} profesyonel futboldaki ilk resmi maçına çıkıyor.`,{playerId:id});}}
  if(!M.minuteShot&&M.ballOwner!=null&&M.rand()<clamp(.34*effect.frequency,.17,.5))chanceV73(M.ballSide==="user");
  enforceBallInvariants();
  if(M.rand()<.42)recordMatchFoul();   // V7.8: a challenge that may be a foul (see recordMatchFoul)
- if(M.min<90&&M.rand()<.0015){const ps=S.players.filter(p=>M.active.includes(p.id)&&p.pos!=="GK");if(ps.length){const p=ps[Math.floor(M.rand()*ps.length)];p.injury=1;matchEvent('injury',`🩹 ${M.min}' ${p.name} yerde kaldı. Sağlık ekibi değişiklik öneriyor.`,{playerId:p.id});M.requiredSubstitution={playerId:p.id,reason:'injury',state:'SUBSTITUTION_REQUIRED'};M.pause=true;M.reason='injury';M.lifecycle='PAUSED';M.lastStop=M.min}}
+ if(M.min<90&&M.rand()<.0015){const ps=userSquad().filter(p=>M.active.includes(p.id)&&p.pos!=="GK");if(ps.length){const p=ps[Math.floor(M.rand()*ps.length)];p.injury=1;matchEvent('injury',`🩹 ${M.min}' ${p.name} yerde kaldı. Sağlık ekibi değişiklik öneriyor.`,{playerId:p.id});M.requiredSubstitution={playerId:p.id,reason:'injury',state:'SUBSTITUTION_REQUIRED'};M.pause=true;M.reason='injury';M.lifecycle='PAUSED';M.lastStop=M.min}}
  // cards/injuries above may have removed the ball owner or stacked players on a restart spot
  enforceBallInvariants();settleShape();
  if(M.min>=90)playLastAttack();
@@ -36,7 +36,7 @@ export function tick(){
 }
 export function positionPenaltyV61(p,role){if(role=="GK")return p.pos=="GK"?1:.12;if(p.pos=="GK")return .22;if(p.pos.split("/").includes(role))return 1;let near={ST:["LW","RW","CAM"],CAM:["CM","LW","RW"],CM:["CAM"],CB:["LB","RB"],LW:["RW","CAM"],RW:["LW","CAM"],LB:["CB"],RB:["CB"]};return (near[p.pos.split("/")[0]]||[]).includes(role)?.72:.45}
 export function strength(){
- const players=S.players.filter(p=>M.active.includes(p.id));if(!players.length)return 30;
+ const players=userSquad().filter(p=>M.active.includes(p.id));if(!players.length)return 30;
  const strength=players.reduce((sum,p)=>{let bonus=1,ins=M.playerOrders[p.id]||S.instructions[p.id]||"";
  if((ins==="Merkeze yaklaş"||ins==="Merkeze yaklaş ve oyunu kur")&&p.passing>=72)bonus+=.04;
  if(ins==="Savunma arkasına koş"&&p.pace>=78)bonus+=.04;
@@ -49,8 +49,8 @@ export function strength(){
  return finite(strength,65)*tacticalEffects().control*(players.length/11);
 }
 export function attacker(){
- const players=S.players.filter(p=>M.active.includes(p.id)&&M.matchRoles[p.id]!=="GK"),r=currentOpponent();
- if(!players.length)return S.players.find(p=>M.active.includes(p.id));
+ const players=userSquad().filter(p=>M.active.includes(p.id)&&M.matchRoles[p.id]!=="GK"),r=userOpponent();
+ if(!players.length)return userSquad().find(p=>M.active.includes(p.id));
  const weights=players.map(p=>{const key=orderKey(p);let weight=(p.finishing*2+p.pace+p.physical+(p.pos.includes("ST")?40:0))*styleEdge(p,r[2]);
  if(key==='runBehind')weight*=1.4;if(key==='holdUp')weight*=1.25;if(key==='box'||key==='shoot')weight*=1.35;if(key==='inside'||key==='free')weight*=1.2;if(key==='creator'||key==='riskPass')weight*=1.1;if(key==='stay')weight*=.65;
  if(M.approach==='Kanatlar'&&['LW','RW','LB','RB'].includes(M.matchRoles[p.id]))weight*=1.3;
@@ -59,14 +59,14 @@ export function attacker(){
  return players[weights.findIndex(v=>(sum+=v)>=roll)]||players[0];
 }
 export function chance(user){
- const r=currentOpponent(),side=user?userSide():1-userSide(),p=user?attacker():{name:r[0].split(" ")[0]+" forvet",finishing:r[3],pace:65+r[8]/5,physical:r[8],dribbling:r[4],fitness:90};if(!p)return;
+ const r=userOpponent(),side=user?userSide():1-userSide(),p=user?attacker():{name:r[0].split(" ")[0]+" forvet",finishing:r[3],pace:65+r[8]/5,physical:r[8],dribbling:r[4],fitness:90};if(!p)return;
  const previous=M.ballOwner,previousSide=M.ballSide;
  if(user)setUserOwner(p.id);else setOppOwner(8+Math.floor(M.rand()*3));
  if(previous!==M.ballOwner||previousSide!==M.ballSide)matchEvent('run',`${M.min}' ${p.name} hücum koşusuyla topu aldı.`,{fromId:previous,toId:M.ballOwner,fromSide:previousSide,toSide:M.ballSide,ballSide:M.ballSide,fromPos:eventPoint(previous,previousSide),toPos:eventPoint(M.ballOwner,M.ballSide),playerId:user?p.id:null,side});
  M.shots[side]++;
  const effects=tacticalEffects(),key=user?orderKey(p):'balanced';let q=p.finishing*.5+p.pace*.12+p.physical*.1+p.dribbling*.12+p.fitness*.16;
  if(user){q*=effects.attack;if(key==='runBehind'&&r[2]==='high')q*=1.07;if(key==='holdUp'&&p.physical>=75)q*=1.04;if(key==='shoot')q*=.97;M.playerStats[p.id].shots++;}else q/=effects.defence;
- const gk=S.players.find(x=>M.active.includes(x.id)&&M.matchRoles[x.id]==='GK');
+ const gk=userSquad().find(x=>M.active.includes(x.id)&&M.matchRoles[x.id]==='GK');
  const keeper=user?r[6]:gk?gk.overall*(.65+gk.fitness/300):30;
  const onProbability=Math.min(.72,.38+q/360),goalProbability=clamp(.20+(q-keeper)/210,.14,.48),xg=onProbability*goalProbability;
  M.stats.xg[side]+=xg;if(xg>=.20)M.stats.bigChances[side]++;

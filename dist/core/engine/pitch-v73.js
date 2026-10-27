@@ -6,8 +6,8 @@ import { MATCH_PLAYBACK_SCALE, clockFromSeconds, matchClock, matchSecond } from 
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { aerialHeight, aerialRating, aerialWinProbability, attributeEdge, boxChallengePenalty, dribbleChance, engineFrozen, isKeeper, keeperHandling, keeperId, keeperRating, makeLooseBall, normalizeAttribute, occupant, opponentName, orderFor, outfieldOf, passSuccessProbability, physicalContest, playerAtMarker, playerAttribute, playerRecord, resolveLooseBall, runRestart, separatePlayers, setBallState, setPieceRecovering, shooterRecord, shotProbabilities, softenPlayerOverlap, startPitchRestart, tackleChance, tacticProfile, teamTactics, topSpeed, transitionActive } from './pitch-v731.js';
 import { fanPhoto, resolveClubIdentity } from '../clubs/clubs.js';
-import { currentOpponent } from '../league/league.js';
 import { oppRadarPos, setOppOwner, setUserOwner } from './match-minute.js';
+import { userOpponent, userSquad } from './user-team.js';
 export let pitchV73 = null;
 export const PITCH_ACTIONS = new Set(['kickoff','pass','cross','interception','press','tackle','dribble','ballCarry','offBallRun','counterAttack','run','shot','save','block','post','wide','goal','throwIn','restart','goalKick','corner','freeKick','penalty','hold','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery']);
 export const IMPORTANT_ACTIONS = new Set(['kickoff','shot','save','block','post','wide','goal','throwIn','goalKick','corner','offBallRun','dribble','ballCarry','tackle']);
@@ -405,9 +405,9 @@ export function nearestOpponent(fromSide,point) {
 }
 export function recordPitchTackle(defender,defenderSide,carrier,carrierSide,success,point) {
   const origin=eventPoint(defender,defenderSide);
-  matchEvent('press',M.min+'’ '+(defenderSide==='user'?S.players.find(p=>p.id===defender)?.name:'Rakip')+' topa baskıya çıktı.',
+  matchEvent('press',M.min+'’ '+(defenderSide==='user'?userSquad().find(p=>p.id===defender)?.name:'Rakip')+' topa baskıya çıktı.',
     {defenderId:defender,fromId:carrier,fromSide:carrierSide,toSide:defenderSide,fromPos:origin,toPos:point,ballSide:carrierSide});
-  const p=defenderSide==='user'?S.players.find(x=>x.id===defender):null;
+  const p=defenderSide==='user'?userSquad().find(x=>x.id===defender):null;
   if(p) {
     const st=M.playerStats[defender];st.tacklesAttempted++;if(success){st.tackles++;st.rating=clamp(st.rating+.08,1,10);}
   }
@@ -1059,7 +1059,7 @@ export function callOffside(receiverId,receiverSide,receiverPoint,passerId){
 
 export function chanceV73(user) {
   if(engineFrozen())return;
-  const r=currentOpponent(),side=user?userSide():1-userSide();
+  const r=userOpponent(),side=user?userSide():1-userSide();
   const sideName=user?'user':'opp';
   if(M.ballOwner==null)return;
   if(M.ballSide!==sideName){
@@ -1149,7 +1149,7 @@ export function chanceV73(user) {
       // the final ball is cut out
       const defSide=user?'opp':'user',cut=nearestMarker(defSide,target);
       if(cut){
-        matchEvent('pass',M.min+'’ '+(carrierSide==='user'?S.players.find(x=>x.id===carrier)?.name||'Takım':'Rakip')+' ara pası denedi.',
+        matchEvent('pass',M.min+'’ '+(carrierSide==='user'?userSquad().find(x=>x.id===carrier)?.name||'Takım':'Rakip')+' ara pası denedi.',
           {fromId:carrier,toId:cut.id,fromSide:carrierSide,toSide:defSide,ballSide:defSide,fromPos:before,toPos:eventPoint(cut.id,defSide),success:false,passKind:'through',
            distance:pitchDistance(before,target),passing:playerAttribute(carrier,carrierSide,'passing',70)});
         if(carrierSide==='user'&&M.playerStats[carrier]){M.playerStats[carrier].passesAttempted++;M.stats.passes[userSide()]++;}
@@ -1164,7 +1164,7 @@ export function chanceV73(user) {
     matchEvent('offBallRun',M.min+'’ '+p.name+(choice.runTo?' savunmanın arkasına koştu.':' şut için boş alana koştu.'),
       {fromId:shooter,toId:shooter,playerId:user?p.id:null,fromSide:user?'user':'opp',
         toSide:user?'user':'opp',ballSide:carrierSide,carrierId:carrier,fromPos:runFrom,toPos:target});
-    matchEvent('pass',M.min+'’ '+(carrierSide==='user'?S.players.find(x=>x.id===carrier)?.name||'Takım':'Rakip')+
+    matchEvent('pass',M.min+'’ '+(carrierSide==='user'?userSquad().find(x=>x.id===carrier)?.name||'Takım':'Rakip')+
       ' hücum oyuncusuna oynadı.',{fromId:carrier,toId:shooter,fromSide:carrierSide,toSide:user?'user':'opp',
         ballSide:user?'user':'opp',fromPos:before,toPos:target,success:true,passKind:'through',
         distance:Math.hypot(target[0]-before[0],target[1]-before[1]),passing:playerAttribute(carrier,carrierSide,'passing',70)});
@@ -1180,7 +1180,7 @@ export function chanceV73(user) {
 /* Shared shot resolution: open play (chanceV73), corner headers and penalties all end here. */
 export function resolveShot(user,shooter,p,opts={}) {
   if(engineFrozen()||!p)return;
-  const r=currentOpponent(),side=user?userSide():1-userSide(),sideName=user?'user':'opp';
+  const r=userOpponent(),side=user?userSide():1-userSide(),sideName=user?'user':'opp';
   const dir=(user?1:-1)*userDirection();
   const defLine=tacticProfile(user?'opp':'user').line;
   switchPitchOwner(shooter,sideName);
@@ -1200,7 +1200,7 @@ export function resolveShot(user,shooter,p,opts={}) {
   qMod*=1+.04*defLine;   // high line = more space behind, low line = less
   // the ACTIVE keeper decides saves: never a hardcoded id, never a sent-off / substituted keeper
   const keeperSide=user?'opp':'user';
-  const gk=S.players.find(x=>x.id===keeperId('user'));
+  const gk=userSquad().find(x=>x.id===keeperId('user'));
   const keeper=playerRecord(opponentGK,keeperSide)?keeperRating(opponentGK,keeperSide):(user?r[6]:30);
   const distance=dir>0?100-source[0]:source[0];
   const pressure=pitchSpace(source,sideName).danger;

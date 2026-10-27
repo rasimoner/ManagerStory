@@ -1,5 +1,5 @@
 /* V7.2 live clock and event renderer. Simulation time is never derived from frame count. */
-import { M, S } from '../state.js';
+import { M } from '../state.js';
 import { presentation } from '../presentation/registry.js';
 import { clamp, matchEvent, matchPossession, userSide } from './match-support.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
@@ -8,6 +8,7 @@ import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js'
 import { tick } from './match-minute.js';
 import { save } from '../save.js';
 import { changed } from '../hooks.js';
+import { userSquad } from './user-team.js';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
 export const MATCH_PLAYBACK_SCALE = .5;
@@ -181,7 +182,7 @@ export function choosePassTarget(side, owner) {
 export function liveAssistantNote() {
   if (!M || M.min % 5 || M.min === 0) return;
   M.assistantCooldown ??={};
-  const players = S.players.filter(p => M.active.includes(p.id));
+  const players = userSquad().filter(p => M.active.includes(p.id));
   const low = players.slice().sort((a,b) => a.fitness - b.fitness)[0];
   const last = M.events.slice(-40);
   const oppWing = last.filter(e => e.side !== userSide() && e.type === 'cross').length;
@@ -221,7 +222,7 @@ export function liveAssistantNote() {
 }
 export function halfAnalysisV72() {
   const own=userSide(),rival=1-own,ours=M.stats.xg[own],theirs=M.stats.xg[rival];
-  const low=S.players.filter(p=>M.active.includes(p.id)).sort((a,b)=>a.fitness-b.fitness)[0];
+  const low=userSquad().filter(p=>M.active.includes(p.id)).sort((a,b)=>a.fitness-b.fitness)[0];
   if(low?.fitness<75)return `${low.name} fitness %${Math.round(low.fitness)}. İkinci yarıda temposunu izleyin.`;
   if(theirs>ours+.2)return `Rakibin xG'si ${theirs.toFixed(2)}, bizimki ${ours.toFixed(2)}. Tehlikeli bölgelere daha sık giriyorlar.`;
   if(ours>theirs+.2)return `${M.shots[own]} şut ve ${ours.toFixed(2)} xG ürettik; rakip ${M.shots[rival]} şutta kaldı.`;
@@ -235,7 +236,7 @@ export function shoutLive(type, id = null) {
   const key = `${type}:${id ?? 'team'}`;
   if (M.min - (M.shoutLast[key] ?? -100) < 10) { alert('Bu seslenişin etkisi için yaklaşık 10 oyun dakikası bekle.'); return; }
   M.shoutLast[key] = M.min;
-  const targets = id == null ? S.players.filter(p => M.active.includes(p.id)) : S.players.filter(p => p.id === id && M.active.includes(id));
+  const targets = id == null ? userSquad().filter(p => M.active.includes(p.id)) : userSquad().filter(p => p.id === id && M.active.includes(id));
   for (const p of targets) {
     const temperament = p.age >= 29 || p.personality === 'Lider' ? 1 : p.age < 21 ? .5 : .8;
     const response = (p.form || 70) >= 55 ? 1 : -1;

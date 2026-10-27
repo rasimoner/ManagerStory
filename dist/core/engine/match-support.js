@@ -9,8 +9,8 @@ import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame }
 import { opponentLineup } from '../league/opponents-v731.js';
 import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
 import { assistantAdvice, attackDirection, isKeeper, matchTeamName, playerAtMarker, startPitchRestart } from './pitch-v731.js';
-import { currentOpponent } from '../league/league.js';
 import { save } from '../save.js';
+import { userOpponent, userSquad } from './user-team.js';
 export const GAME_VERSION = "7.10.0";
 // tactic settings, their labels and the team orders (data/tactics.js)
 export const MATCH_TACTICS = TACTIC_DATA.options;
@@ -65,7 +65,7 @@ export function ensureMatchState() {
   M.width ??= S.plan.width;
   M.matchRoles ??= {};
   for (const id of M.active) {
-    const p = S.players.find(x => x.id === id);
+    const p = userSquad().find(x => x.id === id);
     if (!p) continue;
     M.playerStats[id] ??= { rating: 6.5, goals: 0, shots: 0, minutes: 0, saves: 0 };
     M.playerStats[id].touches ??= 0;
@@ -176,8 +176,8 @@ export function recordMatchFoul() {
     .filter(x => (goalX - eventPoint(x, foulSide)[0]) * dir < toGoal - 1).length;
   const clearChance = covering === 0 && toGoal < 28 && Math.abs(ball[1] - 50) < 22 && fromBehind;
   const attacking = toGoal < 40;                                           // stopping an attack in our half
-  const victimName = victimSide === 'user' ? (S.players.find(p => p.id === carrier)?.name || 'Oyuncumuz') : (playerAtMarker(carrier, 'opp')?.name || 'rakip oyuncu');
-  const name = own ? (S.players.find(p => p.id === id)?.name || 'Oyuncumuz') : (playerAtMarker(id, 'opp')?.name || `${side === 0 ? M.home : M.away} oyuncusu`);
+  const victimName = victimSide === 'user' ? (userSquad().find(p => p.id === carrier)?.name || 'Oyuncumuz') : (playerAtMarker(carrier, 'opp')?.name || 'rakip oyuncu');
+  const name = own ? (userSquad().find(p => p.id === id)?.name || 'Oyuncumuz') : (playerAtMarker(id, 'opp')?.name || `${side === 0 ? M.home : M.away} oyuncusu`);
   // advantage: the fouled team keeps the ball in the final third and the attack goes on
   const advantage = !clearChance && toGoal < 35 && M.rand() < .35;
   matchEvent('foul', `${M.min}' ${name}, ${victimName} karşısında faul yaptı.${advantage ? ' Hakem avantaj verdi.' : ''}`,
@@ -196,7 +196,7 @@ export function recordMatchFoul() {
   } else startPitchRestart('FREE_KICK', victimSide, ball);
 }
 export function recordMatchCard(side, id, directRed = false) {
-  const own = side === userSide(), p = own ? S.players.find(x => x.id === id) : null;
+  const own = side === userSide(), p = own ? userSquad().find(x => x.id === id) : null;
   if (own ? !M.active.includes(id) : !M.oppIds.includes(id)) return;
   const name = p?.name || `${side === 0 ? M.home : M.away} oyuncusu`;
   if (!directRed) { M.stats.yellow[side]++; M.yellowByPlayer[id] = (M.yellowByPlayer[id] || 0) + 1; if (p) p.yellow++; }
@@ -218,7 +218,7 @@ export function matchSummary(match = M) {
     home: match.home, away: match.away, hg: match.hg, ag: match.ag, userHome: match.userHome,
     week: S.week, fixture: S.fixture, shots: [...match.shots], onTarget: [...match.ont],
     stats: structuredClone(match.stats), events: structuredClone(replayEvents), highlights: structuredClone(match.events.filter(e => ['goal','chance','save','red','injury'].includes(e.type))),
-    players: Object.entries(match.playerStats).map(([id, stats]) => ({ id: +id, name: S.players.find(p => p.id === +id)?.name || 'Oyuncu', ...stats })),
+    players: Object.entries(match.playerStats).map(([id, stats]) => ({ id: +id, name: userSquad().find(p => p.id === +id)?.name || 'Oyuncu', ...stats })),
     substitutions: structuredClone(match.substitutions), tactics: structuredClone(match.tacticChanges),
     press: match.press, tempo: match.tempo, mentality: match.mentality,
     userGoals: side === 0 ? match.hg : match.ag, opponentGoals: side === 0 ? match.ag : match.hg
@@ -230,7 +230,7 @@ export function orderKey(p) {
   return matchOrderOptions(p, M.matchRoles[p.id] || p.pos.split("/")[0]).find(x => x.label === label)?.key || "balanced";
 }
 export function tacticalEffects() {
-  const players = S.players.filter(p => M.active.includes(p.id));
+  const players = userSquad().filter(p => M.active.includes(p.id));
   let control = 1, attack = 1, defence = 1, fatigue = 1, frequency = 1, passing = 0, passDistance = 0;
   if (M.mentality === "Cesur") { attack += .09; defence -= .07; frequency += .09; passing -= .015; }
   if (M.mentality === "Temkinli") { attack -= .08; defence += .07; frequency -= .09; passing += .018; }
@@ -238,11 +238,11 @@ export function tacticalEffects() {
   if (M.press === "Düşük") { control -= .025; fatigue -= .12; defence += .02; }
   if (M.tempo === "Yüksek") { frequency += .2; fatigue += .15; passing -= .04; }
   if (M.tempo === "Düşük") { frequency -= .15; fatigue -= .08; passing += .04; }
-  if (M.line === "Önde") { control += .035; defence -= currentOpponent()[8] >= 78 ? .10 : .05; }
+  if (M.line === "Önde") { control += .035; defence -= userOpponent()[8] >= 78 ? .10 : .05; }
   if (M.line === "Geride") { defence += .05; control -= .045; }
   if (M.approach === "Kanatlar") { attack += .025; passing -= .015; }
   if (M.approach === "Merkez") { control += .025; passing += .02; }
-  if (M.approach === "Kontra") { attack += currentOpponent()[2] === "high" ? .08 : .02; control -= .035; }
+  if (M.approach === "Kontra") { attack += userOpponent()[2] === "high" ? .08 : .02; control -= .035; }
   if (M.passingStyle === "Kısa") { control += .025; passing += .025; passDistance -= .28; frequency -= .035; }
   if (M.passingStyle === "Direkt") { attack += .025; passing -= .035; passDistance += .34; frequency += .04; }
   if (M.width === "Dar") { control += .018; defence += .012; attack -= .008; }
@@ -276,7 +276,7 @@ export function tacticalEffects() {
 export function applyConversationEffect(context,choice,participants){
   if(!S)return null;
   S.v732 ??={schema:1,conversationHistory:[],feedback:null};
-  const players=(participants||S.players.filter(p=>p.status!=='Transfer oldu'&&p.status!=='Kirada'));
+  const players=(participants||userSquad().filter(p=>p.status!=='Transfer oldu'&&p.status!=='Kirada'));
   const supportive=['pressTrust','pressCalm','postTeam','belief','calm','support','dynManager','arasFree'].includes(choice);
   const demanding=['pressDemand','postDemand','demand','angry','challenge','earn'].includes(choice);
   const bold=['pressBold','ambitious','brave'].includes(choice);
@@ -307,7 +307,7 @@ export function matchPossession() {
   return M.userHome ? [user, 100 - user] : [100 - user, user];
 }
 export function matchFitnessUI() {
-  const ps = S.players.filter(p => M.active.includes(p.id)).sort((a, b) => a.fitness - b.fitness);
+  const ps = userSquad().filter(p => M.active.includes(p.id)).sort((a, b) => a.fitness - b.fitness);
   return `<div class="fitnessstrip" aria-label="Sahadaki oyuncuların fitness durumu">${ps.map(p => `<button class="fitnessmini ${p.fitness < 45 ? "critical" : p.fitness < 60 ? "warning" : ""}" data-action="openMatchPlayer" data-id="${p.id}" aria-label="${escapeHTML(p.name)}, fitness yüzde ${Math.round(p.fitness)}${p.fitness < 45 ? ', kritik' : p.fitness < 60 ? ', yorgun' : ''}"><b>${escapeHTML(p.name)}</b><span>%${Math.round(p.fitness)} ${p.fitness < 45 ? "‼" : p.fitness < 60 ? "!" : ""}</span><i style="--fitness:${clamp(p.fitness, 0, 100)}%"></i></button>`).join("")}</div>`;
 }
 export function matchStatsUI() {

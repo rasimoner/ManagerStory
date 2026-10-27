@@ -5,8 +5,9 @@ import { matchPossession } from '../../engine/match-support.js';
 import { matchSecond } from '../../engine/live-match.js';
 import { eventAnimationTime, eventPoint, pitchV73 } from '../../engine/pitch-v73.js';
 import { attackDirection, playerAtMarker } from '../../engine/pitch-v731.js';
-import { OPP, currentOpponent } from '../../league/league.js';
+import { OPP } from '../../league/league.js';
 import { resolveClubIdentity } from '../../clubs/clubs.js';
+import { userOpponent } from '../../engine/user-team.js';
 (() => {
   const listeners = new Set();
   const copy = value => value == null ? null : structuredClone(value);
@@ -77,7 +78,7 @@ import { resolveClubIdentity } from '../../clubs/clubs.js';
     },
     previewIdentity() {
       const user = resolveClubIdentity('career');
-      const rivalName = S ? currentOpponent()[0] : OPP[0][0];
+      const rivalName = S ? userOpponent()[0] : OPP[0][0];
       return freeze({user:copy(user),rival:copy(resolveClubIdentity('goal',{teamId:rivalName}))});
     },
     readEvents(afterId = 0) {
