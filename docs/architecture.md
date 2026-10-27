@@ -111,3 +111,5 @@ Yeniden yapılanmadan sonra bilerek bırakılanlar:
 - Sunum bazı yerlerde `S`/`M`'yi doğrudan okuyor ("sadece olay günlüğü" ilkesi tam değil).
 - Testler iç fonksiyonlara tek erişim noktasından ulaşıyor; modüllerin dışa açtıkları daraltılmadı.
 - 3D ayar panelinde geçici "Hız ayarları" (gerçek hızlar telefonda ayarlanınca kalkar).
+- Eski (V5) transfer listesi (`bidPlayer`, `S.transferList`) yeni oyuncuya maaş ve forma numarası veriyor ama maaş alanına bakmıyor; ekranına sadece eski bir olay akışı (`newSigningRole`) götürüyor. Kaldırılması ya da yeni pazara bağlanması ayrı iş (V7.13.2).
+- "Transfer oldu" durumu `core/players/shirt-numbers.js`'te ayrıca yazılı (sezon modülünü almasın, kayıt zinciri döngüsüz kalsın diye); durum adları tek bir veri/çekirdek sabitine toplanınca kalkar.

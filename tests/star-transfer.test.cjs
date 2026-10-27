@@ -72,7 +72,7 @@ test('a small signing keeps the old flow and leaves no record', () => {
   h.run(`signTransfer('${id}',3000000)`);
   assert.equal(h.run('S.highlights?.length||0'), 0);
   assert.ok(!h.html().includes('class="stflash"'));
-  assert.ok(!h.run('Number.isInteger(S.players.at(-1).number)'), 'no number is forced on him');
+  assert.ok(h.run("Number.isInteger(S.players.at(-1).number)"), "he wears a free number like any newcomer (V7.13.2)");
 });
 
 test('the shirt number: only free numbers can be picked', () => {

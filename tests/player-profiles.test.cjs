@@ -12,7 +12,8 @@ test('every source gives real, varied players: no two academy graduates or signi
   const h = career();
   // promote 12 academy candidates, sign 12 market players
   h.run('for(let i=0;i<12;i++){const a=S.v6.academy[0];promoteAcademyPlayer(a.id,"warm")}');
-  h.run('S.budget=1e10;for(const x of S.v6.transferPool.slice(0,12))signTransfer(x.id,1)');
+  // wages cleared first, so the wage room (V7.13.2) does not stop the twelfth signing
+  h.run('S.budget=1e10;S.players.forEach(p=>p.wage=0);for(const x of S.v6.transferPool.slice(0,12))signTransfer(x.id,1)');
   const grads = h.run('S.players.filter(p=>p.status==="Altyapıdan A takım")'), signed = h.run('S.players.filter(p=>p.status==="Yeni transfer")');
   assert.equal(grads.length, 12); assert.equal(signed.length, 12);
   for (const group of [grads, signed]) {

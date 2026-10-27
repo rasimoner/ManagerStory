@@ -1,6 +1,7 @@
 {
   "league": {"lift":5},
   "starScene": {"minStars":4,"shirtWish":[10,7,9,11,8,17,19,21,23,99]},
+  "shirtNumbers": {"lowest":1,"highest":99},
   "training": {"cap":8},
   "season": {"baseYear":2025,"marketSize":110,"minSquad":16},
   "development": {
@@ -18,7 +19,8 @@
   },
   "contracts": {
     "maxYears": [[33,1],[31,2]], "defaultMaxYears": 3,
-    "wage": {"perOverallSquared":900,"unhappyBelow":55,"unhappyRaise":1.2,"raise":1.1,"veteranAge":32,"veteranFactor":0.85,"roundTo":10000}
+    "wage": {"perOverallSquared":900,"unhappyBelow":55,"unhappyRaise":1.2,"raise":1.1,"veteranAge":32,"veteranFactor":0.85,"roundTo":10000,"academy":480000},
+    "wageBudget": {"squadSlots":22,"roundTo":1000000}
   },
   "wonderkid": {"firstWeek":3,"weekSpan":10,"oursChance":0.3},
   "engine": {

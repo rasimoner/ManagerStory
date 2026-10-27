@@ -67,11 +67,14 @@ Mentalite, pres, tempo, savunma hattı, hücum yönü, pas stili ve genişlik; h
 
 ## 5. Sezon sonu (`core/season/season.js`, `modes/manager/season-end.js`)
 Adımlar sırayla: özet, yaşlanma ve sezon arası gelişim, emeklilik, kiralıkların dönüşü, rapor, sözleşmeler, altyapı, rakipler, transfer havuzu, toparlama, yeni sezon. Kurallar ve tablo (gelişim, potansiyel, emeklilik ihtimali, sözleşme süreleri, maaş talebi, lig ödülü): `docs/season-transition.md`; sayılar `data/balance.json` (`development`, `retirement`, `contracts`).
-- Oyuncu kimlikleri hiç tekrar kullanılmaz (`nextPlayerId`).
+- Oyuncu kimlikleri hiç tekrar kullanılmaz (`nextPlayerId`). Forma numaraları korunur; ayrılanınki boşa çıkar.
 - Rakip kulüp seviyesinden 1,5 puandan fazla saparsa en fazla 3 hamleyle geri çekilir.
 
 ## 6. Kariyer (teknik direktör modu)
-Haftalık döngü, transfer dönemleri (1–6. ve 18–21. hafta), akademi, harika çocuklar (her sezon bir tane; yaklaşık üçte bir bizde), basın, oyuncu görüşmeleri, yönetim. Kurallar `modes/manager/` ve `data/story.json`, `data/balance.jsonon`'da. Bunlar moda özgüdür; başka bir mod (oyuncu kariyeri) çekirdeği (bölüm 1–5) aynen kullanır.
+Haftalık döngü, transfer dönemleri (1–6. ve 18–21. hafta), maaş alanı, akademi, harika çocuklar (her sezon bir tane; yaklaşık üçte bir bizde), basın, oyuncu görüşmeleri, yönetim. Kurallar `modes/manager/` ve `data/story.json`, `data/balance.jsonon`'da. Bunlar moda özgüdür; başka bir mod (oyuncu kariyeri) çekirdeği (bölüm 1–5) aynen kullanır.
+- Maaş (`modes/manager/wages.js`, `BALANCE.contracts`): yeni sözleşme `OVR² × wage.perOverallSquared` (900); altyapıdan gelen `wage.academy` (480.000); yenilemede talep (`docs/season-transition.md`).
+- Maaş alanı: `round(seviye² × 900 × wageBudget.squadSlots / wageBudget.roundTo) × roundTo`, yani kulübün kendi seviyesinde 22 oyuncuya ödeyebileceği maaş. Seviye `data/clubs.json`'dan (rakipte `team.level`, başlangıç kulübünde `level`, 70 → 97M). Kayıtta durmaz. Transferde oyuncunun maaşı kalan alana sığmazsa anlaşma olmaz; sözleşme ekranı kararları alanla karşılaştırır.
+- Forma numarası (`core/players/shirt-numbers.js`, `BALANCE.shirtNumbers` 1–99): kulüpteki herkesin benzersiz numarası var. Yeni gelen (transfer, altyapı, sezon sonu takviyesi) en küçük boş numarayı alır; yıldız transfer sahnesindeki oyuncu önce `starScene.shirtWish`'ten boş olanı ister, sonra boş numaralardan seçer.
 
 ## 7. Kayıt
 Düz JSON, sürümlü biçim ve tek taşıma zinciri: `docs/save-format.md`. Yeni motor aynı kaydı okuyabilmeli (en azından içe aktarma ile).

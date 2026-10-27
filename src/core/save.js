@@ -17,8 +17,9 @@ import { restoreActiveMatch } from './engine/match-support.js';
 import { careerOpened, changed } from './hooks.js';
 import { MATCH_TACTICS } from './engine/tactics.js';
 import { GAME_VERSION } from './version.js';
+import { numberSquadKeepingShown } from './players/shirt-numbers.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 1;
+export const SAVE_SCHEMA = 2;
 export let saveWarning = false;
 
 export const SAVE_MIGRATIONS = [
@@ -54,6 +55,15 @@ export const SAVE_MIGRATIONS = [
       state.v731 ??= { schema: 1, lastEvolvedFixture: -1 };
       state.v732 ??= { schema: 1, conversationHistory: [], feedback: null };
       state.v733 ??= { schema: 1 };
+    },
+  },
+  {
+    from: 1, to: 2,
+    about: "the stored wage budget (a fixed 24M, below the real wage bill) goes, the wage room follows " +
+      "the club's level; every player gets a shirt number of his own, the one he was seen wearing",
+    run(state) {
+      if (state.v6) delete state.v6.wageBudget;
+      numberSquadKeepingShown(state.players);
     },
   },
 ];
