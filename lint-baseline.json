@@ -1,0 +1,297 @@
+{
+  "src/core/clubs/clubs.js": {
+    "complexity": 1
+  },
+  "src/core/engine/live-match.js": {
+    "complexity": 7,
+    "id-match": 2,
+    "max-lines-per-function": 1,
+    "max-statements": 3
+  },
+  "src/core/engine/match-minute.js": {
+    "complexity": 4,
+    "id-match": 2,
+    "max-statements": 2
+  },
+  "src/core/engine/match-support.js": {
+    "complexity": 8,
+    "max-lines-per-function": 2,
+    "max-statements": 3,
+    "no-unused-vars": 1
+  },
+  "src/core/engine/pitch-v73.js": {
+    "complexity": 21,
+    "id-match": 3,
+    "max-depth": 14,
+    "max-lines": 1,
+    "max-lines-per-function": 11,
+    "max-params": 8,
+    "max-statements": 14,
+    "no-unused-vars": 6,
+    "no-useless-assignment": 4
+  },
+  "src/core/engine/pitch-v731.js": {
+    "complexity": 14,
+    "id-match": 1,
+    "max-depth": 2,
+    "max-lines": 1,
+    "max-lines-per-function": 3,
+    "max-params": 16,
+    "max-statements": 5,
+    "no-unused-vars": 1
+  },
+  "src/core/inbox.js": {
+    "max-params": 1
+  },
+  "src/core/league/opponents-v731.js": {
+    "complexity": 2
+  },
+  "src/core/players/player-profiles.js": {
+    "complexity": 2
+  },
+  "src/core/presentation/match3d/match-view-adapter.js": {
+    "complexity": 2,
+    "id-match": 1,
+    "max-lines-per-function": 2
+  },
+  "src/core/presentation/match3d/match3d-live-clock.js": {
+    "complexity": 12,
+    "id-match": 1,
+    "max-depth": 68,
+    "max-lines": 1,
+    "max-lines-per-function": 2,
+    "max-params": 3,
+    "max-statements": 7,
+    "no-unused-vars": 1
+  },
+  "src/core/presentation/match3d/match3d-newview.js": {
+    "complexity": 7,
+    "max-depth": 1,
+    "max-lines": 1,
+    "max-lines-per-function": 1,
+    "max-params": 1,
+    "max-statements": 5,
+    "no-unused-vars": 1
+  },
+  "src/core/presentation/match3d/newview/actions.js": {
+    "max-params": 2
+  },
+  "src/core/presentation/match3d/newview/camera.js": {
+    "complexity": 2,
+    "max-depth": 4,
+    "max-lines-per-function": 2,
+    "max-params": 1,
+    "max-statements": 1
+  },
+  "src/core/presentation/match3d/newview/director.js": {
+    "complexity": 27,
+    "max-depth": 12,
+    "max-lines": 1,
+    "max-lines-per-function": 18,
+    "max-params": 17,
+    "max-statements": 33,
+    "no-unused-vars": 5,
+    "no-useless-assignment": 1
+  },
+  "src/core/presentation/match3d/newview/footballer.js": {
+    "complexity": 2,
+    "id-match": 1,
+    "max-lines-per-function": 1,
+    "max-params": 7,
+    "max-statements": 1,
+    "no-unused-vars": 1
+  },
+  "src/core/presentation/match3d/newview/replay.js": {
+    "max-lines-per-function": 1,
+    "max-params": 2,
+    "max-statements": 2,
+    "no-unused-vars": 1
+  },
+  "src/core/presentation/match3d/newview/runtime.js": {
+    "complexity": 9,
+    "id-match": 1,
+    "max-depth": 3,
+    "max-lines": 1,
+    "max-lines-per-function": 3,
+    "max-params": 7,
+    "max-statements": 12,
+    "no-unused-vars": 1
+  },
+  "src/core/presentation/match3d/newview/stadium.js": {
+    "complexity": 2,
+    "max-lines-per-function": 2,
+    "max-params": 5,
+    "max-statements": 4,
+    "no-unused-vars": 1
+  },
+  "src/core/presentation/scenes/star-transfer-scene.js": {
+    "complexity": 4,
+    "max-depth": 1,
+    "max-lines-per-function": 5,
+    "max-params": 1,
+    "max-statements": 6
+  },
+  "src/core/random.js": {
+    "no-empty": 1
+  },
+  "src/core/save.js": {
+    "complexity": 3,
+    "max-statements": 1
+  },
+  "src/core/season/season.js": {
+    "complexity": 8,
+    "max-depth": 1,
+    "max-params": 4,
+    "max-statements": 2
+  },
+  "src/modes/manager/app.js": {
+    "complexity": 19,
+    "id-match": 15,
+    "max-lines": 1,
+    "max-params": 1,
+    "max-statements": 9,
+    "no-unused-vars": 1
+  },
+  "src/modes/manager/career-events.js": {
+    "complexity": 4,
+    "id-match": 2,
+    "max-params": 1,
+    "max-statements": 1,
+    "no-unused-vars": 32
+  },
+  "src/modes/manager/market-names.js": {
+    "id-match": 3
+  },
+  "src/modes/manager/match-career.js": {
+    "complexity": 1
+  },
+  "src/modes/manager/match-panel.js": {
+    "complexity": 2
+  },
+  "src/modes/manager/season-end.js": {
+    "complexity": 1,
+    "id-match": 3,
+    "max-params": 1,
+    "max-statements": 1
+  },
+  "src/ui/nav.js": {
+    "max-lines-per-function": 1,
+    "max-statements": 1
+  },
+  "tests/actions.test.cjs": {
+    "max-statements": 2
+  },
+  "tests/footballer-mesh.test.cjs": {
+    "complexity": 1,
+    "max-statements": 1
+  },
+  "tests/keeper-getup.test.cjs": {
+    "complexity": 1,
+    "max-statements": 1
+  },
+  "tests/managerstory.test.cjs": {
+    "max-lines": 1,
+    "max-statements": 7,
+    "no-unused-vars": 2
+  },
+  "tests/match-clock.test.cjs": {
+    "no-unused-vars": 1
+  },
+  "tests/matchengine-phase1.test.cjs": {
+    "complexity": 5,
+    "max-depth": 2,
+    "max-statements": 2,
+    "no-unused-vars": 1
+  },
+  "tests/matchengine-phase2.test.cjs": {
+    "max-params": 2,
+    "no-unused-vars": 1
+  },
+  "tests/matchengine-phase3-restarts.test.cjs": {
+    "complexity": 5,
+    "max-depth": 1,
+    "max-lines-per-function": 1,
+    "max-statements": 8,
+    "no-unused-vars": 2
+  },
+  "tests/matchengine-phase3.test.cjs": {
+    "max-statements": 1
+  },
+  "tests/newview-director.test.cjs": {
+    "complexity": 5,
+    "max-depth": 22,
+    "max-lines-per-function": 2,
+    "max-params": 1,
+    "max-statements": 3
+  },
+  "tests/newview-halftime.test.cjs": {
+    "complexity": 1,
+    "max-depth": 4,
+    "max-lines-per-function": 1,
+    "max-statements": 1,
+    "no-unused-vars": 1
+  },
+  "tests/outline-scale.test.cjs": {
+    "max-statements": 1
+  },
+  "tests/player-profiles.test.cjs": {
+    "max-statements": 3
+  },
+  "tests/saves.test.cjs": {
+    "max-statements": 1
+  },
+  "tests/season-transition.test.cjs": {
+    "max-lines-per-function": 2,
+    "max-statements": 4
+  },
+  "tests/service-worker.test.cjs": {
+    "max-statements": 1
+  },
+  "tests/star-transfer.test.cjs": {
+    "no-unused-vars": 2
+  },
+  "tests/structure.test.cjs": {
+    "no-unused-vars": 1
+  },
+  "tests/support/clock-fixtures.cjs": {
+    "complexity": 1,
+    "max-depth": 1,
+    "max-lines-per-function": 1,
+    "max-statements": 1
+  },
+  "tests/support/game.cjs": {
+    "complexity": 2,
+    "max-lines-per-function": 2,
+    "max-statements": 1,
+    "no-setter-return": 1
+  },
+  "tests/support/golden.cjs": {
+    "no-unused-vars": 1
+  },
+  "tests/support/phase3.cjs": {
+    "complexity": 1,
+    "max-statements": 1
+  },
+  "tools/attribute-report.cjs": {
+    "max-params": 3,
+    "max-statements": 1,
+    "no-unused-vars": 1
+  },
+  "tools/build-rig.mjs": {
+    "max-depth": 4
+  },
+  "tools/engine-audit.cjs": {
+    "complexity": 1,
+    "max-depth": 1,
+    "max-lines-per-function": 1,
+    "max-statements": 1,
+    "no-useless-assignment": 1
+  },
+  "tools/tactic-report.cjs": {
+    "complexity": 1,
+    "max-depth": 1,
+    "max-lines-per-function": 1,
+    "max-params": 1,
+    "max-statements": 1
+  }
+}
