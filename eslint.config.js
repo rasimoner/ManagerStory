@@ -57,6 +57,15 @@ export default [
     },
   },
   {
+    // A special move's beat (src/core/presentation/match3d/newview/beats/) is a timeline: the boot to here,
+    // the ball off at this speed, the defender this way, the camera in close, in that order. Read top to
+    // bottom it is one movement; cut into functions of 20 statements it would be a movement in pieces. So
+    // only here a beat function may hold up to 40 statements; its length, branches, nesting and parameters
+    // keep the limits above.
+    files: ['src/core/presentation/match3d/newview/beats/**/*.js'],
+    rules: { 'max-statements': ['error', 40] },
+  },
+  {
     files: ['**/*.cjs'],
     languageOptions: { sourceType: 'commonjs', globals: { ...globals.node } },
   },

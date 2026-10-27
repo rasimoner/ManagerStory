@@ -72,12 +72,12 @@
     "max-statements": 1
   },
   "src/core/presentation/match3d/newview/director.js": {
-    "complexity": 27,
+    "complexity": 25,
     "max-depth": 12,
     "max-lines": 1,
-    "max-lines-per-function": 18,
-    "max-params": 10,
-    "max-statements": 33
+    "max-lines-per-function": 16,
+    "max-params": 9,
+    "max-statements": 30
   },
   "src/core/presentation/match3d/newview/footballer.js": {
     "complexity": 2,
