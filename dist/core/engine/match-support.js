@@ -1,15 +1,15 @@
 /* ManagerStory: shared match state, match events and the in-match panel. (Saves: save.js.) */
-import { R, newMatchSalt } from '../random.js?v=7.11.0';
-import { M, S, setMatch } from '../state.js?v=7.11.0';
-import { presentation } from '../presentation/registry.js?v=7.11.0';
-import { runHooks } from '../hooks.js?v=7.11.0';
-import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame } from './live-match.js?v=7.11.0';
-import { opponentLineup } from '../league/opponents-v731.js?v=7.11.0';
-import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js?v=7.11.0';
-import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js?v=7.11.0';
-import { save } from '../save.js?v=7.11.0';
-import { userOpponent, userSquad } from './user-team.js?v=7.11.0';
-import { MATCH_TACTICS } from './tactics.js?v=7.11.0';
+import { R, newMatchSalt } from '../random.js?v=7.12.0';
+import { M, S, setMatch } from '../state.js?v=7.12.0';
+import { presentation } from '../presentation/registry.js?v=7.12.0';
+import { runHooks } from '../hooks.js?v=7.12.0';
+import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame } from './live-match.js?v=7.12.0';
+import { opponentLineup } from '../league/opponents-v731.js?v=7.12.0';
+import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js?v=7.12.0';
+import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js?v=7.12.0';
+import { save } from '../save.js?v=7.12.0';
+import { userOpponent, userSquad } from './user-team.js?v=7.12.0';
+import { MATCH_TACTICS } from './tactics.js?v=7.12.0';
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;

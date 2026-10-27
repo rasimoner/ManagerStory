@@ -1,6 +1,6 @@
 /* A read-only career tool for the browser's model context, where the browser offers one. main.js installs it. */
-import { M, S } from '../core/state.js?v=7.11.0';
-import { managedClubName } from '../core/clubs/clubs.js?v=7.11.0';
+import { M, S } from '../core/state.js?v=7.12.0';
+import { managedClubName } from '../core/clubs/clubs.js?v=7.12.0';
 export function installWebMcp() {
   const context = typeof document !== 'undefined' ? document.modelContext : null;
   if (!context?.registerTool) return;

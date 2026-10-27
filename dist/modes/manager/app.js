@@ -1,37 +1,37 @@
 
 // the squad a new career starts with (data/squad.js)
-import { CLUB_DATA } from '../../data/clubs.js?v=7.11.0';
-import { STARTING_SQUAD } from '../../data/squad.js?v=7.11.0';
-import { PLAYER_DATA } from '../../data/players.js?v=7.11.0';
-import { BALANCE } from '../../data/balance.js?v=7.11.0';
-import { STORY_DATA } from '../../data/story.js?v=7.11.0';
-import { R, newMatchSalt, sessionRandom } from '../../core/random.js?v=7.11.0';
-import { M, S, loadError, modal, setCareer, setLoadError, setMatch, setModal } from '../../core/state.js?v=7.11.0';
-import { presentation } from '../../core/presentation/registry.js?v=7.11.0';
-import { exportCareer, importCareer, migrateSave, save } from '../../core/save.js?v=7.11.0';
-import { actionData, defineActions, runAction } from '../../ui/actions.js?v=7.11.0';
-import { runHooks } from '../../core/hooks.js?v=7.11.0';
-import { FORM_TR, beginMatchOverlay, clamp, ensureMatchState, escapeHTML, finite, kickoffSeed, liveCommentaryLines, matchEvent, matchOrderOptions, matchPossession, matchSummary, restoreActiveMatch, userSide } from '../../core/engine/match-support.js?v=7.11.0';
-import { applyConversationEffect, buildPlayerMeeting, makeV71PostPress, makeV71PrePress, resolvePlayerMeeting, settlePlayerPromises } from './career-events.js?v=7.11.0';
-import { advanceLive, ensureLiveLoop, ensureLiveState, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed } from '../../core/engine/live-match.js?v=7.11.0';
-import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js?v=7.11.0';
-import { ensureOpponentSquads, evolveOpponentSquads, opponentLineup, opponentPlayer } from '../../core/league/opponents-v731.js?v=7.11.0';
-import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonRecordMatch, youngestTalentName } from '../../core/season/season.js?v=7.11.0';
-import { basePitchPosition, currentPitchState, emitPitchKickoff, paintLivePitch, resetPitchHalf } from '../../core/engine/pitch-v73.js?v=7.11.0';
-import { openOpponentPlayer, resolveUnfillableSubstitution, skillMoves } from '../../core/engine/pitch-v731.js?v=7.11.0';
-import { starFlashCard } from './star-transfer.js?v=7.11.0';
-import { allTeams, applyTableGame, currentFixture, currentOpponent, ensureLeague, makeSchedule, recordForm, simulateRoundOthers } from '../../core/league/league.js?v=7.11.0';
-import { crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.11.0';
-import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute.js?v=7.11.0';
-import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, shoutLive, tacticsControls } from './match-panel.js?v=7.11.0';
-import { movesNow } from '../../core/players/moves.js?v=7.11.0';
-import { pushInbox } from '../../core/inbox.js?v=7.11.0';
-import { seasonEndUI } from './season-end.js?v=7.11.0';
-import { OPP } from '../../core/league/rivals.js?v=7.11.0';
-import { CLUBSTYLE } from '../../core/clubs/club-style.js?v=7.11.0';
-import { SKILL_NAMES } from '../../core/players/move-names.js?v=7.11.0';
-import { V6FN, V6LN, V6POS } from './market-names.js?v=7.11.0';
-import { SLOT_POS } from './lineup-slots.js?v=7.11.0';
+import { CLUB_DATA } from '../../data/clubs.js?v=7.12.0';
+import { STARTING_SQUAD } from '../../data/squad.js?v=7.12.0';
+import { PLAYER_DATA } from '../../data/players.js?v=7.12.0';
+import { BALANCE } from '../../data/balance.js?v=7.12.0';
+import { STORY_DATA } from '../../data/story.js?v=7.12.0';
+import { R, newMatchSalt, sessionRandom } from '../../core/random.js?v=7.12.0';
+import { M, S, loadError, modal, setCareer, setLoadError, setMatch, setModal } from '../../core/state.js?v=7.12.0';
+import { presentation } from '../../core/presentation/registry.js?v=7.12.0';
+import { exportCareer, importCareer, migrateSave, save } from '../../core/save.js?v=7.12.0';
+import { actionData, defineActions, runAction } from '../../ui/actions.js?v=7.12.0';
+import { runHooks } from '../../core/hooks.js?v=7.12.0';
+import { FORM_TR, beginMatchOverlay, clamp, ensureMatchState, escapeHTML, finite, kickoffSeed, liveCommentaryLines, matchEvent, matchOrderOptions, matchPossession, matchSummary, restoreActiveMatch, userSide } from '../../core/engine/match-support.js?v=7.12.0';
+import { applyConversationEffect, buildPlayerMeeting, makeV71PostPress, makeV71PrePress, resolvePlayerMeeting, settlePlayerPromises } from './career-events.js?v=7.12.0';
+import { advanceLive, ensureLiveLoop, ensureLiveState, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed } from '../../core/engine/live-match.js?v=7.12.0';
+import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js?v=7.12.0';
+import { ensureOpponentSquads, evolveOpponentSquads, opponentLineup, opponentPlayer } from '../../core/league/opponents-v731.js?v=7.12.0';
+import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonRecordMatch, youngestTalentName } from '../../core/season/season.js?v=7.12.0';
+import { basePitchPosition, currentPitchState, emitPitchKickoff, paintLivePitch, resetPitchHalf } from '../../core/engine/pitch-v73.js?v=7.12.0';
+import { openOpponentPlayer, resolveUnfillableSubstitution, skillMoves } from '../../core/engine/pitch-v731.js?v=7.12.0';
+import { starFlashCard } from './star-transfer.js?v=7.12.0';
+import { allTeams, applyTableGame, currentFixture, currentOpponent, ensureLeague, makeSchedule, recordForm, simulateRoundOthers } from '../../core/league/league.js?v=7.12.0';
+import { crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.12.0';
+import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute.js?v=7.12.0';
+import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, shoutLive, tacticsControls } from './match-panel.js?v=7.12.0';
+import { movesNow } from '../../core/players/moves.js?v=7.12.0';
+import { pushInbox } from '../../core/inbox.js?v=7.12.0';
+import { seasonEndUI } from './season-end.js?v=7.12.0';
+import { OPP } from '../../core/league/rivals.js?v=7.12.0';
+import { CLUBSTYLE } from '../../core/clubs/club-style.js?v=7.12.0';
+import { SKILL_NAMES } from '../../core/players/move-names.js?v=7.12.0';
+import { V6FN, V6LN, V6POS } from './market-names.js?v=7.12.0';
+import { SLOT_POS } from './lineup-slots.js?v=7.12.0';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
 export function playerById(id){return S.players.find(p=>p.id===id)}
 // a bid as the press says it: ₺9.5M, ₺13M
@@ -248,7 +248,7 @@ export function advance(){S.event=null;S.day++;if(S.day>5){S.day=1;S.week++}next
 export function render(){
  presentation.career3d?.detach();
  const a=$("#app");setScreenMode();
- if(!S){a.innerHTML=`<div class=hero><div class=logo>⚽</div><h1>ManagerStory</h1><p class=muted>Kariyer senin kararlarınla akar.</p>${loadError?`<p role=alert>${escapeHTML(loadError)}</p>`:`<button data-action="newCareer">Yeni Kariyer</button>`}<label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label><p><small>V7.11.0 • Hisar Matchday</small></p></div>`;return}
+ if(!S){a.innerHTML=`<div class=hero><div class=logo>⚽</div><h1>ManagerStory</h1><p class=muted>Kariyer senin kararlarınla akar.</p>${loadError?`<p role=alert>${escapeHTML(loadError)}</p>`:`<button data-action="newCareer">Yeni Kariyer</button>`}<label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label><p><small>V7.12.0 • Hisar Matchday</small></p></div>`;return}
  init();restoreActiveMatch();setScreenMode();
  if(M){ensureMatchState();ensureLiveState();if(presentation.live3d&&!presentation.live3d.enabled){presentation.live3d.enable();presentation.live3d.setTempo(1);}a.innerHTML=matchUI();save();presentation.career3d?.mount();ensureLiveLoop();paintLivePitch();return}
  if(modal=="settings"){showSettings();return}
@@ -322,7 +322,7 @@ export function clearInbox(){if(confirm("Tüm mesajlar silinsin mi?")){S.inbox=[
 export function completeOfficeDay(){S.history.push("Teknik ekip toplantısını tamamladın. Maç planı artık hafta boyunca güncellenebilir.");save();advance()}
 export function showWorld(){setModal(null);let table=[...S.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)),leader=table[0],formTeam=Object.entries(S.form).sort((a,b)=>b[1].slice(-5).filter(x=>x=="G").length-a[1].slice(-5).filter(x=>x=="G").length)[0];$("#app").innerHTML=`${header(['Ana Sayfa','redraw'])}<h1>Kupa & Gündem</h1><div class=card><h2>Türkiye Kupası</h2><p>${S.v6.cup.alive?S.v6.cup.round:"Elendi"} • ${S.v6.cup.wins} tur galibiyeti</p></div><div class="card story"><h2>📰 Haftanın Manşetleri</h2><p>${leader.n}, ${leader.pts} puanla zirvede.</p><p>${formTeam?formTeam[0]:"Lig"} son haftalarda dikkat çekiyor.</p><p>${currentOpponent()[0]}: ${currentOpponent()[9]}.</p></div><div class=card><h3>${escapeHTML(managedClubName())}</h3>${S.players.slice().sort((a,b)=>b.goals-a.goals).slice(0,5).map(p=>`<div class="row between player"><span>${p.name}</span><span>⚽ ${p.goals} • ${p.minutes}'</span></div>`).join("")}</div>`;decorateMainScreen("league");}
 export function showLeague(){setModal(null);ensureLeague();let t=[...S.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf),round=Math.max(0,S.fixture-1),games=S.leagueSchedule[round]||[];$("#app").innerHTML=`${header()}<h1>Lig Tablosu</h1><div class=card><div class="leaguehead"><span>Takım</span><span>O</span><span>AV</span><span>P</span></div>${t.map((x,i)=>`<div class=leaguerow><span>${i+1}. ${x.n}${formDots(x.n)}</span><span>${x.p}</span><span>${x.gf-x.ga}</span><b>${x.pts}</b></div>`).join("")}</div><div class=card><h3>${round+1}. Hafta Sonuçları</h3>${games.map(g=>`<div class="row between player"><span>${g.home} – ${g.away}</span><b>${g.played?g.hg+"–"+g.ag:"-"}</b></div>`).join("")}</div>`;decorateMainScreen("league");}
-export function showSettings(){setModal(null);setModal("settings");$("#app").innerHTML=`${header(['Ana Sayfa','openHome'])}<h1>Ayarlar</h1><div class=card><h2>Kariyer</h2><p class=muted>Mevcut kariyer, fikstür, kadro, sonuçlar, oyuncu ilişkileri ve tüm ilerleme bu cihazdan silinir.</p><button class=warn data-action="confirmResetCareer">Kariyeri Sıfırla</button><div class=build-version>ManagerStory • V7.11.0 • MatchEngine V2</div><button class=secondary data-action="exportCareer">Kariyer Yedeği İndir</button><label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label></div>`;decorateMainScreen("home");}
+export function showSettings(){setModal(null);setModal("settings");$("#app").innerHTML=`${header(['Ana Sayfa','openHome'])}<h1>Ayarlar</h1><div class=card><h2>Kariyer</h2><p class=muted>Mevcut kariyer, fikstür, kadro, sonuçlar, oyuncu ilişkileri ve tüm ilerleme bu cihazdan silinir.</p><button class=warn data-action="confirmResetCareer">Kariyeri Sıfırla</button><div class=build-version>ManagerStory • V7.12.0 • MatchEngine V2</div><button class=secondary data-action="exportCareer">Kariyer Yedeği İndir</button><label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label></div>`;decorateMainScreen("home");}
 /* Refactor C2: inbox and settings */
 defineActions({
  clearInbox:()=>clearInbox(),

@@ -7,21 +7,21 @@
    Season 1 is untouched: seed offsets are zero while S.seasonIndex is 0, so existing careers, the 34-match
    tests and determinism stay exactly as they were. Every draw here comes from its own hashed seed, never
    from match randomness. */
-import { STARTING_SQUAD } from '../../data/squad.js?v=7.11.0';
-import { BALANCE } from '../../data/balance.js?v=7.11.0';
-import { R } from '../random.js?v=7.11.0';
-import { M, S } from '../state.js?v=7.11.0';
-import { escapeHTML } from '../engine/match-support.js?v=7.11.0';
-import { assignPlayerProfile, hashProfileSeed, refreshPlayerProfile } from '../players/player-profiles.js?v=7.11.0';
-import { ensureOpponentSquads } from '../league/opponents-v731.js?v=7.11.0';
-import { allTeams, ensureLeague, makeLeagueSchedule } from '../league/league.js?v=7.11.0';
-import { managedClubName } from '../clubs/clubs.js?v=7.11.0';
-import { save } from '../save.js?v=7.11.0';
-import { movesNow } from '../players/moves.js?v=7.11.0';
-import { pushInbox } from '../inbox.js?v=7.11.0';
-import { changed, opponentsEvolved, seasonStarted } from '../hooks.js?v=7.11.0';
-import { LEAGUE_LIFT, OPP, OPPONENT_FIRST, OPPONENT_LAST } from '../league/rivals.js?v=7.11.0';
-import { SKILL_NAMES } from '../players/move-names.js?v=7.11.0';
+import { STARTING_SQUAD } from '../../data/squad.js?v=7.12.0';
+import { BALANCE } from '../../data/balance.js?v=7.12.0';
+import { R } from '../random.js?v=7.12.0';
+import { M, S } from '../state.js?v=7.12.0';
+import { escapeHTML } from '../engine/match-support.js?v=7.12.0';
+import { assignPlayerProfile, hashProfileSeed, refreshPlayerProfile } from '../players/player-profiles.js?v=7.12.0';
+import { ensureOpponentSquads } from '../league/opponents-v731.js?v=7.12.0';
+import { allTeams, ensureLeague, makeLeagueSchedule } from '../league/league.js?v=7.12.0';
+import { managedClubName } from '../clubs/clubs.js?v=7.12.0';
+import { save } from '../save.js?v=7.12.0';
+import { movesNow } from '../players/moves.js?v=7.12.0';
+import { pushInbox } from '../inbox.js?v=7.12.0';
+import { changed, opponentsEvolved, seasonStarted } from '../hooks.js?v=7.12.0';
+import { LEAGUE_LIFT, OPP, OPPONENT_FIRST, OPPONENT_LAST } from '../league/rivals.js?v=7.12.0';
+import { SKILL_NAMES } from '../players/move-names.js?v=7.12.0';
 export const SEASON_BASE_YEAR = BALANCE.season.baseYear;
 export const SEASON_DEPARTED = 'Transfer oldu';
 export const SEASON_POOL_SIZE = BALANCE.season.marketSize;

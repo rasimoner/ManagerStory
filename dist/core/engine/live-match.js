@@ -1,14 +1,14 @@
 /* V7.2 live clock and event renderer. Simulation time is never derived from frame count. */
-import { M } from '../state.js?v=7.11.0';
-import { presentation } from '../presentation/registry.js?v=7.11.0';
-import { matchPossession, userSide } from './match-support.js?v=7.11.0';
-import { opponentPlayer } from '../league/opponents-v731.js?v=7.11.0';
-import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js?v=7.11.0';
-import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js?v=7.11.0';
-import { tick } from './match-minute.js?v=7.11.0';
-import { save } from '../save.js?v=7.11.0';
-import { changed } from '../hooks.js?v=7.11.0';
-import { userSquad } from './user-team.js?v=7.11.0';
+import { M } from '../state.js?v=7.12.0';
+import { presentation } from '../presentation/registry.js?v=7.12.0';
+import { matchPossession, userSide } from './match-support.js?v=7.12.0';
+import { opponentPlayer } from '../league/opponents-v731.js?v=7.12.0';
+import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js?v=7.12.0';
+import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js?v=7.12.0';
+import { tick } from './match-minute.js?v=7.12.0';
+import { save } from '../save.js?v=7.12.0';
+import { changed } from '../hooks.js?v=7.12.0';
+import { userSquad } from './user-team.js?v=7.12.0';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
 export const MATCH_PLAYBACK_SCALE = .5;

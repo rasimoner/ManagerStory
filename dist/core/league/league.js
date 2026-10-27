@@ -2,11 +2,11 @@
    this round's fixture and opponent, the other games of a round and the table they make. Every mode plays
    the same league. Whose fixture and whose opponent is asked for is a parameter (refactor D4): the club the
    user's team is; left out, it is the club the career manages (managedClubName, core/clubs), as always. */
-import { managedClubName } from '../clubs/clubs.js?v=7.11.0';
-import { S } from '../state.js?v=7.11.0';
-import { R } from '../random.js?v=7.11.0';
-import { seasonSeedOffset } from '../season/season.js?v=7.11.0';
-import { OPP } from './rivals.js?v=7.11.0';
+import { managedClubName } from '../clubs/clubs.js?v=7.12.0';
+import { S } from '../state.js?v=7.12.0';
+import { R } from '../random.js?v=7.12.0';
+import { seasonSeedOffset } from '../season/season.js?v=7.12.0';
+import { OPP } from './rivals.js?v=7.12.0';
 export function allTeams(club=managedClubName()){return [club,...OPP.map(x=>x[0])]}
 export function makeLeagueSchedule(){let teams=allTeams(),arr=[...teams],rounds=[];for(let r=0;r<17;r++){let games=[];for(let i=0;i<9;i++){let a=arr[i],b=arr[17-i],flip=(r+i)%2==1;games.push({home:flip?b:a,away:flip?a:b,played:false,hg:null,ag:null})}rounds.push(games);arr=[arr[0],arr[17],...arr.slice(1,17)]}let second=rounds.map(g=>g.map(x=>({home:x.away,away:x.home,played:false,hg:null,ag:null})));return rounds.concat(second)}
 export function ensureLeague(){if(!S.leagueSchedule||S.leagueSchedule.length!=34)S.leagueSchedule=makeLeagueSchedule();if(!S.form)S.form={};allTeams().forEach(n=>{if(!S.form[n])S.form[n]=[]})}

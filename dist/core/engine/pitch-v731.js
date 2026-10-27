@@ -6,16 +6,16 @@
      -> current fitness (physical > technical > mental sensitivity)
      -> age (small, bounded, match-only)
      = effective attribute.   Base player records are never written to by any of this.            */
-import { MOVE_DATA } from '../../data/moves.js?v=7.11.0';
-import { BALANCE } from '../../data/balance.js?v=7.11.0';
-import { M } from '../state.js?v=7.11.0';
-import { presentation } from '../presentation/registry.js?v=7.11.0';
-import { beginMatchOverlay, clamp, escapeHTML, finite, lineVariant, matchEvent, matchPossession, orderKey, userSide } from './match-support.js?v=7.11.0';
-import { matchClock } from './live-match.js?v=7.11.0';
-import { opponentPlayer } from '../league/opponents-v731.js?v=7.11.0';
-import { basePitchPosition, eventPoint, limitPitch, moveTowards, nearestMarker, opponentAttitude, passLanePressure, pitchDistance, pitchSpace, resolveShot, switchPitchOwner } from './pitch-v73.js?v=7.11.0';
-import { positionPenaltyV61, setOppOwner, setUserOwner } from './match-minute.js?v=7.11.0';
-import { userOpponent, userSquad } from './user-team.js?v=7.11.0';
+import { MOVE_DATA } from '../../data/moves.js?v=7.12.0';
+import { BALANCE } from '../../data/balance.js?v=7.12.0';
+import { M } from '../state.js?v=7.12.0';
+import { presentation } from '../presentation/registry.js?v=7.12.0';
+import { beginMatchOverlay, clamp, escapeHTML, finite, lineVariant, matchEvent, matchPossession, orderKey, userSide } from './match-support.js?v=7.12.0';
+import { matchClock } from './live-match.js?v=7.12.0';
+import { opponentPlayer } from '../league/opponents-v731.js?v=7.12.0';
+import { basePitchPosition, eventPoint, limitPitch, moveTowards, nearestMarker, opponentAttitude, passLanePressure, pitchDistance, pitchSpace, resolveShot, switchPitchOwner } from './pitch-v73.js?v=7.12.0';
+import { positionPenaltyV61, setOppOwner, setUserOwner } from './match-minute.js?v=7.12.0';
+import { userOpponent, userSquad } from './user-team.js?v=7.12.0';
 export function playerRecord(id,side){return side==='user'?userSquad().find(x=>x.id===Number(id)):opponentPlayer(id);}
 export const normalizeAttribute=v=>clamp((finite(v,60)-35)/65,0,1);            // 35→0, 100→1
 export const attributeEdge=v=>normalizeAttribute(v)-.5;                         // centred: average player ≈ +0.05

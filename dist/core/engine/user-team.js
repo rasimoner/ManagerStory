@@ -3,9 +3,9 @@
    the pitch for that side. A mode says which team is the user's with setUserTeam; until one does, it is
    what the game has always played: the managed club (managedClubName) with the career's squad (S.players).
    A player-career mode would point it at the club its player plays for. */
-import { S } from '../state.js?v=7.11.0';
-import { managedClubName } from '../clubs/clubs.js?v=7.11.0';
-import { currentOpponent } from '../league/league.js?v=7.11.0';
+import { S } from '../state.js?v=7.12.0';
+import { managedClubName } from '../clubs/clubs.js?v=7.12.0';
+import { currentOpponent } from '../league/league.js?v=7.12.0';
 
 const MANAGED = { club: () => managedClubName(), squad: () => S.players };
 let team = MANAGED;
