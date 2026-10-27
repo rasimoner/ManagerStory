@@ -11,6 +11,7 @@ Yenilemeler:
 | `matches.json` | `characterization-matches.test.cjs` | 34 fikstürün her biri yeni kariyerle sonuna kadar: olay günlüğünün tamamı (hash), skor, istatistik, maç sonrası kariyer (hash), okunur maç özeti, olay türü sayıları |
 | `seasons.json` | `characterization-career.test.cjs` | 3 sezon üst üste: final tablo, kadro, rakip kadrolar, pazar, akademi, harika çocuklar, kariyer kaydı (hash) |
 | `screens/*.html` | `characterization-career.test.cjs` | Ana ekranlar, profiller, gelen kutusu, canlı maç ekranı ve her sezon sonu ekranı (HTML, birebir) |
+| `beats/*.json` | `newview-beats.test.cjs` | 3D görünümün sahnelediği her özel hareket ve kaleci senaryosu (`director.stage`), sabit adımla: her karede oyuncuların yeri, yönü ve kemik pozları, top (hash), kare sayısı, kaydedilen yıldız anları, kamera ve ağır çekim çağrıları (hash). Beat'ler dosya değiştirirken birebir aynı kalmalı (V7.14.0'da kaydedildi) |
 | `saves.json` | `saves.test.cjs` | `tests/fixtures/saves/generated` ve `legacy` kayıtları yüklenip oynanınca çıkan sonuç |
 
 - Hash'ler anahtarları sıralanmış JSON üzerinden alınır; alanın nerede kurulduğu fark etmez, değeri veya sırası değişirse yakalanır.
