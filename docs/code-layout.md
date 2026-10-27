@@ -40,6 +40,9 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `core/presentation/match3d/newview/motion-curves.js`, `facing.js`, `stage-roster.js` | `director.js`, `star-transfer-scene.js` (V7.14.0) | Zamanlama eğrileri (`smooth01`, `ramp`, `spline`); oyuncunun yönleri (`forwardOf`, `rightOf`, `headingOf`); maç dışı sahnenin kadrosu (`stageRoster`) | Yönetmen, beat'ler ve sahneler ortak kullanır |
 | `core/presentation/match3d/newview/beats/*.js` | `director.js` (V7.14.0) | Özel hareketlerin koreografisi, sorumluluğa göre: `feints` (makas, elastico, croqueta), `turns` (Cruyff, Marsilya), `through-the-legs` (bacak arası, flair bacak arası), `over-the-top` (gökkuşağı, aşırtma, sektirme), `flair-passes` (topuk, rabona), `first-touch` (ayakla öldürme, göğüs, Bergkamp), `bicycle-kick`, `keeper-hands` (yumruk, havada tutma), `keeper-volley`, `scorpion`; paylaşılanlar `footwork`, `duel-exit`; tablolar `skill-beats` ve maç dışı sahneleme `staging`, `staging-keeper`, `stage-pitch` | Beat, sahada ne olacağını değil nasıl görüneceğini söyler; sabit girdiyle anlık görüntüsü `tests/golden/beats/`'te. Bu klasörde bir fonksiyon 40 deyime kadar çıkabilir (gerekçe `eslint.config.js`'te) |
 | `core/presentation/scenes/star-transfer-scene.js` | `star-transfer-scene.js` | 3D yıldız transfer sahnesi (tünel, gösteri) | Sahne ortak; tetikleyici modda |
+| `core/presentation/scenes/show-stage.js` | `star-transfer-scene.js` (V7.14.0) | Maç dışı gösteri sahnesi: kendi WebGL'i, stadyum, tribün, top, küçük kadro ve hareketi sahneleyen yönetmen; bitince GPU'yu bırakır | Yıldız transfer sahnesi ve "İzle" ortak kullanır |
+| `core/presentation/scenes/highlight-scene.js` | (yeni, V7.14.0) | "İzle": tariften beat'i sabit adımla oynatır (her kare hızında aynı), ~10 sn, Kapat düğmesi | Gerektiğinde yüklenen ayrı parça |
+| `core/highlights.js` | `star-transfer.js` (V7.14.0) | Highlight arşivi: tarif biçimi, aynı anın tek tutulması, oyuncu başına en iyi 10 kuralı (`balance.json` `highlights`), arşiv görünümü, tarifin sahnesi (`stageKindFor`) | Saf; kaydı mod yazar |
 
 ## src/modes/manager — teknik direktör modu
 
@@ -52,7 +55,9 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `modes/manager/match-career.js` | (yeni, D4) | Maçın kariyerdeki karşılığı: sezon golleri, kartlar, dakikalar, ilk maç; golün ve ilk maçın moral/formu. Motorun olaylarından (`matchEvent` kancası) ve `minutePlayed`'den, aynı anda yazar | Motor kariyere yazmaz, ne olduğunu söyler |
 | `modes/manager/season-end.js` | `season.js` (D5) | Teknik direktörün sezon sonu adımları (`report`, `contracts`, `academy`, `market`, `cleanup`; hatta id ile eski yerlerine), yeni sezonun onun için anlamı (ödül, başkan, yönetim, saat), sezon sonu ekranları | Adımların id'si ve sırası aynı: yarıda kalmış kayıt aynı adımdan devam eder |
 | `modes/manager/career-events.js` | `career-events.js` | Basın soruları, oyuncu görüşmeleri, konuşmanın etkisi (`applyConversationEffect`, D4) | Teknik direktöre özgü |
-| `modes/manager/star-transfer.js` | `star-transfer.js` | Yıldız transfer akışı (duyuru, imza, forma), highlight kaydı | Akış teknik direktöre özgü. D'de ayrılacak: highlight kaydı → `core/highlights` |
+| `modes/manager/star-transfer.js` | `star-transfer.js` | Yıldız transfer akışı (duyuru, imza, forma); gösterisini `starTransfer` tarifi olarak arşive yazar (`core/highlights`) | Akış teknik direktöre özgü |
+| `modes/manager/highlight-recorder.js` | (yeni, V7.14.0) | Arşive ne girer: 3D maçtaki yıldız anları (`starMoment`), antrenmanda (`announceNewMoves`, gelen kutusu notu ▶ İzle ile) ve yazın (`movesLearned`) açılan hareketler | Neyin "an" olduğu moda özgü |
+| `modes/manager/highlight-screens.js` | (yeni, V7.14.0) | Arşiv ekranı (Kadro sekmesinin detay ekranı; oyuncu/tür/sezon filtresi, yeniden eskiye), profilde "Highlight'lar", gelen kutusunda ▶ İzle, "İzle"yi başlatma | Teknik direktörün ekranları |
 | `modes/manager/wages.js` | `app.js`, `season-end.js` (V7.13.2) | Maaş: yeni sözleşme maaşı (`baseWage`), altyapı maaşı, maaş alanı (`wageBudget`, kulüp seviyesinden), maaş gideri (`wageBill`), kalan alan (`wageRoom`, `wageFits`) | Transfer ve sözleşme kararları teknik direktöre özgü; alan kayıtta durmaz |
 
 ## src/ui — ortak arayüz
@@ -89,6 +94,8 @@ Paketleyici modülleri tarayıcıdan farklı sırayla çalıştırabilir (3D'yi 
 | `seasonStarted(summary)` | sezon sonunun `newSeason` adımı | `managerSeasonStarted` (lig ödülü, başkanın mektubu, yönetimin sorusu, saat) |
 | `minutePlayed(player)` | maçın her dakikası, sahadaki her oyuncumuz için | `recordMinutePlayed` (sezon dakikası) |
 | `matchEvent` kancası | her maç olayı, yapılırken | `recordMatchEvent` (gol, kart, ilk maç) |
+| `starMoment(moment)` | 3D maç: bizim oyuncunun özel hareketi ya da yıldız/penaltı kurtarışı, akrep (`match3d-newview.js`, yönetmenin `noteSkill`'inden; `seed` maç olayının kimliği) | `recordStarMoment` (highlight arşivi, `highlight-recorder.js`) |
+| `movesLearned(player, moves)` | sezon sonunun `aging` adımı | `recordNewMoves` (highlight arşivi) |
 
 Motorun kariyerde kendisinin yazdığı ve maç içinde geri okuduğu iki şey kaldı: kondisyon (her dakika düşer, `strength` ve özellikler okur) ve sakatlık (değişiklik uygunluğu okur). Bunlar oyuncunun maçtaki fiziksel durumu; ayrılmaları maça özel bir kadro kopyası ister (oyuncu kariyeri moduyla).
 
@@ -135,7 +142,7 @@ Genişletme noktaları (`core/hooks.js`):
 ## Build, sürüm ve önbellek (E2–E3)
 
 - `npm run build`: Vite `src/`'i `dist/`'e paketler. Base `/ManagerStory/` (GitHub Pages yolu, büyük-küçük harf duyarlı). Betikler, stiller ve 3D model `dist/app/<ad>-<hash>.<uzantı>`: içerik değişince ad değişir, tarayıcı eski bir dosyayı yenisiyle karıştıramaz. Bu, D'deki `?v=<sürüm>` damgasının (`tools/stamp-version.cjs`) yerini aldı.
-- Parçalar: oyun tek giriş betiği (`index-<hash>.js`; sayfanın dört modül girişi aynı sırayla tek girişte); gerektiğinde gelen 3D maç (`match3d-newview`), yıldız sahnesi (`star-transfer-scene`), ikisinin paylaştığı 3D görünüm (`newview`) ve three.js (`three`).
+- Parçalar: oyun tek giriş betiği (`index-<hash>.js`; sayfanın dört modül girişi aynı sırayla tek girişte); gerektiğinde gelen 3D maç (`match3d-newview`), yıldız sahnesi (`star-transfer-scene`), "İzle" sahnesi (`highlight-scene`), paylaştıkları 3D görünüm (`newview`) ve three.js (`three`).
 - Sürüm sadece `package.json`'da: oyun `core/version.js` ile alır; build sayfa başlığındaki ve manifestteki `%APP_VERSION%`'ı ve `sw.js`'in `RELEASE`'ini doldurur.
 - `dist/sw.js` = `RELEASE`, `BUILD` (listenin hash'i), `ASSETS` (build'in yayınladığı her dosya, `NOT_CACHED` ve noktalı dosyalar hariç) + `src/sw.js`. Önbellek adı `managerstory-v<RELEASE>-<BUILD>`. Listede olmayan bir betik isteği (eski sürümün sekmesinden) başarısız sayılır. Test: `tests/service-worker.test.cjs` (gerçek bir build üzerinde).
 - Stil sayfaları `public/` resimlerini kökten anar (`url('/assets/…')`): build onları base'in altına koyar. Göreli yazılsa build'deki stil sayfasının yanına (`app/`) çözülürdü. Aynı sebeple CSS değişkenine konan resim (`--fan-photo`, `--office-photo`) tam adresle verilir (`cssPicture`).
