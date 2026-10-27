@@ -287,7 +287,6 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
 
 
   // the net gives where the ball hit it and ripples out for a second (hit = runtime S.netHit)
-  let lastHit = null;
   function updateNets(hit, t) {
     for (const net of nets) {
       const { GS, rest } = net.userData, a = net.geometry.attributes.position, mine = hit && Math.sign(hit.x) === GS;

@@ -103,7 +103,6 @@ export function buildFootballerGeometry(skeleton, style = {}) {
 
   const X = new THREE.Vector3(1, 0, 0), Y = new THREE.Vector3(0, 1, 0), Z = new THREE.Vector3(0, 0, 1);
   const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
-  const lerp = (a, b, t) => a + (b - a) * t;
   const sm = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
   const b = build;
 

@@ -15,7 +15,7 @@ export function createReplay({ frames = 360, minDt = 1 / 100 } = {}) {
     }
     return r;
   };
-  const q = new THREE.Quaternion(), arr = [0, 0, 0, 0];
+  const arr = [0, 0, 0, 0];
 
   // one frame of the pitch as it is drawn now (call after the bodies are posed)
   function record(rt, ballMesh) {

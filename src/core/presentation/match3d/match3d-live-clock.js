@@ -8,8 +8,8 @@ import { aerialHeight, attackDirection, playerAtMarker, topSpeed } from '../../e
 import { resolveClubIdentity } from '../../clubs/clubs.js';
 import { changed } from '../../hooks.js';
 (() => {
- let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
- function syncMatch(now=0,dt=0){if(observedMatch===M)return;observedMatch=M;presentationSeconds=0;wallSeconds=0;logs=[];wallOrigin=now-dt*1000;inPositionUpdate=false;motionSample=null;}
+ let enabled=false,tempo=4,presentationSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
+ function syncMatch(now=0,dt=0){if(observedMatch===M)return;observedMatch=M;presentationSeconds=0;logs=[];wallOrigin=now-dt*1000;inPositionUpdate=false;motionSample=null;}
  const validPoint=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite);
  const lerp=(a,b,u)=>a.map((v,i)=>v+(b[i]-v)*u),ease=u=>u*u*(3-2*u);
  // All action budgets use the existing presentation movement scale.
@@ -323,7 +323,6 @@ import { changed } from '../../hooks.js';
  function step(dt,now){
   if(!enabled||!M||(M.finished?!finishing():M.pause&&!halfPending())||paused())return;
   syncMatch(now,dt);
-  wallSeconds+=dt;
   // The existing RAF allows 2s engine catch-up. Presentation never repays that
   // wall-time debt with a burst: use its documented .12s frame cap, no backlog.
   // New 3D view (V7.5.0): this clock follows the view, holding an event until the view has started it.
@@ -726,7 +725,7 @@ import { changed } from '../../hooks.js';
    }
    state.lastTime=now;state.presentationSeconds=presentationSeconds;state.presentationDelta=delta;
    if(clockProgress>=1-1e-8){
-    if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e,now);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
+    if(e.type!=='enginePositionGap'&&!state.shotMotion&&!e.headerShot&&!e.contest)finishPitchAction(state,e);else if(e.type==='enginePositionGap'){state.carrier=e.endOwner;state.side=e.endSide;state.ballState.ownerId=state.carrier;}
     // Coordinate references preserve the previous clip budgets; there is still
     // one clock and one queue. These are never rendered or engine positions.
     state.durationPositions=structuredClone(e.timingTargets||((e.controlMapped||e.duelRootMapped||e.restartDisplayPoint||e.restartReset||e.type==='ballOut')?e.rawEnginePositions||e.enginePositions:state.positions)||state.positions);
@@ -782,7 +781,7 @@ import { changed } from '../../hooks.js';
   beginFinish(){const s=currentPitchState();s.terminalPhase='draining';s.terminalPaused=false;},
   setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;else if(halfPending())pitchV73.halfPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){const joining=!enabled;syncMatch();enabled=true;if(M){if(joining&&typeof preparePitchGoalPhotos==='function')preparePitchGoalPhotos();const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
-  disable(){enabled=false;observedMatch=null;presentationSeconds=0;wallSeconds=0;logs=[];motionSample=null;inPositionUpdate=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
+  disable(){enabled=false;observedMatch=null;presentationSeconds=0;logs=[];motionSample=null;inPositionUpdate=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration,contestPhase,contestTiming:e=>structuredClone(contestPath(e).timing), togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
  };
 })();

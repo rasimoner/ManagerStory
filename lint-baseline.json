@@ -16,8 +16,7 @@
   "src/core/engine/match-support.js": {
     "complexity": 8,
     "max-lines-per-function": 2,
-    "max-statements": 3,
-    "no-unused-vars": 1
+    "max-statements": 3
   },
   "src/core/engine/pitch-v73.js": {
     "complexity": 21,
@@ -26,8 +25,7 @@
     "max-lines": 1,
     "max-lines-per-function": 11,
     "max-params": 8,
-    "max-statements": 14,
-    "no-unused-vars": 6
+    "max-statements": 14
   },
   "src/core/engine/pitch-v731.js": {
     "complexity": 14,
@@ -36,8 +34,7 @@
     "max-lines": 1,
     "max-lines-per-function": 3,
     "max-params": 16,
-    "max-statements": 5,
-    "no-unused-vars": 1
+    "max-statements": 5
   },
   "src/core/inbox.js": {
     "max-params": 1
@@ -60,8 +57,7 @@
     "max-lines": 1,
     "max-lines-per-function": 2,
     "max-params": 3,
-    "max-statements": 7,
-    "no-unused-vars": 1
+    "max-statements": 7
   },
   "src/core/presentation/match3d/match3d-newview.js": {
     "complexity": 7,
@@ -69,8 +65,7 @@
     "max-lines": 1,
     "max-lines-per-function": 1,
     "max-params": 1,
-    "max-statements": 5,
-    "no-unused-vars": 1
+    "max-statements": 5
   },
   "src/core/presentation/match3d/newview/actions.js": {
     "max-params": 2
@@ -88,22 +83,19 @@
     "max-lines": 1,
     "max-lines-per-function": 18,
     "max-params": 17,
-    "max-statements": 33,
-    "no-unused-vars": 5
+    "max-statements": 33
   },
   "src/core/presentation/match3d/newview/footballer.js": {
     "complexity": 2,
     "id-match": 1,
     "max-lines-per-function": 1,
     "max-params": 7,
-    "max-statements": 1,
-    "no-unused-vars": 1
+    "max-statements": 1
   },
   "src/core/presentation/match3d/newview/replay.js": {
     "max-lines-per-function": 1,
     "max-params": 2,
-    "max-statements": 2,
-    "no-unused-vars": 1
+    "max-statements": 2
   },
   "src/core/presentation/match3d/newview/runtime.js": {
     "complexity": 9,
@@ -112,15 +104,13 @@
     "max-lines": 1,
     "max-lines-per-function": 3,
     "max-params": 7,
-    "max-statements": 12,
-    "no-unused-vars": 1
+    "max-statements": 12
   },
   "src/core/presentation/match3d/newview/stadium.js": {
     "complexity": 2,
     "max-lines-per-function": 2,
     "max-params": 5,
-    "max-statements": 4,
-    "no-unused-vars": 1
+    "max-statements": 4
   },
   "src/core/presentation/scenes/star-transfer-scene.js": {
     "complexity": 4,
@@ -144,15 +134,13 @@
     "id-match": 15,
     "max-lines": 1,
     "max-params": 1,
-    "max-statements": 9,
-    "no-unused-vars": 1
+    "max-statements": 9
   },
   "src/modes/manager/career-events.js": {
     "complexity": 4,
     "id-match": 2,
     "max-params": 1,
-    "max-statements": 1,
-    "no-unused-vars": 32
+    "max-statements": 1
   },
   "src/modes/manager/market-names.js": {
     "id-match": 3
@@ -186,8 +174,7 @@
   },
   "tests/managerstory.test.cjs": {
     "max-lines": 1,
-    "max-statements": 7,
-    "no-unused-vars": 2
+    "max-statements": 7
   },
   "tests/match-clock.test.cjs": {
     "no-unused-vars": 1

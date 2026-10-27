@@ -238,7 +238,6 @@ function numberTexture(no, kit) {
 }
 
 // ---------- engine data (read-only) ----------
-const sideOf = id => typeof id === 'string' ? 'opp' : 'user';
 function enginePositions() {
   return [...M.active.map(id => [id, 'user']), ...M.oppIds.map(id => [id, 'opp'])]
     .filter(([id, side]) => !(side === 'user' ? M.sentOff?.includes(id) : false))

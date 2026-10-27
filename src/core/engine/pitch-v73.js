@@ -44,7 +44,6 @@ export function opponentAttitude(){
 export function pitchInstructionTarget(id,side,ball,attacking) {
   const q=basePitchPosition(id,side),own=side==='user',dir=(own?1:-1)*userDirection();
   const role=own?M.matchRoles[id]:opponentPlayer(id)?.position||null;
-  const p=playerAtMarker(id,side);
   const order=orderFor(id,side);
   let x,y=q[1];
   if (role==='GK' || (!own&&String(id)==='o0')) {
@@ -191,7 +190,7 @@ export function animationPoint(e,progress,previous) {
   if(e.type==='goal'&&progress>=.76)return to;
   return [from[0]+(to[0]-from[0])*fraction,from[1]+(to[1]-from[1])*fraction];
 }
-export function finishPitchAction(state,e,now) {
+export function finishPitchAction(state,e) {
   // Score and goal feedback were committed by the GOAL event, not by this renderer.
   if(e.type==='kickoff') {state.ball=[50,50];state.carrier=e.toId;state.side=e.toSide;}
   else if(['restart','firstTouch','recovery','goalKick','corner','throwIn','freeKick'].includes(e.type)) {state.carrier=e.toId;state.side=e.toSide;}
@@ -203,7 +202,7 @@ export function finishPitchAction(state,e,now) {
   state.ballState.ownerId=state.carrier;state.ballState.state=state.carrier==null?'LOOSE_BALL':'LIVE';
   state.label=e.type==='corner'?'KORNER':e.type==='throwIn'?'TAÇ':e.type==='goalKick'?'KALE VURUŞU':e.type==='shot'?'ŞUT':e.type==='save'?'KURTARIŞ':e.type==='block'?(presentationEvent(e).presentationLabel||'BLOK'):e.type==='post'?'DİREK':e.type==='goal'?'GOL':'';
 }
-export function advancePitchPresentation(dt,now) {
+export function advancePitchPresentation(dt) {
   const state=currentPitchState();if(!state||M.pause||M.finished||M.lifecycle==='FINISHED'||M.reason==='half')return state;
   let remaining=limitPitch(dt,0,.12);
   while(remaining>0&&!M.finished) {
@@ -218,7 +217,7 @@ export function advancePitchPresentation(dt,now) {
     state.ballState.travelDuration=duration;
     state.ballState.height=aerialHeight(state.active,state.progress);
     if(state.progress>=.999999) {
-      finishPitchAction(state,state.active,now);
+      finishPitchAction(state,state.active);
       state.active=null;state.progress=0;
     }
   }
@@ -234,8 +233,8 @@ export function moveTowards(current,target,max) {
   if(dist<=max||dist<.01)return [...target];
   return [current[0]+dx/dist*max,current[1]+dy/dist*max];
 }
-export function pitchFrameState(dt,now) {
-  const state=advancePitchPresentation(dt,now),e=state?.active;if(!state)return null;
+export function pitchFrameState(dt) {
+  const state=advancePitchPresentation(dt),e=state?.active;if(!state)return null;
   if(M.pause||M.finished)return state;
   const phase=e?pitchEventPhase(state.progress):'SETTLE';
   const attacking=e?.fromSide||M.ballSide;
@@ -337,7 +336,7 @@ export function paintLivePitch() {
   state.lastTime=now;
   const dev=presentation.live3d?.enabled;
   if(!dev)synchronizePitchPresentation(state);
-  const frame=dev?state:pitchFrameState(dt*MATCH_PLAYBACK_SCALE,now);
+  const frame=dev?state:pitchFrameState(dt*MATCH_PLAYBACK_SCALE);
   if(typeof window!=='undefined'&&presentation.view)presentation.view.publish(frame);
   const score=document.querySelector('#live-score');
   if(score)score.textContent=(dev&&frame.eventScore||[M.hg,M.ag]).join('–');
@@ -581,7 +580,7 @@ export function passOptions(side,from,style){
  if(style===undefined)style=teamTactics(side).passingStyle;
  const T=tacticProfile(side),quickBreak=transitionActive(side)&&(T.quick||T.approach==='Kontra');
  const point=eventPoint(from,side),dir=(side==='user'?1:-1)*userDirection();
- const passer=playerAtMarker(from,side),vision=playerAttribute(from,side,'vision',68);
+ const vision=playerAttribute(from,side,'vision',68);
  const memory=(M.passMemory||[]).filter(m=>m.side===side).slice(-4);
  const lastPasser=memory.at(-1)?.side===side&&memory.at(-1)?.to===from?memory.at(-1).from:null;
  const own=Math.max(0,(dir>0?point[0]:100-point[0])),ownThird=own<34;
@@ -643,7 +642,7 @@ export function freeAhead(point,side,dir){
  const other=side==='user'?'opp':'user';
  return !(other==='user'?M.active:M.oppIds).some(id=>{const q=eventPoint(id,other),dx=(q[0]-point[0])*dir,dy=q[1]-point[1];return dx>0&&Math.abs(dy)<dx*1.1+2&&Math.hypot(dx,dy)<15;});
 }
-export function pitchDribble(from,side,opponent){
+export function pitchDribble(from,side){
  const owner=playerAtMarker(from,side),start=eventPoint(from,side),dir=(side==='user'?1:-1)*userDirection();
  const defendingSide=side==='user'?'opp':'user';
  const defender=(defendingSide==='user'?M.active:M.oppIds)
@@ -739,8 +738,6 @@ export function actionMinute(userPoss,effect,opponent){
   const forward=dir>0?point[0]:100-point[0];
   const nearby=nearestMarker(side==='user'?'opp':'user',point);
   const pressure=nearby?Math.max(0,14-nearby.d)/14:0;
-  const technique=playerAttribute(from,side,'technique',65);
-  const composure=playerAttribute(from,side,'composure',65);
   const options=passOptions(side,from);
   const best=options.slice().sort((a,b)=>b.weight-a.weight)[0];
   const order=orderFor(from,side);
@@ -810,9 +807,9 @@ export function actionMinute(userPoss,effect,opponent){
    continue;
   }
   if(choice.type==='carry'){
-   let success=pitchDribble(from,side,opponent);
+   let success=pitchDribble(from,side);
    if(success&&i===0&&M.rand()<.22&&pitchSpace(eventPoint(from,side),side).danger<1.4){
-    success=pitchDribble(from,side,opponent);
+    success=pitchDribble(from,side);
    }
    if(!success)break;
    continue;
@@ -1127,7 +1124,7 @@ export function chanceV73(user) {
   let choice=pick();
   for(let k=0;k<2&&choice.shooterId===carrier&&choice.value<.035&&carrierRole!=='GK';k++){
    // too far to shoot and nobody better placed: carry it towards goal first
-   if(!pitchDribble(carrier,carrierSide,r))return;
+   if(!pitchDribble(carrier,carrierSide))return;
    before=eventPoint(carrier,carrierSide);
    choice=pick();
   }

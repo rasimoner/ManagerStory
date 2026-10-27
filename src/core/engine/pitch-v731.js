@@ -486,7 +486,7 @@ export function restartDelivery(side,taker,receiver,from,target,ok,aerial){
  }else makeLooseBall(from,target,aerial?'aerial':'restart',other);
  return false;
 }
-export function executeRestart(type,side,taker,pos,R){
+export function executeRestart(type,side,taker,pos){
  const other=side==='user'?'opp':'user',dir=attackDirection(side),atkGoal=dir>0?100:0;
  const idx=side==='user'?userSide():1-userSide();
  const who=side==='user'?matchTeamName('user'):opponentName(taker);
@@ -603,7 +603,7 @@ export function runRestart(type,side,outPosition){
  restartStep(R,'WAIT_FOR_RESTART');
  if(visible)matchEvent('restartWait',M.min+'’ '+({CORNER:'Korner kullanılmak üzere.',FREE_KICK:'Serbest vuruş kullanılmak üzere.',THROW_IN:'Taç atılmak üzere.',GOAL_KICK:'Kaleci topu yerleştirdi.',PENALTY:'Penaltı atışı bekleniyor.'}[type]||'Oyun yeniden başlayacak.'),{restartType:type,fromPos:pos,toPos:pos,ballSide:'none'});
  restartStep(R,'EXECUTE_RESTART');
- executeRestart(type,side,taker,pos,R);
+ executeRestart(type,side,taker,pos);
  // a goal or goal kick produced by the restart itself starts its own restart; this one is simply finished
  if(M.restart===R)restartStep(R,'LIVE');else{R.restartPhase='LIVE';R.trail.push('LIVE');}
  return R;

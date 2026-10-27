@@ -2,7 +2,7 @@
 // Used by the real-match director. No DOM.
 import * as THREE from 'three';
 import { buildFootballerGeometry, buildNumberGeometry } from './footballer.js';
-import { ACTIONS, applyAction, envelope, rigOf, footClearance } from './actions.js';
+import { ACTIONS, applyAction, envelope, footClearance } from './actions.js';
 
 export const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 export const clamp = THREE.MathUtils.clamp, lerp = THREE.MathUtils.lerp;

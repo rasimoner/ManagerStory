@@ -282,8 +282,6 @@ test('goal alone restarts at the centre and a missed shot performs a goal kick',
 });
 test('long passes rise with a shadow; short passes stay on the ground and travel through intermediate positions',()=>{
  const h=harness();h.run('S=fresh();init();startMatch()');
- const long={type:'pass',passKind:'long',fromPos:[15,27],toPos:[72,48]};
- const short={type:'pass',passKind:'short',fromPos:[15,27],toPos:[20,27]};
  h.run('M.speed=.5');
  const duration=h.run('eventAnimationTime({type:"pass",passKind:"long",fromPos:[15,27],toPos:[72,48]})');
  assert.ok(duration>=.55&&duration<=.9);
@@ -298,7 +296,7 @@ test('keeper and striker separate gently; corner crowd does not collapse to one 
  h.run('pitchV73.positions={"0":[10,50],"12":[10,50],"o0":[10,50]};softenPlayerOverlap(pitchV73.positions)');
  assert.notDeepEqual(Array.from(h.run('pitchV73.positions["0"]')),Array.from(h.run('pitchV73.positions["12"]')));
  h.run('startPitchRestart("CORNER","user",[102,-3])');
- const positions=h.run('pitchFrameState(.35,500).positions');
+ const positions=h.run('pitchFrameState(.35).positions');
  const coords=Object.values(positions).map(x=>x.map(n=>Math.round(n)).join(','));
  assert.ok(new Set(coords).size>=16);
 });
@@ -447,7 +445,7 @@ test('presentation catch-up and GOAL never snap an in-flight ball to its destina
  h.run('pitchV73.active.gameSecond=-200;M.matchElapsedSeconds=300;synchronizePitchPresentation(pitchV73)');
  assert.equal(h.run('pitchV73.active.type'),'presentationSync');
  const start=Array.from(h.run('pitchV73.ball'));
- h.run('advancePitchPresentation(.05,1000)');const middle=Array.from(h.run('pitchV73.ball'));
+ h.run('advancePitchPresentation(.05)');const middle=Array.from(h.run('pitchV73.ball'));
  assert.notDeepEqual(middle,start);assert.notDeepEqual(middle,Array.from(h.run('M.ballState.position')));
 });
 test('pass, long ball, shot and dribble presentation durations stay visible at every speed',()=>{
@@ -459,7 +457,7 @@ test('pass, long ball, shot and dribble presentation durations stay visible at e
   const shot=h.run('eventAnimationTime({type:"shot",fromPos:[78,50],toPos:[98,50]})');
   assert.ok(short>=.25&&short<=.65);assert.ok(long>=.55&&long<=.9);assert.ok(shot>=.28&&shot<=.5);
  }
- h.run('const s=currentPitchState();s.ball=[30,45];s.ballState.position=[30,45];s.active={type:"ballCarry",gameSecond:0,fromId:11,fromSide:"user",fromPos:[30,45],toPos:[48,50]};s.progress=.2;s.eventStartBall=[30,45];s.positions[String(11)]=[30,45];pitchFrameState(.08,1000)');
+ h.run('const s=currentPitchState();s.ball=[30,45];s.ballState.position=[30,45];s.active={type:"ballCarry",gameSecond:0,fromId:11,fromSide:"user",fromPos:[30,45],toPos:[48,50]};s.progress=.2;s.eventStartBall=[30,45];s.positions[String(11)]=[30,45];pitchFrameState(.08)');
  const ball=Array.from(h.run('pitchV73.ball')),carrier=Array.from(h.run('pitchV73.positions[String(11)]'));
  const carryGap=Math.hypot(ball[0]-carrier[0],ball[1]-carrier[1]);
  assert.ok(carryGap<4,`dribble gap ${carryGap}`);
@@ -487,7 +485,7 @@ test('pause at 23:41, injury and position warning never accumulate wall-time or 
  const h=harness();h.run('S=fresh();init();startMatch();advanceLive(1421/90);pauseLive()');
  const before=h.run('M.matchElapsedSeconds'),eventCount=h.run('M.events.length');
  h.run('const state=currentPitchState();state.active={type:"pass",gameSecond:1421,fromPos:[35,45],toPos:[55,45]};state.progress=.3');
- h.run('advanceLive(10);pitchFrameState(10,50000)');
+ h.run('advanceLive(10);pitchFrameState(10)');
  assert.equal(h.run('M.matchElapsedSeconds'),before);assert.equal(h.run('M.events.length'),eventCount);assert.equal(h.run('pitchV73.progress'),.3);
  h.run('resumeLive()');assert.equal(h.run('M.matchElapsedSeconds'),before);
  h.run('S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};pauseLive("injury");setSubOut(11);subUI()');
@@ -608,7 +606,7 @@ test('1v1 uses real defender position and leaves loser at the duel location',()=
  const h=harness();h.run('S=fresh();init();startMatch()');
  h.run(`M.dynamicPositions[12]=[65,50];M.oppIds.forEach(id=>M.dynamicPositions[id]=[15,15]);
  M.dynamicPositions.o2=[72,50];setUserOwner(12);M.rand=()=>.99;
- window.start=eventPoint(12,'user');pitchDribble(12,'user',currentOpponent());`);
+ window.start=eventPoint(12,'user');pitchDribble(12,'user');`);
  const end=h.run('eventPoint(12,"user")');
  assert.ok(end[0]>65,'dribbler advanced');
  assert.equal(h.run('M.ballSide'),'opp');
@@ -643,11 +641,11 @@ test('same duel roll separates skilled and tired dribbler against positioned def
  h.run(`window.p=S.players.find(p=>p.id===12);window.d=opponentPlayer('o2');
  M.oppIds.forEach(id=>M.dynamicPositions[id]=[15,15]);M.dynamicPositions.o2=[72,50];
  M.dynamicPositions[12]=[65,50];p.dribbling=95;p.technique=95;p.acceleration=90;p.fitness=100;
- d.tackling=43;d.positioning=43;M.rand=()=>.5;setUserOwner(12);window.strong=pitchDribble(12,'user',currentOpponent());`);
+ d.tackling=43;d.positioning=43;M.rand=()=>.5;setUserOwner(12);window.strong=pitchDribble(12,'user');`);
  assert.equal(h.run('strong'),true);
  h.run(`M.dynamicPositions[12]=[65,50];M.dynamicPositions.o2=[72,50];
  p.dribbling=42;p.technique=42;p.acceleration=50;p.fitness=31;
- d.tackling=90;d.positioning=90;setUserOwner(12);window.weak=pitchDribble(12,'user',currentOpponent());`);
+ d.tackling=90;d.positioning=90;setUserOwner(12);window.weak=pitchDribble(12,'user');`);
  assert.equal(h.run('weak'),false);
 });
 test('press and individual instruction tradeoffs alter positions and fatigue',()=>{
@@ -683,8 +681,8 @@ test('a successful first duel can continue against a different defender',()=>{
  const p=S.players.find(p=>p.id===12);p.dribbling=94;p.technique=94;p.fitness=100;
  opponentPlayer('o2').tackling=42;opponentPlayer('o3').tackling=42;
  M.rand=()=>.25;setUserOwner(12);
- window.first=pitchDribble(12,'user',currentOpponent());
- window.second=pitchDribble(12,'user',currentOpponent());`);
+ window.first=pitchDribble(12,'user');
+ window.second=pitchDribble(12,'user');`);
  assert.equal(h.run('first&&second'),true);
  assert.ok(h.run('M.events.filter(e=>e.type==="tackle"&&e.defenderId==="o2").length')>0);
  assert.ok(h.run('M.events.some(e=>e.type==="tackle"&&["o3","o4","o5"].includes(e.defenderId))'));

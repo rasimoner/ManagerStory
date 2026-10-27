@@ -9,7 +9,6 @@ import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from 
 import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js';
 import { save } from '../save.js';
 import { userOpponent, userSquad } from './user-team.js';
-import { MATCH_TACTICS } from './tactics.js';
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
