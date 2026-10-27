@@ -75,7 +75,7 @@ function armRun(delta) {
     h.run(`for(const p of S.players)for(const k of ['pace','finishing','passing','dribbling','defending','physical','stamina'])p[k]=Math.max(25,Math.min(99,p[k]+${delta}));startMatch();resumeLive()`);
     playToEnd(h);
     const s = h.run('({hg:M.hg,ag:M.ag,u:userSide(),st:M.stats,sh:M.shots,ont:M.ont,pt:[M.userPossTicks,M.oppPossTicks],dr:Object.values(M.playerStats).reduce((n,s)=>n+s.dribblesAttempted,0),drw:Object.values(M.playerStats).reduce((n,s)=>n+s.dribbles,0)})');
-    const u = s.u, o = 1 - u;
+    const u = s.u;
     tot.n++; tot.goals += u === 0 ? s.hg : s.ag; tot.conceded += u === 0 ? s.ag : s.hg;
     tot.shots += s.sh[u]; tot.ont += s.ont[u]; tot.passes += s.st.passes[u]; tot.cp += s.st.completedPasses[u];
     tot.poss += s.pt[0]; tot.posst += s.pt[0] + s.pt[1]; tot.dr += s.dr; tot.drw += s.drw; tot.xg += s.st.xg[u]; tot.tk += s.st.tackles[u];

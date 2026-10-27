@@ -19,7 +19,6 @@ const walk = dir => fs.readdirSync(path.join(SRC, dir), { withFileTypes: true })
   const f = path.posix.join(dir, d.name);
   return d.isDirectory() ? (f === 'vendor' ? [] : walk(f)) : (f.endsWith('.js') && f !== 'sw.js' ? [f] : []);
 });
-const IMPORTS = /(?:^|\n)\s*import\s+(?:\{([^}]*)\}\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
 
 test('only main.js does anything on load', () => {
   const without = loadGame({ skip: ['main.js'], quiet: true });

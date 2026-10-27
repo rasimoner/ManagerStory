@@ -3,8 +3,6 @@
    fields) still loading. */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 const { loadGame } = require('./support/game.cjs');
 
 function harness() {

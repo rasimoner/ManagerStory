@@ -1,7 +1,6 @@
 /* Phase 1 — MatchEngine core / football integrity. Deterministic; uses the real game loop. */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
 const { harness, PROBES, playToEnd } = require('./engine-harness.cjs');
 
 const fresh = (fixture = 0) => { const h = harness(); h.run(`S=fresh();init();S.fixture=${fixture};startMatch();resumeLive()`); return h; };

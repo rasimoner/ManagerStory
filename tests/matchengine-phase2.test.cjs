@@ -21,7 +21,6 @@ const oppPlayer = (h, idx, attrs = {}) => {
   h.run(`(function(){const p=opponentPlayer(${JSON.stringify(id)});Object.assign(p,${JSON.stringify({ ...NEUTRAL, shooting: attrs.finishing ?? 65, ...attrs })})})()`);
   return id;
 };
-const park = h => h.run("for(const id of M.active)M.dynamicPositions[String(id)]=[5,8];for(const id of M.oppIds)M.dynamicPositions[String(id)]=[95,92];");
 
 /* Generic seeded race: two chasers, equal or chosen distances from the ball, N trials. */
 function race(h, a, b, distA, distB, trials = 300, seed = 4100) {

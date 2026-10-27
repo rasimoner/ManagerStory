@@ -176,25 +176,19 @@
     "max-lines": 1,
     "max-statements": 7
   },
-  "tests/match-clock.test.cjs": {
-    "no-unused-vars": 1
-  },
   "tests/matchengine-phase1.test.cjs": {
     "complexity": 5,
     "max-depth": 2,
-    "max-statements": 2,
-    "no-unused-vars": 1
+    "max-statements": 2
   },
   "tests/matchengine-phase2.test.cjs": {
-    "max-params": 2,
-    "no-unused-vars": 1
+    "max-params": 2
   },
   "tests/matchengine-phase3-restarts.test.cjs": {
     "complexity": 5,
     "max-depth": 1,
     "max-lines-per-function": 1,
-    "max-statements": 8,
-    "no-unused-vars": 2
+    "max-statements": 8
   },
   "tests/matchengine-phase3.test.cjs": {
     "max-statements": 1
@@ -210,8 +204,7 @@
     "complexity": 1,
     "max-depth": 4,
     "max-lines-per-function": 1,
-    "max-statements": 1,
-    "no-unused-vars": 1
+    "max-statements": 1
   },
   "tests/outline-scale.test.cjs": {
     "max-statements": 1
@@ -229,12 +222,6 @@
   "tests/service-worker.test.cjs": {
     "max-statements": 1
   },
-  "tests/star-transfer.test.cjs": {
-    "no-unused-vars": 2
-  },
-  "tests/structure.test.cjs": {
-    "no-unused-vars": 1
-  },
   "tests/support/clock-fixtures.cjs": {
     "complexity": 1,
     "max-depth": 1,
@@ -246,17 +233,13 @@
     "max-lines-per-function": 2,
     "max-statements": 1
   },
-  "tests/support/golden.cjs": {
-    "no-unused-vars": 1
-  },
   "tests/support/phase3.cjs": {
     "complexity": 1,
     "max-statements": 1
   },
   "tools/attribute-report.cjs": {
     "max-params": 3,
-    "max-statements": 1,
-    "no-unused-vars": 1
+    "max-statements": 1
   },
   "tools/build-rig.mjs": {
     "max-depth": 4

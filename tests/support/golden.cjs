@@ -14,7 +14,7 @@ const UPDATE = process.env.UPDATE_GOLDEN === '1';
 
 /* The game's version is written into the career and onto some screens; a release must not change a golden. */
 const VERSION = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8')).version;
-const withoutVersion = state => { const { version, ...rest } = state; return rest; };
+const withoutVersion = state => { const rest = { ...state }; delete rest.version; return rest; };
 const versionless = text => text.split(VERSION).join('<VERSION>');
 
 function canonical(value) {

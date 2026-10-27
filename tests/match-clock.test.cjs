@@ -10,12 +10,7 @@
 //   the 2D players and ball never jump across the pitch outside a placed restart (kickoff after a goal included)
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 const { harness } = require('./engine-harness.cjs');
-
-const root = path.join(__dirname, '..');
-const read = f => fs.readFileSync(path.join(root, 'src', f), 'utf8');
 
 const { clockFixtureTests } = require('./support/clock-fixtures.cjs');
 clockFixtureTests(0);
