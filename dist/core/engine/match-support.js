@@ -3,19 +3,16 @@ import { TACTIC_DATA } from '../../data/tactics.js';
 import { R, newMatchSalt } from '../random.js';
 import { M, S, setMatch } from '../state.js';
 import { presentation } from '../presentation/registry.js';
-import { defineActions } from '../../ui/actions.js';
-import { changed, runHooks } from '../hooks.js';
+import { runHooks } from '../hooks.js';
 import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame } from './live-match.js';
 import { opponentLineup } from '../league/opponents-v731.js';
 import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
-import { assistantAdvice, attackDirection, isKeeper, matchTeamName, playerAtMarker, startPitchRestart } from './pitch-v731.js';
+import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js';
 import { save } from '../save.js';
 import { userOpponent, userSquad } from './user-team.js';
 export const GAME_VERSION = "7.10.0";
 // tactic settings, their labels and the team orders (data/tactics.js)
 export const MATCH_TACTICS = TACTIC_DATA.options;
-export const TACTIC_LABELS = TACTIC_DATA.labels;
-export const TEAM_ORDERS = TACTIC_DATA.orders;
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
@@ -306,91 +303,7 @@ export function matchPossession() {
   const user = total ? Math.round(M.userPossTicks * 100 / total) : 50;
   return M.userHome ? [user, 100 - user] : [100 - user, user];
 }
-export function matchFitnessUI() {
-  const ps = userSquad().filter(p => M.active.includes(p.id)).sort((a, b) => a.fitness - b.fitness);
-  return `<div class="fitnessstrip" aria-label="Sahadaki oyuncuların fitness durumu">${ps.map(p => `<button class="fitnessmini ${p.fitness < 45 ? "critical" : p.fitness < 60 ? "warning" : ""}" data-action="openMatchPlayer" data-id="${p.id}" aria-label="${escapeHTML(p.name)}, fitness yüzde ${Math.round(p.fitness)}${p.fitness < 45 ? ', kritik' : p.fitness < 60 ? ', yorgun' : ''}"><b>${escapeHTML(p.name)}</b><span>%${Math.round(p.fitness)} ${p.fitness < 45 ? "‼" : p.fitness < 60 ? "!" : ""}</span><i style="--fitness:${clamp(p.fitness, 0, 100)}%"></i></button>`).join("")}</div>`;
-}
-export function matchStatsUI() {
-  const st = M.stats, poss = matchPossession();
-  const percent = side => st.passes[side] ? Math.round(st.completedPasses[side] * 100 / st.passes[side]) + "%" : "—";
-  const rows = [
-    ["Şut", ...M.shots], ["İsabetli şut", ...M.ont], ["Topa sahip olma", ...poss.map(x => x + "%")],
-    ["xG", ...st.xg.map(x => x.toFixed(2))], ["Korner", ...st.corners], ["Faul", ...st.fouls],
-    ["Pas yüzdesi", percent(0), percent(1)], ["İsabetli / toplam pas", `${st.completedPasses[0]} / ${st.passes[0]}`, `${st.completedPasses[1]} / ${st.passes[1]}`],
-    ["Büyük fırsatlar", ...st.bigChances], ["Top kazanma", ...st.possessionsWon], ["Başarılı müdahale", ...st.tackles], ["Sarı kart", ...st.yellow], ["Kırmızı kart", ...st.red]
-  ];
-  return `<section class="matchstats"><h2>Maç İstatistikleri</h2><div class="statteamnames"><b>${M.home}</b><b>${M.away}</b></div>${rows.map(([label, a, b]) => `<div class="statrow"><b>${a}</b><span>${label}</span><b>${b}</b></div>`).join("")}</section>`;
-}
-export function matchDetailsUI() {
-  const labels = { goal: "Gol", yellow: "Sarı kart", red: "Kırmızı kart", sub: "Değişiklik", chance: "Pozisyon", injury: "Sakatlık", half: "Devre arası", end: "Son düdük", tactic: "Taktik", order: "Talimat", corner: "Korner", penalty: "Penaltı", freeKick: "Serbest vuruş", offside:"Ofsayt",save: "Kurtarış", block: "Blok", post: "Direk", wide: "Aut", throwIn: "Taç", goalKick: "Kale vuruşu", tackle: "Müdahale" };
-  const events = M.events.filter(e => labels[e.type]).slice().reverse();
-  return `<section class="matchdetails"><h2>${M.min}' • ${M.home} ${M.hg}–${M.ag} ${M.away}</h2><ol>${events.map(e => `<li class="event-${e.type}"><span>${e.minute}' · ${presentationEvent(e).presentationLabel||labels[e.type]}</span><p>${escapeHTML(presentationEvent(e).text)}</p></li>`).join("") || "<li>Henüz önemli bir olay yaşanmadı.</li>"}</ol></section>`;
-}
-export function assistHint(target, key) {
-  if (target !== "match" || typeof assistantAdvice !== "function") return "";
-  const a = assistantAdvice().tactics?.[key];
-  return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" data-action="applyAssistantAdvice" data-value="${escapeHTML(a.value)}">💡 ${a.value}<small>${escapeHTML(a.reason)}</small></button>` : "";
-}
-export function assistTeamHint(target, key) {
-  if (target !== "match" || typeof assistantAdvice !== "function") return "";
-  const a = assistantAdvice().team?.[key];
-  return a ? `<button type="button" class="assist" data-assist="${key}" title="${escapeHTML(a.reason)}" data-action="applyAssistantAdvice">💡<small>${escapeHTML(a.reason)}</small></button>` : "";
-}
-// Tapping a recommendation is the user's own action: it selects exactly that control's option.
-export function applyAssistantAdvice(key, value) {
-  if (!M || M.finished) return;
-  if (MATCH_TACTICS[key]) { setMatchTactic(key, value); return; }
-  if (TEAM_ORDERS[key] && value === true && !M.teamInstructions?.includes(key)) toggleTeamOrder(key, "match");
-}
-export function tacticsControls(target = "match") {
-  const plan = target === "match" ? M : S.plan;
-  return `<div class="tacticfields">${Object.entries(MATCH_TACTICS).map(([key, values]) => `<label>${TACTIC_LABELS[key]}<select aria-label="${TACTIC_LABELS[key]}" data-action="${target === 'match' ? 'setMatchTactic' : 'setCareerTactic'}" data-key="${key}">${values.map(value => `<option${plan[key] === value ? ' selected' : ''}>${value}</option>`).join("")}</select>${assistHint(target, key)}</label>`).join("")}</div><h3>Takım Talimatları</h3><div class="teamorders">${Object.entries(TEAM_ORDERS).map(([key, label]) => `<button class="${plan.teamInstructions?.includes(key) ? 'selected' : 'secondary'}" aria-pressed="${!!plan.teamInstructions?.includes(key)}" data-action="toggleTeamOrder" data-key="${key}" data-scope="${target}">${label}</button>${assistTeamHint(target, key)}`).join("")}</div>`;
-}
-export function setCareerTactic(key, value) {
-  if (!MATCH_TACTICS[key]?.includes(value)) return;
-  S.plan[key] = value; S.v71.lastTacticWeek = S.week; save(); changed();
-}
-export function setMatchTactic(key, value) {
-  if (!M || M.finished || !MATCH_TACTICS[key]?.includes(value)) return;
-  if (M[key] === value) return;
-  if (!M.pause) { M.pause = true; M.reason = 'manual'; }
-  M[key] = value;
-  M.tacticChanges.push({ minute: M.min, key, value });
-  const descriptions={mentality:{Cesur:'bütün hatlarıyla ileri çıkıyor',Temkinli:'daha kompakt savunmaya yerleşiyor'},press:{Yüksek:'önde baskıya geçti',Düşük:'presi düşürüp blok halinde bekliyor'},tempo:{Yüksek:'oyunu hızlandırıyor',Düşük:'pas temposunu düşürüyor'},line:{Önde:'savunma çizgisini ileri taşıyor',Geride:'savunmayı geriye çekiyor'}};
-  matchEvent("tactic", `🧠 ${M.min}' ${matchTeamName('user')} ${descriptions[key]?.[value] || `${TACTIC_LABELS[key]}: ${value}`}.`,{key,value});
-  save(); changed();
-}
-export function toggleTeamOrder(key, target) {
-  if (!TEAM_ORDERS[key]) return;
-  const plan = target === "match" ? M : S.plan;
-  if (!plan || (target === "match" && M.finished)) return;
-  if (target === "match" && !M.pause) { M.pause = true; M.reason = 'manual'; }
-  plan.teamInstructions ??= [];
-  plan.teamInstructions = plan.teamInstructions.includes(key) ? plan.teamInstructions.filter(x => x !== key) : [...plan.teamInstructions, key];
-  if (target === "match") matchEvent("tactic", `🧠 ${M.min}' ${TEAM_ORDERS[key]}: ${plan.teamInstructions.includes(key) ? 'açık' : 'kapalı'}.`);
-  else S.v71.lastTacticWeek = S.week;
-  save(); changed();
-}
-export function switchMatchTab(tab) {
-  if (!M || !["details", "pitch", "stats", "tactics"].includes(tab)) return;
-  M.activeTab = tab;
-  if (tab === 'tactics' && !M.pause && !M.finished) { M.pause = true; M.reason = 'manual'; }
-  changed();
-}
 export function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} resetLiveFrame(); save(); } }
-export function closeMatchOverlay() {
-  if (M) delete M.uiOverlay;
-  changed();
-}
-/* Refactor C2: the match controls this file draws */
-defineActions({
-  applyAssistantAdvice: d => applyAssistantAdvice(d.assist, d.value ?? true),
-  setMatchTactic: (d, el) => setMatchTactic(d.key, el.value),
-  setCareerTactic: (d, el) => setCareerTactic(d.key, el.value),
-  toggleTeamOrder: d => toggleTeamOrder(d.key, d.scope),
-  switchMatchTab: d => switchMatchTab(d.key),
-  closeMatchOverlay: () => closeMatchOverlay(),
-});
 export function matchOrderOptions(p,role){
  const items={balanced:["Dengeli","Mevcut rolünü koru."],runBehind:["Savunma arkasına koş","Hızına göre boşluğa koş; yorgunluk artar."],holdUp:["Topu sakla","Fiziğinle pas bağlantısını koru."],box:["Ceza sahasında kal","Bitiriş pozisyonlarını daha sık ara."],shoot:["Daha fazla şut","Şut tercihini artır."],press:["Presi artır","Top kazanma isteği ve yorgunluk artar."],creator:["Merkeze yaklaş","Pas bağlantılarını güçlendir."],riskPass:["Daha riskli pas","Fırsat kalitesini artır; pas kaybı riski yükselir."],free:["Serbest rol","Hatlar arasında boşluk ara."],wide:["Geniş oyna","Kanatta bire bir ara."],inside:["İçe kat et","Bitiriş bölgesine yaklaş."],overlap:["Bindirme yap","Hücuma destek ver; arkanda alan bırakabilirsin."],stay:["Geride kal","Savunma güvenliğini koru."],step:["Öne çık","Rakibi erken karşıla."],shortGK:["Kısa kullan","Pasla çıkışı artır."],longGK:["Uzun kullan","Hızlı hücuma çık; pas isabeti azalabilir."],sweeper:["Süpürücü kaleci","Öndeki savunmanın arkasını kapat."]};
  const keys=role==='GK'?['shortGK','longGK','sweeper']:role==='ST'?['runBehind','holdUp','shoot','press']:role==='CAM'?['creator','riskPass','free','shoot']:role==='CM'?['creator','riskPass','stay','press']:['LW','RW'].includes(role)?['wide','inside','runBehind','press']:['LB','RB'].includes(role)?['overlap','stay','press']:['stay','step','press'];

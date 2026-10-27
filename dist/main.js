@@ -30,6 +30,7 @@ import './core/engine/pitch-v73.js';
 import './core/engine/pitch-v731.js';
 import './core/engine/match-minute.js';
 import './core/engine/user-team.js';
+import './modes/manager/match-panel.js';
 import './modes/manager/app.js';
 import './ui/nav.js';
 import './modes/manager/star-transfer.js';

@@ -13,7 +13,7 @@ import { presentation } from '../../core/presentation/registry.js';
 import { exportCareer, importCareer, migrateSave, save } from '../../core/save.js';
 import { actionData, defineActions, runAction } from '../../ui/actions.js';
 import { runHooks } from '../../core/hooks.js';
-import { FORM_TR, applyConversationEffect, beginMatchOverlay, clamp, closeMatchOverlay, ensureMatchState, escapeHTML, finite, kickoffSeed, liveCommentaryLines, matchDetailsUI, matchEvent, matchFitnessUI, matchOrderOptions, matchPossession, matchStatsUI, matchSummary, restoreActiveMatch, tacticsControls, userSide } from '../../core/engine/match-support.js';
+import { FORM_TR, applyConversationEffect, beginMatchOverlay, clamp, ensureMatchState, escapeHTML, finite, kickoffSeed, liveCommentaryLines, matchEvent, matchOrderOptions, matchPossession, matchSummary, restoreActiveMatch, userSide } from '../../core/engine/match-support.js';
 import { buildPlayerMeeting, makeV71PostPress, makeV71PrePress, resolvePlayerMeeting, settlePlayerPromises } from './career-events.js';
 import { advanceLive, ensureLiveLoop, ensureLiveState, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed, shoutLive } from '../../core/engine/live-match.js';
 import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js';
@@ -25,6 +25,7 @@ import { starFlashCard } from './star-transfer.js';
 import { OPP, allTeams, applyTableGame, currentFixture, currentOpponent, ensureLeague, makeSchedule, recordForm, simulateRoundOthers } from '../../core/league/league.js';
 import { CLUBSTYLE, crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js';
 import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute.js';
+import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, tacticsControls } from './match-panel.js';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
 export function playerById(id){return S.players.find(p=>p.id===id)}
 // a bid as the press says it: ₺9.5M, ₺13M
