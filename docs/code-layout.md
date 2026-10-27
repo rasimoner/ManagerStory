@@ -1,6 +1,6 @@
 # Kod düzeni
 
-Refactor C (V7.9.13 üzerinde). Kod hâlâ `dist` içinde, build yok; `src/` ve Vite son adımda (E).
+Refactor C (V7.9.13 üzerinde), D ile devam (V7.10.0 üzerinde). Kod hâlâ `dist` içinde, build yok; `src/` ve Vite son adımda (E).
 Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe akar. Bugün dosyalar bütün olarak taşındı, içleri bölünmedi: bazı dosyalar birden çok işi taşıyor (aşağıda "D'de ayrılacak"). Hangi dosyanın nerede olduğu bu tabloda; yeri değişen dosyada bu tablo da güncellenir.
 
 ## dist/core — ortak çekirdek (her mod kullanır)
@@ -12,11 +12,14 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `core/hooks.js` | (yeni, C3) | Genişletme noktaları: `onHook`/`runHooks`. Bir dosya başkasının fonksiyonunu sarmaz, adlandırılmış ana kaydolur | Ortak altyapı |
 | `core/random.js` | `random.js` | Tohumlanabilir tek rastgele üretici (`R`) | Motorun ve kariyerin tek rastgelelik kaynağı |
 | `core/save.js` | `save.js` | Kayıt yükleme/kaydetme, dışa/içe aktarma, taşıma zinciri | Kayıt ortak; mod alanları zamanla ayrı bölüme |
+| `core/engine/match-minute.js` | `app.js` (D1) | Motorun kalbi: maçın bir dakikası (`tick`), atak (`chance`, `seqText`), sahadaki gücü (`strength`), şansı kimin bulacağı (`attacker`), topun kimde olduğu (`setUserOwner`/`setOppOwner`), rakip diziliş noktaları (`oppRadarPos`), oyuncunun oynadığı role uyumu (`positionPenaltyV61`) | Gövdeler aynen; aynı tohumlu çekilişler aynı sırada |
 | `core/engine/match-support.js` | `match-support.js` | Maç durumu, maç olayları, faul/kart, taktik etkileri, maç özeti | Motorun durum ve olay tarafı. D'de ayrılacak: maç paneli arayüzü (`matchStatsUI`, `tacticsControls`…), `goMain`, `decorateMainScreen` |
 | `core/engine/live-match.js` | `live-match.js` | Maç saati, canlı döngü, maç bitişi | Motorun zaman tarafı. D'de ayrılacak: asistan metinleri, bağırma |
 | `core/engine/pitch-v73.js` | `pitch-v73.js` | Dakika eylemleri: pas, çalım, orta, ofsayt, şut | Motorun ~900 satırı. D'de ayrılacak: baştaki 2D saha çizimi → `core/presentation/match2d` |
 | `core/engine/pitch-v731.js` | `pitch-v731.js` | Özellik modeli, yorgunluk, ikili mücadele, duran toplar, serbest top | Motorun ikinci yarısı |
-| `core/players/player-profiles.js` | `player-profiles.js` | Oyuncu tipi, özellik profili, antrenman odağı | Oyuncu modeli; DOM ve kayıt bilgisi yok |
+| `core/players/player-profiles.js` | `player-profiles.js` | Oyuncu tipi, özellik profili, antrenman odağı; başlangıç kadrosundaki oyuncu ve onun rakip stiline göre avantajı (`startingPlayer`, `styleEdge`, D1) | Oyuncu modeli; DOM ve kayıt bilgisi yok |
+| `core/league/league.js` | `app.js` (D2–D3) | Lig: rakip kulüp satırları (`OPP`), takımlar, çift devreli fikstür, bu turun maçı ve rakibi (`currentFixture`, `currentOpponent`), turun diğer maçları (`simAIGame`, `simulateRoundOthers`), puan tablosu ve form | Her mod aynı ligi oynar |
+| `core/clubs/clubs.js` | `app.js` (D2) | Kulüp kimliği: renkler ve desen (`CLUBSTYLE`), arma, taraftar fotoğrafı, kariyerin kulübü (`managedClubName`), ekranın ve maçın gösterdiği kimlik (`resolveClubIdentity`) | `data/clubs.js`'ten; mod bilmez |
 | `core/league/opponents-v731.js` | `opponents-v731.js` | Rakip kadroları, lig seviyesi | Lig |
 | `core/season/season.js` | `season.js` | Sezon sonu adım hattı, yaşlanma, emeklilik, rakip ve pazar yenileme | Sezon hattı ortak. D'de ayrılacak: teknik direktör adımları (`report`, `contracts`, `academy`, `market`) ve sezon sonu ekranları |
 | `core/presentation/match3d/match3d-newview.js` | `match3d-newview.js` | 3D maç görünümü ile oyun arasındaki köprü, HUD, tekrar | Sunum |
@@ -30,7 +33,7 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 
 | Dosya | Önceki yer | Ne | Neden burada |
 |---|---|---|---|
-| `modes/manager/app.js` | `app.js` | Kariyer döngüsü, transfer, akademi, kadro/taktik/diziliş ekranları, gelen kutusu, `choose`, ekran yönlendirme | Çoğu teknik direktöre özgü. D'de ayrılacak: motor kalbi (`tick`, `chance`, `strength`…) → `core/engine`, lig (`allTeams`, `simAIGame`…) → `core/league`, kulüp kimliği → `core/clubs`, gelişim → `core/players`, ekran kabuğu ve header → `ui` |
+| `modes/manager/app.js` | `app.js` | Kariyer döngüsü, transfer, akademi, kadro/taktik/diziliş ekranları, gelen kutusu, `choose`, ekran yönlendirme | Çoğu teknik direktöre özgü. Motor kalbi, lig ve kulüp kimliği D1–D3'te çekirdeğe taşındı. Kalan: gelişim → `core/players`, ekran kabuğu ve header → `ui` |
 | `modes/manager/career-events.js` | `career-events.js` | Basın soruları, oyuncu görüşmeleri | Teknik direktöre özgü |
 | `modes/manager/star-transfer.js` | `star-transfer.js` | Yıldız transfer akışı (duyuru, imza, forma), highlight kaydı | Akış teknik direktöre özgü. D'de ayrılacak: highlight kaydı → `core/highlights` |
 
@@ -76,9 +79,16 @@ Genişletme noktaları (`core/hooks.js`):
 - Sayfada klasik script yok. `index.html` dört modül girişi yükler: `main.js` (oyun) ve sunum katmanları `core/presentation/match3d/match3d-live-clock.js` (`data-layer="clock"`), `match-view-adapter.js` (`view`), `modes/manager/match-3d.js` (`3d`: 3D görünümü yükler, olmazsa 2D).
 - Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (D'de dışa açık olanlar daralacak).
 - Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok; tek istisna yıldız sahnesinin otomasyon için zaman ölçeği `window.__stsTimeScale`. three.js `dist/vendor`'dan modül olarak gelir (E'de npm).
-- `core/` henüz `modes/manager`'dan bazı şeyler alıyor (motor kalbi, lig, kulüp kimliği `app.js`'te). Liste `tests/structure.test.cjs` içinde sabit; sadece kısalabilir, D'de sıfırlanır.
+- `core/` henüz `modes/manager`'dan bazı şeyler alıyor (D3 sonunda 7 dosyada 36 ad; C sonunda 11 dosyada 63). Liste `tests/structure.test.cjs` içinde sabit; sadece kısalabilir, D'de sıfırlanır.
 - Testler aynı modülleri `vm.SourceTextModule` ile yükler (`tests/support/game.cjs`); `npm test` gereken `--experimental-vm-modules` bayrağını verir. Tek dosya için: `NODE_OPTIONS=--experimental-vm-modules node --test tests/<dosya>`.
 - Service worker girişleri `?v=<sürüm>` ile, içe aktarılan modülleri yalın adıyla listeler.
+
+## Testlerin oyuna erişimi (D0)
+
+- Testler oyuna tek erişim noktasından, adla ulaşır, dosyayla değil: `loadGame()` her modülün her export'unu tek nesnede toplar (`g.api.ad`; aynı adlar `run('…')` için bağlamın globalleri). Her ad, bugün hangi modüldeyse oradan canlı okunur; `g.owner(ad)` yerini söyler. Bir fonksiyon başka modüle taşınınca hiçbir test değişmez.
+- Kod okuyan testler de adla bulur: `sourceDefining(ad)` adı tanımlayan modül, `scriptsDefining([...])`, `gameSources()`.
+- `tests/structure.test.cjs` hiçbir testin oyun modülünü dosya adıyla (`readDist`/`locate`) okumadığını denetler. Sunum katmanının dosyaları (3D) istisna: kendi dosyaları konuları.
+- Aynı adı iki modül export ederse yükleyici hata verir (erişim noktası hangisini kastettiğini bilemez).
 
 ## Yolları etkileyen kurallar
 
