@@ -15,10 +15,10 @@ export const PRE_PRESS = [
   ['rivalRank', c => c.rivalRank<=5, c => `${c.r[0]} üst sıralarda. Sizce kilit mücadele nerede yaşanacak?`, ['Merkezde disiplin belirleyici olacak.', 'Topu kazandığımız an hızlı hareket edeceğiz.', 'Rakibin güçlü yönlerine göre hazırlanıyoruz.']],
   ['evenRank', c => Math.abs(c.ourRank-c.rivalRank)<=3, c => `Puan tablosunda ${c.r[0]} ile yakınsınız. Sahadaki farkı ne belirler?`, ['Küçük kararlar ve konsantrasyon.', 'Maçın ritmini ele geçirmeliyiz.', 'Oyuncularım bu maçı iyi okuyor.']],
   ['lastWin', c => c.lastOutcome==='G', c => `Geçen haftaki galibiyetin ardından ${c.r[0]} maçına aynı kadroyla mı çıkacaksınız?`, ['Form iyi ama kararımı hazırlığa göre veririm.', 'Kazanan oyun alışkanlıklarını sürdüreceğiz.', 'Hiçbir oyuncunun yeri garanti değil.']],
-  ['lastLoss', c => c.lastOutcome==='M', c => `Geçen haftaki mağlubiyetten sonra hangi reaksiyonu bekliyorsunuz?`, ['Dengeli kalıp hataları azaltmalıyız.', 'İlk düdükten itibaren güçlü tepki bekliyorum.', 'Oyuncularım toparlanmayı biliyor.']],
-  ['lastDraw', c => c.lastOutcome==='B', c => `Son beraberlikten sonra bu kez üç puan için ne değişecek?`, ['Pozisyonları daha iyi değerlendirmeliyiz.', 'Daha cesur bir başlangıç yapacağız.', 'Teknik ekip gerekli ayrıntıları çalıştı.']],
+  ['lastLoss', c => c.lastOutcome==='M', () => `Geçen haftaki mağlubiyetten sonra hangi reaksiyonu bekliyorsunuz?`, ['Dengeli kalıp hataları azaltmalıyız.', 'İlk düdükten itibaren güçlü tepki bekliyorum.', 'Oyuncularım toparlanmayı biliyor.']],
+  ['lastDraw', c => c.lastOutcome==='B', () => `Son beraberlikten sonra bu kez üç puan için ne değişecek?`, ['Pozisyonları daha iyi değerlendirmeliyiz.', 'Daha cesur bir başlangıç yapacağız.', 'Teknik ekip gerekli ayrıntıları çalıştı.']],
   ['winningStreak', c => c.winStreak>=2, c => `Üst üste ${c.winStreak} galibiyet aldınız. Seri sizi gevşetir mi?`, ['Seri önemlidir ama her maç sıfırdan başlar.', 'Özgüvenle oynayacağız.', 'Sorumluluğumuz her hafta artıyor.']],
-  ['losingStreak', c => c.lossStreak>=2, c => `Üst üste alınan sonuçlar soyunma odasını nasıl etkiledi?`, ['Birbirimize yakın duruyoruz.', 'Artık sahada cevap vermeliyiz.', 'Oyuncuları suçlamak çözüm değil.']],
+  ['losingStreak', c => c.lossStreak>=2, () => `Üst üste alınan sonuçlar soyunma odasını nasıl etkiledi?`, ['Birbirimize yakın duruyoruz.', 'Artık sahada cevap vermeliyiz.', 'Oyuncuları suçlamak çözüm değil.']],
   ['homeCrowd', c => c.home, c => `Hisar Stadı'ndaki taraftar desteği ${c.r[0]} maçında ne kadar önemli?`, ['Desteği kullanıp aceleci davranmamalıyız.', 'İlk dakikadan enerji verecekler.', 'Taraftarın arkamızda olduğunu hissediyoruz.']],
   ['awayGame', c => !c.home, c => `${c.r[0]} deplasmanında oyununuzu nasıl kuracaksınız?`, ['Sabırlı ve kompakt başlayacağız.', 'Deplasmanda da kendi oyunumuza inanıyoruz.', 'Rakibin temposunu kırmanın yollarını biliyoruz.']],
   ['derby', c => /Boğaz|Beykoz|Kadıköy|Üsküdar|Hisar/.test(c.r[0]), c => `${c.r[0]} ile bu karşılaşma özel bir atmosfer taşıyor. Oyuncular bunu nasıl yaşıyor?`, ['Duyguyu kontrol etmek şart.', 'Böyle maçlar bizi motive eder.', 'Taraftarlarımız için de güçlü oynamak isteriz.']],
@@ -30,31 +30,31 @@ export const PRE_PRESS = [
   ['injury', c => !!c.injured, c => `${c.injured.name} sakatlığının kadro seçimine etkisi ne?`, ['Önce oyuncunun sağlığını düşünürüz.', 'Alternatiflerimiz göreve hazır.', 'Taktik planımızı buna göre güncelledik.']],
   ['transfer', c => !!c.newcomer, c => `Yeni transfer ${c.newcomer.name} takıma ne kattı?`, ['Önce uyum sağlaması önemli.', 'Kalitesi rekabeti yükseltecek.', 'Ona zaman ve güven vereceğiz.']],
   ['changedTactics', c => c.changedTactics, c => `Maç planındaki son değişiklik ${c.r[0]} için mi?`, ['Oyuncuların ihtiyacına göre karar verdik.', 'Rakibe sürpriz hazırladık.', 'Sahada gördüklerimize göre tekrar ayarlayabiliriz.']],
-  ['cupAlive', c => c.cupAlive, c => `Türkiye Kupası hedefi lig maçının önceliğini değiştiriyor mu?`, ['Her kulvarda aynı ciddiyetle hazırlanıyoruz.', 'Rotasyonu doğru yönetmeliyiz.', 'Bugün yalnızca bu maçı düşünüyoruz.']],
-  ['cupEliminated', c => !c.cupAlive, c => `Kupadan sonra lig hedeflerine odaklanmak takıma nasıl yansıdı?`, ['Önümüzdeki maça yoğunlaştık.', 'Bu hayal kırıklığını motivasyona çevireceğiz.', 'Oyuncularım yeniden ayağa kalktı.']],
-  ['fanPressure', c => c.fans<60, c => `Taraftarın eleştirileri oyunculara ulaşıyor mu?`, ['Eleştirileri duyuyoruz ama soğukkanlıyız.', 'Onlara sahada cevap vereceğiz.', 'Oyuncularıma baskı yüklemeyeceğim.']],
-  ['fanMomentum', c => c.fans>=75, c => `Tribündeki iyimserlik takımın hedeflerini yükseltti mi?`, ['Beklentiye kapılmadan çalışmalıyız.', 'Birlikte daha fazlasını başarabiliriz.', 'Taraftarın enerjisi oyunculara geçiyor.']],
+  ['cupAlive', c => c.cupAlive, () => `Türkiye Kupası hedefi lig maçının önceliğini değiştiriyor mu?`, ['Her kulvarda aynı ciddiyetle hazırlanıyoruz.', 'Rotasyonu doğru yönetmeliyiz.', 'Bugün yalnızca bu maçı düşünüyoruz.']],
+  ['cupEliminated', c => !c.cupAlive, () => `Kupadan sonra lig hedeflerine odaklanmak takıma nasıl yansıdı?`, ['Önümüzdeki maça yoğunlaştık.', 'Bu hayal kırıklığını motivasyona çevireceğiz.', 'Oyuncularım yeniden ayağa kalktı.']],
+  ['fanPressure', c => c.fans<60, () => `Taraftarın eleştirileri oyunculara ulaşıyor mu?`, ['Eleştirileri duyuyoruz ama soğukkanlıyız.', 'Onlara sahada cevap vereceğiz.', 'Oyuncularıma baskı yüklemeyeceğim.']],
+  ['fanMomentum', c => c.fans>=75, () => `Tribündeki iyimserlik takımın hedeflerini yükseltti mi?`, ['Beklentiye kapılmadan çalışmalıyız.', 'Birlikte daha fazlasını başarabiliriz.', 'Taraftarın enerjisi oyunculara geçiyor.']],
   ['defence', c => c.r[3]>=75, c => `${c.r[0]} hücumda etkili. Savunma önlemi alacak mısınız?`, ['Hatlar arası mesafeyi koruyacağız.', 'Onları geriye koşmaya zorlayacağız.', 'Savunmacılarıma güveniyorum.']],
-  ['physical', c => c.r[8]>=80, c => `Rakibin fizik gücüne nasıl karşılık vereceksiniz?`, ['İkili mücadeleleri doğru seçmeliyiz.', 'Topu hızlı dolaştıracağız.', 'Takımımız bu yoğunluğa hazır.']],
+  ['physical', c => c.r[8]>=80, () => `Rakibin fizik gücüne nasıl karşılık vereceksiniz?`, ['İkili mücadeleleri doğru seçmeliyiz.', 'Topu hızlı dolaştıracağız.', 'Takımımız bu yoğunluğa hazır.']],
   ['generalRead', () => true, c => `${c.r[0]} karşısında oyunun anahtarı nedir?`, ['Dengeyi korumak.', 'İnisiyatif almak.', 'Doğru bireysel eşleşmeler.']],
   ['generalSquad', () => true, () => `Kadrodaki rekabet ilk 11 kararınızı zorlaştırıyor mu?`, ['Kararları form durumuna göre veriyorum.', 'Herkes hazır olmalı.', 'Takımın genel planını öne koyuyorum.']]
 ];
 export const POST_PRESS = [
   ['comfortableWin','win', c => c.margin>=3, c => `${c.margin} farklı galibiyette oyuncuların en iyi yaptığı şey neydi?`, ['Oyunu baştan sona disiplinle oynadılar.', 'Bitiriciliğimiz belirleyiciydi.', 'Bu performansı sürdürmelerini bekliyorum.']],
-  ['lateWin','win', c => c.lateWinner, c => `Son dakikalarda gelen golü nasıl yaşadınız?`, ['Takım son ana kadar inandı.', 'Kenardan yaptığımız hamleler yardımcı oldu.', 'Bu mücadeleyi taraftarımız hak etti.']],
-  ['comebackWin','win', c => c.comeback, c => `Geriden gelip kazanırken soyunma odasında neyi değiştirdiniz?`, ['Oyuncularımı sakin tuttum.', 'Daha cesur oynamalarını istedim.', 'Bu geri dönüş onların karakterini gösteriyor.']],
+  ['lateWin','win', c => c.lateWinner, () => `Son dakikalarda gelen golü nasıl yaşadınız?`, ['Takım son ana kadar inandı.', 'Kenardan yaptığımız hamleler yardımcı oldu.', 'Bu mücadeleyi taraftarımız hak etti.']],
+  ['comebackWin','win', c => c.comeback, () => `Geriden gelip kazanırken soyunma odasında neyi değiştirdiniz?`, ['Oyuncularımı sakin tuttum.', 'Daha cesur oynamalarını istedim.', 'Bu geri dönüş onların karakterini gösteriyor.']],
   ['bigWin','win', c => c.bigOpponent, c => `Güçlü ${c.opponent} karşısında bu sonuç size ne anlatıyor?`, ['Planı iyi uyguladık.', 'Doğru anda risk aldık.', 'Takıma duyduğum güven büyüdü.']],
   ['winStreak','win', c => c.winStreak>=3, c => `Üst üste ${c.winStreak} galibiyet; takımın sınırı nerede?`, ['Ayaklarımız yere basmalı.', 'Bu özgüveni büyütebiliriz.', 'Oyuncular daha fazlasını istiyor.']],
-  ['tightWin','win', c => c.margin===1, c => `Tek farkla gelen galibiyeti nasıl değerlendiriyorsunuz?`, ['Zor anda dengemizi koruduk.', 'Daha erken koparabilirdik.', 'Bugün oyuncularım kazanmayı hak etti.']],
-  ['heavyLoss','loss', c => c.margin>=3, c => `Ağır mağlubiyetin sorumluluğunu nasıl paylaşıyorsunuz?`, ['Sorumluluk benim.', 'Takım olarak hatalarımızı inceleyeceğiz.', 'Oyuncuları yalnız bırakmayacağım.']],
-  ['lateLoss','loss', c => c.lateConcede, c => `Son bölümde yenilen gol sonrası takım neden dağıldı?`, ['Maç sonunu yönetemedik.', 'Savunma kararlarını değerlendireceğim.', 'Kendimize daha çok güvenmeliyiz.']],
-  ['narrowLoss','loss', c => c.margin===1, c => `Tek farkla kaybedilen maçta eksik olan neydi?`, ['Son paslarda daha sakin olmalıydık.', 'Bir hamleyi daha erken yapabilirdim.', 'Oyuncularımın çabasından memnunum.']],
-  ['poorPlay','loss', c => c.shots<5, c => `Az sayıda pozisyon buldunuz. Hücum planı işlemedi mi?`, ['Üretkenlik konusunda çalışacağız.', 'Rakip boşlukları kapattı.', 'Bu kadro daha fazlasını yapabilir.']],
-  ['deservedMore','loss', c => c.shots>=9, c => `Çok pozisyon bulup kaybetmenizin nedeni neydi?`, ['Bitiricilikte yetersiz kaldık.', 'Planımız pozisyon üretti.', 'Oyuncularıma çalışmayı sürdüreceğiz dedim.']],
-  ['lossStreak','loss', c => c.lossStreak>=2, c => `Kötü seri yönetimle ilişkinizi etkiliyor mu?`, ['Sonuçların sorumluluğunu alıyorum.', 'Çözümü sahada bulmalıyız.', 'Takımla birlikte çıkış arıyoruz.']],
-  ['lostLead','draw', c => c.lostLead, c => `Öne geçmişken iki puan bırakmanızın nedeni ne?`, ['Oyunu daha iyi kontrol etmeliydik.', 'Değişikliklerin zamanını tekrar inceleyeceğim.', 'Oyuncularımın emeğini yok sayamam.']],
-  ['drawComeback','draw', c => c.equalised, c => `Geriden gelip aldığınız beraberlik değerli mi?`, ['Mücadele açısından değerli.', 'Üç puan da alabilirdik.', 'Oyuncuların reaksiyonu sevindirici.']],
-  ['nilNil','draw', c => c.goals===0, c => `Golsüz geçen maçta hücum üretimi neden sınırlı kaldı?`, ['Şut seçimlerimizi geliştireceğiz.', 'Savunmada sağlamdık.', 'Oyuncularım daha fazla risk alabilir.']],
+  ['tightWin','win', c => c.margin===1, () => `Tek farkla gelen galibiyeti nasıl değerlendiriyorsunuz?`, ['Zor anda dengemizi koruduk.', 'Daha erken koparabilirdik.', 'Bugün oyuncularım kazanmayı hak etti.']],
+  ['heavyLoss','loss', c => c.margin>=3, () => `Ağır mağlubiyetin sorumluluğunu nasıl paylaşıyorsunuz?`, ['Sorumluluk benim.', 'Takım olarak hatalarımızı inceleyeceğiz.', 'Oyuncuları yalnız bırakmayacağım.']],
+  ['lateLoss','loss', c => c.lateConcede, () => `Son bölümde yenilen gol sonrası takım neden dağıldı?`, ['Maç sonunu yönetemedik.', 'Savunma kararlarını değerlendireceğim.', 'Kendimize daha çok güvenmeliyiz.']],
+  ['narrowLoss','loss', c => c.margin===1, () => `Tek farkla kaybedilen maçta eksik olan neydi?`, ['Son paslarda daha sakin olmalıydık.', 'Bir hamleyi daha erken yapabilirdim.', 'Oyuncularımın çabasından memnunum.']],
+  ['poorPlay','loss', c => c.shots<5, () => `Az sayıda pozisyon buldunuz. Hücum planı işlemedi mi?`, ['Üretkenlik konusunda çalışacağız.', 'Rakip boşlukları kapattı.', 'Bu kadro daha fazlasını yapabilir.']],
+  ['deservedMore','loss', c => c.shots>=9, () => `Çok pozisyon bulup kaybetmenizin nedeni neydi?`, ['Bitiricilikte yetersiz kaldık.', 'Planımız pozisyon üretti.', 'Oyuncularıma çalışmayı sürdüreceğiz dedim.']],
+  ['lossStreak','loss', c => c.lossStreak>=2, () => `Kötü seri yönetimle ilişkinizi etkiliyor mu?`, ['Sonuçların sorumluluğunu alıyorum.', 'Çözümü sahada bulmalıyız.', 'Takımla birlikte çıkış arıyoruz.']],
+  ['lostLead','draw', c => c.lostLead, () => `Öne geçmişken iki puan bırakmanızın nedeni ne?`, ['Oyunu daha iyi kontrol etmeliydik.', 'Değişikliklerin zamanını tekrar inceleyeceğim.', 'Oyuncularımın emeğini yok sayamam.']],
+  ['drawComeback','draw', c => c.equalised, () => `Geriden gelip aldığınız beraberlik değerli mi?`, ['Mücadele açısından değerli.', 'Üç puan da alabilirdik.', 'Oyuncuların reaksiyonu sevindirici.']],
+  ['nilNil','draw', c => c.goals===0, () => `Golsüz geçen maçta hücum üretimi neden sınırlı kaldı?`, ['Şut seçimlerimizi geliştireceğiz.', 'Savunmada sağlamdık.', 'Oyuncularım daha fazla risk alabilir.']],
   ['highDraw','draw', c => c.goals>=2, c => `${c.goals}–${c.goals} biten maçta hücum mu savunma mı ağır bastı?`, ['Savunma dengesini kaybettik.', 'Hücumdaki cesaretimiz önemliydi.', 'Maçın iniş çıkışlarını hepimiz gördük.']],
   ['evenDraw','draw', () => true, () => 'Bir puanı nasıl değerlendiriyorsunuz?', ['Dengeli bir maçtı.', 'Kazanacak fırsatlarımız vardı.', 'Bu sonucun üzerine koymalıyız.']],
   ['matchStar','player', c => !!c.star, c => `${c.star.name} bugün fark yarattı. Ona ne söylediniz?`, ['Takımın başarısını öne çıkardım.', 'Potansiyelini daha fazla kullanmasını istiyorum.', 'Onunla gurur duyuyorum.']],
@@ -91,7 +91,7 @@ export function prePressContext() {
     star:xi.slice().sort((a,b)=>b.overall-a.overall)[0],young:xi.find(p=>p.age<=20),tired:xi.find(p=>p.fitness<65),injured:xi.find(p=>p.injury>0),
     newcomer:S.players.find(p=>p.status==='Yeni transfer'&&p.minutes<180),changedTactics:S.v71.lastTacticWeek>=S.week-1,cupAlive:S.v6.cup.alive,fans:S.fans };
 }
-export function makeV71PrePress() {
+export function createPreMatchPress() {
   const c=prePressContext(),question=selectPress(PRE_PRESS.map(([id,condition,prompt,answers])=>[id,'pre',condition,prompt,answers]),S.v71.preUsed,c,['pre']);
   return {kind:'press',title:'Maç Öncesi Basın Toplantısı',speaker:'Muhabir',text:question[3](c),choices:questionChoicePool(question,'pre'),questionId:question[0]};
 }
@@ -105,27 +105,27 @@ export function postPressContext(ug,og) {
     lossStreak:form.slice(-4).reverse().findIndex(x=>x!=='M')===-1?Math.min(4,form.length):form.slice(-4).reverse().findIndex(x=>x!=='M'),
     star:players.filter(p=>p.minutes>=30).sort((a,b)=>b.rating-a.rating)[0],young:players.find(p=>p.age<=20&&p.minutes>=15),keeper:players.find(p=>p.saves>=2),scorer:players.find(p=>p.goals>0),lowRated:players.find(p=>p.rating<6),substitutions:M.substitutions.length,press:M.press,tactics:M.tacticChanges.length,secondHalfGoals:userGoals.filter(e=>e.minute>45).length };
 }
-export function makeV71PostPress(ug,og) {
+export function createPostMatchPress(ug,og) {
   const context=postPressContext(ug,og),type=ug>og?'win':ug<og?'loss':'draw';
   const question=selectPress(POST_PRESS,S.v71.postUsed,context,[type,'player','tactic','general']);
   return [question[3](context),questionChoicePool(question,'post'),question[0],question[1]];
 }
 export const PLAYER_MEETINGS = [
   ['minutes',p=>!S.xi.includes(p.id)&&p.minutes<(S.fixture+1)*45,p=>`${p.age<=20?'Hocam, gelişmek için süreye ihtiyacım var.':'Hocam, daha fazla oynayabileceğimi düşünüyorum.'} Bana şans verir misiniz?`],
-  ['starter',p=>!S.xi.includes(p.id)&&p.overall>=69,p=>'İlk 11 için yeterince hazır olduğumu düşünüyorum. Bana güvenmenizi istiyorum.'],
+  ['starter',p=>!S.xi.includes(p.id)&&p.overall>=69,()=>'İlk 11 için yeterince hazır olduğumu düşünüyorum. Bana güvenmenizi istiyorum.'],
   ['position',p=>S.xi.includes(p.id)&&S.positions[p.id]&&!p.pos.split('/').includes(roleAtSlot(p,S.positions[p.id])),p=>`Kendi pozisyonum ${p.pos}. Sahada oynadığım rol bana doğal gelmiyor hocam.`],
   ['role',p=>p.passing>=70||p.finishing>=70,p=>`Bireysel rolümü konuşalım mı? ${p.pos} pozisyonunda daha fazla sorumluluk alabilirim.`],
-  ['captain',p=>p.age>=27&&p.overall>=68&&p.id!==S.v71.captainId,p=>'Soyunma odasında daha fazla liderlik yapmak istiyorum. Kaptanlık için beni de düşünür müsünüz?'],
-  ['teammate',p=>p.happiness<70&&p.age>=21,p=>'Bir takım arkadaşımla sahadaki iletişimimiz iyi değil. Bunu büyümeden çözmek istiyorum.'],
-  ['contract',p=>p.contract<=1,p=>'Sözleşmemin sonuna yaklaşıyorum. Geleceğimi burada görebilecek miyim?'],
-  ['transfer',p=>p.happiness<55,p=>'Geleceğimle ilgili konuşmak istiyorum. Ayrılma fikrini düşünmeye başladım.'],
-  ['form',p=>p.form>=78,p=>'Son haftalardaki formumdan memnunum. Bu düzeni sürdürmek istiyorum.'],
-  ['youngAdvice',p=>p.age<=20,p=>'Hocam, daha iyi olmak için neye odaklanmamı önerirsiniz?'],
-  ['bigMatch',p=>currentOpponent()[1]>=73&&p.morale>=60,p=>'Büyük maç geliyor. Sahaya çıkmak ve takıma yardım etmek istiyorum.'],
-  ['fatigue',p=>p.fitness<72,p=>'Son haftalarda yorgun hissediyorum. Biraz dinlenmeye ihtiyacım var.'],
-  ['promise',p=>S.promises.some(x=>x.type==='minutes'&&x.player===p.id&&x.due<=S.week),p=>'Verdiğiniz süre sözünü hatırlıyorum hocam. Neden hâlâ fırsat bulamadım?'],
-  ['newCompetition',p=>S.players.some(x=>x.status==='Yeni transfer'&&x.id!==p.id&&x.pos===p.pos),p=>'Yeni transferle rekabetten kaçmıyorum; yine de takımdaki yerimi bilmek isterim.'],
-  ['happyClub',p=>p.happiness>=82,p=>'Bu kulüpte gerçekten mutluyum hocam. Burada daha fazlasını başarmak istiyorum.']
+  ['captain',p=>p.age>=27&&p.overall>=68&&p.id!==S.v71.captainId,()=>'Soyunma odasında daha fazla liderlik yapmak istiyorum. Kaptanlık için beni de düşünür müsünüz?'],
+  ['teammate',p=>p.happiness<70&&p.age>=21,()=>'Bir takım arkadaşımla sahadaki iletişimimiz iyi değil. Bunu büyümeden çözmek istiyorum.'],
+  ['contract',p=>p.contract<=1,()=>'Sözleşmemin sonuna yaklaşıyorum. Geleceğimi burada görebilecek miyim?'],
+  ['transfer',p=>p.happiness<55,()=>'Geleceğimle ilgili konuşmak istiyorum. Ayrılma fikrini düşünmeye başladım.'],
+  ['form',p=>p.form>=78,()=>'Son haftalardaki formumdan memnunum. Bu düzeni sürdürmek istiyorum.'],
+  ['youngAdvice',p=>p.age<=20,()=>'Hocam, daha iyi olmak için neye odaklanmamı önerirsiniz?'],
+  ['bigMatch',p=>currentOpponent()[1]>=73&&p.morale>=60,()=>'Büyük maç geliyor. Sahaya çıkmak ve takıma yardım etmek istiyorum.'],
+  ['fatigue',p=>p.fitness<72,()=>'Son haftalarda yorgun hissediyorum. Biraz dinlenmeye ihtiyacım var.'],
+  ['promise',p=>S.promises.some(x=>x.type==='minutes'&&x.player===p.id&&x.due<=S.week),()=>'Verdiğiniz süre sözünü hatırlıyorum hocam. Neden hâlâ fırsat bulamadım?'],
+  ['newCompetition',p=>S.players.some(x=>x.status==='Yeni transfer'&&x.id!==p.id&&x.pos===p.pos),()=>'Yeni transferle rekabetten kaçmıyorum; yine de takımdaki yerimi bilmek isterim.'],
+  ['happyClub',p=>p.happiness>=82,()=>'Bu kulüpte gerçekten mutluyum hocam. Burada daha fazlasını başarmak istiyorum.']
 ];
 export function buildPlayerMeeting() {
   const used=S.v71.conversations.slice(-7),last=S.v71.playerMeetings,categoryWeek=S.v71.categoryMeetings,candidates=[];

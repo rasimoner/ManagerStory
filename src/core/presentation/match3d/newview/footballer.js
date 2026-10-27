@@ -102,8 +102,7 @@ export function buildFootballerGeometry(skeleton, style = {}) {
   }
 
   const X = new THREE.Vector3(1, 0, 0), Y = new THREE.Vector3(0, 1, 0), Z = new THREE.Vector3(0, 0, 1);
-  const v3 = (x, y, z) => new THREE.Vector3(x, y, z);
-  const lerp = (a, b, t) => a + (b - a) * t;
+  const vector = (x, y, z) => new THREE.Vector3(x, y, z);
   const sm = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
   const b = build;
 
@@ -112,7 +111,7 @@ export function buildFootballerGeometry(skeleton, style = {}) {
     : y < P.Spine1.y ? [['Spine', 1 - sm(P.Spine.y, P.Spine1.y, y) * .5], ['Spine1', sm(P.Spine.y, P.Spine1.y, y) * .5], ['Hips', .0]]
     : y < P.Spine2.y ? [['Spine1', 1 - sm(P.Spine1.y, P.Spine2.y, y) * .5], ['Spine2', sm(P.Spine1.y, P.Spine2.y, y) * .5]]
     : y < 1.47 ? [['Spine2', 1]] : [['Spine2', .55], ['Neck', .45]];
-  const T = (y, rx, rz, pid, zc = 0) => ({ c: v3(0, y, zc), u: X, v: Z, ru: rx * b, rv: rz * b, w: spineW(y), part: pid });
+  const T = (y, rx, rz, pid, zc = 0) => ({ c: vector(0, y, zc), u: X, v: Z, ru: rx * b, rv: rz * b, w: spineW(y), part: pid });
   loft([
     T(0.86, .085, .07, PART.shorts, .0),
     T(0.90, .158, .112, PART.shorts, .005),
@@ -130,11 +129,11 @@ export function buildFootballerGeometry(skeleton, style = {}) {
 
   // ---- neck and head ----
   loft([
-    { c: v3(0, 1.47, -.014), u: X, v: Z, ru: .056, rv: .056, w: [['Neck', 1]], part: PART.skin },
-    { c: v3(0, 1.56, -.006), u: X, v: Z, ru: .053, rv: .055, w: [['Neck', .6], ['Head', .4]], part: PART.skin },
-    { c: v3(0, 1.63, .002), u: X, v: Z, ru: .05, rv: .052, w: [['Head', 1]], part: PART.skin },
+    { c: vector(0, 1.47, -.014), u: X, v: Z, ru: .056, rv: .056, w: [['Neck', 1]], part: PART.skin },
+    { c: vector(0, 1.56, -.006), u: X, v: Z, ru: .053, rv: .055, w: [['Neck', .6], ['Head', .4]], part: PART.skin },
+    { c: vector(0, 1.63, .002), u: X, v: Z, ru: .05, rv: .052, w: [['Head', 1]], part: PART.skin },
   ], false, false);
-  const headC = v3(0, 1.69, .012), headR = v3(.094, .118, .104);
+  const headC = vector(0, 1.69, .012), headR = vector(.094, .118, .104);
   const hairFn = d => {
     if (hair === 'bald') return PART.skin;
     const top = hair === 'buzz' ? .45 : hair === 'long' ? -.15 : .25;
@@ -145,23 +144,23 @@ export function buildFootballerGeometry(skeleton, style = {}) {
     return PART.skin;
   };
   ellipsoid(headC, headR, [['Head', 1]], PART.skin, hairFn, 12);
-  if (hair === 'short' || hair === 'long') ellipsoid(v3(0, 1.735, -.004), v3(.098, .085, .1), [['Head', 1]], PART.hair, d => d.y > -.15 && d.z < .78 ? PART.hair : PART.hair, 8);
+  if (hair === 'short' || hair === 'long') ellipsoid(vector(0, 1.735, -.004), vector(.098, .085, .1), [['Head', 1]], PART.hair, d => d.y > -.15 && d.z < .78 ? PART.hair : PART.hair, 8);
   for (const s of [-1, 1]) {
-    ellipsoid(v3(s * .094, 1.68, .0), v3(.016, .03, .022), [['Head', 1]], PART.skin);                  // ears
-    ellipsoid(v3(s * .034, 1.697, .104), v3(.013, .015, .008), [['Head', 1]], PART.dark, null, 6);     // eyes
-    ellipsoid(v3(s * .036, 1.727, .106), v3(.024, .006, .009), [['Head', 1]], PART.dark, null, 6);     // brows
+    ellipsoid(vector(s * .094, 1.68, .0), vector(.016, .03, .022), [['Head', 1]], PART.skin);                  // ears
+    ellipsoid(vector(s * .034, 1.697, .104), vector(.013, .015, .008), [['Head', 1]], PART.dark, null, 6);     // eyes
+    ellipsoid(vector(s * .036, 1.727, .106), vector(.024, .006, .009), [['Head', 1]], PART.dark, null, 6);     // brows
   }
-  ellipsoid(v3(0, 1.672, .117), v3(.016, .024, .02), [['Head', 1]], PART.skin, null, 6);               // nose
-  ellipsoid(v3(0, 1.638, .1), v3(.026, .006, .008), [['Head', 1]], PART.dark, null, 6);                // mouth line
+  ellipsoid(vector(0, 1.672, .117), vector(.016, .024, .02), [['Head', 1]], PART.skin, null, 6);               // nose
+  ellipsoid(vector(0, 1.638, .1), vector(.026, .006, .008), [['Head', 1]], PART.dark, null, 6);                // mouth line
 
   // ---- arms (built for the left side, mirrored for the right) ----
   for (const s of [1, -1]) {
     const L = s > 0 ? 'Left' : 'Right';
     const sh = P[L + 'Arm'], el = P[L + 'ForeArm'], wr = P[L + 'Hand'];
-    const ax = v3(s, 0, 0);
+    const ax = vector(s, 0, 0);
     const up = Y, fw = Z;
     // deltoid under the sleeve
-    ellipsoid(v3(sh.x - s * .005, sh.y + .005, sh.z), v3(.072 * b, .07 * b, .068 * b), [[L + 'Arm', .55], ['Spine2', .45]], PART.shirt, null, 8);
+    ellipsoid(vector(sh.x - s * .005, sh.y + .005, sh.z), vector(.072 * b, .07 * b, .068 * b), [[L + 'Arm', .55], ['Spine2', .45]], PART.shirt, null, 8);
     const arm = (t, r, pid, w) => ({ c: sh.clone().lerp(el, t), u: up, v: fw, ru: r * b, rv: r * .95 * b, w, part: pid });
     const armW = t => [[L + 'Arm', 1 - sm(.75, 1, t) * .5], [L + 'ForeArm', sm(.75, 1, t) * .5], [L + 'Shoulder', (1 - sm(0, .2, t)) * .35]];
     loft([
@@ -175,11 +174,11 @@ export function buildFootballerGeometry(skeleton, style = {}) {
     ], false, true);
     const fa = (t, r) => ({ c: el.clone().lerp(wr, t), u: up, v: fw, ru: r, rv: r * .9, w: [[L + 'ForeArm', 1 - sm(.8, 1, t) * .5], [L + 'Hand', sm(.8, 1, t) * .5], [L + 'Arm', (1 - sm(0, .15, t)) * .4]], part: PART.skin });
     loft([fa(-.04, .043), fa(.3, .045), fa(.7, .036), fa(1, .031)], true, true);
-    ellipsoid(el.clone(), v3(.046, .044, .044), [[L + 'ForeArm', .5], [L + 'Arm', .5]], PART.skin, null, 6);
+    ellipsoid(el.clone(), vector(.046, .044, .044), [[L + 'ForeArm', .5], [L + 'Arm', .5]], PART.skin, null, 6);
     const handPart = keeper ? PART.glove : PART.skin;
     const hr = keeper ? 1.25 : 1;
-    ellipsoid(v3(wr.x + s * .06, wr.y - .004, wr.z + .006), v3(.058 * hr, .022 * hr, .042 * hr), [[L + 'Hand', 1]], handPart, null, 8);
-    ellipsoid(v3(wr.x + s * .03, wr.y - .004, wr.z + .045), v3(.026 * hr, .016 * hr, .018 * hr), [[L + 'Hand', 1]], handPart, null, 6); // thumb
+    ellipsoid(vector(wr.x + s * .06, wr.y - .004, wr.z + .006), vector(.058 * hr, .022 * hr, .042 * hr), [[L + 'Hand', 1]], handPart, null, 8);
+    ellipsoid(vector(wr.x + s * .03, wr.y - .004, wr.z + .045), vector(.026 * hr, .016 * hr, .018 * hr), [[L + 'Hand', 1]], handPart, null, 6); // thumb
     void ax;
   }
 
@@ -188,7 +187,7 @@ export function buildFootballerGeometry(skeleton, style = {}) {
     const L = s > 0 ? 'Left' : 'Right';
     const hip = P[L + 'UpLeg'], knee = P[L + 'Leg'], ank = P[L + 'Foot'], toe = P[L + 'ToeBase'];
     const thighW = t => [[L + 'UpLeg', 1 - sm(.78, 1, t) * .5], [L + 'Leg', sm(.78, 1, t) * .5], ['Hips', (1 - sm(0, .22, t)) * .45]];
-    const th = (t, rx, rz, pid, dz = 0) => ({ c: hip.clone().lerp(knee, t).add(v3(s * .006, 0, dz)), u: X, v: Z, ru: rx * b, rv: rz * b, w: thighW(t), part: pid });
+    const th = (t, rx, rz, pid, dz = 0) => ({ c: hip.clone().lerp(knee, t).add(vector(s * .006, 0, dz)), u: X, v: Z, ru: rx * b, rv: rz * b, w: thighW(t), part: pid });
     loft([
       th(-.04, .108, .1, PART.shorts, .004),
       th(.25, .11, .104, PART.shorts, .006),
@@ -199,9 +198,9 @@ export function buildFootballerGeometry(skeleton, style = {}) {
       th(.92, .056, .058, PART.skin, .01),
       th(1.0, .054, .056, PART.skin, .01),
     ], true, true);
-    ellipsoid(knee.clone().add(v3(0, 0, .012)), v3(.056, .062, .058), [[L + 'Leg', .5], [L + 'UpLeg', .5]], PART.skin, null, 8);
+    ellipsoid(knee.clone().add(vector(0, 0, .012)), vector(.056, .062, .058), [[L + 'Leg', .5], [L + 'UpLeg', .5]], PART.skin, null, 8);
     const shinW = t => [[L + 'Leg', 1 - sm(.85, 1, t) * .5], [L + 'Foot', sm(.85, 1, t) * .5], [L + 'UpLeg', (1 - sm(0, .12, t)) * .45]];
-    const sh = (t, r, pid, dz = 0) => ({ c: knee.clone().lerp(ank, t).add(v3(0, 0, dz)), u: X, v: Z, ru: r * .92, rv: r, w: shinW(t), part: pid });
+    const sh = (t, r, pid, dz = 0) => ({ c: knee.clone().lerp(ank, t).add(vector(0, 0, dz)), u: X, v: Z, ru: r * .92, rv: r, w: shinW(t), part: pid });
     loft([
       sh(-.05, .052, PART.skin, .008),
       sh(.14, .058, PART.skin, -.006),
@@ -216,7 +215,7 @@ export function buildFootballerGeometry(skeleton, style = {}) {
     // boot: heel to toe, flat sole
     const bootW = z => z > toe.z - .01 ? [[L + 'ToeBase', sm(toe.z - .03, toe.z + .02, z)], [L + 'Foot', 1 - sm(toe.z - .03, toe.z + .02, z)]] : [[L + 'Foot', 1]];
     const solePart = (a, ca, sa) => sa < -.55 ? PART.sole : PART.boot;
-    const bt = (z, y, hw, hh) => ({ c: v3(ank.x, y, z), u: X, v: Y, ru: hw, rv: hh, w: bootW(z), part: PART.boot, partFn: solePart });
+    const bt = (z, y, hw, hh) => ({ c: vector(ank.x, y, z), u: X, v: Y, ru: hw, rv: hh, w: bootW(z), part: PART.boot, partFn: solePart });
     loft([
       bt(-.085, .062, .036, .05),
       bt(-.06, .066, .046, .062),

@@ -34,14 +34,14 @@ Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin 
 2. **Top kimde**: `M.rand() < u / (u + opp)`. `u` = takım gücümüz (`strength`), `opp` = rakibin (hücum + orta saha + savunma) / 3 × (sahadaki rakip sayısı / 11).
 3. **Dakikanın aksiyonları** (`actionMinute`, `pitch-v73.js`): oyuncular yerlerine kayar; serbest top çözülür; topu tutan taraf istenen taraf değilse en yakın savunmacı (pres mesafesi içinde) müdahale eder (`tackleChance`); sonra 1 ya da 2 aksiyon (tempo, sabır ve geçişe göre). Her aksiyon ağırlıklı seçimdir: **pas** (pas seçenekleri: mesafe, ilerleme, baskı, ofsayt), **sürme**, **topu saklama**, **şut** (şut değeri `shotValueAt`). Orta, ofsayt, faul, duran toplar, serbest top, kafa vuruşu bu aksiyonların içinden doğar.
 4. İlk maçına çıkan oyuncu için olay.
-5. Bu dakika şut olmadıysa ve topa sahip biri varsa: `M.rand() < clamp(0.34 × sıklık, 0.17, 0.5)` ise **fırsat** (`chanceV73`).
+5. Bu dakika şut olmadıysa ve topa sahip biri varsa: `M.rand() < clamp(0.34 × sıklık, 0.17, 0.5)` ise **fırsat** (`playChance`).
 6. Top kuralları zorlanır (topu iki kişi tutamaz, oyun dışı oyuncu topa sahip olamaz…).
 7. `M.rand() < 0.42` ise bir ikili mücadele: faul olabilir (`recordMatchFoul`, kart dahil).
 8. 90'dan önce `M.rand() < 0.0015` ise kaleci olmayan bir oyuncumuz sakatlanır: kim olduğu ikinci bir `M.rand()` ile sahadaki kaleci olmayanlar arasından seçilir (`floor(rand × sayı)`); maç durur, değişiklik istenir.
 9. Diziliş toparlanır; 90'da son atak; 45 ve 90'da oyun durulur; 45'te devre, 90'da bitiş.
 
 ### Takım gücü (`strength`)
-Sahadaki her oyuncu için `(pas + çalım + bitiricilik + hız) / 4 × (0,55 + kondisyon/200) × (moral/85) × talimat bonusu × mevki uyumu`; ortalama × taktik kontrol etkisi × (sahadaki oyuncu / 11). Mevki uyumu (`positionPenaltyV61`): kendi mevkii 1; yakın mevki 0,72; uzak 0,45; kaleci olmayan kalede 0,12, kaleci sahada 0,22.
+Sahadaki her oyuncu için `(pas + çalım + bitiricilik + hız) / 4 × (0,55 + kondisyon/200) × (moral/85) × talimat bonusu × mevki uyumu`; ortalama × taktik kontrol etkisi × (sahadaki oyuncu / 11). Mevki uyumu (`positionPenalty`): kendi mevkii 1; yakın mevki 0,72; uzak 0,45; kaleci olmayan kalede 0,12, kaleci sahada 0,22.
 
 ### Özellik modeli (`pitch-v731.js`, başı)
 `taban özellik → mevki uyumsuzluğu → kondisyon → yaş = etkin özellik`. Oyuncunun kaydına hiçbiri yazılmaz. Kondisyonun etkisi özellik türüne göre (fiziksel > teknik > zihinsel; `BALANCE.engine.attributeKind`, `fitnessSensitivity`); mevki dışı ceza rol grubuna göre (`misfitWeight`). İkili olasılıklar yumuşak lojistik: `1 / (1 + e^(-(a-b)/ölçek))`, asla 0 ya da 1 değil. Özellik 35 → 0, 100 → 1 olarak normalleşir.

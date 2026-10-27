@@ -4,7 +4,7 @@
    bodies unchanged: the same seeded draws in the same order, so every match is the same match. */
 import { M, S } from '../state.js';
 import { enforceBallInvariants, matchFatigueDrain, setBallState, settlePlay, settleShape, tacticFatigue } from './pitch-v731.js';
-import { actionMinute, chanceV73, eventPoint, playLastAttack } from './pitch-v73.js';
+import { actionMinute, playChance, eventPoint, playLastAttack } from './pitch-v73.js';
 import { clamp, ensureMatchState, finite, matchEvent, orderKey, recordMatchFoul, roleAtSlot, tacticalEffects, userSide } from './match-support.js';
 import { finalizeMatch, matchSecond } from './live-match.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
@@ -24,7 +24,7 @@ export function tick(){
  const r=userOpponent(),u=strength(),opp=(r[3]+r[4]+r[5])/3*(M.oppIds.length/11),userPoss=M.rand()<u/(u+opp);
  actionMinute(userPoss,effect,r);
  for(const id of M.active){const p=userSquad().find(p=>p.id===id);if(p&&!p.debutDone&&!M.debutShown.includes(id)){M.debutShown.push(id);matchEvent('debut',`🌱 ${M.min}' ${p.name} profesyonel futboldaki ilk resmi maçına çıkıyor.`,{playerId:id});}}
- if(!M.minuteShot&&M.ballOwner!=null&&M.rand()<clamp(.34*effect.frequency,.17,.5))chanceV73(M.ballSide==="user");
+ if(!M.minuteShot&&M.ballOwner!=null&&M.rand()<clamp(.34*effect.frequency,.17,.5))playChance(M.ballSide==="user");
  enforceBallInvariants();
  if(M.rand()<.42)recordMatchFoul();   // V7.8: a challenge that may be a foul (see recordMatchFoul)
  if(M.min<90&&M.rand()<.0015){const ps=userSquad().filter(p=>M.active.includes(p.id)&&p.pos!=="GK");if(ps.length){const p=ps[Math.floor(M.rand()*ps.length)];p.injury=1;matchEvent('injury',`🩹 ${M.min}' ${p.name} yerde kaldı. Sağlık ekibi değişiklik öneriyor.`,{playerId:p.id});M.requiredSubstitution={playerId:p.id,reason:'injury',state:'SUBSTITUTION_REQUIRED'};M.pause=true;M.reason='injury';M.lifecycle='PAUSED';M.lastStop=M.min}}
@@ -35,7 +35,7 @@ export function tick(){
  if(M.min===45){matchEvent('half',"⏸ 45' Devre sona erdi. Oyuncular soyunma odasına yöneliyor.");M.pause=true;M.reason='half';M.lifecycle='HALF_TIME'}
  if(M.min>=90)finalizeMatch();
 }
-export function positionPenaltyV61(p,role){if(role=="GK")return p.pos=="GK"?1:.12;if(p.pos=="GK")return .22;if(p.pos.split("/").includes(role))return 1;let near={ST:["LW","RW","CAM"],CAM:["CM","LW","RW"],CM:["CAM"],CB:["LB","RB"],LW:["RW","CAM"],RW:["LW","CAM"],LB:["CB"],RB:["CB"]};return (near[p.pos.split("/")[0]]||[]).includes(role)?.72:.45}
+export function positionPenalty(p,role){if(role=="GK")return p.pos=="GK"?1:.12;if(p.pos=="GK")return .22;if(p.pos.split("/").includes(role))return 1;let near={ST:["LW","RW","CAM"],CAM:["CM","LW","RW"],CM:["CAM"],CB:["LB","RB"],LW:["RW","CAM"],RW:["LW","CAM"],LB:["CB"],RB:["CB"]};return (near[p.pos.split("/")[0]]||[]).includes(role)?.72:.45}
 export function strength(){
  const players=userSquad().filter(p=>M.active.includes(p.id));if(!players.length)return 30;
  const strength=players.reduce((sum,p)=>{let bonus=1,ins=M.playerOrders[p.id]||S.instructions[p.id]||"";
@@ -46,7 +46,7 @@ export function strength(){
  if(ins==="Bindirme yap"&&p.pace>=70)bonus+=.025;
  if((ins==="Pozisyonunu koru"||ins==="Geride kal")&&p.defending>=68)bonus+=.03;
  const role=M.matchRoles[p.id]||roleAtSlot(p,M.matchPositions[p.id]),fit=finite(p.fitness,100),mor=finite(p.morale,70),base=(p.passing+p.dribbling+p.finishing+p.pace)/4;
- return sum+base*(.55+fit/200)*(mor/85)*bonus*positionPenaltyV61(p,role)},0)/players.length;
+ return sum+base*(.55+fit/200)*(mor/85)*bonus*positionPenalty(p,role)},0)/players.length;
  return finite(strength,65)*tacticalEffects().control*(players.length/11);
 }
 export function attacker(){

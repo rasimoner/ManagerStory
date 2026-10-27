@@ -28,7 +28,7 @@ test('after half-time the keepers come back in their new goals: they do not run 
   const noop = () => {};
   const director = createDirector(rt, { events: liveEvents, snaps: liveSnaps, meta }, { say: noop, banner: noop, flash: noop, excite: noop, minute: noop, slow: noop, whistle: noop, finished: noop, cam: noop, score: noop }, { startIndex: 0 });
   director.syncRoster(all[0].roster);
-  const SUB = 1 / 120; let t = 0;
+  const SUB = 1 / 120;
   const run = (sec) => { for (let k = 0; k < sec / SUB; k++) { rt.S.t += SUB; director.update(); for (const p of rt.players) if (!p.offPitch) rt.move(p, SUB); rt.stepBall(SUB); rt.contacts(); } };
   // play the first half out (fast, no drawing)
   for (let g = 0; g < 3600 * 2 && director.busy; g++) run(1);

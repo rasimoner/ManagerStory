@@ -211,7 +211,7 @@ function loadModules(ctx, { layers, skip, first = [], root }) {
         enumerable: true,
         get: () => ns[key],
         set: value => {
-          if (SETTERS[name] && typeof api[SETTERS[name]] === 'function') return api[SETTERS[name]](value);
+          if (SETTERS[name] && typeof api[SETTERS[name]] === 'function') { api[SETTERS[name]](value); return; }
           throw new TypeError(`${name} is a binding of ${file}: a module cannot be assigned from outside`);
         },
       });

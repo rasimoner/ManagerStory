@@ -2,7 +2,7 @@
 // Used by the real-match director. No DOM.
 import * as THREE from 'three';
 import { buildFootballerGeometry, buildNumberGeometry } from './footballer.js';
-import { ACTIONS, applyAction, envelope, rigOf, footClearance } from './actions.js';
+import { ACTIONS, applyAction, envelope, footClearance } from './actions.js';
 
 export const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 export const clamp = THREE.MathUtils.clamp, lerp = THREE.MathUtils.lerp;
@@ -255,8 +255,8 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     p.heading = k.h;
     // carry only his speed towards the plant spot into the step (a sideways drift would make it swerve)
     const along = V(k.to.x - p.pos.x, 0, k.to.z - p.pos.z), len = along.length();
-    const v0 = len > 1e-3 ? along.multiplyScalar(clamp(p.vel.dot(along) / len, 0, 4) / len) : V();
-    p.warp = { from: p.pos.clone(), to: k.to, t0: S.t, tc: k.tc, v0 };
+    const startVelocity = len > 1e-3 ? along.multiplyScalar(clamp(p.vel.dot(along) / len, 0, 4) / len) : V();
+    p.warp = { from: p.pos.clone(), to: k.to, t0: S.t, tc: k.tc, v0: startVelocity };
   }
   function toeNear(p, maxD) {
     let best = null;

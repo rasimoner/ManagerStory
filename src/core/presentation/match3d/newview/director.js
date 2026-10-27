@@ -1,6 +1,5 @@
 // Plays a real MatchEngine event log on the pitch runtime.
 // The engine decides who does what and where; this file only decides how it looks.
-import * as THREE from 'three';
 import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
 
@@ -223,7 +222,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     const F = () => fwdOf(gk), R = () => rightOf(gk);
     const holdAt = () => gk.pos.clone().addScaledVector(F(), 0.42).setY(1.0);
     ball.held = rt.pickUp(holdAt, 0.3); ball.owner = gk;
-    const grip = side => ({ w: t => 1, at: () => ball.p.clone().addScaledVector(R(), side * 0.12).addScaledVector(F(), -0.04) });
+    const grip = side => ({ w: () => 1, at: () => ball.p.clone().addScaledVector(R(), side * 0.12).addScaledVector(F(), -0.04) });
     gk.hands = { Left: grip(-1), Right: grip(1) };
     // turn to the target, then a couple of steps forwards
     yield* until(() => { gk.target.copy(gk.pos); gk.want = 0; const d = Math.atan2(Math.sin(hd - gk.heading), Math.cos(hd - gk.heading)); gk.heading += clamp(d, -0.1, 0.1); return Math.abs(d) < 0.05; }, 1);
@@ -1295,10 +1294,10 @@ export function createDirector(rt, data, hooks, opts = {}) {
     car.face = car.pos.clone().addScaledVector(f, 30); car.faceLock = true;
     ball.through = t0 + 1.0; def.target.copy(def.pos); def.want = 0.5;
     const rel = (a, l, y) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
-    let touched = 0, b1 = null;
+    let touched = 0, b1;
     car.feet = {
       Right: { w: ramp(t0, 0, 0.06, 0.32, 0.45), at: () => rel(-0.02, 0.12, 0.05) },
-      Left: { w: ramp(t0, 0, 0.06, 0.62, 0.78), at: t => touched ? rel(-0.1, -0.1, 0.05) : car.pos.clone().addScaledVector(f, 0.1).addScaledVector(r, -0.2).setY(0.03) },
+      Left: { w: ramp(t0, 0, 0.06, 0.62, 0.78), at: () => touched ? rel(-0.1, -0.1, 0.05) : car.pos.clone().addScaledVector(f, 0.1).addScaledVector(r, -0.2).setY(0.03) },
     };
     const audit = { kind: 'croqueta' };
     yield* until(() => S.t - t0 >= 0.12 && toeGap(car, 'Right') < 0.22, 0.3);
@@ -1475,7 +1474,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function* sombreroBeat(car, def, closeUp) {
     if (!(yield* gather(car, def)) || def.pos.distanceTo(car.pos) > 4) return false;
     yield* squareUp(car);
-    const f = fwdOf(car), r = rightOf(car), t0 = S.t;
+    const f = fwdOf(car), r = rightOf(car);
     // the defender closes to just over a metre and a half
     yield* until(() => { def.target.copy(car.pos).addScaledVector(f, 1.7); def.want = 3; def.face = car.pos; def.faceLock = true; def.loopsWant.jockey = 1; car.target.copy(car.pos); car.want = 0.3; return def.pos.distanceTo(car.pos) < 1.95; }, 0.7);
     if (closeUp) hooks.cam('close', car, def);
@@ -1879,7 +1878,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         && (e.devRush || (fromGoal < 19 && Math.abs(ball.p.z) < 13 && Math.abs(ball.p.x - lineX) > 7 && clearRun()))) {
         rush = { line0: +Math.abs(gk.pos.x - lineX).toFixed(2) };
         const spotFor = () => { const b = V(ball.p.x, 0, ball.p.z), toB = b.clone().sub(goalC), L = toB.length(); return goalC.clone().addScaledVector(toB.normalize(), clamp(L - clamp(L * 0.2, 2.2, 3.2), 1.2, 11)); };     // (never out of his box)
-        const t0 = S.t; gk.face = ball.p; gk.faceLock = false;
+        gk.face = ball.p; gk.faceLock = false;
         // the two of them from the side as the keeper closes in (when they are close enough to share a side-on
         // picture; further apart, from behind the man, the goal and the keeper ahead of him)
         hooks.cam(Math.hypot(gk.pos.x - ball.p.x, gk.pos.z - ball.p.z) < 9 ? 'side' : 'shot', sh, gk);

@@ -21,7 +21,6 @@ const oppPlayer = (h, idx, attrs = {}) => {
   h.run(`(function(){const p=opponentPlayer(${JSON.stringify(id)});Object.assign(p,${JSON.stringify({ ...NEUTRAL, shooting: attrs.finishing ?? 65, ...attrs })})})()`);
   return id;
 };
-const park = h => h.run("for(const id of M.active)M.dynamicPositions[String(id)]=[5,8];for(const id of M.oppIds)M.dynamicPositions[String(id)]=[95,92];");
 
 /* Generic seeded race: two chasers, equal or chosen distances from the ball, N trials. */
 function race(h, a, b, distA, distB, trials = 300, seed = 4100) {
@@ -246,7 +245,7 @@ test('13. position suitability hits role-relevant skills, not everything', () =>
   assert.ok(e(cb, 'finishing') < e(st2, 'finishing') - 8);
   assert.ok(Math.abs(e(cb, 'tackling') - e(st2, 'tackling')) < .001);
   // the existing suitability table is reused, not duplicated
-  assert.equal(h.run(`positionSuitability(${striker},'user')`), h.run(`positionPenaltyV61(S.players.find(p=>p.id===${striker}),'CB')`));
+  assert.equal(h.run(`positionSuitability(${striker},'user')`), h.run(`positionPenalty(S.players.find(p=>p.id===${striker}),'CB')`));
 });
 
 test('14. base attributes are never mutated by effective calculations or by a full match', () => {

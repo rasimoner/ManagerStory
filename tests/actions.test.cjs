@@ -45,7 +45,7 @@ function screens() {
   const e = loadGame({ quiet: true, storage: new Map([['msv4', save]]) });
   e.run('render()'); seen.push(['season end: contracts', e.html()]);
   const t = career();
-  t.run("S.budget=9e8;S.week=4;v6Sign(S.v6.transferPool.find(x=>starSceneQualifies(x)&&!starIsKeeper(x)).id,1)"); seen.push(['star: announcement', t.html()]);
+  t.run("S.budget=9e8;S.week=4;signTransfer(S.v6.transferPool.find(x=>starSceneQualifies(x)&&!starIsKeeper(x)).id,1)"); seen.push(['star: announcement', t.html()]);
   t.click('starSigningScreen'); seen.push(['star: signing', t.html()]);
   return seen;
 }

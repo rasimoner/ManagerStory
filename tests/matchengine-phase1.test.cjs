@@ -1,7 +1,6 @@
 /* Phase 1 — MatchEngine core / football integrity. Deterministic; uses the real game loop. */
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
 const { harness, PROBES, playToEnd } = require('./engine-harness.cjs');
 
 const fresh = (fixture = 0) => { const h = harness(); h.run(`S=fresh();init();S.fixture=${fixture};startMatch();resumeLive()`); return h; };
@@ -250,7 +249,7 @@ test('12. the simulation is frozen after full time', () => {
   h.run('tick()');
   h.run('advanceLive(500)');
   h.run("actionMinute(true,tacticalEffects(),currentOpponent())");
-  h.run('chanceV73(true);chanceV73(false)');
+  h.run('playChance(true);playChance(false)');
   h.run('evolvePitchPositions()');
   h.run("makeLooseBall([50,50],[50,50],'late','user')");
   h.run("startPitchRestart('CORNER','user',[100,10])");

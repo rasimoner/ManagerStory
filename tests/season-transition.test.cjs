@@ -134,7 +134,7 @@ test('season-end screens: summary, summer report, contract decisions, free agent
   assert.equal(fa.club, 'Serbest'); assert.ok(fa.free); assert.match(fa.id, /^v6fa\d+$/);
   assert.equal(h.run('transferOpen()'), true);
   const before = h.run('S.players.length'), maxId = h.run('Math.max(...S.players.map(p=>p.id),S.v796.maxPlayerId)');
-  h.run(`v6Sign('${fa.id}',asking(S.v6.transferPool.find(x=>x.id==='${fa.id}')))`);
+  h.run(`signTransfer('${fa.id}',asking(S.v6.transferPool.find(x=>x.id==='${fa.id}')))`);
   assert.equal(h.run('S.players.length'), before + 1);
   assert.ok(h.run('S.players.at(-1).id') > maxId, 'a new id, never a departed player\'s');
   assert.equal(h.run('S.players.at(-1).name'), 'Taylan');
@@ -210,7 +210,7 @@ test('season 2: a real live match plays to the end; assists come from its events
   assert.equal(h.run('M.min'), 0);
   h.run('resumeLive();advanceLive(30)');
   for (let tries = 0; h.run('M.reason') === 'injury' && tries < 6; tries++) {
-    h.run('(function(){const out=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[out])>=.7);setSubOut(out);if(sub)doSub(sub.id);else S.players.find(p=>p.id===out).injury=0;resumeLive()})()');
+    h.run('(function(){const out=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenalty(p,M.matchRoles[out])>=.7);setSubOut(out);if(sub)doSub(sub.id);else S.players.find(p=>p.id===out).injury=0;resumeLive()})()');
     h.run('advanceLive(30)');
   }
   assert.equal(h.run('M.reason'), 'half');
@@ -218,7 +218,7 @@ test('season 2: a real live match plays to the end; assists come from its events
   let tries = 0;
   while (!h.run('M.finished') && tries++ < 12) {
     h.run('advanceLive(40)');
-    if (h.run('M.reason') === 'injury') h.run('(function(){const out=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[out])>=.7);setSubOut(out);if(sub)doSub(sub.id);else S.players.find(p=>p.id===out).injury=0;resumeLive()})()');
+    if (h.run('M.reason') === 'injury') h.run('(function(){const out=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenalty(p,M.matchRoles[out])>=.7);setSubOut(out);if(sub)doSub(sub.id);else S.players.find(p=>p.id===out).injury=0;resumeLive()})()');
     else if (h.run('M.pause') && !h.run('M.finished')) h.run('resumeLive()');
   }
   assert.equal(h.run('M.finished'), true);

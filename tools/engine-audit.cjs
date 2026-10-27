@@ -22,8 +22,7 @@ const COMBO_LIST = [
 function playOne(index) {
   const h = harness();
   h.run(`S=fresh();init();S.fixture=${index % 34};startMatch();`);
-  let combo = null;
-  if (COMBOS) { combo = COMBO_LIST[index % COMBO_LIST.length]; h.run(`Object.assign(M,${JSON.stringify(combo[0])});M.teamInstructions=${JSON.stringify(combo[2])};${combo[1] ? `M.oppTactics=${JSON.stringify(combo[1])};` : ''}`); }
+  if (COMBOS) { const combo = COMBO_LIST[index % COMBO_LIST.length]; h.run(`Object.assign(M,${JSON.stringify(combo[0])});M.teamInstructions=${JSON.stringify(combo[2])};${combo[1] ? `M.oppTactics=${JSON.stringify(combo[1])};` : ''}`); }
   const tacticsBefore = h.run('JSON.stringify([M.mentality,M.press,M.tempo,M.line,M.approach,M.passingStyle,M.width,M.teamInstructions,M.oppTactics||null])');
   const r = {
     index, problems: {}, ticks: 0, minPair: 99, collapse: 0, samples: 0, afterFullTime: 0, finalizations: 0,

@@ -19,7 +19,6 @@ const walk = dir => fs.readdirSync(path.join(SRC, dir), { withFileTypes: true })
   const f = path.posix.join(dir, d.name);
   return d.isDirectory() ? (f === 'vendor' ? [] : walk(f)) : (f.endsWith('.js') && f !== 'sw.js' ? [f] : []);
 });
-const IMPORTS = /(?:^|\n)\s*import\s+(?:\{([^}]*)\}\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
 
 test('only main.js does anything on load', () => {
   const without = loadGame({ skip: ['main.js'], quiet: true });
@@ -54,9 +53,9 @@ test('extension points: the star transfer and the navigation register for named 
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
   const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');
   const plain = g.run('S.v6.transferPool.find(x=>!starSceneQualifies(x))?.id');
-  g.run(`v6Sign(${JSON.stringify(plain)},1)`);
+  g.run(`signTransfer(${JSON.stringify(plain)},1)`);
   assert.equal(g.run('typeof starFlow==="undefined"||!starFlow'), true, 'no scene for an ordinary signing');
-  g.run(`v6Sign(${JSON.stringify(star)},1)`);
+  g.run(`signTransfer(${JSON.stringify(star)},1)`);
   assert.equal(g.run('!!starFlow&&starFlow.playerId===S.players.at(-1).id'), true, 'the scene for a star');
 });
 

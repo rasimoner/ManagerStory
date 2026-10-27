@@ -3,4 +3,4 @@
    the manager's import cycle (app ↔ season-end) runs first. */
 import NAME_DATA from '../../data/names.json';
 import BALANCE from '../../data/balance.json';
-export const V6FN=NAME_DATA.market.first,V6LN=NAME_DATA.market.last,V6POS=BALANCE.market.positions;
+export const MARKET_FIRST_NAMES=NAME_DATA.market.first,MARKET_LAST_NAMES=NAME_DATA.market.last,MARKET_POSITIONS=BALANCE.market.positions;

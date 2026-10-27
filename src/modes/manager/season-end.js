@@ -15,7 +15,7 @@ import BALANCE from '../../data/balance.json';
 import { crest, managedClubName } from '../../core/clubs/clubs.js';
 import { R } from '../../core/random.js';
 import { CLUBSTYLE } from '../../core/clubs/club-style.js';
-import { V6FN, V6LN, V6POS } from './market-names.js';
+import { MARKET_FIRST_NAMES, MARKET_LAST_NAMES, MARKET_POSITIONS } from './market-names.js';
 import { SLOT_POS } from './lineup-slots.js';
 /* step 5 — what the summer did (screen) */
 seasonEndStep({ id: 'report', screen: seasonReportUI }, { after: 'loans' });
@@ -111,9 +111,9 @@ export function seasonContractAll(years) {
 }
 export function seasonMarketPlayer(rnd) {
   const st = S.v796, n = st.poolSerial++, clubs = Object.keys(CLUBSTYLE).filter(x => x !== managedClubName());
-  const pos = V6POS[Math.floor(rnd() * V6POS.length)], age = 18 + Math.floor(rnd() * 15), ov = 57 + Math.floor(rnd() * 21);
+  const pos = MARKET_POSITIONS[Math.floor(rnd() * MARKET_POSITIONS.length)], age = 18 + Math.floor(rnd() * 15), ov = 57 + Math.floor(rnd() * 21);
   const pot = Math.min(93, Math.max(ov, ov + Math.floor(rnd() * 15) - (age >= 29 ? 8 : 0)));
-  const x = { id: `v6n${n}`, name: `${V6FN[Math.floor(rnd() * V6FN.length)]} ${V6LN[Math.floor(rnd() * V6LN.length)]}`, pos, age, overall: ov, potential: pot,
+  const x = { id: `v6n${n}`, name: `${MARKET_FIRST_NAMES[Math.floor(rnd() * MARKET_FIRST_NAMES.length)]} ${MARKET_LAST_NAMES[Math.floor(rnd() * MARKET_LAST_NAMES.length)]}`, pos, age, overall: ov, potential: pot,
     club: clubs[Math.floor(rnd() * clubs.length)], price: seasonMarketPrice(ov, age, pot, rnd), happiness: 40 + Math.floor(rnd() * 61), star: ov >= 75 && pot >= 84 };
   marketProfile(x);
   return x;

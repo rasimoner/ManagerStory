@@ -11,8 +11,8 @@ const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
 test('every source gives real, varied players: no two academy graduates or signings share a flat attribute set', () => {
   const h = career();
   // promote 12 academy candidates, sign 12 market players
-  h.run('for(let i=0;i<12;i++){const a=S.v6.academy[0];promoteV6(a.id,"warm")}');
-  h.run('S.budget=1e10;for(const x of S.v6.transferPool.slice(0,12))v6Sign(x.id,1)');
+  h.run('for(let i=0;i<12;i++){const a=S.v6.academy[0];promoteAcademyPlayer(a.id,"warm")}');
+  h.run('S.budget=1e10;for(const x of S.v6.transferPool.slice(0,12))signTransfer(x.id,1)');
   const grads = h.run('S.players.filter(p=>p.status==="Altyapıdan A takım")'), signed = h.run('S.players.filter(p=>p.status==="Yeni transfer")');
   assert.equal(grads.length, 12); assert.equal(signed.length, 12);
   for (const group of [grads, signed]) {
@@ -84,7 +84,7 @@ test('growth follows the profile: a wonderkid dribbler gains stars and unlocks m
   const before = h.run('skillMoves(99,"user").moves');
   let learned = null;
   for (let w = 0; w < 30 && !learned; w++) {
-    h.run('evolveV6()');
+    h.run('evolvePlayers()');
     const now = h.run('skillMoves(99,"user").moves');
     if (now.length > before.length) learned = now.filter(m => !before.includes(m));
   }
@@ -174,7 +174,7 @@ test("a club's wonderkid plays for them, grows fast, can be bought in a window a
   h.run('S.week=10;showAcademy()'); assert.match(h.app.innerHTML, /Ligdeki harika çocuklar/); assert.match(h.app.innerHTML, /Transfer dönemi kapalı/);
   h.run('S.week=19;showAcademy()'); assert.match(h.app.innerHTML, /Transfer görüşmesi/);
   // bought: same player, same profile, gone from their squad (the man he replaced is back in their eleven)
-  h.run(`S.budget=1e9;v6Sign(${JSON.stringify(k.poolId)},1)`);
+  h.run(`S.budget=1e9;signTransfer(${JSON.stringify(k.poolId)},1)`);
   const me = h.run('S.players.at(-1)');
   assert.equal(me.name, k.name); assert.equal(me.overall, o1); assert.equal(me.profile.special, true); assert.equal(me.profile.type, k.type);
   const after = h.run(`S.opponentSquads[${JSON.stringify(k.club)}]`);
@@ -193,7 +193,7 @@ test('our own wonderkid waits in the academy report through new reports, joins a
   assert.ok(h.run(`S.v6.academy.some(a=>a.id===${JSON.stringify(k.academyId)})`), 'still in the report');
   h.run('save()'); const re = harness(h.storage); re.run('init()');
   assert.equal(re.run('S.v795.wonderkids.length'), 1); assert.equal(re.run('ensureSeasonWonder().done'), true);
-  re.run(`promoteV6(${JSON.stringify(k.academyId)},"warm")`);
+  re.run(`promoteAcademyPlayer(${JSON.stringify(k.academyId)},"warm")`);
   const p = re.run('S.players.at(-1)');
   assert.equal(p.name, k.name); assert.equal(p.profile.special, true); assert.equal(p.personality, 'Özel yetenek');
   assert.equal(re.run('S.v795.wonderkids[0].where'), 'squad');

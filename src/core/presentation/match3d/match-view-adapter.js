@@ -3,7 +3,7 @@ import { M, S } from '../../state.js';
 import { presentation } from '../registry.js';
 import { matchPossession } from '../../engine/match-support.js';
 import { matchSecond } from '../../engine/live-match.js';
-import { eventAnimationTime, eventPoint, pitchV73 } from '../../engine/pitch-v73.js';
+import { eventAnimationTime, eventPoint, pitchState } from '../../engine/pitch-v73.js';
 import { attackDirection, playerAtMarker } from '../../engine/pitch-v731.js';
 import { resolveClubIdentity } from '../../clubs/clubs.js';
 import { userOpponent } from '../../engine/user-team.js';
@@ -18,7 +18,7 @@ import { OPP } from '../../league/rivals.js';
     }
     return value;
   }
-  function read(frame = typeof pitchV73 !== 'undefined' && pitchV73?.match === M ? pitchV73 : null) {
+  function read(frame = typeof pitchState !== 'undefined' && pitchState?.match === M ? pitchState : null) {
     if (typeof M === 'undefined' || !M) return null;
     const players = ['user', 'opp'].flatMap(side => (side === 'user' ? M.active : M.oppIds).map(id => ({
       id, side,

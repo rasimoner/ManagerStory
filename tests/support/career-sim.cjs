@@ -16,7 +16,7 @@ const FAST = `function fastRound(){
  simulateRoundOthers();evolveOpponentSquads(S.fixture);
  S.results.push({home:g.home,away:g.away,hg:g.hg,ag:g.ag,week:S.fixture+1,matchSummary:{players:rows,events:evs}});
  seasonRecordMatch({events:evs},S.results[S.results.length-1]);
- S.v6.academyCounter++;evolveV6();seasonWonderTick();if(S.v6.academyCounter>=3+(S.fixture%2))refreshAcademy();
+ S.v6.academyCounter++;evolvePlayers();seasonWonderTick();if(S.v6.academyCounter>=3+(S.fixture%2))refreshAcademy();
  S.fixture=Math.min(33,S.fixture+1);S.week++;S.day=1;
 }
 // the last round is played, the post-match press is answered: the next day starts the season end
