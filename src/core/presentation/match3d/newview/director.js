@@ -8,6 +8,7 @@ import { CLAIM_H, PUNCH_H, keeperClaim, keeperPunch } from './beats/keeper-hands
 import { keeperVolley } from './beats/keeper-volley.js';
 import { scorpionBody, scorpionSave, scorpionSpot } from './beats/scorpion.js';
 import { stageScene, stagingFor } from './beats/staging.js';
+import { backheelKick, rabonaKick } from './beats/flair-passes.js';
 import { stepoverBeat } from './beats/feints.js';
 import { SKILL_BEATS } from './beats/skill-beats.js';
 
@@ -278,7 +279,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       const special = passSpecial({ from, to, toW, travel, implicit }, opts);
       let specialDone = false;
       if (special) {
-        specialDone = yield* (special.kind === 'backheel' ? backheelKick(from, toW) : rabonaKick(from, toW));
+        specialDone = yield* (special.kind === 'backheel' ? backheelKick(beatContext, from, toW) : rabonaKick(beatContext, from, toW));
         if (!specialDone && special.tried) tryMove = special.kind;
       }
       const tryNL = !specialDone && tryMove === 'nolook' && from.side === 'user' && from.role !== 'GK';
@@ -355,96 +356,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (has(from, 'backheel') && travel === 'ground' && len > 4 && len < 18 && d > 72 && aim.x * fwdX < -0.5 && pick(opts.ev, 23) < 0.45) return { kind: 'backheel' };
     if (has(from, 'rabona') && len > 12 && len < 45 && d > GOAL_X && pick(opts.ev, 27) < 0.25) return { kind: 'rabona' };
     return null;
-  }
-
-  // backheel: he turns his back on the pass with the ball, steps over it and plays it back with his heel
-  function* backheelKick(p, toW) {
-    const aim0 = V(toW.x - p.pos.x, 0, toW.z - p.pos.z).normalize(), face = aim0.clone().negate(), hw = Math.atan2(face.x, face.z);
-    p.busy = true; ball.through = S.t + 2.5;
-    const turned = yield* until(() => { rt.dribble(p, p.pos.clone().addScaledVector(face, 3), 1.4); const d = hw - p.heading; return Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) < 0.15; }, 1.4);
-    if (!turned) { stats.lastFail = ['backheel', 'turn', +S.t.toFixed(1)]; return false; }      // not round with his back to the pass: a normal pass
-    p.face = p.pos.clone().addScaledVector(face, 30); p.faceLock = true;
-    const f = forwardOf(p), r = rightOf(p);
-    const set = yield* until(() => {
-      const rel = V(ball.p.x - p.pos.x, 0, ball.p.z - p.pos.z), a = rel.dot(f), l = Math.abs(rel.dot(r));
-      p.target.copy(ball.p).addScaledVector(f, -0.2).setY(0); p.want = 1.2;          // he stops a little short of where he aims: the ball ends ~0.3 m ahead
-      if (Math.hypot(ball.v.x, ball.v.z) > 0.6) ball.v.multiplyScalar(0.9);
-      return a > 0.2 && a < 0.42 && l < 0.2;
-    }, 1.6);
-    if (!set) { p.faceLock = false; stats.lastFail = ['backheel', 'set', +S.t.toFixed(1)]; return false; }
-    const t0 = S.t, b0 = ball.p.clone();
-    p.vel.multiplyScalar(0.3); p.target.copy(p.pos); p.want = 0.2; ball.v.set(0, 0, 0); ball.through = t0 + 1.2;
-    hooks.slow(0.5);
-    const plantL = b0.clone().addScaledVector(r, -0.22).addScaledVector(f, -0.06).setY(0.03);
-    const side = b0.clone().addScaledVector(r, 0.15).setY(0.05), over = b0.clone().addScaledVector(f, 0.27).addScaledVector(r, 0.03).setY(0.16);
-    p.feet = {
-      Left: { w: ramp(t0, [0, 0.08, 0.6, 0.8]), at: () => plantL },
-      Right: { w: ramp(t0, [0, 0.06, 0.55, 0.75]), at: t => {
-        const u = t - t0;
-        if (u < 0.2) { const k = smooth01(u / 0.2); return side.clone().lerp(over, k); }               // over the ball
-        return ball.p.clone().addScaledVector(f, 0.09 + 0.17).addScaledVector(r, 0.02).setY(0.07);     // the heel onto its far side
-      } },
-    };
-    const audit = { kind: 'backheel', over: 9 };
-    yield* until(() => {
-      const u = S.t - t0, toe = p.feet.Right.last;
-      if (toe && u > 0.06 && u < 0.2) audit.over = Math.min(audit.over, toe.distanceTo(ball.p));
-      return u > 0.26 && heelOf(p, 'Right').distanceTo(ball.p) < 0.22;
-    }, 0.55);
-    audit.heel = +heelOf(p, 'Right').distanceTo(ball.p).toFixed(3); audit.over = +audit.over.toFixed(3);
-    const aim = V(toW.x - ball.p.x, 0, toW.z - ball.p.z).normalize();
-    audit.back = +Math.acos(clamp(aim.dot(f), -1, 1)).toFixed(2);
-    noteSkill(audit, p);
-    p.faceLock = false; p.lastTouch = S.t;
-    const feet = p.feet; later(0.35, () => { hooks.slow(1); if (p.feet === feet) p.feet = null; });
-    return true;
-  }
-
-  // rabona: the standing boot is planted on the far side of the ball and the kicking leg wraps round
-  // behind it to strike the ball
-  function* rabonaKick(p, toW) {
-    const aim = V(toW.x - ball.p.x, 0, toW.z - ball.p.z).normalize(), rA = V(-aim.z, 0, aim.x);
-    p.busy = true; ball.through = S.t + 4;
-    p.face = p.pos.clone().addScaledVector(aim, 30); p.faceLock = true;
-    const spot = () => ball.p.clone().addScaledVector(aim, -0.42).addScaledVector(rA, 0.32).setY(0);
-    const set = yield* until(() => {
-      const s0 = spot(), d = Math.hypot(p.pos.x - s0.x, p.pos.z - s0.z);
-      p.target.copy(s0); p.want = d > 1.5 ? 4 : 1.1;
-      ball.v.multiplyScalar(0.9);
-      const hd = Math.atan2(aim.x, aim.z) - p.heading;
-      return d < 0.12 && Math.abs(Math.atan2(Math.sin(hd), Math.cos(hd))) < 0.08 && Math.hypot(ball.v.x, ball.v.z) < 0.3;
-    }, 3);
-    if (!set) { p.faceLock = false; stats.lastFail = ['rabona', 'set', +S.t.toFixed(1)]; return false; }
-    const t0 = S.t, b0 = ball.p.clone();
-    hooks.slow(0.4);
-    p.vel.multiplyScalar(0.2); p.target.copy(p.pos); p.want = 0.2; ball.v.set(0, 0, 0); ball.through = t0 + 1.2;
-    const plantL = b0.clone().addScaledVector(rA, 0.2).addScaledVector(aim, -0.03).setY(0.03);
-    const back = plantL.clone().addScaledVector(aim, -0.36).addScaledVector(rA, 0.14).setY(0.3);
-    const behind = plantL.clone().addScaledVector(aim, -0.19).addScaledVector(rA, -0.02).setY(0.13);
-    const hit = () => ball.p.clone().addScaledVector(aim, -0.12).addScaledVector(rA, -0.03).setY(0.06);
-    p.feet = {
-      Left: { w: ramp(t0, [0, 0.1, 0.55, 0.75]), at: () => plantL },
-      Right: { w: ramp(t0, [0, 0.08, 0.5, 0.7]), at: t => {
-        const u = t - t0;
-        if (u < 0.22) return back;                                                     // drawn back, outside the standing leg
-        if (u < 0.36) { const k = (u - 0.22) / 0.14, h = hit(), [x, z] = spline([[back.x, back.z], [behind.x, behind.z], [h.x, h.z]], k); return V(x, 0.3 - 0.24 * smooth01(k), z); }
-        return hit();
-      } },
-    };
-    const audit = { kind: 'rabona', behind: 9 };
-    yield* until(() => {
-      const u = S.t - t0, toe = p.feet.Right.last;
-      if (toe && u > 0.24 && u < 0.36) { const rel = toe.clone().sub(plantL); if (Math.abs(rel.dot(rA)) < 0.1) audit.behind = Math.min(audit.behind, rel.dot(aim)); }
-      return u > 0.32 && toeGap(p, 'Right') < 0.24;
-    }, 0.55);
-    const rt0 = p.feet.Right.last, lt0 = p.feet.Left.last;
-    audit.contact = +toeGap(p, 'Right').toFixed(3);
-    audit.crossed = !!(rt0 && lt0) && rt0.clone().sub(lt0).dot(rA) < -0.03;
-    audit.behind = +audit.behind.toFixed(3);
-    noteSkill(audit, p);
-    p.faceLock = false; p.lastTouch = S.t;
-    const feet = p.feet; later(0.35, () => { hooks.slow(1); if (p.feet === feet) p.feet = null; });
-    return true;
   }
 
   // a ball dropping out of the sky killed dead with the boot: he gets under it, lifts the foot to meet
@@ -723,7 +634,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
   // ---- V7.9 more special moves (boots placed with the foot targets) ----
   const toeGap = (p, side) => { const t = p.feet?.[side]?.last; return t ? t.distanceTo(ball.p) : 9; };
-  const heelOf = (p, side) => p.bones[side + 'Foot'].getWorldPosition(V());
 
 
   // a showboat (the ball up and over) is never tried when losing
