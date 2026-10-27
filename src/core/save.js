@@ -59,7 +59,7 @@ export const SAVE_MIGRATIONS = [
   },
   {
     from: 1, to: 2,
-    about: "V7.13.2: the stored wage budget (a fixed 24M, below the real wage bill) goes, the wage room follows " +
+    about: "the stored wage budget (a fixed 24M, below the real wage bill) goes, the wage room follows " +
       "the club's level; every player gets a shirt number of his own, the one he was seen wearing",
     run(state) {
       if (state.v6) delete state.v6.wageBudget;
