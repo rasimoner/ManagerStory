@@ -14,7 +14,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { harness, playToEnd } = require('./engine-harness.cjs');
 
-const dist = process.env.NV_DIST || path.join(__dirname, '..', 'dist');
+const srcDir = process.env.NV_SRC || path.join(__dirname, '..', 'src');
 
 // ---- engine side: what the view reads, recorded once a minute exactly as match3d-newview.js does ----
 const READ = `({
@@ -37,12 +37,12 @@ function recordMatch(fixture) {
 
 // ---- view side: director + runtime on the simulated pitch, at the view's own step ----
 async function playMatch(rec) {
-  const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
-  const { createRuntime, analyseGait } = await import(path.join(dist, 'core/presentation/match3d/newview/runtime.js'));
-  const { createDirector } = await import(path.join(dist, 'core/presentation/match3d/newview/director.js'));
-  const { createBroadcastCamera } = await import(path.join(dist, 'core/presentation/match3d/newview/camera.js'));
-  const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
+  const THREE = await import('three');
+  const { loadRig } = await import(path.join(srcDir, 'core/presentation/match3d/newview/rig.js'));
+  const { createRuntime, analyseGait } = await import(path.join(srcDir, 'core/presentation/match3d/newview/runtime.js'));
+  const { createDirector } = await import(path.join(srcDir, 'core/presentation/match3d/newview/director.js'));
+  const { createBroadcastCamera } = await import(path.join(srcDir, 'core/presentation/match3d/newview/camera.js'));
+  const rig = loadRig(JSON.parse(fs.readFileSync(path.join(srcDir, 'assets/models/footballer-rig.json'), 'utf8')));
   const gait = {}; for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null, stride: 0.75 });
 

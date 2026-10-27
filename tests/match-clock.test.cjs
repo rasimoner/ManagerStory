@@ -15,7 +15,7 @@ const path = require('node:path');
 const { harness } = require('./engine-harness.cjs');
 
 const root = path.join(__dirname, '..');
-const read = f => fs.readFileSync(path.join(root, 'dist', f), 'utf8');
+const read = f => fs.readFileSync(path.join(root, 'src', f), 'utf8');
 
 const { clockFixtureTests } = require('./support/clock-fixtures.cjs');
 clockFixtureTests(0);

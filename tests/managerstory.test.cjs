@@ -2,7 +2,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const base=path.resolve(__dirname,'../dist');
+const base=path.resolve(__dirname,'../src');
+const pub=path.resolve(__dirname,'../public'); // pictures, icons, manifest: published as they are (refactor E2)
 const {loadGame}=require('./support/game.cjs');
 function harness(existing=new Map()){
  const g=loadGame({storage:existing});
@@ -128,11 +129,12 @@ test('academy replenishment never repeats promoted candidate identities across s
  assert.ok(reopened.run('S.v6.usedAcademyCandidateIds.length>=3'));
 });
 test('every offline asset exists',()=>{
- const assetsDir=path.join(base,'assets');
- const sw=fs.readFileSync(path.join(base,'sw.js'),'utf8');
- const assets=[...sw.matchAll(/"(\.\/[^"\n]+)"/g)].map(x=>x[1].slice(2).split('?')[0]);
+ const assetsDir=path.join(pub,'assets');
+ // the list the build writes into sw.js (refactor E3)
+ const {build,offlineList}=require('./support/build.cjs');const b=build();
+ const assets=offlineList(b).filter(Boolean);
  assert.ok(assets.length>=29);
- for(const rel of assets)assert.ok(fs.statSync(path.join(base,rel)).size>0,rel);
+ for(const rel of assets)assert.ok(fs.statSync(path.join(b.dir,rel)).size>0,rel);
  // (that every script the page loads is cached: tests/service-worker.test.cjs)
  // V7.9.13: the old photos and cinematic GIFs nothing referenced are gone (tests/assets.test.cjs keeps it so)
  assert.ok(!fs.existsSync(path.join(assetsDir,'cinematics')));
@@ -566,14 +568,14 @@ test('goal presentation takes scoring side and deterministic scene without recol
  assert.doesNotMatch(css,/mix-blend-mode|background-blend-mode|hue-rotate|sepia\(/);
  assert.doesNotMatch(css,/\.club-flag|\.club-scarf|\.club-pennant|\.club-kit/);
  assert.doesNotMatch(h.run("clubProps('goal',{teamId:'Ormanşehir'})"),/club-flag|club-scarf/);
- for(let i=0;i<18;i++)assert.ok(fs.statSync(path.join(base,'assets/atmosphere',`goal-club-${i}.webp`)).size>40000);
- for(let i=0;i<18;i++)assert.ok(fs.statSync(path.join(base,'assets/atmosphere',`office-club-${i}.webp`)).size>40000);
+ for(let i=0;i<18;i++)assert.ok(fs.statSync(path.join(pub,'assets/atmosphere',`goal-club-${i}.webp`)).size>40000);
+ for(let i=0;i<18;i++)assert.ok(fs.statSync(path.join(pub,'assets/atmosphere',`office-club-${i}.webp`)).size>40000);
  assert.doesNotMatch(css,/\.club-props--(press|locker) \.club-emblem/);
  assert.match(css,/\.club-props--signing \.club-emblem[^}]+height:40%/);
  const {execFileSync}=require('node:child_process');
  execFileSync('python',['-c',`from PIL import Image
 from pathlib import Path
-p=Path('${base}/assets/atmosphere')
+p=Path('${pub}/assets/atmosphere')
 a,b=[Image.open(p/f'goal-club-{i}.webp').convert('RGB') for i in (0,17)]
 assert a.size==b.size
 assert sum(abs(x-y) for x,y in zip(a.getpixel((500,120)),b.getpixel((500,120))))>70 # photographed scarf changes
@@ -585,7 +587,7 @@ assert sum(abs(x-y) for x,y in zip(c.getpixel((830,210)),d.getpixel((830,210))))
 assert sum(abs(x-y) for x,y in zip(c.getpixel((700,175)),d.getpixel((700,175))))<10 # wall untouched
 `]);
  for(const name of ['fans-neutral','fans-day','fans-rain','fans-night','signing-base','stadium-base','training-base','office-base','facilities-base'])
-  assert.ok(fs.existsSync(path.join(base,'assets/atmosphere',name+'.webp')),name);
+  assert.ok(fs.existsSync(path.join(pub,'assets/atmosphere',name+'.webp')),name);
 });
 test('carried positions survive turnovers, committed overlap and recovery use movement bounds',()=>{
  const h=harness();h.run('S=fresh();init();startMatch()');
@@ -742,15 +744,15 @@ test('club layers use plain masks over neutral bases: no tint, no blend, both co
  const css=fs.readFileSync(path.join(base,'style.css'),'utf8');
  assert.doesNotMatch(css,/mix-blend-mode|background-blend-mode|hue-rotate|sepia\(/);
  for(const scene of ['press','locker','stadium'])for(const part of ['a','b','shade'])
-  assert.ok(fs.existsSync(path.join(base,'assets/atmosphere',`${scene}-club-${part}.webp`)),`${scene}-${part}`);
+  assert.ok(fs.existsSync(path.join(pub,'assets/atmosphere',`${scene}-club-${part}.webp`)),`${scene}-${part}`);
  assert.match(css,/\.club-layer--a\{background:var\(--club-primary/);
  assert.match(css,/\.club-layer--b\{background:var\(--club-secondary/);
- const sw=fs.readFileSync(path.join(base,'sw.js'),'utf8');
- for(const scene of ['press','locker'])assert.match(sw,new RegExp(`${scene}-club-base\\.webp`));
+ const {build,offlineList}=require('./support/build.cjs');const cached=offlineList(build());
+ for(const scene of ['press','locker'])assert.ok(cached.includes(`assets/atmosphere/${scene}-club-base.webp`),scene);
  const {execFileSync}=require('node:child_process');
  execFileSync('python',['-c',`from PIL import Image
 from pathlib import Path
-p=Path('${base}/assets/atmosphere')
+p=Path('${pub}/assets/atmosphere')
 def px(n,x,y): return Image.open(p/n).convert('RGBA').getpixel((x,y))
 def spread(c): return max(c[:3])-min(c[:3])
 # neutral bases carry no baked club colour on the painted surfaces

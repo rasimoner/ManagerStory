@@ -279,7 +279,7 @@ test('determinism: same seed, lineups, ratings and tactics give the same match; 
 });
 
 test('opponent labels share the same dot geometry as the managed team (alignment fix)', () => {
-  const css = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../dist/style.css'), 'utf8');
+  const css = require('node:fs').readFileSync(require('node:path').resolve(__dirname, '../src/style.css'), 'utf8');
   assert.match(css, /\.v73pitch \.matchdot\{box-sizing:border-box;padding:0;line-height:1\}/);
   assert.match(css, /\.v73pitch \.matchdot span\{display:block;line-height:1;text-align:center/);
 });

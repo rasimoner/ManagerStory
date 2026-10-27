@@ -29,7 +29,8 @@ test('the values computed from the data live in modules that import only data', 
     'TACTIC_LABELS', 'TEAM_ORDERS', 'GAME_VERSION', 'V6FN', 'SLOT_POS'];
   for (const name of fromData) {
     const { file, imports } = sourceDefining(name);
-    assert.deepEqual(imports.filter(i => !i.startsWith('data/')), [], `${name} (${file}) imports only data`);
+    // data: src/data/*.json, and package.json for the version (refactor E2, E4)
+    assert.deepEqual(imports.filter(i => !i.endsWith('.json')), [], `${name} (${file}) imports only data`);
   }
 });
 

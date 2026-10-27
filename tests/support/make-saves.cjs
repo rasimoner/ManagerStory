@@ -44,7 +44,7 @@ function legacy() {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ms-' + name + '-'));
     execFileSync('sh', ['-c', `git archive ${commit} dist | tar -x -C ${dir}`], { cwd: path.resolve(__dirname, '../..') });
     // (the presentation clock and view boundary are left out, as the current tests leave them out)
-    const g = loadGame({ dist: path.join(dir, 'dist'), skip: ['match3d-live-clock.js', 'match-view-adapter.js'], quiet: true });
+    const g = loadGame({ root: path.join(dir, 'dist'), skip: ['match3d-live-clock.js', 'match-view-adapter.js'], quiet: true });
     g.run('S=fresh();S.matchSalt=5555;init();save();render()');
     g.run('startMatch();resumeLive()'); playToEnd(g); g.run('finishMatch();S.event=null;save()');
     write('legacy', name, saved(g));

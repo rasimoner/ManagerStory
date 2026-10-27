@@ -1,0 +1,4 @@
+{
+  "transferOffer": {"playerId":12,"replacementId":13,"voiceId":6,"club":"Kuzey Liman","week":3,"day":2,"clock":"10:40","bid":9500000,"raisedBid":11500000,"ask":13000000},
+  "playmaker": {"playerId":11}
+}

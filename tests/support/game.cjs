@@ -1,6 +1,8 @@
 /* The one way tests load the game.
-   The game is the ES modules index.html loads (refactor C3): main.js and the modules it imports, run in one
-   vm context with a small stand-in for the browser, the same files the browser loads. Module entries that
+   The game is the ES modules src/index.html loads (refactor C3): main.js and the modules it imports, run in one
+   vm context with a small stand-in for the browser: the sources themselves, not the build (refactor E2: Vite
+   bundles src/ into dist/, which is not in the repository). JSON modules (src/data/*.json, package.json) load
+   as the build loads them (E4): the parsed value as the default export, each top-level key as a named export. Module entries that
    index.html tags with a data-layer belong to the match presentation and are left out unless asked for,
    so the engine runs on its own:
      data-layer="clock"  the presentation clock that paces the live match for the 2D/3D view
@@ -13,8 +15,10 @@
    no test changes; g.owner(name) says where it lives now. Reading code goes the same way: sourceDefining(name)
    is the module that declares a name, wherever that is. Assigning one of the shared state's names goes through its setter
    (S → setCareer, M → setMatch, modal → setModal, loadError → setLoadError, subOut → setSubOut); assigning
-   any other export throws, as it would in a module. Releases before C3 (old dist trees, for save
-   fixtures) load the old way: their classic scripts in one context.
+   any other export throws, as it would in a module. A data file is reached by the name its importers give it
+   (import CLUB_DATA from '../../data/clubs.json' → g.api.CLUB_DATA); every importer must use the same name.
+   Releases before C3 (old dist trees from git, for save fixtures) load the old way: their classic scripts in one
+   context; releases from C3 to V7.12.0 (old dist trees) load as modules, like src.
    Modules need node --experimental-vm-modules; npm test and npm run test:fast pass it.
 
    loadGame(options) → { run, json, api, owner, app, html, storage, alerts, confirms, ctx, click, actionsOn }
@@ -23,6 +27,7 @@
      storage    Map used as localStorage (pass one in to load a save)
      layers     extra data-layer entries to load, e.g. ['clock', 'view']
      document   extra querySelector(q, app) handlers tried before the defaults
+     root       the tree to load (default src/; an old release's dist/ for save fixtures)
      prepend    insertAdjacentHTML on #app prepends instead of appends (as the star-transfer test expects)
      quiet      console.warn is silenced
      skip       entry files to leave out: 'main.js' loads the game's modules without running main.js
@@ -35,27 +40,30 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-const DIST = path.resolve(__dirname, '../../dist');
-const read = (f, dist = DIST) => fs.readFileSync(path.join(dist, f), 'utf8');
+const SRC = path.resolve(__dirname, '../../src');
+const read = (f, root = SRC) => fs.readFileSync(path.join(root, f), 'utf8');
 
 /* What the page loads, in order, without cache-busters: [{ file, layer, module }]. A module page lists its
    module entries (main.js, then the presentation layers); an old page lists its classic scripts. */
-function pageScripts(dist = DIST) {
-  const html = read('index.html', dist);
+function pageScripts(root = SRC) {
+  const html = read('index.html', root);
   return [...html.matchAll(/<script\s+(type="module"\s+)?src="([^"?]+)(?:\?[^"]*)?"([^>]*)><\/script>/g)]
     .map(m => ({ file: m[2], module: !!m[1], layer: /data-layer="([^"]+)"/.exec(m[3])?.[1] || 'game' }));
 }
 
-/* Every module a module page loads: [{ file, layer, code, imports }], each once, in the order the entries
-   reach them. A module belongs to the first entry that reaches it (the game, then a layer). */
+/* Every module a module page loads: [{ file, layer, code, imports, json }], each once, in the order the entries
+   reach them. A module belongs to the first entry that reaches it (the game, then a layer). A JSON module has no
+   imports; json is true for it. Bare specifiers (three) are only imported by the 3D view, never loaded here. */
 const IMPORT = /(?:^|\n)\s*import\s+(?:[^'"]*?\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
+const isJson = file => file.endsWith('.json');
 const resolveFrom = (file, spec) => path.posix.normalize(path.posix.join(path.posix.dirname(file), spec.replace(/\?.*$/, '')));
-function moduleGraph(dist = DIST) {
+function moduleGraph(root = SRC) {
   const seen = new Map();
-  for (const entry of pageScripts(dist).filter(s => s.module)) {
+  for (const entry of pageScripts(root).filter(s => s.module)) {
     const visit = file => {
       if (seen.has(file) || file.startsWith('vendor/')) return;
-      const code = read(file, dist);
+      const code = read(file, root);
+      if (isJson(file)) { seen.set(file, { file, layer: entry.layer, code, imports: [], json: true }); return; }
       const imports = [...code.matchAll(IMPORT)].map(m => resolveFrom(file, m[1]));
       seen.set(file, { file, layer: entry.layer, code, imports });
       imports.forEach(visit);
@@ -66,12 +74,26 @@ function moduleGraph(dist = DIST) {
 }
 
 const cache = new Map();
-function sources(dist = DIST) {
-  if (!cache.has(dist)) {
-    const page = pageScripts(dist);
-    cache.set(dist, page.some(s => s.module) ? moduleGraph(dist) : page.map(s => ({ ...s, code: read(s.file, dist) })));
+function sources(root = SRC) {
+  if (!cache.has(root)) {
+    const page = pageScripts(root);
+    cache.set(root, page.some(s => s.module) ? moduleGraph(root) : page.map(s => ({ ...s, code: read(s.file, root) })));
   }
-  return cache.get(dist);
+  return cache.get(root);
+}
+
+/* The name each JSON module goes by: the default-import binding its importers give it (one name per file, one
+   file per name). A JSON module imported only by named imports (package.json's version) has no name. */
+const JSON_DEFAULT = /(?:^|\n)\s*import\s+([A-Za-z_$][\w$]*)\s+from\s+['"](\.{1,2}\/[^'"]+\.json)['"]/g;
+function jsonNames(root = SRC) {
+  const names = new Map();
+  for (const m of sources(root).filter(s => !s.json)) for (const [, name, spec] of m.code.matchAll(JSON_DEFAULT)) {
+    const file = resolveFrom(m.file, spec);
+    if (names.has(file) && names.get(file) !== name) throw new Error(`${file} is imported as both ${names.get(file)} and ${name}`);
+    names.set(file, name);
+  }
+  if (new Set(names.values()).size !== names.size) throw new Error('two JSON files are imported under the same name');
+  return names;
 }
 
 /* A small, seeded stand-in for crypto.getRandomValues (mulberry32, like the game's R). */
@@ -81,7 +103,7 @@ function fakeCrypto(seed) {
   return { getRandomValues(array) { for (let i = 0; i < array.length; i++) array[i] = next(); return array; } };
 }
 
-function loadGame({ storage = new Map(), layers = [], document: extra = null, skip = [], first = [], prepend = false, quiet = false, entropy = 0x5eed, dist = DIST } = {}) {
+function loadGame({ storage = new Map(), layers = [], document: extra = null, skip = [], first = [], prepend = false, quiet = false, entropy = 0x5eed, root = SRC } = {}) {
   const alerts = [], confirms = [];
   const app = {
     innerHTML: '', classList: { toggle() {} },
@@ -106,8 +128,8 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
   ctx.window = ctx; ctx.window.scrollTo = () => {};
   vm.createContext(ctx);
   let access = { api: ctx, owner: () => undefined };
-  if (pageScripts(dist).some(s => s.module)) access = loadModules(ctx, { layers, skip, first, dist });
-  else for (const { file, layer, code } of sources(dist)) {
+  if (pageScripts(root).some(s => s.module)) access = loadModules(ctx, { layers, skip, first, root });
+  else for (const { file, layer, code } of sources(root)) {
     if ((layer !== 'game' && !layers.includes(layer)) || skip.includes(file)) continue;
     vm.runInContext(code, ctx, { filename: file });
   }
@@ -136,21 +158,34 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
    module's own setter). The context's globals are that same object's names, so run('…') and g.api.… see
    one game. A name exported by two modules is an error: the access point would not know which one. */
 const SETTERS = { S: 'setCareer', M: 'setMatch', modal: 'setModal', loadError: 'setLoadError', subOut: 'setSubOut' };
-function loadModules(ctx, { layers, skip, first = [], dist }) {
+function loadModules(ctx, { layers, skip, first = [], root }) {
   if (!vm.SourceTextModule) throw new Error('the game is ES modules: run the tests with node --experimental-vm-modules (npm test does)');
-  const graph = new Map(sources(dist).map(m => [m.file, m]));
+  const graph = new Map(sources(root).map(m => [m.file, m]));
+  const names = jsonNames(root);
+  const parse = vm.runInContext('JSON.parse', ctx); // the data belongs to the game's realm, as it did when it was code
   const records = new Map();
   const build = file => {
     if (records.has(file)) return records.get(file);
     if (file.startsWith('vendor/')) throw new Error(`${file}: the game's modules do not import vendor code (only the 3D view does)`);
     const info = graph.get(file);
+    if (info.json) {
+      // as Vite's JSON plugin: the value as the default export, and each top-level key that is a name
+      const value = parse(info.code);
+      const keys = value && typeof value === 'object' && !Array.isArray(value) ? Object.keys(value).filter(k => /^[A-Za-z_$][\w$]*$/.test(k)) : [];
+      const mod = new vm.SyntheticModule(['default', ...keys], function () {
+        this.setExport('default', value);
+        for (const k of keys) this.setExport(k, value[k]);
+      }, { context: ctx, identifier: file });
+      records.set(file, mod);
+      return mod;
+    }
     const mod = new vm.SourceTextModule(info.code, { context: ctx, identifier: file,
       importModuleDynamically: () => { throw new Error('dynamic import is not available in the test harness'); } });
     records.set(file, mod);
     mod.linkRequests(mod.moduleRequests.map(r => build(resolveFrom(file, r.specifier))));
     return mod;
   };
-  const entries = pageScripts(dist).filter(s => s.module && (s.layer === 'game' || layers.includes(s.layer)));
+  const entries = pageScripts(root).filter(s => s.module && (s.layer === 'game' || layers.includes(s.layer)));
   const run = file => {
     const mod = build(file);
     if (mod.status === 'unlinked') mod.instantiate();
@@ -166,13 +201,15 @@ function loadModules(ctx, { layers, skip, first = [], dist }) {
   const api = Object.create(null);
   for (const [file, mod] of records) {
     if (mod.status !== 'evaluated') continue;
-    for (const name of Object.keys(mod.namespace)) {
+    // a JSON module is reached by its importers' name for it, as its default (its keys are not names of the game)
+    const exported = graph.get(file).json ? (names.has(file) ? [[names.get(file), 'default']] : []) : Object.keys(mod.namespace).map(n => [n, n]);
+    for (const [name, key] of exported) {
       if (owner.has(name)) throw new Error(`${name} is exported by both ${owner.get(name)} and ${file}`);
       owner.set(name, file);
       const ns = mod.namespace;
       Object.defineProperty(api, name, {
         enumerable: true,
-        get: () => ns[name],
+        get: () => ns[key],
         set: value => {
           if (SETTERS[name] && typeof api[SETTERS[name]] === 'function') return api[SETTERS[name]](value);
           throw new TypeError(`${name} is a binding of ${file}: a module cannot be assigned from outside`);
@@ -213,7 +250,7 @@ function actionsOn(html) {
 /* For the few rules about the code itself ("the engine never calls Math.random"): the source of the page
    modules (or an old page's scripts), or of those that define the given functions, found by what they
    define rather than by file name, so the rules follow the code when it moves. */
-const gameSources = ({ layers = [], dist = DIST } = {}) => sources(dist).filter(s => s.layer === 'game' || layers.includes(s.layer));
+const gameSources = ({ layers = [], root = SRC } = {}) => sources(root).filter(s => !s.json && (s.layer === 'game' || layers.includes(s.layer)));
 function scriptsDefining(names, options) {
   const defines = (code, name) => new RegExp(`function\\s+${name}\\s*\\(`).test(code);
   const found = gameSources(options).filter(s => names.some(n => defines(s.code, n)));
@@ -230,10 +267,10 @@ function sourceDefining(name, options) {
   return found[0];
 }
 
-/* Where a file lives under dist, found by its name, so a test that reads one file (its source, a constant
-   in it) follows the file when it moves to another folder. One match only; vendor/ is not searched. */
-function locate(name, dist = DIST) {
-  const walk = dir => fs.readdirSync(path.join(dist, dir), { withFileTypes: true }).flatMap(d => {
+/* Where a file lives under src, found by its name, so a test that reads one file (its source, a constant
+   in it) follows the file when it moves to another folder. One match only; vendor/ (old trees) is not searched. */
+function locate(name, root = SRC) {
+  const walk = dir => fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap(d => {
     const f = path.posix.join(dir, d.name);
     return d.isDirectory() ? (f === 'vendor' ? [] : walk(f)) : [f];
   });
@@ -241,6 +278,6 @@ function locate(name, dist = DIST) {
   if (found.length !== 1) throw new Error(`locate(${name}): ${found.length} files`);
   return found[0];
 }
-const readDist = (name, dist = DIST) => read(locate(name, dist), dist);
+const readSource = (name, root = SRC) => read(locate(name, root), root);
 
-module.exports = { loadGame, actionsOn, pageScripts, gameSources, scriptsDefining, sourceDefining, locate, readDist, DIST };
+module.exports = { loadGame, actionsOn, pageScripts, gameSources, scriptsDefining, sourceDefining, locate, readSource, SRC };

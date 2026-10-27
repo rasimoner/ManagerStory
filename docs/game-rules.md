@@ -1,6 +1,6 @@
 # ManagerStory oyun kuralları ve maç motoru
 
-Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin neyi aynen koruması gerektiğini anlatır. JS kodu taşınmaz; taşınan şey veri (`dist/data`), bu kurallar ve testlerdir. Kaynak her bölümde yazılı; sayıların kesin hali kodda ve `data/balance.js`'te.
+Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin neyi aynen koruması gerektiğini anlatır. JS kodu taşınmaz; taşınan şey veri (`src/data/*.json`), bu kurallar ve testlerdir. Kaynak her bölümde yazılı; sayıların kesin hali kodda ve `data/balance.jsonon`'da.
 
 **Doğruluk ölçütü**: aynı tohumla aynı olay günlüğü. `tests/golden/matches.json` 34 fikstürün her biri için olay günlüğünün hash'ini, skoru, istatistikleri ve maç özetini tutar; `seasons.json` üç sezonluk kariyeri. Hash: anahtarları sıralanmış JSON'un SHA-256'sının ilk 24 onaltılık karakteri (`tests/support/golden.cjs`). Yeni motor bu kayıtları üretebiliyorsa kuralları doğru taşımıştır. Bunun için rastgele sayıların **aynı sırayla** çekilmesi gerekir: aşağıdaki "dakika" sırası bu yüzden önemlidir.
 
@@ -46,7 +46,7 @@ Sahadaki her oyuncu için `(pas + çalım + bitiricilik + hız) / 4 × (0,55 + k
 ### Özellik modeli (`pitch-v731.js`, başı)
 `taban özellik → mevki uyumsuzluğu → kondisyon → yaş = etkin özellik`. Oyuncunun kaydına hiçbiri yazılmaz. Kondisyonun etkisi özellik türüne göre (fiziksel > teknik > zihinsel; `BALANCE.engine.attributeKind`, `fitnessSensitivity`); mevki dışı ceza rol grubuna göre (`misfitWeight`). İkili olasılıklar yumuşak lojistik: `1 / (1 + e^(-(a-b)/ölçek))`, asla 0 ya da 1 değil. Özellik 35 → 0, 100 → 1 olarak normalleşir.
 
-### Taktikler (`tacticalEffects`, `match-support.js`; `data/tactics.js`)
+### Taktikler (`tacticalEffects`, `match-support.js`; `data/tactics.json`)
 Mentalite, pres, tempo, savunma hattı, hücum yönü, pas stili ve genişlik; her biri kontrol, hücum, savunma, yorgunluk, atak sıklığı, pas başarısı ve pas mesafesine küçük çarpanlar ekler. Oyuncu talimatları (arkaya koş, topu sakla, içe kat et…) aksiyon ağırlıklarını ve gücü değiştirir.
 
 ### Olay günlüğü
@@ -54,30 +54,30 @@ Mentalite, pres, tempo, savunma hattı, hücum yönü, pas stili ve genişlik; h
 - Sunum (2D, 3D, yorum) sadece bu günlüğü okur ve simülasyonu ilerletmez. Yeni motorun 3D'si de aynı günlüğü oynatmalı.
 - Maç sonu istatistik ve özet günlükten çıkar (`matchSummary`). Asist: golcüye aynı atakta atılan son başarılı pas ya da orta (dönen top, duran top, penaltı hariç).
 
-## 3. Oyuncular (`core/players/`, `data/players.js`)
+## 3. Oyuncular (`core/players/`, `data/players.json`)
 - Bir oyuncu = mevkinin şekli + oyun tipi (Golcü, Bindiren bek…) + kişisel gürültü; mevkinin ana özelliklerinin ortalaması oyuncunun gücüne (OVR) oturtulur. Her profil kendi tohumundan üretilir (`assignPlayerProfile`).
-- Gelişim profili yeni güçte yeniden türetir: çalımcı daha iyi çalımcı olur, özel hareketler özelliklere göre kendiliğinden açılır (`skillMoves`; 19 saha hareketi + kaleci hareketleri, `data/moves.js`). Antrenman odağı en fazla `BALANCE.training.cap` ekler.
-- Yetenek yıldızı (1–5) özel hareketlerden; kalecide OVR'den: 1, 67+ → 2, 74+ → 3, 80+ → 4, 85+ → 5 (`data/moves.js` `starShow.keeperStars`).
+- Gelişim profili yeni güçte yeniden türetir: çalımcı daha iyi çalımcı olur, özel hareketler özelliklere göre kendiliğinden açılır (`skillMoves`; 19 saha hareketi + kaleci hareketleri, `data/moves.json`). Antrenman odağı en fazla `BALANCE.training.cap` ekler.
+- Yetenek yıldızı (1–5) özel hareketlerden; kalecide OVR'den: 1, 67+ → 2, 74+ → 3, 80+ → 4, 85+ → 5 (`data/moves.json` `starShow.keeperStars`).
 
-## 4. Lig (`core/league/`, `data/clubs.js`)
+## 4. Lig (`core/league/`, `data/clubs.json`)
 - 18 kulüp, çift devreli 34 tur. Fikstür çember yöntemiyle: ilk kulüp sabit, diğerleri her tur bir kayar; ev/deplasman `(tur + maç) % 2` ile çevrilir; ikinci yarı ilk yarının ev/deplasman tersi (`makeLeagueSchedule`).
 - Galibiyet 3, beraberlik 1. Sıralama: puan, sonra averaj, sonra atılan gol (sezon özeti ve lig ekranı; "Dünya" ekranı ve basın sorularının bağlamı atılan gole bakmıyor, tam eşitlikte sıraları farklı olabilir).
 - Bizim dışımızdaki maçlar: her takımın beklenen golü hücum/orta saha/savunma ve son 5 maçın formundan (`simAIGame`), skor Poisson çekilişi (en fazla 6).
 - Rakip kulüpler liste seviyesinin `BALANCE.league.lift` üstünde oynar (zorluk).
 
 ## 5. Sezon sonu (`core/season/season.js`, `modes/manager/season-end.js`)
-Adımlar sırayla: özet, yaşlanma ve sezon arası gelişim, emeklilik, kiralıkların dönüşü, rapor, sözleşmeler, altyapı, rakipler, transfer havuzu, toparlama, yeni sezon. Kurallar ve tablo (gelişim, potansiyel, emeklilik ihtimali, sözleşme süreleri, maaş talebi, lig ödülü): `docs/season-transition.md`; sayılar `data/balance.js` (`development`, `retirement`, `contracts`).
+Adımlar sırayla: özet, yaşlanma ve sezon arası gelişim, emeklilik, kiralıkların dönüşü, rapor, sözleşmeler, altyapı, rakipler, transfer havuzu, toparlama, yeni sezon. Kurallar ve tablo (gelişim, potansiyel, emeklilik ihtimali, sözleşme süreleri, maaş talebi, lig ödülü): `docs/season-transition.md`; sayılar `data/balance.json` (`development`, `retirement`, `contracts`).
 - Oyuncu kimlikleri hiç tekrar kullanılmaz (`nextPlayerId`).
 - Rakip kulüp seviyesinden 1,5 puandan fazla saparsa en fazla 3 hamleyle geri çekilir.
 
 ## 6. Kariyer (teknik direktör modu)
-Haftalık döngü, transfer dönemleri (1–6. ve 18–21. hafta), akademi, harika çocuklar (her sezon bir tane; yaklaşık üçte bir bizde), basın, oyuncu görüşmeleri, yönetim. Kurallar `modes/manager/` ve `data/story.js`, `data/balance.js`'te. Bunlar moda özgüdür; başka bir mod (oyuncu kariyeri) çekirdeği (bölüm 1–5) aynen kullanır.
+Haftalık döngü, transfer dönemleri (1–6. ve 18–21. hafta), akademi, harika çocuklar (her sezon bir tane; yaklaşık üçte bir bizde), basın, oyuncu görüşmeleri, yönetim. Kurallar `modes/manager/` ve `data/story.json`, `data/balance.jsonon`'da. Bunlar moda özgüdür; başka bir mod (oyuncu kariyeri) çekirdeği (bölüm 1–5) aynen kullanır.
 
 ## 7. Kayıt
 Düz JSON, sürümlü biçim ve tek taşıma zinciri: `docs/save-format.md`. Yeni motor aynı kaydı okuyabilmeli (en azından içe aktarma ile).
 
 ## Taşırken
-1. Veriyi olduğu gibi al (`dist/data`, E'den sonra `.json`).
+1. Veriyi olduğu gibi al (`src/data/*.json`; açıklamaları `src/data/README.md`).
 2. Üreteci ve hash'i birebir yaz; ilk birkaç değeri JS ile karşılaştır.
 3. Motoru dakika sırasına sadık yaz; `tests/golden/matches.json`'daki olay günlüğü hash'lerini (anahtarları sıralanmış JSON üzerinden) üret ve karşılaştır.
 4. Lig, sezon sonu ve kariyeri `seasons.json` ile doğrula.

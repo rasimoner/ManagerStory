@@ -6,13 +6,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const dist = path.join(__dirname, '..', 'dist');
+const srcDir = path.join(__dirname, '..', 'src');
 
 test('keeper after the scorpion: up off his front, never rolled onto his back', async () => {
-  const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
-  const { createRuntime, analyseGait, V } = await import(path.join(dist, 'core/presentation/match3d/newview/runtime.js'));
-  const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
+  const THREE = await import('three');
+  const { loadRig } = await import(path.join(srcDir, 'core/presentation/match3d/newview/rig.js'));
+  const { createRuntime, analyseGait, V } = await import(path.join(srcDir, 'core/presentation/match3d/newview/runtime.js'));
+  const rig = loadRig(JSON.parse(fs.readFileSync(path.join(srcDir, 'assets/models/footballer-rig.json'), 'utf8')));
   const gait = {}; for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null, stride: 0.75 });
   const kit = { shirt: '#ff7a1a', stripe: '#ff7a1a', trim: '#111', shorts: '#111', socks: '#ff7a1a', sockTrim: '#111', boot: '#15171c', sole: '#f2f2f2', stripes: 0, number: '#111', numberEdge: '#fff', glove: '#eee' };

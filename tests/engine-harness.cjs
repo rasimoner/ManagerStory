@@ -1,6 +1,6 @@
 /* Shared harness for MatchEngine integrity tests, stress runs and the audit tool.
    Loads the real game through tests/support/game.cjs (the scripts index.html loads). */
-const { loadGame, DIST: base } = require('./support/game.cjs');
+const { loadGame } = require('./support/game.cjs');
 
 /* Kept for the engine tests and the report tools: the game with a career store, as before. */
 function harness(existing = new Map(), { layers = [] } = {}) {
@@ -59,4 +59,4 @@ function playToEnd(h, onTick) {
   return guard;
 }
 
-module.exports = { harness, PROBES, base, playToEnd, SUBSTITUTE };
+module.exports = { harness, PROBES, playToEnd, SUBSTITUTE };

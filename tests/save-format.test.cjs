@@ -1,4 +1,4 @@
-/* The save format (dist/core/save.js, docs/save-format.md), V7.9.13 refactor B:
+/* The save format (src/core/save.js, docs/save-format.md), V7.9.13 refactor B:
    - a new career and every loaded or imported save are in the current format (schemaVersion);
    - the migration chain is one step per format, in order, from 0 to SAVE_SCHEMA;
    - migrating a save that is already current changes nothing;

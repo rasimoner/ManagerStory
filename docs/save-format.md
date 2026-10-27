@@ -1,6 +1,6 @@
 # ManagerStory kayıt biçimi
 
-Kod: `dist/core/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri); kayda yazılan oyun sürümü `dist/core/version.js` (`GAME_VERSION`). Testler: `tests/save-format.test.cjs`, `tests/saves.test.cjs`.
+Kod: `src/core/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri); kayda yazılan oyun sürümü `src/core/version.js` (`GAME_VERSION`). Testler: `tests/save-format.test.cjs`, `tests/saves.test.cjs`.
 
 Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V7.9.13'ten bu yana her kayıt (ve daha eskiler zincirle) açılır, `tests/golden/saves.json` aynı.
 
@@ -20,7 +20,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V
 Şu anki biçim: **1** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
-- Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`dist/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
+- Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
 - `migrateSave(state)` kaydın biçiminden başlayıp adımları sırayla çalıştırır, sonra `schemaVersion` ve `version` yazar.
 - Nerede çalışır:
   - tarayıcı kaydı açılırken (`loadCareer`);
@@ -45,7 +45,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V
 | 1 | V7.9.13 (yeniden yapılanma B) sonrası | 0 → 1 |
 
 **0 → 1** (eski `migrateV71`'in yaptığı, artık tek seferlik):
-- `currentClubId` yoksa başlangıç kulübü (`data/clubs.js` `startingClub`).
+- `currentClubId` yoksa başlangıç kulübü (`data/clubs.json` `startingClub`).
 - `v71`: basın ve görüşme durumu (`preUsed`, `postUsed`, `conversations`, `serial`, `meetingClock`, `playerMeetings`, `categoryMeetings`).
 - `plan`: her taktik ayarı geçerli bir değere (`mentality`, `approach`, `passingStyle` için "Dengeli", diğerleri "Normal"); `teamInstructions` boşsa `[]`.
 - `form`: V7.0'ın İngilizce harfleri (W/D/L) Türkçeye (G/B/M).
