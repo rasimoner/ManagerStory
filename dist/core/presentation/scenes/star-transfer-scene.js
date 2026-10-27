@@ -4,13 +4,13 @@
 // WebGL renderer is created for the scene and released when it ends (phones keep little GPU memory).
 import * as THREE from '../../../vendor/three/three.module.min.js';
 import { OutlineEffect } from '../../../vendor/three/addons/effects/OutlineEffect.js';
-import { buildStadium } from '../match3d/newview/stadium.js?v=7.11.0';
-import { createRuntime, analyseGait, BALL_R, V } from '../match3d/newview/runtime.js?v=7.11.0';
-import { loadRig } from '../match3d/newview/rig.js?v=7.11.0';
-import { createDirector } from '../match3d/newview/director.js?v=7.11.0';
-import { createBroadcastCamera } from '../match3d/newview/camera.js?v=7.11.0';
-import { presentation } from '../registry.js?v=7.11.0';
-import { CLUBSTYLE } from '../../clubs/clubs.js?v=7.11.0';
+import { buildStadium } from '../match3d/newview/stadium.js?v=7.12.0';
+import { createRuntime, analyseGait, BALL_R, V } from '../match3d/newview/runtime.js?v=7.12.0';
+import { loadRig } from '../match3d/newview/rig.js?v=7.12.0';
+import { createDirector } from '../match3d/newview/director.js?v=7.12.0';
+import { createBroadcastCamera } from '../match3d/newview/camera.js?v=7.12.0';
+import { presentation } from '../registry.js?v=7.12.0';
+import { CLUBSTYLE } from '../../clubs/club-style.js?v=7.12.0';
 
 // timings (seconds): the whole scene stays short on a phone
 export const TIMES = { walk: 6.2, cheer: 2.2, fade: 0.35, showMax: 12, after: 1.6, closing: 4, cap: 40 };
@@ -207,7 +207,7 @@ function uprightness(p) {
   const d = head.sub(hips); return d.y / Math.max(1e-6, d.length());
 }
 
-/* opts: { player:{id,name,no,pos,keeper}, move, moveName, stars, excite (0..1), club:{name,primaryColor,secondaryColor,shortName}, closing, trial }
+/* opts: { player:{id,name,no,pos,keeper}, move, moveName, stars, excite (0..1), club:{name,primaryColor,secondaryColor,shortName}, closing }
    resolves { closed:true } after the closing note, { done:true } without it, or null when 3D is not available */
 export function playStarTransferScene(opts) {
   return new Promise(resolve => {
@@ -298,7 +298,7 @@ export function playStarTransferScene(opts) {
         phase = 'closing'; phaseT = 0; cardEl.classList.remove('on');
         if (!opts.closing) { finish({ done: true }); return; }
         const box = document.createElement('div'); box.className = 'sts-close';
-        box.innerHTML = `<small>KAPANIŞ</small><h3>Kariyer highlight arşivine eklendi</h3><p>${esc(opts.player.name)} • ${esc(opts.moveName || '')}${opts.trial ? ' (deneme: arşive yazılmadı)' : ''}</p><button type="button">Atla ›</button><i><b></b></i>`;
+        box.innerHTML = `<small>KAPANIŞ</small><h3>Kariyer highlight arşivine eklendi</h3><p>${esc(opts.player.name)} • ${esc(opts.moveName || '')}</p><button type="button">Atla ›</button><i><b></b></i>`;
         root.append(box);
         box.querySelector('button').addEventListener('click', () => finish({ closed: true }));
         const bar = box.querySelector('i b'); bar.style.transitionDuration = TIMES.closing + 's'; requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; });
@@ -307,7 +307,7 @@ export function playStarTransferScene(opts) {
       function frame(now) {
         if (finished) return;
         raf = requestAnimationFrame(frame);
-        const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)) * (window.__stsTimeScale ?? 1); last = now;   // (time scale: automated checks only)
+        const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
         total += dtReal; phaseT += dtReal;
         if (total > TIMES.cap) { finish(opts.closing ? { closed: true } : { done: true }); return; }
         let dt = dtReal;
@@ -338,7 +338,7 @@ export function playStarTransferScene(opts) {
           const n = Math.max(1, Math.ceil(dt / (1 / 120)));
           for (let i = 0; i < n; i++) { rt.S.t += dt / n; director.update(); for (const p of rt.players) if (!p.offPitch) rt.move(p, dt / n); rt.stepBall(dt / n); rt.contacts(); }
           setExcite(Math.max(opts.excite, Math.min(1, excite)));
-          if (phase === 'show' && (!director.tryDebug.staged || phaseT > TIMES.showMax)) { phase = 'after'; phaseT = 0; simSlow = 1; rt.startMotion(star, 'cheer'); autoCam = { mode: 'close', a: star, b: null }; setExcite(1); }
+          if (phase === 'show' && (!director.staging || phaseT > TIMES.showMax)) { phase = 'after'; phaseT = 0; simSlow = 1; rt.startMotion(star, 'cheer'); autoCam = { mode: 'close', a: star, b: null }; setExcite(1); }
           else if (phase === 'after' && phaseT > TIMES.after) startClosing();
         } else if (phase === 'closing') {
           dt = 0;

@@ -4,9 +4,9 @@
    of it, at that same moment: a player's season minutes, goals and cards, the morale and form a goal brings,
    the morale of a first professional match. The engine keeps what it reads back during the match itself:
    fitness and an injury. main.js connects both. */
-import { M } from '../../core/state.js?v=7.11.0';
-import { userSquad } from '../../core/engine/user-team.js?v=7.11.0';
-import { userSide } from '../../core/engine/match-support.js?v=7.11.0';
+import { M } from '../../core/state.js?v=7.12.0';
+import { userSquad } from '../../core/engine/user-team.js?v=7.12.0';
+import { userSide } from '../../core/engine/match-support.js?v=7.12.0';
 
 const squadPlayer = id => userSquad().find(x => x.id === id);
 

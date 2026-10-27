@@ -107,19 +107,6 @@ test('the home page carries the flash card for the week of the signing and the n
   h.run('S.week=6;render()'); assert.ok(!h.html().includes('stflashcard'), 'gone two weeks later');
 });
 
-test('the test button plays the scene on a copy: nothing is bought, numbered or recorded', () => {
-  const h = harness();
-  h.run('showV6Transfers()');
-  assert.match(h.html(), /Transfer sahnesi dene/);
-  assert.ok(h.html().indexOf('sttry') > h.html().indexOf('hisarhead'), 'the test card sits under the header, not above it');
-  const before = h.run('JSON.stringify(S)');
-  h.run(`starTransferTrial('out')`);
-  assert.match(h.html(), /DENEME/);
-  h.run('starSigningScreen();starPickNumber(freeShirtNumbers(-1)[0])');
-  h.run(`starTransferTrial('gk')`);
-  assert.equal(h.run('JSON.stringify(S)'), before);
-});
-
 test('old saves and saves with other new fields load; the archive starts empty', () => {
   const h = harness();
   // an old save: no archive, no shirt numbers; plus fields another branch may add (contracts, free agents)

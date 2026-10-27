@@ -10,11 +10,13 @@
    S.version is a different thing: the game version that last wrote the save (backups are keyed by it).
    What the chain does not do: fill content a career needs whenever it is missing — a market, an academy,
    rival squads, player profiles, defaults for a newly signed player. That is init()'s job on every start. */
-import { CLUB_DATA } from '../data/clubs.js?v=7.11.0';
-import { newMatchSalt } from './random.js?v=7.11.0';
-import { M, S, setCareer, setLoadError, setMatch, setModal } from './state.js?v=7.11.0';
-import { GAME_VERSION, MATCH_TACTICS, restoreActiveMatch } from './engine/match-support.js?v=7.11.0';
-import { careerOpened, changed } from './hooks.js?v=7.11.0';
+import { CLUB_DATA } from '../data/clubs.js?v=7.12.0';
+import { newMatchSalt } from './random.js?v=7.12.0';
+import { M, S, setCareer, setLoadError, setMatch, setModal } from './state.js?v=7.12.0';
+import { restoreActiveMatch } from './engine/match-support.js?v=7.12.0';
+import { careerOpened, changed } from './hooks.js?v=7.12.0';
+import { MATCH_TACTICS } from './engine/tactics.js?v=7.12.0';
+import { GAME_VERSION } from './version.js?v=7.12.0';
 export const SAVE_KEY = "msv4";
 export const SAVE_SCHEMA = 1;
 export let saveWarning = false;

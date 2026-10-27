@@ -1,6 +1,6 @@
 # Kod düzeni
 
-Refactor C (V7.9.13 üzerinde), D ile devam (V7.10.0 üzerinde). Kod hâlâ `dist` içinde, build yok; `src/` ve Vite son adımda (E).
+Refactor C (V7.9.13 üzerinde), D (V7.10.0 üzerinde), E1/E7/E8 (V7.11.0 üzerinde). Kod hâlâ `dist` içinde, build yok; `src/`, `public/` ve Vite E'nin kalan kısmı (E2–E6, `docs/architecture.md` "Kalan borçlar"). Katmanlar ve akışlar: `docs/architecture.md`.
 Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe akar. D'den beri bu bir test (`tests/structure.test.cjs`): hiçbir `core/` modülü `modes/`'tan bir şey almaz. Çekirdeğin bir modun yapmasını istediği şey `core/hooks.js` üzerinden söylenir, `main.js` modu bağlar (aşağıda "Çekirdeğin söyledikleri"). Hangi dosyanın nerede olduğu bu tabloda; yeri değişen dosyada bu tablo da güncellenir.
 
 ## dist/core — ortak çekirdek (her mod kullanır)
@@ -16,14 +16,19 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `core/engine/match-minute.js` | `app.js` (D1) | Motorun kalbi: maçın bir dakikası (`tick`), atak (`chance`, `seqText`), sahadaki gücü (`strength`), şansı kimin bulacağı (`attacker`), topun kimde olduğu (`setUserOwner`/`setOppOwner`), rakip diziliş noktaları (`oppRadarPos`), oyuncunun oynadığı role uyumu (`positionPenaltyV61`) | Gövdeler aynen; aynı tohumlu çekilişler aynı sırada |
 | `core/engine/match-support.js` | `match-support.js` | Maç durumu, maç olayları, faul/kart, taktik etkileri, maç özeti, oyuncu talimatı seçenekleri (`matchOrderOptions`, D4) | Motorun durum ve olay tarafı. Maç paneli arayüzü ve ana ekran kabuğu D4'te moda gitti |
 | `core/engine/user-team.js` | (yeni, D4) | Maçta kullanıcının takımı hangisi: `userClub()`, `userSquad()`, `userOpponent()`; mod `setUserTeam()` ile söyler. Varsayılan: yönetilen kulüp ve kariyerin kadrosu | Motor "bizim takım = yönetilen takım" varsaymaz |
+| `core/engine/tactics.js` | `match-support.js`, `match-panel.js` (E1) | Taktiklerin dili: ayarlar (`MATCH_TACTICS`), adları (`TACTIC_LABELS`), takım talimatları (`TEAM_ORDERS`) | Sadece veriden; oyun modülü almaz, döngüde hangi modül önce çalışırsa çalışsın hazır |
 | `core/engine/live-match.js` | `live-match.js` | Maç saati, canlı döngü, maç bitişi | Motorun zaman tarafı. Bağırma (`shoutLive`) D4'te moda gitti; asistan metinleri hâlâ burada |
 | `core/engine/pitch-v73.js` | `pitch-v73.js` | Dakika eylemleri: pas, çalım, orta, ofsayt, şut | Motorun ~900 satırı. D'de ayrılacak: baştaki 2D saha çizimi → `core/presentation/match2d` |
 | `core/engine/pitch-v731.js` | `pitch-v731.js` | Özellik modeli, yorgunluk, ikili mücadele, duran toplar, serbest top | Motorun ikinci yarısı |
-| `core/players/moves.js` | `app.js` (D5) | Özel hareketlerin adları (`SKILL_NAMES`) ve oyuncunun şu an açık hareketleri (`movesNow`) | Oyuncu modeli |
+| `core/players/moves.js` | `app.js` (D5) | Oyuncunun şu an açık hareketleri (`movesNow`) | Oyuncu modeli |
+| `core/players/move-names.js` | `core/players/moves.js` (E1) | Özel hareketlerin adları (`SKILL_NAMES`) | Sadece veriden (döngüden bağımsız) |
 | `core/players/player-profiles.js` | `player-profiles.js` | Oyuncu tipi, özellik profili, antrenman odağı; başlangıç kadrosundaki oyuncu ve onun rakip stiline göre avantajı (`startingPlayer`, `styleEdge`, D1) | Oyuncu modeli; DOM ve kayıt bilgisi yok |
-| `core/league/league.js` | `app.js` (D2–D3) | Lig: rakip kulüp satırları (`OPP`), takımlar, çift devreli fikstür, bu turun maçı ve rakibi (`currentFixture`, `currentOpponent`), turun diğer maçları (`simAIGame`, `simulateRoundOthers`), puan tablosu ve form | Her mod aynı ligi oynar |
-| `core/clubs/clubs.js` | `app.js` (D2) | Kulüp kimliği: renkler ve desen (`CLUBSTYLE`), arma, taraftar fotoğrafı, kariyerin kulübü (`managedClubName`), ekranın ve maçın gösterdiği kimlik (`resolveClubIdentity`) | `data/clubs.js`'ten; mod bilmez |
-| `core/league/opponents-v731.js` | `opponents-v731.js` | Rakip kadroları, lig seviyesi | Lig |
+| `core/league/league.js` | `app.js` (D2–D3) | Lig: takımlar, çift devreli fikstür, bu turun maçı ve rakibi (`currentFixture`, `currentOpponent`), turun diğer maçları (`simAIGame`, `simulateRoundOthers`), puan tablosu ve form | Her mod aynı ligi oynar |
+| `core/league/rivals.js` | `league.js`, `opponents-v731.js` (E1) | Rakip kulüp satırları (`OPP`), lig seviyesi (`LEAGUE_LIFT`), rakip kadro rolleri ve isimleri | Sadece veriden; lig ↔ kulüp ↔ sezon döngüsünde hangi modül önce çalışırsa çalışsın hazır |
+| `core/clubs/clubs.js` | `app.js` (D2) | Kulüp kimliği: arma, taraftar fotoğrafı, kariyerin kulübü (`managedClubName`), ekranın ve maçın gösterdiği kimlik (`resolveClubIdentity`) | `data/clubs.js`'ten; mod bilmez |
+| `core/clubs/club-style.js` | `core/clubs/clubs.js` (E1) | Kulüp renkleri ve desen (`CLUBSTYLE`) | Sadece veriden (döngüden bağımsız) |
+| `core/version.js` | `match-support.js` (E1) | Kodun sürümü (`GAME_VERSION`, kayda yazılır) | İmportsuz |
+| `core/league/opponents-v731.js` | `opponents-v731.js` | Rakip kadroları (lig seviyesi E1'den beri `rivals.js`'te) | Lig |
 | `core/season/season.js` | `season.js` | Sezon sonu adım hattı, kurallar (yaşlanma, emeklilik, gelişim, kulüpten ayrılma), sezon özeti verisi, rakip kadroların yenilenmesi, yeni sezon | Sezon hattı ortak. Teknik direktör adımları ve ekranları D5'te moda gitti; `summary` adımı `screen: true` (ekranı mod çizer) |
 | `core/presentation/match3d/match3d-newview.js` | `match3d-newview.js` | 3D maç görünümü ile oyun arasındaki köprü, HUD, tekrar | Sunum |
 | `core/presentation/match3d/match3d-live-clock.js` | `match3d-live-clock.js` | Sunum saati, 2D/3D akış zamanlaması | Sunum (`data-layer="clock"`) |
@@ -37,6 +42,8 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | Dosya | Önceki yer | Ne | Neden burada |
 |---|---|---|---|
 | `modes/manager/app.js` | `app.js` | Kariyer döngüsü, transfer, akademi, kadro/taktik/diziliş ekranları, gelen kutusu ekranı, `choose`, ekran yönlendirme ve ana ekran kabuğu (`goMain`, `setScreenMode`, `decorateMainScreen`, D4) | Çoğu teknik direktöre özgü. Motor kalbi, lig ve kulüp kimliği D1–D3'te çekirdeğe taşındı. Kalan: gelişim → `core/players`, header ve alt menü → `ui` |
+| `modes/manager/market-names.js` | `app.js` (E1) | Transfer piyasasının isimleri ve mevkileri (`V6FN`, `V6LN`, `V6POS`) | Sadece veriden; app ↔ season-end döngüsünden bağımsız |
+| `modes/manager/lineup-slots.js` | `app.js` (E1) | Diziliş sahasında her yerin konumu (`SLOT_POS`) | İmportsuz |
 | `modes/manager/match-panel.js` | `match-support.js`, `live-match.js` (D4) | Maç paneli: istatistik, ayrıntı ve kondisyon sekmeleri, maçta ve planda taktik ile takım talimatları, asistan önerileri, bağırma, düğmeleri | Teknik direktörün maç ekranı; motor sadece seçimin sonucunu (taktik olayı, maç durumu) alır |
 | `modes/manager/match-career.js` | (yeni, D4) | Maçın kariyerdeki karşılığı: sezon golleri, kartlar, dakikalar, ilk maç; golün ve ilk maçın moral/formu. Motorun olaylarından (`matchEvent` kancası) ve `minutePlayed`'den, aynı anda yazar | Motor kariyere yazmaz, ne olduğunu söyler |
 | `modes/manager/season-end.js` | `season.js` (D5) | Teknik direktörün sezon sonu adımları (`report`, `contracts`, `academy`, `market`, `cleanup`; hatta id ile eski yerlerine), yeni sezonun onun için anlamı (ödül, başkan, yönetim, saat), sezon sonu ekranları | Adımların id'si ve sırası aynı: yarıda kalmış kayıt aynı adımdan devam eder |
@@ -52,6 +59,12 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `ui/webmcp.js` | `webmcp.js` | Tarayıcı model bağlamına salt-okunur kariyer aracı |
 
 Header (`header`), alt menü (`bottomNav`), ekran kabuğu (`render`) ve listeler bugün `app.js` içinde; D'de buraya gelir.
+
+## Modül sırası (E1)
+
+Paketleyici modülleri tarayıcıdan farklı sırayla çalıştırabilir (3D'yi ayrı parçaya da böler). Bu yüzden:
+- Veriden hesaplanan sabitler (`OPP`, `CLUBSTYLE`, `SKILL_NAMES`, taktik dili, `GAME_VERSION`, piyasa isimleri, diziliş yerleri) sadece veri alan küçük modüllerde. Döngüdeki bir modül başkasının sabitini yükleme anında okursa, o modül henüz çalışmamışsa hata olur; bu sabitler döngüde değil.
+- `tests/module-order.test.cjs`: her modül ilk çalışan olabilir (hiçbir değer modülü çalışmadan okunmaz); sezon sonu adımları, eylemler ve kancalar modüller hangi sırayla çalışırsa çalışsın aynı (main.js'in importları ters, alfabetik ve önce mod sırasıyla denenir). Yükleyicinin `first` seçeneği modülleri istenen sırayla çalıştırır.
 
 ## Giriş noktası (C3)
 
@@ -78,7 +91,6 @@ Genişletme noktaları (`core/hooks.js`):
 | An | Kim çalıştırır | Kim kaydolur |
 |---|---|---|
 | `beforeSigning(x)`, `afterSigning(player, x, fee)` | `v6Sign` (app.js) | yıldız transfer sahnesi (star-transfer.js) |
-| `transferListShown()` | `showV6Transfers` (app.js) | geçici "Transfer sahnesi dene" kartı (star-transfer.js) |
 | `goMain(section)` → `true`: işlendi | `goMain` (match-support.js) | aktif sekmeye dokunma (nav.js) |
 | `navBack()` | geri düğmesi eylemi (app.js) | kaydırma konumuna dönüş (nav.js) |
 | `screenDrawn()` | `header` (app.js) | ekran yerleşince kaydırma ve ↑ düğmesi (nav.js) |
@@ -86,7 +98,7 @@ Genişletme noktaları (`core/hooks.js`):
 ## Yerinde kalanlar
 
 - `data/*.js`: oyun verisi (JSON değerler).
-- `index.html`, `sw.js`, `manifest.json`, ikonlar, `style.css`, `assets/`, `vendor/three/` (E'de npm'e geçer).
+- `index.html`, `sw.js`, `manifest.json`, ikonlar, `style.css`, `assets/`, `vendor/three/` (Vite ile npm'e geçecek, E2–E6).
 
 ## Ekrandaki düğmeler (C2)
 
@@ -99,9 +111,9 @@ Genişletme noktaları (`core/hooks.js`):
 ## ES modülleri (C3)
 
 - Sayfada klasik script yok. `index.html` dört modül girişi yükler: `main.js` (oyun) ve sunum katmanları `core/presentation/match3d/match3d-live-clock.js` (`data-layer="clock"`), `match-view-adapter.js` (`view`), `modes/manager/match-3d.js` (`3d`: 3D görünümü yükler, olmazsa 2D).
-- Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (D'de dışa açık olanlar daralacak).
-- Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok; tek istisna yıldız sahnesinin otomasyon için zaman ölçeği `window.__stsTimeScale`. three.js `dist/vendor`'dan modül olarak gelir (E'de npm).
-- `core/` henüz `modes/manager`'dan bazı şeyler alıyor (D3 sonunda 7 dosyada 36 ad; C sonunda 11 dosyada 63). Liste `tests/structure.test.cjs` içinde sabit; sadece kısalabilir, D'de sıfırlanır.
+- Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (dışa açık olanlar henüz daraltılmadı; `docs/architecture.md` "Kalan borçlar").
+- Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok (E7'den beri istisnasız; yıldız sahnesinin otomasyon zaman ölçeği `window.__stsTimeScale` kalktı). three.js `dist/vendor`'dan modül olarak gelir (Vite ile npm'e geçecek).
+- `core/` `modes/`'tan hiçbir şey almaz (C sonunda 11 dosyada 63 ad, D'de 0); `tests/structure.test.cjs` kuralı denetler.
 - Testler aynı modülleri `vm.SourceTextModule` ile yükler (`tests/support/game.cjs`); `npm test` gereken `--experimental-vm-modules` bayrağını verir. Tek dosya için: `NODE_OPTIONS=--experimental-vm-modules node --test tests/<dosya>`.
 - Service worker girişleri `?v=<sürüm>` ile, içe aktarılan modülleri yalın adıyla listeler.
 
@@ -118,7 +130,8 @@ Genişletme noktaları (`core/hooks.js`):
 - Bir ES modülü adresi başına tek örnektir: bir dosyanın bütün içe aktarmaları aynı adresi kullanmalı. Bu yüzden hepsini `node tools/stamp-version.cjs` tek sürümden basar; `--check` eksik ya da eski damgada hata verir, `tests/version-labels.test.cjs` onu çalıştırır. `vendor/` yalın kalır.
 - Yeni modül ya da yeni içe aktarma eklendikten sonra `node tools/stamp-version.cjs` çalıştırılır. Yayında sürüm yükseltilince (`package.json` ve etiketler) aynı komut her şeyi yeni sürüme taşır.
 - `sw.js` (V7.11.0): `?v=` taşımayan bir oyun modülü isteği (`main.js`, `core/`, `modes/`, `ui/`, `data/` altında) ancak hâlâ açık duran eski bir sürüm sayfasından gelebilir. Service worker onu başarısız sayar; yoksa o yoldaki yeni dosya eski sayfaya ikinci bir oyun kopyası yüklerdi. Eski sayfa kendi yedeğine düşer (2D maç, foto sahne). Test: `tests/service-worker.test.cjs`.
-- E'de Vite'ın içerik hash'leri bunun yerini alır (damga da `sw.js`'teki bu kural da).
+- V7.12.0'dan beri aynı kural başka bir sürümün `?v=`'sini taşıyan istek için de geçerli (`RELEASE`, damga aracı yazar): açık kalan bir V7.11.0 sekmesinin `?v=7.11.0` istekleri de başarısız sayılır.
+- Vite'ın içerik hash'leri gelince bunun yerini alır (damga da `sw.js`'teki bu kural da; E2–E3).
 
 ## Yolları etkileyen kurallar
 

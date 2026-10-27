@@ -7,10 +7,10 @@
    better dribbler and his new skill moves unlock by themselves; training focus adds a capped bonus on
    top. Nothing here draws match randomness: every profile comes from its own seed. */
 // the tables a profile is built from live in data/players.js; the training cap in data/balance.js
-import { PLAYER_DATA } from '../../data/players.js?v=7.11.0';
-import { BALANCE } from '../../data/balance.js?v=7.11.0';
-import { R } from '../random.js?v=7.11.0';
-import { STARTING_SQUAD } from '../../data/squad.js?v=7.11.0';
+import { PLAYER_DATA } from '../../data/players.js?v=7.12.0';
+import { BALANCE } from '../../data/balance.js?v=7.12.0';
+import { R } from '../random.js?v=7.12.0';
+import { STARTING_SQUAD } from '../../data/squad.js?v=7.12.0';
 export const PROFILE_ATTRS = PLAYER_DATA.attributes;
 export const POSITION_SHAPE = PLAYER_DATA.positionShape;   // a typical player of the position, as offsets from his overall
 export const POSITION_KEYS = PLAYER_DATA.positionKeys;     // the attributes a position is judged by

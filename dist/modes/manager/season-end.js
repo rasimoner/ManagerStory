@@ -4,16 +4,19 @@
    intake, the transfer market, the squad's tidy-up), what a new season means for him (budget, chairman,
    board, clock), and the season-end screens with their buttons. The steps keep their ids and places, so a
    save taken mid-way resumes where it stopped. */
-import { SEASON_DEPARTED, SEASON_MIN_SQUAD, SEASON_POOL_SIZE, departPlayer, isGK, nextPlayerId, retireChance, seasonActive, seasonClub, seasonDevelop, seasonEndCheck, seasonEndNext, seasonEndStep, seasonEsc, seasonRnd, seasonStepById } from '../../core/season/season.js?v=7.11.0';
-import { S } from '../../core/state.js?v=7.11.0';
-import { pushInbox } from '../../core/inbox.js?v=7.11.0';
-import { SLOT_POS, V6FN, V6LN, V6POS, bottomNav, createUniqueAcademyCandidate, header, marketProfile, money, normalizeFormation, refreshAcademy, render, setClock } from './app.js?v=7.11.0';
-import { defineActions } from '../../ui/actions.js?v=7.11.0';
-import { save } from '../../core/save.js?v=7.11.0';
-import { WONDER_TYPES, assignPlayerProfile, pickPlayerType, profilePositionGroup, refreshPlayerProfile } from '../../core/players/player-profiles.js?v=7.11.0';
-import { BALANCE } from '../../data/balance.js?v=7.11.0';
-import { CLUBSTYLE, crest, managedClubName } from '../../core/clubs/clubs.js?v=7.11.0';
-import { R } from '../../core/random.js?v=7.11.0';
+import { SEASON_DEPARTED, SEASON_MIN_SQUAD, SEASON_POOL_SIZE, departPlayer, isGK, nextPlayerId, retireChance, seasonActive, seasonClub, seasonDevelop, seasonEndCheck, seasonEndNext, seasonEndStep, seasonEsc, seasonRnd, seasonStepById } from '../../core/season/season.js?v=7.12.0';
+import { S } from '../../core/state.js?v=7.12.0';
+import { pushInbox } from '../../core/inbox.js?v=7.12.0';
+import { bottomNav, createUniqueAcademyCandidate, header, marketProfile, money, normalizeFormation, refreshAcademy, render, setClock } from './app.js?v=7.12.0';
+import { defineActions } from '../../ui/actions.js?v=7.12.0';
+import { save } from '../../core/save.js?v=7.12.0';
+import { WONDER_TYPES, assignPlayerProfile, pickPlayerType, profilePositionGroup, refreshPlayerProfile } from '../../core/players/player-profiles.js?v=7.12.0';
+import { BALANCE } from '../../data/balance.js?v=7.12.0';
+import { crest, managedClubName } from '../../core/clubs/clubs.js?v=7.12.0';
+import { R } from '../../core/random.js?v=7.12.0';
+import { CLUBSTYLE } from '../../core/clubs/club-style.js?v=7.12.0';
+import { V6FN, V6LN, V6POS } from './market-names.js?v=7.12.0';
+import { SLOT_POS } from './lineup-slots.js?v=7.12.0';
 /* step 5 — what the summer did (screen) */
 seasonEndStep({ id: 'report', screen: seasonReportUI }, { after: 'loans' });
 

@@ -1,6 +1,8 @@
 # ManagerStory kayıt biçimi
 
-Kod: `dist/core/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri). Testler: `tests/save-format.test.cjs`, `tests/saves.test.cjs`.
+Kod: `dist/core/save.js` (yükleme, kaydetme, dışa/içe aktarma, taşıma zinciri); kayda yazılan oyun sürümü `dist/core/version.js` (`GAME_VERSION`). Testler: `tests/save-format.test.cjs`, `tests/saves.test.cjs`.
+
+Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi: biçim hâlâ 1; V7.9.13'ten bu yana her kayıt (ve daha eskiler zincirle) açılır, `tests/golden/saves.json` aynı.
 
 ## Kayıt nedir
 - Kariyer durumu `S`'nin JSON'u. Tarayıcıda `localStorage["msv4"]` içinde durur; dışa aktarılan dosya aynı JSON'dur (girintili).
@@ -90,7 +92,7 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | `seasonEnd` | nesne | Yarım kalmış sezon sonu: `steps` (adım kimlikleri, kayıt sözleşmesi), `at`, `data`. |
 | `highlights` | dizi | Highlight arşivi: oyuncu, hareket, sezon/hafta. |
 | `activeMatchV71` | nesne | Yarım kalmış maç (yukarıda). |
-| `ui`, `tune` | nesne | Arayüz tercihleri (karar çekmecesi), 3D ayar paneli (geçici). |
+| `ui` | nesne | Arayüz tercihleri (karar çekmecesi). |
 
 ### Oyuncu (`players[]`)
 | Alan | Ne |

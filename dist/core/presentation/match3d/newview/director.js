@@ -1,8 +1,8 @@
 // Plays a real MatchEngine event log on the pitch runtime.
 // The engine decides who does what and where; this file only decides how it looks.
 import * as THREE from '../../../../vendor/three/three.module.min.js';
-import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js?v=7.11.0';
-import { ACTIONS } from './actions.js?v=7.11.0';
+import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js?v=7.12.0';
+import { ACTIONS } from './actions.js?v=7.12.0';
 
 const SAY_AT_START = new Set(['ballCarry', 'dribble', 'run', 'kickoff', 'foul', 'yellow', 'red', 'sub', 'injury', 'half', 'end', 'goal']);
 const SKIP_TEXT = new Set(['offBallRun', 'press', 'chance', 'restartPlayers', 'restartWait', 'restartPosition', 'firstTouch', 'looseBall']);
@@ -305,7 +305,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     } else if (!(yield* flairPassTry(from, to, toW, travel, implicit, opts))) {
       // V7.9: a no-look pass — only a player who has it, in the opponents' half, not played backwards
       const fwdX = -Math.sign(ownGoalX(from.side)), len0 = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z);
-      // V7.9: a backheel or a rabona — a player who has it, where it fits (or the test button)
+      // V7.9: a backheel or a rabona — a player who has it, where it fits (or the staged scene)
       const special = passSpecial(from, to, toW, travel, implicit, opts);
       let specialDone = false;
       if (special) {
@@ -325,7 +325,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         yield* until(() => rt.actionAtContact(from), 2);
       } else dir = V(toW.x - ball.p.x, 0, toW.z - ball.p.z);
       kickT = S.t;
-      if (noLook && tryNL) { tryMove = null; hooks.tried?.('nolook'); }
+      if (noLook && tryNL) tryMove = null;
       if (noLook) {
         const toe = from.toes[1].getWorldPosition(V());
         noteSkill({ kind: 'nolook', contact: +Math.hypot(toe.x - ball.p.x, toe.z - ball.p.z).toFixed(3), len: +len0.toFixed(1), ...(DEBUG ? { dbg: { toe: toe.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)), bv: ball.v.toArray().map(v => +v.toFixed(2)), pos: from.pos.toArray().map(v => +v.toFixed(2)), warpTo: from.warp?.to?.toArray().map(v => +v.toFixed(2)), owner: ball.owner?.key, el: +(S.t - from.act?.t0).toFixed(3), act: from.act?.name } } : {}) }, from);
@@ -333,7 +333,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       // V7.9: a long ball dropping onto a man standing under it is taken on the chest
       const longBall = !!to && !opts.meet && !opts.restart && (travel === 'aerial' || dir.length() > 30) && to.role !== 'GK' && dir.length() > 22 && dir.length() < 50 && !to.motion && !to.dive;
       const under = longBall && to.pos.distanceTo(toW) < 1 + 4 * Math.max(0, dir.length() / 17 - 0.9);
-      // V7.9: or killed dead with the boot by a player who has the touch (or the test button)
+      // V7.9: or killed dead with the boot by a player who has the touch (or the staged scene)
       const tryTrap = tryMove === 'trap' && to?.side === 'user' && longBall && to.pos.distanceTo(toW) < 1 + 5.5 * Math.max(0, dir.length() / 17 - 0.5);
       trap = tryTrap || (under && has(to, 'trap') && (to.used?.trap || 0) < 2 && pick(opts.ev, 37) < 0.45);
       chest = !trap && under && pick(opts.ev, 3) < 0.3;
@@ -373,7 +373,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
 
   // ---- V7.9 batch 3: passes and touches (boots placed with the foot targets) ----
-  // which special pass, if any: a player who has it, where it fits, or the test button
+  // which special pass, if any: a player who has it, where it fits, or the staged scene
   function passSpecial(from, to, toW, travel, implicit, opts) {
     if (!to || opts.restart || opts.meet || opts.throwIn || from.role === 'GK' || ball.owner !== from || ball.p.y > BALL_R + 0.05) return null;
     const len = Math.hypot(toW.x - from.pos.x, toW.z - from.pos.z), aim = V(toW.x - from.pos.x, 0, toW.z - from.pos.z).normalize(), fwdX = -Math.sign(ownGoalX(from.side));
@@ -519,7 +519,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   const laterQ = [];
   function later(dt, fn) { laterQ.push({ at: S.t + dt, fn }); }
   // who turns his man with the first touch: a player who has it, back to goal in the final third with a
-  // defender tight behind him (or the test button: the nearest defender comes to him)
+  // defender tight behind him (or the staged scene)
   function pirouetteChance(to, toW, opts, implicit) {
     if (!to || to.role === 'GK' || opts.restart || opts.throwIn || opts.meet) return null;
     const tryIt = tryMove === 'pirouette' && to.side === 'user';
@@ -726,7 +726,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   }
 
   // the pass in the middle of a step-over: a player who has it, in the opponents' half, a defender
-  // right in front of him and a short pass on (or the test button); true when the pass has been played
+  // right in front of him and a short pass on (or the staged scene); true when the pass has been played
   function nearestOpp(p, maxD) {
     return rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== p.side && q.role !== 'GK' && q.pos.distanceTo(p.pos) < maxD)
       .reduce((m, q) => (!m || q.pos.distanceTo(p.pos) < m.pos.distanceTo(p.pos) ? q : m), null);
@@ -758,7 +758,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
       if (ball.owner !== from && !ok) break;
     }
     if (!ok) { def.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; from.faceLock = false; if (tryIt) tryMove = 'flairpass'; return false; }
-    hooks.tried?.('flairpass');
     return true;
   }
   // with the ball: drive into open grass, slow down and keep it close with a man nearby
@@ -773,8 +772,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     // he slows down only while a man is near him; a long run with the ball ends after ~11 s wherever he is
     const end = S.t + Math.min(11, p.pos.distanceTo(goalW) / Math.max(2, carrySpeed(p, speed) - 1) + 2);
     while (S.t < end && ball.owner === p) {
-      // (temporary test button) our man on the ball plays the move asked for, in the flow of play
-      if (tryMove && !PASS_TRIES.has(tryMove) && p.side === 'user' && p.role !== 'GK' && (yield* tryNow(p))) { p.busy = true; if (ball.owner !== p) break; continue; }
       rt.dribble(p, goalW, carrySpeed(p, speed));
       if (Math.hypot(ball.p.x - goalW.x, ball.p.z - goalW.z) < 1.4) break;
       yield;
@@ -846,7 +843,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     for (const m of pool) { x -= w(m); if (x < 0) return m; }
     return pool.at(-1);
   }
-  // ---- development only: stage a special move now (to film it or look at it on the phone) ----
+  // ---- stage a special move now (the star transfer scene's show) ----
   // the match waits while it plays; the player who has the move is put in the opponents' half with
   // the ball, a defender comes to him, and the move is made exactly as in a match
   let forced = null, staged = null;
@@ -1033,35 +1030,8 @@ export function createDirector(rt, data, hooks, opts = {}) {
     })();
     return star.name;
   }
-  // ---- temporary test button: "play this move with the man on the ball, now" ----
-  // nothing is moved or stopped: the next time one of our players carries the ball, the nearest
-  // opponent comes to him and he plays the move (whether he has it or not, wherever he is); the
-  // match then goes on from there
-  let tryMove = null, tryWait = 0;
-  const PASS_TRIES = new Set(['nolook', 'flairpass', 'backheel', 'rabona', 'trap', 'panenka', 'chip', 'bicycle', 'pirouette', 'scorpion']);
-  function* tryNow(car) {
-    const kind = tryMove;
-    const def = rt.players.filter(q => !q.offPitch && !q.busy && !q.dive && q.side !== car.side && q.role !== 'GK')
-      .reduce((m, q) => (!m || q.pos.distanceTo(car.pos) < m.pos.distanceTo(car.pos) ? q : m), null);
-    if (!def || def.pos.distanceTo(car.pos) > 16) return false;
-    tryMove = null; def.busy = true; car.busy = true;
-    const f = fwdOf(car), goal = car.pos.clone().addScaledVector(f, 12); goal.x = clamp(goal.x, -48, 48); goal.z = clamp(goal.z, -30, 30);
-    yield* until(() => {
-      rt.dribble(car, goal, 3);
-      def.target.copy(car.pos).addScaledVector(fwdOf(car), 1.9); def.want = 5.5; def.face = car.pos; def.faceLock = def.pos.distanceTo(car.pos) < 5; def.loopsWant.jockey = def.faceLock ? 1 : 0;
-      return def.pos.distanceTo(car.pos) < 2.6;
-    }, 4);
-    def.lastEvent ||= { eventId: 0 };
-    let ok = false;
-    for (let k = 0; k < 3 && !ok; k++) {
-      if (k) yield* until(() => { car.target.copy(car.pos); car.want = 0.5; def.target.copy(car.pos).addScaledVector(fwdOf(car), 1.9); def.want = 3; def.face = car.pos; def.faceLock = true; return def.pos.distanceTo(car.pos) < 2.4; }, 1);
-      ok = def.pos.distanceTo(car.pos) < 3.4 && (yield* SKILL_BEAT[kind](car, def, true)) !== false;
-      if (ball.owner !== car && !ok) break;
-    }
-    if (!ok) { tryMove = kind; def.busy = false; def.faceLock = false; def.loopsWant.jockey = 0; car.busy = false; hooks.cam('tv'); }
-    else hooks.tried?.(kind);
-    return ok;
-  }
+  // a special pass or shot the staged scene asks for: the next chance to play it plays it
+  let tryMove = null;
   // every special move is logged with who did it and where, for the checks and the replay
   function noteSkill(audit, p, extra) {
     Object.assign(audit, { who: p.key, side: p.side, moves: [...(p.moves || [])], fromOwn: +fromOwnGoal(p).toFixed(1), z: +p.pos.z.toFixed(1), t: +S.t.toFixed(2), losing: losing(p.side) }, extra);
@@ -1829,7 +1799,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       && (tryShot === 'chip' || (has(sh, 'chip') && fromGoal < 20 && pick(e, 33) < 0.35));
     const bicycle = !!hc && (tryShot === 'bicycle' || (has(sh, 'bicycle') && pick(e, 35) < 0.5));
     // V7.9: Higuita's scorpion — a looping ball dropping onto a keeper who has it; never when his team is losing
-    // (the test button: the next saved shot at our goal of any kind but a penalty or a header)
+    // (the staged scene: the next saved shot at our goal of any kind but a penalty or a header)
     const tryScorp = gk?.side === 'user' && tryMove === 'scorpion' && outcome === 'save' && !hc && !e.penalty && !e.header;
     // (V7.9.4 only a keeper set and facing the shot: running back towards his goal he cannot throw himself at it)
     const gkFacing = !!gk && gk.vel.length() < 2.5 && Math.abs(Math.atan2(Math.sin(Math.atan2(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) - gk.heading), Math.cos(Math.atan2(ball.p.x - gk.pos.x, ball.p.z - gk.pos.z) - gk.heading))) < 0.6;
@@ -2589,18 +2559,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
     for (let k = laterQ.length - 1; k >= 0; k--) if (S.t >= laterQ[k].at) laterQ.splice(k, 1)[0].fn();
     if (staged) {
       const r = staged.next();
-      // a move played between two events (test button, staging): the event it interrupted is not
+      // a move played between two events (the staged scene): the event it interrupted is not
       // resumed — it would put the ball back where the engine had it — the next one starts from the pitch as it is
       if (r.done) { staged = null; if (r.value) { task = null; for (const p of rt.players) { p.busy = false; p.faceLock = false; } } }
       for (const p of rt.players) { if (p.dive) rt.updateDive(p); if (p.prone) rt.updateProne(p); }          // (a keeper's dive goes on during a staged move too)
       return;
-    }
-    // (temporary test button) our man on the ball, between two actions, plays the move asked for now
-    const o = ball.owner;
-    if (tryMove && !PASS_TRIES.has(tryMove) && S.t > tryWait && o && o.side === 'user' && o.role !== 'GK' && !o.busy && !o.motion && !o.act && !S.dead && !ball.held
-      && rt.players.some(q => !q.offPitch && !q.busy && !q.dive && q.side !== o.side && q.role !== 'GK' && q.pos.distanceTo(o.pos) < 16)) {
-      staged = (function* () { o.busy = true; const ok = yield* tryNow(o); if (!ok) { o.busy = false; tryWait = S.t + 3; } return ok; })();
-      const r0 = staged.next(); if (r0.done) staged = null; else return;
     }
     if (!task) task = nextTask();
     let guard = 0;
@@ -2678,8 +2641,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   if (idx === 0) { layout(0, true); ball.p.set(0, BALL_R, 0); }
   return {
     update, skipTo, stats, syncRoster, resync, stage,
-    tryNext(kind) { tryMove = kind || null; }, get trying() { return tryMove; },
-    get tryDebug() { const b = ball.owner; return { tryMove, tryWait: +tryWait.toFixed(1), staged: !!staged, t: +S.t.toFixed(1), owner: b && [b.key, b.busy, !!b.motion, b.act?.name, b.role], dead: S.dead }; },
+    get staging() { return !!staged; },     // a staged move is still playing (the star transfer scene waits for it)
     get index() { return idx; }, get current() { return task ? events[task.i] : null; }, get total() { return events.length; },
     // the live presentation clock may show an engine event once the new view has started it;
     // a shot is held back until its outcome has played out, so the goal graphic never spoils it

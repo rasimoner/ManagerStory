@@ -1,13 +1,13 @@
 /* Presentation reads MatchEvents. It never advances the seeded simulation. */
-import { M, S } from '../state.js?v=7.11.0';
-import { presentation } from '../presentation/registry.js?v=7.11.0';
-import { clamp, lineVariant, liveCommentaryLines, matchEvent, matchPossession, presentationEvent, tacticalEffects, userSide } from './match-support.js?v=7.11.0';
-import { MATCH_PLAYBACK_SCALE, clockFromSeconds, matchClock, matchSecond } from './live-match.js?v=7.11.0';
-import { opponentPlayer } from '../league/opponents-v731.js?v=7.11.0';
-import { aerialHeight, aerialRating, aerialWinProbability, attributeEdge, boxChallengePenalty, dribbleChance, engineFrozen, isKeeper, keeperHandling, keeperId, keeperRating, makeLooseBall, normalizeAttribute, occupant, opponentName, orderFor, outfieldOf, passSuccessProbability, physicalContest, playerAtMarker, playerAttribute, playerRecord, resolveLooseBall, runRestart, separatePlayers, setBallState, setPieceRecovering, shooterRecord, shotProbabilities, softenPlayerOverlap, startPitchRestart, tackleChance, tacticProfile, teamTactics, topSpeed, transitionActive } from './pitch-v731.js?v=7.11.0';
-import { fanPhoto, resolveClubIdentity } from '../clubs/clubs.js?v=7.11.0';
-import { oppRadarPos, setOppOwner, setUserOwner } from './match-minute.js?v=7.11.0';
-import { userOpponent, userSquad } from './user-team.js?v=7.11.0';
+import { M, S } from '../state.js?v=7.12.0';
+import { presentation } from '../presentation/registry.js?v=7.12.0';
+import { clamp, lineVariant, liveCommentaryLines, matchEvent, matchPossession, presentationEvent, tacticalEffects, userSide } from './match-support.js?v=7.12.0';
+import { MATCH_PLAYBACK_SCALE, clockFromSeconds, matchClock, matchSecond } from './live-match.js?v=7.12.0';
+import { opponentPlayer } from '../league/opponents-v731.js?v=7.12.0';
+import { aerialHeight, aerialRating, aerialWinProbability, attributeEdge, boxChallengePenalty, dribbleChance, engineFrozen, isKeeper, keeperHandling, keeperId, keeperRating, makeLooseBall, normalizeAttribute, occupant, opponentName, orderFor, outfieldOf, passSuccessProbability, physicalContest, playerAtMarker, playerAttribute, playerRecord, resolveLooseBall, runRestart, separatePlayers, setBallState, setPieceRecovering, shooterRecord, shotProbabilities, softenPlayerOverlap, startPitchRestart, tackleChance, tacticProfile, teamTactics, topSpeed, transitionActive } from './pitch-v731.js?v=7.12.0';
+import { fanPhoto, resolveClubIdentity } from '../clubs/clubs.js?v=7.12.0';
+import { oppRadarPos, setOppOwner, setUserOwner } from './match-minute.js?v=7.12.0';
+import { userOpponent, userSquad } from './user-team.js?v=7.12.0';
 export let pitchV73 = null;
 export const PITCH_ACTIONS = new Set(['kickoff','pass','cross','interception','press','tackle','dribble','ballCarry','offBallRun','counterAttack','run','shot','save','block','post','wide','goal','throwIn','restart','goalKick','corner','freeKick','penalty','hold','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery']);
 export const IMPORTANT_ACTIONS = new Set(['kickoff','shot','save','block','post','wide','goal','throwIn','goalKick','corner','offBallRun','dribble','ballCarry','tackle']);

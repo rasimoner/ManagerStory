@@ -11,7 +11,8 @@
    - index.html's module entries;
    - in every game module (every .js under dist but vendor/ and sw.js): every relative import, export-from and dynamic
      import() of another game module (vendor/ code is pinned to its own version and keeps its plain path);
-   - sw.js: every module in its list, so the offline cache holds exactly the addresses the page asks for.
+   - sw.js: every module in its list, so the offline cache holds exactly the addresses the page asks for, and its
+     RELEASE (a game module asked for with another release's ?v= is failed: it comes from an older page).
    An ES module is one instance per address: every import of a file must use the same one, which is why this
    stamps all of them at once, from one version. */
 const fs = require('node:fs');
@@ -52,7 +53,8 @@ if (nextPage !== page) { changed.push('index.html'); if (!check) fs.writeFileSyn
 const swFile = path.join(DIST, 'sw.js');
 const sw = fs.readFileSync(swFile, 'utf8');
 const nextSw = sw.replace(/"\.\/([^"]+\.js)(\?v=[^"]*)?"/g, (all, file) => file.startsWith('vendor/') ? all : `"./${stamp(file)}"`)
-  .replace(/const CACHE = "managerstory-v[^-"]+/, `const CACHE = "managerstory-v${version}`);
+  .replace(/const CACHE = "managerstory-v[^-"]+/, `const CACHE = "managerstory-v${version}`)
+  .replace(/const RELEASE = "[^"]*"/, `const RELEASE = "${version}"`);
 if (nextSw !== sw) { changed.push('sw.js'); if (!check) fs.writeFileSync(swFile, nextSw); }
 
 if (check) {

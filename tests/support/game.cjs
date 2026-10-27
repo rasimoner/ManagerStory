@@ -27,6 +27,8 @@
      quiet      console.warn is silenced
      skip       entry files to leave out: 'main.js' loads the game's modules without running main.js
                 (for old classic releases: scripts to leave out)
+     first      game modules to run before the page's entries, in this order (each with what it imports, as the
+                browser would): how a bundle that orders the modules differently would run them (refactor E1)
      entropy    seed for the stand-in crypto.getRandomValues (the device entropy behind new careers and
                 kickoffs); a fixed default keeps tests repeatable. Pass null for no crypto at all. */
 const fs = require('node:fs');
@@ -79,7 +81,7 @@ function fakeCrypto(seed) {
   return { getRandomValues(array) { for (let i = 0; i < array.length; i++) array[i] = next(); return array; } };
 }
 
-function loadGame({ storage = new Map(), layers = [], document: extra = null, skip = [], prepend = false, quiet = false, entropy = 0x5eed, dist = DIST } = {}) {
+function loadGame({ storage = new Map(), layers = [], document: extra = null, skip = [], first = [], prepend = false, quiet = false, entropy = 0x5eed, dist = DIST } = {}) {
   const alerts = [], confirms = [];
   const app = {
     innerHTML: '', classList: { toggle() {} },
@@ -104,7 +106,7 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
   ctx.window = ctx; ctx.window.scrollTo = () => {};
   vm.createContext(ctx);
   let access = { api: ctx, owner: () => undefined };
-  if (pageScripts(dist).some(s => s.module)) access = loadModules(ctx, { layers, skip, dist });
+  if (pageScripts(dist).some(s => s.module)) access = loadModules(ctx, { layers, skip, first, dist });
   else for (const { file, layer, code } of sources(dist)) {
     if ((layer !== 'game' && !layers.includes(layer)) || skip.includes(file)) continue;
     vm.runInContext(code, ctx, { filename: file });
@@ -134,7 +136,7 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
    module's own setter). The context's globals are that same object's names, so run('…') and g.api.… see
    one game. A name exported by two modules is an error: the access point would not know which one. */
 const SETTERS = { S: 'setCareer', M: 'setMatch', modal: 'setModal', loadError: 'setLoadError', subOut: 'setSubOut' };
-function loadModules(ctx, { layers, skip, dist }) {
+function loadModules(ctx, { layers, skip, first = [], dist }) {
   if (!vm.SourceTextModule) throw new Error('the game is ES modules: run the tests with node --experimental-vm-modules (npm test does)');
   const graph = new Map(sources(dist).map(m => [m.file, m]));
   const records = new Map();
@@ -155,6 +157,7 @@ function loadModules(ctx, { layers, skip, dist }) {
     if (mod.status === 'linked') mod.evaluate();
     if (mod.status === 'errored') throw mod.error;
   };
+  first.forEach(run);
   for (const entry of entries) {
     if (skip.includes(entry.file)) graph.get(entry.file).imports.forEach(run); // its modules, without it
     else run(entry.file);

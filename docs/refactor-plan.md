@@ -537,7 +537,7 @@ Klasik scriptler aynı global alanı paylaştığı için bir fonksiyonu kelimes
 7. **replay.js çevrimdışı hatası:** yeniden yapılanmadan önce ayrı küçük bir düzeltme olarak mı alınsın?
 8. **Kayıt şeması:** `msv4` ve sürüm adlı alanlar okuma katmanıyla sonsuza dek korunsun (önerim) mu, yoksa sonunda yedekli tek seferlik göçle temiz şemaya mı geçilsin?
 9. **Rakip temsili:** rakiplerin de tam oyuncu nesnesi olması oyuncu kariyeri için gerekli ve dengeyi etkileyebilir. Aşama 4'te mi, sonra mı?
-10. **Geçici test butonları** ("Yıldız anı dene", "Kaleci sahnesi", "Transfer sahnesi dene"): yeniden yapılanmadan önce kaldırılsın mı?
+10. **Geçici test butonları** ("Yıldız anı dene", "Kaleci sahnesi", "Transfer sahnesi dene"): yeniden yapılanmadan önce kaldırılsın mı? *Karar: son adımda; E7'de kaldırıldı (V7.12.0).*
 11. **`.openai/hosting.json`:** bu barındırma hâlâ kullanılıyor mu?
 12. **Kod dili:** fonksiyon adları İngilizce, arayüz metinleri Türkçe (bugünkü fiili durum) kural olarak yazılsın mı? Oyun mantığının Türkçe arayüz metinlerini karşılaştırması (4.5) kaldırılacak.
 
