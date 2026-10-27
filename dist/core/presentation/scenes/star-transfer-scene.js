@@ -10,7 +10,7 @@ import { loadRig } from '../match3d/newview/rig.js?v=7.11.0';
 import { createDirector } from '../match3d/newview/director.js?v=7.11.0';
 import { createBroadcastCamera } from '../match3d/newview/camera.js?v=7.11.0';
 import { presentation } from '../registry.js?v=7.11.0';
-import { CLUBSTYLE } from '../../clubs/clubs.js?v=7.11.0';
+import { CLUBSTYLE } from '../../clubs/club-style.js?v=7.11.0';
 
 // timings (seconds): the whole scene stays short on a phone
 export const TIMES = { walk: 6.2, cheer: 2.2, fade: 0.35, showMax: 12, after: 1.6, closing: 4, cap: 40 };

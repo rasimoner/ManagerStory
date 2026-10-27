@@ -2,16 +2,14 @@
    orders he can change during a match (and in his plan before it), the assistant's suggestions next to
    them, and the buttons that do it. Moved from core/engine/match-support.js: the engine only takes what
    they decide (a tactic event, the match state), never draws them. */
-import { TACTIC_DATA } from '../../data/tactics.js?v=7.11.0';
 import { userSquad } from '../../core/engine/user-team.js?v=7.11.0';
 import { M, S } from '../../core/state.js?v=7.11.0';
-import { MATCH_TACTICS, clamp, escapeHTML, matchEvent, matchPossession, presentationEvent } from '../../core/engine/match-support.js?v=7.11.0';
+import { clamp, escapeHTML, matchEvent, matchPossession, presentationEvent } from '../../core/engine/match-support.js?v=7.11.0';
 import { assistantAdvice, matchTeamName } from '../../core/engine/pitch-v731.js?v=7.11.0';
 import { save } from '../../core/save.js?v=7.11.0';
 import { render } from './app.js?v=7.11.0';
 import { defineActions } from '../../ui/actions.js?v=7.11.0';
-export const TACTIC_LABELS = TACTIC_DATA.labels;
-export const TEAM_ORDERS = TACTIC_DATA.orders;
+import { MATCH_TACTICS, TACTIC_LABELS, TEAM_ORDERS } from '../../core/engine/tactics.js?v=7.11.0';
 export function matchFitnessUI() {
   const ps = userSquad().filter(p => M.active.includes(p.id)).sort((a, b) => a.fitness - b.fitness);
   return `<div class="fitnessstrip" aria-label="Sahadaki oyuncuların fitness durumu">${ps.map(p => `<button class="fitnessmini ${p.fitness < 45 ? "critical" : p.fitness < 60 ? "warning" : ""}" data-action="openMatchPlayer" data-id="${p.id}" aria-label="${escapeHTML(p.name)}, fitness yüzde ${Math.round(p.fitness)}${p.fitness < 45 ? ', kritik' : p.fitness < 60 ? ', yorgun' : ''}"><b>${escapeHTML(p.name)}</b><span>%${Math.round(p.fitness)} ${p.fitness < 45 ? "‼" : p.fitness < 60 ? "!" : ""}</span><i style="--fitness:${clamp(p.fitness, 0, 100)}%"></i></button>`).join("")}</div>`;

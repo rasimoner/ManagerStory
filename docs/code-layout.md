@@ -16,13 +16,18 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `core/engine/match-minute.js` | `app.js` (D1) | Motorun kalbi: maçın bir dakikası (`tick`), atak (`chance`, `seqText`), sahadaki gücü (`strength`), şansı kimin bulacağı (`attacker`), topun kimde olduğu (`setUserOwner`/`setOppOwner`), rakip diziliş noktaları (`oppRadarPos`), oyuncunun oynadığı role uyumu (`positionPenaltyV61`) | Gövdeler aynen; aynı tohumlu çekilişler aynı sırada |
 | `core/engine/match-support.js` | `match-support.js` | Maç durumu, maç olayları, faul/kart, taktik etkileri, maç özeti, oyuncu talimatı seçenekleri (`matchOrderOptions`, D4) | Motorun durum ve olay tarafı. Maç paneli arayüzü ve ana ekran kabuğu D4'te moda gitti |
 | `core/engine/user-team.js` | (yeni, D4) | Maçta kullanıcının takımı hangisi: `userClub()`, `userSquad()`, `userOpponent()`; mod `setUserTeam()` ile söyler. Varsayılan: yönetilen kulüp ve kariyerin kadrosu | Motor "bizim takım = yönetilen takım" varsaymaz |
+| `core/engine/tactics.js` | `match-support.js`, `match-panel.js` (E1) | Taktiklerin dili: ayarlar (`MATCH_TACTICS`), adları (`TACTIC_LABELS`), takım talimatları (`TEAM_ORDERS`) | Sadece veriden; oyun modülü almaz, döngüde hangi modül önce çalışırsa çalışsın hazır |
 | `core/engine/live-match.js` | `live-match.js` | Maç saati, canlı döngü, maç bitişi | Motorun zaman tarafı. Bağırma (`shoutLive`) D4'te moda gitti; asistan metinleri hâlâ burada |
 | `core/engine/pitch-v73.js` | `pitch-v73.js` | Dakika eylemleri: pas, çalım, orta, ofsayt, şut | Motorun ~900 satırı. D'de ayrılacak: baştaki 2D saha çizimi → `core/presentation/match2d` |
 | `core/engine/pitch-v731.js` | `pitch-v731.js` | Özellik modeli, yorgunluk, ikili mücadele, duran toplar, serbest top | Motorun ikinci yarısı |
-| `core/players/moves.js` | `app.js` (D5) | Özel hareketlerin adları (`SKILL_NAMES`) ve oyuncunun şu an açık hareketleri (`movesNow`) | Oyuncu modeli |
+| `core/players/moves.js` | `app.js` (D5) | Oyuncunun şu an açık hareketleri (`movesNow`) | Oyuncu modeli |
+| `core/players/move-names.js` | `core/players/moves.js` (E1) | Özel hareketlerin adları (`SKILL_NAMES`) | Sadece veriden (döngüden bağımsız) |
 | `core/players/player-profiles.js` | `player-profiles.js` | Oyuncu tipi, özellik profili, antrenman odağı; başlangıç kadrosundaki oyuncu ve onun rakip stiline göre avantajı (`startingPlayer`, `styleEdge`, D1) | Oyuncu modeli; DOM ve kayıt bilgisi yok |
-| `core/league/league.js` | `app.js` (D2–D3) | Lig: rakip kulüp satırları (`OPP`), takımlar, çift devreli fikstür, bu turun maçı ve rakibi (`currentFixture`, `currentOpponent`), turun diğer maçları (`simAIGame`, `simulateRoundOthers`), puan tablosu ve form | Her mod aynı ligi oynar |
-| `core/clubs/clubs.js` | `app.js` (D2) | Kulüp kimliği: renkler ve desen (`CLUBSTYLE`), arma, taraftar fotoğrafı, kariyerin kulübü (`managedClubName`), ekranın ve maçın gösterdiği kimlik (`resolveClubIdentity`) | `data/clubs.js`'ten; mod bilmez |
+| `core/league/league.js` | `app.js` (D2–D3) | Lig: takımlar, çift devreli fikstür, bu turun maçı ve rakibi (`currentFixture`, `currentOpponent`), turun diğer maçları (`simAIGame`, `simulateRoundOthers`), puan tablosu ve form | Her mod aynı ligi oynar |
+| `core/league/rivals.js` | `league.js`, `opponents-v731.js` (E1) | Rakip kulüp satırları (`OPP`), lig seviyesi (`LEAGUE_LIFT`), rakip kadro rolleri ve isimleri | Sadece veriden; lig ↔ kulüp ↔ sezon döngüsünde hangi modül önce çalışırsa çalışsın hazır |
+| `core/clubs/clubs.js` | `app.js` (D2) | Kulüp kimliği: arma, taraftar fotoğrafı, kariyerin kulübü (`managedClubName`), ekranın ve maçın gösterdiği kimlik (`resolveClubIdentity`) | `data/clubs.js`'ten; mod bilmez |
+| `core/clubs/club-style.js` | `core/clubs/clubs.js` (E1) | Kulüp renkleri ve desen (`CLUBSTYLE`) | Sadece veriden (döngüden bağımsız) |
+| `core/version.js` | `match-support.js` (E1) | Kodun sürümü (`GAME_VERSION`, kayda yazılır) | İmportsuz |
 | `core/league/opponents-v731.js` | `opponents-v731.js` | Rakip kadroları, lig seviyesi | Lig |
 | `core/season/season.js` | `season.js` | Sezon sonu adım hattı, kurallar (yaşlanma, emeklilik, gelişim, kulüpten ayrılma), sezon özeti verisi, rakip kadroların yenilenmesi, yeni sezon | Sezon hattı ortak. Teknik direktör adımları ve ekranları D5'te moda gitti; `summary` adımı `screen: true` (ekranı mod çizer) |
 | `core/presentation/match3d/match3d-newview.js` | `match3d-newview.js` | 3D maç görünümü ile oyun arasındaki köprü, HUD, tekrar | Sunum |
@@ -37,6 +42,8 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | Dosya | Önceki yer | Ne | Neden burada |
 |---|---|---|---|
 | `modes/manager/app.js` | `app.js` | Kariyer döngüsü, transfer, akademi, kadro/taktik/diziliş ekranları, gelen kutusu ekranı, `choose`, ekran yönlendirme ve ana ekran kabuğu (`goMain`, `setScreenMode`, `decorateMainScreen`, D4) | Çoğu teknik direktöre özgü. Motor kalbi, lig ve kulüp kimliği D1–D3'te çekirdeğe taşındı. Kalan: gelişim → `core/players`, header ve alt menü → `ui` |
+| `modes/manager/market-names.js` | `app.js` (E1) | Transfer piyasasının isimleri ve mevkileri (`V6FN`, `V6LN`, `V6POS`) | Sadece veriden; app ↔ season-end döngüsünden bağımsız |
+| `modes/manager/lineup-slots.js` | `app.js` (E1) | Diziliş sahasında her yerin konumu (`SLOT_POS`) | İmportsuz |
 | `modes/manager/match-panel.js` | `match-support.js`, `live-match.js` (D4) | Maç paneli: istatistik, ayrıntı ve kondisyon sekmeleri, maçta ve planda taktik ile takım talimatları, asistan önerileri, bağırma, düğmeleri | Teknik direktörün maç ekranı; motor sadece seçimin sonucunu (taktik olayı, maç durumu) alır |
 | `modes/manager/match-career.js` | (yeni, D4) | Maçın kariyerdeki karşılığı: sezon golleri, kartlar, dakikalar, ilk maç; golün ve ilk maçın moral/formu. Motorun olaylarından (`matchEvent` kancası) ve `minutePlayed`'den, aynı anda yazar | Motor kariyere yazmaz, ne olduğunu söyler |
 | `modes/manager/season-end.js` | `season.js` (D5) | Teknik direktörün sezon sonu adımları (`report`, `contracts`, `academy`, `market`, `cleanup`; hatta id ile eski yerlerine), yeni sezonun onun için anlamı (ödül, başkan, yönetim, saat), sezon sonu ekranları | Adımların id'si ve sırası aynı: yarıda kalmış kayıt aynı adımdan devam eder |
@@ -52,6 +59,12 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `ui/webmcp.js` | `webmcp.js` | Tarayıcı model bağlamına salt-okunur kariyer aracı |
 
 Header (`header`), alt menü (`bottomNav`), ekran kabuğu (`render`) ve listeler bugün `app.js` içinde; D'de buraya gelir.
+
+## Modül sırası (E1)
+
+Paketleyici modülleri tarayıcıdan farklı sırayla çalıştırabilir (3D'yi ayrı parçaya da böler). Bu yüzden:
+- Veriden hesaplanan sabitler (`OPP`, `CLUBSTYLE`, `SKILL_NAMES`, taktik dili, `GAME_VERSION`, piyasa isimleri, diziliş yerleri) sadece veri alan küçük modüllerde. Döngüdeki bir modül başkasının sabitini yükleme anında okursa, o modül henüz çalışmamışsa hata olur; bu sabitler döngüde değil.
+- `tests/module-order.test.cjs`: her modül ilk çalışan olabilir (hiçbir değer modülü çalışmadan okunmaz); sezon sonu adımları, eylemler ve kancalar modüller hangi sırayla çalışırsa çalışsın aynı (main.js'in importları ters, alfabetik ve önce mod sırasıyla denenir). Yükleyicinin `first` seçeneği modülleri istenen sırayla çalıştırır.
 
 ## Giriş noktası (C3)
 

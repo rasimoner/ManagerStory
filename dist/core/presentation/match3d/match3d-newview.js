@@ -17,8 +17,9 @@ import { liveCommentaryLines, presentationEvent } from '../../engine/match-suppo
 import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js?v=7.11.0';
 import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js?v=7.11.0';
 import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js?v=7.11.0';
-import { CLUBSTYLE, resolveClubIdentity } from '../../clubs/clubs.js?v=7.11.0';
+import { resolveClubIdentity } from '../../clubs/clubs.js?v=7.11.0';
 import { changed, decisionsRequested } from '../../hooks.js?v=7.11.0';
+import { CLUBSTYLE } from '../../clubs/club-style.js?v=7.11.0';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');

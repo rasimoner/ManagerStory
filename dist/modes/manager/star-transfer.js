@@ -17,8 +17,8 @@ import { escapeHTML } from '../../core/engine/match-support.js?v=7.11.0';
 import { $, asking, cinematic, clearCinematicNext, clubColor, clubProps, header, money, recordMoves, render } from './app.js?v=7.11.0';
 import { resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.11.0';
 import { save } from '../../core/save.js?v=7.11.0';
-import { SKILL_NAMES } from '../../core/players/moves.js?v=7.11.0';
 import { pushInbox } from '../../core/inbox.js?v=7.11.0';
+import { SKILL_NAMES } from '../../core/players/move-names.js?v=7.11.0';
 export const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
 // the most spectacular move he has is the one he shows (data/moves.js starShow); without one, the fallback
 export const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;

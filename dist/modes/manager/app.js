@@ -2,7 +2,6 @@
 // the squad a new career starts with (data/squad.js)
 import { CLUB_DATA } from '../../data/clubs.js?v=7.11.0';
 import { STARTING_SQUAD } from '../../data/squad.js?v=7.11.0';
-import { NAME_DATA } from '../../data/names.js?v=7.11.0';
 import { PLAYER_DATA } from '../../data/players.js?v=7.11.0';
 import { BALANCE } from '../../data/balance.js?v=7.11.0';
 import { STORY_DATA } from '../../data/story.js?v=7.11.0';
@@ -21,13 +20,18 @@ import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonRec
 import { basePitchPosition, currentPitchState, emitPitchKickoff, paintLivePitch, resetPitchHalf } from '../../core/engine/pitch-v73.js?v=7.11.0';
 import { openOpponentPlayer, resolveUnfillableSubstitution, skillMoves } from '../../core/engine/pitch-v731.js?v=7.11.0';
 import { starFlashCard } from './star-transfer.js?v=7.11.0';
-import { OPP, allTeams, applyTableGame, currentFixture, currentOpponent, ensureLeague, makeSchedule, recordForm, simulateRoundOthers } from '../../core/league/league.js?v=7.11.0';
-import { CLUBSTYLE, crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.11.0';
+import { allTeams, applyTableGame, currentFixture, currentOpponent, ensureLeague, makeSchedule, recordForm, simulateRoundOthers } from '../../core/league/league.js?v=7.11.0';
+import { crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.11.0';
 import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute.js?v=7.11.0';
 import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, shoutLive, tacticsControls } from './match-panel.js?v=7.11.0';
-import { SKILL_NAMES, movesNow } from '../../core/players/moves.js?v=7.11.0';
+import { movesNow } from '../../core/players/moves.js?v=7.11.0';
 import { pushInbox } from '../../core/inbox.js?v=7.11.0';
 import { seasonEndUI } from './season-end.js?v=7.11.0';
+import { OPP } from '../../core/league/rivals.js?v=7.11.0';
+import { CLUBSTYLE } from '../../core/clubs/club-style.js?v=7.11.0';
+import { SKILL_NAMES } from '../../core/players/move-names.js?v=7.11.0';
+import { V6FN, V6LN, V6POS } from './market-names.js?v=7.11.0';
+import { SLOT_POS } from './lineup-slots.js?v=7.11.0';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
 export function playerById(id){return S.players.find(p=>p.id===id)}
 // a bid as the press says it: ₺9.5M, ₺13M
@@ -36,7 +40,6 @@ export const $=q=>document.querySelector(q), money=n=>"₺"+(n/1e6).toFixed(1)+"
 // a new career, in format 0 and through the save chain (save.js), so it is in the current format
 export function fresh(){return migrateSave({players:structuredClone(P0),currentClubId:CLUB_DATA.startingClub,week:1,day:1,fixture:0,budget:18e6,board:72,fans:68,rep:45,xi:[...STARTING_SQUAD.xi],bench:[...STARTING_SQUAD.bench],positions:structuredClone(STARTING_SQUAD.positions),plan:{...STARTING_SQUAD.plan},scheduled:[],promises:[],events:[],history:[],results:[],instructions:{},schedule:makeSchedule(CLUB_DATA.startingClub),table:allTeams(CLUB_DATA.startingClub).map(n=>({n,p:0,gf:0,ga:0,pts:0})),event:null})}
 export function init(){if(!S)return;S.players.forEach(p=>{p.managerTrust??=finite(p.relation,65);p.confidence??=clamp(finite(p.form,70)-20,35,75);p.pressure??=50;p.motivation??=clamp(finite(p.morale,70)-20,35,75)});ensureOpponentSquads();if(!S.instructions)S.instructions={};if(!S.schedule||S.schedule.length!=34)S.schedule=makeSchedule();ensureLeague();if(!S.pressUsed)S.pressUsed=[];if(!S.sundayEvents)S.sundayEvents={};if(!S.cooldowns)S.cooldowns={};if(!S.news)S.news=[];if(!S.objectives)S.objectives=[{text:"Ligi ilk 6 içinde bitir",type:"league",target:6},{text:"Genç oyunculara süre ver",type:"youth",target:900}];if(!S.transferList)S.transferList=makeTransferMarket();if(!S.clock)S.clock="09:00";if(!S.inbox)S.inbox=[];if(!S.clubMood)S.clubMood={chairman:"Beklenti dengeli",staff:"Maç planı hazırlanıyor",dressing:"Odaklanmış"};normalizeFormation();S.players.forEach(p=>{if(p.goals==null)p.goals=0;if(p.assists==null)p.assists=0;if(p.yellow==null)p.yellow=0;if(p.red==null)p.red=0;if(p.injury==null)p.injury=0;if(!p.personality)p.personality=p.age>=30?"Lider":p.age<=20?"Hırslı":p.physical>=78?"Rekabetçi":"Profesyonel"});if(!S.v6){S.v6={transferPool:[],academy:[],academyCounter:0,cup:{alive:true,round:"1. Tur",wins:0},fanPressure:50};}if(!S.v6.transferPool.length)S.v6.transferPool=makeV6Market();S.players.forEach(p=>{if(p.happiness==null)p.happiness=Math.max(40,Math.min(95,p.morale||70));if(p.growth==null)p.growth=0;if(p.secondary==null)p.secondary=[]});ensureAcademyIdentityState();if(!S.v6.academy.length)refreshAcademy(true);if(S.v6.wageBudget==null)S.v6.wageBudget=24000000;if(S.v6.boardBudgetAskedWeek==null)S.v6.boardBudgetAskedWeek=-99;S.players.forEach(p=>{if(p.wage==null)p.wage=Math.round((p.overall*p.overall)*900);if(p.debutDone==null)p.debutDone=p.status!=="Altyapıdan A takım"});ensurePlayerProfiles();if(typeof ensureSeasonState==='function')ensureSeasonState();if(!S.event)nextEvent()}
-export const SLOT_POS={GK:[50,90],LB:[15,72],LCB:[38,73],RCB:[62,73],RB:[85,72],LCM:[40,54],RCM:[60,54],LW:[16,31],RW:[84,31],CAM:[50,36],ST:[50,13]};
 export function defaultPosFor(p,used=[]){let candidates=p.pos.split("/");let key=candidates[0];let q=key=="GK"?SLOT_POS.GK:key=="LB"?SLOT_POS.LB:key=="RB"?SLOT_POS.RB:key=="CB"?(used.some(x=>Math.abs(x[0]-38)<2&&Math.abs(x[1]-73)<2)?SLOT_POS.RCB:SLOT_POS.LCB):key=="CM"?(used.some(x=>Math.abs(x[0]-40)<2&&Math.abs(x[1]-54)<2)?SLOT_POS.RCM:SLOT_POS.LCM):key=="CAM"?SLOT_POS.CAM:key=="LW"?SLOT_POS.LW:key=="RW"?SLOT_POS.RW:key=="ST"?SLOT_POS.ST:[50,50];return [...q]}
 export function normalizeFormation(){if(!S||!S.players)return;S.positions=S.positions||{};S.xi=S.xi.filter(id=>{let p=S.players.find(x=>x.id==id);return p&&p.status!="Transfer oldu"});let used=S.xi.map(id=>S.positions[id]).filter(Boolean);for(let id of S.xi){let p=S.players.find(x=>x.id==id);if(!S.positions[id]){S.positions[id]=defaultPosFor(p,used);used.push(S.positions[id])}}}
 export function setClock(t){S.clock=t}
@@ -69,7 +72,6 @@ export function decorateAtmosphereScenes(){
  }
  document.querySelectorAll?.('.realfans,.goalflash,.fanscene')?.forEach(scene=>scene.style.setProperty('--fan-photo',`url("${fanPhoto(managedClubName())}")`));
 }
-export const V6FN=NAME_DATA.market.first,V6LN=NAME_DATA.market.last,V6POS=BALANCE.market.positions;
 export function vr(i,k=1){let x=Math.sin((i+S.week*13)*997.31+k*17.7)*43758.5453;return x-Math.floor(x)}
 export function makeV6Market(){let clubs=Object.keys(CLUBSTYLE).filter(x=>x!=managedClubName()),a=[];for(let i=0;i<BALANCE.season.marketSize;i++){let pos=V6POS[i%V6POS.length],age=18+Math.floor(vr(i,2)*15),ov=57+Math.floor(vr(i,3)*21),pot=Math.min(93,ov+Math.floor(vr(i,4)*15)),price=Math.round((ov-50)*(ov-50)*21000*(.75+vr(i,5)*.6));a.push({id:"v6"+i,name:V6FN[i%V6FN.length]+" "+V6LN[(i*7)%V6LN.length],pos,age,overall:ov,potential:pot,club:clubs[i%clubs.length],price,happiness:40+Math.floor(vr(i,6)*61),pace:55+Math.floor(vr(i,7)*34),finishing:pos=="ST"?65+Math.floor(vr(i,8)*20):40+Math.floor(vr(i,8)*28),passing:52+Math.floor(vr(i,9)*31),physical:52+Math.floor(vr(i,10)*31),star:ov>=75&&pot>=84});marketProfile(a[a.length-1])}return a}
 export function transferOpen(){return S.week<=6||(S.week>=18&&S.week<=21)}
