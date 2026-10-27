@@ -3,7 +3,8 @@
 import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
 import { ramp, smooth01, spline } from './motion-curves.js';
-import { forwardOf, rightOf } from './facing.js';
+import { forwardOf, rightOf, headingOf } from './facing.js';
+import { CLAIM_H, PUNCH_H, keeperClaim, keeperPunch } from './beats/keeper-hands.js';
 import { stepoverBeat } from './beats/feints.js';
 import { SKILL_BEATS } from './beats/skill-beats.js';
 
@@ -72,7 +73,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function faceBall(p) { p.heading = Math.atan2(ball.p.x - p.pos.x, ball.p.z - p.pos.z); }
   // stable per-event choice in [0,1): the same match always looks the same
   const pick = (e, salt = 0) => (((e?.eventId ?? 0) * 9301 + 49297 + salt * 7919) % 233280) / 233280;
-  const headingOf = (a, b) => Math.atan2(a.x + b.x, a.z + b.z);
 
   // ---- off-ball movement ----
   // The engine gives positions once a minute (where everyone stands after it, for the ball's
@@ -362,7 +362,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     }
     if (!to) { if (noLook) hooks.slow(1); yield* until(() => ball.v.length() < 2 || ball.p.distanceTo(V(toW.x, BALL_R, toW.z)) < 1.5, 4); return; }
     to.busy = true;
-    if (claim && flight > 0) { yield* keeperClaim(to, toW, kickT + flight, opts.ev); to.busy = false; return; }
+    if (claim && flight > 0) { yield* keeperClaim(beatContext, { gk: to, spot: toW, tArr: kickT + flight, ev: opts.ev }); to.busy = false; return; }
     if (chest) yield* chestControl(to, toW, kickT + flight);
     if (trap) { const done = yield* footTrap(to, toW, kickT + flight); if (trapTried) tryMove = done ? null : 'trap'; }
     // V7.9: Bergkamp's turn — back to goal with a man on him, the first touch sends the ball round one
@@ -587,112 +587,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     rt.startAction(D, 'stumble'); D.want = 0.5;
     later(0.6, () => { D.busy = false; D.faceLock = false; });
     return yield* chase(R, null);
-  }
-  // V7.9: the keeper claims a high ball: he gets under it, goes up and takes it in both hands above his
-  // head (the gloves reach for the ball), lands with it, and keeps it in his hands if his next touch is a pass
-  const CLAIM_H = 2.2;
-  // V7.9.3 a high ball into his box with a man challenging: the keeper comes, goes up and punches it clear
-  // with both fists (arms driven out through the ball at the top of the jump); it flies out to where the
-  // engine says it lands
-  const PUNCH_H = 2.2;
-  function* keeperPunch(gk, spot, tArr, land, rival) {
-    gk.busy = true; gk.loopsWant.keeperReady = 0;
-    const lead = MOTIONS.header.contact;
-    let jumped = false;
-    const trace = DEBUG ? [[+S.t.toFixed(2), ...ball.p.toArray().map(v => +v.toFixed(2)), ...ball.v.toArray().map(v => +v.toFixed(1))]] : null;
-    if (rival && !rival.busy) jumpFor(rival, { spot: spot.clone().setY(rt.headHeight).add(V(-Math.sign(spot.x) * 0.6, 0, 0.3)), heading: headingOf(V(spot.x - rival.pos.x, 0, spot.z - rival.pos.z).normalize(), V(0, 0, 0)), tArr, late: 0.12, short: 0.35 });
-    const out = V(land.x - spot.x, 0, land.z - spot.z).normalize();
-    let best = Infinity;
-    yield* until(() => {
-      const left = tArr - S.t, toward = V(ball.p.x - gk.pos.x, 0, ball.p.z - gk.pos.z).normalize();
-      gk.face = ball.p; gk.faceLock = true;
-      if (!jumped) {
-        // he stands just past the spot along the ball's line, facing it, so the punch meets it in front of him
-        const fly = V(ball.v.x, 0, ball.v.z), down = fly.lengthSq() > 1 ? fly.normalize() : toward.clone().negate();
-        gk.target.copy(spot).addScaledVector(down, 0.3).setY(0);
-        const gap = Math.hypot(gk.target.x - gk.pos.x, gk.target.z - gk.pos.z);
-        gk.want = gap > 2 ? 7.5 : gap > 0.05 ? Math.max(2.2, 1.5 + gap * 3) : 0;
-      }
-      if (!jumped && left <= lead) {
-        rt.startMotion(gk, 'header'); jumped = true; gk.want = 0;
-        // fists cocked by his face, then driven out through the ball and on (the punch), then down
-        const t0 = S.t, R = () => rightOf(gk), hw = ramp(t0, [0, 0.12, lead + 0.18, lead + 0.45]);
-        const face = () => gk.bones.Head.getWorldPosition(V()).addScaledVector(forwardOf(gk), 0.22).add(V(0, -0.05, 0));
-        let hit = null;
-        // V7.9.5: the fists go for the ball itself once it is close to the spot (a steep, dropping cross passes
-        // the spot a little early or low; a keeper punches the ball, not the place he expected it)
-        const aim = () => (ball.p.distanceTo(spot) < 1.6 ? ball.p.clone() : spot.clone());
-        const fist = side => t => {
-          const k = smooth01(clamp((t - (t0 + lead - 0.16)) / 0.16, 0, 1));
-          if (t >= t0 + lead + 0.1 && !hit) hit = aim();     // (tracks the ball through the planned contact frame)
-          const at = face().lerp(hit || aim(), k);          // (the ball reaches the spot on the contact frame)
-          if (t > t0 + lead) at.addScaledVector(out, Math.min(0.3, (t - t0 - lead) * 2.5)).add(V(0, Math.min(0.15, (t - t0 - lead) * 1.2), 0));
-          return at.addScaledVector(R(), side * 0.045);
-        };
-        gk.hands = { Left: { w: hw, at: fist(-1) }, Right: { w: hw, at: fist(1) } };
-      }
-      // the contact is the frame the ball is closest to his fists (it passes the spot on about the planned frame)
-      if (trace && trace.length < 400) trace.push([+S.t.toFixed(2), ...ball.p.toArray().map(v => +v.toFixed(2)), ...ball.v.toArray().map(v => +v.toFixed(1))]);
-      if (!jumped) return false;
-      const d = rt.handsOf(gk).distanceTo(ball.p);
-      if (d < 0.2) return true;
-      if (S.t >= tArr - 0.08) { if (d > best + 0.02 || S.t > tArr + 0.1) return true; best = Math.min(best, d); }
-      return false;
-    }, Math.max(0.2, tArr - S.t) + 1);
-    const reach = Math.min(best, rt.handsOf(gk).distanceTo(ball.p));
-    const audit = { kind: 'punch', fists: +reach.toFixed(3), h: +ball.p.y.toFixed(2), out: +Math.hypot(land.x - ball.p.x, land.z - ball.p.z).toFixed(1), ...(DEBUG ? { t: +S.t.toFixed(2), late: +(S.t - tArr).toFixed(2), jumped, kick: stats.crossLog?.at(-1), trace: trace?.filter((x, i, a) => i % 10 === 0 || i === a.length - 1), bv: ball.v.toArray().map(v => +v.toFixed(1)), via: gk.punchVia, gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), ball: ball.p.toArray().map(v => +v.toFixed(2)) } : {}) };
-    (stats.punches ||= []).push(audit);
-    if (reach < 0.45) {
-      (stats.contacts.punch ||= []).push(+reach.toFixed(2));
-      ball.owner = null; gk.lastTouch = S.t;
-      rt.kickAir(V(land.x, BALL_R, land.z), Math.max(0.9, Math.hypot(land.x - ball.p.x, land.z - ball.p.z) / 16));
-    } else stats.misses = (stats.misses || 0) + 1;
-    const hands = gk.hands;
-    later(0.6, () => { if (gk.hands === hands) gk.hands = null; gk.faceLock = false; gk.busy = false; });
-  }
-  function* keeperClaim(gk, spot, tArr, ev) {
-    gk.busy = true; gk.loopsWant.keeperReady = 0;
-    const lead = MOTIONS.header.contact;
-    let jumped = false;
-    yield* until(() => {
-      const left = tArr - S.t, toward = V(ball.p.x - gk.pos.x, 0, ball.p.z - gk.pos.z).normalize();
-      gk.face = ball.p; gk.faceLock = true;
-      if (!jumped) {
-        gk.target.copy(spot).addScaledVector(toward, -0.3).setY(0);
-        const gap = Math.hypot(gk.target.x - gk.pos.x, gk.target.z - gk.pos.z);
-        gk.want = gap > 2 ? 7 : gap > 0.1 ? 1.5 + gap * 3 : 0;
-      }
-      if (!jumped && left <= lead) {
-        rt.startMotion(gk, 'header'); jumped = true; gk.want = 0;
-        const hw = ramp(S.t, [0, 0.2, lead + 0.12, lead + 0.4]), R = () => rightOf(gk);
-        gk.hands = { Left: { w: hw, at: () => ball.p.clone().addScaledVector(R(), -0.1) }, Right: { w: hw, at: () => ball.p.clone().addScaledVector(R(), 0.1) } };
-      }
-      return jumped && (rt.handsOf(gk).distanceTo(ball.p) < 0.22 || S.t > tArr + 0.1);
-    }, Math.max(0.2, tArr - S.t) + 1);
-    const reach = rt.handsOf(gk).distanceTo(ball.p);
-    if (reach > 0.4 || ball.p.y < 1.6) {      // he did not get there (or it had dropped below his reach up): he gathers it as it comes instead: no catch out of thin air, he gathers it as it comes
-      gk.hands = null; gk.faceLock = false; stats.lastFail = ['claim', 'reach', +S.t.toFixed(1)];
-      const ok = yield* chase(gk, null);
-      if (!ok) { noteFix(gk, 'pass'); ball.owner = gk; ball.p.set(gk.pos.x + Math.sin(gk.heading) * .5, BALL_R, gk.pos.z + Math.cos(gk.heading) * .5); ball.v.set(0, 0, 0); }
-      gk.busy = false; return false;
-    }
-    const audit = { kind: 'claim', hands: +reach.toFixed(3), h: +ball.p.y.toFixed(2), ...(DEBUG ? { t: +S.t.toFixed(2), tArr: +tArr.toFixed(2), gk: gk.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)) } : {}) };
-    (stats.claims ||= []).push(audit);
-    ball.held = rt.pickUp(() => rt.handsOf(gk), 0.06); ball.owner = gk; ball.v.set(0, 0, 0); gk.lastTouch = S.t;
-    // he gathers it into his chest as he comes down
-    const tc = S.t, chest = () => gk.bones.Spine2.getWorldPosition(V()).addScaledVector(forwardOf(gk), 0.26).add(V(0, -0.05, 0)), R = () => rightOf(gk);
-    const gather = t => smooth01(clamp((t - tc) / 0.35, 0, 1)), hold = ramp(tc, [0, 0.001, 1.5, 1.9]);
-    const at = side => t => ball.p && chest().lerp(gk.hands?.[side]?.last || chest(), 1 - gather(t)).addScaledVector(R(), side === 'Left' ? -0.12 : 0.12);
-    gk.hands = { Left: { w: hold, at: at('Left') }, Right: { w: hold, at: at('Right') } };
-    const hands = gk.hands; later(2, () => { if (gk.hands === hands) gk.hands = null; });
-    yield* until(() => !gk.motion, 1.4);
-    gk.faceLock = false;
-    yield* wait(0.6);
-    const i = events.indexOf(ev), next = i >= 0 ? events.slice(i + 1, i + 5).find(x => ['pass', 'cross', 'press', 'tackle', 'hold', 'dribble', 'ballCarry', 'interception', 'shot'].includes(x.type)) : null;
-    if (next && next.type === 'pass' && next.fromId === gk.id && next.fromSide === gk.side) gk.holding = true;
-    else { const f = forwardOf(gk); ball.held = null; ball.v.set(f.x * 0.9, 0, f.z * 0.9); }
-    gk.busy = false;
-    return true;
   }
   // chest control: he gets under the dropping ball, leans back and lets it come off his chest to his feet
   const CHEST_H = 1.42;
@@ -928,7 +822,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         let meet = null;
         gk.busy = true; gk.loopsWant.keeperReady = 0;
         yield* pass({ from: crosser, to: null, toW: spot, travel: 'aerial', implicit: false }, { height: PUNCH_H, meet: tArr => { meet = tArr; }, ev: { eventId: -31 } });
-        yield* keeperPunch(gk, spot.clone().setY(PUNCH_H), meet, V(line - gs * 26, 0, 12), striker);
+        yield* keeperPunch(beatContext, { gk, spot: spot.clone().setY(PUNCH_H), tArr: meet, land: V(line - gs * 26, 0, 12), rival: striker });
         yield* wait(2.5);
       } else if (kind === 'gkrush' || kind === 'gkrushgoal') {
         // (keeper review) a man through on our goal: our keeper comes out; saved at his feet, or beaten
@@ -1828,7 +1722,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       }
       case 'firstTouch': if (from && ball.owner !== from) yield* ensureOwner(from); break;
       case 'looseBall': {
-        if (S.punch) { const k = S.punch; S.punch = null; yield* keeperPunch(k.gk, k.spot, k.tArr, k.land, k.rival); break; }
+        if (S.punch) { const k = S.punch; S.punch = null; yield* keeperPunch(beatContext, k); break; }
         if (S.aerial) {
           // headed away (or flicked on) at the top of the jump
           const a = S.aerial; S.aerial = null;
@@ -2027,7 +1921,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // what a special move's beat (newview/beats/) may use of the director: the pitch, its ball and clock, the
   // page's hooks, the record of the match's special moves, and the director's own steps (wait a while, wait
   // until, chase the ball down, settle it at the boots, do something a moment later)
-  const beatContext = { rt, ball, S, hooks, stats, debug: DEBUG, until, wait, chase, gather, later, noteSkill, pick, losing };
+  const beatContext = { rt, ball, S, hooks, stats, events, debug: DEBUG, until, wait, chase, gather, later, noteSkill, noteFix, pick, losing, jumpFor };
   // the ball had to be put at a player's feet because he could not reach it (diagnostics; should not happen)
   function noteFix(p, where) {
     stats.fixes++;
