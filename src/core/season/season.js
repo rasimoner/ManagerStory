@@ -19,7 +19,7 @@ import { managedClubName } from '../clubs/clubs.js';
 import { save } from '../save.js';
 import { movesNow } from '../players/moves.js';
 import { pushInbox } from '../inbox.js';
-import { changed, opponentsEvolved, seasonStarted } from '../hooks.js';
+import { changed, movesLearned, opponentsEvolved, seasonStarted } from '../hooks.js';
 import { LEAGUE_LIFT, OPP, OPPONENT_FIRST, OPPONENT_LAST } from '../league/rivals.js';
 import { SKILL_NAMES } from '../players/move-names.js';
 export const SEASON_BASE_YEAR = BALANCE.season.baseYear;
@@ -261,6 +261,7 @@ seasonEndStep({ id: 'aging', run(se) {
     if (learned.length) {
       p.newMoves = [...new Set([...(p.newMoves || []), ...learned])];
       S.history.push(`${p.name} yeni hareket açtı: ${learned.map(m => SKILL_NAMES[m] || m).join(', ')}.`);
+      movesLearned(p, learned);
     }
     log.push({ id: p.id, name: p.name, pos: p.pos, age: p.age, from: ov, to: p.overall, learned });
   }

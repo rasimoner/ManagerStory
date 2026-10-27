@@ -513,7 +513,12 @@ export function createDirector(rt, data, hooks, opts = {}) {
     Object.assign(audit, { who: p.key, side: p.side, moves: [...(p.moves || [])], fromOwn: +fromOwnGoal(p).toFixed(1), z: +p.pos.z.toFixed(1), t: +S.t.toFixed(2), losing: losing(p.side) }, extra);
     (stats.skills ||= []).push(audit);
     (p.used ||= {})[audit.kind] = (p.used[audit.kind] || 0) + 1;
-    hooks.star?.(audit, p);
+    hooks.star?.(audit, p, currentMoment());
+  }
+  // the match event a special move is made in: its id (the seed that plays it again the same way) and minute
+  function currentMoment() {
+    const e = task ? events[task.i] : null;
+    return { seed: e?.eventId ?? -1, minute: e?.minute };
   }
   // ---- V7.9 more special moves (boots placed with the foot targets) ----
 

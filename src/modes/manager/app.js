@@ -1,5 +1,6 @@
 
 // the squad a new career starts with (data/squad.json)
+import { announceNewMoves } from './highlight-recorder.js';
 import CLUB_DATA from '../../data/clubs.json';
 import STARTING_SQUAD from '../../data/squad.json';
 import PLAYER_DATA from '../../data/players.json';
@@ -187,9 +188,7 @@ export function evolvePlayers(){S.players.filter(p=>p.status!="Transfer oldu").f
   // V7.9.5: his attributes follow his overall along his profile, training focus builds on top
   if(p.overall!==ovr0)refreshPlayerProfile(p);trainFocusWeek(p);
   const learned=movesNow(p).filter(m=>!before.includes(m));
-  if(learned.length){p.newMoves=[...new Set([...(p.newMoves||[]),...learned])];
-   pushInbox("Teknik Ekip",`${p.name} yeni hareket öğrendi`,`${p.name} antrenmanda artık ${learned.map(m=>SKILL_NAMES[m]||m).join(", ")} deniyor. Maçlarda bunu görebiliriz.`,"player");
-   S.history.push(`${p.name} yeni hareket açtı: ${learned.map(m=>SKILL_NAMES[m]||m).join(", ")}.`)}
+  if(learned.length)announceNewMoves(p,learned);
  })}
 export function academyFingerprint(p){return [String(p.name||'').trim().toLocaleLowerCase('tr'),p.age,p.pos,p.overall,p.potential].join('|')}
 export function ensureAcademyIdentityState(){
