@@ -7,19 +7,13 @@
      game is on window.
    - Tests reach the game through one access point (refactor D0): names, never module files. A function can
      move to another module without a test changing.
-   - core/ does not know the modes: what it still takes from modes/manager is pinned here and may only
-     shrink (refactor D empties it). */
+   - core/ does not know the modes: no core module imports from modes/ (refactor D emptied the list that
+     pinned what it still took). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs');
-
-/* What core/ still takes from the manager mode, by file. Refactor D moves these into core (the engine
-   core, the league, the clubs, the save) or passes them in; the list may only shrink. */
-const CORE_FROM_MODES = {
-
-};
 
 const walk = dir => fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {
   const f = path.posix.join(dir, d.name);
@@ -86,22 +80,24 @@ test('nothing of the game is on window', () => {
   assert.deepEqual(used, []);
 });
 
-test('core/ takes from modes/ only what is pinned here (the list may only shrink)', () => {
-  const now = {};
+test('core/ does not know the modes: no core module imports anything from modes/ (refactor D)', () => {
+  // static imports, re-exports and dynamic import() alike; what core needs a mode to do it says through
+  // core/hooks.js (main.js connects the mode), and the mode imports core, never the other way round.
+  // After C core took 63 names from modes/ in 11 files; D brought that to none, and it stays none.
+  const SPEC = /(?:^|[\s;(])(?:import|export)\s*(?:[^'"()]*?\s+from\s*)?\(?\s*['"](\.{1,2}\/[^'"]+)['"]/g;
+  const found = [];
   for (const file of walk('core')) {
-    const code = fs.readFileSync(path.join(DIST, file), 'utf8');
-    for (const m of code.matchAll(IMPORTS)) {
-      const to = path.posix.normalize(path.posix.join(path.posix.dirname(file), m[2]));
-      if (to.startsWith('modes/')) (now[file] ??= new Set());
-      if (to.startsWith('modes/')) (m[1] || '*').split(',').map(x => x.trim()).filter(Boolean).forEach(n => now[file].add(n));
+    const code = fs.readFileSync(path.join(DIST, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/[^\n]*/g, '$1');
+    for (const m of code.matchAll(SPEC)) {
+      const to = path.posix.normalize(path.posix.join(path.posix.dirname(file), m[1]));
+      if (to.startsWith('modes/')) found.push(`${file} → ${to}`);
     }
   }
-  const extra = [];
-  for (const [file, names] of Object.entries(now)) {
-    const allowed = new Set((CORE_FROM_MODES[file] || '').split(' ').filter(Boolean));
-    for (const n of names) if (!allowed.has(n)) extra.push(`${file}: ${n}`);
-  }
-  assert.deepEqual(extra, [], 'core/ must not take anything new from modes/');
+  assert.deepEqual(found, []);
+  // the rule sees what it guards: core imports core, and modes/manager imports core
+  const sees = file => [...fs.readFileSync(path.join(DIST, file), 'utf8').matchAll(SPEC)].map(m => m[1]);
+  assert.ok(sees('core/engine/match-minute.js').some(x => x.startsWith('./')), 'a core import is seen');
+  assert.ok(sees('modes/manager/app.js').some(x => x.includes('/core/')), 'a mode-to-core import is seen');
 });
 
 test('tests reach the game by name, through the access point, not by module file', () => {
