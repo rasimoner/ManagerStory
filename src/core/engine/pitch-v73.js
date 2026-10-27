@@ -46,7 +46,7 @@ export function pitchInstructionTarget(id,side,ball,attacking) {
   const role=own?M.matchRoles[id]:opponentPlayer(id)?.position||null;
   const p=playerAtMarker(id,side);
   const order=orderFor(id,side);
-  let x=q[0],y=q[1];
+  let x,y=q[1];
   if (role==='GK' || (!own&&String(id)==='o0')) {
     const ownGoal=dir>0?5:95,threat=attacking!==side&&Math.abs(ball[0]-ownGoal)<29;
     const advanced=attacking===side ? (order==='sweeper'?7:3) : threat?5:0;
@@ -1078,7 +1078,8 @@ export function chanceV73(user) {
   }
   let carrier=M.ballOwner;
   const carrierSide=M.ballSide,dir=(user?1:-1)*userDirection();
-  let before=eventPoint(carrier,carrierSide),progress=dir>0?before[0]:100-before[0];
+  let before=eventPoint(carrier,carrierSide);
+  const progress=dir>0?before[0]:100-before[0];
   const prevPass=(M.passMemory||[]).at(-1);
   if(progress<48){
     const advancing=(sideName==='user'?M.active:M.oppIds)
@@ -1099,7 +1100,6 @@ export function chanceV73(user) {
     switchPitchOwner(advancing.id,sideName);
     M.stats.passes[side]++;M.stats.completedPasses[side]++;
     carrier=advancing.id;before=advancing.point;
-    progress=dir>0?before[0]:100-before[0];
   }
   // V7.6: shoot when it is worth it; otherwise find the better-placed team-mate, or drive into range
   const carrierRole=user?M.matchRoles[carrier]:opponentPlayer(carrier)?.position;
@@ -1128,7 +1128,7 @@ export function chanceV73(user) {
   for(let k=0;k<2&&choice.shooterId===carrier&&choice.value<.035&&carrierRole!=='GK';k++){
    // too far to shoot and nobody better placed: carry it towards goal first
    if(!pitchDribble(carrier,carrierSide,r))return;
-   before=eventPoint(carrier,carrierSide);progress=dir>0?before[0]:100-before[0];
+   before=eventPoint(carrier,carrierSide);
    choice=pick();
   }
   if(choice.value<.012){
@@ -1189,7 +1189,7 @@ export function resolveShot(user,shooter,p,opts={}) {
   const source=opts.source?[...opts.source]:eventPoint(shooter,sideName);
   const destination=[dir>0?98:2,50+(M.rand()-.5)*16],opponentGK=keeperId(user?'opp':'user');
   const effects=tacticalEffects(),key=orderFor(shooter,sideName);
-  let qMod=1;
+  let qMod;
   if(user) {
     qMod=effects.attack;
     if(key==='runBehind'&&r[2]==='high')qMod*=1.07;

@@ -1295,7 +1295,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     car.face = car.pos.clone().addScaledVector(f, 30); car.faceLock = true;
     ball.through = t0 + 1.0; def.target.copy(def.pos); def.want = 0.5;
     const rel = (a, l, y) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
-    let touched = 0, b1 = null;
+    let touched = 0, b1;
     car.feet = {
       Right: { w: ramp(t0, 0, 0.06, 0.32, 0.45), at: () => rel(-0.02, 0.12, 0.05) },
       Left: { w: ramp(t0, 0, 0.06, 0.62, 0.78), at: t => touched ? rel(-0.1, -0.1, 0.05) : car.pos.clone().addScaledVector(f, 0.1).addScaledVector(r, -0.2).setY(0.03) },

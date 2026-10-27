@@ -27,8 +27,7 @@
     "max-lines-per-function": 11,
     "max-params": 8,
     "max-statements": 14,
-    "no-unused-vars": 6,
-    "no-useless-assignment": 4
+    "no-unused-vars": 6
   },
   "src/core/engine/pitch-v731.js": {
     "complexity": 14,
@@ -90,8 +89,7 @@
     "max-lines-per-function": 18,
     "max-params": 17,
     "max-statements": 33,
-    "no-unused-vars": 5,
-    "no-useless-assignment": 1
+    "no-unused-vars": 5
   },
   "src/core/presentation/match3d/newview/footballer.js": {
     "complexity": 2,
@@ -280,8 +278,7 @@
     "complexity": 1,
     "max-depth": 1,
     "max-lines-per-function": 1,
-    "max-statements": 1,
-    "no-useless-assignment": 1
+    "max-statements": 1
   },
   "tools/tactic-report.cjs": {
     "complexity": 1,
