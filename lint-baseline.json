@@ -131,9 +131,6 @@
     "max-params": 1,
     "max-statements": 6
   },
-  "src/core/random.js": {
-    "no-empty": 1
-  },
   "src/core/save.js": {
     "complexity": 3,
     "max-statements": 1
