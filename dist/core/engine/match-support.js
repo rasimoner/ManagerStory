@@ -10,7 +10,7 @@ import { opponentLineup } from '../league/opponents-v731.js';
 import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
 import { assistantAdvice, attackDirection, isKeeper, matchTeamName, playerAtMarker, startPitchRestart } from './pitch-v731.js';
 import { $, bottomNav, currentOpponent, decorateAtmosphereScenes, matchOrderOptions, render, save, showAcademy, showLeague, showV6Transfers } from '../../modes/manager/app.js';
-export const GAME_VERSION = "7.9.13";
+export const GAME_VERSION = "7.10.0";
 // tactic settings, their labels and the team orders (data/tactics.js)
 export const MATCH_TACTICS = TACTIC_DATA.options;
 export const TACTIC_LABELS = TACTIC_DATA.labels;

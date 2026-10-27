@@ -83,3 +83,12 @@ test('every file in the service-worker list exists', () => {
   const missing = [...swList()].filter(f => f && !fs.existsSync(path.join(dist, f.replace(/\?.*$/, ''))));
   assert.deepEqual(missing, []);
 });
+
+// V7.10.0: the install step fetches past the browser's HTTP cache, so a release can never store an old file
+// (GitHub Pages lets browsers keep files ~10 minutes) under the new cache key.
+test('the service worker fills its cache past the HTTP cache', () => {
+  const sw = read('sw.js');
+  const install = sw.slice(sw.indexOf('addEventListener("install"'), sw.indexOf('addEventListener("activate"'));
+  assert.match(install, /addAll\(ASSETS\.map\(url => new Request\(url, \{ cache: "reload" \}\)\)\)/);
+  assert.doesNotMatch(install, /addAll\(ASSETS\)/);
+});
