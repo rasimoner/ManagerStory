@@ -20,6 +20,8 @@ import './core/engine/match-support.js';
 import './modes/manager/career-events.js';
 import './core/engine/live-match.js';
 import './core/players/player-profiles.js';
+import './core/clubs/clubs.js';
+import './core/league/league.js';
 import './core/league/opponents-v731.js';
 import './core/season/season.js';
 import './core/engine/pitch-v73.js';

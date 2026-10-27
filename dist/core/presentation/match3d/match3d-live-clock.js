@@ -5,7 +5,8 @@ import { matchPossession, presentationEvent, shotInterventionActor } from '../..
 import { advanceLive, matchPlaybackRate, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
 import { animationPoint, currentPitchState, eventAnimationTime, eventPoint, finishPitchAction, limitPitch, pitchInstructionTarget, pitchV73, preparePitchGoalPhotos } from '../../engine/pitch-v73.js';
 import { aerialHeight, attackDirection, playerAtMarker, topSpeed } from '../../engine/pitch-v731.js';
-import { render, resolveClubIdentity } from '../../../modes/manager/app.js';
+import { render } from '../../../modes/manager/app.js';
+import { resolveClubIdentity } from '../../clubs/clubs.js';
 (() => {
  let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
  function syncMatch(now=0,dt=0){if(observedMatch===M)return;observedMatch=M;presentationSeconds=0;wallSeconds=0;logs=[];wallOrigin=now-dt*1000;inPositionUpdate=false;motionSample=null;}

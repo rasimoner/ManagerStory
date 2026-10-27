@@ -14,7 +14,8 @@ import { S } from '../../core/state.js';
 import { defineActions } from '../../ui/actions.js';
 import { onHook } from '../../core/hooks.js';
 import { escapeHTML } from '../../core/engine/match-support.js';
-import { $, SKILL_NAMES, asking, cinematic, clearCinematicNext, clubColor, clubProps, header, money, pushInbox, recordMoves, render, resolveClubIdentity, save } from './app.js';
+import { $, SKILL_NAMES, asking, cinematic, clearCinematicNext, clubColor, clubProps, header, money, pushInbox, recordMoves, render, save } from './app.js';
+import { resolveClubIdentity } from '../../core/clubs/clubs.js';
 export const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
 // the most spectacular move he has is the one he shows (data/moves.js starShow); without one, the fallback
 export const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;

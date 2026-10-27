@@ -22,6 +22,8 @@ import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonEnd
 import { actionMinute, basePitchPosition, chanceV73, currentPitchState, emitPitchKickoff, eventPoint, paintLivePitch, playLastAttack, resetPitchHalf } from '../../core/engine/pitch-v73.js';
 import { enforceBallInvariants, matchFatigueDrain, openOpponentPlayer, resolveUnfillableSubstitution, setBallState, settlePlay, settleShape, skillMoves, tacticFatigue } from '../../core/engine/pitch-v731.js';
 import { starFlashCard } from './star-transfer.js';
+import { OPP, allTeams, currentFixture, ensureLeague, makeLeagueSchedule } from '../../core/league/league.js';
+import { CLUBSTYLE, crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
 // a player from the starting squad, by id (ids are never reused, so 0–15 are always these men)
 export function startingPlayer(id){return STARTING_SQUAD.players.find(x=>x.id===id)}
@@ -30,18 +32,11 @@ export function styleEdge(p,style){return startingPlayer(p.id)?.styleEdge?.[styl
 export function playerById(id){return S.players.find(p=>p.id===id)}
 // a bid as the press says it: ₺9.5M, ₺13M
 export function bidLabel(n){return "₺"+n/1e6+"M"}
-// the clubs we play against, as rows the engine reads by position: [name, level, style, attack, midfield, defence,
-// keeper, pressing, physical, description] (data/clubs.js)
-export const OPP=CLUB_DATA.clubs.filter(c=>c.team).map(({name,team:t})=>[name,t.level,t.style,t.attack,t.midfield,t.defence,t.keeper,t.pressing,t.physical,t.description]);
 export const $=q=>document.querySelector(q), money=n=>"₺"+(n/1e6).toFixed(1)+"M";
 // a new career, in format 0 and through the save chain (save.js), so it is in the current format
 export function fresh(){return migrateSave({players:structuredClone(P0),currentClubId:CLUB_DATA.startingClub,week:1,day:1,fixture:0,budget:18e6,board:72,fans:68,rep:45,xi:[...STARTING_SQUAD.xi],bench:[...STARTING_SQUAD.bench],positions:structuredClone(STARTING_SQUAD.positions),plan:{...STARTING_SQUAD.plan},scheduled:[],promises:[],events:[],history:[],results:[],instructions:{},schedule:makeSchedule(CLUB_DATA.startingClub),table:allTeams(CLUB_DATA.startingClub).map(n=>({n,p:0,gf:0,ga:0,pts:0})),event:null})}
 export function save(){persistCareer()}
-export function allTeams(club=managedClubName()){return [club,...OPP.map(x=>x[0])]}
-export function makeLeagueSchedule(){let teams=allTeams(),arr=[...teams],rounds=[];for(let r=0;r<17;r++){let games=[];for(let i=0;i<9;i++){let a=arr[i],b=arr[17-i],flip=(r+i)%2==1;games.push({home:flip?b:a,away:flip?a:b,played:false,hg:null,ag:null})}rounds.push(games);arr=[arr[0],arr[17],...arr.slice(1,17)]}let second=rounds.map(g=>g.map(x=>({home:x.away,away:x.home,played:false,hg:null,ag:null})));return rounds.concat(second)}
 export function makeSchedule(club=managedClubName()){return makeLeagueSchedule().map(g=>{let x=g.find(m=>m.home==club||m.away==club);return {opp:OPP.findIndex(o=>o[0]==(x.home==club?x.away:x.home)),home:x.home==club}})}
-export function ensureLeague(){if(!S.leagueSchedule||S.leagueSchedule.length!=34)S.leagueSchedule=makeLeagueSchedule();if(!S.form)S.form={};allTeams().forEach(n=>{if(!S.form[n])S.form[n]=[]})}
-export function currentFixture(){ensureLeague();let g=S.leagueSchedule[S.fixture%34],x=g.find(m=>m.home==managedClubName()||m.away==managedClubName());return {opp:OPP.findIndex(o=>o[0]==(x.home==managedClubName()?x.away:x.home)),home:x.home==managedClubName(),game:x}}
 export function currentOpponent(){let f=currentFixture();return OPP[f.opp]}
 export function init(){if(!S)return;S.players.forEach(p=>{p.managerTrust??=finite(p.relation,65);p.confidence??=clamp(finite(p.form,70)-20,35,75);p.pressure??=50;p.motivation??=clamp(finite(p.morale,70)-20,35,75)});ensureOpponentSquads();if(!S.instructions)S.instructions={};if(!S.schedule||S.schedule.length!=34)S.schedule=makeSchedule();ensureLeague();if(!S.pressUsed)S.pressUsed=[];if(!S.sundayEvents)S.sundayEvents={};if(!S.cooldowns)S.cooldowns={};if(!S.news)S.news=[];if(!S.objectives)S.objectives=[{text:"Ligi ilk 6 içinde bitir",type:"league",target:6},{text:"Genç oyunculara süre ver",type:"youth",target:900}];if(!S.transferList)S.transferList=makeTransferMarket();if(!S.clock)S.clock="09:00";if(!S.inbox)S.inbox=[];if(!S.clubMood)S.clubMood={chairman:"Beklenti dengeli",staff:"Maç planı hazırlanıyor",dressing:"Odaklanmış"};normalizeFormation();S.players.forEach(p=>{if(p.goals==null)p.goals=0;if(p.assists==null)p.assists=0;if(p.yellow==null)p.yellow=0;if(p.red==null)p.red=0;if(p.injury==null)p.injury=0;if(!p.personality)p.personality=p.age>=30?"Lider":p.age<=20?"Hırslı":p.physical>=78?"Rekabetçi":"Profesyonel"});if(!S.v6){S.v6={transferPool:[],academy:[],academyCounter:0,cup:{alive:true,round:"1. Tur",wins:0},fanPressure:50};}if(!S.v6.transferPool.length)S.v6.transferPool=makeV6Market();S.players.forEach(p=>{if(p.happiness==null)p.happiness=Math.max(40,Math.min(95,p.morale||70));if(p.growth==null)p.growth=0;if(p.secondary==null)p.secondary=[]});ensureAcademyIdentityState();if(!S.v6.academy.length)refreshAcademy(true);if(S.v6.wageBudget==null)S.v6.wageBudget=24000000;if(S.v6.boardBudgetAskedWeek==null)S.v6.boardBudgetAskedWeek=-99;S.players.forEach(p=>{if(p.wage==null)p.wage=Math.round((p.overall*p.overall)*900);if(p.debutDone==null)p.debutDone=p.status!=="Altyapıdan A takım"});ensurePlayerProfiles();if(typeof ensureSeasonState==='function')ensureSeasonState();if(!S.event)nextEvent()}
 export const SLOT_POS={GK:[50,90],LB:[15,72],LCB:[38,73],RCB:[62,73],RB:[85,72],LCM:[40,54],RCM:[60,54],LW:[16,31],RW:[84,31],CAM:[50,36],ST:[50,13]};
@@ -49,22 +44,8 @@ export function defaultPosFor(p,used=[]){let candidates=p.pos.split("/");let key
 export function normalizeFormation(){if(!S||!S.players)return;S.positions=S.positions||{};S.xi=S.xi.filter(id=>{let p=S.players.find(x=>x.id==id);return p&&p.status!="Transfer oldu"});let used=S.xi.map(id=>S.positions[id]).filter(Boolean);for(let id of S.xi){let p=S.players.find(x=>x.id==id);if(!S.positions[id]){S.positions[id]=defaultPosFor(p,used);used.push(S.positions[id])}}}
 export function pushInbox(from,title,text,tone="normal"){S.inbox.unshift({from,title,text,tone,week:S.week,day:S.day,time:S.clock});S.inbox=S.inbox.slice(0,12)}
 export function setClock(t){S.clock=t}
-// club colours and crest pattern: name → [primary, secondary, pattern] (data/clubs.js)
-export const CLUBSTYLE=Object.fromEntries(CLUB_DATA.clubs.map(c=>[c.name,[...c.colors,c.pattern]]));
-export function crest(n,s=42){let c=CLUBSTYLE[n]||["#333","#ddd","v"],bg=c[2]=="h"?`linear-gradient(${c[0]} 0 50%,${c[1]} 50%)`:c[2]=="d"?`linear-gradient(135deg,${c[0]} 0 49%,${c[1]} 50%)`:`linear-gradient(90deg,${c[0]} 0 50%,${c[1]} 50%)`;return `<span class=crest style="width:${s}px;height:${s}px;background:${bg}"><i>${n.split(" ").map(x=>x[0]).join("").slice(0,2)}</i></span>`}
-// Presentation identity is resolved from the career or event, never from a second color state.
-// the club this career manages: the one name every rule about "us" goes through (S.currentClubId; a new career
-// starts with data/clubs.js startingClub). The league is built around it, so it must be a club that is not one of
-// the rivals: managing a rival needs the league rebuilt around him (the manager-career feature); until then any
-// other id, e.g. from an edited save, falls back to the starting club.
-export function managedClubName(){const id=S?.currentClubId;return id&&CLUBSTYLE[id]&&!OPP.some(o=>o[0]===id)?id:CLUB_DATA.startingClub}
 // how a club's colours are said ("SARI • KIRMIZI"), when the data has it
 export function clubColorNames(name){return (CLUB_DATA.clubs.find(c=>c.name===name)?.colorNames||[]).join(' • ')}
-export function resolveClubIdentity(context='career',data={}){
- const name=context==='goal'?(data.teamId||data.team):context==='stadium'?(data.homeTeam||M?.home||currentFixture()?.game?.home):context==='awaySupporters'?(data.awayTeam||M?.away):managedClubName();
- const colors=CLUBSTYLE[name]||['#55646b','#d8dedc','v'];
- return {id:name||'neutral',name:name||'Kulüp',primaryColor:colors[0],secondaryColor:colors[1],logo:crest(name||'Kulüp',34),shortName:(name||'Kulüp').split(' ').map(word=>word[0]).join('').slice(0,2),stadium:`${name||'Kulüp'} Stadı`};
-}
 export function clubColor(value){return /^#[0-9a-f]{3,8}$/i.test(String(value||''))?value:''}
 export function clubLayers(kind,club){
  const p=clubColor(club.primaryColor),s=clubColor(club.secondaryColor);
@@ -81,7 +62,6 @@ export function clubProps(context='career',data={}){
  if(kind==='press'||kind==='locker')return clubLayers(kind,club);
  return `<div class="club-props club-props--${kind}" aria-hidden="true"><span class="club-emblem">${club.logo}</span></div>`;
 }
-export function fanPhoto(team){const index=Object.keys(CLUBSTYLE).indexOf(team);return index<0?'assets/atmosphere/fans-neutral.webp':`assets/atmosphere/goal-club-${index}.webp`}
 export function officePhoto(team){const index=Object.keys(CLUBSTYLE).indexOf(team);return index<0?'assets/atmosphere/office-base.webp':`assets/atmosphere/office-club-${index}.webp`}
 export function decorateAtmosphereScenes(){
  const scenes=document.querySelectorAll?.('.vscene.office,.vscene.training,.vscene.signing,.negotiationhero,.transferhero')||[];

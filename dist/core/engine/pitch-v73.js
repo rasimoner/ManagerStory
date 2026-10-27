@@ -5,7 +5,8 @@ import { clamp, lineVariant, liveCommentaryLines, matchEvent, matchPossession, p
 import { MATCH_PLAYBACK_SCALE, clockFromSeconds, matchClock, matchSecond } from './live-match.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { aerialHeight, aerialRating, aerialWinProbability, attributeEdge, boxChallengePenalty, dribbleChance, engineFrozen, isKeeper, keeperHandling, keeperId, keeperRating, makeLooseBall, normalizeAttribute, occupant, opponentName, orderFor, outfieldOf, passSuccessProbability, physicalContest, playerAtMarker, playerAttribute, playerRecord, resolveLooseBall, runRestart, separatePlayers, setBallState, setPieceRecovering, shooterRecord, shotProbabilities, softenPlayerOverlap, startPitchRestart, tackleChance, tacticProfile, teamTactics, topSpeed, transitionActive } from './pitch-v731.js';
-import { currentOpponent, fanPhoto, oppRadarPos, resolveClubIdentity, setOppOwner, setUserOwner } from '../../modes/manager/app.js';
+import { currentOpponent, oppRadarPos, setOppOwner, setUserOwner } from '../../modes/manager/app.js';
+import { fanPhoto, resolveClubIdentity } from '../clubs/clubs.js';
 export let pitchV73 = null;
 export const PITCH_ACTIONS = new Set(['kickoff','pass','cross','interception','press','tackle','dribble','ballCarry','offBallRun','counterAttack','run','shot','save','block','post','wide','goal','throwIn','restart','goalKick','corner','freeKick','penalty','hold','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery']);
 export const IMPORTANT_ACTIONS = new Set(['kickoff','shot','save','block','post','wide','goal','throwIn','goalKick','corner','offBallRun','dribble','ballCarry','tackle']);

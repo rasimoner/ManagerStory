@@ -20,15 +20,14 @@ const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs
 const CORE_FROM_MODES = {
   'core/engine/live-match.js': 'render save tick',
   'core/engine/match-support.js': '$ bottomNav currentOpponent decorateAtmosphereScenes matchOrderOptions render save showAcademy showLeague showV6Transfers',
-  'core/engine/pitch-v73.js': 'currentOpponent fanPhoto oppRadarPos resolveClubIdentity setOppOwner setUserOwner',
+  'core/engine/pitch-v73.js': 'currentOpponent oppRadarPos setOppOwner setUserOwner',
   'core/engine/pitch-v731.js': 'currentOpponent positionPenaltyV61 setOppOwner setUserOwner',
-  'core/league/opponents-v731.js': 'OPP syncWonderOffers',
-  'core/presentation/match3d/match-view-adapter.js': 'OPP currentOpponent resolveClubIdentity',
-  'core/presentation/match3d/match3d-live-clock.js': 'render resolveClubIdentity',
-  'core/presentation/match3d/match3d-newview.js': 'CLUBSTYLE openDecisionSheet render resolveClubIdentity',
-  'core/presentation/scenes/star-transfer-scene.js': 'CLUBSTYLE',
+  'core/league/opponents-v731.js': 'syncWonderOffers',
+  'core/presentation/match3d/match-view-adapter.js': 'currentOpponent',
+  'core/presentation/match3d/match3d-live-clock.js': 'render',
+  'core/presentation/match3d/match3d-newview.js': 'openDecisionSheet render',
   'core/save.js': 'init render save',
-  'core/season/season.js': 'CLUBSTYLE OPP SKILL_NAMES SLOT_POS V6FN V6LN V6POS allTeams bottomNav createUniqueAcademyCandidate crest ensureLeague header makeLeagueSchedule managedClubName marketProfile money movesNow normalizeFormation pushInbox refreshAcademy render save setClock syncWonderOffers',
+  'core/season/season.js': 'SKILL_NAMES SLOT_POS V6FN V6LN V6POS bottomNav createUniqueAcademyCandidate header marketProfile money movesNow normalizeFormation pushInbox refreshAcademy render save setClock syncWonderOffers',
 };
 
 const walk = dir => fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {
