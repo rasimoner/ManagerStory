@@ -53,9 +53,9 @@ test('extension points: the star transfer and the navigation register for named 
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
   const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');
   const plain = g.run('S.v6.transferPool.find(x=>!starSceneQualifies(x))?.id');
-  g.run(`v6Sign(${JSON.stringify(plain)},1)`);
+  g.run(`signTransfer(${JSON.stringify(plain)},1)`);
   assert.equal(g.run('typeof starFlow==="undefined"||!starFlow'), true, 'no scene for an ordinary signing');
-  g.run(`v6Sign(${JSON.stringify(star)},1)`);
+  g.run(`signTransfer(${JSON.stringify(star)},1)`);
   assert.equal(g.run('!!starFlow&&starFlow.playerId===S.players.at(-1).id'), true, 'the scene for a star');
 });
 

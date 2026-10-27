@@ -42,7 +42,7 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | Dosya | Önceki yer | Ne | Neden burada |
 |---|---|---|---|
 | `modes/manager/app.js` | `app.js` | Kariyer döngüsü, transfer, akademi, kadro/taktik/diziliş ekranları, gelen kutusu ekranı, `choose`, ekran yönlendirme ve ana ekran kabuğu (`goMain`, `setScreenMode`, `decorateMainScreen`, D4) | Çoğu teknik direktöre özgü. Motor kalbi, lig ve kulüp kimliği D1–D3'te çekirdeğe taşındı. Kalan: gelişim → `core/players`, header ve alt menü → `ui` |
-| `modes/manager/market-names.js` | `app.js` (E1) | Transfer piyasasının isimleri ve mevkileri (`V6FN`, `V6LN`, `V6POS`) | Sadece veriden; app ↔ season-end döngüsünden bağımsız |
+| `modes/manager/market-names.js` | `app.js` (E1) | Transfer piyasasının isimleri ve mevkileri (`MARKET_FIRST_NAMES`, `MARKET_LAST_NAMES`, `MARKET_POSITIONS`) | Sadece veriden; app ↔ season-end döngüsünden bağımsız |
 | `modes/manager/lineup-slots.js` | `app.js` (E1) | Diziliş sahasında her yerin konumu (`SLOT_POS`) | İmportsuz |
 | `modes/manager/match-panel.js` | `match-support.js`, `live-match.js` (D4) | Maç paneli: istatistik, ayrıntı ve kondisyon sekmeleri, maçta ve planda taktik ile takım talimatları, asistan önerileri, bağırma, düğmeleri | Teknik direktörün maç ekranı; motor sadece seçimin sonucunu (taktik olayı, maç durumu) alır |
 | `modes/manager/match-career.js` | (yeni, D4) | Maçın kariyerdeki karşılığı: sezon golleri, kartlar, dakikalar, ilk maç; golün ve ilk maçın moral/formu. Motorun olaylarından (`matchEvent` kancası) ve `minutePlayed`'den, aynı anda yazar | Motor kariyere yazmaz, ne olduğunu söyler |
@@ -91,7 +91,7 @@ Genişletme noktaları (`core/hooks.js`):
 
 | An | Kim çalıştırır | Kim kaydolur |
 |---|---|---|
-| `beforeSigning(x)`, `afterSigning(player, x, fee)` | `v6Sign` (app.js) | yıldız transfer sahnesi (star-transfer.js) |
+| `beforeSigning(x)`, `afterSigning(player, x, fee)` | `signTransfer` (app.js) | yıldız transfer sahnesi (star-transfer.js) |
 | `goMain(section)` → `true`: işlendi | `goMain` (match-support.js) | aktif sekmeye dokunma (nav.js) |
 | `navBack()` | geri düğmesi eylemi (app.js) | kaydırma konumuna dönüş (nav.js) |
 | `screenDrawn()` | `header` (app.js) | ekran yerleşince kaydırma ve ↑ düğmesi (nav.js) |

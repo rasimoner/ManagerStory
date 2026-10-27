@@ -48,16 +48,16 @@ test('transfer list: player-type dropdown filters, filters survive a profile vis
   const h = harness();
   h.run("goMain('transfer')");
   assert.match(h.html(), /<select id=transferType/);
-  h.run("showV6Transfers(undefined,undefined,'wingBack')");
+  h.run("showTransferList(undefined,undefined,'wingBack')");
   const types = [...h.html().matchAll(/<small class=ptype>([^<]+)<\/small>/g)].map(m => m[1]);
   assert.ok(types.length > 0 && types.every(t => t === 'Bindiren bek'), types.join(','));
   assert.equal((h.html().match(/class=liststars/g) || []).length, types.length, 'stars on every card');
   h.run('showMarketProfile(S.v6.transferPool.find(x=>x.profile?.type==="wingBack").id)');
-  h.run('showV6Transfers()');
+  h.run('showTransferList()');
   assert.match(h.html(), /<option value="wingBack" selected>/, 'filter kept after the profile');
-  h.run("showV6Transfers('GK')");
+  h.run("showTransferList('GK')");
   assert.match(h.html(), /Bu filtreyle listede oyuncu yok/);
-  h.run("showV6Transfers('ALL',undefined,'ALL')");
+  h.run("showTransferList('ALL',undefined,'ALL')");
 });
 
 test('academy list shows each prospect\'s stars', () => {
@@ -68,7 +68,7 @@ test('academy list shows each prospect\'s stars', () => {
 
 test('transfer list: "Yıldız ↓" sorts by skill stars, highest first', () => {
   const h = harness();
-  h.run("showV6Transfers('ALL','stars','ALL')");
+  h.run("showTransferList('ALL','stars','ALL')");
   assert.match(h.html(), /aria-pressed="true" data-action="transferSort" data-sort="stars">Yıldız ↓/);
   assert.match(h.html(), />POT ↓</);
   const stars = [...h.html().matchAll(/aria-label="Yetenek (\d) yıldız"/g)].map(m => +m[1]);

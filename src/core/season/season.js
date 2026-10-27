@@ -114,7 +114,7 @@ export function seasonRecordMatch(match, result) {
 }
 
 /* ---------- ageing, retirement and development rules ---------- */
-// the off-season step on top of the weekly development (evolveV6 / evolveOpponentSquads stay the only
+// the off-season step on top of the weekly development (evolvePlayers / evolveOpponentSquads stay the only
 // in-season growth): the young close in on their potential, 30+ slows down, keepers decline about three years later
 // (the ages, chances and steps are in data/balance.json: development, retirement)
 export function offseasonChange(age, overall, potential, gk, rnd) {

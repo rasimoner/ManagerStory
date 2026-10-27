@@ -50,7 +50,7 @@ test('a big signing: breaking news, a free shirt number, the highlight record, t
   assert.ok(id, 'the market has a 4–5 star player');
   h.run('S.budget=9e8;S.week=3;S.fixture=2');
   const before = h.json('S.players.map((p,i)=>Number.isInteger(p.number)?p.number:i+1)');
-  h.run(`v6Sign('${id}',12000000)`);
+  h.run(`signTransfer('${id}',12000000)`);
   const p = h.json('S.players.at(-1)');
   assert.ok(Number.isInteger(p.number) && !before.includes(p.number), 'his number is not worn by anyone else');
   const hl = h.json('S.highlights');
@@ -69,7 +69,7 @@ test('a small signing keeps the old flow and leaves no record', () => {
   const h = harness();
   const id = pick(h, 'r.stars<4&&!r.keeper');
   h.run('S.budget=9e8');
-  h.run(`v6Sign('${id}',3000000)`);
+  h.run(`signTransfer('${id}',3000000)`);
   assert.equal(h.run('S.highlights?.length||0'), 0);
   assert.ok(!h.html().includes('class="stflash"'));
   assert.ok(!h.run('Number.isInteger(S.players.at(-1).number)'), 'no number is forced on him');
@@ -79,7 +79,7 @@ test('the shirt number: only free numbers can be picked', () => {
   const h = harness();
   const id = pick(h, 'r.stars>=4&&!r.keeper');
   h.run('S.budget=9e8;S.players[9].number=33');
-  h.run(`v6Sign('${id}',12000000)`);
+  h.run(`signTransfer('${id}',12000000)`);
   const free = h.json('freeShirtNumbers(S.players.at(-1).id)');
   assert.ok(!free.includes(33) && !free.includes(1) && !free.includes(9), 'explicit and squad-place numbers are taken');
   assert.ok(free.includes(10), 'the 10th player wears 33, so 10 is free');
@@ -96,7 +96,7 @@ test('the home page carries the flash card for the week of the signing and the n
   const h = harness();
   const id = pick(h, 'r.stars>=4&&!r.keeper');
   h.run('S.budget=9e8;S.week=4');
-  h.run(`v6Sign('${id}',12000000)`);
+  h.run(`signTransfer('${id}',12000000)`);
   h.run('endStarFlow();modal=null;render()');
   assert.match(h.html(), /stflashcard/);
   assert.match(h.html(), /Sahneyi izle/);
@@ -115,7 +115,7 @@ test('old saves and saves with other new fields load; the archive starts empty',
   assert.equal(h.run('S.players[0].contractInfo.years'), 2);
   // a save carrying an archive and numbers survives export/import
   const id = pick(h, 'r.stars>=4&&!r.keeper');
-  h.run(`S.budget=9e8;v6Sign('${id}',12000000)`);
+  h.run(`S.budget=9e8;signTransfer('${id}',12000000)`);
   h.run('S=validateCareerImport(JSON.parse(JSON.stringify(S)));init();render()');
   assert.equal(h.run('S.highlights.length'), 1);
   assert.equal(h.run('S.highlights[0].playerId===S.players.at(-1).id'), true);
@@ -137,7 +137,7 @@ test('with the season transition: the star keeps his number and his clip into th
   const { FAST } = require('./support/career-sim.cjs');
   h.run(FAST);
   const id = pick(h, 'r.stars>=4&&!r.keeper');
-  h.run(`S.budget=9e8;S.week=3;v6Sign('${id}',12000000);endStarFlow()`);
+  h.run(`S.budget=9e8;S.week=3;signTransfer('${id}',12000000);endStarFlow()`);
   const star = h.json('(({id,number,name})=>({id,number,name}))(S.players.at(-1))');
   const season0 = h.run('S.season');
   h.run('fastSeason();autoSeasonEnd();render()');

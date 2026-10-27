@@ -123,19 +123,14 @@
   },
   "src/modes/manager/app.js": {
     "complexity": 18,
-    "id-match": 12,
     "max-lines": 1,
     "max-params": 1,
     "max-statements": 9
   },
   "src/modes/manager/career-events.js": {
     "complexity": 4,
-    "id-match": 2,
     "max-params": 1,
     "max-statements": 1
-  },
-  "src/modes/manager/market-names.js": {
-    "id-match": 3
   },
   "src/modes/manager/match-career.js": {
     "complexity": 1
@@ -145,7 +140,6 @@
   },
   "src/modes/manager/season-end.js": {
     "complexity": 1,
-    "id-match": 3,
     "max-params": 1,
     "max-statements": 1
   },

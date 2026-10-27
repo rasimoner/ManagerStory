@@ -26,7 +26,7 @@ test('every module can be the first to run: nothing is read before its module ha
 
 test('the values computed from the data live in modules that import only data', () => {
   const fromData = ['OPP', 'LEAGUE_LIFT', 'OPPONENT_FIRST', 'OPPONENT_LAST', 'CLUBSTYLE', 'SKILL_NAMES', 'MATCH_TACTICS',
-    'TACTIC_LABELS', 'TEAM_ORDERS', 'GAME_VERSION', 'V6FN', 'SLOT_POS'];
+    'TACTIC_LABELS', 'TEAM_ORDERS', 'GAME_VERSION', 'MARKET_FIRST_NAMES', 'SLOT_POS'];
   for (const name of fromData) {
     const { file, imports } = sourceDefining(name);
     // data: src/data/*.json, and package.json for the version (refactor E2, E4)

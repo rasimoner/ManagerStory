@@ -61,7 +61,7 @@ test('career, press, tactical tabs, instruction, substitution, two league rounds
  const nextOpponent=reloaded.run('currentOpponent()[0]');assert.notEqual(nextOpponent,'Ormanşehir');
  reloaded.run('startMatch()');finishLiveGame(reloaded);assert.equal(reloaded.run('S.results.length'),2);assert.equal(reloaded.run('S.table.reduce((n,x)=>n+x.p,0)'),36);
  assert.notEqual(reloaded.run('S.event.questionId'),post1);
- for(const [name,fn] of [['Lig','showLeague()'],['Kadro',"modal='squad';render()"],['Taktik',"modal='plan';render()"],['Transfer','showV6Transfers()'],['Akademi','showAcademy()']]){
+ for(const [name,fn] of [['Lig','showLeague()'],['Kadro',"modal='squad';render()"],['Taktik',"modal='plan';render()"],['Transfer','showTransferList()'],['Akademi','showAcademy()']]){
   reloaded.run(fn);assert.match(reloaded.app.innerHTML,new RegExp('Ana navigasyon|bottomnav'));assert.ok(reloaded.app.innerHTML.includes(name));
  }
  assert.doesNotMatch(reloaded.app.innerHTML,/(?:NaN|undefined)/);
@@ -93,7 +93,7 @@ test('press pools have 25+ templates, choices, no near repeats and conditional p
  assert.ok(h.run('PRE_PRESS.every(q=>q[3].length>=3)&&POST_PRESS.every(q=>q[4].length>=3)'));
  let seen=[];
  for(let week=1;week<=7;week++){
-  h.run(`S.week=${week};S.fixture=${week-1};S.event=makeV71PrePress()`);seen.push(h.run('S.event.questionId'));
+  h.run(`S.week=${week};S.fixture=${week-1};S.event=createPreMatchPress()`);seen.push(h.run('S.event.questionId'));
  }
  assert.equal(new Set(seen).size,seen.length);
  const reasons=new Set();for(let week=2;week<=24;week+=2){h.run(`S.week=${week};S.players.forEach(p=>{p.happiness=65;p.fitness=69;p.form=78})`);const kind=h.run('buildPlayerMeeting()?.meetingKind');if(kind)reasons.add(kind)}
@@ -105,10 +105,10 @@ test('transfer and academy still use existing budgets, roster and cinematic flow
  assert.equal(h.run('S.v6.academy.length'),5);
  assert.equal(h.run('S.v6.cup.alive'),true);
  const before=h.run('S.players.length');const originalBudget=h.run('S.budget');
- h.run('v6Sign(S.v6.transferPool[0].id,asking(S.v6.transferPool[0]))');
+ h.run('signTransfer(S.v6.transferPool[0].id,asking(S.v6.transferPool[0]))');
  assert.equal(h.run('S.players.length'),before+1);assert.ok(h.run('S.budget')<originalBudget);assert.match(h.app.innerHTML,/İMZA TÖRENİ/);
  h.run('runCinematicNext()');assert.equal(h.run('S.players.length'),before+1);
- const promoted=h.run('S.v6.academy[0].name');h.run("promoteV6(S.v6.academy[0].id,'warm')");
+ const promoted=h.run('S.v6.academy[0].name');h.run("promoteAcademyPlayer(S.v6.academy[0].id,'warm')");
  assert.equal(h.run('S.players.length'),before+2);assert.equal(h.run('S.players.at(-1).status'),'Altyapıdan A takım');assert.match(h.app.innerHTML,/İLK A TAKIM ANTRENMANI/);
  assert.equal(h.run('S.v6.cup.alive'),true);
  assert.ok(h.run('S.inbox.length')>=3);
@@ -119,7 +119,7 @@ test('academy replenishment never repeats promoted candidate identities across s
  const promotedIds=[],promotedPrints=[];
  for(let i=0;i<3;i++){
   promotedIds.push(h.run('S.v6.academy[0].id'));promotedPrints.push(h.run('academyFingerprint(S.v6.academy[0])'));
-  h.run("promoteV6(S.v6.academy[0].id,'calm')");
+  h.run("promoteAcademyPlayer(S.v6.academy[0].id,'calm')");
   assert.equal(h.run('S.v6.academy.length'),5);
  }
  assert.equal(new Set(promotedIds).size,3);

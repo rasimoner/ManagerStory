@@ -134,7 +134,7 @@ test('season-end screens: summary, summer report, contract decisions, free agent
   assert.equal(fa.club, 'Serbest'); assert.ok(fa.free); assert.match(fa.id, /^v6fa\d+$/);
   assert.equal(h.run('transferOpen()'), true);
   const before = h.run('S.players.length'), maxId = h.run('Math.max(...S.players.map(p=>p.id),S.v796.maxPlayerId)');
-  h.run(`v6Sign('${fa.id}',asking(S.v6.transferPool.find(x=>x.id==='${fa.id}')))`);
+  h.run(`signTransfer('${fa.id}',asking(S.v6.transferPool.find(x=>x.id==='${fa.id}')))`);
   assert.equal(h.run('S.players.length'), before + 1);
   assert.ok(h.run('S.players.at(-1).id') > maxId, 'a new id, never a departed player\'s');
   assert.equal(h.run('S.players.at(-1).name'), 'Taylan');

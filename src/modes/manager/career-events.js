@@ -91,7 +91,7 @@ export function prePressContext() {
     star:xi.slice().sort((a,b)=>b.overall-a.overall)[0],young:xi.find(p=>p.age<=20),tired:xi.find(p=>p.fitness<65),injured:xi.find(p=>p.injury>0),
     newcomer:S.players.find(p=>p.status==='Yeni transfer'&&p.minutes<180),changedTactics:S.v71.lastTacticWeek>=S.week-1,cupAlive:S.v6.cup.alive,fans:S.fans };
 }
-export function makeV71PrePress() {
+export function createPreMatchPress() {
   const c=prePressContext(),question=selectPress(PRE_PRESS.map(([id,condition,prompt,answers])=>[id,'pre',condition,prompt,answers]),S.v71.preUsed,c,['pre']);
   return {kind:'press',title:'Maç Öncesi Basın Toplantısı',speaker:'Muhabir',text:question[3](c),choices:questionChoicePool(question,'pre'),questionId:question[0]};
 }
@@ -105,7 +105,7 @@ export function postPressContext(ug,og) {
     lossStreak:form.slice(-4).reverse().findIndex(x=>x!=='M')===-1?Math.min(4,form.length):form.slice(-4).reverse().findIndex(x=>x!=='M'),
     star:players.filter(p=>p.minutes>=30).sort((a,b)=>b.rating-a.rating)[0],young:players.find(p=>p.age<=20&&p.minutes>=15),keeper:players.find(p=>p.saves>=2),scorer:players.find(p=>p.goals>0),lowRated:players.find(p=>p.rating<6),substitutions:M.substitutions.length,press:M.press,tactics:M.tacticChanges.length,secondHalfGoals:userGoals.filter(e=>e.minute>45).length };
 }
-export function makeV71PostPress(ug,og) {
+export function createPostMatchPress(ug,og) {
   const context=postPressContext(ug,og),type=ug>og?'win':ug<og?'loss':'draw';
   const question=selectPress(POST_PRESS,S.v71.postUsed,context,[type,'player','tactic','general']);
   return [question[3](context),questionChoicePool(question,'post'),question[0],question[1]];

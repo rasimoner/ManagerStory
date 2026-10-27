@@ -107,7 +107,7 @@ Yeniden yapılanmadan sonra bilerek bırakılanlar:
 - Motorun kariyerde yazdıkları: kondisyon, sakatlık bayrağı, `S.matchSalt`. Ayrılmaları maça özel kadro kopyası ister (oyuncu kariyeri moduyla birlikte).
 - Motor kullanıcı takımının ayarlarını (`S.plan`, `S.instructions`, `S.positions`) kariyerden okuyor; `user-team.js`'e taşınabilir.
 - Çekirdekte DOM/tarayıcı kullanan yerler: `core/save.js` (alert, indirme), `live-match.js` (sekme görünürlüğü), `pitch-v73.js`'in 2D saha çizimi, sezon sonu "devam" (alert, kaydırma).
-- `modes/manager/app.js` hâlâ büyük (~111 KB): gelişim (`evolveV6`) → `core/players`, header ve alt menü → `ui`, highlight kaydı → `core/highlights`.
+- `modes/manager/app.js` hâlâ büyük (~111 KB): gelişim (`evolvePlayers`) → `core/players`, header ve alt menü → `ui`, highlight kaydı → `core/highlights`.
 - Sunum bazı yerlerde `S`/`M`'yi doğrudan okuyor ("sadece olay günlüğü" ilkesi tam değil).
 - Testler iç fonksiyonlara tek erişim noktasından ulaşıyor; modüllerin dışa açtıkları daraltılmadı.
 - 3D ayar panelinde geçici "Hız ayarları" (gerçek hızlar telefonda ayarlanınca kalkar).
