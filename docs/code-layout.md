@@ -1,6 +1,6 @@
 # Kod düzeni
 
-Refactor C (V7.9.13 üzerinde), D ile devam (V7.10.0 üzerinde). Kod hâlâ `dist` içinde, build yok; `src/` ve Vite son adımda (E).
+Refactor C (V7.9.13 üzerinde), D (V7.10.0 üzerinde), E1/E7/E8 (V7.11.0 üzerinde). Kod hâlâ `dist` içinde, build yok; `src/`, `public/` ve Vite E'nin kalan kısmı (E2–E6, `docs/architecture.md` "Kalan borçlar"). Katmanlar ve akışlar: `docs/architecture.md`.
 Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe akar. D'den beri bu bir test (`tests/structure.test.cjs`): hiçbir `core/` modülü `modes/`'tan bir şey almaz. Çekirdeğin bir modun yapmasını istediği şey `core/hooks.js` üzerinden söylenir, `main.js` modu bağlar (aşağıda "Çekirdeğin söyledikleri"). Hangi dosyanın nerede olduğu bu tabloda; yeri değişen dosyada bu tablo da güncellenir.
 
 ## dist/core — ortak çekirdek (her mod kullanır)
@@ -98,7 +98,7 @@ Genişletme noktaları (`core/hooks.js`):
 ## Yerinde kalanlar
 
 - `data/*.js`: oyun verisi (JSON değerler).
-- `index.html`, `sw.js`, `manifest.json`, ikonlar, `style.css`, `assets/`, `vendor/three/` (E'de npm'e geçer).
+- `index.html`, `sw.js`, `manifest.json`, ikonlar, `style.css`, `assets/`, `vendor/three/` (Vite ile npm'e geçecek, E2–E6).
 
 ## Ekrandaki düğmeler (C2)
 
@@ -112,7 +112,7 @@ Genişletme noktaları (`core/hooks.js`):
 
 - Sayfada klasik script yok. `index.html` dört modül girişi yükler: `main.js` (oyun) ve sunum katmanları `core/presentation/match3d/match3d-live-clock.js` (`data-layer="clock"`), `match-view-adapter.js` (`view`), `modes/manager/match-3d.js` (`3d`: 3D görünümü yükler, olmazsa 2D).
 - Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (D'de dışa açık olanlar daralacak).
-- Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok (E7'den beri istisnasız; yıldız sahnesinin otomasyon zaman ölçeği `window.__stsTimeScale` kalktı). three.js `dist/vendor`'dan modül olarak gelir (E'de npm).
+- Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok (E7'den beri istisnasız; yıldız sahnesinin otomasyon zaman ölçeği `window.__stsTimeScale` kalktı). three.js `dist/vendor`'dan modül olarak gelir (Vite ile npm'e geçecek).
 - `core/` henüz `modes/manager`'dan bazı şeyler alıyor (D3 sonunda 7 dosyada 36 ad; C sonunda 11 dosyada 63). Liste `tests/structure.test.cjs` içinde sabit; sadece kısalabilir, D'de sıfırlanır.
 - Testler aynı modülleri `vm.SourceTextModule` ile yükler (`tests/support/game.cjs`); `npm test` gereken `--experimental-vm-modules` bayrağını verir. Tek dosya için: `NODE_OPTIONS=--experimental-vm-modules node --test tests/<dosya>`.
 - Service worker girişleri `?v=<sürüm>` ile, içe aktarılan modülleri yalın adıyla listeler.
@@ -130,7 +130,7 @@ Genişletme noktaları (`core/hooks.js`):
 - Bir ES modülü adresi başına tek örnektir: bir dosyanın bütün içe aktarmaları aynı adresi kullanmalı. Bu yüzden hepsini `node tools/stamp-version.cjs` tek sürümden basar; `--check` eksik ya da eski damgada hata verir, `tests/version-labels.test.cjs` onu çalıştırır. `vendor/` yalın kalır.
 - Yeni modül ya da yeni içe aktarma eklendikten sonra `node tools/stamp-version.cjs` çalıştırılır. Yayında sürüm yükseltilince (`package.json` ve etiketler) aynı komut her şeyi yeni sürüme taşır.
 - `sw.js` (V7.11.0): `?v=` taşımayan bir oyun modülü isteği (`main.js`, `core/`, `modes/`, `ui/`, `data/` altında) ancak hâlâ açık duran eski bir sürüm sayfasından gelebilir. Service worker onu başarısız sayar; yoksa o yoldaki yeni dosya eski sayfaya ikinci bir oyun kopyası yüklerdi. Eski sayfa kendi yedeğine düşer (2D maç, foto sahne). Test: `tests/service-worker.test.cjs`.
-- E'de Vite'ın içerik hash'leri bunun yerini alır (damga da `sw.js`'teki bu kural da).
+- Vite'ın içerik hash'leri gelince bunun yerini alır (damga da `sw.js`'teki bu kural da; E2–E3).
 
 ## Yolları etkileyen kurallar
 
