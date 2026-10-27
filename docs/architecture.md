@@ -80,7 +80,7 @@ Modüller yüklenirken sadece tanımlar ve kaydeder; hiçbir şey çalışmaz:
 
 **Kayıt**: `S` düz JSON; `localStorage["msv4"]`. Sürümlü biçim (`schemaVersion`) ve tek taşıma zinciri (`SAVE_MIGRATIONS`). Yeni kariyer de zincirden geçer.
 
-**Yayın ve önbellek**: `sw.js` oyunun dosyalarını sürümlü bir önbelleğe alır (`cache: "reload"`, HTTP önbelleğinin eski dosyasını almamak için) ve önbellekten verir. Her modül adresi `?v=<sürüm>` taşır (`tools/stamp-version.cjs`); damgasız bir oyun modülü isteği ancak açık kalmış eski bir sürüm sekmesinden gelebilir ve başarısız sayılır, böylece iki sürüm karışmaz. Yeni sürüm sayfa ikinci açılışta alınır.
+**Yayın ve önbellek**: `sw.js` oyunun dosyalarını sürümlü bir önbelleğe alır (`cache: "reload"`, HTTP önbelleğinin eski dosyasını almamak için) ve önbellekten verir. Her modül adresi `?v=<sürüm>` taşır (`tools/stamp-version.cjs`); damgasız ya da başka bir sürümün damgasını taşıyan bir oyun modülü isteği ancak açık kalmış eski bir sürüm sekmesinden gelebilir ve başarısız sayılır, böylece iki sürüm karışmaz. Yeni sürüm sayfa ikinci açılışta alınır.
 
 ## Testler
 

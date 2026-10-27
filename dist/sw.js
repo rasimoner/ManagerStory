@@ -1,3 +1,4 @@
+const RELEASE = "7.11.0";
 const CACHE = "managerstory-v7.11.0-refactor";
 const ASSETS = [
   // the page's module entries (with the release cache-buster) and every module they import
@@ -18,18 +19,18 @@ self.addEventListener("activate", event => {
     keys.filter(key => key.startsWith("managerstory-") && key !== CACHE).map(key => caches.delete(key))
   )).then(() => self.clients.claim()));
 });
-// V7.11.0: every game module is asked for with ?v=<release> since this release (tools/stamp-version.cjs). One asked
-// for by its plain path comes from a page of an older release still open in a tab (V7.10.0 loads the 3D match view
-// and the star transfer scene on demand, by plain paths). The file at that path is now this release's: serving it
-// would load a second, newer copy of the game (its own state, save, data) next to the old one. Fail it instead; the
-// old page falls back (2D match, photo scene) until it is reopened as this release. (Refactor E's content-hashed
-// file names replace the stamp, and this rule with it.)
+// V7.11.0: every game module is asked for with ?v=<release> (tools/stamp-version.cjs). One asked for by its plain path
+// (a V7.10.0 page) or with another release's ?v= (a V7.11.0 page, from V7.12.0 on) comes from an older release's page
+// still open in a tab: it loads the 3D match view and the star transfer scene on demand. The file at that path is now
+// this release's, and so are the modules it imports: serving it would load a second, newer copy of the game (its own
+// state, save, data) next to the old one. Fail it instead; the old page falls back (2D match, photo scene) until it is
+// reopened as this release. (Content-hashed file names, once there is a build, replace the stamp and this rule.)
 const OLD_PAGE_MODULE = /^(?:main\.js|(?:core|modes|ui|data)\/.+\.js)$/;
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
   const local = url.pathname.slice(new URL(self.registration.scope).pathname.length);
-  if (!url.search && OLD_PAGE_MODULE.test(local)) { event.respondWith(Response.error()); return; }
+  if (OLD_PAGE_MODULE.test(local) && url.searchParams.get("v") !== RELEASE) { event.respondWith(Response.error()); return; }
   event.respondWith(caches.open(CACHE).then(async cache => {
     const cached = await cache.match(event.request);
     if (cached) return cached;

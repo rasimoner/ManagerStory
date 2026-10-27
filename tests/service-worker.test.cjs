@@ -109,7 +109,9 @@ test('the service worker fills its cache past the HTTP cache', () => {
 // V7.11.0 every address carries the release). Serving it would put this release's file into the old page's game, a
 // second copy of the game next to the old one (seen in the V7.10.0 -> V7.11.0 switch: the old tab's star transfer
 // scene brought 32 new modules with it). The service worker fails such a request, so the old page falls back.
-test('the service worker never serves a game module by its plain path (only an older page asks for one)', async () => {
+// V7.12.0: the same for a V7.11.0 page still open: its modules carry ?v=7.11.0, and the file at that path is now this
+// release's (and imports this release's modules). Any other release's ?v= is failed the same way.
+test('the service worker never serves a game module of another release (only an older page asks for one)', async () => {
   const vm = require('node:vm');
   const listeners = {}, opened = [];
   const scope = 'https://rasimoner.github.io/ManagerStory/';
@@ -130,6 +132,9 @@ test('the service worker never serves a game module by its plain path (only an o
     'core/presentation/match3d/match3d-newview.js', 'modes/manager/app.js', 'ui/actions.js', 'data/clubs.js']) {
     const r = await ask(old);
     assert.equal(r?.type, 'error', `${old} without ?v= is failed`);
+    for (const other of ['7.11.0', '7.10.0', '0.0.1']) if (other !== release) {
+      assert.equal((await ask(`${old}?v=${other}`))?.type, 'error', `${old}?v=${other} is failed`);
+    }
   }
   for (const ok of [`main.js?v=${release}`, `core/presentation/scenes/star-transfer-scene.js?v=${release}`,
     'vendor/three/three.module.min.js', 'assets/models/footballer-rig.json', 'core/presentation/match3d/match3d-career.css',
