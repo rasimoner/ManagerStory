@@ -98,7 +98,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // 8 m and leaves the fouled player standing by the ball. For the picture: the defenders the engine
   // put in the wall line up shoulder to shoulder 9.15 m out, covering the near post; the taker's
   // team-mates near the ball step out of the line to goal.
-  function freeKickHomes(spot, toGoal, taker, arranged) {
+  function freeKickHomes({ spot, toGoal, taker, arranged }) {
     if (!arranged) return null;
     const out = {}, across = V(toGoal.z, 0, -toGoal.x), wall = [];
     for (const p of rt.players) {
@@ -336,7 +336,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (trap) { const done = yield* footTrap(beatContext, to, { tArr: kickT + flight }); if (trapTried) tryMove = done ? null : 'trap'; }
     // V7.9: Bergkamp's turn — back to goal with a man on him, the first touch sends the ball round one
     // side of the defender while he spins round the other
-    const pir = !chest && !trap && flight === 0 ? pirouetteChance(to, toW, opts, implicit) : null;
+    const pir = !chest && !trap && flight === 0 ? pirouetteChance({ to, toW, implicit }, opts) : null;
     const ok = pir ? yield* pirouetteReceive(beatContext, to, { toW, pir }) : yield* chase(to, toW);
     if (noLook) hooks.slow(1);
     if (!ok) { noteFix(to, 'pass'); ball.owner = to; ball.p.set(to.pos.x + Math.sin(to.heading) * .5, BALL_R, to.pos.z + Math.cos(to.heading) * .5); ball.v.set(0, 0, 0); }
@@ -365,7 +365,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
   function later(dt, fn) { laterQ.push({ at: S.t + dt, fn }); }
   // who turns his man with the first touch: a player who has it, back to goal in the final third with a
   // defender tight behind him (or the staged scene)
-  function pirouetteChance(to, toW, opts, implicit) {
+  function pirouetteChance({ to, toW, implicit }, opts) {
     if (!to || to.role === 'GK' || opts.restart || opts.throwIn || opts.meet) return null;
     const tryIt = tryMove === 'pirouette' && to.side === 'user';
     const goal = V(-ownGoalX(to.side), 0, 0), spot = V(toW.x, 0, toW.z);
@@ -524,7 +524,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     return mine < theirs;
   }
   // a defender closes the carrier down and commits; success decides who gets the ball
-  function* tackle(def, car, success, closeUp, slide) {
+  function* tackle({ def, car, success, closeUp, slide }) {
     if (!def || !car) return;
     if (keeperDown(car)) yield* until(() => !keeperDown(car), 3);          // (a keeper gets up before he is challenged)
     if (ball.owner !== car) yield* ensureOwner(car);
@@ -1143,7 +1143,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
         const fouled = events.slice(i + 1, i + 3).some(x => x.type === 'foul');
         const slide = !!d && d.role !== 'GK' && pick(e, 1) < (fouled ? 0.7 : 0.38);
         if (d) d.lastEvent = e;
-        yield* tackle(d, car, won, finalThird && stats.closeUps++ % 2 === 0, slide);
+        yield* tackle({ def: d, car, success: won, closeUp: finalThird && stats.closeUps++ % 2 === 0, slide });
         break;
       }
       case 'interception': {
@@ -1308,7 +1308,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
           const directFK = type === 'FREE_KICK' && events.slice(i + 1, i + 5).some(x => x.type === 'shot' && x.freeKick);
           const toGoalDir = V(Math.sign(spot.x || 1) * GOAL_X - spot.x, 0, -spot.z).normalize();
           const atGoal = directFK || type === 'PENALTY';      // a shot at goal: he stands behind the ball, facing the goal
-          S.fkHomes = directFK ? freeKickHomes(spot, toGoalDir, taker, events.slice(i, i + 3).find(x => x.type === 'restartPlayers')?.arranged) : null;
+          S.fkHomes = directFK ? freeKickHomes({ spot, toGoal: toGoalDir, taker, arranged: events.slice(i, i + 3).find(x => x.type === 'restartPlayers')?.arranged }) : null;
           if (S.fkHomes) layout(i, false);
           const outward = type === 'THROW_IN' ? V(0, 0, Math.sign(spot.z) * 0.45) : atGoal ? toGoalDir.clone().multiplyScalar(type === 'PENALTY' ? -1.8 : -2.6) : V(spot.x, 0, spot.z).setY(0).normalize().multiplyScalar(0.7);
           taker.target.copy(spot).add(outward).setY(0); taker.want = taker.pos.distanceTo(spot) > 8 ? 7 : 4.5; taker.face = atGoal ? V(Math.sign(spot.x || 1) * GOAL_X, 0, 0) : V(0, 0, 0); taker.faceLock = false;
