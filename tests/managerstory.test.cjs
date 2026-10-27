@@ -12,7 +12,7 @@ function harness(existing=new Map()){
 function finishLiveGame(h){
  h.run('resumeLive();advanceLive(30)');
  // a seeded injury can legitimately stop the first half; handle it like the second-half helper does
- for(let tries=0;h.run('M.reason')==='injury'&&tries<6;tries++){h.run('(function(){setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const outP=S.players.find(p=>p.id===subOut);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);if(subP)doSub(subP.id);else if(outP)outP.injury=0;resumeLive()})()');h.run('advanceLive(30)');}
+ for(let tries=0;h.run('M.reason')==='injury'&&tries<6;tries++){h.run('(function(){setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const outP=S.players.find(p=>p.id===subOut);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenalty(p,M.matchRoles[subOut])>=.7);if(subP)doSub(subP.id);else if(outP)outP.injury=0;resumeLive()})()');h.run('advanceLive(30)');}
  assert.equal(h.run('M.reason'),'half');
  h.run("teamTalk('belief');startSecondHalf()");
  completeSecondHalf(h);
@@ -25,7 +25,7 @@ function completeSecondHalf(h){
  while(!h.run('M.finished')&&tries++<12){
   h.run('advanceLive(40)');
   if(h.run('M.reason')==='injury'){
-   h.run("setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const out=S.players.find(p=>p.id===subOut);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);if(sub)doSub(sub.id);else S.players.find(p=>p.id===subOut).injury=0;resumeLive()");
+   h.run("setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const out=S.players.find(p=>p.id===subOut);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenalty(p,M.matchRoles[subOut])>=.7);if(sub)doSub(sub.id);else S.players.find(p=>p.id===subOut).injury=0;resumeLive()");
   } else if(h.run('M.pause')&&!h.run('M.finished'))h.run('resumeLive()');
  }
  assert.ok(tries<12,'second half completes after any required injury substitution');
@@ -272,11 +272,11 @@ test('corner and throw-in use their own touchline coordinates and ordered restar
 test('goal alone restarts at the centre and a missed shot performs a goal kick',()=>{
  // V7.6: chances are shot from realistic positions, so the carrier starts at the edge of the box
  const edge="M.dynamicPositions[String(M.ballOwner)]=[userDirection()>0?86:14,50];";
- const goal=harness();goal.run('S=fresh();init();startMatch();'+edge+'M.rand=()=>0;chanceV73(true)');
+ const goal=harness();goal.run('S=fresh();init();startMatch();'+edge+'M.rand=()=>0;playChance(true)');
  assert.ok(goal.run('M.events.some(e=>e.type==="goal")'));
  assert.equal(goal.run('M.events.at(-1).type'),'kickoff');
  assert.deepEqual(Array.from(goal.run('M.events.at(-1).fromPos')),[50,50]);
- const wide=harness();wide.run('S=fresh();init();startMatch();'+edge+'M.rand=()=>.99;chanceV73(true)');
+ const wide=harness();wide.run('S=fresh();init();startMatch();'+edge+'M.rand=()=>.99;playChance(true)');
  assert.equal(wide.run('M.events.findLast(e=>e.type==="goalKick").restartType'),'GOAL_KICK');
  assert.equal(wide.run('M.events.filter(e=>e.type==="kickoff").length'),1);
 });
@@ -293,8 +293,8 @@ test('long passes rise with a shadow; short passes stay on the ground and travel
 });
 test('keeper and striker separate gently; corner crowd does not collapse to one point',()=>{
  const h=harness();h.run('S=fresh();init();startMatch()');
- h.run('pitchV73.positions={"0":[10,50],"12":[10,50],"o0":[10,50]};softenPlayerOverlap(pitchV73.positions)');
- assert.notDeepEqual(Array.from(h.run('pitchV73.positions["0"]')),Array.from(h.run('pitchV73.positions["12"]')));
+ h.run('pitchState.positions={"0":[10,50],"12":[10,50],"o0":[10,50]};softenPlayerOverlap(pitchState.positions)');
+ assert.notDeepEqual(Array.from(h.run('pitchState.positions["0"]')),Array.from(h.run('pitchState.positions["12"]')));
  h.run('startPitchRestart("CORNER","user",[102,-3])');
  const positions=h.run('pitchFrameState(.35).positions');
  const coords=Object.values(positions).map(x=>x.map(n=>Math.round(n)).join(','));
@@ -304,7 +304,7 @@ test('save variations and rebounds produce loose ball events before a new owner 
  const h=harness();h.run('S=fresh();init();startMatch()');
  const events=[];
  for(let i=0;i<120;i++){
-  h.run(`M.rand=R(${123456+i});M.dynamicPositions[12]=[82,50];setUserOwner(12);chanceV73(true)`);
+  h.run(`M.rand=R(${123456+i});M.dynamicPositions[12]=[82,50];setUserOwner(12);playChance(true)`);
   const e=h.run('M.events.findLast(e=>e.type==="save")');if(e)events.push(e.saveType);
   if(events.includes('PARRY')&&events.includes('DEFLECT_CORNER'))break;
  }
@@ -380,10 +380,10 @@ test('forced injury resolves by injured player ID for natural, CM and ST replace
 test('90:00 finalization stops event production, animation queue and result can settle once',()=>{
  const h=harness();h.run('S=fresh();init();startMatch();M.min=89;M.clockSeconds=5340;M.pause=false;M.reason="";M.lifecycle="RUNNING_SECOND_HALF";advanceLive(1)');
  assert.equal(h.run('M.clockSeconds'),5400);assert.equal(h.run('M.lifecycle'),'FINISHED');
- assert.equal(h.run('M.finished'),true);assert.equal(h.run('pitchV73.queue.length'),0);
- const before=h.run('M.events.length'),score=h.run('[M.hg,M.ag]'),ball=h.run('JSON.stringify(pitchV73.ball)'),positions=h.run('JSON.stringify(pitchV73.positions)');
+ assert.equal(h.run('M.finished'),true);assert.equal(h.run('pitchState.queue.length'),0);
+ const before=h.run('M.events.length'),score=h.run('[M.hg,M.ag]'),ball=h.run('JSON.stringify(pitchState.ball)'),positions=h.run('JSON.stringify(pitchState.positions)');
  h.run('advanceLive(300);matchEvent("pass","invalid");paintLivePitch()');
- assert.equal(h.run('M.events.length'),before);assert.deepEqual(Array.from(h.run('[M.hg,M.ag]')),Array.from(score));assert.equal(h.run('JSON.stringify(pitchV73.ball)'),ball);assert.equal(h.run('JSON.stringify(pitchV73.positions)'),positions);
+ assert.equal(h.run('M.events.length'),before);assert.deepEqual(Array.from(h.run('[M.hg,M.ag]')),Array.from(score));assert.equal(h.run('JSON.stringify(pitchState.ball)'),ball);assert.equal(h.run('JSON.stringify(pitchState.positions)'),positions);
  h.run('finishMatch();finishMatch()');assert.equal(h.run('S.results.length'),1);assert.equal(h.run('S.table.reduce((n,x)=>n+x.p,0)'),18);
 });
 test('team tactics change pitch positions, pressure and seeded engine effects immediately',()=>{
@@ -433,19 +433,19 @@ test('authoritative second stamps events; stale 02:00 animation cannot replay un
  assert.equal(h.run('M.events.at(-1).gameSecond'),476);
  assert.equal(h.run('M.events.at(-1).minute'),7);
  h.run('const state=currentPitchState();state.active={type:"pass",gameSecond:120,fromPos:[20,50],toPos:[60,50]};state.queue=[{type:"shot",gameSecond:120},{type:"pass",gameSecond:460}];synchronizePitchPresentation(state)');
- assert.ok(h.run('pitchV73.active===null||pitchV73.active.type==="presentationSync"'));
- assert.deepEqual(Array.from(h.run('pitchV73.queue.map(e=>e.gameSecond)')),[460]);
+ assert.ok(h.run('pitchState.active===null||pitchState.active.type==="presentationSync"'));
+ assert.deepEqual(Array.from(h.run('pitchState.queue.map(e=>e.gameSecond)')),[460]);
  assert.equal(h.run('matchSyncDebug().invariant'),true);
 });
 test('presentation catch-up and GOAL never snap an in-flight ball to its destination',()=>{
  const h=harness();h.run('S=fresh();init();startMatch();M.pause=false;M.reason="";M.lifecycle="RUNNING"');
  h.run('const s=currentPitchState();s.ball=[10,40];s.ballState.position=[10,40];s.active={type:"pass",eventId:50,gameSecond:0,fromPos:[10,40],toPos:[70,60]};s.progress=.35;s.eventStartBall=[10,40];matchEvent("goal","⚽ GOL!",{side:0,scorer:"Aras",toPos:[98,50]})');
- assert.deepEqual(Array.from(h.run('pitchV73.ball')),[10,40]);
- assert.equal(h.run('pitchV73.active.type'),'pass');
- h.run('pitchV73.active.gameSecond=-200;M.matchElapsedSeconds=300;synchronizePitchPresentation(pitchV73)');
- assert.equal(h.run('pitchV73.active.type'),'presentationSync');
- const start=Array.from(h.run('pitchV73.ball'));
- h.run('advancePitchPresentation(.05)');const middle=Array.from(h.run('pitchV73.ball'));
+ assert.deepEqual(Array.from(h.run('pitchState.ball')),[10,40]);
+ assert.equal(h.run('pitchState.active.type'),'pass');
+ h.run('pitchState.active.gameSecond=-200;M.matchElapsedSeconds=300;synchronizePitchPresentation(pitchState)');
+ assert.equal(h.run('pitchState.active.type'),'presentationSync');
+ const start=Array.from(h.run('pitchState.ball'));
+ h.run('advancePitchPresentation(.05)');const middle=Array.from(h.run('pitchState.ball'));
  assert.notDeepEqual(middle,start);assert.notDeepEqual(middle,Array.from(h.run('M.ballState.position')));
 });
 test('pass, long ball, shot and dribble presentation durations stay visible at every speed',()=>{
@@ -458,7 +458,7 @@ test('pass, long ball, shot and dribble presentation durations stay visible at e
   assert.ok(short>=.25&&short<=.65);assert.ok(long>=.55&&long<=.9);assert.ok(shot>=.28&&shot<=.5);
  }
  h.run('const s=currentPitchState();s.ball=[30,45];s.ballState.position=[30,45];s.active={type:"ballCarry",gameSecond:0,fromId:11,fromSide:"user",fromPos:[30,45],toPos:[48,50]};s.progress=.2;s.eventStartBall=[30,45];s.positions[String(11)]=[30,45];pitchFrameState(.08)');
- const ball=Array.from(h.run('pitchV73.ball')),carrier=Array.from(h.run('pitchV73.positions[String(11)]'));
+ const ball=Array.from(h.run('pitchState.ball')),carrier=Array.from(h.run('pitchState.positions[String(11)]'));
  const carryGap=Math.hypot(ball[0]-carrier[0],ball[1]-carrier[1]);
  assert.ok(carryGap<4,`dribble gap ${carryGap}`);
 });
@@ -468,7 +468,7 @@ test('GOAL event changes score and commentary atomically, independent of present
  assert.equal(h.run('M.hg'),1);assert.equal(h.run('M.events.at(-1).homeGoals'),1);
  assert.equal(h.run('M.events.at(-1).gameSecond'),180);
  assert.match(h.app.innerHTML,/1–0/);assert.ok(h.run('liveCommentaryLines().some(x=>x.includes("GOL"))'));
- assert.equal(h.run('pitchV73.queue.some(e=>e.gameSecond===0)'),false);
+ assert.equal(h.run('pitchState.queue.some(e=>e.gameSecond===0)'),false);
  assert.equal(h.run('matchSyncDebug().invariant'),true);
 });
 test('0.5×, 1× and 2× produce identical gameSecond timeline and scores with one seed',()=>{
@@ -486,7 +486,7 @@ test('pause at 23:41, injury and position warning never accumulate wall-time or 
  const before=h.run('M.matchElapsedSeconds'),eventCount=h.run('M.events.length');
  h.run('const state=currentPitchState();state.active={type:"pass",gameSecond:1421,fromPos:[35,45],toPos:[55,45]};state.progress=.3');
  h.run('advanceLive(10);pitchFrameState(10)');
- assert.equal(h.run('M.matchElapsedSeconds'),before);assert.equal(h.run('M.events.length'),eventCount);assert.equal(h.run('pitchV73.progress'),.3);
+ assert.equal(h.run('M.matchElapsedSeconds'),before);assert.equal(h.run('M.events.length'),eventCount);assert.equal(h.run('pitchState.progress'),.3);
  h.run('resumeLive()');assert.equal(h.run('M.matchElapsedSeconds'),before);
  h.run('S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};pauseLive("injury");setSubOut(11);subUI()');
  h.run('advanceLive(10)');assert.equal(h.run('M.matchElapsedSeconds'),before);
@@ -558,10 +558,10 @@ test('club atmosphere: career, stadium and scoring identities resolve independen
 test('goal presentation takes scoring side and deterministic scene without recoloring the photo',()=>{
  const h=harness();h.run('S=fresh();init();startMatch();M.home="Ormanşehir";M.away="Anadolu Hisarı";M.userHome=false');
  h.run('enqueuePitchEvent({type:"goal",side:0,gameSecond:123,minute:2,scorer:"Kaya"})');
- assert.equal(h.run('pitchV73.goalTeam'),'Ormanşehir');assert.equal(h.run('pitchV73.goalColors[0]'),'#235c2b');
- assert.equal(h.run('pitchV73.goalVariant'),3);
+ assert.equal(h.run('pitchState.goalTeam'),'Ormanşehir');assert.equal(h.run('pitchState.goalColors[0]'),'#235c2b');
+ assert.equal(h.run('pitchState.goalVariant'),3);
  h.run('enqueuePitchEvent({type:"goal",side:1,gameSecond:123,minute:2,scorer:"Aras"})');
- assert.equal(h.run('pitchV73.goalTeam'),'Anadolu Hisarı');assert.equal(h.run('pitchV73.goalColors[0]'),'#f3c623');
+ assert.equal(h.run('pitchState.goalTeam'),'Anadolu Hisarı');assert.equal(h.run('pitchState.goalColors[0]'),'#f3c623');
  const css=fs.readFileSync(path.join(base,'style.css'),'utf8');
  assert.doesNotMatch(css,/mix-blend-mode|background-blend-mode|hue-rotate|sepia\(/);
  assert.doesNotMatch(css,/\.club-flag|\.club-scarf|\.club-pennant|\.club-kit/);

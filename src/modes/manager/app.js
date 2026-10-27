@@ -14,7 +14,7 @@ import { actionData, defineActions, runAction } from '../../ui/actions.js';
 import { runHooks } from '../../core/hooks.js';
 import { FORM_TR, beginMatchOverlay, clamp, ensureMatchState, escapeHTML, finite, kickoffSeed, liveCommentaryLines, matchEvent, matchOrderOptions, matchPossession, matchSummary, restoreActiveMatch, userSide } from '../../core/engine/match-support.js';
 import { applyConversationEffect, buildPlayerMeeting, makeV71PostPress, makeV71PrePress, resolvePlayerMeeting, settlePlayerPromises } from './career-events.js';
-import { advanceLive, ensureLiveLoop, ensureLiveState, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed } from '../../core/engine/live-match.js';
+import { advanceLive, ensureLiveLoop, ensureLiveState, halfTimeAdvice, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed } from '../../core/engine/live-match.js';
 import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js';
 import { ensureOpponentSquads, evolveOpponentSquads, opponentLineup, opponentPlayer } from '../../core/league/opponents-v731.js';
 import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonRecordMatch, youngestTalentName } from '../../core/season/season.js';
@@ -23,7 +23,7 @@ import { openOpponentPlayer, resolveUnfillableSubstitution, skillMoves } from '.
 import { starFlashCard } from './star-transfer.js';
 import { allTeams, applyTableGame, currentFixture, currentOpponent, ensureLeague, makeSchedule, recordForm, simulateRoundOthers } from '../../core/league/league.js';
 import { crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js';
-import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute.js';
+import { positionPenalty, setUserOwner } from '../../core/engine/match-minute.js';
 import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, shoutLive, tacticsControls } from './match-panel.js';
 import { movesNow } from '../../core/players/moves.js';
 import { pushInbox } from '../../core/inbox.js';
@@ -490,7 +490,7 @@ export function matchPitch(){
 export function halfTimeUI(){
  const tired=S.players.filter(p=>M.active.includes(p.id)).sort((a,b)=>a.fitness-b.fitness).slice(0,3);
  const choices=[['stats','İstatistik'],['analysis','Analiz'],['players','Oyuncular'],['tactics','Taktik']];M.halfTab??='analysis';
- const body=M.halfTab==='stats'?matchStatsUI():M.halfTab==='players'?`<div class=card>${tired.map(p=>`<p>${escapeHTML(p.name)} • Fitness %${Math.round(p.fitness)} • Puan ${finite(M.playerStats[p.id]?.rating,6.5).toFixed(1)}</p>`).join('')}<button data-action="subUI">🔄 Değişiklik</button></div>`:M.halfTab==='tactics'?`<div class=card>${tacticsControls()}</div>`:`<div class=card><h3>Yardımcı Antrenör</h3><p>${escapeHTML(halfAnalysisV72())}</p><p>Şut ${M.shots[userSide()]}–${M.shots[1-userSide()]} • xG ${M.stats.xg[userSide()].toFixed(2)}–${M.stats.xg[1-userSide()].toFixed(2)}</p></div>`;
+ const body=M.halfTab==='stats'?matchStatsUI():M.halfTab==='players'?`<div class=card>${tired.map(p=>`<p>${escapeHTML(p.name)} • Fitness %${Math.round(p.fitness)} • Puan ${finite(M.playerStats[p.id]?.rating,6.5).toFixed(1)}</p>`).join('')}<button data-action="subUI">🔄 Değişiklik</button></div>`:M.halfTab==='tactics'?`<div class=card>${tacticsControls()}</div>`:`<div class=card><h3>Yardımcı Antrenör</h3><p>${escapeHTML(halfTimeAdvice())}</p><p>Şut ${M.shots[userSide()]}–${M.shots[1-userSide()]} • xG ${M.stats.xg[userSide()].toFixed(2)}–${M.stats.xg[1-userSide()].toFixed(2)}</p></div>`;
  return `<div class="halftime"><h2>DEVRE ARASI</h2><p>${escapeHTML(M.home)} <b>${M.hg}–${M.ag}</b> ${escapeHTML(M.away)}</p><div class=half-tabs>${choices.map(([key,label])=>`<button class="${M.halfTab===key?'active':'secondary'}" data-action="halfTab" data-key="${key}">${label}</button>`).join('')}</div>${body}<div class="card half-talk"><h3>Soyunma Odası</h3><button data-action="teamTalk" data-tone="belief">Takımı öv</button><button data-action="teamTalk" data-tone="demand">Daha fazlasını iste</button><button data-action="teamTalk" data-tone="calm">Sakinleştir</button><button data-action="teamTalk" data-tone="angry">Sert konuş</button></div><button class=secondary data-action="subUI">🔄 Oyuncu Değişikliği</button></div>`;
 }
 export function setMatchView(view){
@@ -553,7 +553,7 @@ export function teamTalk(t){applyConversationEffect("halfTime",t,S.players.filte
 export function resume(x){if(!M||M.finished)return;if(x==="safe")M.mentality="Temkinli";if(x==="press")M.press="Yüksek";if(x==="attack")M.mentality="Cesur";resumeLive()}
 export function flow(){if(!M||M.pause)return;advanceLive(1);render()}
 export function stopCheck(){return false}
-export function applyScheduled(){const d=S.scheduled.find(x=>!x.done&&M.min>=x.min);if(!d)return;const low=d.text.toLocaleLowerCase('tr'),incoming=S.players.find(p=>low.includes(p.name.toLocaleLowerCase('tr'))&&!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&!['Transfer oldu','Kirada'].includes(p.status));if(incoming){const options=S.players.filter(p=>M.active.includes(p.id)&&positionPenaltyV61(incoming,M.matchRoles[p.id])>=.7).sort((a,b)=>a.fitness-b.fitness);if(!options.length){alert('Plan için uygun pozisyonda oyuncu bulunamadı. Değişikliği kendin seç.');return subUI()}subOut=options[0].id;if(!doSub(incoming.id))return;}d.done=true;matchEvent('order',`✅ ${M.min}' Plan uygulandı: ${d.text}`);save();render()}
+export function applyScheduled(){const d=S.scheduled.find(x=>!x.done&&M.min>=x.min);if(!d)return;const low=d.text.toLocaleLowerCase('tr'),incoming=S.players.find(p=>low.includes(p.name.toLocaleLowerCase('tr'))&&!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&!['Transfer oldu','Kirada'].includes(p.status));if(incoming){const options=S.players.filter(p=>M.active.includes(p.id)&&positionPenalty(incoming,M.matchRoles[p.id])>=.7).sort((a,b)=>a.fitness-b.fitness);if(!options.length){alert('Plan için uygun pozisyonda oyuncu bulunamadı. Değişikliği kendin seç.');return subUI()}subOut=options[0].id;if(!doSub(incoming.id))return;}d.done=true;matchEvent('order',`✅ ${M.min}' Plan uygulandı: ${d.text}`);save();render()}
 export function delayScheduled(){let d=S.scheduled.find(x=>!x.done&&M.min>=x.min);if(d)d.min+=5;M.story.push("⏱ Plan 5 dakika ertelendi.");save();render()}
 // the player picked to go off in the substitution screen
 export let subOut=null;
@@ -563,14 +563,14 @@ export function subUI(){
  if(M.requiredSubstitution&&M.active.includes(M.requiredSubstitution.playerId))subOut=M.requiredSubstitution.playerId;
  const on=S.players.filter(p=>M.active.includes(p.id)),bench=S.players.filter(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.status!=="Transfer oldu"&&p.status!=="Kirada"&&!(p.injury>0)),out=on.find(p=>p.id===subOut);
  if(!out)subOut=null;
- $("#app").innerHTML=`<section class=playerorderoverlay role=dialog aria-modal=true aria-label="Oyuncu değişikliği"><div class=playerorderhead><button class=ghost data-action="closeMatchOverlay">‹ Maça dön</button><span>⏸ ${matchClock()} • ${M.hg}–${M.ag}</span></div><h1>Oyuncu Değişikliği</h1>${out?`<div class="card decision"><small>ÇIKAN</small><h2>${out.name} • ${out.pos}</h2><p>Rol: ${M.matchRoles[out.id]} • Fitness %${Math.round(out.fitness)}</p></div>`:`<p>Önce çıkacak oyuncuyu seç.</p>`}<div class=card><h3>Sahadakiler</h3><div class=subplayers>${on.map(p=>`<button class="${p.id===subOut?'selected':'secondary'}" data-action="subOut" data-id="${p.id}"><b>${p.name}</b><span>${p.pos} · Fitness %${Math.round(p.fitness)}</span></button>`).join('')}</div></div><div class=card><h3>GİREN</h3><div class=subplayers>${bench.map(p=>`<button ${out?'':'disabled'} class=secondary data-action="doSub" data-id="${p.id}"><b>${p.name}</b><span>${p.pos} · Fitness %${Math.round(p.fitness)}</span>${out&&positionPenaltyV61(p,M.matchRoles[out.id])<1?'<small>⚠ Pozisyon uyumsuzluğu</small>':''}</button>`).join('')||'<p>Uygun yedek oyuncu yok.</p>'}</div></div></section>`;save();
+ $("#app").innerHTML=`<section class=playerorderoverlay role=dialog aria-modal=true aria-label="Oyuncu değişikliği"><div class=playerorderhead><button class=ghost data-action="closeMatchOverlay">‹ Maça dön</button><span>⏸ ${matchClock()} • ${M.hg}–${M.ag}</span></div><h1>Oyuncu Değişikliği</h1>${out?`<div class="card decision"><small>ÇIKAN</small><h2>${out.name} • ${out.pos}</h2><p>Rol: ${M.matchRoles[out.id]} • Fitness %${Math.round(out.fitness)}</p></div>`:`<p>Önce çıkacak oyuncuyu seç.</p>`}<div class=card><h3>Sahadakiler</h3><div class=subplayers>${on.map(p=>`<button class="${p.id===subOut?'selected':'secondary'}" data-action="subOut" data-id="${p.id}"><b>${p.name}</b><span>${p.pos} · Fitness %${Math.round(p.fitness)}</span></button>`).join('')}</div></div><div class=card><h3>GİREN</h3><div class=subplayers>${bench.map(p=>`<button ${out?'':'disabled'} class=secondary data-action="doSub" data-id="${p.id}"><b>${p.name}</b><span>${p.pos} · Fitness %${Math.round(p.fitness)}</span>${out&&positionPenalty(p,M.matchRoles[out.id])<1?'<small>⚠ Pozisyon uyumsuzluğu</small>':''}</button>`).join('')||'<p>Uygun yedek oyuncu yok.</p>'}</div></div></section>`;save();
 }
 export function doSub(id){
  if(!M||M.finished)return false;
  const out=S.players.find(p=>p.id===subOut),incoming=S.players.find(p=>p.id===id);
  if(!out||!M.active.includes(out.id)){alert("Önce çıkacak oyuncuyu seç.");return false}
  if(!incoming||M.active.includes(id)||M.out.includes(id)||M.sentOff.includes(id)||['Kirada','Transfer oldu'].includes(incoming.status)||incoming.injury>0)return false;
- const role=M.matchRoles[out.id],pen=positionPenaltyV61(incoming,role);
+ const role=M.matchRoles[out.id],pen=positionPenalty(incoming,role);
  if(pen<1&&!confirm(`${incoming.name} (${incoming.pos}), ${role} rolüne tam uyumlu değil. Tahmini performans etkisi -%${Math.round((1-pen)*100)}. YİNE DE OYNAT?`))return false;
  const index=M.active.indexOf(out.id);M.active[index]=id;M.out.push(out.id);M.matchPositions[id]=[...(M.matchPositions[out.id]||S.positions[out.id]||[50,50])];M.matchRoles[id]=role;
  M.positionSuitability[id]=pen;

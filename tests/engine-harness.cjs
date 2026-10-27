@@ -46,7 +46,7 @@ const PROBES = `(function(){
 
 /* Drives one match to full time through the real loop, handling half-time and injury stops. */
 // like a real manager: a well-suited substitute if there is one, otherwise any fit bench player (position warning accepted)
-const SUBSTITUTE = '(function(){setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const outP=S.players.find(p=>p.id===subOut);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);const anyP=subP||S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&!["Kirada","Transfer oldu"].includes(p.status));if(anyP)doSub(anyP.id);else if(outP)outP.injury=0;resumeLive()})()';
+const SUBSTITUTE = '(function(){setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const outP=S.players.find(p=>p.id===subOut);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenalty(p,M.matchRoles[subOut])>=.7);const anyP=subP||S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&!["Kirada","Transfer oldu"].includes(p.status));if(anyP)doSub(anyP.id);else if(outP)outP.injury=0;resumeLive()})()';
 function playToEnd(h, onTick) {
   let guard = 0, secondHalfStarted = false;
   while (!h.run('M.finished') && guard++ < 500) {

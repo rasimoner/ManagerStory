@@ -30,7 +30,7 @@ test('KICK-OFF: match start, second half and after a goal use the restart machin
   const g = fresh(4);
   g.run("M.dynamicPositions[12]=[92,50];setUserOwner(12)");
   let scored = false;
-  for (let i = 0; i < 400 && !scored; i++) { g.run(`M.rand=R(${9000 + i});M.hg=M.hg;setUserOwner(12);M.dynamicPositions[12]=[92,50];chanceV73(true)`); scored = g.run("M.events.some(e=>e.type==='goal'&&e.fromSide==='user')"); }
+  for (let i = 0; i < 400 && !scored; i++) { g.run(`M.rand=R(${9000 + i});M.hg=M.hg;setUserOwner(12);M.dynamicPositions[12]=[92,50];playChance(true)`); scored = g.run("M.events.some(e=>e.type==='goal'&&e.fromSide==='user')"); }
   assert.ok(scored, 'a goal was produced');
   const after = g.run("M.events.slice(M.events.findLastIndex(e=>e.type==='goal')).map(e=>e.type+':'+(e.fromSide||''))");
   assert.ok(after.includes('kickoff:opp'), 'the conceding team kicks off: ' + after.join(','));
@@ -149,7 +149,7 @@ test('POST / CROSSBAR: a real outcome that reaches the frame and rebounds into t
   let post = 0, bar = 0; const bad = [];
   for (let i = 0; i < 400 && (post < 6 || bar < 3); i++) {
     const h = fresh(i % 34);
-    h.run(`M.rand=R(${100 + i});M.dynamicPositions[12]=[90,50];setUserOwner(12);chanceV73(true)`);
+    h.run(`M.rand=R(${100 + i});M.dynamicPositions[12]=[90,50];setUserOwner(12);playChance(true)`);
     const e = h.run("M.events.findLast(e=>e.type==='post')");
     if (!e) continue;
     e.frame === 'crossbar' ? bar++ : post++;
@@ -172,7 +172,7 @@ test('POST / CROSSBAR: a real outcome that reaches the frame and rebounds into t
 test('GOAL / NET: the ball crosses the line into the net, is dead until the restart, then the conceding side kicks off', () => {
   const h = fresh(4);
   let scored = false;
-  for (let i = 0; i < 400 && !scored; i++) { h.run(`M.rand=R(${9500 + i});setUserOwner(12);M.dynamicPositions[12]=[92,50];chanceV73(true)`); scored = h.run("M.events.some(e=>e.type==='goal')"); }
+  for (let i = 0; i < 400 && !scored; i++) { h.run(`M.rand=R(${9500 + i});setUserOwner(12);M.dynamicPositions[12]=[92,50];playChance(true)`); scored = h.run("M.events.some(e=>e.type==='goal')"); }
   assert.ok(scored);
   const k = h.run("M.events.findLastIndex(e=>e.type==='goal')");
   const seq = h.run(`M.events.slice(${k - 1},${k + 2}).map(e=>e.type)`);

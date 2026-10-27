@@ -245,7 +245,7 @@ test('13. position suitability hits role-relevant skills, not everything', () =>
   assert.ok(e(cb, 'finishing') < e(st2, 'finishing') - 8);
   assert.ok(Math.abs(e(cb, 'tackling') - e(st2, 'tackling')) < .001);
   // the existing suitability table is reused, not duplicated
-  assert.equal(h.run(`positionSuitability(${striker},'user')`), h.run(`positionPenaltyV61(S.players.find(p=>p.id===${striker}),'CB')`));
+  assert.equal(h.run(`positionSuitability(${striker},'user')`), h.run(`positionPenalty(S.players.find(p=>p.id===${striker}),'CB')`));
 });
 
 test('14. base attributes are never mutated by effective calculations or by a full match', () => {

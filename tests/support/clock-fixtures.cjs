@@ -23,21 +23,21 @@ function withClock(fixture, { failPhotoEvery = 0 } = {}) {
   for (let i = 0; i < 400000 && !(h.run('M.finished') && !h.run('presentation.live3d.finishing')); i++) {
     seen.steps++;
     const speed = [0.5, 1, 2][Math.floor(i / 400) % 3];
-    const before = h.run('({id:pitchV73.active?.eventId??null,progress:pitchV73.progress})');
+    const before = h.run('({id:pitchState.active?.eventId??null,progress:pitchState.progress})');
     h.run(`M.speed=${speed};presentation.live3d.step(.1,${i * 100})`);
-    const after = h.run('({id:pitchV73.active?.eventId??null,progress:pitchV73.progress})');
+    const after = h.run('({id:pitchState.active?.eventId??null,progress:pitchState.progress})');
     if (before.id != null && before.id === after.id && after.progress + 1e-9 < before.progress) seen.speedRestarts++;
     // one engine minute at a time in the queue
-    if (h.run('pitchV73.queue.some(e=>e.gameSecond!==pitchV73.queue[0].gameSecond)')) seen.minutesMixed++;
+    if (h.run('pitchState.queue.some(e=>e.gameSecond!==pitchState.queue[0].gameSecond)')) seen.minutesMixed++;
     // goal: the net first, then the photo (acknowledged by the page, or failed and replaced by the fallback)
-    const g = h.run('pitchV73.goalPresentation&&{stage:pitchV73.goalPresentation.stage,id:pitchV73.goalPresentation.goal.eventId}');
+    const g = h.run('pitchState.goalPresentation&&{stage:pitchState.goalPresentation.stage,id:pitchState.goalPresentation.goal.eventId}');
     if (g && g.stage === 'image') {
       seen.photoWaits++;
       const failed = failPhotoEvery > 0 && ++goalsAcked % failPhotoEvery === 0;
       h.run(`presentation.live3d.goalImageReady(M,${JSON.stringify(g.id)},${failed})`);
     }
     // 2D positions
-    const frame = h.run(`(()=>{const v=presentation.view.read();return v&&{ball:v.ball.displayPosition,pl:v.players.map(p=>[p.side+':'+p.id,p.displayPosition]),ev:pitchV73.active&&(pitchV73.active.goalReset||pitchV73.active.restartReset)?'reset':pitchV73.active?.type??null,t:presentation.live3d.time}})()`);
+    const frame = h.run(`(()=>{const v=presentation.view.read();return v&&{ball:v.ball.displayPosition,pl:v.players.map(p=>[p.side+':'+p.id,p.displayPosition]),ev:pitchState.active&&(pitchState.active.goalReset||pitchState.active.restartReset)?'reset':pitchState.active?.type??null,t:presentation.live3d.time}})()`);
     if (frame && prev && !['kickoff', 'restartPosition', 'restartPlayers', 'reset', 'goal', 'half', 'end', 'sub', 'red'].includes(frame.ev) && !['kickoff', 'restartPosition', 'restartPlayers', 'reset', 'goal', 'half', 'end', 'sub', 'red'].includes(prev.ev)) {
       const m = (a, b) => Math.hypot((a[0] - b[0]) * 1.05, (a[1] - b[1]) * 0.68);
       const was = new Map(prev.pl);

@@ -3,7 +3,7 @@ import { M } from '../state.js';
 import { presentation } from '../presentation/registry.js';
 import { matchPossession, userSide } from './match-support.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
-import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js';
+import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchState, userDirection } from './pitch-v73.js';
 import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js';
 import { tick } from './match-minute.js';
 import { save } from '../save.js';
@@ -74,7 +74,7 @@ export function pauseLive(reason = 'manual') {
   if(livePresentationPending()){presentation.live3d.setTerminalPaused(true);liveLastFrame=null;changed();return;}
   if (!M || M.finished || M.reason === 'half') return;
   M.pause = true; M.reason = reason; M.lifecycle=reason==='half'?'HALF_TIME':'PAUSED';liveLastFrame = null;
-  if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;
+  if(typeof pitchState!=='undefined'&&pitchState)pitchState.lastTime=null;
   save(); changed();
 }
 export function resumeLive() {
@@ -87,7 +87,7 @@ export function resumeLive() {
   if(M.requiredSubstitution&&!M.active.includes(M.requiredSubstitution.playerId))M.requiredSubstitution=null;
   M.pause = false; M.reason = ''; M.uiOverlay = null; M.injuryFeedback=null;
   M.lifecycle=M.secondHalf?'RUNNING_SECOND_HALF':'RUNNING';
-  liveLastFrame = null;if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;save(); changed();
+  liveLastFrame = null;if(typeof pitchState!=='undefined'&&pitchState)pitchState.lastTime=null;save(); changed();
 }
 export function liveFrameStep(now) {
   liveFrame = null;
@@ -127,7 +127,7 @@ export function finalizeMatch(){
   else {
    if(liveFrame!==null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(liveFrame);
    liveFrame=null;liveLastFrame=null;
-   if(typeof pitchV73!=='undefined'&&pitchV73){pitchV73.active=null;pitchV73.queue.length=0;pitchV73.progress=0;pitchV73.goalUntil=0;}
+   if(typeof pitchState!=='undefined'&&pitchState){pitchState.active=null;pitchState.queue.length=0;pitchState.progress=0;pitchState.goalUntil=0;}
   }
   M.finished=true;M.lifecycle='FINISHED';
   M.events.push({type:'end',minute:90,second:5400,gameSecond:5400,text:"🏁 90' Son düdük.",homeGoals:M.hg,awayGoals:M.ag});
@@ -135,12 +135,12 @@ export function finalizeMatch(){
 }
 export function matchSyncDebug(){
   if(!M)return null;
-  const last=M.events?.at(-1),next=typeof pitchV73!=='undefined'?pitchV73?.queue?.[0]:null;
+  const last=M.events?.at(-1),next=typeof pitchState!=='undefined'?pitchState?.queue?.[0]:null;
   const goals=M.events?.filter(e=>e.type==='goal')||[];
   const scoreFromGoals=[goals.filter(e=>e.side===0).length,goals.filter(e=>e.side===1).length];
   return {matchState:M.lifecycle,matchElapsedSeconds:matchSecond(),displayClock:matchClock(),
     lastProcessedEvent:last?.gameSecond??null,nextEvent:next?.gameSecond??null,score:[M.hg,M.ag],
-    scoreFromGoals,animationEventId:pitchV73?.active?.eventId??null,playbackSpeed:M.speed,
+    scoreFromGoals,animationEventId:pitchState?.active?.eventId??null,playbackSpeed:M.speed,
     invariant:matchClock()===clockFromSeconds(matchSecond())&&(!last||last.gameSecond<=matchSecond())&&
       M.hg===scoreFromGoals[0]&&M.ag===scoreFromGoals[1]};
 }
@@ -220,7 +220,7 @@ export function liveAssistantNote() {
   const fresh=messages.find(([key])=>M.min-(M.assistantCooldown[key]??-20)>=12);
   if(fresh){M.assistantNote=fresh[1];M.assistantCooldown[fresh[0]]=M.min;}
 }
-export function halfAnalysisV72() {
+export function halfTimeAdvice() {
   const own=userSide(),rival=1-own,ours=M.stats.xg[own],theirs=M.stats.xg[rival];
   const low=userSquad().filter(p=>M.active.includes(p.id)).sort((a,b)=>a.fitness-b.fitness)[0];
   if(low?.fitness<75)return `${low.name} fitness %${Math.round(low.fitness)}. İkinci yarıda temposunu izleyin.`;

@@ -249,7 +249,7 @@ test('12. the simulation is frozen after full time', () => {
   h.run('tick()');
   h.run('advanceLive(500)');
   h.run("actionMinute(true,tacticalEffects(),currentOpponent())");
-  h.run('chanceV73(true);chanceV73(false)');
+  h.run('playChance(true);playChance(false)');
   h.run('evolvePitchPositions()');
   h.run("makeLooseBall([50,50],[50,50],'late','user')");
   h.run("startPitchRestart('CORNER','user',[100,10])");

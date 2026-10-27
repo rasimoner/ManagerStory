@@ -2,7 +2,7 @@
 
 /* ===== V7.3.6.1 Phase 2: one attribute model =====================================================
    base attribute (unified user/opponent schema)
-     -> position-suitability misfit (context-sensitive, reuses positionPenaltyV61)
+     -> position-suitability misfit (context-sensitive, reuses positionPenalty)
      -> current fitness (physical > technical > mental sensitivity)
      -> age (small, bounded, match-only)
      = effective attribute.   Base player records are never written to by any of this.            */
@@ -14,7 +14,7 @@ import { beginMatchOverlay, clamp, escapeHTML, finite, lineVariant, matchEvent, 
 import { matchClock } from './live-match.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { basePitchPosition, eventPoint, limitPitch, moveTowards, nearestMarker, opponentAttitude, passLanePressure, pitchDistance, pitchSpace, resolveShot, switchPitchOwner } from './pitch-v73.js';
-import { positionPenaltyV61, setOppOwner, setUserOwner } from './match-minute.js';
+import { positionPenalty, setOppOwner, setUserOwner } from './match-minute.js';
 import { userOpponent, userSquad } from './user-team.js';
 export function playerRecord(id,side){return side==='user'?userSquad().find(x=>x.id===Number(id)):opponentPlayer(id);}
 export const normalizeAttribute=v=>clamp((finite(v,60)-35)/65,0,1);            // 35→0, 100→1
@@ -66,7 +66,7 @@ export function ageFatigueFactor(age){return clamp(1+(finite(age,26)-27)*.012,.9
 export function positionSuitability(id,side){
  if(side!=='user'||!M?.matchRoles)return 1;
  const p=playerRecord(id,side),role=M.matchRoles[id];
- return p&&role?positionPenaltyV61(p,role):1;
+ return p&&role?positionPenalty(p,role):1;
 }
 export const roleGroup=r=>['CB','LB','RB'].includes(r)?'def':r==='GK'?'gk':['LW','RW','ST'].includes(r)?'att':'mid';
 // How much of the misfit loss each skill takes, per role being played. Pace/strength/stamina are NOT

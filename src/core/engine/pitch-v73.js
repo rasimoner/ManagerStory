@@ -8,7 +8,7 @@ import { aerialHeight, aerialRating, aerialWinProbability, attributeEdge, boxCha
 import { fanPhoto, resolveClubIdentity } from '../clubs/clubs.js';
 import { oppRadarPos, setOppOwner, setUserOwner } from './match-minute.js';
 import { userOpponent, userSquad } from './user-team.js';
-export let pitchV73 = null;
+export let pitchState = null;
 export const PITCH_ACTIONS = new Set(['kickoff','pass','cross','interception','press','tackle','dribble','ballCarry','offBallRun','counterAttack','run','shot','save','block','post','wide','goal','throwIn','restart','goalKick','corner','freeKick','penalty','hold','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery']);
 export const IMPORTANT_ACTIONS = new Set(['kickoff','shot','save','block','post','wide','goal','throwIn','goalKick','corner','offBallRun','dribble','ballCarry','tackle']);
 export const limitPitch = (n,min,max) => Math.max(min,Math.min(max,n));
@@ -116,14 +116,14 @@ export function eventAnimationTime(e) {
 }
 export function currentPitchState() {
   if(!M)return null;
-  if(!pitchV73||pitchV73.match!==M) {
-    pitchV73={match:M,queue:[],active:null,progress:0,lastTime:null,positions:{},
+  if(!pitchState||pitchState.match!==M) {
+    pitchState={match:M,queue:[],active:null,progress:0,lastTime:null,positions:{},
       ball:[...(M.ballState?.position||eventPoint(M.ballOwner,M.ballSide))],carrier:M.ballOwner,side:M.ballSide,
       ballState:{position:[...(M.ballState?.position||eventPoint(M.ballOwner,M.ballSide))],ownerId:M.ballOwner,
         state:'LIVE',target:null,travelType:'ground',travelDuration:0,height:0},
       goalUntil:0,goalText:'',label:'',shotOutcome:''};
   }
-  return pitchV73;
+  return pitchState;
 }
 export function enqueuePitchEvent(e) {
   if(!M||!PITCH_ACTIONS.has(e.type))return;
@@ -387,7 +387,7 @@ export function resetPitchHalf() {
   // so authoritative positions fall back to the mirrored formation anchors.
   M.secondHalf=true;M.pitchMotion={};M.dynamicPositions={};M.looseBall=null;M.restart=null;
   M.passMemory=[];M.previousPossessionSide=null;M.pitchRunMinute={};M.regain=null;M.setPieceReturn=null;
-  pitchV73=null;
+  pitchState=null;
 }
 export function emitPitchKickoff(side) {
   if(!M||engineFrozen()||M.min>=90)return;
@@ -790,8 +790,8 @@ export function actionMinute(userPoss,effect,opponent){
    actions.length=0;actions.push({type:'pass',weight:1});
   }
   const choice=weightedPitchChoice(actions);
-  if(choice.type==='cross'){crossV79(from,side,point,crossPlan);break;}
-  if(choice.type==='shoot'){chanceV73(side==='user');M.minuteShot=true;break;}
+  if(choice.type==='cross'){playCross(from,side,point,crossPlan);break;}
+  if(choice.type==='shoot'){playChance(side==='user');M.minuteShot=true;break;}
   if(choice.type==='hold'&&nearby&&nearby.d<8&&M.rand()>.75+.25*physicalContest(from,side,nearby.id,side==='user'?'opp':'user')){
    // shield lost: the ball runs loose and is contested for real
    matchEvent('hold',M.min+'’ '+(owner?.name||'Rakip')+' topu koruyamadı.',
@@ -919,7 +919,7 @@ export function crossOption(from,side,point,dir,forward,pressure){
  if(T.width>0)weight*=1.15;else if(T.width<0)weight*=.85;
  return {weight,runners,delivery,role};
 }
-export function crossV79(from,side,point,plan){
+export function playCross(from,side,point,plan){
  const other=side==='user'?'opp':'user',dir=(side==='user'?1:-1)*userDirection(),atkGoal=dir>0?100:0;
  const index=side==='user'?userSide():1-userSide();
  const passer=playerAtMarker(from,side),who=passer?.name||(side==='user'?'Oyuncumuz':'Rakip');
@@ -996,7 +996,7 @@ export function playLastAttack(){
   if(M.restart&&M.restart.restartPhase!=='LIVE')return;
   if(deepFor(M.ballSide,eventPoint(M.ballOwner,M.ballSide))<70)return;
   const n=M.events.length,owner=M.ballOwner,at=[...eventPoint(M.ballOwner,M.ballSide)];
-  chanceV73(M.ballSide==='user');
+  playChance(M.ballSide==='user');
   if(M.events.slice(n).some(e=>e.type==='shot')){M.minuteShot=true;return;}
   // shielding it by the corner flag: nothing more is coming, the referee can blow
   if(M.ballOwner===owner&&M.ballOwner!=null&&pitchDistance(eventPoint(M.ballOwner,M.ballSide),at)<1)return;
@@ -1054,7 +1054,7 @@ export function callOffside(receiverId,receiverSide,receiverPoint,passerId){
  startPitchRestart('FREE_KICK',user?'opp':'user',[...receiverPoint]);
 }
 
-export function chanceV73(user) {
+export function playChance(user) {
   if(engineFrozen())return;
   const r=userOpponent(),side=user?userSide():1-userSide();
   const sideName=user?'user':'opp';
@@ -1174,7 +1174,7 @@ export function chanceV73(user) {
   return resolveShot(user,shooter,p);
 }
 
-/* Shared shot resolution: open play (chanceV73), corner headers and penalties all end here. */
+/* Shared shot resolution: open play (playChance), corner headers and penalties all end here. */
 export function resolveShot(user,shooter,p,opts={}) {
   if(engineFrozen()||!p)return;
   const r=userOpponent(),side=user?userSide():1-userSide(),sideName=user?'user':'opp';

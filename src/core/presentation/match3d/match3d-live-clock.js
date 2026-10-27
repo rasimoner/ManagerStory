@@ -3,7 +3,7 @@ import { M } from '../../state.js';
 import { presentation } from '../registry.js';
 import { matchPossession, presentationEvent, shotInterventionActor } from '../../engine/match-support.js';
 import { advanceLive, matchPlaybackRate, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
-import { animationPoint, currentPitchState, eventAnimationTime, eventPoint, finishPitchAction, limitPitch, pitchInstructionTarget, pitchV73, preparePitchGoalPhotos } from '../../engine/pitch-v73.js';
+import { animationPoint, currentPitchState, eventAnimationTime, eventPoint, finishPitchAction, limitPitch, pitchInstructionTarget, pitchState, preparePitchGoalPhotos } from '../../engine/pitch-v73.js';
 import { aerialHeight, attackDirection, playerAtMarker, topSpeed } from '../../engine/pitch-v731.js';
 import { resolveClubIdentity } from '../../clubs/clubs.js';
 import { changed } from '../../hooks.js';
@@ -772,14 +772,14 @@ import { changed } from '../../hooks.js';
   if(presentation.view)presentation.view.publish(state);
   if(completed||M.reason==='half'&&!halfPending())changed();
  }
- const finishing=()=>enabled&&pitchV73?.match===M&&pitchV73.terminalPhase==='draining';
- const halfPending=()=>enabled&&M?.reason==='half'&&pitchV73?.match===M&&!!(pitchV73.active||pitchV73.queue.length||pitchV73.batchEnd||pitchV73.goalPresentation);
- const paused=()=>finishing()?!!pitchV73.terminalPaused:halfPending()?!!pitchV73.halfPaused:!!M?.pause;
+ const finishing=()=>enabled&&pitchState?.match===M&&pitchState.terminalPhase==='draining';
+ const halfPending=()=>enabled&&M?.reason==='half'&&pitchState?.match===M&&!!(pitchState.active||pitchState.queue.length||pitchState.batchEnd||pitchState.goalPresentation);
+ const paused=()=>finishing()?!!pitchState.terminalPaused:halfPending()?!!pitchState.halfPaused:!!M?.pause;
  presentation.live3d={
   get finishing(){return finishing()},get halfPending(){return halfPending()},get paused(){return paused()},
   goalImageReady(match,eventId,failed=false){if(match!==M)return;const g=currentPitchState().goalPresentation;if(g?.stage==='image'&&g.goal.eventId===eventId){g.imageReady=!failed;g.imageFailed=failed;}},
   beginFinish(){const s=currentPitchState();s.terminalPhase='draining';s.terminalPaused=false;},
-  setTerminalPaused(value){if(finishing())pitchV73.terminalPaused=!!value;else if(halfPending())pitchV73.halfPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
+  setTerminalPaused(value){if(finishing())pitchState.terminalPaused=!!value;else if(halfPending())pitchState.halfPaused=!!value;},beginMotionSample,endMotionSample,captureShield,linkCarrierGain,linkDribbleContest,linkPassCut,captureShotStart,captureHeavyTouch,linkRecovery,linkLooseTouch,contestFrame,get inPositionUpdate(){return inPositionUpdate},get enabled(){return enabled},get tempo(){return tempo},get time(){return presentationSeconds},get logs(){return structuredClone(logs)},
   enable(){const joining=!enabled;syncMatch();enabled=true;if(M){if(joining&&typeof preparePitchGoalPhotos==='function')preparePitchGoalPhotos();const s=currentPitchState();if(joining){s.active=s.active?structuredClone(s.active):null;s.queue=s.queue.map(e=>structuredClone(e));s.durationEvent=null;}for(const id of [...M.active,...M.oppIds])s.positions[String(id)]??=eventPoint(id,typeof id==='string'?'opp':'user');s.eventScore??=[M.hg,M.ag];s.eventStatistics??={shots:[...M.shots],xg:[...M.stats.xg],possession:matchPossession()};}},
   disable(){enabled=false;observedMatch=null;presentationSeconds=0;logs=[];motionSample=null;inPositionUpdate=false;},setTempo(n){if(![1,4].includes(Number(n)))throw Error('Invalid tempo');tempo=Number(n)},step,
   duration,contestPhase,contestTiming:e=>structuredClone(contestPath(e).timing), togglePause(){if(!M)return;if(paused())resumeLive();else pauseLive()},setSpeed(n){setMatchSpeed(n)}
