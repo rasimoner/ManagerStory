@@ -6,14 +6,20 @@
      data-layer="clock"  the presentation clock that paces the live match for the 2D/3D view
      data-layer="view"   the read-only boundary the 3D view reads the match through
      data-layer="3d"     the 3D view itself (needs WebGL: never loaded here)
-   Tests reach the game by name as before (run('S=fresh();init()')): every module export is a global of the
-   context, read live from its module. Assigning one of the shared state's names goes through its setter
+   The test access point (refactor D0): tests reach the game by name, never by file. Every export of every
+   module the page loaded is gathered into one place, the access point: g.api.<name> in JavaScript, and the
+   same names as globals of the context for run('S=fresh();init()'). Each name is read live from whichever
+   module exports it today, so a function that moves to another module is still found under its name and
+   no test changes; g.owner(name) says where it lives now. Reading code goes the same way: sourceDefining(name)
+   is the module that declares a name, wherever that is. Assigning one of the shared state's names goes through its setter
    (S → setCareer, M → setMatch, modal → setModal, loadError → setLoadError, subOut → setSubOut); assigning
    any other export throws, as it would in a module. Releases before C3 (old dist trees, for save
    fixtures) load the old way: their classic scripts in one context.
    Modules need node --experimental-vm-modules; npm test and npm run test:fast pass it.
 
-   loadGame(options) → { run, json, app, html, storage, alerts, confirms, ctx, click, actionsOn }
+   loadGame(options) → { run, json, api, owner, app, html, storage, alerts, confirms, ctx, click, actionsOn }
+     api        the access point: every export by name (live; assigning the shared state goes through its setter)
+     owner      owner(name) → the module that exports that name now (undefined for an old classic release)
      storage    Map used as localStorage (pass one in to load a save)
      layers     extra data-layer entries to load, e.g. ['clock', 'view']
      document   extra querySelector(q, app) handlers tried before the defaults
@@ -97,7 +103,8 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
   if (entropy != null) ctx.crypto = fakeCrypto(entropy);
   ctx.window = ctx; ctx.window.scrollTo = () => {};
   vm.createContext(ctx);
-  if (pageScripts(dist).some(s => s.module)) loadModules(ctx, { layers, skip, dist });
+  let access = { api: ctx, owner: () => undefined };
+  if (pageScripts(dist).some(s => s.module)) access = loadModules(ctx, { layers, skip, dist });
   else for (const { file, layer, code } of sources(dist)) {
     if ((layer !== 'game' && !layers.includes(layer)) || skip.includes(file)) continue;
     vm.runInContext(code, ctx, { filename: file });
@@ -115,15 +122,17 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
     return ctx.runAction(action, { tagName: found.tag, dataset: { ...found.data }, ...element }, { type: FORM_CONTROLS.has(found.tag) ? 'change' : 'click' });
   };
   return {
-    run, ctx, app, storage, alerts, confirms, click, actionsOn,
+    run, ctx, app, storage, alerts, confirms, click, actionsOn, api: access.api, owner: access.owner,
     html: () => app.innerHTML,
     json: code => JSON.parse(run(`JSON.stringify(${code})`)),
   };
 }
 
 /* The module page in the context: each entry (main.js, then the asked-for layers) is linked and run, as
-   the browser runs index.html's module scripts in order. Then every export becomes a global of the context
-   (a getter on its module, and for the shared state a setter that calls the module's own setter). */
+   the browser runs index.html's module scripts in order. Then the access point is built: one object with
+   every export of every module (a getter on its module, and for the shared state a setter that calls the
+   module's own setter). The context's globals are that same object's names, so run('…') and g.api.… see
+   one game. A name exported by two modules is an error: the access point would not know which one. */
 const SETTERS = { S: 'setCareer', M: 'setMatch', modal: 'setModal', loadError: 'setLoadError', subOut: 'setSubOut' };
 function loadModules(ctx, { layers, skip, dist }) {
   if (!vm.SourceTextModule) throw new Error('the game is ES modules: run the tests with node --experimental-vm-modules (npm test does)');
@@ -151,22 +160,33 @@ function loadModules(ctx, { layers, skip, dist }) {
     else run(entry.file);
   }
   const owner = new Map();
+  const api = Object.create(null);
   for (const [file, mod] of records) {
     if (mod.status !== 'evaluated') continue;
     for (const name of Object.keys(mod.namespace)) {
       if (owner.has(name)) throw new Error(`${name} is exported by both ${owner.get(name)} and ${file}`);
       owner.set(name, file);
       const ns = mod.namespace;
-      Object.defineProperty(ctx, name, {
-        configurable: true, enumerable: true,
+      Object.defineProperty(api, name, {
+        enumerable: true,
         get: () => ns[name],
         set: value => {
-          if (SETTERS[name] && typeof ctx[SETTERS[name]] === 'function') return ctx[SETTERS[name]](value);
+          if (SETTERS[name] && typeof api[SETTERS[name]] === 'function') return api[SETTERS[name]](value);
           throw new TypeError(`${name} is a binding of ${file}: a module cannot be assigned from outside`);
         },
       });
     }
   }
+  Object.freeze(api);
+  // the context's globals are the access point's names
+  for (const name of owner.keys()) {
+    Object.defineProperty(ctx, name, {
+      configurable: true, enumerable: true,
+      get: () => api[name],
+      set: value => { api[name] = value; },
+    });
+  }
+  return { api, owner: name => owner.get(name) };
 }
 
 /* The elements in some HTML that run an action: [{ tag, action, data, attrs }]; data is the dataset
@@ -198,6 +218,15 @@ function scriptsDefining(names, options) {
   return found;
 }
 
+/* The page module that declares a top-level name (function, class, const, let or var), found by the name,
+   so a test that reads some code follows it when it moves to another module. */
+function sourceDefining(name, options) {
+  const declares = new RegExp(`(?:^|\\n)\\s*(?:export\\s+)?(?:(?:async\\s+)?function\\*?|class|const|let|var)\\s+(?:[^=;(]*[,{\\s])?${name.replace(/\$/g, '\\$')}\\b`);
+  const found = gameSources({ layers: ['clock', 'view', '3d'], ...options }).filter(s => declares.test(s.code));
+  if (found.length !== 1) throw new Error(`sourceDefining(${name}): ${found.length} modules`);
+  return found[0];
+}
+
 /* Where a file lives under dist, found by its name, so a test that reads one file (its source, a constant
    in it) follows the file when it moves to another folder. One match only; vendor/ is not searched. */
 function locate(name, dist = DIST) {
@@ -211,4 +240,4 @@ function locate(name, dist = DIST) {
 }
 const readDist = (name, dist = DIST) => read(locate(name, dist), dist);
 
-module.exports = { loadGame, actionsOn, pageScripts, gameSources, scriptsDefining, locate, readDist, DIST };
+module.exports = { loadGame, actionsOn, pageScripts, gameSources, scriptsDefining, sourceDefining, locate, readDist, DIST };

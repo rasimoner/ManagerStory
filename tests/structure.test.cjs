@@ -5,6 +5,8 @@
      for a named moment (core/hooks.js), so the code a reader sees is the code that runs.
    - Every page script is an ES module that says what it takes from where (import), and nothing of the
      game is on window.
+   - Tests reach the game through one access point (refactor D0): names, never module files. A function can
+     move to another module without a test changing.
    - core/ does not know the modes: what it still takes from modes/manager is pinned here and may only
      shrink (refactor D empties it). */
 const test = require('node:test');
@@ -109,4 +111,29 @@ test('core/ takes from modes/ only what is pinned here (the list may only shrink
     for (const n of names) if (!allowed.has(n)) extra.push(`${file}: ${n}`);
   }
   assert.deepEqual(extra, [], 'core/ must not take anything new from modes/');
+});
+
+test('tests reach the game by name, through the access point, not by module file', () => {
+  // the game's modules (not the presentation layers, whose files are their own subject): a test that read
+  // one of them by file name would break when a function moves; the access point, sourceDefining(name)
+  // and gameSources() follow the code instead
+  const game = new Set(gameSources().map(s => path.posix.basename(s.file)));
+  const dir = path.join(__dirname);
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.cjs')).map(f => path.join(dir, f))
+    .concat(fs.readdirSync(path.join(dir, 'support')).filter(f => f.endsWith('.cjs')).map(f => path.join(dir, 'support', f)));
+  const offenders = [];
+  for (const f of files) {
+    const code = fs.readFileSync(f, 'utf8');
+    for (const m of code.matchAll(/\b(?:readDist|locate)\(\s*['"]([^'"]+)['"]/g)) {
+      if (game.has(path.posix.basename(m[1]))) offenders.push(`${path.basename(f)}: ${m[0]}`);
+    }
+  }
+  assert.deepEqual(offenders, []);
+  // and every export is on the access point, under its own name, owned by exactly one module
+  const g = loadGame({ quiet: true });
+  for (const name of ['tick', 'S', 'render', 'save', 'R', 'defineActions']) {
+    assert.ok(name in g.api, name);
+    assert.ok(g.owner(name), `${name} has an owner`);
+  }
+  assert.equal(g.api.tick, g.run('tick'), 'run() and api are one game');
 });
