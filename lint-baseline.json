@@ -77,7 +77,7 @@
     "max-lines": 1,
     "max-lines-per-function": 6,
     "max-params": 4,
-    "max-statements": 14
+    "max-statements": 13
   },
   "src/core/presentation/match3d/newview/footballer.js": {
     "complexity": 2,

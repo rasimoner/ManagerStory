@@ -2,7 +2,7 @@
 // The engine decides who does what and where; this file only decides how it looks.
 import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
-import { ramp, smooth01 } from './motion-curves.js';
+import { ramp } from './motion-curves.js';
 import { forwardOf, rightOf, headingOf } from './facing.js';
 import { CLAIM_H, PUNCH_H, keeperClaim, keeperPunch } from './beats/keeper-hands.js';
 import { keeperVolley } from './beats/keeper-volley.js';
@@ -10,6 +10,7 @@ import { scorpionBody, scorpionSave, scorpionSpot } from './beats/scorpion.js';
 import { stageScene, stagingFor } from './beats/staging.js';
 import { backheelKick, rabonaKick } from './beats/flair-passes.js';
 import { CHEST_H, TRAP_H, chestControl, footTrap, pirouetteReceive } from './beats/first-touch.js';
+import { bicycleKick } from './beats/bicycle-kick.js';
 import { stepoverBeat } from './beats/feints.js';
 import { SKILL_BEATS } from './beats/skill-beats.js';
 
@@ -515,7 +516,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     hooks.star?.(audit, p);
   }
   // ---- V7.9 more special moves (boots placed with the foot targets) ----
-  const toeGap = (p, side) => { const t = p.feet?.[side]?.last; return t ? t.distanceTo(ball.p) : 9; };
 
 
   // a showboat (the ball up and over) is never tried when losing
@@ -825,7 +825,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
       gk.loopsWant.keeperReady = chip ? 0 : 1; gk.face = ball.p; gk.target.copy(set); gk.want = chip ? 7 : 5;
     }
     if (hc && bicycle) {
-      yield* bicycleKick(sh, hc, aim);
+      yield* bicycleKick(beatContext, sh, { cross: hc, aim });
       ball.owner = null; sh.lastTouch = S.t;
     } else if (hc) {
       // header: he times his jump so the forehead meets the cross, and nods it towards the aim
@@ -1060,38 +1060,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     hooks.cam('tv');
   }
 
-  // bicycle kick: back to goal under the cross, he throws himself up and over backwards and the right
-  // boot meets the ball above his head; he lands on his back and gets up
-  function* bicycleKick(p, hc, aim) {
-    const toGoal = V(aim.x - hc.spot.x, 0, aim.z - hc.spot.z).normalize(), face = toGoal.clone().negate();
-    const stand = hc.spot.clone().setY(0).addScaledVector(toGoal, -0.55), h = Math.atan2(face.x, face.z), tArr = hc.tArr;
-    p.busy = true; p.face = stand.clone().addScaledVector(face, 20); p.faceLock = true;
-    yield* until(() => { p.target.copy(stand); const d = Math.hypot(stand.x - p.pos.x, stand.z - p.pos.z); p.want = d > 2 ? 7 : d > 0.1 ? 2 + d * 3 : 0; return S.t >= tArr - 0.5; }, Math.max(0.1, tArr - S.t));
-    const t0 = S.t, at = p.pos.clone();
-    hooks.slow(0.4);
-    ball.through = tArr + 1;
-    p.drive = { pos: () => at, heading: () => h };
-    const T = tArr;
-    // over backwards: up to just past horizontal at the strike, down onto his back, then up again
-    p.flip = t => {
-      const u = t - t0, c = T - t0;
-      if (u < c) { const k = smooth01(u / c); return { pitch: 1.75 * k, lift: 0.8 * k }; }
-      const v = u - c;
-      if (v < 0.35) { const k = smooth01(v / 0.35); return { pitch: 1.75 + 0.2 * k, lift: 0.8 - 0.62 * k }; }
-      if (v < 0.95) return { pitch: 1.95, lift: 0.18 };
-      if (v < 1.45) { const k = smooth01((v - 0.95) / 0.5); return { pitch: 1.95 * (1 - k), lift: 0.18 * (1 - k) }; }
-      return null;
-    };
-    rt.startAction(p, 'bicycle');
-    p.feet = { Right: { w: t => clamp((t - (T - 0.3)) / 0.25, 0, 1) * (t < T + 0.15 ? 1 : Math.max(0, 1 - (t - T - 0.15) / 0.2)), at: () => ball.p.clone() } };
-    const audit = { kind: 'bicycle' };
-    yield* until(() => S.t >= T || toeGap(p, 'Right') < 0.18, T - S.t + 0.3);
-    const fl = p.flip(S.t);
-    Object.assign(audit, { contact: +toeGap(p, 'Right').toFixed(3), pitch: +(fl?.pitch ?? 0).toFixed(2), h: +ball.p.y.toFixed(2) });
-    noteSkill(audit, p);
-    const feet = p.feet;
-    later(1.6, () => { p.drive = null; p.flip = null; if (p.feet === feet) p.feet = null; p.faceLock = false; p.busy = false; });
-  }
   function* celebrate(scorer) {
     if (!scorer) return;
     hooks.cam('close', scorer);
