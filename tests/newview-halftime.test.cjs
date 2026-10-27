@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { harness, playToEnd } = require('./engine-harness.cjs');
-const dist = process.env.NV_DIST || path.join(__dirname, '..', 'dist');
+const srcDir = process.env.NV_SRC || path.join(__dirname, '..', 'src');
 
 test('after half-time the keepers come back in their new goals: they do not run the length of the pitch', { timeout: 900000 }, async () => {
   const READ = `({pl:[...M.active.map(id=>[id,'user']),...M.oppIds.map(id=>[id,'opp'])].map(([id,s])=>[id,s,eventPoint(id,s)]),
@@ -15,11 +15,11 @@ test('after half-time the keepers come back in their new goals: they do not run 
   const all = [h.run(READ)]; let halfAt = null;
   playToEnd(h, () => { const s = h.run(READ); if (s.n !== all.at(-1).n) all.push(s); if (halfAt == null && s.reason === 'half') halfAt = all.length - 1; });
   const events = h.run('M.events');
-  const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
-  const { createRuntime, analyseGait } = await import(path.join(dist, 'core/presentation/match3d/newview/runtime.js'));
-  const { createDirector } = await import(path.join(dist, 'core/presentation/match3d/newview/director.js'));
-  const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
+  const THREE = await import('three');
+  const { loadRig } = await import(path.join(srcDir, 'core/presentation/match3d/newview/rig.js'));
+  const { createRuntime, analyseGait } = await import(path.join(srcDir, 'core/presentation/match3d/newview/runtime.js'));
+  const { createDirector } = await import(path.join(srcDir, 'core/presentation/match3d/newview/director.js'));
+  const rig = loadRig(JSON.parse(fs.readFileSync(path.join(srcDir, 'assets/models/footballer-rig.json'), 'utf8')));
   const gait = {}; for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null, stride: 0.75 });
   // the page's live arrays: only what the engine has produced so far

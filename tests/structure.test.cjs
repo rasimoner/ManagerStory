@@ -13,9 +13,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs');
+const { loadGame, gameSources, pageScripts, SRC } = require('./support/game.cjs');
 
-const walk = dir => fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {
+const walk = dir => fs.readdirSync(path.join(SRC, dir), { withFileTypes: true }).flatMap(d => {
   const f = path.posix.join(dir, d.name);
   return d.isDirectory() ? (f === 'vendor' ? [] : walk(f)) : (f.endsWith('.js') && f !== 'sw.js' ? [f] : []);
 });
@@ -74,7 +74,7 @@ test('nothing of the game is on window', () => {
   const BROWSER = new Set(['scrollTo', 'scrollY', 'innerHeight', 'addEventListener']);
   const used = [];
   for (const file of walk('core').concat(walk('modes'), walk('ui'), ['main.js'])) {
-    const code = fs.readFileSync(path.join(DIST, file), 'utf8');
+    const code = fs.readFileSync(path.join(SRC, file), 'utf8');
     for (const m of code.matchAll(/\bwindow\.([A-Za-z_$][\w$]*)/g)) if (!BROWSER.has(m[1])) used.push(`${file}: window.${m[1]}`);
   }
   assert.deepEqual(used, []);
@@ -87,7 +87,7 @@ test('core/ does not know the modes: no core module imports anything from modes/
   const SPEC = /(?:^|[\s;(])(?:import|export)\s*(?:[^'"()]*?\s+from\s*)?\(?\s*['"](\.{1,2}\/[^'"]+)['"]/g;
   const found = [];
   for (const file of walk('core')) {
-    const code = fs.readFileSync(path.join(DIST, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/[^\n]*/g, '$1');
+    const code = fs.readFileSync(path.join(SRC, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/[^\n]*/g, '$1');
     for (const m of code.matchAll(SPEC)) {
       const to = path.posix.normalize(path.posix.join(path.posix.dirname(file), m[1]));
       if (to.startsWith('modes/')) found.push(`${file} → ${to}`);
@@ -95,7 +95,7 @@ test('core/ does not know the modes: no core module imports anything from modes/
   }
   assert.deepEqual(found, []);
   // the rule sees what it guards: core imports core, and modes/manager imports core
-  const sees = file => [...fs.readFileSync(path.join(DIST, file), 'utf8').matchAll(SPEC)].map(m => m[1]);
+  const sees = file => [...fs.readFileSync(path.join(SRC, file), 'utf8').matchAll(SPEC)].map(m => m[1]);
   assert.ok(sees('core/engine/match-minute.js').some(x => x.startsWith('./')), 'a core import is seen');
   assert.ok(sees('modes/manager/app.js').some(x => x.includes('/core/')), 'a mode-to-core import is seen');
 });
@@ -111,7 +111,7 @@ test('tests reach the game by name, through the access point, not by module file
   const offenders = [];
   for (const f of files) {
     const code = fs.readFileSync(f, 'utf8');
-    for (const m of code.matchAll(/\b(?:readDist|locate)\(\s*['"]([^'"]+)['"]/g)) {
+    for (const m of code.matchAll(/\b(?:readSource|locate)\(\s*['"]([^'"]+)['"]/g)) {
       if (game.has(path.posix.basename(m[1]))) offenders.push(`${path.basename(f)}: ${m[0]}`);
     }
   }

@@ -7,10 +7,10 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { loadGame, gameSources, DIST } = require('./support/game.cjs');
+const { loadGame, gameSources, SRC } = require('./support/game.cjs');
 
 function moduleFiles(dir = '') {
-  return fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {
+  return fs.readdirSync(path.join(SRC, dir), { withFileTypes: true }).flatMap(d => {
     const f = path.posix.join(dir, d.name);
     if (d.isDirectory()) return f === 'vendor' ? [] : moduleFiles(f);
     return f.endsWith('.js') && f !== 'sw.js' ? [f] : [];
@@ -19,7 +19,7 @@ function moduleFiles(dir = '') {
 
 test('no game script calls Math.random', () => {
   const scripts = [...gameSources({ layers: ['clock', 'view'] }).map(s => s.file), ...moduleFiles()];
-  const offenders = [...new Set(scripts)].filter(f => /Math\.random/.test(fs.readFileSync(path.join(DIST, f), 'utf8')));
+  const offenders = [...new Set(scripts)].filter(f => /Math\.random/.test(fs.readFileSync(path.join(SRC, f), 'utf8')));
   assert.deepEqual(offenders, []);
   assert.ok(scripts.some(f => f.endsWith('random.js')) && scripts.some(f => f.endsWith('newview/director.js')), 'page scripts and modules both checked');
 });

@@ -1,35 +1,39 @@
-/* Every place that says which version this is says the same one: package.json is the source, and the README,
-   the lock file, the game (GAME_VERSION, the start screen, settings), the page title, the manifest, the script
-   cache-busters and the service worker follow it. (V7.9.5: the README still said V7.9.2.) */
+/* Every place that says which version this is says the same one. package.json is the one place it is written
+   (refactor E2): the game reads it (GAME_VERSION, src/core/version.js) and shows it on the start screen and in the
+   settings, the build puts it in the page title, the web manifest and the service worker. The README and the lock
+   file are kept equal by hand (npm version does the lock file). (V7.9.5: the README still said V7.9.2.) */
 const test = require('node:test');
-const { gameSources, sourceDefining } = require('./support/game.cjs');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { loadGame, gameSources } = require('./support/game.cjs');
+const { build } = require('./support/build.cjs');
 const root = path.join(__dirname, '..'), read = f => fs.readFileSync(path.join(root, f), 'utf8');
+const v = JSON.parse(read('package.json')).version;
 
-test('one version everywhere: README, lock file, game, page, manifest, cache-busters, service worker', () => {
-  const v = JSON.parse(read('package.json')).version;
+test('package.json, the lock file and the README say one version', () => {
   assert.match(v, /^\d+\.\d+\.\d+$/);
   const lock = JSON.parse(read('package-lock.json'));
   assert.equal(lock.version, v, 'package-lock.json');
   if (lock.packages?.['']) assert.equal(lock.packages[''].version, v, 'package-lock.json packages[""]');
   assert.equal(read('README.md').split('\n')[0], `# ManagerStory V${v}`, 'README title');
-  assert.match(sourceDefining('GAME_VERSION').code, new RegExp(`const GAME_VERSION = "${v.replace(/\./g, '\\.')}";`), 'GAME_VERSION');
-  const html = read('dist/index.html');
-  assert.ok(html.includes(`<title>ManagerStory V${v} `), 'page title');
-  const busters = [...html.matchAll(/\?v=([\d.]+)/g)].map(m => m[1]);
-  // the page's module entries carry the release (the modules they import are cached under the release's cache key)
-  assert.ok(busters.length >= 4 && busters.every(x => x === v), 'index.html ?v= ' + [...new Set(busters)]);
-  assert.match(JSON.parse(read('dist/manifest.json')).name, new RegExp(`^ManagerStory V${v.replace(/\./g, '\\.')} `), 'manifest name');
-  const sw = read('dist/sw.js');
-  assert.match(sw, new RegExp(`const CACHE = "managerstory-v${v.replace(/\./g, '\\.')}-`), 'service-worker cache key');
-  const swBusters = [...sw.matchAll(/\?v=([\d.]+)/g)].map(m => m[1]);
-  assert.ok(swBusters.length >= 4 && swBusters.every(x => x === v), 'sw.js ?v= ' + [...new Set(swBusters)]);
-  // refactor D: every import of a game module carries the release too (tools/stamp-version.cjs)
-  const stamped = require('node:child_process').spawnSync(process.execPath, [path.join(root, 'tools/stamp-version.cjs'), '--check'], { encoding: 'utf8' });
-  assert.equal(stamped.status, 0, stamped.stderr);
-  const game = gameSources().map(s => s.code).join('\n');
-  assert.ok(game.includes(`V${v} • Hisar Matchday`), 'start screen');
-  assert.ok(game.includes(`ManagerStory • V${v} • MatchEngine`), 'settings');
+});
+
+test('the game reads its version from package.json and shows it', () => {
+  const g = loadGame({ quiet: true });
+  assert.equal(g.run('GAME_VERSION'), v, 'GAME_VERSION');
+  assert.ok(g.html().includes(`V${v} • Hisar Matchday`), 'start screen');
+  g.run('S=fresh();S.matchSalt=newMatchSalt();init();showSettings()');
+  assert.ok(g.html().includes(`ManagerStory • V${v} • MatchEngine`), 'settings');
+  // nowhere else in the code: this release's number is not written by hand (older ones name old saves)
+  const written = gameSources({ layers: ['clock', 'view', '3d'] }).filter(s => s.code.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, '').includes(v));
+  assert.deepEqual(written.map(s => s.file), [], 'a version written in code');
+});
+
+test('the build puts it in the page title, the web manifest and the service worker', () => {
+  const b = build();
+  assert.ok(b.read('index.html').includes(`<title>ManagerStory V${v} `), 'page title');
+  assert.match(JSON.parse(b.read('manifest.json')).name, new RegExp(`^ManagerStory V${v.replace(/\./g, '\\.')} `), 'manifest name');
+  assert.match(b.read('sw.js'), new RegExp(`^const RELEASE = "${v.replace(/\./g, '\\.')}";`, 'm'), 'service worker');
+  assert.doesNotMatch(b.read('index.html') + b.read('manifest.json'), /%APP_VERSION%/, 'no placeholder left');
 });

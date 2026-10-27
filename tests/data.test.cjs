@@ -1,43 +1,43 @@
-/* Game data lives apart from the code, as plain data (V7.9.13, refactor B):
-   - every file in dist/data is one constant whose value is JSON (no functions, no references, no
-     comments inside), so it can become a .json file at build time and be read by another engine;
-   - the game loads every data file, before any code (main.js imports them first);
+/* Game data lives apart from the code, as plain data (V7.9.13, refactor B; .json files since refactor E4):
+   - every file in src/data is JSON, an object, so another engine (Godot) can read it as it is; what each file
+     holds is described in src/data/README.md;
+   - every data file is used: the game imports it, under one name (the name tests reach it by);
    - the data says what the code used to say: the moves table matches the move names, the clubs cover the
      league, the starting squad is a full squad. */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { loadGame, gameSources, DIST } = require('./support/game.cjs');
+const { loadGame, gameSources, SRC } = require('./support/game.cjs');
 
-const files = fs.readdirSync(path.join(DIST, 'data')).filter(f => f.endsWith('.js')).sort().map(f => 'data/' + f);
-const parse = file => {
-  const text = fs.readFileSync(path.join(DIST, file), 'utf8');
-  const m = /^\s*(?:\/\*[\s\S]*?\*\/\s*)?export const ([A-Z][A-Z0-9_]*) = ([\s\S]*);\s*$/.exec(text);
-  assert.ok(m, `${file}: one "export const NAME = …;" after an optional leading comment`);
-  return { name: m[1], value: JSON.parse(m[2]) };
+const files = fs.readdirSync(path.join(SRC, 'data')).filter(f => f.endsWith('.json')).sort().map(f => 'data/' + f);
+const read = file => JSON.parse(fs.readFileSync(path.join(SRC, file), 'utf8'));
+// the name a data file goes by: what the modules that import it call it
+const nameOf = file => {
+  const names = new Set();
+  for (const s of gameSources()) for (const m of s.code.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from\s+['"](\.{1,2}\/[^'"]+\.json)['"]/g)) {
+    if (path.posix.normalize(path.posix.join(path.posix.dirname(s.file), m[2])) === file) names.add(m[1]);
+  }
+  return [...names];
 };
 
-test('every data file is a single constant whose value is JSON', () => {
+test('every data file is JSON, an object, and nothing else is in src/data', () => {
   assert.ok(files.length >= 7, files.join(', '));
-  const names = files.map(f => parse(f).name);
-  assert.equal(new Set(names).size, names.length, 'one name per file');
+  for (const f of files) assert.equal(Object.prototype.toString.call(read(f)), '[object Object]', f);
+  const other = fs.readdirSync(path.join(SRC, 'data')).filter(f => !f.endsWith('.json') && f !== 'README.md');
+  assert.deepEqual(other, [], 'no code in src/data');
+  const readme = fs.readFileSync(path.join(SRC, 'data/README.md'), 'utf8');
+  for (const f of files) assert.ok(readme.includes(`## ${path.posix.basename(f)}`), `README describes ${f}`);
 });
 
-test('the game loads every data file, before any code', () => {
-  const scripts = gameSources().find(s => s.file === 'main.js').imports; // main.js imports the game in order
-  for (const f of files) assert.ok(scripts.includes(f), `${f} is loaded`);
-  const lastData = Math.max(...files.map(f => scripts.indexOf(f)));
-  const firstCode = scripts.findIndex(f => !f.startsWith('data/'));
-  assert.ok(lastData < firstCode, 'data before code');
+test('the game imports every data file, each under one name', () => {
+  const names = files.map(f => { const n = nameOf(f); assert.equal(n.length, 1, `${f}: imported as ${n.join(', ') || 'nothing'}`); return n[0]; });
+  assert.equal(new Set(names).size, names.length, 'one name per file');
 });
 
 test('the game reads the same values the data files hold', () => {
   const g = loadGame();
-  for (const f of files) {
-    const { name, value } = parse(f);
-    assert.deepEqual(g.json(name), value, name);
-  }
+  for (const f of files) assert.deepEqual(g.json(nameOf(f)[0]), read(f), f);
   // what the code builds from the data
   assert.equal(g.run('OPP.length'), 17);
   assert.equal(g.run('Object.keys(CLUBSTYLE).length'), 18);

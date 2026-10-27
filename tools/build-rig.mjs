@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Builds dist/assets/models/footballer-rig.json: ManagerStory's own footballer skeleton plus
+// Builds src/assets/models/footballer-rig.json: ManagerStory's own footballer skeleton plus
 // motion clips retargeted from Quaternius' Universal Animation Library 1 and 2 (CC0 1.0,
 // models and animations by Quaternius, https://quaternius.com).
 //
@@ -168,6 +168,6 @@ for (const [key, spec] of Object.entries(CLIPS)) {
   }
   out.clips[key] = { duration: +((frames.length - 1) / FPS).toFixed(4), frames: frames.length, loop: !!spec.loop, from, ...store(frames) };
 }
-const dest = opt.out ? path.resolve(opt.out) : new URL('../dist/assets/models/footballer-rig.json', import.meta.url).pathname;
+const dest = opt.out ? path.resolve(opt.out) : new URL('../src/assets/models/footballer-rig.json', import.meta.url).pathname;
 fs.writeFileSync(dest, JSON.stringify(out));
 console.log('wrote', dest, (fs.statSync(dest).size / 1024).toFixed(0) + ' KB', Object.entries(out.clips).map(([k, c]) => `${k} ${c.duration}s`).join(', '));

@@ -16,7 +16,7 @@ import sys, os, colorsys
 import numpy as np
 from PIL import Image, ImageFilter
 
-OUT = os.path.join(os.path.dirname(__file__), '..', 'dist', 'assets', 'atmosphere')
+OUT = os.path.join(os.path.dirname(__file__), '..', 'public', 'assets', 'atmosphere')
 
 
 def smooth(x, a, b):

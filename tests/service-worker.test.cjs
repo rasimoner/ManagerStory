@@ -1,148 +1,123 @@
-/* The service worker caches the game for offline play. Every file the page loads must be in its list:
-   the classic scripts and stylesheets in index.html, and every ES module reached through static imports
-   from the 3D entry points. (V7.9.13: newview/replay.js was imported but missing, so the 3D match could
-   not load offline.) */
+/* The service worker caches the game for offline play (refactor E3: dist/sw.js is written by the build from
+   src/sw.js, with the build's own file list). Tested on a real build (tests/support/build.cjs):
+   - the list is every file the build published, but the worker and the short not-cached list: nothing the page
+     can load is missing (V7.9.13: newview/replay.js was missing and the 3D match could not load offline), and the
+     3D match and the star transfer scene, loaded on demand, are in it;
+   - the cache is filled past the browser's HTTP cache (V7.10.0), under a name that is new for every build;
+   - only this build's scripts are served: an older release's page still open in a tab never gets a script of
+     this one (V7.11.0, V7.12.0 rules, now by the hashed names). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const dist = path.join(__dirname, '..', 'dist');
-const read = f => fs.readFileSync(path.join(dist, f), 'utf8');
+const vm = require('node:vm');
+const { build, offlineList, ROOT } = require('./support/build.cjs');
 
-function swList() {
-  const sw = read('sw.js');
-  const raw = [...sw.matchAll(/"\.\/([^"]*)"/g)].map(m => m[1]);
-  const list = [...raw, ...raw.map(f => f.replace(/\?v=[\d.]+$/, ''))];
-  const loops = [...sw.matchAll(/Array\.from\(\{length:(\d+)\},\(_,i\)=>`\.\/([^`]*)\$\{i\}([^`]*)`\)/g)];
-  for (const [, n, pre, post] of loops) for (let i = 0; i < Number(n); i++) list.push(pre + i + post);
-  return new Set(list);
-}
+const release = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
 
-/* The addresses the page asks for, from its entries through every static and dynamic import: each as
-   written, with its ?v= (refactor D stamps the release on imports; an ES module is fetched, and cached
-   offline, under exactly that address). */
-// the list exactly as written (no address without its ?v=)
-function swExact() {
-  const sw = read('sw.js');
-  const list = new Set([...sw.matchAll(/"\.\/([^"]*)"/g)].map(m => m[1]));
-  for (const [, n, pre, post] of sw.matchAll(/Array\.from\(\{length:(\d+)\},\(_,i\)=>`\.\/([^`]*)\$\{i\}([^`]*)`\)/g)) for (let i = 0; i < Number(n); i++) list.add(pre + i + post);
-  return list;
-}
+test('the offline list is every file the build published, but the worker and the few not cached', async () => {
+  const b = build();
+  const { NOT_CACHED } = await import(require('node:url').pathToFileURL(path.join(ROOT, 'vite.config.js')).href);
+  const list = offlineList(b);
+  assert.equal(list[0], '', 'the page itself ("./") first');
+  assert.equal(new Set(list).size, list.length, 'each address once');
+  const dotfile = f => f.split('/').some(p => p.startsWith('.'));
+  const missing = b.files.filter(f => !list.includes(f) && !NOT_CACHED.includes(f) && !dotfile(f));
+  assert.deepEqual(missing, [], 'published but not cached');
+  const gone = list.filter(f => f && !b.files.includes(f));
+  assert.deepEqual(gone, [], 'listed but not published');
+  for (const f of NOT_CACHED) assert.ok(b.files.includes(f), `${f} (not cached) is published`);
+  for (const f of NOT_CACHED) assert.ok(!list.includes(f), `${f} is not cached`);
+});
 
-function moduleGraph(entries) {
-  const seen = new Set(), queue = [...entries];
+test('every file the page can load is in the list: its entry, every chunk it imports, now or on demand, and their assets', () => {
+  const b = build();
+  const list = new Set(offlineList(b));
+  const html = b.read('index.html');
+  const base = '/ManagerStory/';
+  // the page's own addresses (scripts, stylesheets, manifest, icons), under the base
+  const pageRefs = [...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(m => m[1]).filter(u => u.startsWith(base)).map(u => u.slice(base.length));
+  assert.ok(pageRefs.some(f => /^app\/index-[\w-]+\.js$/.test(f)), 'the page loads one built entry script');
+  const reached = new Set(pageRefs), queue = pageRefs.filter(f => f.endsWith('.js'));
+  // a built chunk names the files it loads by their hashed names: imports, import(), the preload map, new URL()
   while (queue.length) {
-    const file = path.posix.normalize(queue.shift());
-    if (seen.has(file)) continue;
-    seen.add(file);
-    const src = read(file.replace(/\?.*$/, ''));
-    for (const m of src.matchAll(/(?:^|\n)\s*import\s+(?:[^'"]*?\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g)) {
-      queue.push(path.posix.join(path.posix.dirname(file), m[1]));
-    }
-    for (const m of src.matchAll(/import\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g)) {
-      queue.push(path.posix.join(path.posix.dirname(file), m[1]));
+    const file = queue.shift();
+    for (const m of b.read(file).matchAll(/["'`/]((?:app\/)?[\w.-]+-[\w-]{8}\.(?:js|css|json))["'`]/g)) {
+      const name = m[1].startsWith('app/') ? m[1] : 'app/' + m[1];
+      if (reached.has(name)) continue;
+      reached.add(name);
+      if (name.endsWith('.js')) queue.push(name);
     }
   }
-  return seen;
-}
-
-test('every file index.html loads, and every ES module it imports, is in the service-worker list', () => {
-  const list = swList();
-  const html = read('index.html');
-  // the page's module entries keep their cache-buster in the list, as the page asks for them
-  const entries = [...html.matchAll(/<script type="module" src="([^"]+)"/g)].map(m => m[1]);
-  for (const e of entries) assert.ok(list.has(e), `${e} in sw.js`);
-  const pageFiles = [
-    ...[...html.matchAll(/<script(?: type="module")? src="([^"?]+)/g)].map(m => m[1]),
-    ...[...html.matchAll(/<link rel="stylesheet" href="([^"?]+)/g)].map(m => m[1]),
-    ...[...html.matchAll(/href="([^"?]+\.(?:json|png))"/g)].map(m => m[1]),
-  ];
-  const inlineImports = [...html.matchAll(/import\(\s*'\.\/([^']+)'\s*\)/g)].map(m => m[1]);
-  // a dynamic import in a script resolves against that script's own address
-  const lazyImports = [];
-  for (const f of pageFiles.filter(f => f.endsWith('.js'))) {
-    for (const m of read(f).matchAll(/import\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g)) lazyImports.push(path.posix.join(path.posix.dirname(f), m[1]));
+  const missing = [...reached].filter(f => !list.has(f));
+  assert.deepEqual(missing, [], 'loaded by the page but not cached: ' + missing.join(', '));
+  const names = [...reached].map(f => path.posix.basename(f));
+  for (const chunk of ['three', 'newview', 'match3d-newview', 'star-transfer-scene', 'footballer-rig', 'match3d-career']) {
+    assert.ok(names.some(n => n.startsWith(chunk + '-')), `${chunk} is reached (on demand) and cached`);
   }
-  const modules = moduleGraph([...entries.filter(f => f.includes('.js')), ...inlineImports, ...lazyImports]);
-  const exact = swExact();
-  const missing = [...new Set([...pageFiles.filter(f => !f.endsWith('.js')), ...modules])].filter(f => !exact.has(f));
-  assert.deepEqual(missing, [], 'missing from sw.js: ' + missing.join(', '));
-  assert.ok([...modules].some(f => /newview\/replay\.js(\?|$)/.test(f)), 'module graph reaches newview/replay.js');
-  assert.ok([...modules].some(f => /star-transfer-scene\.js(\?|$)/.test(f)), 'and the star transfer scene, imported on demand');
-});
-
-// published but deliberately not cached for offline play
-const NOT_CACHED = new Set([
-  'sw.js',                    // the service worker itself
-  '.nojekyll', 'README.txt', 'assets/.gitkeep', 'assets/atmosphere/.gitkeep', 'vendor/three/LICENSE',
-  // kept for weather and night matches, not used yet (tests/assets.test.cjs)
-  'assets/atmosphere/fans-day.webp', 'assets/atmosphere/fans-rain.webp', 'assets/atmosphere/fans-night.webp',
-]);
-function published(dir = '') {
-  return fs.readdirSync(path.join(dist, dir), { withFileTypes: true }).flatMap(d =>
-    d.isDirectory() ? published(path.posix.join(dir, d.name)) : [path.posix.join(dir, d.name)]);
-}
-
-test('every published file is in the service-worker list, or on the short not-cached list', () => {
-  const list = swList();
-  const missing = published().filter(f => !list.has(f) && !NOT_CACHED.has(f));
-  assert.deepEqual(missing, [], 'published but not cached: ' + missing.join(', '));
-  const stale = [...NOT_CACHED].filter(f => !fs.existsSync(path.join(dist, f)));
-  assert.deepEqual(stale, [], 'not-cached list names files that are gone');
-});
-
-test('every file in the service-worker list exists', () => {
-  const missing = [...swList()].filter(f => f && !fs.existsSync(path.join(dist, f.replace(/\?.*$/, ''))));
-  assert.deepEqual(missing, []);
+  // the pictures the page names by path (screens, the stylesheet) are files of the build, all cached
+  const css = pageRefs.filter(f => f.endsWith('.css')).map(f => b.read(f)).join('\n');
+  for (const [, picture] of css.matchAll(/url\(\/ManagerStory\/(assets\/[^)]+)\)/g)) assert.ok(list.has(picture), `${picture} (style sheet) is cached`);
 });
 
 // V7.10.0: the install step fetches past the browser's HTTP cache, so a release can never store an old file
 // (GitHub Pages lets browsers keep files ~10 minutes) under the new cache key.
-test('the service worker fills its cache past the HTTP cache', () => {
-  const sw = read('sw.js');
+test('the service worker fills its cache past the HTTP cache, under a name of this release and this build', () => {
+  const sw = build().read('sw.js');
   const install = sw.slice(sw.indexOf('addEventListener("install"'), sw.indexOf('addEventListener("activate"'));
   assert.match(install, /addAll\(ASSETS\.map\(url => new Request\(url, \{ cache: "reload" \}\)\)\)/);
   assert.doesNotMatch(install, /addAll\(ASSETS\)/);
+  const { CACHE } = worker();
+  assert.match(CACHE, new RegExp(`^managerstory-v${release.replace(/\./g, '\\.')}-[0-9a-f]{10}$`), CACHE);
 });
 
-// V7.11.0: a game module asked for without ?v= can only come from an older release's page still open in a tab (since
-// V7.11.0 every address carries the release). Serving it would put this release's file into the old page's game, a
-// second copy of the game next to the old one (seen in the V7.10.0 -> V7.11.0 switch: the old tab's star transfer
-// scene brought 32 new modules with it). The service worker fails such a request, so the old page falls back.
-// V7.12.0: the same for a V7.11.0 page still open: its modules carry ?v=7.11.0, and the file at that path is now this
-// release's (and imports this release's modules). Any other release's ?v= is failed the same way.
-test('the service worker never serves a game module of another release (only an older page asks for one)', async () => {
-  const vm = require('node:vm');
+/* The built worker in a vm, at the live address, with a cache that holds everything. */
+const scope = 'https://rasimoner.github.io/ManagerStory/';
+function worker() {
   const listeners = {}, opened = [];
-  const scope = 'https://rasimoner.github.io/ManagerStory/';
   const self = {
     location: new URL(scope + 'sw.js'), registration: { scope },
     addEventListener: (type, fn) => { listeners[type] = fn; },
     skipWaiting: () => Promise.resolve(), clients: { claim: () => Promise.resolve() },
   };
   const caches = { open: name => { opened.push(name); return Promise.resolve({ match: () => Promise.resolve(new Response('cached')) }); } };
-  vm.runInNewContext(read('sw.js'), { self, caches, URL, Request, Response, fetch: () => Promise.reject(new Error('offline')), console });
+  const ctx = { self, caches, URL, Request, Response, fetch: () => Promise.reject(new Error('offline')), console };
+  vm.runInNewContext(build().read('sw.js') + '\n;globalThis.CACHE = CACHE;', ctx);
   const ask = async address => {
     let answer = null;
     listeners.fetch({ request: { method: 'GET', url: scope + address, mode: 'no-cors' }, respondWith: r => { answer = r; } });
     return answer && (await answer);
   };
-  const release = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8')).version;
-  for (const old of ['main.js', 'core/state.js', 'core/presentation/scenes/star-transfer-scene.js',
-    'core/presentation/match3d/match3d-newview.js', 'modes/manager/app.js', 'ui/actions.js', 'data/clubs.js']) {
-    const r = await ask(old);
-    assert.equal(r?.type, 'error', `${old} without ?v= is failed`);
-    for (const other of ['7.11.0', '7.10.0', '0.0.1']) if (other !== release) {
-      assert.equal((await ask(`${old}?v=${other}`))?.type, 'error', `${old}?v=${other} is failed`);
-    }
+  return { ask, CACHE: ctx.CACHE };
+}
+
+// V7.11.0: a game module asked for without ?v= came from an older release's page still open in a tab; V7.12.0: the
+// same for another release's ?v=. Serving it would put a newer file into the old page's game, a second copy of the
+// game next to the old one (seen in the V7.10.0 -> V7.11.0 switch: the old tab's star transfer scene brought 32 new
+// modules with it). Since the build: every script of this build has a hashed name in the list, and any other
+// script (an older release's address, an older build's chunk) is failed, so the old page falls back.
+test('the service worker serves this build\'s scripts and never a script of another release', async () => {
+  const { ask } = worker();
+  const list = offlineList();
+  const old = ['main.js', 'core/state.js', 'core/presentation/scenes/star-transfer-scene.js', 'core/presentation/match3d/match3d-newview.js',
+    'modes/manager/app.js', 'ui/actions.js', 'data/clubs.js', 'vendor/three/three.module.min.js', 'app/index-0ldBu1ld.js', 'app/three-0ldBu1ld.js'];
+  for (const f of old) {
+    assert.equal((await ask(f))?.type, 'error', `${f} is failed`);
+    for (const other of ['7.12.0', '7.11.0', '7.10.0', release]) assert.equal((await ask(`${f}?v=${other}`))?.type, 'error', `${f}?v=${other} is failed`);
   }
-  for (const ok of [`main.js?v=${release}`, `core/presentation/scenes/star-transfer-scene.js?v=${release}`,
-    'vendor/three/three.module.min.js', 'assets/models/footballer-rig.json', 'core/presentation/match3d/match3d-career.css',
-    'index.html', '', 'style.css']) {
-    const r = await ask(ok);
-    assert.equal(await r?.text(), 'cached', `${ok || './'} is served from the cache`);
+  const own = list.filter(f => f.endsWith('.js'));
+  assert.ok(own.length >= 5, own.join(', '));
+  for (const f of [...own, '', 'index.html', 'manifest.json', ...list.filter(f => /\.(css|json|webp)$/.test(f)).slice(0, 6)]) {
+    const r = await ask(f);
+    assert.equal(await r?.text(), 'cached', `${f || './'} is served from the cache`);
   }
-  // and every module address the page itself asks for carries the release (the stamp), so the rule never fails it
-  const stamped = require('node:child_process').spawnSync(process.execPath, [path.join(__dirname, '..', 'tools/stamp-version.cjs'), '--check'], { encoding: 'utf8' });
-  assert.equal(stamped.status, 0, stamped.stderr);
+});
+
+test('the page registers the worker only in the build, and says when a new release has taken over', () => {
+  const html = build().read('index.html');
+  assert.doesNotMatch(html, /serviceWorker/, 'no inline registration: the game registers it (ui/updates.js)');
+  const code = fs.readFileSync(path.join(ROOT, 'src/ui/updates.js'), 'utf8');
+  assert.match(code, /import\.meta\.env\?\.PROD/, 'not on the dev server, not in tests');
+  assert.match(code, /register\(`\$\{import\.meta\.env\.BASE_URL\}sw\.js`\)/);
+  assert.match(code, /controllerchange/);
 });
