@@ -6,6 +6,7 @@ import { ramp, smooth01, spline } from './motion-curves.js';
 import { forwardOf, rightOf, headingOf } from './facing.js';
 import { CLAIM_H, PUNCH_H, keeperClaim, keeperPunch } from './beats/keeper-hands.js';
 import { keeperVolley } from './beats/keeper-volley.js';
+import { scorpionBody, scorpionSave, scorpionSpot } from './beats/scorpion.js';
 import { stepoverBeat } from './beats/feints.js';
 import { SKILL_BEATS } from './beats/skill-beats.js';
 
@@ -1385,7 +1386,7 @@ export function createDirector(rt, data, hooks, opts = {}) {
     // flight
     const t0 = S.t;
     if (outcome === 'save' && gk && scorpion) {
-      yield* scorpionSave(gk, t0 + flight, scorp);
+      yield* scorpionSave(beatContext, gk, { T: t0 + flight, body: scorp });
       if (save?.saveType === 'CATCH') { ball.v.set(-goalSide * 1.2, 4.5, 0); ball.owner = null; }       // it loops up off his heels and he gathers it
       else if (save?.saveType === 'DEFLECT_CORNER') { ball.owner = null; deflectBehind(goalSide, cornerSide(i)); }
       else { const r = toWorld(save?.toPos || [goalSide > 0 ? 88 : 12, 50]); ball.v.set((r.x - ball.p.x) * 0.55, 6.5, (r.z - ball.p.z) * 0.55); ball.owner = null; }
@@ -1466,70 +1467,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     noteSkill(audit, p);
     const feet = p.feet;
     later(1.6, () => { p.drive = null; p.flip = null; if (p.feet === feet) p.feet = null; p.faceLock = false; p.busy = false; });
-  }
-  // V7.9: Higuita's scorpion kick (Colombia v England, Wembley 1995) — our own version: the ball loops down
-  // onto him, he throws himself forward face down, the legs fold up over his back and the heels send it
-  // back out; he lands on his hands and chest and gets up
-  const SCORP_LEAD = 0.55;
-  function scorpionBody(gk, T) {
-    const F = forwardOf(gk), h = gk.heading, at0 = gk.pos.clone();
-    return {
-      pos: t => { const k = smooth01(clamp((t - (T - SCORP_LEAD)) / 0.9, 0, 1)); return at0.clone().addScaledVector(F, 1.2 * k); },
-      heading: () => h,
-      flip: t => {
-        const u = t - (T - SCORP_LEAD);
-        if (u < 0) return { pitch: 0, lift: 0 };
-        // flat in the air at about hip height (he flies, not a nose-dive), then down onto his hands and chest
-        if (u < SCORP_LEAD) { const k = smooth01(u / SCORP_LEAD); return { pitch: -1.45 * k, lift: 0.16 * Math.sin(Math.PI * k) }; }
-        const v = u - SCORP_LEAD;
-        if (v < 0.4) { const k = smooth01(v / 0.4); return { pitch: -1.45 - 0.11 * k, lift: -0.82 * k }; }
-        return { pitch: -1.56, lift: -0.82 };          // he lies there until he rolls over to get up (runtime)
-      },
-    };
-  }
-  // where the heels meet the ball: above his back as he lies flat in the air
-  function scorpionSpot(gk, T, b) {
-    const fl = b.flip(T), hips = b.pos(T).setY(0.95 + fl.lift);
-    return hips.addScaledVector(forwardOf(gk), 0.18).add(V(0, 0.58, 0));          // over his back, behind his head (the heels never come past it)
-  }
-  function* scorpionSave(gk, T, body) {
-    const F = forwardOf(gk);
-    gk.busy = true; gk.faceLock = true; gk.loopsWant.keeperReady = 0; gk.act = null; gk.motion = null;
-    yield* until(() => { gk.target.copy(gk.pos); gk.want = 0; gk.vel.set(0, 0, 0); return S.t >= T - SCORP_LEAD; }, Math.max(0, T - SCORP_LEAD - S.t) + 0.1);
-    hooks.slow(0.4); ball.through = T + 1; hooks.cam('close', gk);         // the live picture goes to him
-    gk.drive = { pos: body.pos, heading: body.heading }; gk.flip = body.flip;
-    rt.startAction(gk, 'scorpion'); gk.act.t0 = T - ACTIONS.scorpion.dur * ACTIONS.scorpion.contact;
-    // the heels reach the ball with the knees folding up behind him (not forwards)
-    const w = ramp(T - 0.32, [0, 0.26, 0.38, 0.52]), R = () => rightOf(gk), behind = () => F.clone().negate().add(V(0, 1.2, 0));
-    // the heels go to where the ball will be at the strike (above his back), not chasing it forwards early
-    const spot = scorpionSpot(gk, T, body);
-    gk.feet = { Left: { w, at: () => spot.clone().addScaledVector(R(), -0.09), pole: behind }, Right: { w, at: () => spot.clone().addScaledVector(R(), 0.09), pole: behind } };
-    // arms out in front in flight (Superman), then down to the grass to land on
-    const hw = ramp(T - SCORP_LEAD + 0.05, [0, 0.2, 1.6, 2.0]), hips = () => gk.bones.Hips.getWorldPosition(V());
-    const hand = side => t => {
-      const fly = hips().addScaledVector(F, 1.15).addScaledVector(R(), side * 0.22).add(V(0, 0.2, 0));
-      const land = gk.pos.clone().addScaledVector(F, 0.7).addScaledVector(R(), side * 0.28).setY(0.06);
-      return fly.lerp(land, smooth01(clamp((t - T - 0.05) / 0.3, 0, 1)));
-    };
-    gk.hands = { Left: { w: hw, at: hand(-1) }, Right: { w: hw, at: hand(1) } };
-    const near = () => Math.min(toeGap(gk, 'Left'), toeGap(gk, 'Right'));
-    yield* until(() => S.t >= T - 0.02 && near() < 0.22 || S.t >= T + 0.06, T - S.t + 0.3);
-    const fl = gk.flip(S.t), audit = { kind: 'scorpion', contact: +near().toFixed(3), pitch: +(fl?.pitch ?? 0).toFixed(2), h: +ball.p.y.toFixed(2) };
-    // how far the boots are behind his head along his line of flight (they must not come out past it)
-    const head = gk.bones.Head.getWorldPosition(V()), toes = gk.toes.map(t => t.getWorldPosition(V()).sub(head).dot(F));
-    audit.behindHead = +(-Math.max(...toes)).toFixed(2);
-    if (DEBUG) { const hp = gk.bones.Hips.getWorldPosition(V()), d = q => +q.clone().sub(hp).dot(F).toFixed(2) + '/' + q.y.toFixed(2); audit.dbg = { head: d(head), toeL: d(gk.toes[0].getWorldPosition(V())), toeR: d(gk.toes[1].getWorldPosition(V())), ball: d(ball.p), heel: d(gk.bones.LeftFoot.getWorldPosition(V())) }; }
-    (stats.contacts.save ||= []).push(+near().toFixed(2));
-    noteSkill(audit, gk);
-    const feet = gk.feet, hands = gk.hands;
-    // down on his hands and chest, he lies a moment, pushes himself up into a crouch and stands up from it
-    // (V7.9.8: he no longer rolls over onto his back first)
-    later(0.9, () => {
-      if (gk.feet === feet) gk.feet = null; if (gk.hands === hands) gk.hands = null;
-      rt.riseFromFront(gk);
-      if (DEBUG) audit.rise = { t0: S.t };
-    });
-    later(0.9 + 0.25 + 0.7 + 0.7 + 0.6, () => { gk.faceLock = false; gk.busy = false; hooks.slow(1); });
   }
   function* celebrate(scorer) {
     if (!scorer) return;
