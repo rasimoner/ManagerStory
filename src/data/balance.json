@@ -2,6 +2,7 @@
   "league": {"lift":5},
   "starScene": {"minStars":4,"shirtWish":[10,7,9,11,8,17,19,21,23,99]},
   "shirtNumbers": {"lowest":1,"highest":99},
+  "highlights": {"perPlayer":10,"typeRank":{"starTransfer":4,"keeperSave":3,"skillMove":2,"newMove":1}},
   "training": {"cap":8},
   "season": {"baseYear":2025,"marketSize":110,"minSquad":16},
   "development": {

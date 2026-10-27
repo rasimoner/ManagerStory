@@ -55,7 +55,7 @@ test('a big signing: breaking news, a free shirt number, the highlight record, t
   assert.ok(Number.isInteger(p.number) && !before.includes(p.number), 'his number is not worn by anyone else');
   const hl = h.json('S.highlights');
   assert.equal(hl.length, 1);
-  assert.deepEqual({ ...hl[0], move: typeof hl[0].move }, { id: 'hl1', kind: 'star-transfer', playerId: p.id, playerName: p.name, pos: p.pos, move: 'string', stars: hl[0].stars, keeper: false, fee: 12000000, fromClub: hl[0].fromClub, season: '2025/26', week: 3, matchday: 3 });
+  assert.deepEqual({ ...hl[0], move: typeof hl[0].move }, { id: 'hl1', type: 'starTransfer', playerId: p.id, playerName: p.name, pos: p.pos, move: 'string', stars: hl[0].stars, season: '2025/26', week: 3, seed: -1, fee: 12000000, fromClub: hl[0].fromClub });
   assert.ok(hl[0].stars >= 4);
   assert.ok(h.run(`S.inbox.some(m=>m.title.startsWith('SON DAKİKA')&&m.title.includes(${JSON.stringify(p.name)}))`), 'breaking news in the inbox');
   assert.match(h.html(), /class="stflash"/, 'the announcement screen, not the old photo');
