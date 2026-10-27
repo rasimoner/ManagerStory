@@ -1,25 +1,17 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const vm=require('node:vm');
 const path=require('node:path');
 const base=path.resolve(__dirname,'../dist');
-const sources=['match-support.js','career-events.js','live-match.js','player-profiles.js','opponents-v731.js','season.js','pitch-v73.js','pitch-v731.js','app.js'].map(file=>fs.readFileSync(path.join(base,file),'utf8'));
+const {loadGame}=require('./support/game.cjs');
 function harness(existing=new Map()){
- const alerts=[],confirms=[];
- const app={innerHTML:'',classList:{toggle(){}},insertAdjacentHTML(_where,html){this.innerHTML+=html}};
- const ctx={console,structuredClone,AbortController,URL,Blob,setTimeout,clearTimeout,Math,
-  localStorage:{getItem:key=>existing.get(key)||null,setItem:(key,val)=>existing.set(key,val),removeItem:key=>existing.delete(key)},
-  document:{body:{classList:{toggle(){}}},querySelector(q){if(q==='#app')return app;if(q==='.bottomnav')return app.innerHTML.includes('class=bottomnav')?{}:null;return null;}},
-  alert:message=>alerts.push(message),confirm:message=>{confirms.push(message);return true},prompt:()=>null};
- ctx.window=ctx;ctx.window.scrollTo=()=>{};vm.createContext(ctx);
- for(const source of sources)vm.runInContext(source,ctx);
- return {run:code=>vm.runInContext(code,ctx),app,storage:existing,alerts,confirms};
+ const g=loadGame({storage:existing});
+ return {run:g.run,app:g.app,storage:g.storage,alerts:g.alerts,confirms:g.confirms};
 }
 function finishLiveGame(h){
  h.run('resumeLive();advanceLive(30)');
  // a seeded injury can legitimately stop the first half; handle it like the second-half helper does
- for(let tries=0;h.run('M.reason')==='injury'&&tries<6;tries++){h.run('(function(){window.OUT=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const outP=S.players.find(p=>p.id===window.OUT);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[window.OUT])>=.7);if(subP)doSub(subP.id);else if(outP)outP.injury=0;resumeLive()})()');h.run('advanceLive(30)');}
+ for(let tries=0;h.run('M.reason')==='injury'&&tries<6;tries++){h.run('(function(){setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const outP=S.players.find(p=>p.id===subOut);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);if(subP)doSub(subP.id);else if(outP)outP.injury=0;resumeLive()})()');h.run('advanceLive(30)');}
  assert.equal(h.run('M.reason'),'half');
  h.run("teamTalk('belief');startSecondHalf()");
  completeSecondHalf(h);
@@ -32,7 +24,7 @@ function completeSecondHalf(h){
  while(!h.run('M.finished')&&tries++<12){
   h.run('advanceLive(40)');
   if(h.run('M.reason')==='injury'){
-   h.run("window.OUT=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const out=S.players.find(p=>p.id===window.OUT);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[window.OUT])>=.7);if(sub)doSub(sub.id);else S.players.find(p=>p.id===window.OUT).injury=0;resumeLive()");
+   h.run("setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const out=S.players.find(p=>p.id===subOut);const sub=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);if(sub)doSub(sub.id);else S.players.find(p=>p.id===subOut).injury=0;resumeLive()");
   } else if(h.run('M.pause')&&!h.run('M.finished'))h.run('resumeLive()');
  }
  assert.ok(tries<12,'second half completes after any required injury substitution');
@@ -54,7 +46,7 @@ test('career, press, tactical tabs, instruction, substitution, two league rounds
  h.run("setMatchTactic('tempo','Yüksek')");assert.equal(h.run('M.tempo'),'Yüksek');
  h.run("switchMatchTab('pitch');openMatchPlayer(12)");assert.match(h.app.innerHTML,/Maç puanı <b>6.5/);
  h.run("setMatchOrder(12,'runBehind')");assert.equal(h.run('M.orderKeys[12]'),'runBehind');
- h.run('window.OUT=12;subUI()');assert.match(h.app.innerHTML,/Mensah.*ST/);assert.match(h.app.innerHTML,/Oğuz/);
+ h.run('setSubOut(12);subUI()');assert.match(h.app.innerHTML,/Mensah.*ST/);assert.match(h.app.innerHTML,/Oğuz/);
  h.run('doSub(13)');assert.ok(h.run('M.active.includes(13)&&!M.active.includes(12)'));assert.equal(h.run('M.substitutions.length'),1);
  const state=h.storage.get('msv4');assert.ok(state.length>1000);
  const reloaded=harness(new Map([['msv4',state]]));assert.equal(reloaded.run('M.min'),0);assert.equal(reloaded.run('M.tempo'),'Yüksek');assert.ok(reloaded.run('M.active.includes(13)'));
@@ -75,7 +67,7 @@ test('career, press, tactical tabs, instruction, substitution, two league rounds
  assert.equal(reloaded.alerts.length,0);
 });
 test('old W/D/L saves migrate without losing fixtures, budgets, players, or archive',()=>{
- const h=harness();h.run('S=fresh();init();S.budget=7345678;S.players[0].fitness=63;S.form["Anadolu Hisarı"]=["W","D","L"];S.event={kind:"training",title:"Önceki kayıt",choices:[["İlerle","tactics"]]};S.v71=undefined;save()');
+ const h=harness();h.run('S=fresh();init();S.budget=7345678;S.players[0].fitness=63;S.form["Anadolu Hisarı"]=["W","D","L"];S.event={kind:"training",title:"Önceki kayıt",choices:[["İlerle","tactics"]]};S.v71=undefined;delete S.schemaVersion;save()');
  const raw=h.storage.get('msv4');h.storage.delete('msv4-v70-backup');
  const migrated=harness(h.storage);assert.equal(migrated.run('S.budget'),7345678);assert.equal(migrated.run('S.players[0].fitness'),63);
  assert.equal(JSON.stringify(migrated.run('S.form["Anadolu Hisarı"]')),JSON.stringify(['G','B','M']));
@@ -91,7 +83,7 @@ test('goal, card, tactical and fitness events are tied to the running match',()=
  h.run("M.activeTab='details';render()");assert.match(h.app.innerHTML,/Kırmızı kart/);
  h.run("M.activeTab='stats';render()");assert.match(h.app.innerHTML,/Pas yüzdesi/);
  h.run("M.activeTab='tactics';setMatchTactic('line','Önde')");assert.equal(h.run('M.line'),'Önde');assert.equal(h.run('M.events.at(-1).type'),'tactic');
- h.run('window.OUT=0;subUI()');assert.equal(h.run('doSub(14)'),true);assert.ok(h.confirms.at(-1).includes('YİNE DE OYNAT'));assert.ok(h.run('M.positionSuitability[14]')<1);
+ h.run('setSubOut(0);subUI()');assert.equal(h.run('doSub(14)'),true);assert.ok(h.confirms.at(-1).includes('YİNE DE OYNAT'));assert.ok(h.run('M.positionSuitability[14]')<1);
  assert.ok(h.storage.get('msv4').includes('"rngState"'));
 });
 test('press pools have 25+ templates, choices, no near repeats and conditional player meetings',()=>{
@@ -135,20 +127,15 @@ test('academy replenishment never repeats promoted candidate identities across s
  assert.equal(reopened.run(`S.v6.academy.some(x=>${JSON.stringify(promotedIds)}.includes(x.id)||${JSON.stringify(promotedPrints)}.includes(academyFingerprint(x)))`),false);
  assert.ok(reopened.run('S.v6.usedAcademyCandidateIds.length>=3'));
 });
-test('every offline asset exists and legacy GIFs are static atmospheric frames',()=>{
+test('every offline asset exists',()=>{
  const assetsDir=path.join(base,'assets');
  const sw=fs.readFileSync(path.join(base,'sw.js'),'utf8');
  const assets=[...sw.matchAll(/"(\.\/[^"\n]+)"/g)].map(x=>x[1].slice(2).split('?')[0]);
  assert.ok(assets.length>=29);
  for(const rel of assets)assert.ok(fs.statSync(path.join(base,rel)).size>0,rel);
- assert.ok(assets.includes('match-support.js')&&assets.includes('career-events.js')&&assets.includes('live-match.js')&&assets.includes('pitch-v73.js'));
- assert.ok(assets.includes('opponents-v731.js')&&assets.includes('pitch-v731.js'));
- for(const file of ['stadium','press','office','fans','training','signing','facilities']){
-  const image=path.join(assetsDir,'atmosphere',`${file}.webp`);assert.ok(fs.statSync(image).size>50000,file);
- }
- const {execFileSync}=require('node:child_process');
- const result=execFileSync('python',['-c',`from pathlib import Path\nfrom PIL import Image\nfor p in Path('${assetsDir}/cinematics').glob('*.gif'):\n im=Image.open(p); assert im.n_frames==1,p\nprint('static legacy GIFs verified')`],{encoding:'utf8'});
- assert.match(result,/verified/);
+ // (that every script the page loads is cached: tests/service-worker.test.cjs)
+ // V7.9.13: the old photos and cinematic GIFs nothing referenced are gone (tests/assets.test.cjs keeps it so)
+ assert.ok(!fs.existsSync(path.join(assetsDir,'cinematics')));
 });
 test('live clock runs 45 minutes unaided, stops at half, resumes to exact 90:00',()=>{
  const h=harness();h.run('S=fresh();init();startMatch()');
@@ -170,7 +157,7 @@ test('pause, touch and substitution freeze simulation and preserve position and 
  h.run('openMatchPlayer(12)');assert.equal(h.run('M.pause'),true);assert.match(h.app.innerHTML,/Topla buluşma/);
  h.run('advanceLive(100)');assert.equal(h.run('M.clockSeconds'),sec);assert.equal(h.run('M.events.length'),before);
  h.run("setMatchOrder(12,'runBehind')");assert.equal(h.run('M.orderKeys[12]'),'runBehind');assert.equal(h.run('M.pause'),true);
- h.run('window.OUT=12;subUI();doSub(13)');assert.equal(h.run('M.active.includes(12)'),false);
+ h.run('setSubOut(12);subUI();doSub(13)');assert.equal(h.run('M.active.includes(12)'),false);
  const start=h.run('M.events.length');h.run('resumeLive();advanceLive(3)');
  assert.ok(h.run('M.clockSeconds')>sec);
  const departed=h.run(`M.events.slice(${start}).filter(e=>e.playerId===12||e.fromId===12||e.toId===12)`);
@@ -188,7 +175,7 @@ test('playback speeds change wall time only, while seeded MatchEvents remain ide
  assert.equal(signatures[0],signatures[1]);assert.equal(signatures[1],signatures[2]);
 });
 test('live save resumes at the same second and V7.1 career is backed up without replacing game data',()=>{
- const h=harness();h.run('S=fresh();init();S.version="7.1";delete S.v72;S.budget=7234567;save()');
+ const h=harness();h.run('S=fresh();init();S.version="7.1";delete S.v72;delete S.schemaVersion;S.budget=7234567;save()');
  const old=h.storage.get('msv4');const migrated=harness(h.storage);
  assert.equal(migrated.storage.get('msv4-v71-backup'),old);assert.equal(migrated.run('S.budget'),7234567);
  migrated.run('startMatch();advanceLive(9.18);pauseLive()');const snap=migrated.storage.get('msv4');
@@ -249,7 +236,7 @@ test('generated match events include carrying, off ball runs, pressure, tackles 
  assert.ok(h.run('M.stats.tackles.every(Number.isFinite)'));
 });
 test('V7.2 career save is preserved and upgraded on load',()=>{
- const h=harness();h.run('S=fresh();init();S.version="7.2";S.budget=7732100;delete S.v73;save()');
+ const h=harness();h.run('S=fresh();init();S.version="7.2";S.budget=7732100;delete S.v73;delete S.schemaVersion;save()');
  const original=h.storage.get('msv4'),restored=harness(h.storage);
  assert.equal(restored.storage.get('msv4-v72-backup'),original);
  assert.equal(restored.run('S.budget'),7732100);
@@ -339,7 +326,7 @@ test('opponent roster identities, attributes, fatigue, evolution and V7.3 migrat
  const eff=h.run('playerAttribute("o9","opp","pace",0)');
  assert.ok(eff<=other.pace&&eff>=other.pace*.8);
  h.run('evolveOpponentSquads(S.fixture)');assert.equal(h.run('S.v731.lastEvolvedFixture'),0);
- h.run('S.version="7.3";save()');const original=h.storage.get('msv4');
+ h.run('S.version="7.3";delete S.schemaVersion;save()');const original=h.storage.get('msv4');
  const reopened=harness(h.storage);
  assert.equal(reopened.storage.get('msv4-v73-backup'),original);
  assert.equal(reopened.run('S.version'),reopened.run('GAME_VERSION'));
@@ -367,7 +354,7 @@ test('return fixture uses identical opponent identities after growth and save',(
 });
 test('forced injury substitution follows player ID and permits out-of-position CAM to CB',()=>{
  const h=harness();h.run('S=fresh();init();startMatch();S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};M.pause=true;M.reason="injury";M.lifecycle="PAUSED";subUI()');
- assert.equal(h.run('window.OUT'),11);
+ assert.equal(h.run('subOut'),11);
  assert.equal(h.run('doSub(4)'),true);
  assert.equal(h.run('M.active.includes(11)'),false);
  assert.equal(h.run('M.active.includes(4)'),true);
@@ -435,7 +422,7 @@ test('conversation response changes trust and happiness with personality, then p
 test('injury at halftime remains resolvable without skipping halftime side switch',()=>{
  const h=harness();h.run('S=fresh();init();startMatch();M.min=45;M.clockSeconds=2700;M.pause=true;M.reason="half";M.lifecycle="HALF_TIME";S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"}');
  h.run('startSecondHalf()');assert.equal(h.run('M.reason'),'half');assert.match(h.alerts.at(-1),/Sakatlanan/);
- h.run('window.OUT=11;doSub(4)');assert.equal(h.run('M.reason'),'half');assert.equal(h.run('M.requiredSubstitution'),null);
+ h.run('setSubOut(11);doSub(4)');assert.equal(h.run('M.reason'),'half');assert.equal(h.run('M.requiredSubstitution'),null);
  h.run('startSecondHalf()');assert.equal(h.run('M.secondHalf'),true);assert.equal(h.run('M.lifecycle'),'RUNNING_SECOND_HALF');
 });
 test('authoritative second stamps events; stale 02:00 animation cannot replay under 07:56',()=>{
@@ -501,7 +488,7 @@ test('pause at 23:41, injury and position warning never accumulate wall-time or 
  h.run('advanceLive(10);pitchFrameState(10,50000)');
  assert.equal(h.run('M.matchElapsedSeconds'),before);assert.equal(h.run('M.events.length'),eventCount);assert.equal(h.run('pitchV73.progress'),.3);
  h.run('resumeLive()');assert.equal(h.run('M.matchElapsedSeconds'),before);
- h.run('S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};pauseLive("injury");window.OUT=11;subUI()');
+ h.run('S.players[11].injury=1;M.requiredSubstitution={playerId:11,reason:"injury",state:"SUBSTITUTION_REQUIRED"};pauseLive("injury");setSubOut(11);subUI()');
  h.run('advanceLive(10)');assert.equal(h.run('M.matchElapsedSeconds'),before);
  h.run('doSub(4)');assert.ok(h.confirms.at(-1).includes('YİNE DE OYNAT'));
  assert.equal(h.run('M.matchElapsedSeconds'),before);
@@ -536,17 +523,25 @@ test('background frame pauses match and resumed delta starts fresh',()=>{
  const before=h.run('M.matchElapsedSeconds');h.run('document.hidden=false;resumeLive();liveFrameStep(999999)');
  assert.equal(h.run('M.matchElapsedSeconds'),before);
 });
-test('club atmosphere resolves career, stadium and scoring identities independently without changing saved gameplay',()=>{
- const h=harness();h.run('S=fresh();init();S.currentClubId="Ormanşehir";save();render()');
- assert.equal(h.run('resolveClubIdentity("career").id'),'Ormanşehir');
- assert.match(h.app.innerHTML,/ORMANŞEHİR GAZETESİ/);
- assert.match(h.app.innerHTML,/goal-club-17\.webp/);
+// V7.9.13 (refactor B): S.currentClubId is the managed club for gameplay too (managedClubName()), not only for
+// pictures. The league is built around it, so a rival's name there (only an edited save can have one) falls back to
+// the starting club everywhere; other clubs' identities resolve through their own names.
+test('club atmosphere: career, stadium and scoring identities resolve independently; the career one is the managed club',()=>{
+ const home=harness();home.run('S=fresh();init();save();render()');
+ assert.equal(home.run('resolveClubIdentity("career").id'),'Anadolu Hisarı');
+ assert.match(home.app.innerHTML,/ANADOLU HİSARI GAZETESİ/);
+ assert.match(home.app.innerHTML,/goal-club-0\.webp/);
+ assert.equal(home.run('clubColorNames(managedClubName())'),'SARI • KIRMIZI');
+ const h=harness();h.run('S=fresh();init();S.currentClubId="Ormanşehir";save()');
+ assert.equal(h.run('managedClubName()'),'Anadolu Hisarı','a rival cannot be the managed club yet');
+ const restored=harness(h.storage);
+ assert.equal(restored.run('loadError'),'');assert.match(restored.app.innerHTML,/ANADOLU HİSARI GAZETESİ/);
+ assert.equal(restored.run('resolveClubIdentity("career").id'),'Anadolu Hisarı');
+ assert.equal(restored.run('S.table.length'),18);
  assert.equal(h.run('resolveClubIdentity("stadium",{homeTeam:"Anadolu Hisarı"}).id'),'Anadolu Hisarı');
  assert.equal(h.run('resolveClubIdentity("awaySupporters",{awayTeam:"Ormanşehir"}).id'),'Ormanşehir');
  assert.equal(h.run('resolveClubIdentity("goal",{teamId:"Ormanşehir"}).secondaryColor'),'#eee');
  assert.equal(h.run('resolveClubIdentity("goal",{teamId:"Anadolu Hisarı"}).primaryColor'),'#f3c623');
- const restored=harness(h.storage);assert.equal(restored.run('resolveClubIdentity("career").id'),'Ormanşehir');
- assert.equal(restored.run('S.table.length'),18);
  assert.match(restored.run("clubProps('career',{kind:'signing'})"),/club-emblem/);
  for(const kind of ['press','locker'])
   assert.doesNotMatch(restored.run(`clubProps('career',{kind:'${kind}'})`),/club-emblem|crest/);
@@ -555,8 +550,8 @@ test('club atmosphere resolves career, stadium and scoring identities independen
  assert.equal(restored.run('officePhoto("Ormanşehir")'),'assets/atmosphere/office-club-17.webp');
  assert.equal(restored.run('fanPhoto("Ormanşehir")'),'assets/atmosphere/goal-club-17.webp');
  assert.equal(restored.run('fanPhoto("Anadolu Hisarı")'),'assets/atmosphere/goal-club-0.webp');
- restored.run('delete S.currentClubId;save()');const legacy=harness(restored.storage);
- assert.equal(legacy.run('resolveClubIdentity("career").id'),'Anadolu Hisarı');
+ restored.run('delete S.currentClubId;delete S.schemaVersion;save()');const legacy=harness(restored.storage);
+ assert.equal(legacy.run('S.currentClubId'),'Anadolu Hisarı','an old save gets the starting club');
  assert.equal(restored.run('resolveClubIdentity("goal",{teamId:"Unknown"}).primaryColor'),'#55646b');
  assert.equal(restored.run('Object.keys(CLUBSTYLE).length'),18);
 });
@@ -589,7 +584,7 @@ assert sum(abs(x-y) for x,y in zip(c.getpixel((460,175)),d.getpixel((460,175))))
 assert sum(abs(x-y) for x,y in zip(c.getpixel((830,210)),d.getpixel((830,210))))>35
 assert sum(abs(x-y) for x,y in zip(c.getpixel((700,175)),d.getpixel((700,175))))<10 # wall untouched
 `]);
- for(const name of ['fans-neutral','fans-day','fans-rain','fans-night','locker-base','press-base','signing-base','stadium-base','training-base','office-base','facilities-base'])
+ for(const name of ['fans-neutral','fans-day','fans-rain','fans-night','signing-base','stadium-base','training-base','office-base','facilities-base'])
   assert.ok(fs.existsSync(path.join(base,'assets/atmosphere',name+'.webp')),name);
 });
 test('carried positions survive turnovers, committed overlap and recovery use movement bounds',()=>{
@@ -721,14 +716,18 @@ test('scenario C: an unrelated primary/secondary pair reaches the stadium, locke
  const h=harness();setFixture(h,'Kadıköy Rüzgârı','Anadolu Hisarı');
  const stadium=layerStyle(stadiumSection(h),'stadium');
  assert.match(stadium,/--club-primary:#6a1b9a/);assert.match(stadium,/--club-secondary:#f7d117/);
- h.run('S.currentClubId="Marmara 1912";S.event={kind:"press",title:"Basın",text:"?",choices:[["Güven","pressTrust"]]};render()');
+ // (the press room takes the home team's colours, not the managed club's)
+ h.run('S.event={kind:"press",title:"Basın",text:"?",choices:[["Güven","pressTrust"]]};render()');
  const pre=layerStyle(h.app.innerHTML,'press');
  assert.match(pre,/--club-primary:#6a1b9a/);assert.match(pre,/--club-secondary:#f7d117/);
  h.run('S.event={kind:"postpress",title:"Maç Sonu",text:"?",choices:[["Güven","postTeam"]]};render()');
  assert.equal(layerStyle(h.app.innerHTML,'press'),pre,'pre- and post-match press share one identity path');
  h.run('S.event={kind:"matchday",title:"Maç günü",text:"?",choices:[["Devam","x"]]};render()');
+ // the locker room wears the managed club's colours, whoever is at home; any other pair reaches it the same way
  const locker=layerStyle(h.app.innerHTML,'locker');
- assert.match(locker,/--club-primary:#1746a2/);assert.match(locker,/--club-secondary:#ff7a00/);
+ assert.match(locker,/--club-primary:#f3c623/);assert.match(locker,/--club-secondary:#b3132b/);
+ const other=h.run("clubLayers('locker',resolveClubIdentity('goal',{teamId:'Marmara 1912'}))");
+ assert.match(other,/--club-primary:#1746a2/);assert.match(other,/--club-secondary:#ff7a00/);
  assert.doesNotMatch(h.app.innerHTML,/club-emblem/);
 });
 test('a missing or invalid colour never overwrites the other valid colour',()=>{

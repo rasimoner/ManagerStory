@@ -1,0 +1,112 @@
+/* Refactor C3: how the modules fit together.
+   - One entry point: main.js. The other modules only declare (and register their actions, season-end
+     steps and hooks); loading them without main.js draws nothing and opens no career.
+   - No module replaces another's function at run time. A file that adds to another's behaviour registers
+     for a named moment (core/hooks.js), so the code a reader sees is the code that runs.
+   - Every page script is an ES module that says what it takes from where (import), and nothing of the
+     game is on window.
+   - core/ does not know the modes: what it still takes from modes/manager is pinned here and may only
+     shrink (refactor D empties it). */
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs');
+
+/* What core/ still takes from the manager mode, by file. Refactor D moves these into core (the engine
+   core, the league, the clubs, the save) or passes them in; the list may only shrink. */
+const CORE_FROM_MODES = {
+  'core/engine/live-match.js': 'render save tick',
+  'core/engine/match-support.js': '$ bottomNav currentOpponent decorateAtmosphereScenes matchOrderOptions render save showAcademy showLeague showV6Transfers',
+  'core/engine/pitch-v73.js': 'currentOpponent fanPhoto oppRadarPos resolveClubIdentity setOppOwner setUserOwner',
+  'core/engine/pitch-v731.js': 'currentOpponent positionPenaltyV61 setOppOwner setUserOwner',
+  'core/league/opponents-v731.js': 'OPP syncWonderOffers',
+  'core/presentation/match3d/match-view-adapter.js': 'OPP currentOpponent resolveClubIdentity',
+  'core/presentation/match3d/match3d-live-clock.js': 'render resolveClubIdentity',
+  'core/presentation/match3d/match3d-newview.js': 'CLUBSTYLE openDecisionSheet render resolveClubIdentity',
+  'core/presentation/scenes/star-transfer-scene.js': 'CLUBSTYLE',
+  'core/save.js': 'init render save',
+  'core/season/season.js': 'CLUBSTYLE OPP SKILL_NAMES SLOT_POS V6FN V6LN V6POS allTeams bottomNav createUniqueAcademyCandidate crest ensureLeague header makeLeagueSchedule managedClubName marketProfile money movesNow normalizeFormation pushInbox refreshAcademy render save setClock syncWonderOffers',
+};
+
+const walk = dir => fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {
+  const f = path.posix.join(dir, d.name);
+  return d.isDirectory() ? (f === 'vendor' ? [] : walk(f)) : (f.endsWith('.js') && f !== 'sw.js' ? [f] : []);
+});
+const IMPORTS = /(?:^|\n)\s*import\s+(?:\{([^}]*)\}\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
+
+test('only main.js does anything on load', () => {
+  const without = loadGame({ skip: ['main.js'], quiet: true });
+  assert.equal(without.html(), '', 'nothing drawn');
+  assert.equal(without.run('S'), null, 'no career opened');
+  const page = loadGame({ quiet: true });
+  assert.match(page.html(), /Yeni Kariyer/, 'main.js draws the start screen');
+});
+
+test('no script replaces a function at run time', () => {
+  // every function a page script declares at its top level is still that declaration once the page is
+  // up and a career runs (a wrapper put in its place would be another function)
+  const g = loadGame({ quiet: true, layers: ['clock', 'view'] });
+  g.run('S=fresh();S.matchSalt=newMatchSalt();init();save();render()');
+  const replaced = [];
+  for (const { file, code } of gameSources({ layers: ['clock', 'view'] })) {
+    for (const m of code.matchAll(/^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm)) {
+      const now = g.run(`typeof ${m[1]}==='function'?${m[1]}.toString().slice(0,200):'missing'`);
+      if (!now.replace(/^async\s+/, '').startsWith(`function ${m[1]}(`) && !now.replace(/^async\s+/, '').startsWith(`function ${m[1]} (`)) replaced.push(`${file}: ${m[1]}`);
+    }
+  }
+  assert.deepEqual(replaced, []);
+});
+
+test('extension points: the star transfer and the navigation register for named moments', () => {
+  const g = loadGame({ quiet: true });
+  const hooks = g.json('Object.fromEntries(Object.entries(HOOKS).map(([k,v])=>[k,v.length]))');
+  // star-transfer.js: before and after a signing, and the transfer list (nav.js needs a document)
+  assert.deepEqual(hooks, { beforeSigning: 1, afterSigning: 1, transferListShown: 1 });
+  // a big signing still starts the scene; a small one does not
+  g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
+  const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');
+  const plain = g.run('S.v6.transferPool.find(x=>!starSceneQualifies(x))?.id');
+  g.run(`v6Sign(${JSON.stringify(plain)},1)`);
+  assert.equal(g.run('typeof starFlow==="undefined"||!starFlow'), true, 'no scene for an ordinary signing');
+  g.run(`v6Sign(${JSON.stringify(star)},1)`);
+  assert.equal(g.run('!!starFlow&&starFlow.playerId===S.players.at(-1).id'), true, 'the scene for a star');
+});
+
+test('the page is ES modules: no classic script, every file in the game an ES module', () => {
+  const page = pageScripts();
+  assert.deepEqual(page.filter(s => !s.module).map(s => s.file), [], 'no classic <script src>');
+  assert.equal(page[0].file, 'main.js');
+  for (const { file, code } of gameSources({ layers: ['clock', 'view', '3d'] })) {
+    assert.match(code, /^\s*(?:import|export)\b/m, `${file} imports or exports`);
+  }
+});
+
+test('nothing of the game is on window', () => {
+  // the browser's own (scroll, size, events) and one automation knob for the star scene's clock
+  const BROWSER = new Set(['scrollTo', 'scrollY', 'innerHeight', 'addEventListener', '__stsTimeScale']);
+  const used = [];
+  for (const file of walk('core').concat(walk('modes'), walk('ui'), ['main.js'])) {
+    const code = fs.readFileSync(path.join(DIST, file), 'utf8');
+    for (const m of code.matchAll(/\bwindow\.([A-Za-z_$][\w$]*)/g)) if (!BROWSER.has(m[1])) used.push(`${file}: window.${m[1]}`);
+  }
+  assert.deepEqual(used, []);
+});
+
+test('core/ takes from modes/ only what is pinned here (the list may only shrink)', () => {
+  const now = {};
+  for (const file of walk('core')) {
+    const code = fs.readFileSync(path.join(DIST, file), 'utf8');
+    for (const m of code.matchAll(IMPORTS)) {
+      const to = path.posix.normalize(path.posix.join(path.posix.dirname(file), m[2]));
+      if (to.startsWith('modes/')) (now[file] ??= new Set());
+      if (to.startsWith('modes/')) (m[1] || '*').split(',').map(x => x.trim()).filter(Boolean).forEach(n => now[file].add(n));
+    }
+  }
+  const extra = [];
+  for (const [file, names] of Object.entries(now)) {
+    const allowed = new Set((CORE_FROM_MODES[file] || '').split(' ').filter(Boolean));
+    for (const n of names) if (!allowed.has(n)) extra.push(`${file}: ${n}`);
+  }
+  assert.deepEqual(extra, [], 'core/ must not take anything new from modes/');
+});

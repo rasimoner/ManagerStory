@@ -10,8 +10,8 @@ const dist = path.join(__dirname, '..', 'dist');
 
 test('footballer mesh: every body part faces outwards (shorts, socks, sleeves, boots)', async () => {
   const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'newview/rig.js'));
-  const { buildFootballerGeometry, bindPositions, PART } = await import(path.join(dist, 'newview/footballer.js'));
+  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
+  const { buildFootballerGeometry, bindPositions, PART } = await import(path.join(dist, 'core/presentation/match3d/newview/footballer.js'));
   const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
   const skeleton = rig.newInstance().skeleton, P = bindPositions(skeleton);
   // bone segments the surface wraps round (a point's nearest one is its axis)
@@ -58,11 +58,11 @@ test('footballer mesh: every body part faces outwards (shorts, socks, sleeves, b
 // own, so no visible triangle is half one part and half another (except the hairline, eyes and sole, drawn
 // whole-triangle by design).
 test('footballer mesh: kit colours never bleed into the head, part edges are clean rings', async () => {
-  const src = fs.readFileSync(path.join(dist, 'newview/runtime.js'), 'utf8');
+  const src = fs.readFileSync(path.join(dist, 'core/presentation/match3d/newview/runtime.js'), 'utf8');
   assert.equal((src.match(/flat varying float vPart/g) || []).length, 2, 'the part id is flat in both shaders');
   const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'newview/rig.js'));
-  const { buildFootballerGeometry, PART } = await import(path.join(dist, 'newview/footballer.js'));
+  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
+  const { buildFootballerGeometry, PART } = await import(path.join(dist, 'core/presentation/match3d/newview/footballer.js'));
   const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
   const g = buildFootballerGeometry(rig.newInstance().skeleton, { hair: 'short' }), pos = g.attributes.position, part = g.attributes.part, idx = g.index.array;
   const byDesign = new Set([PART.hair, PART.dark, PART.sole, PART.boot]), v = [0, 1, 2].map(() => new THREE.Vector3());

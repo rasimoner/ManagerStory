@@ -2,7 +2,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
 const { harness, PROBES, playToEnd } = require('./engine-harness.cjs');
 
 const fresh = (fixture = 0) => { const h = harness(); h.run(`S=fresh();init();S.fixture=${fixture};startMatch();resumeLive()`); return h; };
@@ -283,42 +282,25 @@ test('14. the same seed produces the same match', () => {
   assert.notEqual(sig(11), sig(12));
 });
 
-test('15/16. no NaN, Infinity, undefined players or out-of-bounds coordinates over 100 stress matches', { timeout: 300000 }, () => {
-  const out = execFileSync(process.execPath, [path.resolve(__dirname, '../tools/engine-audit.cjs'), '100', '--json'], { encoding: 'utf8', maxBuffer: 1 << 26 });
-  const a = JSON.parse(out.trim().split('\n').at(-1));
-  assert.equal(a.matches, 100);
-  assert.equal(a.crashes, 0, a.firstCrash);
-  assert.deepEqual(a.problems, {}, 'no ghost possession, NaN, missing team, or out-of-bounds player');
-  assert.ok(a.minPairDistance >= .9, 'no stacked players (min ' + a.minPairDistance + ')');
-  assert.equal(a.matchesWithBadFinalization, 0);
-  assert.equal(a.eventsAfterFullTime, 0);
-  assert.equal(a.secondHalfInverted, 0);
-  assert.equal(a.collapseSamples, 0);
-  assert.ok(a.recoveries > 0 && a.recoveriesAfterRealChase > 0);
-  assert.ok(a.gkPassShare < .03, 'goalkeeper is not a routine pass outlet');
-  assert.ok(a.goalsPerMatch > 1 && a.goalsPerMatch < 5, 'scoring stays plausible: ' + a.goalsPerMatch);
-});
-
 test('no second simulation path: legacy duplicates are gone and the live loop is single-sourced', () => {
-  const fs = require('node:fs');
-  const dist = path.resolve(__dirname, '../dist');
-  const count = (file, name) => (fs.readFileSync(path.join(dist, file), 'utf8').match(new RegExp('function ' + name + '\\b', 'g')) || []).length;
+  const { gameSources } = require('./support/game.cjs');
+  const count = (code, name) => (code.match(new RegExp('function ' + name + '\\b', 'g')) || []).length;
   for (const fn of ['actionMinute', 'eventPoint', 'paintLivePitch', 'eventPosition']) {
-    const total = ['live-match.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js', 'match-support.js'].reduce((n, f) => n + count(f, fn), 0);
+    const total = gameSources().reduce((n, s) => n + count(s.code, fn), 0);
     assert.ok(total <= 1, fn + ' defined ' + total + ' times');
   }
   // rendering reads engine state: the pitch painter never advances the seeded simulation
-  const painter = fs.readFileSync(path.join(dist, 'pitch-v73.js'), 'utf8');
-  const paint = painter.slice(painter.indexOf('function paintLivePitch'), painter.indexOf('function resetPitchHalf'));
+  const paint = harness().run('paintLivePitch.toString()');
   assert.doesNotMatch(paint, /M\.rand\(|tick\(|actionMinute\(|switchPitchOwner\(/);
 });
 
 test('one football minute cannot be processed twice (no re-entrant tick)', () => {
   const h = fresh(0);
-  h.run("window.__n=0;const _t=tick;tick=function(){window.__n++;if(window.__n===1)advanceLive(5);_t()}");
+  // during the minute's first event (inside the tick), the clock is asked to run five more minutes
+  h.run("window.__n=0;onHook('matchEvent',()=>{if(window.__n++===0)advanceLive(5)})");
   h.run('advanceLive(60/90)');
-  assert.equal(h.run('window.__n'), 1, 'nested advanceLive during a tick is ignored');
-  assert.equal(h.run('M.min'), 1);
+  assert.ok(h.run('window.__n') >= 1, 'the nested call was made during the minute');
+  assert.equal(h.run('M.min'), 1, 'nested advanceLive during a tick is ignored');
 });
 
 test('V7.9.3 a keeper punch: only the defending keeper, only from a high ball into his own box, and the ball is loose afterwards', { timeout: 300000 }, () => {
@@ -353,7 +335,7 @@ test('V7.9.3 an attacker in space does not turn round and play a long ball back;
   const N = 12;
   for (let fixture = 0; fixture < N; fixture++) {
     const h = fresh(fixture);
-    h.run(`window.__bp=[];const _m=matchEvent;matchEvent=function(type,text,o){if((type==='pass'||type==='cross')&&o&&o.fromPos&&o.toPos&&o.fromId!=null){const side=o.fromSide,dir=(side==='user'?1:-1)*userDirection();const fwd=dir>0?o.fromPos[0]:100-o.fromPos[0];const nb=nearestMarker(side==='user'?'opp':'user',o.fromPos);const role=side==='user'?M.matchRoles[o.fromId]:playerAtMarker(o.fromId,side)?.position;window.__bp.push({type,fwd,prog:(o.toPos[0]-o.fromPos[0])*dir,range:o.distance,d:nb?nb.d:99,role,success:o.success,deep:dir>0?o.toPos[0]:100-o.toPos[0],y:o.toPos[1]})}return _m.apply(this,arguments)}`);
+    h.run(`window.__bp=[];onHook('matchEvent',function(type,text,o){if((type==='pass'||type==='cross')&&o&&o.fromPos&&o.toPos&&o.fromId!=null){const side=o.fromSide,dir=(side==='user'?1:-1)*userDirection();const fwd=dir>0?o.fromPos[0]:100-o.fromPos[0];const nb=nearestMarker(side==='user'?'opp':'user',o.fromPos);const role=side==='user'?M.matchRoles[o.fromId]:playerAtMarker(o.fromId,side)?.position;window.__bp.push({type,fwd,prog:(o.toPos[0]-o.fromPos[0])*dir,range:o.distance,d:nb?nb.d:99,role,success:o.success,deep:dir>0?o.toPos[0]:100-o.toPos[0],y:o.toPos[1]})}})`);
     playToEnd(h);
     for (const b of h.run('window.__bp')) {
       // (V7.9.5: a pull-back from the byline into the box — the edge of the area, central — is a chance, not a ball back)

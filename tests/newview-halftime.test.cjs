@@ -16,9 +16,9 @@ test('after half-time the keepers come back in their new goals: they do not run 
   playToEnd(h, () => { const s = h.run(READ); if (s.n !== all.at(-1).n) all.push(s); if (halfAt == null && s.reason === 'half') halfAt = all.length - 1; });
   const events = h.run('M.events');
   const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'newview/rig.js'));
-  const { createRuntime, analyseGait } = await import(path.join(dist, 'newview/runtime.js'));
-  const { createDirector } = await import(path.join(dist, 'newview/director.js'));
+  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
+  const { createRuntime, analyseGait } = await import(path.join(dist, 'core/presentation/match3d/newview/runtime.js'));
+  const { createDirector } = await import(path.join(dist, 'core/presentation/match3d/newview/director.js'));
   const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
   const gait = {}; for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null, stride: 0.75 });

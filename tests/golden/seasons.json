@@ -1,0 +1,843 @@
+[
+ {
+  "season": "2025/26",
+  "table": [
+   "Altınboynuz 34 120-101 61",
+   "Beykoz Kalesi 34 95-84 60",
+   "Adalar Spor 34 95-88 57",
+   "Anadolu Hisarı 34 89-86 55",
+   "Çamlıca 1908 34 89-88 53",
+   "Kıyıspor 34 87-95 52",
+   "Kadıköy Rüzgârı 34 121-117 51",
+   "Haliç Spor 34 100-99 50",
+   "Mavişehir 34 101-93 49",
+   "Çınar FK 34 100-103 48",
+   "Kuzey Liman 34 109-98 46",
+   "Ormanşehir 34 87-95 46",
+   "Üsküdar Martıları 34 100-106 45",
+   "Boğaz Yıldızı 34 90-93 43",
+   "Moda Birlik 34 105-105 42",
+   "Marmara 1912 34 101-108 41",
+   "Güneşli Atletik 34 108-115 40",
+   "Hisar Gençlik 34 86-109 27"
+  ],
+  "rank": 4,
+  "scorers": [
+   {
+    "name": "Burak",
+    "value": 16,
+    "apps": 34
+   },
+   {
+    "name": "Mensah",
+    "value": 16,
+    "apps": 34
+   },
+   {
+    "name": "Diallo",
+    "value": 13,
+    "apps": 34
+   }
+  ],
+  "squad": [
+   [
+    0,
+    "Onur",
+    28,
+    "GK",
+    71,
+    71,
+    "Takımın parçası",
+    1
+   ],
+   [
+    1,
+    "Berkay",
+    24,
+    "LB",
+    72,
+    72,
+    "Takımın parçası",
+    3
+   ],
+   [
+    2,
+    "Furkan",
+    25,
+    "CB",
+    73,
+    73,
+    "Takımın parçası",
+    2
+   ],
+   [
+    3,
+    "Serkan",
+    34,
+    "CB",
+    68,
+    71,
+    "Takımın parçası",
+    1
+   ],
+   [
+    4,
+    "Emre",
+    22,
+    "CB",
+    69,
+    75,
+    "Takımın parçası",
+    2
+   ],
+   [
+    5,
+    "Diallo",
+    25,
+    "RB",
+    74,
+    74,
+    "Takımın parçası",
+    3
+   ],
+   [
+    6,
+    "Burak",
+    29,
+    "CM",
+    73,
+    73,
+    "Takımın parçası",
+    1
+   ],
+   [
+    7,
+    "Taylan",
+    24,
+    "CM",
+    74,
+    74,
+    "Takımın parçası",
+    3
+   ],
+   [
+    8,
+    "Can",
+    22,
+    "CM",
+    70,
+    76,
+    "Takımın parçası",
+    1
+   ],
+   [
+    9,
+    "Kerem",
+    23,
+    "RW",
+    77,
+    77,
+    "Takımın parçası",
+    2
+   ],
+   [
+    10,
+    "Okoro",
+    24,
+    "LW",
+    78,
+    78,
+    "Takımın parçası",
+    2
+   ],
+   [
+    11,
+    "Aras",
+    19,
+    "CAM",
+    84,
+    88,
+    "Takımın parçası",
+    2
+   ],
+   [
+    12,
+    "Mensah",
+    25,
+    "ST",
+    77,
+    77,
+    "Takımın parçası",
+    2
+   ],
+   [
+    13,
+    "Oğuz",
+    28,
+    "ST",
+    72,
+    72,
+    "Takımın parçası",
+    1
+   ],
+   [
+    14,
+    "Yasin",
+    21,
+    "RW/LW",
+    70,
+    75,
+    "Takımın parçası",
+    4
+   ],
+   [
+    15,
+    "Deniz",
+    17,
+    "CM",
+    69,
+    84,
+    "Takımın parçası",
+    4
+   ]
+  ],
+  "rivals": "643d57e826e6f0f0d8de074f",
+  "market": "cbeec0985125becfa04a0d95",
+  "academy": [
+   [
+    "ac40",
+    "Leo Tekin",
+    16,
+    "RW",
+    60,
+    66
+   ],
+   [
+    "ac41",
+    "Eren Keita",
+    17,
+    "GK",
+    60,
+    77
+   ],
+   [
+    "ac42",
+    "Ali Kaya",
+    16,
+    "CB",
+    60,
+    81
+   ],
+   [
+    "ac43",
+    "Bora Aydın",
+    15,
+    "RB",
+    57,
+    71
+   ],
+   [
+    "ac44",
+    "Mert Tekin",
+    15,
+    "CM",
+    61,
+    71
+   ]
+  ],
+  "wonderkids": [
+   {
+    "n": 1,
+    "name": "Yiğit Koç",
+    "age": 16,
+    "pos": "RW",
+    "type": "dribbler",
+    "season": "2025/26",
+    "week": 10,
+    "seed": 69281392,
+    "replacedId": "opp-16-9",
+    "where": "club",
+    "club": "Ormanşehir",
+    "squadId": "opp-wk-1",
+    "poolId": "v6wk1"
+   }
+  ],
+  "careerHash": "69e6f7e3f00a8724e5e27d96",
+  "afterSummerHash": "53ac85a4444353f1162827d2"
+ },
+ {
+  "season": "2026/27",
+  "table": [
+   "Ormanşehir 34 111-80 66",
+   "Beykoz Kalesi 34 130-107 63",
+   "Kuzey Liman 34 106-98 62",
+   "Kadıköy Rüzgârı 34 97-90 61",
+   "Adalar Spor 34 111-89 60",
+   "Çamlıca 1908 34 99-93 54",
+   "Boğaz Yıldızı 34 98-105 53",
+   "Marmara 1912 34 103-91 50",
+   "Mavişehir 34 104-95 50",
+   "Çınar FK 34 88-76 49",
+   "Güneşli Atletik 34 97-102 47",
+   "Anadolu Hisarı 34 101-105 45",
+   "Moda Birlik 34 99-105 43",
+   "Üsküdar Martıları 34 87-104 43",
+   "Haliç Spor 34 91-104 34",
+   "Altınboynuz 34 91-105 33",
+   "Kıyıspor 34 77-108 31",
+   "Hisar Gençlik 34 87-120 25"
+  ],
+  "rank": 12,
+  "scorers": [
+   {
+    "name": "Mensah",
+    "value": 17,
+    "apps": 34
+   },
+   {
+    "name": "Berkay",
+    "value": 15,
+    "apps": 34
+   },
+   {
+    "name": "Okoro",
+    "value": 14,
+    "apps": 34
+   }
+  ],
+  "squad": [
+   [
+    0,
+    "Onur",
+    29,
+    "GK",
+    71,
+    71,
+    "Takımın parçası",
+    2
+   ],
+   [
+    1,
+    "Berkay",
+    25,
+    "LB",
+    72,
+    72,
+    "Takımın parçası",
+    2
+   ],
+   [
+    2,
+    "Furkan",
+    26,
+    "CB",
+    73,
+    73,
+    "Takımın parçası",
+    1
+   ],
+   [
+    4,
+    "Emre",
+    23,
+    "CB",
+    75,
+    75,
+    "Takımın parçası",
+    1
+   ],
+   [
+    5,
+    "Diallo",
+    26,
+    "RB",
+    74,
+    74,
+    "Takımın parçası",
+    2
+   ],
+   [
+    6,
+    "Burak",
+    30,
+    "CM",
+    73,
+    73,
+    "Takımın parçası",
+    2
+   ],
+   [
+    7,
+    "Taylan",
+    25,
+    "CM",
+    74,
+    74,
+    "Takımın parçası",
+    2
+   ],
+   [
+    8,
+    "Can",
+    23,
+    "CM",
+    72,
+    76,
+    "Takımın parçası",
+    2
+   ],
+   [
+    9,
+    "Kerem",
+    24,
+    "RW",
+    77,
+    77,
+    "Takımın parçası",
+    1
+   ],
+   [
+    10,
+    "Okoro",
+    25,
+    "LW",
+    78,
+    78,
+    "Takımın parçası",
+    1
+   ],
+   [
+    11,
+    "Aras",
+    20,
+    "CAM",
+    88,
+    88,
+    "Takımın parçası",
+    1
+   ],
+   [
+    12,
+    "Mensah",
+    26,
+    "ST",
+    77,
+    77,
+    "Takımın parçası",
+    1
+   ],
+   [
+    13,
+    "Oğuz",
+    29,
+    "ST",
+    72,
+    72,
+    "Takımın parçası",
+    2
+   ],
+   [
+    14,
+    "Yasin",
+    22,
+    "RW/LW",
+    72,
+    75,
+    "Takımın parçası",
+    3
+   ],
+   [
+    15,
+    "Deniz",
+    18,
+    "CM",
+    78,
+    84,
+    "Takımın parçası",
+    3
+   ],
+   [
+    16,
+    "Tolga Keita",
+    17,
+    "RB",
+    67,
+    83,
+    "Altyapıdan A takım",
+    3
+   ]
+  ],
+  "rivals": "ed4ea3c360610b66ba4aa2da",
+  "market": "df6db678881fb7db056c21a3",
+  "academy": [
+   [
+    "ac86",
+    "Mamadou Kaya",
+    16,
+    "CB",
+    62,
+    85
+   ],
+   [
+    "ac87",
+    "Arda Aydın",
+    17,
+    "RB",
+    49,
+    74
+   ],
+   [
+    "ac88",
+    "Leo Tekin",
+    17,
+    "CM",
+    56,
+    82
+   ],
+   [
+    "ac89",
+    "Eren Keita",
+    15,
+    "LW",
+    56,
+    67
+   ],
+   [
+    "ac90",
+    "Ali Kaya",
+    15,
+    "ST",
+    53,
+    69
+   ]
+  ],
+  "wonderkids": [
+   {
+    "n": 1,
+    "name": "Yiğit Koç",
+    "age": 16,
+    "pos": "RW",
+    "type": "dribbler",
+    "season": "2025/26",
+    "week": 10,
+    "seed": 69281392,
+    "replacedId": "opp-16-9",
+    "where": "club",
+    "club": "Ormanşehir",
+    "squadId": "opp-wk-1",
+    "poolId": "v6wk1"
+   },
+   {
+    "n": 2,
+    "name": "Efe Akın",
+    "age": 16,
+    "pos": "CM",
+    "type": "playmaker",
+    "season": "2026/27",
+    "week": 9,
+    "seed": 393633812,
+    "replacedId": "opp-3-5",
+    "where": "club",
+    "club": "Haliç Spor",
+    "squadId": "opp-wk-2",
+    "poolId": "v6wk2"
+   }
+  ],
+  "careerHash": "1bf86b300317696fb5e6822b",
+  "afterSummerHash": "fdd84ffc0c12ffb6488ed2da"
+ },
+ {
+  "season": "2027/28",
+  "table": [
+   "Üsküdar Martıları 34 120-101 63",
+   "Ormanşehir 34 105-84 61",
+   "Çamlıca 1908 34 100-93 60",
+   "Marmara 1912 34 111-96 58",
+   "Güneşli Atletik 34 96-85 58",
+   "Kıyıspor 34 96-85 58",
+   "Adalar Spor 34 106-92 57",
+   "Anadolu Hisarı 34 112-108 47",
+   "Kadıköy Rüzgârı 34 105-105 46",
+   "Altınboynuz 34 104-105 45",
+   "Moda Birlik 34 97-102 45",
+   "Çınar FK 34 87-97 43",
+   "Beykoz Kalesi 34 94-91 42",
+   "Mavişehir 34 97-91 41",
+   "Hisar Gençlik 34 98-112 39",
+   "Kuzey Liman 34 91-111 36",
+   "Boğaz Yıldızı 34 87-105 35",
+   "Haliç Spor 34 74-117 30"
+  ],
+  "rank": 8,
+  "scorers": [
+   {
+    "name": "Burak",
+    "value": 18,
+    "apps": 34
+   },
+   {
+    "name": "Kerem",
+    "value": 17,
+    "apps": 34
+   },
+   {
+    "name": "Aras",
+    "value": 16,
+    "apps": 34
+   }
+  ],
+  "squad": [
+   [
+    0,
+    "Onur",
+    30,
+    "GK",
+    71,
+    71,
+    "Takımın parçası",
+    1
+   ],
+   [
+    1,
+    "Berkay",
+    26,
+    "LB",
+    72,
+    72,
+    "Takımın parçası",
+    1
+   ],
+   [
+    2,
+    "Furkan",
+    27,
+    "CB",
+    73,
+    73,
+    "Takımın parçası",
+    2
+   ],
+   [
+    4,
+    "Emre",
+    24,
+    "CB",
+    75,
+    75,
+    "Takımın parçası",
+    2
+   ],
+   [
+    5,
+    "Diallo",
+    27,
+    "RB",
+    74,
+    74,
+    "Takımın parçası",
+    1
+   ],
+   [
+    6,
+    "Burak",
+    31,
+    "CM",
+    72,
+    72,
+    "Takımın parçası",
+    1
+   ],
+   [
+    7,
+    "Taylan",
+    26,
+    "CM",
+    74,
+    74,
+    "Takımın parçası",
+    1
+   ],
+   [
+    8,
+    "Can",
+    24,
+    "CM",
+    73,
+    76,
+    "Takımın parçası",
+    1
+   ],
+   [
+    9,
+    "Kerem",
+    25,
+    "RW",
+    77,
+    77,
+    "Takımın parçası",
+    2
+   ],
+   [
+    10,
+    "Okoro",
+    26,
+    "LW",
+    78,
+    78,
+    "Takımın parçası",
+    2
+   ],
+   [
+    11,
+    "Aras",
+    21,
+    "CAM",
+    88,
+    88,
+    "Takımın parçası",
+    2
+   ],
+   [
+    12,
+    "Mensah",
+    27,
+    "ST",
+    77,
+    77,
+    "Takımın parçası",
+    2
+   ],
+   [
+    13,
+    "Oğuz",
+    30,
+    "ST",
+    70,
+    72,
+    "Takımın parçası",
+    1
+   ],
+   [
+    14,
+    "Yasin",
+    23,
+    "RW/LW",
+    74,
+    75,
+    "Takımın parçası",
+    2
+   ],
+   [
+    15,
+    "Deniz",
+    19,
+    "CM",
+    84,
+    84,
+    "Takımın parçası",
+    2
+   ],
+   [
+    16,
+    "Tolga Keita",
+    18,
+    "RB",
+    76,
+    83,
+    "Altyapıdan A takım",
+    2
+   ]
+  ],
+  "rivals": "54b70e3c0ea3ccd2ce6c2f27",
+  "market": "aa630c09431521211f7cf5b4",
+  "academy": [
+   [
+    "acwk3",
+    "Caner Akın",
+    16,
+    "LW",
+    64,
+    91
+   ],
+   [
+    "ac126",
+    "Umut Kaya",
+    17,
+    "CM",
+    61,
+    73
+   ],
+   [
+    "ac127",
+    "Efe Aydın",
+    15,
+    "CAM",
+    50,
+    66
+   ],
+   [
+    "ac128",
+    "Demir Tekin",
+    15,
+    "RW",
+    62,
+    74
+   ],
+   [
+    "ac129",
+    "Doruk Keita",
+    16,
+    "GK",
+    53,
+    78
+   ]
+  ],
+  "wonderkids": [
+   {
+    "n": 1,
+    "name": "Yiğit Koç",
+    "age": 16,
+    "pos": "RW",
+    "type": "dribbler",
+    "season": "2025/26",
+    "week": 10,
+    "seed": 69281392,
+    "replacedId": "opp-16-9",
+    "where": "club",
+    "club": "Ormanşehir",
+    "squadId": "opp-wk-1",
+    "poolId": "v6wk1"
+   },
+   {
+    "n": 2,
+    "name": "Efe Akın",
+    "age": 16,
+    "pos": "CM",
+    "type": "playmaker",
+    "season": "2026/27",
+    "week": 9,
+    "seed": 393633812,
+    "replacedId": "opp-3-5",
+    "where": "club",
+    "club": "Haliç Spor",
+    "squadId": "opp-wk-2",
+    "poolId": "v6wk2"
+   },
+   {
+    "n": 3,
+    "name": "Caner Akın",
+    "age": 16,
+    "pos": "LW",
+    "type": "dribbler",
+    "season": "2027/28",
+    "week": 9,
+    "seed": 1499098228,
+    "where": "academy",
+    "academyId": "acwk3",
+    "club": "Anadolu Hisarı"
+   }
+  ],
+  "careerHash": "8bc57ac111aaed1003df497c",
+  "afterSummerHash": "a170c5456daa669e8cfa7ba6"
+ }
+]

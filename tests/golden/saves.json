@@ -1,0 +1,78 @@
+{
+ "generated/after-three-seasons.json": {
+  "savedBy": "7.9.13",
+  "match": "Anadolu Hisarı 1-2 Beykoz Kalesi",
+  "matchHash": "6a8c7af49ba88d479ca8d96e",
+  "week": 1,
+  "season": "2028/29",
+  "careerHash": "84527a554fa55203e3a4610b"
+ },
+ "generated/mid-match.json": {
+  "savedBy": "7.9.13",
+  "resumedAt": 30,
+  "resumedScore": "0-1",
+  "match": "Güneşli Atletik 2-1 Anadolu Hisarı",
+  "matchHash": "238240d15f80dbfd1e0f606e",
+  "week": 7,
+  "season": "2025/26",
+  "careerHash": "93e7511adcf848346a77a93d"
+ },
+ "generated/mid-season.json": {
+  "savedBy": "7.9.13",
+  "match": "Ormanşehir 0-4 Anadolu Hisarı",
+  "matchHash": "5990607593103042742f74c4",
+  "week": 18,
+  "season": "2025/26",
+  "careerHash": "32c6145b85c7d766c8211411"
+ },
+ "generated/season-end-contracts.json": {
+  "savedBy": "7.9.13",
+  "seasonEndFinished": true,
+  "match": "Anadolu Hisarı 1-3 Kadıköy Rüzgârı",
+  "matchHash": "0c5a172e9d2ba7b0ad7ecd41",
+  "week": 1,
+  "season": "2026/27",
+  "careerHash": "6ff66b2daa5955445cdff679"
+ },
+ "generated/season-end-summary.json": {
+  "savedBy": "7.9.13",
+  "seasonEndFinished": true,
+  "match": "Anadolu Hisarı 1-3 Kadıköy Rüzgârı",
+  "matchHash": "0c5a172e9d2ba7b0ad7ecd41",
+  "week": 1,
+  "season": "2026/27",
+  "careerHash": "6ff66b2daa5955445cdff679"
+ },
+ "legacy/v7.8.2.json": {
+  "savedBy": "7.8.2",
+  "match": "Kıyıspor 2-1 Anadolu Hisarı",
+  "matchHash": "d3088608a0c8baa8b572876b",
+  "week": 1,
+  "season": "2025/26",
+  "careerHash": "825b3b54d94c28d8eebbefda"
+ },
+ "legacy/v7.9.4.json": {
+  "savedBy": "7.9.4",
+  "match": "Kıyıspor 2-1 Anadolu Hisarı",
+  "matchHash": "d3088608a0c8baa8b572876b",
+  "week": 1,
+  "season": "2025/26",
+  "careerHash": "7f054a36503cc0da8e3c60c2"
+ },
+ "legacy/v7.9.5.json": {
+  "savedBy": "7.9.5",
+  "match": "Kıyıspor 1-0 Anadolu Hisarı",
+  "matchHash": "1be95e35cc804748750c4fc8",
+  "week": 1,
+  "season": "2025/26",
+  "careerHash": "b50533aef6165168d1a675f8"
+ },
+ "legacy/v7.9.7.json": {
+  "savedBy": "7.9.7",
+  "match": "Kıyıspor 1-0 Anadolu Hisarı",
+  "matchHash": "1be95e35cc804748750c4fc8",
+  "week": 1,
+  "season": "2025/26",
+  "careerHash": "349743eb64485a4965fba0ae"
+ }
+}

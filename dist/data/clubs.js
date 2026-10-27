@@ -1,0 +1,113 @@
+/* The league's clubs, in league order. colors: primary and secondary; pattern: how the crest and flags split
+   (v vertical, h horizontal, d diagonal). team: the strength profile of a club the game plays against (level and
+   the 0–100 attack, midfield, defence, keeper, pressing and physical ratings), and its style of play.
+   colorNames: how the colours are said on the club card. startingClub: the club a new career manages.
+   Data only: everything after "=" is JSON (tests/data.test.cjs). */
+export const CLUB_DATA = {
+  "startingClub": "Anadolu Hisarı",
+  "clubs": [
+    {"name":"Anadolu Hisarı","colors":["#f3c623","#b3132b"],"colorNames":["SARI","KIRMIZI"],"pattern":"v"},
+    {
+      "name": "Boğaz Yıldızı",
+      "colors": ["#111","#eee"],
+      "pattern": "h",
+      "team": {"level":69,"style":"deep","attack":66,"midfield":68,"defence":74,"keeper":72,"pressing":58,"physical":82,"description":"Derin savunma ve kontra"}
+    },
+    {
+      "name": "Marmara 1912",
+      "colors": ["#1746a2","#ff7a00"],
+      "pattern": "d",
+      "team": {"level":72,"style":"possession","attack":73,"midfield":76,"defence":70,"keeper":71,"pressing":66,"physical":74,"description":"Pas oyunu ve sabır"}
+    },
+    {
+      "name": "Kadıköy Rüzgârı",
+      "colors": ["#6a1b9a","#f7d117"],
+      "pattern": "v",
+      "team": {"level":71,"style":"high","attack":75,"midfield":70,"defence":67,"keeper":69,"pressing":88,"physical":78,"description":"Yüksek pres ve hızlı kanatlar"}
+    },
+    {
+      "name": "Haliç Spor",
+      "colors": ["#8b1e1e","#f1c75b"],
+      "pattern": "h",
+      "team": {"level":68,"style":"physical","attack":68,"midfield":65,"defence":72,"keeper":68,"pressing":62,"physical":88,"description":"Fizik ve duran toplar"}
+    },
+    {
+      "name": "Çınar FK",
+      "colors": ["#146b3a","#eee"],
+      "pattern": "d",
+      "team": {"level":70,"style":"balanced","attack":70,"midfield":70,"defence":70,"keeper":70,"pressing":68,"physical":72,"description":"Dengeli ve kompakt"}
+    },
+    {
+      "name": "Üsküdar Martıları",
+      "colors": ["#0f4c81","#eee"],
+      "pattern": "v",
+      "team": {"level":73,"style":"attack","attack":78,"midfield":73,"defence":68,"keeper":72,"pressing":75,"physical":71,"description":"Cesur hücum"}
+    },
+    {
+      "name": "Mavişehir",
+      "colors": ["#1557ff","#ffcf00"],
+      "pattern": "h",
+      "team": {"level":71,"style":"high","attack":74,"midfield":71,"defence":68,"keeper":70,"pressing":85,"physical":75,"description":"Önde baskı"}
+    },
+    {
+      "name": "Hisar Gençlik",
+      "colors": ["#7a1010","#ddd"],
+      "pattern": "d",
+      "team": {"level":68,"style":"youth","attack":70,"midfield":68,"defence":65,"keeper":67,"pressing":76,"physical":68,"description":"Genç ve tempolu"}
+    },
+    {
+      "name": "Kuzey Liman",
+      "colors": ["#151515","#e45d20"],
+      "pattern": "v",
+      "team": {"level":72,"style":"high","attack":75,"midfield":71,"defence":70,"keeper":71,"pressing":82,"physical":79,"description":"Agresif geçiş oyunu"}
+    },
+    {
+      "name": "Güneşli Atletik",
+      "colors": ["#f3b300","#243447"],
+      "pattern": "h",
+      "team": {"level":67,"style":"deep","attack":64,"midfield":66,"defence":72,"keeper":68,"pressing":52,"physical":80,"description":"Kapalı savunma"}
+    },
+    {
+      "name": "Beykoz Kalesi",
+      "colors": ["#54278f","#f3c623"],
+      "pattern": "d",
+      "team": {"level":70,"style":"balanced","attack":69,"midfield":71,"defence":73,"keeper":72,"pressing":64,"physical":78,"description":"Savunma disiplini"}
+    },
+    {
+      "name": "Adalar Spor",
+      "colors": ["#17a2a4","#fff"],
+      "pattern": "v",
+      "team": {"level":66,"style":"youth","attack":69,"midfield":66,"defence":62,"keeper":65,"pressing":80,"physical":64,"description":"Hızlı ama tecrübesiz"}
+    },
+    {
+      "name": "Altınboynuz",
+      "colors": ["#101820","#d4af37"],
+      "pattern": "h",
+      "team": {"level":74,"style":"elite","attack":79,"midfield":77,"defence":75,"keeper":76,"pressing":78,"physical":80,"description":"Geniş ve kaliteli kadro"}
+    },
+    {
+      "name": "Çamlıca 1908",
+      "colors": ["#18723a","#eee"],
+      "pattern": "d",
+      "team": {"level":71,"style":"balanced","attack":71,"midfield":72,"defence":72,"keeper":70,"pressing":67,"physical":76,"description":"Orta saha kontrolü"}
+    },
+    {
+      "name": "Moda Birlik",
+      "colors": ["#e83e8c","#1d2433"],
+      "pattern": "v",
+      "team": {"level":69,"style":"high","attack":73,"midfield":67,"defence":65,"keeper":68,"pressing":86,"physical":69,"description":"Riskli yüksek pres"}
+    },
+    {
+      "name": "Kıyıspor",
+      "colors": ["#0b7285","#ffdd57"],
+      "pattern": "h",
+      "team": {"level":68,"style":"balanced","attack":68,"midfield":69,"defence":68,"keeper":69,"pressing":65,"physical":70,"description":"Dengeli geçişler"}
+    },
+    {
+      "name": "Ormanşehir",
+      "colors": ["#235c2b","#eee"],
+      "pattern": "d",
+      "team": {"level":70,"style":"deep","attack":67,"midfield":69,"defence":76,"keeper":71,"pressing":55,"physical":84,"description":"Fiziksel derin blok"}
+    }
+  ]
+};

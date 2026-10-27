@@ -9,8 +9,8 @@ const dist = path.join(__dirname, '..', 'dist');
 
 test('player outlines: thin and light far away, full close up, never wider than ~3 px', async () => {
   const THREE = await import(path.join(dist, 'vendor/three/three.module.min.js'));
-  const { loadRig } = await import(path.join(dist, 'newview/rig.js'));
-  const { createRuntime, analyseGait, V } = await import(path.join(dist, 'newview/runtime.js'));
+  const { loadRig } = await import(path.join(dist, 'core/presentation/match3d/newview/rig.js'));
+  const { createRuntime, analyseGait, V } = await import(path.join(dist, 'core/presentation/match3d/newview/runtime.js'));
   const rig = loadRig(JSON.parse(fs.readFileSync(path.join(dist, 'assets/models/footballer-rig.json'), 'utf8')));
   const gait = {}; for (const k of ['walk', 'run', 'sprint']) gait[k] = analyseGait(rig.newInstance().group, rig.clips[k]);
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null });
@@ -28,7 +28,7 @@ test('player outlines: thin and light far away, full close up, never wider than 
   assert.ok(far.body.material.userData.outlineParameters.alpha < near.body.material.userData.outlineParameters.alpha, 'and lighter');
   // the match view and the star transfer scene both scale before the outline pass
   for (const f of ['match3d-newview.js', 'star-transfer-scene.js']) {
-    const src = fs.readFileSync(path.join(dist, f), 'utf8');
+    const src = require('./support/game.cjs').readDist(f, dist);
     assert.ok(src.indexOf('rt.scaleOutlines(camera') >= 0 && src.indexOf('rt.scaleOutlines(camera') < src.indexOf('outline.renderOutline('), f);
   }
 });

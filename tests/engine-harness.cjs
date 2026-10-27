@@ -1,24 +1,11 @@
 /* Shared harness for MatchEngine integrity tests, stress runs and the audit tool.
-   Loads the real game scripts in one vm context, exactly like the existing tests. */
-const fs = require('node:fs');
-const vm = require('node:vm');
-const path = require('node:path');
-const base = path.resolve(__dirname, '../dist');
-const FILES = ['match-support.js', 'career-events.js', 'live-match.js', 'player-profiles.js', 'opponents-v731.js', 'season.js', 'pitch-v73.js', 'pitch-v731.js', 'app.js'];
-const sources = FILES.map(f => fs.readFileSync(path.join(base, f), 'utf8'));
+   Loads the real game through tests/support/game.cjs (the scripts index.html loads). */
+const { loadGame, DIST: base } = require('./support/game.cjs');
 
-function harness(existing = new Map(), sourceOverride = sources) {
-  const app = { innerHTML: '', classList: { toggle() {} }, insertAdjacentHTML(_w, html) { this.innerHTML += html; } };
-  const ctx = {
-    console, structuredClone, AbortController, URL, Blob, setTimeout, clearTimeout, Math,
-    localStorage: { getItem: k => existing.get(k) || null, setItem: (k, v) => existing.set(k, v), removeItem: k => existing.delete(k) },
-    document: { body: { classList: { toggle() {} } }, querySelector(q) { if (q === '#app') return app; return null; } },
-    alert() {}, confirm: () => true, prompt: () => null,
-  };
-  ctx.window = ctx; ctx.window.scrollTo = () => {};
-  vm.createContext(ctx);
-  for (const s of sourceOverride) vm.runInContext(s, ctx);
-  return { run: code => vm.runInContext(code, ctx), app, storage: existing };
+/* Kept for the engine tests and the report tools: the game with a career store, as before. */
+function harness(existing = new Map(), { layers = [] } = {}) {
+  const g = loadGame({ storage: existing, layers });
+  return { run: g.run, app: g.app, storage: g.storage };
 }
 
 /* Probes evaluated inside the game context. They only READ engine state. */
@@ -59,7 +46,7 @@ const PROBES = `(function(){
 
 /* Drives one match to full time through the real loop, handling half-time and injury stops. */
 // like a real manager: a well-suited substitute if there is one, otherwise any fit bench player (position warning accepted)
-const SUBSTITUTE = '(function(){window.OUT=M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0);const outP=S.players.find(p=>p.id===window.OUT);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[window.OUT])>=.7);const anyP=subP||S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&!["Kirada","Transfer oldu"].includes(p.status));if(anyP)doSub(anyP.id);else if(outP)outP.injury=0;resumeLive()})()';
+const SUBSTITUTE = '(function(){setSubOut(M.active.find(id=>S.players.find(p=>p.id===id)?.injury>0));const outP=S.players.find(p=>p.id===subOut);const subP=S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&positionPenaltyV61(p,M.matchRoles[subOut])>=.7);const anyP=subP||S.players.find(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&p.injury===0&&!["Kirada","Transfer oldu"].includes(p.status));if(anyP)doSub(anyP.id);else if(outP)outP.injury=0;resumeLive()})()';
 function playToEnd(h, onTick) {
   let guard = 0, secondHalfStarted = false;
   while (!h.run('M.finished') && guard++ < 500) {

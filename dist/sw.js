@@ -1,24 +1,17 @@
-const CACHE = "managerstory-v7.9.13-release-20261026a";
+const CACHE = "managerstory-v7.10.0-refactor";
 const ASSETS = [
-  "./match3d-career.css", "./match3d-live-clock.js",
-  "./match-view-adapter.js", "./vendor/three/three.module.min.js", "./vendor/three/three.core.min.js",
-  "./match3d-newview.js", "./newview/runtime.js", "./newview/director.js", "./newview/actions.js", "./newview/footballer.js", "./newview/stadium.js", "./newview/rig.js", "./newview/camera.js", "./newview/replay.js", "./assets/models/footballer-rig.json", "./vendor/three/addons/effects/OutlineEffect.js",
-  "./", "./index.html", "./style.css", "./app.js?v=7.9.13", "./nav.js?v=7.9.13", "./match-support.js?v=7.9.13", "./career-events.js?v=7.9.13", "./live-match.js?v=7.9.13", "./pitch-v73.js?v=7.9.13", "./pitch-v731.js?v=7.9.13", "./player-profiles.js?v=7.9.13", "./opponents-v731.js?v=7.9.13", "./season.js?v=7.9.13", "./manifest.json", "./webmcp.js?v=7.9.13", "./star-transfer.js?v=7.9.13", "./star-transfer-scene.js",
-  "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png",
-  "./assets/stadium.jpg", "./assets/training.jpg", "./assets/office.jpg",
-  "./assets/fans.jpg", "./assets/press.jpg",
-  "./assets/cinematics/press_room.gif", "./assets/cinematics/academy_training.gif",
-  "./assets/cinematics/goal_2.gif", "./assets/cinematics/goal_1.gif",
-  "./assets/cinematics/star_welcome.gif", "./assets/cinematics/signing.gif",
-  "./assets/cinematics/star_welcome_still.jpg", "./assets/cinematics/signing_still.jpg",
-  "./assets/atmosphere/stadium-base.webp", "./assets/atmosphere/press-club-base.webp", "./assets/atmosphere/press-club-a.webp", "./assets/atmosphere/press-club-b.webp", "./assets/atmosphere/press-club-shade.webp", "./assets/atmosphere/locker-club-base.webp", "./assets/atmosphere/locker-club-a.webp", "./assets/atmosphere/locker-club-b.webp", "./assets/atmosphere/locker-club-shade.webp", "./assets/atmosphere/stadium-club-a.webp", "./assets/atmosphere/stadium-club-b.webp", "./assets/atmosphere/stadium-club-shade.webp", "./assets/atmosphere/press-base.webp", "./assets/atmosphere/office-base.webp",
-  "./assets/atmosphere/fans-neutral.webp", "./assets/atmosphere/fans-day.webp", "./assets/atmosphere/fans-rain.webp", "./assets/atmosphere/fans-night.webp",
-  "./assets/atmosphere/training-base.webp", "./assets/atmosphere/signing-base.webp", "./assets/atmosphere/facilities-base.webp", "./assets/atmosphere/locker-base.webp",
+  // the page's module entries (with the release cache-buster) and every module they import
+  "./main.js?v=7.10.0", "./core/presentation/match3d/match3d-live-clock.js?v=7.10.0", "./core/presentation/match3d/match-view-adapter.js?v=7.10.0", "./modes/manager/match-3d.js?v=7.10.0", "./core/engine/live-match.js", "./core/engine/match-support.js", "./core/engine/pitch-v73.js", "./core/engine/pitch-v731.js", "./core/hooks.js", "./core/league/opponents-v731.js", "./core/players/player-profiles.js", "./core/presentation/match3d/match3d-newview.js", "./core/presentation/match3d/newview/actions.js", "./core/presentation/match3d/newview/camera.js", "./core/presentation/match3d/newview/director.js", "./core/presentation/match3d/newview/footballer.js", "./core/presentation/match3d/newview/replay.js", "./core/presentation/match3d/newview/rig.js", "./core/presentation/match3d/newview/runtime.js", "./core/presentation/match3d/newview/stadium.js", "./core/presentation/registry.js", "./core/presentation/scenes/star-transfer-scene.js", "./core/random.js", "./core/save.js", "./core/season/season.js", "./core/state.js", "./data/balance.js", "./data/clubs.js", "./data/moves.js", "./data/names.js", "./data/players.js", "./data/squad.js", "./data/story.js", "./data/tactics.js", "./modes/manager/app.js", "./modes/manager/career-events.js", "./modes/manager/star-transfer.js", "./ui/actions.js", "./ui/nav.js", "./ui/webmcp.js",
+  "./core/presentation/match3d/match3d-career.css", "./vendor/three/three.module.min.js", "./vendor/three/three.core.min.js", "./assets/models/footballer-rig.json", "./vendor/three/addons/effects/OutlineEffect.js", "./", "./index.html", "./style.css", "./manifest.json", "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png", "./assets/atmosphere/stadium-base.webp", "./assets/atmosphere/press-club-base.webp", "./assets/atmosphere/press-club-a.webp", "./assets/atmosphere/press-club-b.webp", "./assets/atmosphere/press-club-shade.webp", "./assets/atmosphere/locker-club-base.webp", "./assets/atmosphere/locker-club-a.webp", "./assets/atmosphere/locker-club-b.webp", "./assets/atmosphere/locker-club-shade.webp", "./assets/atmosphere/stadium-club-a.webp", "./assets/atmosphere/stadium-club-b.webp", "./assets/atmosphere/stadium-club-shade.webp", "./assets/atmosphere/office-base.webp", "./assets/atmosphere/fans-neutral.webp", "./assets/atmosphere/training-base.webp", "./assets/atmosphere/signing-base.webp", "./assets/atmosphere/facilities-base.webp",
   ...Array.from({length:18},(_,i)=>`./assets/atmosphere/goal-club-${i}.webp`),
   ...Array.from({length:18},(_,i)=>`./assets/atmosphere/office-club-${i}.webp`)
 ];
+// V7.10.0: fetch the list past the browser's HTTP cache. GitHub Pages lets the browser keep a file ~10 minutes,
+// so right after a release a plain addAll could store the old index.html (or another old file) under the new
+// cache key, and the new page would then ask for files that are gone or mix old and new code.
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS.map(url => new Request(url, { cache: "reload" }))))
+    .then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(
