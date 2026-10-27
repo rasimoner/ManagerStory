@@ -14,7 +14,8 @@ import { beginMatchOverlay, clamp, escapeHTML, finite, lineVariant, matchEvent, 
 import { matchClock } from './live-match.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { basePitchPosition, eventPoint, limitPitch, moveTowards, nearestMarker, opponentAttitude, passLanePressure, pitchDistance, pitchSpace, resolveShot, switchPitchOwner } from './pitch-v73.js';
-import { currentOpponent, positionPenaltyV61, setOppOwner, setUserOwner } from '../../modes/manager/app.js';
+import { currentOpponent } from '../league/league.js';
+import { positionPenaltyV61, setOppOwner, setUserOwner } from './match-minute.js';
 export function playerRecord(id,side){return side==='user'?S.players.find(x=>x.id===Number(id)):opponentPlayer(id);}
 export const normalizeAttribute=v=>clamp((finite(v,60)-35)/65,0,1);            // 35→0, 100→1
 export const attributeEdge=v=>normalizeAttribute(v)-.5;                         // centred: average player ≈ +0.05

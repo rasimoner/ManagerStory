@@ -18,12 +18,9 @@ const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs
 /* What core/ still takes from the manager mode, by file. Refactor D moves these into core (the engine
    core, the league, the clubs, the save) or passes them in; the list may only shrink. */
 const CORE_FROM_MODES = {
-  'core/engine/live-match.js': 'render save tick',
-  'core/engine/match-support.js': '$ bottomNav currentOpponent decorateAtmosphereScenes matchOrderOptions render save showAcademy showLeague showV6Transfers',
-  'core/engine/pitch-v73.js': 'currentOpponent oppRadarPos setOppOwner setUserOwner',
-  'core/engine/pitch-v731.js': 'currentOpponent positionPenaltyV61 setOppOwner setUserOwner',
+  'core/engine/live-match.js': 'render save',
+  'core/engine/match-support.js': '$ bottomNav decorateAtmosphereScenes matchOrderOptions render save showAcademy showLeague showV6Transfers',
   'core/league/opponents-v731.js': 'syncWonderOffers',
-  'core/presentation/match3d/match-view-adapter.js': 'currentOpponent',
   'core/presentation/match3d/match3d-live-clock.js': 'render',
   'core/presentation/match3d/match3d-newview.js': 'openDecisionSheet render',
   'core/save.js': 'init render save',

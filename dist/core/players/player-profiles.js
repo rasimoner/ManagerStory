@@ -10,6 +10,7 @@
 import { PLAYER_DATA } from '../../data/players.js';
 import { BALANCE } from '../../data/balance.js';
 import { R } from '../random.js';
+import { STARTING_SQUAD } from '../../data/squad.js';
 export const PROFILE_ATTRS = PLAYER_DATA.attributes;
 export const POSITION_SHAPE = PLAYER_DATA.positionShape;   // a typical player of the position, as offsets from his overall
 export const POSITION_KEYS = PLAYER_DATA.positionKeys;     // the attributes a position is judged by
@@ -139,3 +140,7 @@ export function trainFocusWeek(p) {
   return changed;
 }
 export function playerTypeLabel(p) { return PLAYER_TYPES[p?.profile?.type]?.label || ''; }
+// a player from the starting squad, by id (ids are never reused, so 0–15 are always these men)
+export function startingPlayer(id){return STARTING_SQUAD.players.find(x=>x.id===id)}
+// how much more often he is the one who gets the chance against a rival of this style (data/squad.js styleEdge)
+export function styleEdge(p,style){return startingPlayer(p.id)?.styleEdge?.[style]??1}

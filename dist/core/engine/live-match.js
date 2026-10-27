@@ -5,7 +5,8 @@ import { clamp, matchEvent, matchPossession, userSide } from './match-support.js
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js';
 import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js';
-import { render, save, tick } from '../../modes/manager/app.js';
+import { render, save } from '../../modes/manager/app.js';
+import { tick } from './match-minute.js';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
 export const MATCH_PLAYBACK_SCALE = .5;

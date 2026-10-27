@@ -26,6 +26,7 @@ import './core/league/opponents-v731.js';
 import './core/season/season.js';
 import './core/engine/pitch-v73.js';
 import './core/engine/pitch-v731.js';
+import './core/engine/match-minute.js';
 import './modes/manager/app.js';
 import './ui/nav.js';
 import './modes/manager/star-transfer.js';

@@ -20,3 +20,4 @@ export function simAIGame(g,week,index){let h=teamProfile(g.home),a=teamProfile(
 export function applyTableGame(g){let h=S.table.find(x=>x.n==g.home),a=S.table.find(x=>x.n==g.away);if(!h||!a)return;h.p++;a.p++;h.gf+=g.hg;h.ga+=g.ag;a.gf+=g.ag;a.ga+=g.hg;if(g.hg>g.ag)h.pts+=3;else if(g.ag>g.hg)a.pts+=3;else{h.pts++;a.pts++}}
 export function recordForm(g){let hf=g.hg>g.ag?"G":g.hg==g.ag?"B":"M",af=g.ag>g.hg?"G":g.ag==g.hg?"B":"M";S.form[g.home].push(hf);S.form[g.away].push(af)}
 export function simulateRoundOthers(){ensureLeague();let games=S.leagueSchedule[S.fixture];games.forEach((g,i)=>{if(!g.played&&g.home!=managedClubName()&&g.away!=managedClubName())simAIGame(g,S.fixture,i)})}
+export function currentOpponent(){let f=currentFixture();return OPP[f.opp]}
