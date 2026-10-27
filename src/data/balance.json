@@ -18,7 +18,8 @@
   },
   "contracts": {
     "maxYears": [[33,1],[31,2]], "defaultMaxYears": 3,
-    "wage": {"perOverallSquared":900,"unhappyBelow":55,"unhappyRaise":1.2,"raise":1.1,"veteranAge":32,"veteranFactor":0.85,"roundTo":10000}
+    "wage": {"perOverallSquared":900,"unhappyBelow":55,"unhappyRaise":1.2,"raise":1.1,"veteranAge":32,"veteranFactor":0.85,"roundTo":10000,"academy":480000},
+    "wageBudget": {"squadSlots":22,"roundTo":1000000}
   },
   "wonderkid": {"firstWeek":3,"weekSpan":10,"oursChance":0.3},
   "engine": {

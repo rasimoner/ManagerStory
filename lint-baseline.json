@@ -122,10 +122,10 @@
     "max-statements": 2
   },
   "src/modes/manager/app.js": {
-    "complexity": 18,
+    "complexity": 16,
     "max-lines": 1,
     "max-params": 1,
-    "max-statements": 9
+    "max-statements": 8
   },
   "src/modes/manager/career-events.js": {
     "complexity": 4,

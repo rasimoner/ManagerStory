@@ -13,6 +13,9 @@ export function crest(n,s=42){let c=CLUBSTYLE[n]||["#333","#ddd","v"],bg=c[2]=="
 // the rivals: managing a rival needs the league rebuilt around him (the manager-career feature); until then any
 // other id, e.g. from an edited save, falls back to the starting club.
 export function managedClubName(){const id=S?.currentClubId;return id&&CLUBSTYLE[id]&&!OPP.some(o=>o[0]===id)?id:CLUB_DATA.startingClub}
+// a club's stature: a rival's playing level, or the level data/clubs.json gives the club the career starts with
+export function clubLevel(name){const club=CLUB_DATA.clubs.find(c=>c.name===name);return club?.team?.level??club?.level}
+export function managedClubLevel(){return clubLevel(managedClubName())}
 export function resolveClubIdentity(context='career',data={}){
  const name=context==='goal'?(data.teamId||data.team):context==='stadium'?(data.homeTeam||M?.home||currentFixture()?.game?.home):context==='awaySupporters'?(data.awayTeam||M?.away):managedClubName();
  const colors=CLUBSTYLE[name]||['#55646b','#d8dedc','v'];

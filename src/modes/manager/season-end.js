@@ -17,6 +17,7 @@ import { R } from '../../core/random.js';
 import { CLUBSTYLE } from '../../core/clubs/club-style.js';
 import { MARKET_FIRST_NAMES, MARKET_LAST_NAMES, MARKET_POSITIONS } from './market-names.js';
 import { SLOT_POS } from './lineup-slots.js';
+import { academyWage, baseWage, wageBill, wageBudget } from './wages.js';
 /* step 5 — what the summer did (screen) */
 seasonEndStep({ id: 'report', screen: seasonReportUI }, { after: 'loans' });
 
@@ -93,7 +94,7 @@ export function seasonFreeAgent(p) {
 }
 export function seasonWageDemand(p) {
   const W = BALANCE.contracts.wage;
-  const base = (p.overall * p.overall) * W.perOverallSquared;
+  const base = baseWage(p.overall);
   const happy = (p.happiness ?? 70) < W.unhappyBelow ? W.unhappyRaise : W.raise;
   return Math.round(Math.max(p.wage || 0, base) * (p.age >= W.veteranAge ? W.veteranFactor : happy) / W.roundTo) * W.roundTo;
 }
@@ -164,7 +165,7 @@ export function seasonPromoteQuiet(a) {
   const p = { id: nextPlayerId(), academyCandidateId: a.id, name: a.name, age: a.age, pos: a.pos, overall: a.overall, potential: a.potential, fitness: 100,
     morale: 84, form: 68, relation: 70, minutes: 0, value: 800000, contract: 3, status: 'Altyapıdan A takım', goals: 0, assists: 0, yellow: 0, red: 0,
     injury: 0, personality: a.special ? 'Özel yetenek' : 'Hırslı', happiness: 84, growth: 0, secondary: [], academyLocked: true, debutDone: false,
-    wage: 480000, careerGoals: 0, careerApps: 0 };
+    wage: academyWage(), careerGoals: 0, careerApps: 0 };
   S.players.push(p);
   assignPlayerProfile(p, { seed: a.profileSeed, type: a.type || (a.special ? WONDER_TYPES[profilePositionGroup(a.pos)] : undefined), special: a.special });
   if (a.pinned) { const k = (S.v795?.wonderkids || []).find(w => w.academyId === a.id); if (k) { k.where = 'squad'; k.playerId = p.id; } }
@@ -257,9 +258,11 @@ export function seasonContractsUI(se) {
   const dec = se.data.decisions;
   const keptAfter = S.players.filter(p => seasonActive(p) && !(rows.some(r => r.p === p) && dec[p.id] === 0));
   const wage = keptAfter.reduce((n, p) => { const r = rows.find(r => r.p === p); return n + (r && dec[p.id] > 0 ? r.x.demand : p.wage || 0); }, 0);
-  const now = S.players.filter(seasonActive).reduce((n, p) => n + (p.wage || 0), 0), open = rows.filter(r => dec[r.p.id] == null).length;
+  const now = wageBill(), budget = wageBudget(), open = rows.filter(r => dec[r.p.id] == null).length;
   return `<section class=card><h3>Sözleşmesi bitenler</h3><p class=muted>Yenilersen oyuncu yeni maaş talebiyle kalır; bırakırsan serbest oyuncu olarak transfer havuzuna düşer.</p>
    <div class=toprow><span>Yıllık maaş gideri</span><b>${money(now)} → ${money(wage)}</b></div>
+   <div class=toprow><span>Maaş alanı</span><b>${money(budget)}</b></div>
+   ${wage > budget ? `<p class=warn>Bu kararlarla maaş gideri maaş alanını aşıyor; maaş alanı açılana kadar yeni transfer yapılamaz.</p>` : ''}
    ${keptAfter.some(p => isGK(p.pos)) ? '' : `<p class=warn>Bu kararlarla kadroda kaleci kalmıyor; altyapıdan acil bir kaleci yukarı alınır.</p>`}
    <div class=toprow><span>Gelecek sezon kadro</span><b class="${keptAfter.length < SEASON_MIN_SQUAD ? 'warn' : ''}">${keptAfter.length} oyuncu</b></div>
    ${keptAfter.length < SEASON_MIN_SQUAD ? `<p class=muted>Kadro ${SEASON_MIN_SQUAD} oyuncunun altına inerse eksik kalan yerler altyapıdan doldurulur.</p>` : ''}
