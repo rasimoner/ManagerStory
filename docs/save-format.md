@@ -89,7 +89,7 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | `results` | dizi | Oynanan maçlarımız; eski sezonların özetleri sıkıştırılır. |
 | `opponentSquads` | nesne | Rakip kulüp → oyuncular (`'o0'` biçiminde kimlik). |
 | `event` | nesne | Bekleyen karar: `kind`, `title`, `text`, `choices` (`[metin, anahtar]`). Anahtarlar `choose()` dallarına bağlı, kayıt sözleşmesi. |
-| `inbox`, `history`, `news` | dizi | Gelen kutusu, kariyer geçmişi, haberler. |
+| `inbox`, `history`, `news` | dizi | Gelen kutusu, kariyer geçmişi, haberler. Gelen kutusu notu bir highlight'a bağlıysa `highlight` (tarifin `id`'si) taşır: "yeni hareket öğrendi" notunda ▶ İzle. |
 | `promises`, `scheduled`, `events` | dizi | Verilen sözler, planlı olaylar, geçmiş olaylar. |
 | `objectives` | dizi | Sezon hedefleri. |
 | `pressUsed`, `sundayEvents`, `cooldowns` | dizi / nesne | Kullanılmış basın soruları, pazar olayları, bekleme süreleri. |

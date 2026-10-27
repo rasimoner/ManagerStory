@@ -10,7 +10,10 @@
      6. a new release: when the next build's service worker takes over, the open page says "Yeni sürüm hazır" and
         its button reloads into it (the next build here: this one with another build id in its worker);
      7. offline: once the service worker has cached the release, the game opens with no network, and so does the
-        3D match.
+        3D match;
+     8. the highlight archive: a save with highlights (two star-transfer clips of the old format, carried over by
+        the save chain) opens the archive from the squad tab; "İzle" plays a highlight in 3D and it closes on its
+        own, another is closed with its button.
    A console error, an uncaught exception or a failed request fails it.
    node tests/smoke/smoke.mjs [folder=dist]; SMOKE_CHROMIUM=<path> uses that Chromium instead of Playwright's. */
 import { chromium } from 'playwright';
@@ -135,6 +138,34 @@ await step('the 3D match: a save from the middle of a match opens it in 3D and i
   await loadSave(page, server.url, fixture('generated/mid-match'));
   await threeD(page);
   check(requested.some(u => /\/app\/three-[\w-]+\.js$/.test(u)), 'three.js was loaded on demand');
+  clean(page);
+});
+
+// an old save carrying the star-transfer clips of V7.9.7 (the save chain turns them into recipes)
+function saveWithHighlights() {
+  const save = JSON.parse(fixture('generated/mid-season'));
+  const star = save.players.find(p => p.pos !== 'GK' && p.status !== 'Transfer oldu'), keeper = save.players.find(p => p.pos === 'GK');
+  const clip = (id, p, move) => ({ id, kind: 'star-transfer', playerId: p.id, playerName: p.name, pos: p.pos, move, stars: 5, keeper: p.pos === 'GK', fee: 1e7, fromClub: 'Rakip', season: save.season || '2025/26', week: 2, matchday: 2 });
+  save.highlights = [clip('hl1', star, 'elastico'), clip('hl2', keeper, 'scorpion')];
+  return JSON.stringify(save);
+}
+
+await step('the highlight archive: it opens from the squad tab, "İzle" plays a highlight in 3D and closes', async () => {
+  await loadSave(page, server.url, saveWithHighlights());
+  await page.click('.bottomnav [data-action="goMain"][data-tab="squad"]');
+  await page.click('[data-action="showHighlights"]');
+  await page.waitForSelector('#app h1:text("Highlight arşivi")');
+  check((await page.$$('[data-action="watchHighlight"]')).length === 2, 'both highlights are in the archive');
+  await page.click('[data-action="watchHighlight"][data-id="hl1"]');
+  await page.waitForSelector('.hls canvas', { timeout: 30000 });
+  await page.waitForSelector('.hls-load', { state: 'detached', timeout: 60000 });
+  await page.waitForSelector('.hls', { state: 'detached', timeout: 60000 });          // it plays, then closes on its own
+  await page.click('[data-action="watchHighlight"][data-id="hl2"]');
+  await page.waitForSelector('.hls-load', { state: 'detached', timeout: 60000 });
+  await page.waitForTimeout(1500);
+  await page.click('.hls-close');
+  await page.waitForSelector('.hls', { state: 'detached', timeout: 5000 });
+  check((await text(page)).includes('Highlight arşivi'), 'back on the archive');
   clean(page);
 });
 

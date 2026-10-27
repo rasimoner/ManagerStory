@@ -7,7 +7,8 @@ import { createBroadcastCamera } from '../match3d/newview/camera.js';
 import { presentation } from '../registry.js';
 import { aimSun, drawBall, fitCanvas, loadFootballers, openShowStage, releaseShowStage, renderStage, setCrowdExcite, stageShow } from './show-stage.js';
 
-// seconds: the move may take this long, the picture stays this long after it, and never longer than cap
+// seconds: the move may take this long, the picture stays this long after it, and the scene never stays
+// longer than cap of real time (a slow device plays the move slower, never longer than that)
 export const WATCH_TIMES = { showMax: 11, after: 1.2, cap: 16 };
 const TICK = 1 / 60, STEPS = 2, MAX_TICKS_A_FRAME = 4;
 
@@ -86,7 +87,7 @@ function sceneHooks(show, stage, excite) {
 }
 
 function startShow(stage, opts, assets) {
-  const show = { phase: 'show', phaseT: 0, total: 0, owed: 0, ticks: 0, slow: 1, cut: true, cam: null };
+  const show = { phase: 'show', phaseT: 0, owed: 0, ticks: 0, slow: 1, cut: true, cam: null };
   Object.assign(show, stageShow(stage, { assets, player: opts.player, move: opts.kind, club: opts.club, hooks: sceneHooks(show, stage, opts.excite ?? 0.8) }));
   show.broadcast = createBroadcastCamera(stage.camera);
   show.staged = show.director.stage(opts.kind, { seed: opts.seed });
@@ -124,16 +125,15 @@ export function playHighlightScene(opts) {
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); finish(null); });
     loadFootballers().then(assets => {
       if (finished) return;
-      const show = startShow(stage, opts, assets);
+      const show = startShow(stage, opts, assets), started = performance.now();
       root.querySelector('.hls-load').remove();
       expose(show, () => finish({ closed: true }));
       const frame = now => {
         if (finished) return;
         raf = requestAnimationFrame(frame);
         const dtReal = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
-        show.total += dtReal;
         const played = advance(show, dtReal);
-        if (nextPhase(show, dtReal) || show.total > WATCH_TIMES.cap) { finish({ done: true }); return; }
+        if (nextPhase(show, dtReal) || now - started > WATCH_TIMES.cap * 1000) { finish({ done: true }); return; }
         draw(stage, show, { dtReal, played, now });
       };
       raf = requestAnimationFrame(frame);
