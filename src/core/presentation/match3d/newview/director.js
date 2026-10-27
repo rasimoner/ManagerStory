@@ -7,6 +7,7 @@ import { forwardOf, rightOf, headingOf } from './facing.js';
 import { CLAIM_H, PUNCH_H, keeperClaim, keeperPunch } from './beats/keeper-hands.js';
 import { keeperVolley } from './beats/keeper-volley.js';
 import { scorpionBody, scorpionSave, scorpionSpot } from './beats/scorpion.js';
+import { stageScene, stagingFor } from './beats/staging.js';
 import { stepoverBeat } from './beats/feints.js';
 import { SKILL_BEATS } from './beats/skill-beats.js';
 
@@ -693,188 +694,19 @@ export function createDirector(rt, data, hooks, opts = {}) {
     for (const m of pool) { x -= w(m); if (x < 0) return m; }
     return pool.at(-1);
   }
-  // ---- stage a special move now (the star transfer scene's show) ----
-  // the match waits while it plays; the player who has the move is put in the opponents' half with
-  // the ball, a defender comes to him, and the move is made exactly as in a match
+  // ---- stage a special move now (the star transfer scene's show, "İzle"; beats/staging.js) ----
+  // the match waits while it plays. seed: the event the move stands for (in a match, the one it was made
+  // in), which decides what a match decides with it
   let forced = null, staged = null;
-  function stage(kind) {
+  function stage(kind, { seed } = {}) {
     if (staged) return false;
     const star = rt.players.filter(p => !p.offPitch && has(p, kind)).sort((a, b) => (a.side === 'user' ? 0 : 1) - (b.side === 'user' ? 0 : 1))[0]
       || rt.players.find(p => !p.offPitch && p.side === 'user' && p.role === 'CAM') || rt.players.find(p => !p.offPitch && p.side === 'user' && p.role !== 'GK');
     if (!star) return false;
     staged = (function* () {
-      const fx = -Math.sign(ownGoalX(star.side)), at = V(fx * 22, 0, 6);
-      const opp = rt.players.filter(q => !q.offPitch && q.side !== star.side && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at));
-      const def = opp[0];
-      for (const p of rt.players) p.busy = false;
-      rt.place(star, at); star.heading = Math.atan2(fx, 0);
-      ball.owner = star; ball.held = null; ball.v.set(0, 0, 0); ball.p.set(at.x + fx * 0.5, BALL_R, at.z);
-      rt.place(def, V(at.x + fx * 9, 0, at.z + 1)); def.heading = Math.atan2(-fx, 0);
+      const scene = stageScene(beatContext, { star, seed });
       forced = kind;
-      const pctOf = w => [(w.x / 105 + 0.5) * 100, (w.z / 68 + 0.5) * 100];
-      const mateOf = () => rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
-      if (kind === 'backheel' || kind === 'rabona') {
-        const mate = mateOf();
-        const spot = kind === 'backheel' ? V(at.x - fx * 9, 0, at.z - 3) : V(at.x + fx * 16, 0, at.z - 14);
-        rt.place(mate, spot.clone().addScaledVector(V(fx, 0, 0), kind === 'backheel' ? -1 : 2));
-        yield* carry(star, V(at.x + fx * 4, 0, at.z), 3.5);
-        tryMove = kind;
-        yield* pass({ from: star, to: mate, toW: spot, travel: kind === 'rabona' ? 'aerial' : 'ground', implicit: false }, { ev: { eventId: -1 } });
-      } else if (kind === 'pirouette') {
-        const mate = mateOf();
-        rt.place(mate, V(at.x - fx * 18, 0, at.z - 4)); ball.owner = mate; ball.p.copy(mate.pos).addScaledVector(V(fx, 0, 0), 0.5).setY(BALL_R); ball.v.set(0, 0, 0);
-        rt.place(star, V(at.x, 0, at.z), Math.atan2(-fx, 0)); tryMove = 'pirouette';
-        yield* pass({ from: mate, to: star, toW: V(at.x - fx * 0.6, 0, at.z), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
-      } else if (kind === 'trap') {
-        const mate = mateOf();
-        rt.place(mate, V(at.x - fx * 30, 0, at.z - 6));
-        ball.owner = mate; ball.p.copy(mate.pos).addScaledVector(V(fx, 0, 0), 0.5).setY(BALL_R);
-        rt.place(star, V(at.x, 0, at.z)); tryMove = 'trap';
-        yield* pass({ from: mate, to: star, toW: V(at.x + fx * 0.5, 0, at.z), travel: 'aerial', implicit: false }, { ev: { eventId: -1 } });
-      } else if (kind === 'panenka' || kind === 'chip') {
-        const gs = fx, line = gs * GOAL_X;
-        const from = kind === 'panenka' ? V(line - gs * 11, 0, 0) : V(line - gs * 17, 0, 4);
-        rt.place(star, from.clone().addScaledVector(V(gs, 0, 0), -1)); ball.owner = star; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
-        const gk = rt.players.find(q => q.side !== star.side && q.role === 'GK' && !q.offPitch);
-        if (gk) rt.place(gk, V(line - gs * 0.5, 0, 0));
-        tryMove = kind;
-        yield* shot({ eventId: -1, type: 'shot', fromId: star.id, fromSide: star.side, penalty: kind === 'panenka', outcome: 'goal', fromPos: pctOf(from), toPos: gs > 0 ? [100, 50] : [0, 50] }, events.length + 10);
-      } else if (kind === 'gkthrow' || kind === 'gkvolley') {
-        // (keeper review) our keeper with the ball in his hands throws it out to a full-back (or volleys it
-        // up to a man near halfway)
-        const gk = rt.players.find(q => q.side === star.side && q.role === 'GK' && !q.offPitch), own = Math.sign(ownGoalX(star.side));
-        rt.place(gk, V(own * 45, 0, 2), Math.atan2(-own, 0)); ball.owner = gk; ball.v.set(0, 0, 0); ball.p.copy(rt.handsOf(gk));
-        ball.held = rt.pickUp(() => rt.handsOf(gk), 0.01); gk.holding = true;
-        const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== gk && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(gk.pos) - b.pos.distanceTo(gk.pos))[0];
-        rt.place(mate, kind === 'gkvolley' ? V(own * 2, 0, -10) : V(own * 30, 0, 16));
-        yield* wait(0.8);
-        yield* pass({ from: gk, to: mate, toW: mate.pos.clone(), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
-        yield* wait(1.5);
-      } else if (kind === 'gkclaim') {
-        // (keeper review) a cross into the box that the keeper comes and takes in the air
-        const gs = fx, line = gs * GOAL_X, gk = rt.players.find(q => q.side !== star.side && q.role === 'GK' && !q.offPitch);
-        const from = V(line - gs * 14, 0, 27);
-        rt.place(star, from.clone().add(V(-gs * 1, 0, 0)), Math.atan2(gs, 0)); ball.owner = star; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
-        if (gk) rt.place(gk, V(line - gs * 1.5, 0, 0), Math.atan2(-gs, 0));
-        yield* pass({ from: star, to: gk, toW: V(line - gs * 5.5, 0, 2.5), travel: 'aerial', implicit: false }, { ev: { eventId: -1 } });
-        yield* wait(1.5);
-      } else if (kind === 'gkcarry') {
-        // (keeper review) our keeper runs out with the ball at his feet, then plays it
-        const gk = rt.players.find(q => q.side === star.side && q.role === 'GK' && !q.offPitch), own = Math.sign(ownGoalX(star.side));
-        const from = V(own * 46, 0, -4);
-        rt.place(gk, from, Math.atan2(-own, 0)); ball.owner = gk; ball.held = null; ball.p.copy(from).addScaledVector(V(-own, 0, 0), 0.5).setY(BALL_R); ball.v.set(0, 0, 0);
-        yield* carry(gk, V(own * 26, 0, 6), 5);
-        const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== gk && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(gk.pos) - b.pos.distanceTo(gk.pos))[0];
-        yield* pass({ from: gk, to: mate, toW: mate.pos.clone(), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
-        yield* wait(1.5);
-      } else if (kind === 'gkfoot') {
-        // (keeper review) a low shot just beside him, kept out with the foot
-        const gs = fx, line = gs * GOAL_X, gk = rt.players.find(q => q.side !== star.side && q.role === 'GK' && !q.offPitch);
-        const from = V(line - gs * 15, 0, 3);
-        rt.place(star, from.clone().addScaledVector(V(gs, 0, 0), -1), Math.atan2(gs, 0)); ball.owner = star; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
-        if (gk) rt.place(gk, V(line - gs * 2.5, 0, 0), Math.atan2(-gs, 0));
-        yield* shot({ eventId: -6, type: 'shot', fromId: star.id, fromSide: star.side, outcome: 'save', fromPos: pctOf(from), toPos: [gs > 0 ? 100 : 0, 51], devSave: { saveType: 'PARRY', toPos: [gs > 0 ? 88 : 12, 70] }, devFoot: true }, events.length + 10);
-        yield* wait(2);
-      } else if (kind === 'gkpunch') {
-        // (keeper review) a cross into our box with their man going for it: our keeper comes and punches it clear
-        const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
-        const crosser = rt.players.find(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch), striker = rt.players.filter(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch && q !== crosser)[0];
-        const from = V(line - gs * 20, 0, 28), spot = V(line - gs * 6.5, 0, 1.5);
-        rt.place(crosser, from.clone().add(V(0, 0, 1)), Math.atan2(0, -1)); ball.owner = crosser; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
-        rt.place(striker, V(line - gs * 11, 0, 3));
-        if (gk) rt.place(gk, V(line - gs * 1.5, 0, 0), Math.atan2(-gs, 0));
-        yield* wait(0.5);
-        let meet = null;
-        gk.busy = true; gk.loopsWant.keeperReady = 0;
-        yield* pass({ from: crosser, to: null, toW: spot, travel: 'aerial', implicit: false }, { height: PUNCH_H, meet: tArr => { meet = tArr; }, ev: { eventId: -31 } });
-        yield* keeperPunch(beatContext, { gk, spot: spot.clone().setY(PUNCH_H), tArr: meet, land: V(line - gs * 26, 0, 12), rival: striker });
-        yield* wait(2.5);
-      } else if (kind === 'gkrush' || kind === 'gkrushgoal') {
-        // (keeper review) a man through on our goal: our keeper comes out; saved at his feet, or beaten
-        const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
-        const shooter = rt.players.find(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch);
-        const from = V(line - gs * 13, 0, -4);
-        for (const q of rt.players) if (!q.offPitch && q.side === 'user' && q.role !== 'GK' && Math.abs(q.pos.x - line) < 30) rt.place(q, V(line - gs * 34, 0, q.pos.z * 0.5));
-        rt.place(shooter, from.clone().addScaledVector(V(gs, 0, 0), -1), Math.atan2(gs, 0)); ball.owner = shooter; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
-        if (gk) rt.place(gk, V(line - gs * 1.5, 0, 0), Math.atan2(-gs, 0));
-        yield* shot({ eventId: kind === 'gkrush' ? -21 : -22, type: 'shot', devRush: true, fromId: shooter.id, fromSide: 'opp', outcome: kind === 'gkrush' ? 'save' : 'goal', fromPos: pctOf(from), toPos: [gs > 0 ? 100 : 0, 46], devSave: { saveType: kind === 'gkrush' ? 'CATCH' : 'PARRY' } }, events.length + 10);
-        yield* wait(2.5);
-      } else if (kind === 'gkpen' || kind === 'gkpengoal') {
-        // (keeper review) a penalty against us: our keeper on his line saves it, or is beaten
-        const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
-        const shooter = rt.players.find(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch);
-        const spot = V(line - gs * 11, 0, 0);
-        rt.place(shooter, spot.clone().add(V(-gs * 1.8, 0, 0)), Math.atan2(gs, 0)); ball.owner = shooter; ball.p.copy(spot).setY(BALL_R); ball.v.set(0, 0, 0);
-        if (gk) rt.place(gk, V(line - gs * 1.5, 0, 1), Math.atan2(-gs, 0));
-        yield* shot({ eventId: kind === 'gkpen' ? -11 : -12, type: 'shot', penalty: true, fromId: shooter.id, fromSide: 'opp', outcome: kind === 'gkpen' ? 'save' : 'goal', fromPos: pctOf(spot), toPos: [gs > 0 ? 100 : 0, 58], devSave: { saveType: 'PARRY', toPos: [gs > 0 ? 92 : 8, 80] } }, events.length + 10);
-        yield* wait(2.5);
-      } else if (kind === 'scorpion') {
-        // our keeper, a looping shot from distance dropping onto him
-        const gs = Math.sign(ownGoalX('user')), line = gs * GOAL_X, gk = rt.players.find(q => q.side === 'user' && q.role === 'GK' && !q.offPitch);
-        const shooter = rt.players.find(q => q.side === 'opp' && q.role !== 'GK' && !q.offPitch);
-        const from = V(line - gs * 26, 0, 4);
-        rt.place(shooter, from.clone().addScaledVector(V(gs, 0, 0), -1), Math.atan2(gs, 0)); ball.owner = shooter; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
-        if (gk) rt.place(gk, V(line - gs * 3, 0, 0.5), Math.atan2(-gs, 0));
-        tryMove = 'scorpion';
-        yield* shot({ eventId: -1, type: 'shot', fromId: shooter.id, fromSide: 'opp', outcome: 'save', fromPos: pctOf(from), toPos: [gs > 0 ? 100 : 0, 50], devSave: { saveType: 'PARRY', toPos: [gs > 0 ? 80 : 20, 40] } }, events.length + 10);
-        yield* wait(2.5);
-      } else if (kind === 'gksave' || kind === 'gkcatch' || kind === 'gkmove' || kind === 'gkstar' || kind === 'gkcorner') {
-        // (keeper review) a shot saved: a dive and a parry, one straight at him and caught, or the
-        // keeper shuffling across his goal as the man carries it across the box first
-        const gs = fx, line = gs * GOAL_X, gk = rt.players.find(q => q.side !== star.side && q.role === 'GK' && !q.offPitch);
-        const from = V(line - gs * 21, 0, kind === 'gkmove' ? -12 : 5);
-        rt.place(star, from.clone().addScaledVector(V(gs, 0, 0), -1), Math.atan2(gs, 0)); ball.owner = star; ball.p.copy(from).setY(BALL_R); ball.v.set(0, 0, 0);
-        if (gk) rt.place(gk, V(line - gs * 2.5, 0, 0), Math.atan2(-gs, 0));
-        if (kind === 'gkmove') yield* carry(star, V(line - gs * 19, 0, 9), 3.2);
-        yield* shot({ eventId: kind === 'gkstar' ? 16 : -1, type: 'shot', fromId: star.id, fromSide: star.side, outcome: 'save', fromPos: pctOf(star.pos), toPos: [gs > 0 ? 100 : 0, kind === 'gkcatch' ? 50 : kind === 'gkmove' ? 42 : 60], devSave: { saveType: kind === 'gkcatch' ? 'CATCH' : kind === 'gkcorner' ? 'DEFLECT_CORNER' : 'PARRY' } }, events.length + 10);
-        if (kind === 'gkcorner') { ball.allowOut = true; yield* until(() => ball.out, 3); stats.cornerOut = ball.p.toArray().map(v => +v.toFixed(2)); }
-        yield* wait(2.5);
-      } else if (kind === 'crosshead') {
-        // (review) an open-play cross from out wide met with a header at the near post
-        const mate = mateOf(), gs = fx, line = gs * GOAL_X;
-        const spot = V(line - gs * 7, rt.headHeight, 3);
-        rt.place(mate, V(line - gs * 16, 0, 27)); ball.owner = mate; ball.p.copy(mate.pos).add(V(gs * 0.5, 0, 0)).setY(BALL_R); ball.v.set(0, 0, 0);
-        rt.place(star, V(spot.x - gs * 6, 0, spot.z - 4));
-        yield* pass({ from: mate, to: star, toW: spot.clone().setY(0), travel: 'aerial', implicit: false }, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6.5; } });
-        yield* shot({ eventId: -41, type: 'shot', header: true, fromId: star.id, fromSide: star.side, outcome: 'goal', fromPos: pctOf(spot), toPos: gs > 0 ? [100, 47] : [0, 53] }, events.length + 10);
-        yield* wait(1.5);
-      } else if (kind === 'bicycle') {
-        const mate = mateOf(), gs = fx, line = gs * GOAL_X;
-        const spot = V(line - gs * 9, rt.headHeight, 1.5);
-        rt.place(mate, V(line - gs * 14, 0, 26)); ball.owner = mate; ball.p.copy(mate.pos).add(V(gs * 0.5, 0, 0)).setY(BALL_R); ball.v.set(0, 0, 0);
-        rt.place(star, V(spot.x - gs * 1.5, 0, spot.z + 2)); tryMove = 'bicycle';
-        yield* pass({ from: mate, to: star, toW: spot.clone().setY(0), travel: 'aerial', implicit: false }, { height: rt.headHeight, meet: tArr => { S.headerCross = { p: star, spot, tArr }; star.busy = true; star.target.copy(spot).setY(0); star.want = 6; } });
-        yield* shot({ eventId: -1, type: 'shot', header: true, fromId: star.id, fromSide: star.side, outcome: 'goal', fromPos: pctOf(spot), toPos: gs > 0 ? [100, 47] : [0, 53] }, events.length + 10);
-      } else if (kind === 'flairpass') {
-        const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
-        const spot = V(at.x + fx * 14, 0, at.z - 7);
-        rt.place(mate, spot.clone().addScaledVector(V(fx, 0, 0), 2));
-        yield* carry(star, V(at.x + fx * 5, 0, at.z), 3.5);
-        tryMove = 'flairpass';
-        if (!(yield* flairPassTry({ from: star, to: mate, toW: spot, travel: 'ground', implicit: false }, { ev: { eventId: -1 } }))) { tryMove = null; forced = null; return true; }
-        star.busy = false; mate.busy = true; yield* chase(mate, spot); mate.busy = false;
-      } else if (kind === 'nolook') {
-        const mate = rt.players.filter(q => !q.offPitch && q.side === star.side && q !== star && q.role !== 'GK').sort((a, b) => a.pos.distanceTo(at) - b.pos.distanceTo(at))[0];
-        rt.place(mate, V(at.x + fx * 16, 0, at.z - 8));
-        yield* carry(star, V(at.x + fx * 6, 0, at.z), 4.2);
-        yield* pass({ from: star, to: mate, toW: V(at.x + fx * 20, 0, at.z - 6), travel: 'ground', implicit: false }, { ev: { eventId: -1 } });
-      } else {
-        // he runs at the defender, who comes out to meet him; then the move (again if he could not set it up)
-        def.lastEvent = { eventId: -1 }; def.busy = star.busy = true;
-        hooks.cam('close', star, def);
-        yield* until(() => {
-          rt.dribble(star, V(at.x + fx * 12, 0, at.z), 3);
-          def.target.copy(star.pos).addScaledVector(forwardOf(star), 1.9); def.want = 4; def.face = star.pos; def.faceLock = true; def.loopsWant.jockey = 1;
-          return def.pos.distanceTo(star.pos) < 2.6;
-        }, 4);
-        for (let k = 0; k < 4; k++) {
-          if ((yield* SKILL_BEATS[kind](beatContext, { car: star, def, closeUp: true })) !== false) break;
-          def.target.copy(star.pos).addScaledVector(forwardOf(star), 2); def.want = 3;
-          yield* wait(0.2);
-        }
-        def.busy = star.busy = false; def.faceLock = false; def.loopsWant.jockey = 0;
-        hooks.cam('tv');
-      }
+      yield* stagingFor(kind)(beatContext, scene);
       forced = null;
       return true;
     })();
@@ -1822,7 +1654,11 @@ export function createDirector(rt, data, hooks, opts = {}) {
   // what a special move's beat (newview/beats/) may use of the director: the pitch, its ball and clock, the
   // page's hooks, the record of the match's special moves, and the director's own steps (wait a while, wait
   // until, chase the ball down, settle it at the boots, do something a moment later)
-  const beatContext = { rt, ball, S, hooks, stats, events, debug: DEBUG, until, wait, chase, gather, later, noteSkill, noteFix, pick, losing, jumpFor };
+  const beatContext = {
+    rt, ball, S, hooks, stats, events, debug: DEBUG, until, wait, chase, gather, carry, pass, flairPassTry, shot, later, noteSkill, noteFix, pick, losing, jumpFor, ownGoalX,
+    // a staged scene asks for a special pass or shot: the next chance to play it plays it (or no longer)
+    setTry: kind => { tryMove = kind; }, clearTry: () => { tryMove = null; forced = null; },
+  };
   // the ball had to be put at a player's feet because he could not reach it (diagnostics; should not happen)
   function noteFix(p, where) {
     stats.fixes++;

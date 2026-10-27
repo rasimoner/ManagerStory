@@ -13,8 +13,8 @@ const SRC = path.join(__dirname, '..', 'src');
 const NEWVIEW = path.join(SRC, 'core/presentation/match3d/newview');
 const MOVES = JSON.parse(fs.readFileSync(path.join(SRC, 'data/moves.json'), 'utf8')).moves.map(m => m.id);
 // the keeper review scenarios stage() knows besides the moves
-const KEEPER_SCENES = ['gkthrow', 'gkvolley', 'gkclaim', 'gkcarry', 'gkfoot', 'gkpunch', 'gkrush', 'gkrushgoal', 'gkpen', 'gkpengoal', 'gksave', 'gkcatch', 'gkmove', 'gkstar', 'gkcorner', 'crosshead'];
-const OWN_KEEPER = new Set(['scorpion', 'gkthrow', 'gkvolley', 'gkcarry', 'gkpunch', 'gkrush', 'gkrushgoal', 'gkpen', 'gkpengoal']);
+const KEEPER_SCENES = ['gkthrow', 'gkvolley', 'gkclaim', 'gkcarry', 'gkfoot', 'gkpunch', 'gkrush', 'gkrushgoal', 'gkpen', 'gkpengoal', 'gksave', 'gkcatch', 'gkmove', 'gkstar', 'gkcorner', 'gkstarown', 'crosshead'];
+const OWN_KEEPER = new Set(['scorpion', 'gkthrow', 'gkvolley', 'gkcarry', 'gkpunch', 'gkrush', 'gkrushgoal', 'gkpen', 'gkpengoal', 'gkstarown']);
 const FRAME = 1 / 60, STEPS = 2, MAX_SECONDS = 14;
 const club = { name: 'Ev', primaryColor: '#c8102e', secondaryColor: '#ffffff', shortName: 'EV' };
 const away = { name: 'Rakip', primaryColor: '#55646b', secondaryColor: '#d8dedc', shortName: 'RK' };
@@ -60,12 +60,12 @@ function playFrame(rt, director) {
   for (const p of rt.players) if (!p.offPitch) rt.pose(p, FRAME);
 }
 
-async function playStaged(kind) {
+async function playStaged(kind, seed) {
   const { THREE, rig, gait, createRuntime } = await load();
   const rt = createRuntime({ scene: new THREE.Scene(), rig, gait, ramp: null, numberTexture: null, cadence: 1, stride: 0.75 });
   const said = [], frames = [];
   const director = stagedDirector(kind, rt, said);
-  const staged = director.stage(kind);
+  const staged = director.stage(kind, seed == null ? undefined : { seed });
   for (let t = 0; director.staging && t < MAX_SECONDS; t += FRAME) { playFrame(rt, director); frames.push(frameOf(rt)); }
   const skills = (director.stats.skills || []).map(a => a.kind);
   return { staged, frames: frames.length, finished: !director.staging, skills, said: hash(said), poses: hash(frames), end: frames.at(-1)?.[1] ?? null };
@@ -78,3 +78,15 @@ for (const kind of [...MOVES, ...KEEPER_SCENES]) {
     matchJSON(`beats/${kind}`, record);
   });
 }
+
+test('a staged move\'s seed decides its variant: the same seed plays the same, another can go the other way', async () => {
+  const a = await playStaged('nutmeg', 20), b = await playStaged('nutmeg', 20), base = await playStaged('nutmeg');
+  assert.deepEqual(a, b);
+  assert.notEqual(a.poses, base.poses, 'seed 20 sends him round the other side of the defender than the default');
+  assert.deepEqual(a.skills, ['nutmeg']);
+});
+
+test('our keeper\'s star save is staged with our keeper making it', async () => {
+  const record = await playStaged('gkstarown');
+  assert.deepEqual(record.skills, ['starsave']);
+});
