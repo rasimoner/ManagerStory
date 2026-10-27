@@ -14,3 +14,10 @@ export function onHook(name, handler) {
 export function runHooks(name, ...args) {
   return (HOOKS[name] || []).map(handler => handler(...args));
 }
+
+/* Refactor D4: what core says to the mode that is playing, instead of calling the mode. main.js connects
+   the manager mode to each; a mode that does not care registers nothing.
+     changed()        the career or the match has changed: whatever shows it redraws (the manager: render)
+     careerOpened()   a career has just been put in place (an imported save): the mode makes it ready (init) */
+export function changed() { runHooks('changed'); }
+export function careerOpened() { runHooks('careerOpened'); }

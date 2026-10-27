@@ -5,9 +5,9 @@ import { clamp, matchEvent, matchPossession, userSide } from './match-support.js
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js';
 import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js';
-import { render } from '../../modes/manager/app.js';
 import { tick } from './match-minute.js';
 import { save } from '../save.js';
+import { changed } from '../hooks.js';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
 export const MATCH_PLAYBACK_SCALE = .5;
@@ -65,19 +65,19 @@ export function advanceLive(realSeconds) {
 }
 export function setMatchSpeed(speed) {
   if (!M || ![0.5, 1, 2].includes(Number(speed))) return;
-  M.speed = Number(speed); save(); render();
+  M.speed = Number(speed); save(); changed();
 }
 export const livePresentationPending = () => !!(presentation.live3d?.finishing||presentation.live3d?.halfPending);
 export const livePlaybackPaused = () => livePresentationPending() ? presentation.live3d.paused : M?.pause;
 export function pauseLive(reason = 'manual') {
-  if(livePresentationPending()){presentation.live3d.setTerminalPaused(true);liveLastFrame=null;render();return;}
+  if(livePresentationPending()){presentation.live3d.setTerminalPaused(true);liveLastFrame=null;changed();return;}
   if (!M || M.finished || M.reason === 'half') return;
   M.pause = true; M.reason = reason; M.lifecycle=reason==='half'?'HALF_TIME':'PAUSED';liveLastFrame = null;
   if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;
-  save(); render();
+  save(); changed();
 }
 export function resumeLive() {
-  if(livePresentationPending()){presentation.live3d.setTerminalPaused(false);liveLastFrame=null;render();return;}
+  if(livePresentationPending()){presentation.live3d.setTerminalPaused(false);liveLastFrame=null;changed();return;}
   if (!M || M.finished || M.reason === 'half') return;
   if (M.requiredSubstitution) resolveUnfillableSubstitution();
   if (M.requiredSubstitution && M.active.includes(M.requiredSubstitution.playerId)) {
@@ -86,7 +86,7 @@ export function resumeLive() {
   if(M.requiredSubstitution&&!M.active.includes(M.requiredSubstitution.playerId))M.requiredSubstitution=null;
   M.pause = false; M.reason = ''; M.uiOverlay = null; M.injuryFeedback=null;
   M.lifecycle=M.secondHalf?'RUNNING_SECOND_HALF':'RUNNING';
-  liveLastFrame = null;if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;save(); render();
+  liveLastFrame = null;if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;save(); changed();
 }
 export function liveFrameStep(now) {
   liveFrame = null;
@@ -101,7 +101,7 @@ export function liveFrameStep(now) {
   // A draining half has M.pause=true but its presentation is still running.
   // Re-rendering every frame resets liveLastFrame through ensureLiveLoop, so
   // the following RAF receives dt=0 forever. Render only a state transition.
-  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused) render();
+  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused) changed();
   else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);
@@ -116,7 +116,7 @@ export function installBackgroundPause(){
   if(typeof document==='undefined'||typeof document.addEventListener!=='function')return;
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden&&M&&!livePlaybackPaused()&&(!M.finished||livePresentationPending())){pauseLive('background');}
-    else if(!document.hidden&&M&&M.reason==='background')render();
+    else if(!document.hidden&&M&&M.reason==='background')changed();
   });
 }
 export function finalizeMatch(){
@@ -243,5 +243,5 @@ export function shoutLive(type, id = null) {
     p.morale = clamp(p.morale + delta, 25, 100);
   }
   matchEvent('shout', `📣 ${M.min}' ${id == null ? 'Takıma' : targets[0]?.name + ' oyuncusuna'}: ${labels[type]}`, { playerId:id });
-  save(); render();
+  save(); changed();
 }

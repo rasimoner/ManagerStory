@@ -4,12 +4,12 @@ import { R, newMatchSalt } from '../random.js';
 import { M, S, setMatch, setModal } from '../state.js';
 import { presentation } from '../presentation/registry.js';
 import { defineActions } from '../../ui/actions.js';
-import { runHooks } from '../hooks.js';
+import { changed, runHooks } from '../hooks.js';
 import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame } from './live-match.js';
 import { opponentLineup } from '../league/opponents-v731.js';
 import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
 import { assistantAdvice, attackDirection, isKeeper, matchTeamName, playerAtMarker, startPitchRestart } from './pitch-v731.js';
-import { $, bottomNav, decorateAtmosphereScenes, matchOrderOptions, render, showAcademy, showLeague, showV6Transfers } from '../../modes/manager/app.js';
+import { $, bottomNav, decorateAtmosphereScenes, matchOrderOptions, showAcademy, showLeague, showV6Transfers } from '../../modes/manager/app.js';
 import { currentOpponent } from '../league/league.js';
 import { save } from '../save.js';
 export const GAME_VERSION = "7.10.0";
@@ -349,7 +349,7 @@ export function tacticsControls(target = "match") {
 }
 export function setCareerTactic(key, value) {
   if (!MATCH_TACTICS[key]?.includes(value)) return;
-  S.plan[key] = value; S.v71.lastTacticWeek = S.week; save(); render();
+  S.plan[key] = value; S.v71.lastTacticWeek = S.week; save(); changed();
 }
 export function setMatchTactic(key, value) {
   if (!M || M.finished || !MATCH_TACTICS[key]?.includes(value)) return;
@@ -359,7 +359,7 @@ export function setMatchTactic(key, value) {
   M.tacticChanges.push({ minute: M.min, key, value });
   const descriptions={mentality:{Cesur:'bütün hatlarıyla ileri çıkıyor',Temkinli:'daha kompakt savunmaya yerleşiyor'},press:{Yüksek:'önde baskıya geçti',Düşük:'presi düşürüp blok halinde bekliyor'},tempo:{Yüksek:'oyunu hızlandırıyor',Düşük:'pas temposunu düşürüyor'},line:{Önde:'savunma çizgisini ileri taşıyor',Geride:'savunmayı geriye çekiyor'}};
   matchEvent("tactic", `🧠 ${M.min}' ${matchTeamName('user')} ${descriptions[key]?.[value] || `${TACTIC_LABELS[key]}: ${value}`}.`,{key,value});
-  save(); render();
+  save(); changed();
 }
 export function toggleTeamOrder(key, target) {
   if (!TEAM_ORDERS[key]) return;
@@ -370,18 +370,18 @@ export function toggleTeamOrder(key, target) {
   plan.teamInstructions = plan.teamInstructions.includes(key) ? plan.teamInstructions.filter(x => x !== key) : [...plan.teamInstructions, key];
   if (target === "match") matchEvent("tactic", `🧠 ${M.min}' ${TEAM_ORDERS[key]}: ${plan.teamInstructions.includes(key) ? 'açık' : 'kapalı'}.`);
   else S.v71.lastTacticWeek = S.week;
-  save(); render();
+  save(); changed();
 }
 export function switchMatchTab(tab) {
   if (!M || !["details", "pitch", "stats", "tactics"].includes(tab)) return;
   M.activeTab = tab;
   if (tab === 'tactics' && !M.pause && !M.finished) { M.pause = true; M.reason = 'manual'; }
-  render();
+  changed();
 }
 export function beginMatchOverlay() { if (M && !M.finished) { if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause = true; M.reason ||= 'manual';} resetLiveFrame(); save(); } }
 export function closeMatchOverlay() {
   if (M) delete M.uiOverlay;
-  render();
+  changed();
 }
 /* Refactor C2: the match controls this file draws */
 defineActions({
@@ -400,7 +400,7 @@ export function goMain(section) {
   if (section === "league") return showLeague();
   if (section === "transfer") return showV6Transfers();
   if (section === "academy") return showAcademy();
-  render(); window.scrollTo?.(0, 0);
+  changed(); window.scrollTo?.(0, 0);
 }
 export function setScreenMode() {
   document.body.classList.toggle("in-match", !!M);

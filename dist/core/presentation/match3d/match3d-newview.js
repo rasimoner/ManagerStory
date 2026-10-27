@@ -17,8 +17,9 @@ import { liveCommentaryLines, presentationEvent } from '../../engine/match-suppo
 import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
 import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js';
 import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js';
-import { openDecisionSheet, render } from '../../../modes/manager/app.js';
+import { openDecisionSheet } from '../../../modes/manager/app.js';
 import { CLUBSTYLE, resolveClubIdentity } from '../../clubs/clubs.js';
+import { changed } from '../../hooks.js';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');
@@ -152,7 +153,7 @@ function setFull(on) {
     camMode = 'auto'; syncButtons();
     try { if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {}); } catch (e) { /* optional */ }
     surface.remove();
-    if (typeof render === 'function' && typeof M !== 'undefined' && M) render(); else presentation.career3d.mount();
+    if (typeof changed === 'function' && typeof M !== 'undefined' && M) changed(); else presentation.career3d.mount();
   }
   cut = true;
 }
@@ -198,7 +199,7 @@ let match = null, rt = null, director = null, snaps = [], crowd = [], rosterKey 
 function fail(error) {
   failed = true; console.warn('Yeni 3D saha', error);
   status.hidden = false; status.textContent = '3D saha açılamadı. 2D görünümü seçerek devam edebilirsiniz.';
-  if (typeof M !== 'undefined' && M && M.fieldView === '3d') { M.fieldView = '2d'; render(); }
+  if (typeof M !== 'undefined' && M && M.fieldView === '3d') { M.fieldView = '2d'; changed(); }
 }
 
 function initRenderer() {
@@ -539,7 +540,7 @@ presentation.career3d = {
   get fullscreen() { return full; },
   setFullscreen(on) { setFull(!!on); },
   mount() {
-    if (failed && M?.fieldView === '3d') { M.fieldView = '2d'; render(); return; }
+    if (failed && M?.fieldView === '3d') { M.fieldView = '2d'; changed(); return; }
     if (M?.fieldView === '3d' && presentation.live3d && !presentation.live3d.enabled) { presentation.live3d.enable(); presentation.live3d.setTempo(1); }
     if (full) { if (!M) setFull(false); return; }
     const host = document.querySelector('#career-3d-host'); if (!host) return;

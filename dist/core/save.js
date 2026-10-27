@@ -14,7 +14,7 @@ import { CLUB_DATA } from '../data/clubs.js';
 import { newMatchSalt } from './random.js';
 import { M, S, setCareer, setLoadError, setMatch, setModal } from './state.js';
 import { GAME_VERSION, MATCH_TACTICS, restoreActiveMatch } from './engine/match-support.js';
-import { init, render } from '../modes/manager/app.js';
+import { careerOpened, changed } from './hooks.js';
 export const SAVE_KEY = "msv4";
 export const SAVE_SCHEMA = 1;
 export let saveWarning = false;
@@ -136,7 +136,7 @@ export async function importCareer(file) {
     const data = validateCareerImport(JSON.parse(await file.text()));
     if (S && !confirm("Bu yedek mevcut kariyerin yerine yüklensin mi? Mevcut kayıt ayrıca yedeklenecek.")) return;
     if (S) localStorage.setItem("msv4-before-import", JSON.stringify(S));
-    setCareer(migrateSave(data)); setMatch(null); setModal(null); setLoadError(""); init(); restoreActiveMatch(); save(); render();
+    setCareer(migrateSave(data)); setMatch(null); setModal(null); setLoadError(""); careerOpened(); restoreActiveMatch(); save(); changed();
   } catch (error) { alert(error.message || "Kariyer yedeği yüklenemedi. Mevcut kayıt korundu."); }
 }
 // the game keeps the career after every change it makes (D4: moved from app.js; core no longer asks the mode to save)
