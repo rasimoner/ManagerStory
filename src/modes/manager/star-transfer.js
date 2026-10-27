@@ -18,6 +18,7 @@ import { resolveClubIdentity } from '../../core/clubs/clubs.js';
 import { save } from '../../core/save.js';
 import { pushInbox } from '../../core/inbox.js';
 import { SKILL_NAMES } from '../../core/players/move-names.js';
+import { firstFreeShirtNumber, numbersFreeIn } from '../../core/players/shirt-numbers.js';
 export const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
 // the most spectacular move he has is the one he shows (data/moves.json starShow); without one, the fallback
 export const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;
@@ -49,17 +50,10 @@ export function starTransferExcite(stars, fee) {
 }
 
 // ---- shirt numbers ----
-// a player without a number wears his place in the squad list (that is what the 3D match shows)
-export function takenShirtNumbers(exceptId) {
-  const taken = new Set();
-  (S.players || []).forEach((p, i) => {
-    if (p.status === 'Transfer oldu' || p.id === exceptId) return;
-    taken.add(Number.isInteger(p.number) ? p.number : i + 1);
-  });
-  return taken;
-}
-export function freeShirtNumbers(exceptId) { const t = takenShirtNumbers(exceptId), out = []; for (let n = 1; n <= 99; n++) if (!t.has(n)) out.push(n); return out; }
-export function defaultShirtNumber(exceptId) { const free = freeShirtNumbers(exceptId); return STAR_SHIRT_WISH.find(n => free.includes(n)) ?? free[0] ?? 99; }
+// the numbers nobody else in the squad wears (core/players/shirt-numbers.js)
+export function freeShirtNumbers(exceptId) { return numbersFreeIn(S.players || [], exceptId); }
+// the first free number a star asks for
+export function defaultShirtNumber(exceptId) { return firstFreeShirtNumber(S.players || [], { exceptId, wishes: STAR_SHIRT_WISH }); }
 
 // ---- the highlight archive (minimal: the archive screen and "İzle" come later) ----
 export function ensureHighlights() { if (!Array.isArray(S.highlights)) S.highlights = []; return S.highlights; }
@@ -96,7 +90,7 @@ export function starFlowPlayer() { return S.players.find(p => p.id === starFlow?
 
 export function beginStarTransfer(p, x, fee) {
   const rating = starShowRating(p), move = starShowMove(rating);
-  if (!Number.isInteger(p.number)) p.number = defaultShirtNumber(p.id);
+  p.number = defaultShirtNumber(p.id); // just signed: he asks for his wish before anything else
   const rec = addStarTransferHighlight(p, { move, stars: rating.stars, keeper: rating.keeper, fee, fromClub: x?.free ? 'Serbest oyuncu' : x?.club });
   const moves = rating.moves.length;
   pushInbox('Spor Servisi', `SON DAKİKA • ${p.name} resmen bizde`, `${'★'.repeat(rating.stars)} ${p.pos} • ${moves ? moves + ' özel hareket' : 'özel hareketi yok'} • ${money(rec.fee)}. Taraftar stadın önüne akın etti; yıldız bu akşam tünelden çıkıp sahada ilk şovunu yapacak.`, 'board');

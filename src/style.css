@@ -218,3 +218,6 @@ body.in-match .navtop{display:none}
 .typefilter select{flex:1;min-width:0;min-height:44px;border:1px solid #456152;border-radius:10px;background:#14251d;color:#fff;padding:9px 12px;font-size:15px}
 .nowrap{white-space:nowrap}
 .updatenotice{position:fixed;z-index:90;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);width:min(calc(100% - 28px),492px);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 8px 8px 14px;border-radius:14px;background:#0d2419f7;border:1px solid #3be28d88;box-shadow:0 10px 28px #000a;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-weight:800}.updatenotice button{margin:0;padding:9px 14px;background:linear-gradient(#ffd83e,#ffc21d);color:#14110a;border:0;font-weight:950}
+/* the player's shirt number: the squad list and his profile show the number the 3D match puts on his back */
+.shirtno{display:inline-block;min-width:26px;padding:3px 6px;border-radius:7px;background:#f3c623;color:#1d1d1d;font-weight:800;font-size:12px;text-align:center}
+.profilehero h1 .shirtno{font-size:18px;vertical-align:middle}

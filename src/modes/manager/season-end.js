@@ -18,6 +18,7 @@ import { CLUBSTYLE } from '../../core/clubs/club-style.js';
 import { MARKET_FIRST_NAMES, MARKET_LAST_NAMES, MARKET_POSITIONS } from './market-names.js';
 import { SLOT_POS } from './lineup-slots.js';
 import { academyWage, baseWage, wageBill, wageBudget } from './wages.js';
+import { giveShirtNumber } from '../../core/players/shirt-numbers.js';
 /* step 5 — what the summer did (screen) */
 seasonEndStep({ id: 'report', screen: seasonReportUI }, { after: 'loans' });
 
@@ -166,6 +167,7 @@ export function seasonPromoteQuiet(a) {
     morale: 84, form: 68, relation: 70, minutes: 0, value: 800000, contract: 3, status: 'Altyapıdan A takım', goals: 0, assists: 0, yellow: 0, red: 0,
     injury: 0, personality: a.special ? 'Özel yetenek' : 'Hırslı', happiness: 84, growth: 0, secondary: [], academyLocked: true, debutDone: false,
     wage: academyWage(), careerGoals: 0, careerApps: 0 };
+  giveShirtNumber(p, S.players);
   S.players.push(p);
   assignPlayerProfile(p, { seed: a.profileSeed, type: a.type || (a.special ? WONDER_TYPES[profilePositionGroup(a.pos)] : undefined), special: a.special });
   if (a.pinned) { const k = (S.v795?.wonderkids || []).find(w => w.academyId === a.id); if (k) { k.where = 'squad'; k.playerId = p.id; } }
