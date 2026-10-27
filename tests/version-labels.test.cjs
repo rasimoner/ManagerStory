@@ -26,6 +26,9 @@ test('one version everywhere: README, lock file, game, page, manifest, cache-bus
   assert.match(sw, new RegExp(`const CACHE = "managerstory-v${v.replace(/\./g, '\\.')}-`), 'service-worker cache key');
   const swBusters = [...sw.matchAll(/\?v=([\d.]+)/g)].map(m => m[1]);
   assert.ok(swBusters.length >= 4 && swBusters.every(x => x === v), 'sw.js ?v= ' + [...new Set(swBusters)]);
+  // refactor D: every import of a game module carries the release too (tools/stamp-version.cjs)
+  const stamped = require('node:child_process').spawnSync(process.execPath, [path.join(root, 'tools/stamp-version.cjs'), '--check'], { encoding: 'utf8' });
+  assert.equal(stamped.status, 0, stamped.stderr);
   const game = gameSources().map(s => s.code).join('\n');
   assert.ok(game.includes(`V${v} • Hisar Matchday`), 'start screen');
   assert.ok(game.includes(`ManagerStory • V${v} • MatchEngine`), 'settings');

@@ -2,14 +2,14 @@
    orders he can change during a match (and in his plan before it), the assistant's suggestions next to
    them, and the buttons that do it. Moved from core/engine/match-support.js: the engine only takes what
    they decide (a tactic event, the match state), never draws them. */
-import { TACTIC_DATA } from '../../data/tactics.js';
-import { userSquad } from '../../core/engine/user-team.js';
-import { M, S } from '../../core/state.js';
-import { MATCH_TACTICS, clamp, escapeHTML, matchEvent, matchPossession, presentationEvent } from '../../core/engine/match-support.js';
-import { assistantAdvice, matchTeamName } from '../../core/engine/pitch-v731.js';
-import { save } from '../../core/save.js';
-import { render } from './app.js';
-import { defineActions } from '../../ui/actions.js';
+import { TACTIC_DATA } from '../../data/tactics.js?v=7.10.0';
+import { userSquad } from '../../core/engine/user-team.js?v=7.10.0';
+import { M, S } from '../../core/state.js?v=7.10.0';
+import { MATCH_TACTICS, clamp, escapeHTML, matchEvent, matchPossession, presentationEvent } from '../../core/engine/match-support.js?v=7.10.0';
+import { assistantAdvice, matchTeamName } from '../../core/engine/pitch-v731.js?v=7.10.0';
+import { save } from '../../core/save.js?v=7.10.0';
+import { render } from './app.js?v=7.10.0';
+import { defineActions } from '../../ui/actions.js?v=7.10.0';
 export const TACTIC_LABELS = TACTIC_DATA.labels;
 export const TEAM_ORDERS = TACTIC_DATA.orders;
 export function matchFitnessUI() {

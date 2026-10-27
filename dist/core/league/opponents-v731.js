@@ -2,14 +2,14 @@
    V7.9.5: each player's attributes come from player-profiles.js. */
 // V7.9.5: with real profiles a league player is a specialist like ours (before, every attribute sat at his
 // overall, which made him artificially strong); the league's level is set by its players' overall instead
-import { NAME_DATA } from '../../data/names.js';
-import { BALANCE } from '../../data/balance.js';
-import { R } from '../random.js';
-import { M, S } from '../state.js';
-import { assignPlayerProfile, refreshPlayerProfile } from '../players/player-profiles.js';
-import { seasonSeedOffset } from '../season/season.js';
-import { OPP } from './league.js';
-import { opponentsEvolved } from '../hooks.js';
+import { NAME_DATA } from '../../data/names.js?v=7.10.0';
+import { BALANCE } from '../../data/balance.js?v=7.10.0';
+import { R } from '../random.js?v=7.10.0';
+import { M, S } from '../state.js?v=7.10.0';
+import { assignPlayerProfile, refreshPlayerProfile } from '../players/player-profiles.js?v=7.10.0';
+import { seasonSeedOffset } from '../season/season.js?v=7.10.0';
+import { OPP } from './league.js?v=7.10.0';
+import { opponentsEvolved } from '../hooks.js?v=7.10.0';
 export const LEAGUE_LIFT=BALANCE.league.lift;
 export const OPPONENT_ROLES=['GK','LB','CB','CB','RB','CM','CM','LW','CAM','RW','ST','GK','CB','CM','RW','ST'];
 export const OPPONENT_FIRST=NAME_DATA.rivals.first;

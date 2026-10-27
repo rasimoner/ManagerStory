@@ -18,13 +18,24 @@ function swList() {
   return new Set(list);
 }
 
+/* The addresses the page asks for, from its entries through every static and dynamic import: each as
+   written, with its ?v= (refactor D stamps the release on imports; an ES module is fetched, and cached
+   offline, under exactly that address). */
+// the list exactly as written (no address without its ?v=)
+function swExact() {
+  const sw = read('sw.js');
+  const list = new Set([...sw.matchAll(/"\.\/([^"]*)"/g)].map(m => m[1]));
+  for (const [, n, pre, post] of sw.matchAll(/Array\.from\(\{length:(\d+)\},\(_,i\)=>`\.\/([^`]*)\$\{i\}([^`]*)`\)/g)) for (let i = 0; i < Number(n); i++) list.add(pre + i + post);
+  return list;
+}
+
 function moduleGraph(entries) {
   const seen = new Set(), queue = [...entries];
   while (queue.length) {
     const file = path.posix.normalize(queue.shift());
     if (seen.has(file)) continue;
     seen.add(file);
-    const src = read(file);
+    const src = read(file.replace(/\?.*$/, ''));
     for (const m of src.matchAll(/(?:^|\n)\s*import\s+(?:[^'"]*?\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g)) {
       queue.push(path.posix.join(path.posix.dirname(file), m[1]));
     }
@@ -52,11 +63,12 @@ test('every file index.html loads, and every ES module it imports, is in the ser
   for (const f of pageFiles.filter(f => f.endsWith('.js'))) {
     for (const m of read(f).matchAll(/import\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g)) lazyImports.push(path.posix.join(path.posix.dirname(f), m[1]));
   }
-  const modules = moduleGraph([...pageFiles.filter(f => f.endsWith('.js')), ...inlineImports, ...lazyImports]);
-  const missing = [...new Set([...pageFiles, ...modules])].filter(f => !list.has(f));
+  const modules = moduleGraph([...entries.filter(f => f.includes('.js')), ...inlineImports, ...lazyImports]);
+  const exact = swExact();
+  const missing = [...new Set([...pageFiles.filter(f => !f.endsWith('.js')), ...modules])].filter(f => !exact.has(f));
   assert.deepEqual(missing, [], 'missing from sw.js: ' + missing.join(', '));
-  assert.ok([...modules].some(f => f.endsWith('newview/replay.js')), 'module graph reaches newview/replay.js');
-  assert.ok([...modules].some(f => f.endsWith('star-transfer-scene.js')), 'and the star transfer scene, imported on demand');
+  assert.ok([...modules].some(f => /newview\/replay\.js(\?|$)/.test(f)), 'module graph reaches newview/replay.js');
+  assert.ok([...modules].some(f => /star-transfer-scene\.js(\?|$)/.test(f)), 'and the star transfer scene, imported on demand');
 });
 
 // published but deliberately not cached for offline play

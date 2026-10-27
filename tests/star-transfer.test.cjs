@@ -140,8 +140,8 @@ test('old saves and saves with other new fields load; the archive starts empty',
 test('the page loads the scene files and the offline cache keeps them', () => {
   const html = fs.readFileSync(path.join(base, 'index.html'), 'utf8'), sw = fs.readFileSync(path.join(base, 'sw.js'), 'utf8');
   assert.ok(require('./support/game.cjs').gameSources().some(s => s.file === 'modes/manager/star-transfer.js'), 'the game loads star-transfer.js');
-  assert.match(sw, /"\.\/modes\/manager\/star-transfer\.js"/);
-  assert.match(sw, /"\.\/core\/presentation\/scenes\/star-transfer-scene\.js"/);
+  assert.match(sw, /"\.\/modes\/manager\/star-transfer\.js(\?v=[\d.]+)?"/);
+  assert.match(sw, /"\.\/core\/presentation\/scenes\/star-transfer-scene\.js(\?v=[\d.]+)?"/);
   const scene = require('./support/game.cjs').readDist('star-transfer-scene.js');
   const t = scene.match(/export const TIMES = (\{[^}]+\})/)[1];
   const T = Function(`return ${t}`)();

@@ -1,15 +1,15 @@
 /* ManagerStory: shared match state, match events and the in-match panel. (Saves: save.js.) */
-import { TACTIC_DATA } from '../../data/tactics.js';
-import { R, newMatchSalt } from '../random.js';
-import { M, S, setMatch } from '../state.js';
-import { presentation } from '../presentation/registry.js';
-import { runHooks } from '../hooks.js';
-import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame } from './live-match.js';
-import { opponentLineup } from '../league/opponents-v731.js';
-import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js';
-import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js';
-import { save } from '../save.js';
-import { userOpponent, userSquad } from './user-team.js';
+import { TACTIC_DATA } from '../../data/tactics.js?v=7.10.0';
+import { R, newMatchSalt } from '../random.js?v=7.10.0';
+import { M, S, setMatch } from '../state.js?v=7.10.0';
+import { presentation } from '../presentation/registry.js?v=7.10.0';
+import { runHooks } from '../hooks.js?v=7.10.0';
+import { ensureLiveState, livePresentationPending, matchSecond, resetLiveFrame } from './live-match.js?v=7.10.0';
+import { opponentLineup } from '../league/opponents-v731.js?v=7.10.0';
+import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from './pitch-v73.js?v=7.10.0';
+import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js?v=7.10.0';
+import { save } from '../save.js?v=7.10.0';
+import { userOpponent, userSquad } from './user-team.js?v=7.10.0';
 export const GAME_VERSION = "7.10.0";
 // tactic settings, their labels and the team orders (data/tactics.js)
 export const MATCH_TACTICS = TACTIC_DATA.options;

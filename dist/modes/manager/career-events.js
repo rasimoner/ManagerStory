@@ -1,12 +1,12 @@
 /* V7.1: context-driven press questions and player conversations. No network calls. */
-import { M, S } from '../../core/state.js';
-import { clamp, finite, roleAtSlot } from '../../core/engine/match-support.js';
-import { advance } from './app.js';
-import { currentFixture, currentOpponent } from '../../core/league/league.js';
-import { managedClubName } from '../../core/clubs/clubs.js';
-import { save } from '../../core/save.js';
-import { userSquad } from '../../core/engine/user-team.js';
-import { pushInbox } from '../../core/inbox.js';
+import { M, S } from '../../core/state.js?v=7.10.0';
+import { clamp, finite, roleAtSlot } from '../../core/engine/match-support.js?v=7.10.0';
+import { advance } from './app.js?v=7.10.0';
+import { currentFixture, currentOpponent } from '../../core/league/league.js?v=7.10.0';
+import { managedClubName } from '../../core/clubs/clubs.js?v=7.10.0';
+import { save } from '../../core/save.js?v=7.10.0';
+import { userSquad } from '../../core/engine/user-team.js?v=7.10.0';
+import { pushInbox } from '../../core/inbox.js?v=7.10.0';
 export const PRE_PRESS = [
   ['strongOpponent', c => c.r[1]>=73, c => `${c.r[0]} ligin güçlü ekiplerinden. Maça hangi düşünceyle çıkıyorsunuz?`, ['Rakibe saygılıyız, kendi dengemizden ödün vermeyeceğiz.', 'Bu düzeydeki takımlara karşı cesur davranacağız.', 'Bireysel eşleşmelerin üzerinde çalıştık.']],
   ['weakOpponent', c => c.r[1]<70, c => `${c.r[0]} karşısında herkes üç puanı bekliyor. Bu beklenti takımı etkiler mi?`, ['Kolay maç yok; oyunumuzu kurmalıyız.', 'Sorumluluğu alıp tempoyu belirleyeceğiz.', 'Oyuncularıma güveniyorum.']],

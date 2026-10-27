@@ -5,20 +5,20 @@
 // has played the current one (presentation.newView.busy).
 import * as THREE from '../../../vendor/three/three.module.min.js';
 import { OutlineEffect } from '../../../vendor/three/addons/effects/OutlineEffect.js';
-import { buildStadium } from './newview/stadium.js';
-import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js';
-import { loadRig } from './newview/rig.js';
-import { createDirector } from './newview/director.js';
-import { createBroadcastCamera } from './newview/camera.js';
-import { createReplay, STAR_MOVES } from './newview/replay.js';
-import { M, S } from '../../state.js';
-import { presentation } from '../registry.js';
-import { liveCommentaryLines, presentationEvent } from '../../engine/match-support.js';
-import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
-import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js';
-import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js';
-import { CLUBSTYLE, resolveClubIdentity } from '../../clubs/clubs.js';
-import { changed, decisionsRequested } from '../../hooks.js';
+import { buildStadium } from './newview/stadium.js?v=7.10.0';
+import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js?v=7.10.0';
+import { loadRig } from './newview/rig.js?v=7.10.0';
+import { createDirector } from './newview/director.js?v=7.10.0';
+import { createBroadcastCamera } from './newview/camera.js?v=7.10.0';
+import { createReplay, STAR_MOVES } from './newview/replay.js?v=7.10.0';
+import { M, S } from '../../state.js?v=7.10.0';
+import { presentation } from '../registry.js?v=7.10.0';
+import { liveCommentaryLines, presentationEvent } from '../../engine/match-support.js?v=7.10.0';
+import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js?v=7.10.0';
+import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js?v=7.10.0';
+import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js?v=7.10.0';
+import { CLUBSTYLE, resolveClubIdentity } from '../../clubs/clubs.js?v=7.10.0';
+import { changed, decisionsRequested } from '../../hooks.js?v=7.10.0';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');

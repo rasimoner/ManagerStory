@@ -4,13 +4,13 @@
 // WebGL renderer is created for the scene and released when it ends (phones keep little GPU memory).
 import * as THREE from '../../../vendor/three/three.module.min.js';
 import { OutlineEffect } from '../../../vendor/three/addons/effects/OutlineEffect.js';
-import { buildStadium } from '../match3d/newview/stadium.js';
-import { createRuntime, analyseGait, BALL_R, V } from '../match3d/newview/runtime.js';
-import { loadRig } from '../match3d/newview/rig.js';
-import { createDirector } from '../match3d/newview/director.js';
-import { createBroadcastCamera } from '../match3d/newview/camera.js';
-import { presentation } from '../registry.js';
-import { CLUBSTYLE } from '../../clubs/clubs.js';
+import { buildStadium } from '../match3d/newview/stadium.js?v=7.10.0';
+import { createRuntime, analyseGait, BALL_R, V } from '../match3d/newview/runtime.js?v=7.10.0';
+import { loadRig } from '../match3d/newview/rig.js?v=7.10.0';
+import { createDirector } from '../match3d/newview/director.js?v=7.10.0';
+import { createBroadcastCamera } from '../match3d/newview/camera.js?v=7.10.0';
+import { presentation } from '../registry.js?v=7.10.0';
+import { CLUBSTYLE } from '../../clubs/clubs.js?v=7.10.0';
 
 // timings (seconds): the whole scene stays short on a phone
 export const TIMES = { walk: 6.2, cheer: 2.2, fade: 0.35, showMax: 12, after: 1.6, closing: 4, cap: 40 };

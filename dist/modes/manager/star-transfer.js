@@ -8,17 +8,17 @@
    season-transition branch (contracts, free agents) can change those lines without conflicts here. */
 
 // the one place that says which transfers get the scene
-import { MOVE_DATA } from '../../data/moves.js';
-import { BALANCE } from '../../data/balance.js';
-import { S } from '../../core/state.js';
-import { defineActions } from '../../ui/actions.js';
-import { onHook } from '../../core/hooks.js';
-import { escapeHTML } from '../../core/engine/match-support.js';
-import { $, asking, cinematic, clearCinematicNext, clubColor, clubProps, header, money, recordMoves, render } from './app.js';
-import { resolveClubIdentity } from '../../core/clubs/clubs.js';
-import { save } from '../../core/save.js';
-import { SKILL_NAMES } from '../../core/players/moves.js';
-import { pushInbox } from '../../core/inbox.js';
+import { MOVE_DATA } from '../../data/moves.js?v=7.10.0';
+import { BALANCE } from '../../data/balance.js?v=7.10.0';
+import { S } from '../../core/state.js?v=7.10.0';
+import { defineActions } from '../../ui/actions.js?v=7.10.0';
+import { onHook } from '../../core/hooks.js?v=7.10.0';
+import { escapeHTML } from '../../core/engine/match-support.js?v=7.10.0';
+import { $, asking, cinematic, clearCinematicNext, clubColor, clubProps, header, money, recordMoves, render } from './app.js?v=7.10.0';
+import { resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.10.0';
+import { save } from '../../core/save.js?v=7.10.0';
+import { SKILL_NAMES } from '../../core/players/moves.js?v=7.10.0';
+import { pushInbox } from '../../core/inbox.js?v=7.10.0';
 export const STAR_SCENE_MIN_STARS = BALANCE.starScene.minStars;
 // the most spectacular move he has is the one he shows (data/moves.js starShow); without one, the fallback
 export const STAR_SHOW_ORDER = MOVE_DATA.starShow.order;
@@ -177,7 +177,7 @@ export function starWalkOut(replayRec) {
     // no 3D on this device: the old photo scene of the fans waiting for him
     cinematic('assets/atmosphere/fans-neutral.webp', 'TESİSLERİN ÖNÜ', 'TARAFTARLAR YENİ YILDIZI BEKLİYOR', `${p.name} ${p.number} numaralı formayla selamladı. Gösterisi: ${starMoveName(f.move)}.`, replay ? 'Kulübe dön' : 'Devam', replay ? done : () => starClosingScreen(), `${p.name}! ${p.name}! ${club.name}’a hoş geldin!`, 'fans');
   };
-  (starSceneModule ??= import('../../core/presentation/scenes/star-transfer-scene.js'))
+  (starSceneModule ??= import('../../core/presentation/scenes/star-transfer-scene.js?v=7.10.0'))
     .then(m => m.playStarTransferScene(opts))
     .then(r => { if (!r) return fallback(); if (replay) return done(); if (r.closed) return done(); starClosingScreen(); })
     .catch(e => { console.warn('Yıldız sahnesi açılamadı', e); fallback(); });
