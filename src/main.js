@@ -32,6 +32,7 @@ import './modes/manager/app.js';
 import './ui/nav.js';
 import './modes/manager/star-transfer.js';
 import './modes/manager/highlight-recorder.js';
+import './modes/manager/highlight-screens.js';
 import './ui/webmcp.js';
 import './ui/updates.js';
 import { setCareer } from './core/state.js';
