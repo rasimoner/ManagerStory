@@ -2,13 +2,14 @@
 // The engine decides who does what and where; this file only decides how it looks.
 import { V, clamp, toWorld, GOAL_X, BALL_R, MOTIONS } from './runtime.js';
 import { ACTIONS } from './actions.js';
-import { ramp, smooth01, spline } from './motion-curves.js';
+import { ramp, smooth01 } from './motion-curves.js';
 import { forwardOf, rightOf, headingOf } from './facing.js';
 import { CLAIM_H, PUNCH_H, keeperClaim, keeperPunch } from './beats/keeper-hands.js';
 import { keeperVolley } from './beats/keeper-volley.js';
 import { scorpionBody, scorpionSave, scorpionSpot } from './beats/scorpion.js';
 import { stageScene, stagingFor } from './beats/staging.js';
 import { backheelKick, rabonaKick } from './beats/flair-passes.js';
+import { CHEST_H, TRAP_H, chestControl, footTrap, pirouetteReceive } from './beats/first-touch.js';
 import { stepoverBeat } from './beats/feints.js';
 import { SKILL_BEATS } from './beats/skill-beats.js';
 
@@ -330,12 +331,12 @@ export function createDirector(rt, data, hooks, opts = {}) {
     if (!to) { if (noLook) hooks.slow(1); yield* until(() => ball.v.length() < 2 || ball.p.distanceTo(V(toW.x, BALL_R, toW.z)) < 1.5, 4); return; }
     to.busy = true;
     if (claim && flight > 0) { yield* keeperClaim(beatContext, { gk: to, spot: toW, tArr: kickT + flight, ev: opts.ev }); to.busy = false; return; }
-    if (chest) yield* chestControl(to, toW, kickT + flight);
-    if (trap) { const done = yield* footTrap(to, toW, kickT + flight); if (trapTried) tryMove = done ? null : 'trap'; }
+    if (chest) yield* chestControl(beatContext, to, { spot: toW, tArr: kickT + flight });
+    if (trap) { const done = yield* footTrap(beatContext, to, { tArr: kickT + flight }); if (trapTried) tryMove = done ? null : 'trap'; }
     // V7.9: Bergkamp's turn — back to goal with a man on him, the first touch sends the ball round one
     // side of the defender while he spins round the other
     const pir = !chest && !trap && flight === 0 ? pirouetteChance(to, toW, opts, implicit) : null;
-    const ok = pir ? yield* pirouetteReceive(to, toW, pir) : yield* chase(to, toW);
+    const ok = pir ? yield* pirouetteReceive(beatContext, to, { toW, pir }) : yield* chase(to, toW);
     if (noLook) hooks.slow(1);
     if (!ok) { noteFix(to, 'pass'); ball.owner = to; ball.p.set(to.pos.x + Math.sin(to.heading) * .5, BALL_R, to.pos.z + Math.cos(to.heading) * .5); ball.v.set(0, 0, 0); }
     to.busy = false;
@@ -358,43 +359,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     return null;
   }
 
-  // a ball dropping out of the sky killed dead with the boot: he gets under it, lifts the foot to meet
-  // it and lets it settle at his feet
-  const TRAP_H = 0.8;
-  function* footTrap(p, spot, tArr) {
-    let started = false, done = false, f = null;
-    yield* until(() => {
-      const left = tArr - S.t;
-      const bv = V(ball.v.x, 0, ball.v.z), sp = bv.length(); if (sp > 0.1) f = bv.clone().multiplyScalar(-1 / sp);
-      const fw = f || forwardOf(p), rr = V(-fw.z, 0, fw.x);
-      const arrive = ball.p.clone().addScaledVector(bv, Math.max(0, left)).setY(0);
-      if (!started) {
-        p.target.copy(arrive).addScaledVector(fw, -0.5).addScaledVector(rr, -0.12);
-        const gap = Math.hypot(p.target.x - p.pos.x, p.target.z - p.pos.z);
-        p.want = gap > 2 ? 6.5 : gap > 0.08 ? Math.min(3, 1 + gap * 4) : 0; p.face = ball.p; p.faceLock = left < 1.2;
-        if (left <= 0.35) {
-          if (gap > 0.6 || p.vel.length() > 2.2) return true;               // not under it in time: he plays it as it comes
-          started = true; ball.through = tArr + 0.6; hooks.slow(0.5);
-          // the boot goes to where the ball will be at shin height and waits for it there
-          p.feet = { Right: { w: ramp(S.t, [0, 0.18, 0.55, 0.75]), at: () => {
-            const vy = ball.v.y, y = ball.p.y, g = 9.81, hy = 0.62;
-            const tt = y <= hy ? 0 : (vy + Math.sqrt(Math.max(0, vy * vy + 2 * g * (y - hy)))) / g;
-            return ball.p.clone().add(V(ball.v.x * tt, 0, ball.v.z * tt)).setY(Math.max(0.05, Math.min(y, hy) - 0.1)).addScaledVector(forwardOf(p), 0.04);
-          } } };
-        }
-        return false;
-      }
-      if (toeGap(p, 'Right') < 0.22 && ball.v.y < 0 && ball.p.y < 0.8) { done = true; return true; }
-      return ball.p.y < 0.2 || S.t > tArr + 0.3;
-    }, tArr - S.t + 0.8);
-    if (!started) { p.faceLock = false; return false; }
-    const audit = { kind: 'trap', toe: +toeGap(p, 'Right').toFixed(3), h: +ball.p.y.toFixed(2), done };
-    ball.v.copy(forwardOf(p)).multiplyScalar(0.4).setY(-0.6); p.lastTouch = S.t;
-    noteSkill(audit, p);
-    yield* until(() => ball.p.y < 0.2, 0.6);
-    hooks.slow(1); p.feet = null; p.faceLock = false;
-    return done;
-  }
   // a little job for later (sim time), outside any event
   const laterQ = [];
   function later(dt, fn) { laterQ.push({ at: S.t + dt, fn }); }
@@ -417,88 +381,6 @@ export function createDirector(rt, data, hooks, opts = {}) {
     tryMove = null;
     return { def, tried: true };
   }
-  function* pirouetteReceive(R, toW, pir) {
-    const D = pir.def;
-    // he comes to the ball, the defender right behind him
-    const ok0 = yield* until(() => {
-      const f = V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z), d = f.length(); f.normalize();
-      R.target.copy(toW).setY(0); R.want = Math.hypot(toW.x - R.pos.x, toW.z - R.pos.z) > 1 ? 5 : 1; R.face = ball.p; R.faceLock = true;
-      D.busy = true; D.target.copy(R.pos).addScaledVector(f, -1.15); D.want = 6; D.face = R.pos; D.faceLock = true;
-      return d < 2.2 && D.pos.distanceTo(R.pos) < 1.6;
-    }, 5);
-    if (!ok0) { D.busy = false; D.faceLock = false; R.faceLock = false; if (pir.tried) tryMove = 'pirouette'; return yield* chase(R, toW); }
-    const f = forwardOf(R), r = rightOf(R), R0 = R.pos.clone(), h0 = R.heading, t0 = S.t;
-    hooks.cam('close', R, D); hooks.slow(0.4);
-    ball.through = t0 + 2;
-    // the left boot meets the ball on its left side and sends it round the defender's left (his right)
-    const ballTo = R0.clone().addScaledVector(f, -2.5).addScaledVector(r, 1.25);
-    R.feet = { Left: { w: ramp(t0, [0, 0.1, 0.5, 0.65]), at: () => ball.p.clone().addScaledVector(r, -0.12).addScaledVector(f, 0.02).setY(0.06) } };
-    const audit = { kind: 'pirouette' };
-    const met = yield* until(() => { R.target.copy(R.pos); R.want = 0; return toeGap(R, 'Left') < 0.22 && V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z).dot(f) < 0.55; }, 1.2);
-    if (!met) {      // the ball never reached his boot: no turn, he just goes and gets it
-      R.feet = null; R.faceLock = false; D.busy = false; D.faceLock = false; hooks.slow(1); hooks.cam('tv');
-      stats.lastFail = ['pirouette', 'touch', +S.t.toFixed(1)]; if (pir.tried) tryMove = 'pirouette';
-      return yield* chase(R, null);
-    }
-    audit.touch = +toeGap(R, 'Left').toFixed(3);
-    const dir = ballTo.clone().sub(ball.p).setY(0), len = dir.length();
-    ball.v.copy(dir.normalize()).multiplyScalar(Math.min(4.6, 1.2 + len * 1.3)); ball.owner = null; R.lastTouch = S.t;
-    hooks.cam('tv');            // as he spins past, a close-up behind him would swing round onto the defender
-    // he spins round the other side: half a turn to his left on an arc past the defender's right
-    const path = [[R0.x, R0.z], [R0.x - r.x * 0.75 - f.x * 0.35, R0.z - r.z * 0.75 - f.z * 0.35], [R0.x - r.x * 0.7 - f.x * 1.7, R0.z - r.z * 0.7 - f.z * 1.7], [ballTo.x, ballTo.z]];
-    const T = 1.0, t1 = S.t;
-    R.drive = { heading: t => h0 + Math.PI * smooth01(clamp((t - t1) / (T * 0.8), 0, 1)), pos: t => { const [x, z] = spline(path, smooth01(clamp((t - t1) / T, 0, 1)) * 0.92); return V(x, 0, z); } };
-    rt.startAction(D, 'lungeL'); D.loopsWant.jockey = 0; D.target.copy(D.pos).addScaledVector(r, -0.6); D.want = 2;          // he goes with the man, not the ball
-    let minD = 9, ballSide = 0, manSide = 0;
-    yield* until(() => {
-      minD = Math.min(minD, Math.hypot(ball.p.x - D.pos.x, ball.p.z - D.pos.z));
-      const bs = V(ball.p.x - D.pos.x, 0, ball.p.z - D.pos.z), ms = V(R.pos.x - D.pos.x, 0, R.pos.z - D.pos.z);
-      if (!ballSide && bs.dot(f) < 0) ballSide = Math.sign(bs.dot(r));
-      if (!manSide && ms.dot(f) < 0) manSide = Math.sign(ms.dot(r));
-      return S.t - t1 >= T * 0.92;
-    }, T + 0.2);
-    Object.assign(audit, { aroundBall: +minD.toFixed(2), sides: ballSide * manSide });
-    noteSkill(audit, R);
-    R.drive = null; R.feet = null; R.faceLock = false; R.heading = h0 + Math.PI;
-    hooks.slow(1); hooks.cam('tv');
-    rt.startAction(D, 'stumble'); D.want = 0.5;
-    later(0.6, () => { D.busy = false; D.faceLock = false; });
-    return yield* chase(R, null);
-  }
-  // chest control: he gets under the dropping ball, leans back and lets it come off his chest to his feet
-  const CHEST_H = 1.42;
-  function* chestControl(p, spot, tArr) {
-    const ca = ACTIONS.chest, lead = ca.dur * ca.contact;
-    let started = false, best = 9;
-    yield* until(() => {
-      const left = tArr - S.t;
-      // his chest goes where the ball will arrive (a step back from it, so it meets the chest, not the man)
-      const bv = V(ball.v.x, 0, ball.v.z), arrive = ball.p.clone().addScaledVector(bv, Math.max(0, left)).setY(0);
-      const chestOff = p.bones.Spine2.getWorldPosition(V()).sub(p.pos).setY(0);
-      p.target.copy(arrive).sub(chestOff).addScaledVector(bv.normalize(), 0.1);
-      const gap = Math.hypot(p.target.x - p.pos.x, p.target.z - p.pos.z);
-      p.want = gap > 2 ? 6.5 : gap > 0.08 ? Math.min(3, 1 + gap * 4) : 0; p.face = ball.p; p.faceLock = left < 1.2;
-      if (!started && left <= lead) {
-        if (gap > 0.6 || p.vel.length() > 2.2) return true;              // not under it in time: he plays it as it comes
-        const yAt = ball.p.y + ball.v.y * left - 4.905 * left * left, vyAt = ball.v.y - 9.81 * left;
-        if (yAt < 1.15 || yAt > 1.65 || vyAt < -5) return true;           // not at chest height when it gets to him, or dropping too steeply to cushion
-        rt.startAction(p, 'chest'); started = true; hooks.slow(0.5); ball.through = tArr + 0.4;    // only the chest plays it
-      }
-      // the touch: when the ball is at its closest to his chest
-      if (started) { const d = p.bones.Spine2.getWorldPosition(V()).distanceTo(ball.p); if (d < best) best = d; else if (S.t > tArr - 0.2 && d > best + 0.02) return true; }
-      return started && ball.p.y < 0.6;
-    }, tArr - S.t + 0.5);
-    if (!started) { p.faceLock = false; return false; }
-    const c = p.bones.Spine2.getWorldPosition(V()), audit = { kind: 'chest', contact: +c.distanceTo(ball.p).toFixed(3), h: +ball.p.y.toFixed(2) };
-    if (DEBUG) audit.dbg = { c: c.toArray().map(v => +v.toFixed(2)), b: ball.p.toArray().map(v => +v.toFixed(2)), p: p.pos.toArray().map(v => +v.toFixed(2)), spot: spot.toArray().map(v => +v.toFixed(2)), dt: +(S.t - tArr).toFixed(2), v: +p.vel.length().toFixed(2) };
-    // cushioned: the ball drops in front of him
-    const fw = forwardOf(p);
-    ball.v.set(fw.x * 1.0, -0.4, fw.z * 1.0); p.lastTouch = S.t;
-    noteSkill(audit, p);
-    yield* until(() => ball.p.y < 0.3, 0.8);
-    hooks.slow(1); p.faceLock = false;
-  }
-
   // the pass in the middle of a step-over: a player who has it, in the opponents' half, a defender
   // right in front of him and a short pass on (or the staged scene); true when the pass has been played
   function nearestOpp(p, maxD) {
