@@ -28,7 +28,7 @@ Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe aka
 | `core/clubs/clubs.js` | `app.js` (D2) | Kulüp kimliği: arma, taraftar fotoğrafı, kariyerin kulübü (`managedClubName`), ekranın ve maçın gösterdiği kimlik (`resolveClubIdentity`) | `data/clubs.js`'ten; mod bilmez |
 | `core/clubs/club-style.js` | `core/clubs/clubs.js` (E1) | Kulüp renkleri ve desen (`CLUBSTYLE`) | Sadece veriden (döngüden bağımsız) |
 | `core/version.js` | `match-support.js` (E1) | Kodun sürümü (`GAME_VERSION`, kayda yazılır) | İmportsuz |
-| `core/league/opponents-v731.js` | `opponents-v731.js` | Rakip kadroları, lig seviyesi | Lig |
+| `core/league/opponents-v731.js` | `opponents-v731.js` | Rakip kadroları (lig seviyesi E1'den beri `rivals.js`'te) | Lig |
 | `core/season/season.js` | `season.js` | Sezon sonu adım hattı, kurallar (yaşlanma, emeklilik, gelişim, kulüpten ayrılma), sezon özeti verisi, rakip kadroların yenilenmesi, yeni sezon | Sezon hattı ortak. Teknik direktör adımları ve ekranları D5'te moda gitti; `summary` adımı `screen: true` (ekranı mod çizer) |
 | `core/presentation/match3d/match3d-newview.js` | `match3d-newview.js` | 3D maç görünümü ile oyun arasındaki köprü, HUD, tekrar | Sunum |
 | `core/presentation/match3d/match3d-live-clock.js` | `match3d-live-clock.js` | Sunum saati, 2D/3D akış zamanlaması | Sunum (`data-layer="clock"`) |
@@ -111,9 +111,9 @@ Genişletme noktaları (`core/hooks.js`):
 ## ES modülleri (C3)
 
 - Sayfada klasik script yok. `index.html` dört modül girişi yükler: `main.js` (oyun) ve sunum katmanları `core/presentation/match3d/match3d-live-clock.js` (`data-layer="clock"`), `match-view-adapter.js` (`view`), `modes/manager/match-3d.js` (`3d`: 3D görünümü yükler, olmazsa 2D).
-- Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (D'de dışa açık olanlar daralacak).
+- Her dosya neyi nereden aldığını `import` ile söyler; üst düzey her tanım `export` edilir (dışa açık olanlar henüz daraltılmadı; `docs/architecture.md` "Kalan borçlar").
 - Paylaşılan durum `core/state.js`'te; başka modülün değişkenine atama yapılamaz, ayarlayıcılar kullanılır. `window` üzerinde oyuna ait bir şey yok (E7'den beri istisnasız; yıldız sahnesinin otomasyon zaman ölçeği `window.__stsTimeScale` kalktı). three.js `dist/vendor`'dan modül olarak gelir (Vite ile npm'e geçecek).
-- `core/` henüz `modes/manager`'dan bazı şeyler alıyor (D3 sonunda 7 dosyada 36 ad; C sonunda 11 dosyada 63). Liste `tests/structure.test.cjs` içinde sabit; sadece kısalabilir, D'de sıfırlanır.
+- `core/` `modes/`'tan hiçbir şey almaz (C sonunda 11 dosyada 63 ad, D'de 0); `tests/structure.test.cjs` kuralı denetler.
 - Testler aynı modülleri `vm.SourceTextModule` ile yükler (`tests/support/game.cjs`); `npm test` gereken `--experimental-vm-modules` bayrağını verir. Tek dosya için: `NODE_OPTIONS=--experimental-vm-modules node --test tests/<dosya>`.
 - Service worker girişleri `?v=<sürüm>` ile, içe aktarılan modülleri yalın adıyla listeler.
 

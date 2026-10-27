@@ -6,8 +6,9 @@
      (OPP, CLUBSTYLE, SKILL_NAMES, the tactics' vocabulary…) therefore live in modules that import nothing but data,
      and every module can be the first one to run;
    - what modules register at load time (season-end steps, actions, hooks) ending up in another order.
-   These tests run the modules in other orders and check both. (After Vite, the same flows are also played on the
-   build output in the browser smoke test.) */
+   These tests run the modules in other orders and check both. No such error exists today (the page's own order
+   works); they guard against one appearing once a bundler picks the order. The 3D view's modules (loaded on demand,
+   with three.js) are not run here: no game module imports them, so they are in no import cycle. */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { loadGame, gameSources, sourceDefining } = require('./support/game.cjs');

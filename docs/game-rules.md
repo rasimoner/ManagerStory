@@ -2,7 +2,7 @@
 
 Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin neyi aynen koruması gerektiğini anlatır. JS kodu taşınmaz; taşınan şey veri (`dist/data`), bu kurallar ve testlerdir. Kaynak her bölümde yazılı; sayıların kesin hali kodda ve `data/balance.js`'te.
 
-**Doğruluk ölçütü**: aynı tohumla aynı olay günlüğü. `tests/golden/matches.json` 34 fikstürün her biri için olay günlüğünün hash'ini, skoru, istatistikleri ve maç özetini tutar; `seasons.json` üç sezonluk kariyeri. Yeni motor bu kayıtları üretebiliyorsa kuralları doğru taşımıştır. Bunun için rastgele sayıların **aynı sırayla** çekilmesi gerekir: aşağıdaki "dakika" sırası bu yüzden önemlidir.
+**Doğruluk ölçütü**: aynı tohumla aynı olay günlüğü. `tests/golden/matches.json` 34 fikstürün her biri için olay günlüğünün hash'ini, skoru, istatistikleri ve maç özetini tutar; `seasons.json` üç sezonluk kariyeri. Hash: anahtarları sıralanmış JSON'un SHA-256'sının ilk 24 onaltılık karakteri (`tests/support/golden.cjs`). Yeni motor bu kayıtları üretebiliyorsa kuralları doğru taşımıştır. Bunun için rastgele sayıların **aynı sırayla** çekilmesi gerekir: aşağıdaki "dakika" sırası bu yüzden önemlidir.
 
 ## 1. Rastgelelik (`core/random.js`)
 
@@ -37,7 +37,7 @@ Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin 
 5. Bu dakika şut olmadıysa ve topa sahip biri varsa: `M.rand() < clamp(0.34 × sıklık, 0.17, 0.5)` ise **fırsat** (`chanceV73`).
 6. Top kuralları zorlanır (topu iki kişi tutamaz, oyun dışı oyuncu topa sahip olamaz…).
 7. `M.rand() < 0.42` ise bir ikili mücadele: faul olabilir (`recordMatchFoul`, kart dahil).
-8. 90'dan önce `M.rand() < 0.0015` ise kaleci olmayan bir oyuncumuz sakatlanır: maç durur, değişiklik istenir.
+8. 90'dan önce `M.rand() < 0.0015` ise kaleci olmayan bir oyuncumuz sakatlanır: kim olduğu ikinci bir `M.rand()` ile sahadaki kaleci olmayanlar arasından seçilir (`floor(rand × sayı)`); maç durur, değişiklik istenir.
 9. Diziliş toparlanır; 90'da son atak; 45 ve 90'da oyun durulur; 45'te devre, 90'da bitiş.
 
 ### Takım gücü (`strength`)
@@ -57,7 +57,7 @@ Mentalite, pres, tempo, savunma hattı, hücum yönü, pas stili ve genişlik; h
 ## 3. Oyuncular (`core/players/`, `data/players.js`)
 - Bir oyuncu = mevkinin şekli + oyun tipi (Golcü, Bindiren bek…) + kişisel gürültü; mevkinin ana özelliklerinin ortalaması oyuncunun gücüne (OVR) oturtulur. Her profil kendi tohumundan üretilir (`assignPlayerProfile`).
 - Gelişim profili yeni güçte yeniden türetir: çalımcı daha iyi çalımcı olur, özel hareketler özelliklere göre kendiliğinden açılır (`skillMoves`; 19 saha hareketi + kaleci hareketleri, `data/moves.js`). Antrenman odağı en fazla `BALANCE.training.cap` ekler.
-- Yetenek yıldızı (1–5) özel hareketlerden; kalecide OVR'den (80+ → 4, 85+ → 5).
+- Yetenek yıldızı (1–5) özel hareketlerden; kalecide OVR'den: 1, 67+ → 2, 74+ → 3, 80+ → 4, 85+ → 5 (`data/moves.js` `starShow.keeperStars`).
 
 ## 4. Lig (`core/league/`, `data/clubs.js`)
 - 18 kulüp, çift devreli 34 tur. Fikstür çember yöntemiyle: ilk kulüp sabit, diğerleri her tur bir kayar; ev/deplasman `(tur + maç) % 2` ile çevrilir; ikinci yarı ilk yarının ev/deplasman tersi (`makeLeagueSchedule`).

@@ -338,7 +338,7 @@ export function playStarTransferScene(opts) {
           const n = Math.max(1, Math.ceil(dt / (1 / 120)));
           for (let i = 0; i < n; i++) { rt.S.t += dt / n; director.update(); for (const p of rt.players) if (!p.offPitch) rt.move(p, dt / n); rt.stepBall(dt / n); rt.contacts(); }
           setExcite(Math.max(opts.excite, Math.min(1, excite)));
-          if (phase === 'show' && (!director.tryDebug.staged || phaseT > TIMES.showMax)) { phase = 'after'; phaseT = 0; simSlow = 1; rt.startMotion(star, 'cheer'); autoCam = { mode: 'close', a: star, b: null }; setExcite(1); }
+          if (phase === 'show' && (!director.staging || phaseT > TIMES.showMax)) { phase = 'after'; phaseT = 0; simSlow = 1; rt.startMotion(star, 'cheer'); autoCam = { mode: 'close', a: star, b: null }; setExcite(1); }
           else if (phase === 'after' && phaseT > TIMES.after) startClosing();
         } else if (phase === 'closing') {
           dt = 0;

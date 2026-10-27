@@ -4,8 +4,7 @@
    The clip is kept as the first entry of the career highlight archive (S.highlights), which the coming
    archive screen and "İzle" will read.
 
-   Parallel work note: this file wraps v6Sign and showV6Transfers instead of editing them in app.js, so the
-   season-transition branch (contracts, free agents) can change those lines without conflicts here. */
+   It joins the signing through hooks (beforeSigning, afterSigning; core/hooks.js), installed by main.js. */
 
 // the one place that says which transfers get the scene
 import { MOVE_DATA } from '../../data/moves.js?v=7.11.0';
@@ -14,7 +13,7 @@ import { S } from '../../core/state.js?v=7.11.0';
 import { defineActions } from '../../ui/actions.js?v=7.11.0';
 import { onHook } from '../../core/hooks.js?v=7.11.0';
 import { escapeHTML } from '../../core/engine/match-support.js?v=7.11.0';
-import { $, asking, cinematic, clearCinematicNext, clubColor, clubProps, header, money, recordMoves, render } from './app.js?v=7.11.0';
+import { $, cinematic, clearCinematicNext, clubColor, clubProps, header, money, recordMoves, render } from './app.js?v=7.11.0';
 import { resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.11.0';
 import { save } from '../../core/save.js?v=7.11.0';
 import { pushInbox } from '../../core/inbox.js?v=7.11.0';
@@ -201,8 +200,8 @@ export function starFlashCard() {
 export function installStarTransfer() {
   let big = false;
   // decided before the signing, as the player stood on the market
-  onHook('beforeSigning', x => { big = starSceneQualifies(x); });
-  onHook('afterSigning', (player, x, fee) => {
+  onHook('beforeSigning', function starSceneDecided(x) { big = starSceneQualifies(x); });
+  onHook('afterSigning', function starSceneStarts(player, x, fee) {
     if (!big) return;
     try { beginStarTransfer(player, x, fee); } catch (e) { console.warn('Yıldız transfer sahnesi', e); }
   });
