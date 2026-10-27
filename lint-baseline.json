@@ -259,8 +259,7 @@
   "tests/support/game.cjs": {
     "complexity": 2,
     "max-lines-per-function": 2,
-    "max-statements": 1,
-    "no-setter-return": 1
+    "max-statements": 1
   },
   "tests/support/golden.cjs": {
     "no-unused-vars": 1
