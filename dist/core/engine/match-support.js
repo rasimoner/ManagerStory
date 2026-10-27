@@ -270,34 +270,6 @@ export function tacticalEffects() {
   }
   return { control, attack, defence, fatigue, frequency, passing, passDistance };
 }
-export function applyConversationEffect(context,choice,participants){
-  if(!S)return null;
-  S.v732 ??={schema:1,conversationHistory:[],feedback:null};
-  const players=(participants||userSquad().filter(p=>p.status!=='Transfer oldu'&&p.status!=='Kirada'));
-  const supportive=['pressTrust','pressCalm','postTeam','belief','calm','support','dynManager','arasFree'].includes(choice);
-  const demanding=['pressDemand','postDemand','demand','angry','challenge','earn'].includes(choice);
-  const bold=['pressBold','ambitious','brave'].includes(choice);
-  if(!supportive&&!demanding&&!bold)return null;
-  let positive=0,negative=0;
-  for(const p of players){
-    p.managerTrust ??= finite(p.relation,65);
-    const character=p.personality||'Profesyonel';
-    const tough=['Lider','Hırslı','Rekabetçi','Profesyonel','Determined','Ambitious','Professional'].includes(character);
-    const receptive=supportive?1:demanding?(tough?1:-1):(tough?1:0);
-    p.confidence ??=50;p.pressure ??=50;p.motivation ??=50;
-    if(receptive>0){p.managerTrust=clamp(p.managerTrust+1,20,100);p.confidence=clamp(p.confidence+(supportive?2:1),20,100);p.motivation=clamp(p.motivation+1,20,100);if(p.morale<58)p.morale=clamp(p.morale+1,20,100);positive++;}
-    if(receptive<0){p.managerTrust=clamp(p.managerTrust-1,20,100);p.pressure=clamp(p.pressure+2,0,100);p.happiness=clamp(finite(p.happiness,70)-1,20,100);negative++;}
-    if(demanding&&tough)p.motivation=clamp(p.motivation+2,20,100);
-    if(demanding&&p.age<=19){p.morale=clamp(finite(p.morale,70)-1,20,100);p.pressure=clamp(p.pressure+1,0,100);negative++;}
-  }
-  const single=players.length===1?players[0]:null;
-  const feedback=negative>positive?'Bazı oyuncular üzerindeki baskı arttı.':positive?(single?`${single.name}'ın özgüveni arttı.`:'Oyuncular mesajını olumlu karşıladı. Moral ve özgüven arttı.'):'Takım mesajı sakin karşıladı.';
-  const result={week:S.week,context,choice,positive,negative,text:feedback};
-  S.v732.conversationHistory.push(result);
-  S.v732.conversationHistory=S.v732.conversationHistory.slice(-40);
-  S.v732.feedback=result;
-  return result;
-}
 export function matchPossession() {
   const total = M.userPossTicks + M.oppPossTicks;
   const user = total ? Math.round(M.userPossTicks * 100 / total) : 50;

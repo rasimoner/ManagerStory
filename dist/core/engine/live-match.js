@@ -1,7 +1,7 @@
 /* V7.2 live clock and event renderer. Simulation time is never derived from frame count. */
 import { M } from '../state.js';
 import { presentation } from '../presentation/registry.js';
-import { clamp, matchEvent, matchPossession, userSide } from './match-support.js';
+import { matchPossession, userSide } from './match-support.js';
 import { opponentPlayer } from '../league/opponents-v731.js';
 import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js';
 import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js';
@@ -228,21 +228,4 @@ export function halfAnalysisV72() {
   if(ours>theirs+.2)return `${M.shots[own]} şut ve ${ours.toFixed(2)} xG ürettik; rakip ${M.shots[rival]} şutta kaldı.`;
   const passes=M.stats.passes[own],accuracy=passes?Math.round(100*M.stats.completedPasses[own]/passes):0;
   return `İlk yarı ${passes} pas yaptık; pas isabeti %${accuracy}. Skor ${M.hg}–${M.ag}.`;
-}
-export function shoutLive(type, id = null) {
-  if (!M || M.finished || !M.pause) return;
-  const labels = { calm:'Sakin olun!', forward:'Öne çıkın!', press:'Presi artırın!', hold:'Topu tutun!', brave:'Daha cesur!', fight:'Sonuna kadar!' };
-  if (!labels[type]) return;
-  const key = `${type}:${id ?? 'team'}`;
-  if (M.min - (M.shoutLast[key] ?? -100) < 10) { alert('Bu seslenişin etkisi için yaklaşık 10 oyun dakikası bekle.'); return; }
-  M.shoutLast[key] = M.min;
-  const targets = id == null ? userSquad().filter(p => M.active.includes(p.id)) : userSquad().filter(p => p.id === id && M.active.includes(id));
-  for (const p of targets) {
-    const temperament = p.age >= 29 || p.personality === 'Lider' ? 1 : p.age < 21 ? .5 : .8;
-    const response = (p.form || 70) >= 55 ? 1 : -1;
-    const delta = Math.round((type === 'calm' || type === 'hold' ? 1 : 2) * temperament * response);
-    p.morale = clamp(p.morale + delta, 25, 100);
-  }
-  matchEvent('shout', `📣 ${M.min}' ${id == null ? 'Takıma' : targets[0]?.name + ' oyuncusuna'}: ${labels[type]}`, { playerId:id });
-  save(); changed();
 }
