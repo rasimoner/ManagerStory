@@ -18,7 +18,7 @@ const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs
 /* What core/ still takes from the manager mode, by file. Refactor D moves these into core (the engine
    core, the league, the clubs, the save) or passes them in; the list may only shrink. */
 const CORE_FROM_MODES = {
-  'core/season/season.js': 'SKILL_NAMES SLOT_POS V6FN V6LN V6POS bottomNav createUniqueAcademyCandidate header marketProfile money movesNow normalizeFormation pushInbox refreshAcademy render setClock syncWonderOffers',
+  'core/season/season.js': 'SLOT_POS V6FN V6LN V6POS bottomNav createUniqueAcademyCandidate header marketProfile money normalizeFormation refreshAcademy render setClock syncWonderOffers',
 };
 
 const walk = dir => fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {

@@ -4,7 +4,6 @@ import { CLUB_DATA } from '../../data/clubs.js';
 import { STARTING_SQUAD } from '../../data/squad.js';
 import { NAME_DATA } from '../../data/names.js';
 import { PLAYER_DATA } from '../../data/players.js';
-import { MOVE_DATA } from '../../data/moves.js';
 import { BALANCE } from '../../data/balance.js';
 import { STORY_DATA } from '../../data/story.js';
 import { R, newMatchSalt, sessionRandom } from '../../core/random.js';
@@ -26,6 +25,8 @@ import { OPP, allTeams, applyTableGame, currentFixture, currentOpponent, ensureL
 import { CLUBSTYLE, crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js';
 import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute.js';
 import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, shoutLive, tacticsControls } from './match-panel.js';
+import { SKILL_NAMES, movesNow } from '../../core/players/moves.js';
+import { pushInbox } from '../../core/inbox.js';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
 export function playerById(id){return S.players.find(p=>p.id===id)}
 // a bid as the press says it: ₺9.5M, ₺13M
@@ -37,7 +38,6 @@ export function init(){if(!S)return;S.players.forEach(p=>{p.managerTrust??=finit
 export const SLOT_POS={GK:[50,90],LB:[15,72],LCB:[38,73],RCB:[62,73],RB:[85,72],LCM:[40,54],RCM:[60,54],LW:[16,31],RW:[84,31],CAM:[50,36],ST:[50,13]};
 export function defaultPosFor(p,used=[]){let candidates=p.pos.split("/");let key=candidates[0];let q=key=="GK"?SLOT_POS.GK:key=="LB"?SLOT_POS.LB:key=="RB"?SLOT_POS.RB:key=="CB"?(used.some(x=>Math.abs(x[0]-38)<2&&Math.abs(x[1]-73)<2)?SLOT_POS.RCB:SLOT_POS.LCB):key=="CM"?(used.some(x=>Math.abs(x[0]-40)<2&&Math.abs(x[1]-54)<2)?SLOT_POS.RCM:SLOT_POS.LCM):key=="CAM"?SLOT_POS.CAM:key=="LW"?SLOT_POS.LW:key=="RW"?SLOT_POS.RW:key=="ST"?SLOT_POS.ST:[50,50];return [...q]}
 export function normalizeFormation(){if(!S||!S.players)return;S.positions=S.positions||{};S.xi=S.xi.filter(id=>{let p=S.players.find(x=>x.id==id);return p&&p.status!="Transfer oldu"});let used=S.xi.map(id=>S.positions[id]).filter(Boolean);for(let id of S.xi){let p=S.players.find(x=>x.id==id);if(!S.positions[id]){S.positions[id]=defaultPosFor(p,used);used.push(S.positions[id])}}}
-export function pushInbox(from,title,text,tone="normal"){S.inbox.unshift({from,title,text,tone,week:S.week,day:S.day,time:S.clock});S.inbox=S.inbox.slice(0,12)}
 export function setClock(t){S.clock=t}
 // how a club's colours are said ("SARI • KIRMIZI"), when the data has it
 export function clubColorNames(name){return (CLUB_DATA.clubs.find(c=>c.name===name)?.colorNames||[]).join(' • ')}
@@ -111,8 +111,6 @@ export function marketProfile(x){
  const g=profilePositionGroup(x.pos),flair=x.star?{W:'dribbler',CAM:'dribbler',ST:'finisher',CM:'playmaker'}[g]:undefined;
  assignPlayerProfile(x,{seed:hashProfileSeed(`market|${x.id}|${x.name}`),type:flair});
 }
-// the moves a player has now (for noticing new ones as he grows)
-export function movesNow(p){try{return typeof skillMoves==='function'?skillMoves(p.id,'user').moves:[]}catch(e){return []}}
 /* V7.9.5 the season's wonderkid: at least one every season, somewhere in the league — in our academy (about
    one season in three) or at another club. The scouts find him; he can be followed on the academy screen,
    met on the pitch (he plays for his club) and bought in a transfer window. */
@@ -379,8 +377,6 @@ export function bidPlayer(i){let x=S.transferList[i],offer=Math.round(x.price*.9
 export function showTransferArrival(id){let p=S.players.find(x=>x.id==id),same=S.xi.map(i=>S.players.find(x=>x.id==i)).filter(x=>x&&positionFit(x,p)>=2);$("#app").innerHTML=`${header()}<div class=transferhero><small>YENİ TRANSFER</small><h1>${p.name}</h1><p>${p.pos} • OVR ${p.overall} • ${p.age} yaş</p></div><div class=card><h3>Sportif Direktör</h3><p>Oyuncu imzayı attı. Kadrodaki rolünü şimdi belirleyebilirsin.</p></div><div class="card decision actions"><button data-action="newSigningBench" data-id="${id}">Önce yedek kulübesinden başlasın</button>${same.map(x=>`<button class=secondary data-action="newSigningReplace" data-id="${id}" data-out="${x.id}">${x.name} (${x.pos}) yerine ilk 11'e al</button>`).join("")}</div>`}
 export function newSigningRole(id,role){let p=S.players.find(x=>x.id==id);p.morale+=role=="bench"?0:2;S.history.push(`${p.name} için ilk rol belirlendi: rotasyon.`);save();showTransfers()}
 export function newSigningReplace(id,outId){let idx=S.xi.indexOf(outId),slot=S.positions[outId]||defaultPosFor(S.players.find(x=>x.id==outId));if(idx>=0){S.xi[idx]=id;S.positions[id]=[...slot];delete S.positions[outId]}let p=S.players.find(x=>x.id==id),o=S.players.find(x=>x.id==outId);S.history.push(`${p.name}, ${o.name} yerine ilk 11'e yerleştirildi.`);save();setModal("formation");render()}
-// V7.9: a player's skill stars and the special moves he can show in a match (pitch-v731 skillMoves)
-export const SKILL_NAMES=Object.fromEntries(MOVE_DATA.moves.map(m=>[m.id,m.name]));
 // V7.9.5 list cards: the 1–5 skill stars at a glance, with how many special moves he has
 export function listStars(k){if(!k||!k.stars)return '';const n=k.moves?.length||0;return `<div class=liststars><span class=skillstars aria-label="Yetenek ${k.stars} yıldız">${'★'.repeat(k.stars)}<i>${'★'.repeat(5-k.stars)}</i></span><small>${n?`${n} özel hareket`:'Özel hareketi yok'}</small></div>`}
 export function skillLine(p){try{if(typeof skillMoves!=='function')return '';const k=skillMoves(p.id,'user');return `<div class=skills><span class=skillstars aria-label="Yetenek ${k.stars} yıldız">${'★'.repeat(k.stars)}<i>${'★'.repeat(5-k.stars)}</i></span>${k.moves.length?k.moves.map(m=>`<span class=skillmove>${SKILL_NAMES[m]||m}</span>`).join(''):'<small class=muted>Özel hareketi yok</small>'}</div>`}catch(e){return ''}}
