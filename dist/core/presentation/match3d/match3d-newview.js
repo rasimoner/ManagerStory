@@ -5,19 +5,20 @@
 // has played the current one (presentation.newView.busy).
 import * as THREE from '../../../vendor/three/three.module.min.js';
 import { OutlineEffect } from '../../../vendor/three/addons/effects/OutlineEffect.js';
-import { buildStadium } from './newview/stadium.js';
-import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js';
-import { loadRig } from './newview/rig.js';
-import { createDirector } from './newview/director.js';
-import { createBroadcastCamera } from './newview/camera.js';
-import { createReplay, STAR_MOVES } from './newview/replay.js';
-import { M, S } from '../../state.js';
-import { presentation } from '../registry.js';
-import { liveCommentaryLines, presentationEvent } from '../../engine/match-support.js';
-import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
-import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js';
-import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js';
-import { CLUBSTYLE, openDecisionSheet, render, resolveClubIdentity } from '../../../modes/manager/app.js';
+import { buildStadium } from './newview/stadium.js?v=7.11.0';
+import { createRuntime, analyseGait, BALL_R } from './newview/runtime.js?v=7.11.0';
+import { loadRig } from './newview/rig.js?v=7.11.0';
+import { createDirector } from './newview/director.js?v=7.11.0';
+import { createBroadcastCamera } from './newview/camera.js?v=7.11.0';
+import { createReplay, STAR_MOVES } from './newview/replay.js?v=7.11.0';
+import { M, S } from '../../state.js?v=7.11.0';
+import { presentation } from '../registry.js?v=7.11.0';
+import { liveCommentaryLines, presentationEvent } from '../../engine/match-support.js?v=7.11.0';
+import { clockFromSeconds, livePlaybackPaused, livePresentationPending, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js?v=7.11.0';
+import { currentPitchState, eventPoint, paintPitchGoalFeedback } from '../../engine/pitch-v73.js?v=7.11.0';
+import { attackDirection, playerAtMarker, skillMoves } from '../../engine/pitch-v731.js?v=7.11.0';
+import { CLUBSTYLE, resolveClubIdentity } from '../../clubs/clubs.js?v=7.11.0';
+import { changed, decisionsRequested } from '../../hooks.js?v=7.11.0';
 
 const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./match3d-career.css', import.meta.url); document.head.append(link);
 const css = document.createElement('style');
@@ -151,7 +152,7 @@ function setFull(on) {
     camMode = 'auto'; syncButtons();
     try { if (document.fullscreenElement) document.exitFullscreen?.().catch?.(() => {}); } catch (e) { /* optional */ }
     surface.remove();
-    if (typeof render === 'function' && typeof M !== 'undefined' && M) render(); else presentation.career3d.mount();
+    if (typeof changed === 'function' && typeof M !== 'undefined' && M) changed(); else presentation.career3d.mount();
   }
   cut = true;
 }
@@ -168,7 +169,7 @@ hud.addEventListener('click', e => {
   if (b.dataset.cam) { camMode = b.dataset.cam; cut = true; }
   else if (b.dataset.speed) { setMatchSpeed(Number(b.dataset.speed)); paintTune(); }
   else if (b.dataset.act === 'pause') { const p = typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : M.pause; if (p) resumeLive(); else pauseLive(); }
-  else if (b.dataset.act === 'intervene') { setFull(false); if (typeof openDecisionSheet === 'function') openDecisionSheet(); }
+  else if (b.dataset.act === 'intervene') { setFull(false); decisionsRequested(); }
   syncButtons();
 });
 function paintHud() {
@@ -197,7 +198,7 @@ let match = null, rt = null, director = null, snaps = [], crowd = [], rosterKey 
 function fail(error) {
   failed = true; console.warn('Yeni 3D saha', error);
   status.hidden = false; status.textContent = '3D saha açılamadı. 2D görünümü seçerek devam edebilirsiniz.';
-  if (typeof M !== 'undefined' && M && M.fieldView === '3d') { M.fieldView = '2d'; render(); }
+  if (typeof M !== 'undefined' && M && M.fieldView === '3d') { M.fieldView = '2d'; changed(); }
 }
 
 function initRenderer() {
@@ -538,7 +539,7 @@ presentation.career3d = {
   get fullscreen() { return full; },
   setFullscreen(on) { setFull(!!on); },
   mount() {
-    if (failed && M?.fieldView === '3d') { M.fieldView = '2d'; render(); return; }
+    if (failed && M?.fieldView === '3d') { M.fieldView = '2d'; changed(); return; }
     if (M?.fieldView === '3d' && presentation.live3d && !presentation.live3d.enabled) { presentation.live3d.enable(); presentation.live3d.setTempo(1); }
     if (full) { if (!M) setFull(false); return; }
     const host = document.querySelector('#career-3d-host'); if (!host) return;

@@ -1,11 +1,12 @@
 /* Opt-in presentation scheduler on the EXISTING liveFrameStep. No RNG or second engine. */
-import { M } from '../../state.js';
-import { presentation } from '../registry.js';
-import { matchPossession, presentationEvent, shotInterventionActor } from '../../engine/match-support.js';
-import { advanceLive, matchPlaybackRate, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
-import { animationPoint, currentPitchState, eventAnimationTime, eventPoint, finishPitchAction, limitPitch, pitchInstructionTarget, pitchV73, preparePitchGoalPhotos } from '../../engine/pitch-v73.js';
-import { aerialHeight, attackDirection, playerAtMarker, topSpeed } from '../../engine/pitch-v731.js';
-import { render, resolveClubIdentity } from '../../../modes/manager/app.js';
+import { M } from '../../state.js?v=7.11.0';
+import { presentation } from '../registry.js?v=7.11.0';
+import { matchPossession, presentationEvent, shotInterventionActor } from '../../engine/match-support.js?v=7.11.0';
+import { advanceLive, matchPlaybackRate, matchSecond, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js?v=7.11.0';
+import { animationPoint, currentPitchState, eventAnimationTime, eventPoint, finishPitchAction, limitPitch, pitchInstructionTarget, pitchV73, preparePitchGoalPhotos } from '../../engine/pitch-v73.js?v=7.11.0';
+import { aerialHeight, attackDirection, playerAtMarker, topSpeed } from '../../engine/pitch-v731.js?v=7.11.0';
+import { resolveClubIdentity } from '../../clubs/clubs.js?v=7.11.0';
+import { changed } from '../../hooks.js?v=7.11.0';
 (() => {
  let enabled=false,tempo=4,presentationSeconds=0,wallSeconds=0,logs=[],observedMatch=null,wallOrigin=0,inPositionUpdate=false,motionSample=null;
  function syncMatch(now=0,dt=0){if(observedMatch===M)return;observedMatch=M;presentationSeconds=0;wallSeconds=0;logs=[];wallOrigin=now-dt*1000;inPositionUpdate=false;motionSample=null;}
@@ -770,7 +771,7 @@ import { render, resolveClubIdentity } from '../../../modes/manager/app.js';
   const completed=finishing()&&!state.goalPresentation&&!state.active&&!state.queue.length&&!state.batchEnd;
   if(completed){state.terminalPhase='complete';state.terminalPaused=false;state.displayMatchSeconds=5400;state.eventScore=[M.hg,M.ag];}
   if(presentation.view)presentation.view.publish(state);
-  if(completed||M.reason==='half'&&!halfPending())render();
+  if(completed||M.reason==='half'&&!halfPending())changed();
  }
  const finishing=()=>enabled&&pitchV73?.match===M&&pitchV73.terminalPhase==='draining';
  const halfPending=()=>enabled&&M?.reason==='half'&&pitchV73?.match===M&&!!(pitchV73.active||pitchV73.queue.length||pitchV73.batchEnd||pitchV73.goalPresentation);

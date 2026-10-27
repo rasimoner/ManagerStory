@@ -1,11 +1,13 @@
 /* Read-only boundary. Never calls tick, random, save or presentation advancement. */
-import { M, S } from '../../state.js';
-import { presentation } from '../registry.js';
-import { matchPossession } from '../../engine/match-support.js';
-import { matchSecond } from '../../engine/live-match.js';
-import { eventAnimationTime, eventPoint, pitchV73 } from '../../engine/pitch-v73.js';
-import { attackDirection, playerAtMarker } from '../../engine/pitch-v731.js';
-import { OPP, currentOpponent, resolveClubIdentity } from '../../../modes/manager/app.js';
+import { M, S } from '../../state.js?v=7.11.0';
+import { presentation } from '../registry.js?v=7.11.0';
+import { matchPossession } from '../../engine/match-support.js?v=7.11.0';
+import { matchSecond } from '../../engine/live-match.js?v=7.11.0';
+import { eventAnimationTime, eventPoint, pitchV73 } from '../../engine/pitch-v73.js?v=7.11.0';
+import { attackDirection, playerAtMarker } from '../../engine/pitch-v731.js?v=7.11.0';
+import { OPP } from '../../league/league.js?v=7.11.0';
+import { resolveClubIdentity } from '../../clubs/clubs.js?v=7.11.0';
+import { userOpponent } from '../../engine/user-team.js?v=7.11.0';
 (() => {
   const listeners = new Set();
   const copy = value => value == null ? null : structuredClone(value);
@@ -76,7 +78,7 @@ import { OPP, currentOpponent, resolveClubIdentity } from '../../../modes/manage
     },
     previewIdentity() {
       const user = resolveClubIdentity('career');
-      const rivalName = S ? currentOpponent()[0] : OPP[0][0];
+      const rivalName = S ? userOpponent()[0] : OPP[0][0];
       return freeze({user:copy(user),rival:copy(resolveClubIdentity('goal',{teamId:rivalName}))});
     },
     readEvents(afterId = 0) {

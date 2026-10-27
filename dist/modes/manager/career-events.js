@@ -1,7 +1,12 @@
 /* V7.1: context-driven press questions and player conversations. No network calls. */
-import { M, S } from '../../core/state.js';
-import { applyConversationEffect, clamp, roleAtSlot } from '../../core/engine/match-support.js';
-import { advance, currentFixture, currentOpponent, managedClubName, pushInbox, save } from './app.js';
+import { M, S } from '../../core/state.js?v=7.11.0';
+import { clamp, finite, roleAtSlot } from '../../core/engine/match-support.js?v=7.11.0';
+import { advance } from './app.js?v=7.11.0';
+import { currentFixture, currentOpponent } from '../../core/league/league.js?v=7.11.0';
+import { managedClubName } from '../../core/clubs/clubs.js?v=7.11.0';
+import { save } from '../../core/save.js?v=7.11.0';
+import { userSquad } from '../../core/engine/user-team.js?v=7.11.0';
+import { pushInbox } from '../../core/inbox.js?v=7.11.0';
 export const PRE_PRESS = [
   ['strongOpponent', c => c.r[1]>=73, c => `${c.r[0]} ligin güçlü ekiplerinden. Maça hangi düşünceyle çıkıyorsunuz?`, ['Rakibe saygılıyız, kendi dengemizden ödün vermeyeceğiz.', 'Bu düzeydeki takımlara karşı cesur davranacağız.', 'Bireysel eşleşmelerin üzerinde çalıştık.']],
   ['weakOpponent', c => c.r[1]<70, c => `${c.r[0]} karşısında herkes üç puanı bekliyor. Bu beklenti takımı etkiler mi?`, ['Kolay maç yok; oyunumuzu kurmalıyız.', 'Sorumluluğu alıp tempoyu belirleyeceğiz.', 'Oyuncularıma güveniyorum.']],
@@ -155,4 +160,32 @@ export function resolvePlayerMeeting(id,response){
   if(event.meetingKind==='role'&&response==='support')p.individualRole=p.pos.split('/')[0];
   S.history.push(`${p.name} görüşmesi (${event.meetingKind}): ${response==='support'?'destekleyici':response==='challenge'?'talepkâr':'dürüst'} yanıt.`);
   save();advance();
+}
+export function applyConversationEffect(context,choice,participants){
+  if(!S)return null;
+  S.v732 ??={schema:1,conversationHistory:[],feedback:null};
+  const players=(participants||userSquad().filter(p=>p.status!=='Transfer oldu'&&p.status!=='Kirada'));
+  const supportive=['pressTrust','pressCalm','postTeam','belief','calm','support','dynManager','arasFree'].includes(choice);
+  const demanding=['pressDemand','postDemand','demand','angry','challenge','earn'].includes(choice);
+  const bold=['pressBold','ambitious','brave'].includes(choice);
+  if(!supportive&&!demanding&&!bold)return null;
+  let positive=0,negative=0;
+  for(const p of players){
+    p.managerTrust ??= finite(p.relation,65);
+    const character=p.personality||'Profesyonel';
+    const tough=['Lider','Hırslı','Rekabetçi','Profesyonel','Determined','Ambitious','Professional'].includes(character);
+    const receptive=supportive?1:demanding?(tough?1:-1):(tough?1:0);
+    p.confidence ??=50;p.pressure ??=50;p.motivation ??=50;
+    if(receptive>0){p.managerTrust=clamp(p.managerTrust+1,20,100);p.confidence=clamp(p.confidence+(supportive?2:1),20,100);p.motivation=clamp(p.motivation+1,20,100);if(p.morale<58)p.morale=clamp(p.morale+1,20,100);positive++;}
+    if(receptive<0){p.managerTrust=clamp(p.managerTrust-1,20,100);p.pressure=clamp(p.pressure+2,0,100);p.happiness=clamp(finite(p.happiness,70)-1,20,100);negative++;}
+    if(demanding&&tough)p.motivation=clamp(p.motivation+2,20,100);
+    if(demanding&&p.age<=19){p.morale=clamp(finite(p.morale,70)-1,20,100);p.pressure=clamp(p.pressure+1,0,100);negative++;}
+  }
+  const single=players.length===1?players[0]:null;
+  const feedback=negative>positive?'Bazı oyuncular üzerindeki baskı arttı.':positive?(single?`${single.name}'ın özgüveni arttı.`:'Oyuncular mesajını olumlu karşıladı. Moral ve özgüven arttı.'):'Takım mesajı sakin karşıladı.';
+  const result={week:S.week,context,choice,positive,negative,text:feedback};
+  S.v732.conversationHistory.push(result);
+  S.v732.conversationHistory=S.v732.conversationHistory.slice(-40);
+  S.v732.feedback=result;
+  return result;
 }

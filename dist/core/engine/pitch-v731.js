@@ -6,16 +6,17 @@
      -> current fitness (physical > technical > mental sensitivity)
      -> age (small, bounded, match-only)
      = effective attribute.   Base player records are never written to by any of this.            */
-import { MOVE_DATA } from '../../data/moves.js';
-import { BALANCE } from '../../data/balance.js';
-import { M, S } from '../state.js';
-import { presentation } from '../presentation/registry.js';
-import { beginMatchOverlay, clamp, escapeHTML, finite, lineVariant, matchEvent, matchPossession, orderKey, userSide } from './match-support.js';
-import { matchClock } from './live-match.js';
-import { opponentPlayer } from '../league/opponents-v731.js';
-import { basePitchPosition, eventPoint, limitPitch, moveTowards, nearestMarker, opponentAttitude, passLanePressure, pitchDistance, pitchSpace, resolveShot, switchPitchOwner } from './pitch-v73.js';
-import { currentOpponent, positionPenaltyV61, setOppOwner, setUserOwner } from '../../modes/manager/app.js';
-export function playerRecord(id,side){return side==='user'?S.players.find(x=>x.id===Number(id)):opponentPlayer(id);}
+import { MOVE_DATA } from '../../data/moves.js?v=7.11.0';
+import { BALANCE } from '../../data/balance.js?v=7.11.0';
+import { M } from '../state.js?v=7.11.0';
+import { presentation } from '../presentation/registry.js?v=7.11.0';
+import { beginMatchOverlay, clamp, escapeHTML, finite, lineVariant, matchEvent, matchPossession, orderKey, userSide } from './match-support.js?v=7.11.0';
+import { matchClock } from './live-match.js?v=7.11.0';
+import { opponentPlayer } from '../league/opponents-v731.js?v=7.11.0';
+import { basePitchPosition, eventPoint, limitPitch, moveTowards, nearestMarker, opponentAttitude, passLanePressure, pitchDistance, pitchSpace, resolveShot, switchPitchOwner } from './pitch-v73.js?v=7.11.0';
+import { positionPenaltyV61, setOppOwner, setUserOwner } from './match-minute.js?v=7.11.0';
+import { userOpponent, userSquad } from './user-team.js?v=7.11.0';
+export function playerRecord(id,side){return side==='user'?userSquad().find(x=>x.id===Number(id)):opponentPlayer(id);}
 export const normalizeAttribute=v=>clamp((finite(v,60)-35)/65,0,1);            // 35→0, 100→1
 export const attributeEdge=v=>normalizeAttribute(v)-.5;                         // centred: average player ≈ +0.05
 export const contestProbability=(a,b,scale=16)=>1/(1+Math.exp(-(a-b)/scale));   // smooth, never 0 or 1
@@ -179,7 +180,7 @@ export function shotProbabilities(shooter,side,ctx={}){
    from the opponent's style and current scoreline. The engine only ever asks teamTactics(side), so a
    setting on one team can never leak into the other.                                              */
 export function opponentDefaultTactics(){
- const r=currentOpponent()||[],att=opponentAttitude();
+ const r=userOpponent()||[],att=opponentAttitude();
  const t={mentality:'Dengeli',press:'Normal',tempo:'Normal',line:'Normal',approach:'Dengeli',passingStyle:'Dengeli',width:'Normal',instr:[]};
  switch(r[2]){
   case 'high':t.press='Yüksek';t.line='Önde';break;
@@ -225,7 +226,7 @@ export function transitionActive(side){return !!M.regain&&M.regain.side===side&&
    and is shown next to it; tapping it selects that option. Nothing is ever auto-applied.          */
 export function assistantAdvice(){
  if(!M||M.finished||M.lifecycle==='FINISHED')return {};
- const u=userSide(),cur=teamTactics('user'),active=S.players.filter(p=>M.active.includes(p.id));
+ const u=userSide(),cur=teamTactics('user'),active=userSquad().filter(p=>M.active.includes(p.id));
  const avgFit=active.length?active.reduce((n,p)=>n+p.fitness,0)/active.length:100;
  const diff=u===0?M.hg-M.ag:M.ag-M.hg,remaining=90-M.min;
  const passes=M.stats.passes[u],completion=passes>=20?M.stats.completedPasses[u]/passes:null;
@@ -271,7 +272,7 @@ export function attackDirection(side){return (side==='user'?1:-1)*(M&&M.secondHa
 export function getPlayer(side,id){
  const pool=side==='user'?M.active:M.oppIds;
  if(id==null||!pool.includes(id))return undefined;
- return side==='user'?S.players.find(p=>p.id===id):opponentPlayer(id);
+ return side==='user'?userSquad().find(p=>p.id===id):opponentPlayer(id);
 }
 export function keeperId(side){
  const pool=side==='user'?M.active:M.oppIds;
@@ -286,7 +287,7 @@ export function setBallState(position,ownerId,state='LIVE',target=null,travelTyp
  M.ballState={position:[...position],ownerId:ownerId??null,state,target:target?[...target]:null,
   travelType,travelDuration,height:0};
 }
-export function playerAtMarker(id,side){return side==='user'?S.players.find(p=>p.id===id):opponentPlayer(id);}
+export function playerAtMarker(id,side){return side==='user'?userSquad().find(p=>p.id===id):opponentPlayer(id);}
 export function opponentName(id){return opponentPlayer(id)?.name||'Rakip';}
 export function occupant(side,preferred){
  const pool=side==='user'?M.active:M.oppIds;
@@ -295,13 +296,13 @@ export function occupant(side,preferred){
 /* A required injury substitution can only be demanded when a fit bench player exists. If nobody can come on,
    the injured player plays on (reduced condition) instead of the match staying paused forever.            */
 export function eligibleSubstitutes(){
- return S.players.filter(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&
+ return userSquad().filter(p=>!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&
   !['Kirada','Transfer oldu'].includes(p.status)&&p.injury===0);
 }
 export function resolveUnfillableSubstitution(){
  const req=M?.requiredSubstitution;
  if(!req||!M.active.includes(req.playerId)||eligibleSubstitutes().length)return false;
- const p=S.players.find(x=>x.id===req.playerId);
+ const p=userSquad().find(x=>x.id===req.playerId);
  if(p){p.fitness=Math.min(p.fitness,55);}
  M.requiredSubstitution=null;
  matchEvent('order',M.min+'’ Yedek oyuncu kalmadı; '+(p?.name||'oyuncu')+' sakatlığına rağmen devam ediyor.',{playerId:req.playerId});
@@ -346,7 +347,7 @@ export const roleOf=(id,side)=>side==='user'?M.matchRoles[id]:opponentPlayer(id)
 export const outfieldOf=side=>(side==='user'?M.active:M.oppIds).filter(id=>!isKeeper(side,id));
 export function shooterRecord(id,side){
  const p=playerRecord(id,side);if(side==='user')return p;
- const r=currentOpponent();
+ const r=userOpponent();
  return {...(p||{}),name:p?.name||r[0]+' oyuncusu',finishing:p?.shooting??r[3],physical:p?.overall??r[8],fitness:p?.fitness??90};
 }
 export const aerialRating=(id,side)=>playerAttribute(id,side,'strength',65)*.5+playerAttribute(id,side,'positioning',65)*.3+playerAttribute(id,side,'pace',65)*.2;

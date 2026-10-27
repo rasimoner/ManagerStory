@@ -1,70 +1,47 @@
 
 // the squad a new career starts with (data/squad.js)
-import { CLUB_DATA } from '../../data/clubs.js';
-import { STARTING_SQUAD } from '../../data/squad.js';
-import { NAME_DATA } from '../../data/names.js';
-import { PLAYER_DATA } from '../../data/players.js';
-import { MOVE_DATA } from '../../data/moves.js';
-import { BALANCE } from '../../data/balance.js';
-import { STORY_DATA } from '../../data/story.js';
-import { R, newMatchSalt, sessionRandom } from '../../core/random.js';
-import { M, S, loadError, modal, setCareer, setLoadError, setMatch, setModal } from '../../core/state.js';
-import { presentation } from '../../core/presentation/registry.js';
-import { exportCareer, importCareer, migrateSave, persistCareer } from '../../core/save.js';
-import { actionData, defineActions, runAction } from '../../ui/actions.js';
-import { runHooks } from '../../core/hooks.js';
-import { FORM_TR, applyConversationEffect, beginMatchOverlay, clamp, closeMatchOverlay, decorateMainScreen, ensureMatchState, escapeHTML, finite, goMain, kickoffSeed, liveCommentaryLines, matchDetailsUI, matchEvent, matchFitnessUI, matchPossession, matchStatsUI, matchSummary, orderKey, recordMatchFoul, restoreActiveMatch, roleAtSlot, setScreenMode, tacticalEffects, tacticsControls, userSide } from '../../core/engine/match-support.js';
-import { buildPlayerMeeting, makeV71PostPress, makeV71PrePress, resolvePlayerMeeting, settlePlayerPromises } from './career-events.js';
-import { advanceLive, ensureLiveLoop, ensureLiveState, finalizeMatch, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, matchSecond, pauseLive, resumeLive, setMatchSpeed, shoutLive } from '../../core/engine/live-match.js';
-import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js';
-import { ensureOpponentSquads, evolveOpponentSquads, opponentLineup, opponentPlayer } from '../../core/league/opponents-v731.js';
-import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonEndUI, seasonRecordMatch, seasonSeedOffset, youngestTalentName } from '../../core/season/season.js';
-import { actionMinute, basePitchPosition, chanceV73, currentPitchState, emitPitchKickoff, eventPoint, paintLivePitch, playLastAttack, resetPitchHalf } from '../../core/engine/pitch-v73.js';
-import { enforceBallInvariants, matchFatigueDrain, openOpponentPlayer, resolveUnfillableSubstitution, setBallState, settlePlay, settleShape, skillMoves, tacticFatigue } from '../../core/engine/pitch-v731.js';
-import { starFlashCard } from './star-transfer.js';
+import { CLUB_DATA } from '../../data/clubs.js?v=7.11.0';
+import { STARTING_SQUAD } from '../../data/squad.js?v=7.11.0';
+import { NAME_DATA } from '../../data/names.js?v=7.11.0';
+import { PLAYER_DATA } from '../../data/players.js?v=7.11.0';
+import { BALANCE } from '../../data/balance.js?v=7.11.0';
+import { STORY_DATA } from '../../data/story.js?v=7.11.0';
+import { R, newMatchSalt, sessionRandom } from '../../core/random.js?v=7.11.0';
+import { M, S, loadError, modal, setCareer, setLoadError, setMatch, setModal } from '../../core/state.js?v=7.11.0';
+import { presentation } from '../../core/presentation/registry.js?v=7.11.0';
+import { exportCareer, importCareer, migrateSave, save } from '../../core/save.js?v=7.11.0';
+import { actionData, defineActions, runAction } from '../../ui/actions.js?v=7.11.0';
+import { runHooks } from '../../core/hooks.js?v=7.11.0';
+import { FORM_TR, beginMatchOverlay, clamp, ensureMatchState, escapeHTML, finite, kickoffSeed, liveCommentaryLines, matchEvent, matchOrderOptions, matchPossession, matchSummary, restoreActiveMatch, userSide } from '../../core/engine/match-support.js?v=7.11.0';
+import { applyConversationEffect, buildPlayerMeeting, makeV71PostPress, makeV71PrePress, resolvePlayerMeeting, settlePlayerPromises } from './career-events.js?v=7.11.0';
+import { advanceLive, ensureLiveLoop, ensureLiveState, halfAnalysisV72, livePlaybackPaused, livePresentationPending, matchClock, pauseLive, resumeLive, setMatchSpeed } from '../../core/engine/live-match.js?v=7.11.0';
+import { PLAYER_TYPES, TRAINING_CAP, TRAINING_FOCUS, WONDER_TYPES, assignPlayerProfile, hashProfileSeed, pickPlayerType, playerTypeLabel, profilePositionGroup, refreshPlayerProfile, trainFocusWeek } from '../../core/players/player-profiles.js?v=7.11.0';
+import { ensureOpponentSquads, evolveOpponentSquads, opponentLineup, opponentPlayer } from '../../core/league/opponents-v731.js?v=7.11.0';
+import { captainName, ensureSeasonState, nextPlayerId, seasonEndCheck, seasonRecordMatch, youngestTalentName } from '../../core/season/season.js?v=7.11.0';
+import { basePitchPosition, currentPitchState, emitPitchKickoff, paintLivePitch, resetPitchHalf } from '../../core/engine/pitch-v73.js?v=7.11.0';
+import { openOpponentPlayer, resolveUnfillableSubstitution, skillMoves } from '../../core/engine/pitch-v731.js?v=7.11.0';
+import { starFlashCard } from './star-transfer.js?v=7.11.0';
+import { OPP, allTeams, applyTableGame, currentFixture, currentOpponent, ensureLeague, makeSchedule, recordForm, simulateRoundOthers } from '../../core/league/league.js?v=7.11.0';
+import { CLUBSTYLE, crest, fanPhoto, managedClubName, resolveClubIdentity } from '../../core/clubs/clubs.js?v=7.11.0';
+import { positionPenaltyV61, setUserOwner } from '../../core/engine/match-minute.js?v=7.11.0';
+import { closeMatchOverlay, matchDetailsUI, matchFitnessUI, matchStatsUI, shoutLive, tacticsControls } from './match-panel.js?v=7.11.0';
+import { SKILL_NAMES, movesNow } from '../../core/players/moves.js?v=7.11.0';
+import { pushInbox } from '../../core/inbox.js?v=7.11.0';
+import { seasonEndUI } from './season-end.js?v=7.11.0';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
-// a player from the starting squad, by id (ids are never reused, so 0–15 are always these men)
-export function startingPlayer(id){return STARTING_SQUAD.players.find(x=>x.id===id)}
-// how much more often he is the one who gets the chance against a rival of this style (data/squad.js styleEdge)
-export function styleEdge(p,style){return startingPlayer(p.id)?.styleEdge?.[style]??1}
 export function playerById(id){return S.players.find(p=>p.id===id)}
 // a bid as the press says it: ₺9.5M, ₺13M
 export function bidLabel(n){return "₺"+n/1e6+"M"}
-// the clubs we play against, as rows the engine reads by position: [name, level, style, attack, midfield, defence,
-// keeper, pressing, physical, description] (data/clubs.js)
-export const OPP=CLUB_DATA.clubs.filter(c=>c.team).map(({name,team:t})=>[name,t.level,t.style,t.attack,t.midfield,t.defence,t.keeper,t.pressing,t.physical,t.description]);
 export const $=q=>document.querySelector(q), money=n=>"₺"+(n/1e6).toFixed(1)+"M";
 // a new career, in format 0 and through the save chain (save.js), so it is in the current format
 export function fresh(){return migrateSave({players:structuredClone(P0),currentClubId:CLUB_DATA.startingClub,week:1,day:1,fixture:0,budget:18e6,board:72,fans:68,rep:45,xi:[...STARTING_SQUAD.xi],bench:[...STARTING_SQUAD.bench],positions:structuredClone(STARTING_SQUAD.positions),plan:{...STARTING_SQUAD.plan},scheduled:[],promises:[],events:[],history:[],results:[],instructions:{},schedule:makeSchedule(CLUB_DATA.startingClub),table:allTeams(CLUB_DATA.startingClub).map(n=>({n,p:0,gf:0,ga:0,pts:0})),event:null})}
-export function save(){persistCareer()}
-export function allTeams(club=managedClubName()){return [club,...OPP.map(x=>x[0])]}
-export function makeLeagueSchedule(){let teams=allTeams(),arr=[...teams],rounds=[];for(let r=0;r<17;r++){let games=[];for(let i=0;i<9;i++){let a=arr[i],b=arr[17-i],flip=(r+i)%2==1;games.push({home:flip?b:a,away:flip?a:b,played:false,hg:null,ag:null})}rounds.push(games);arr=[arr[0],arr[17],...arr.slice(1,17)]}let second=rounds.map(g=>g.map(x=>({home:x.away,away:x.home,played:false,hg:null,ag:null})));return rounds.concat(second)}
-export function makeSchedule(club=managedClubName()){return makeLeagueSchedule().map(g=>{let x=g.find(m=>m.home==club||m.away==club);return {opp:OPP.findIndex(o=>o[0]==(x.home==club?x.away:x.home)),home:x.home==club}})}
-export function ensureLeague(){if(!S.leagueSchedule||S.leagueSchedule.length!=34)S.leagueSchedule=makeLeagueSchedule();if(!S.form)S.form={};allTeams().forEach(n=>{if(!S.form[n])S.form[n]=[]})}
-export function currentFixture(){ensureLeague();let g=S.leagueSchedule[S.fixture%34],x=g.find(m=>m.home==managedClubName()||m.away==managedClubName());return {opp:OPP.findIndex(o=>o[0]==(x.home==managedClubName()?x.away:x.home)),home:x.home==managedClubName(),game:x}}
-export function currentOpponent(){let f=currentFixture();return OPP[f.opp]}
 export function init(){if(!S)return;S.players.forEach(p=>{p.managerTrust??=finite(p.relation,65);p.confidence??=clamp(finite(p.form,70)-20,35,75);p.pressure??=50;p.motivation??=clamp(finite(p.morale,70)-20,35,75)});ensureOpponentSquads();if(!S.instructions)S.instructions={};if(!S.schedule||S.schedule.length!=34)S.schedule=makeSchedule();ensureLeague();if(!S.pressUsed)S.pressUsed=[];if(!S.sundayEvents)S.sundayEvents={};if(!S.cooldowns)S.cooldowns={};if(!S.news)S.news=[];if(!S.objectives)S.objectives=[{text:"Ligi ilk 6 içinde bitir",type:"league",target:6},{text:"Genç oyunculara süre ver",type:"youth",target:900}];if(!S.transferList)S.transferList=makeTransferMarket();if(!S.clock)S.clock="09:00";if(!S.inbox)S.inbox=[];if(!S.clubMood)S.clubMood={chairman:"Beklenti dengeli",staff:"Maç planı hazırlanıyor",dressing:"Odaklanmış"};normalizeFormation();S.players.forEach(p=>{if(p.goals==null)p.goals=0;if(p.assists==null)p.assists=0;if(p.yellow==null)p.yellow=0;if(p.red==null)p.red=0;if(p.injury==null)p.injury=0;if(!p.personality)p.personality=p.age>=30?"Lider":p.age<=20?"Hırslı":p.physical>=78?"Rekabetçi":"Profesyonel"});if(!S.v6){S.v6={transferPool:[],academy:[],academyCounter:0,cup:{alive:true,round:"1. Tur",wins:0},fanPressure:50};}if(!S.v6.transferPool.length)S.v6.transferPool=makeV6Market();S.players.forEach(p=>{if(p.happiness==null)p.happiness=Math.max(40,Math.min(95,p.morale||70));if(p.growth==null)p.growth=0;if(p.secondary==null)p.secondary=[]});ensureAcademyIdentityState();if(!S.v6.academy.length)refreshAcademy(true);if(S.v6.wageBudget==null)S.v6.wageBudget=24000000;if(S.v6.boardBudgetAskedWeek==null)S.v6.boardBudgetAskedWeek=-99;S.players.forEach(p=>{if(p.wage==null)p.wage=Math.round((p.overall*p.overall)*900);if(p.debutDone==null)p.debutDone=p.status!=="Altyapıdan A takım"});ensurePlayerProfiles();if(typeof ensureSeasonState==='function')ensureSeasonState();if(!S.event)nextEvent()}
 export const SLOT_POS={GK:[50,90],LB:[15,72],LCB:[38,73],RCB:[62,73],RB:[85,72],LCM:[40,54],RCM:[60,54],LW:[16,31],RW:[84,31],CAM:[50,36],ST:[50,13]};
 export function defaultPosFor(p,used=[]){let candidates=p.pos.split("/");let key=candidates[0];let q=key=="GK"?SLOT_POS.GK:key=="LB"?SLOT_POS.LB:key=="RB"?SLOT_POS.RB:key=="CB"?(used.some(x=>Math.abs(x[0]-38)<2&&Math.abs(x[1]-73)<2)?SLOT_POS.RCB:SLOT_POS.LCB):key=="CM"?(used.some(x=>Math.abs(x[0]-40)<2&&Math.abs(x[1]-54)<2)?SLOT_POS.RCM:SLOT_POS.LCM):key=="CAM"?SLOT_POS.CAM:key=="LW"?SLOT_POS.LW:key=="RW"?SLOT_POS.RW:key=="ST"?SLOT_POS.ST:[50,50];return [...q]}
 export function normalizeFormation(){if(!S||!S.players)return;S.positions=S.positions||{};S.xi=S.xi.filter(id=>{let p=S.players.find(x=>x.id==id);return p&&p.status!="Transfer oldu"});let used=S.xi.map(id=>S.positions[id]).filter(Boolean);for(let id of S.xi){let p=S.players.find(x=>x.id==id);if(!S.positions[id]){S.positions[id]=defaultPosFor(p,used);used.push(S.positions[id])}}}
-export function pushInbox(from,title,text,tone="normal"){S.inbox.unshift({from,title,text,tone,week:S.week,day:S.day,time:S.clock});S.inbox=S.inbox.slice(0,12)}
 export function setClock(t){S.clock=t}
-// club colours and crest pattern: name → [primary, secondary, pattern] (data/clubs.js)
-export const CLUBSTYLE=Object.fromEntries(CLUB_DATA.clubs.map(c=>[c.name,[...c.colors,c.pattern]]));
-export function crest(n,s=42){let c=CLUBSTYLE[n]||["#333","#ddd","v"],bg=c[2]=="h"?`linear-gradient(${c[0]} 0 50%,${c[1]} 50%)`:c[2]=="d"?`linear-gradient(135deg,${c[0]} 0 49%,${c[1]} 50%)`:`linear-gradient(90deg,${c[0]} 0 50%,${c[1]} 50%)`;return `<span class=crest style="width:${s}px;height:${s}px;background:${bg}"><i>${n.split(" ").map(x=>x[0]).join("").slice(0,2)}</i></span>`}
-// Presentation identity is resolved from the career or event, never from a second color state.
-// the club this career manages: the one name every rule about "us" goes through (S.currentClubId; a new career
-// starts with data/clubs.js startingClub). The league is built around it, so it must be a club that is not one of
-// the rivals: managing a rival needs the league rebuilt around him (the manager-career feature); until then any
-// other id, e.g. from an edited save, falls back to the starting club.
-export function managedClubName(){const id=S?.currentClubId;return id&&CLUBSTYLE[id]&&!OPP.some(o=>o[0]===id)?id:CLUB_DATA.startingClub}
 // how a club's colours are said ("SARI • KIRMIZI"), when the data has it
 export function clubColorNames(name){return (CLUB_DATA.clubs.find(c=>c.name===name)?.colorNames||[]).join(' • ')}
-export function resolveClubIdentity(context='career',data={}){
- const name=context==='goal'?(data.teamId||data.team):context==='stadium'?(data.homeTeam||M?.home||currentFixture()?.game?.home):context==='awaySupporters'?(data.awayTeam||M?.away):managedClubName();
- const colors=CLUBSTYLE[name]||['#55646b','#d8dedc','v'];
- return {id:name||'neutral',name:name||'Kulüp',primaryColor:colors[0],secondaryColor:colors[1],logo:crest(name||'Kulüp',34),shortName:(name||'Kulüp').split(' ').map(word=>word[0]).join('').slice(0,2),stadium:`${name||'Kulüp'} Stadı`};
-}
 export function clubColor(value){return /^#[0-9a-f]{3,8}$/i.test(String(value||''))?value:''}
 export function clubLayers(kind,club){
  const p=clubColor(club.primaryColor),s=clubColor(club.secondaryColor);
@@ -81,7 +58,6 @@ export function clubProps(context='career',data={}){
  if(kind==='press'||kind==='locker')return clubLayers(kind,club);
  return `<div class="club-props club-props--${kind}" aria-hidden="true"><span class="club-emblem">${club.logo}</span></div>`;
 }
-export function fanPhoto(team){const index=Object.keys(CLUBSTYLE).indexOf(team);return index<0?'assets/atmosphere/fans-neutral.webp':`assets/atmosphere/goal-club-${index}.webp`}
 export function officePhoto(team){const index=Object.keys(CLUBSTYLE).indexOf(team);return index<0?'assets/atmosphere/office-base.webp':`assets/atmosphere/office-club-${index}.webp`}
 export function decorateAtmosphereScenes(){
  const scenes=document.querySelectorAll?.('.vscene.office,.vscene.training,.vscene.signing,.negotiationhero,.transferhero')||[];
@@ -136,8 +112,6 @@ export function marketProfile(x){
  const g=profilePositionGroup(x.pos),flair=x.star?{W:'dribbler',CAM:'dribbler',ST:'finisher',CM:'playmaker'}[g]:undefined;
  assignPlayerProfile(x,{seed:hashProfileSeed(`market|${x.id}|${x.name}`),type:flair});
 }
-// the moves a player has now (for noticing new ones as he grows)
-export function movesNow(p){try{return typeof skillMoves==='function'?skillMoves(p.id,'user').moves:[]}catch(e){return []}}
 /* V7.9.5 the season's wonderkid: at least one every season, somewhere in the league — in our academy (about
    one season in three) or at another club. The scouts find him; he can be followed on the academy screen,
    met on the pitch (he plays for his club) and bought in a transfer window. */
@@ -272,7 +246,7 @@ export function advance(){S.event=null;S.day++;if(S.day>5){S.day=1;S.week++}next
 export function render(){
  presentation.career3d?.detach();
  const a=$("#app");setScreenMode();
- if(!S){a.innerHTML=`<div class=hero><div class=logo>⚽</div><h1>ManagerStory</h1><p class=muted>Kariyer senin kararlarınla akar.</p>${loadError?`<p role=alert>${escapeHTML(loadError)}</p>`:`<button data-action="newCareer">Yeni Kariyer</button>`}<label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label><p><small>V7.10.0 • Hisar Matchday</small></p></div>`;return}
+ if(!S){a.innerHTML=`<div class=hero><div class=logo>⚽</div><h1>ManagerStory</h1><p class=muted>Kariyer senin kararlarınla akar.</p>${loadError?`<p role=alert>${escapeHTML(loadError)}</p>`:`<button data-action="newCareer">Yeni Kariyer</button>`}<label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label><p><small>V7.11.0 • Hisar Matchday</small></p></div>`;return}
  init();restoreActiveMatch();setScreenMode();
  if(M){ensureMatchState();ensureLiveState();if(presentation.live3d&&!presentation.live3d.enabled){presentation.live3d.enable();presentation.live3d.setTempo(1);}a.innerHTML=matchUI();save();presentation.career3d?.mount();ensureLiveLoop();paintLivePitch();return}
  if(modal=="settings"){showSettings();return}
@@ -346,7 +320,7 @@ export function clearInbox(){if(confirm("Tüm mesajlar silinsin mi?")){S.inbox=[
 export function completeOfficeDay(){S.history.push("Teknik ekip toplantısını tamamladın. Maç planı artık hafta boyunca güncellenebilir.");save();advance()}
 export function showWorld(){setModal(null);let table=[...S.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)),leader=table[0],formTeam=Object.entries(S.form).sort((a,b)=>b[1].slice(-5).filter(x=>x=="G").length-a[1].slice(-5).filter(x=>x=="G").length)[0];$("#app").innerHTML=`${header(['Ana Sayfa','redraw'])}<h1>Kupa & Gündem</h1><div class=card><h2>Türkiye Kupası</h2><p>${S.v6.cup.alive?S.v6.cup.round:"Elendi"} • ${S.v6.cup.wins} tur galibiyeti</p></div><div class="card story"><h2>📰 Haftanın Manşetleri</h2><p>${leader.n}, ${leader.pts} puanla zirvede.</p><p>${formTeam?formTeam[0]:"Lig"} son haftalarda dikkat çekiyor.</p><p>${currentOpponent()[0]}: ${currentOpponent()[9]}.</p></div><div class=card><h3>${escapeHTML(managedClubName())}</h3>${S.players.slice().sort((a,b)=>b.goals-a.goals).slice(0,5).map(p=>`<div class="row between player"><span>${p.name}</span><span>⚽ ${p.goals} • ${p.minutes}'</span></div>`).join("")}</div>`;decorateMainScreen("league");}
 export function showLeague(){setModal(null);ensureLeague();let t=[...S.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf),round=Math.max(0,S.fixture-1),games=S.leagueSchedule[round]||[];$("#app").innerHTML=`${header()}<h1>Lig Tablosu</h1><div class=card><div class="leaguehead"><span>Takım</span><span>O</span><span>AV</span><span>P</span></div>${t.map((x,i)=>`<div class=leaguerow><span>${i+1}. ${x.n}${formDots(x.n)}</span><span>${x.p}</span><span>${x.gf-x.ga}</span><b>${x.pts}</b></div>`).join("")}</div><div class=card><h3>${round+1}. Hafta Sonuçları</h3>${games.map(g=>`<div class="row between player"><span>${g.home} – ${g.away}</span><b>${g.played?g.hg+"–"+g.ag:"-"}</b></div>`).join("")}</div>`;decorateMainScreen("league");}
-export function showSettings(){setModal(null);setModal("settings");$("#app").innerHTML=`${header(['Ana Sayfa','openHome'])}<h1>Ayarlar</h1><div class=card><h2>Kariyer</h2><p class=muted>Mevcut kariyer, fikstür, kadro, sonuçlar, oyuncu ilişkileri ve tüm ilerleme bu cihazdan silinir.</p><button class=warn data-action="confirmResetCareer">Kariyeri Sıfırla</button><div class=build-version>ManagerStory • V7.10.0 • MatchEngine V2</div><button class=secondary data-action="exportCareer">Kariyer Yedeği İndir</button><label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label></div>`;decorateMainScreen("home");}
+export function showSettings(){setModal(null);setModal("settings");$("#app").innerHTML=`${header(['Ana Sayfa','openHome'])}<h1>Ayarlar</h1><div class=card><h2>Kariyer</h2><p class=muted>Mevcut kariyer, fikstür, kadro, sonuçlar, oyuncu ilişkileri ve tüm ilerleme bu cihazdan silinir.</p><button class=warn data-action="confirmResetCareer">Kariyeri Sıfırla</button><div class=build-version>ManagerStory • V7.11.0 • MatchEngine V2</div><button class=secondary data-action="exportCareer">Kariyer Yedeği İndir</button><label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label></div>`;decorateMainScreen("home");}
 /* Refactor C2: inbox and settings */
 defineActions({
  clearInbox:()=>clearInbox(),
@@ -404,8 +378,6 @@ export function bidPlayer(i){let x=S.transferList[i],offer=Math.round(x.price*.9
 export function showTransferArrival(id){let p=S.players.find(x=>x.id==id),same=S.xi.map(i=>S.players.find(x=>x.id==i)).filter(x=>x&&positionFit(x,p)>=2);$("#app").innerHTML=`${header()}<div class=transferhero><small>YENİ TRANSFER</small><h1>${p.name}</h1><p>${p.pos} • OVR ${p.overall} • ${p.age} yaş</p></div><div class=card><h3>Sportif Direktör</h3><p>Oyuncu imzayı attı. Kadrodaki rolünü şimdi belirleyebilirsin.</p></div><div class="card decision actions"><button data-action="newSigningBench" data-id="${id}">Önce yedek kulübesinden başlasın</button>${same.map(x=>`<button class=secondary data-action="newSigningReplace" data-id="${id}" data-out="${x.id}">${x.name} (${x.pos}) yerine ilk 11'e al</button>`).join("")}</div>`}
 export function newSigningRole(id,role){let p=S.players.find(x=>x.id==id);p.morale+=role=="bench"?0:2;S.history.push(`${p.name} için ilk rol belirlendi: rotasyon.`);save();showTransfers()}
 export function newSigningReplace(id,outId){let idx=S.xi.indexOf(outId),slot=S.positions[outId]||defaultPosFor(S.players.find(x=>x.id==outId));if(idx>=0){S.xi[idx]=id;S.positions[id]=[...slot];delete S.positions[outId]}let p=S.players.find(x=>x.id==id),o=S.players.find(x=>x.id==outId);S.history.push(`${p.name}, ${o.name} yerine ilk 11'e yerleştirildi.`);save();setModal("formation");render()}
-// V7.9: a player's skill stars and the special moves he can show in a match (pitch-v731 skillMoves)
-export const SKILL_NAMES=Object.fromEntries(MOVE_DATA.moves.map(m=>[m.id,m.name]));
 // V7.9.5 list cards: the 1–5 skill stars at a glance, with how many special moves he has
 export function listStars(k){if(!k||!k.stars)return '';const n=k.moves?.length||0;return `<div class=liststars><span class=skillstars aria-label="Yetenek ${k.stars} yıldız">${'★'.repeat(k.stars)}<i>${'★'.repeat(5-k.stars)}</i></span><small>${n?`${n} özel hareket`:'Özel hareketi yok'}</small></div>`}
 export function skillLine(p){try{if(typeof skillMoves!=='function')return '';const k=skillMoves(p.id,'user');return `<div class=skills><span class=skillstars aria-label="Yetenek ${k.stars} yıldız">${'★'.repeat(k.stars)}<i>${'★'.repeat(5-k.stars)}</i></span>${k.moves.length?k.moves.map(m=>`<span class=skillmove>${SKILL_NAMES[m]||m}</span>`).join(''):'<small class=muted>Özel hareketi yok</small>'}</div>`}catch(e){return ''}}
@@ -503,15 +475,12 @@ export function deletePlan(i){let active=S.scheduled.filter(x=>!x.done),target=a
 export function schedulePlan(){let text=prompt("Talimat (ör: Can girsin / Serkan çıksın):");let min=+prompt("Kaçıncı dakika civarı?");if(text&&min){S.scheduled.push({text,min,done:false});save();render()}}
 export function startMatch(){if(M)return render();if(currentFixture().game.played)return alert("Bu fikstürün maçı zaten tamamlandı.");if(S.xi.length!==11)return alert("Maça başlamak için 11 oyuncu seçmelisin.");if(S.xi.some(id=>{let p=S.players.find(x=>x.id===id);return !p||p.status==="Kirada"||p.status==="Transfer oldu"}))return alert("İlk 11 içindeki ayrılmış oyuncuları değiştir.");let r=currentOpponent(),f=currentFixture(),h=f.home;let oppIds=Array.from({length:11},(_,i)=>"o"+i);setMatch({fieldView:"3d",min:0,matchElapsedSeconds:0,speed:1,pitchSchema:731,secondHalf:false,dynamicPositions:{},hg:0,ag:0,home:h?managedClubName():r[0],away:h?r[0]:managedClubName(),userHome:h,active:[...S.xi],oppIds,out:[],story:["Takımlar tünelden çıkıyor. Tribünler ayağa kalktı.",`${playerById(STARTING_SQUAD.captain).name} oyuncuları orta yuvarlakta topladı. Son sözlerini söylüyor.`],shots:[0,0],ont:[0,0],rand:R(kickoffSeed()),finished:false,pause:false,reason:"",focus:"balanced",mentality:S.plan.mentality,press:S.plan.press,lastStop:0,ballOwner:null,ballSide:"none",ballX:50,ballY:50,commentaryOpen:false,userPossTicks:0,oppPossTicks:0,matchPositions:structuredClone(S.positions),debutShown:[],playerOrders:{}});ensureMatchState();ensureLiveState();if(presentation.live3d&&!presentation.live3d.enabled){presentation.live3d.enable();presentation.live3d.setTempo(1);}emitPitchKickoff("user");M.oppLineup=opponentLineup(M.userHome?M.away:M.home);M.startingXI=[...M.active];M.baselineMinutes=Object.fromEntries(S.players.map(p=>[p.id,p.minutes]));save();render()}
 export function radarUserPos(p){let q=S.positions[p.id]||[50,50];return [q[0],100-q[1]]}
-export function oppRadarPos(i){let pos=[[50,8],[15,25],[38,25],[62,25],[85,25],[30,45],[70,45],[15,65],[50,62],[85,65],[50,82]][i];return pos}
 export function matchPitch(){
  const dots=S.players.filter(p=>M.active.includes(p.id)).map(p=>{const q=basePitchPosition(p.id,'user'),ins=M.playerOrders?.[p.id];return `<button class="matchdot userdot clickable" data-side="user" data-player="${p.id}" style="--initial-x:${q[0]}%;--initial-y:${q[1]}%" data-action="openMatchPlayer" data-id="${p.id}"><span>${escapeHTML(p.name.slice(0,3).toUpperCase())}</span>${ins?'<em>◆</em>':''}</button>`}).join('');
  const colors=CLUBSTYLE[M.userHome?M.away:M.home]||['#ddd','#222'];
  const odots=M.oppIds.map(id=>{const q=basePitchPosition(id,'opp'),o=opponentPlayer(id);return `<button class="matchdot oppdot" data-side="opp" data-player="${id}" style="--initial-x:${q[0]}%;--initial-y:${q[1]}%;--opp-primary:${colors[0]};--opp-secondary:${colors[1]}" data-action="openOpponentPlayer" data-id="${id}" aria-label="${escapeHTML(o?.name||id)}"><span>${escapeHTML((o?.name.split(' ').at(-1)||id).slice(0,3).toUpperCase())}</span></button>`}).join('');
  return `<div class="livepitch v73pitch" aria-label="Yatay canlı 2D saha"><div class="pitch-half-line"></div><div class="pitch-center-circle"></div><div class="pitch-box pitch-box-left"></div><div class="pitch-box pitch-box-right"></div><div class="pitch-goal-area pitch-goal-area-left"></div><div class="pitch-goal-area pitch-goal-area-right"></div><div class="pitch-goal pitch-goal-left" aria-label="Sol kale"></div><div class="pitch-goal pitch-goal-right" aria-label="Sağ kale"></div><span class="pitch-direction">${M.secondHalf?'← '+escapeHTML(managedClubName().toLocaleUpperCase('tr'))+' HÜCUMU':escapeHTML(managedClubName().toLocaleUpperCase('tr'))+' HÜCUMU →'}</span>${dots}${odots}<div class="ball-shadow" aria-hidden="true"></div><div class=liveball aria-label="Top">●</div><span class=pitch-action hidden></span><div class=pitch-goal-overlay hidden><img src="assets/atmosphere/fans-neutral.webp" alt="Gol atmosferi"><div class=goal-club-props></div><strong>GOOOL!</strong><small></small></div></div>`;
 }
-export function setUserOwner(id){M.ballSide="user";M.ballOwner=id;if(typeof setBallState==="function")setBallState(eventPoint(id,"user"),id);M.playerTouches[id]=(M.playerTouches[id]||0)+1;M.playerStats[id]&&(M.playerStats[id].touches=(M.playerStats[id].touches||0)+1)}
-export function setOppOwner(i){M.ballSide="opp";M.ballOwner="o"+i;if(typeof setBallState==="function")setBallState(eventPoint("o"+i,"opp"),"o"+i)}
 export function halfTimeUI(){
  const tired=S.players.filter(p=>M.active.includes(p.id)).sort((a,b)=>a.fitness-b.fitness).slice(0,3);
  const choices=[['stats','İstatistik'],['analysis','Analiz'],['players','Oyuncular'],['tactics','Taktik']];M.halfTab??='analysis';
@@ -568,11 +537,6 @@ export function openMatchPlayer(id){
  beginMatchOverlay();ensureMatchState();const role=M.matchRoles[id],cur=M.playerOrders[id]||S.instructions[id]||"Dengeli",opts=matchOrderOptions(p,role),rating=finite(M.playerStats[id]?.rating,6.5).toFixed(1);
  $("#app").innerHTML=`<section class=playerorderoverlay role=dialog aria-modal=true aria-label="Oyuncu talimatı"><div class=playerorderhead><button class=ghost data-action="closeMatchOverlay">‹ Maça dön</button><span>⏸ ${matchClock()} • ${M.hg}–${M.ag}</span></div><div class=playerhero><small>${p.pos} • Rol: ${role}</small><h1>${escapeHTML(p.name)}</h1><p>Fitness <b>%${Math.round(p.fitness)}</b> • Maç puanı <b>${rating}</b><br>Şut: <b>${M.playerStats[id]?.shots||0}</b> • Topla buluşma: <b>${M.playerStats[id]?.touches||0}</b><br>Pas: <b>${M.playerStats[id]?.passesCompleted||0}/${M.playerStats[id]?.passesAttempted||0}</b> • Kilit pas: <b>${M.playerStats[id]?.keyPasses||0}</b><br>Dripling: <b>${M.playerStats[id]?.dribbles||0}/${M.playerStats[id]?.dribblesAttempted||0}</b> • Müdahale: <b>${M.playerStats[id]?.tackles||0}</b> • Mesafe: <b>${finite(M.playerStats[id]?.distanceKm,0).toFixed(1)} km</b></p><p>Mevcut talimat: <b>${escapeHTML(cur)}</b></p></div><div class="card decision actions"><small>BİREYSEL TALİMAT</small>${opts.map(o=>`<button ${M.finished?'disabled':''} class="${cur===o.label?'selected':''}" data-action="setMatchOrder" data-id="${id}" data-order="${o.key}">${o.label}<small>${o.desc}</small></button>`).join('')}<button class=secondary data-action="shoutLive" data-shout="brave" data-id="${id}">📣 Daha cesur oyna</button><button class=secondary data-action="subOut" data-id="${id}" ${M.finished?'disabled':''}>Oyuncuyu Değiştir</button></div></section>`;save();
 }
-export function matchOrderOptions(p,role){
- const items={balanced:["Dengeli","Mevcut rolünü koru."],runBehind:["Savunma arkasına koş","Hızına göre boşluğa koş; yorgunluk artar."],holdUp:["Topu sakla","Fiziğinle pas bağlantısını koru."],box:["Ceza sahasında kal","Bitiriş pozisyonlarını daha sık ara."],shoot:["Daha fazla şut","Şut tercihini artır."],press:["Presi artır","Top kazanma isteği ve yorgunluk artar."],creator:["Merkeze yaklaş","Pas bağlantılarını güçlendir."],riskPass:["Daha riskli pas","Fırsat kalitesini artır; pas kaybı riski yükselir."],free:["Serbest rol","Hatlar arasında boşluk ara."],wide:["Geniş oyna","Kanatta bire bir ara."],inside:["İçe kat et","Bitiriş bölgesine yaklaş."],overlap:["Bindirme yap","Hücuma destek ver; arkanda alan bırakabilirsin."],stay:["Geride kal","Savunma güvenliğini koru."],step:["Öne çık","Rakibi erken karşıla."],shortGK:["Kısa kullan","Pasla çıkışı artır."],longGK:["Uzun kullan","Hızlı hücuma çık; pas isabeti azalabilir."],sweeper:["Süpürücü kaleci","Öndeki savunmanın arkasını kapat."]};
- const keys=role==='GK'?['shortGK','longGK','sweeper']:role==='ST'?['runBehind','holdUp','shoot','press']:role==='CAM'?['creator','riskPass','free','shoot']:role==='CM'?['creator','riskPass','stay','press']:['LW','RW'].includes(role)?['wide','inside','runBehind','press']:['LB','RB'].includes(role)?['overlap','stay','press']:['stay','step','press'];
- return ['balanced',...keys].map(key=>({key,label:items[key][0],desc:items[key][1]}));
-}
 export function setMatchOrder(id,key){if(!M||M.finished||!M.active.includes(id))return;const p=S.players.find(x=>x.id===id),option=matchOrderOptions(p,M.matchRoles[id]).find(x=>x.key===key);if(!option)return;M.orderKeys[id]=key;M.playerOrders[id]=option.label;M.focus=key+":"+id;matchEvent("order",`🧠 ${M.min}' ${p.name}: ${option.label}.`,{playerId:id});save();closeMatchOverlay()}
 export function openDecisionSheet(){if(!M||M.finished)return;if(livePresentationPending())presentation.live3d.setTerminalPaused(true);else{M.pause=true;M.reason=M.reason==='injury'?'injury':'manual';}save();$("#app").innerHTML=`<div class=decisionoverlay><div class=decisiontop><span>⏸ ${matchClock()} • MAÇ DURAKLATILDI</span><b>${M.home} ${M.hg}–${M.ag} ${M.away}</b><button class=ghost data-action="redraw">✕</button></div>${managerDecisionV72()}</div>`}
 export function managerDecisionV72(){const due=S.scheduled.find(x=>!x.done&&M.min>=x.min);return `<div class="card decision actions"><h2>🧠 Teknik Direktör Müdahalesi</h2>${M.reason==='injury'?'<p>Sakatlanan oyuncuyu değiştirdikten sonra maça dön.</p>':''}${due?`<p>📋 ${escapeHTML(due.text)}</p><button data-action="applyScheduled">Planı uygula</button><button data-action="delayScheduled">5 dakika ertele</button>`:''}<button data-action="subUI">🔄 Oyuncu değişikliği</button><button data-action="showMatchTactics">⚙ Taktik</button><h3>📣 Kenardan Seslen</h3>${[['calm','Sakin olun!'],['forward','Öne çıkın!'],['press','Presi artırın!'],['hold','Topu tutun!'],['brave','Daha cesur!'],['fight','Sonuna kadar!']].map(([key,label])=>`<button class=secondary data-action="shoutLive" data-shout="${key}">${label}</button>`).join('')}<button data-action="resumeLive">▶ MAÇA DÖN</button></div>`}
@@ -582,71 +546,6 @@ export function playerInstruction(key,id){const p=S.players.find(x=>x.id===id);i
 export function teamTalk(t){applyConversationEffect("halfTime",t,S.players.filter(p=>M.active.includes(p.id)));if(t=="demand"){S.players.filter(p=>M.active.includes(p.id)).forEach(p=>p.morale=Math.min(100,p.morale+1));M.story.push("🗣 Takımdan daha fazlasını istedin.")}if(t=="belief"){S.players.filter(p=>M.active.includes(p.id)).forEach(p=>p.morale=Math.min(100,p.morale+2));M.story.push("🗣 Devre arasında takıma güven aşıladın.")}if(t=="calm"){M.story.push("🗣 Takımdan sakin kalıp plana bağlı kalmasını istedin.")}if(t=="angry"){S.players.filter(p=>M.active.includes(p.id)).forEach(p=>{p.form+=1;p.morale-=1});M.story.push("🗣 Soyunma odasında daha fazlasını talep ettin.")}save();render()}
 export function resume(x){if(!M||M.finished)return;if(x==="safe")M.mentality="Temkinli";if(x==="press")M.press="Yüksek";if(x==="attack")M.mentality="Cesur";resumeLive()}
 export function flow(){if(!M||M.pause)return;advanceLive(1);render()}
-export function tick(){
- if(!M||M.finished||['FINISHING','FINISHED'].includes(M.lifecycle))return;
- ensureMatchState();M.min=Math.floor(matchSecond()/60);if(M.goalScene&&M.min>M.goalScene.minute+3)M.goalScene=null;
- M.minuteShot=false;
- const effect=tacticalEffects();
- S.players.forEach(p=>{if(M.active.includes(p.id)){const extra=['press','runBehind','overlap'].includes(orderKey(p))?1.35:1;p.fitness=Math.max(20,p.fitness-matchFatigueDrain(p,extra,effect.fatigue));p.minutes++;M.playerStats[p.id].minutes++;}});
- for(const id of M.oppIds){const rival=opponentPlayer(id);if(rival)rival.fitness=Math.max(22,rival.fitness-matchFatigueDrain(rival,1,tacticFatigue('opp')));}
- const r=currentOpponent(),u=strength(),opp=(r[3]+r[4]+r[5])/3*(M.oppIds.length/11),userPoss=M.rand()<u/(u+opp);
- actionMinute(userPoss,effect,r);
- for(const id of M.active){const p=S.players.find(p=>p.id===id);if(p&&!p.debutDone&&!M.debutShown.includes(id)){M.debutShown.push(id);p.debutDone=true;p.morale=Math.min(100,p.morale+5);matchEvent('debut',`🌱 ${M.min}' ${p.name} profesyonel futboldaki ilk resmi maçına çıkıyor.`,{playerId:id});}}
- if(!M.minuteShot&&M.ballOwner!=null&&M.rand()<clamp(.34*effect.frequency,.17,.5))chanceV73(M.ballSide==="user");
- enforceBallInvariants();
- if(M.rand()<.42)recordMatchFoul();   // V7.8: a challenge that may be a foul (see recordMatchFoul)
- if(M.min<90&&M.rand()<.0015){const ps=S.players.filter(p=>M.active.includes(p.id)&&p.pos!=="GK");if(ps.length){const p=ps[Math.floor(M.rand()*ps.length)];p.injury=1;matchEvent('injury',`🩹 ${M.min}' ${p.name} yerde kaldı. Sağlık ekibi değişiklik öneriyor.`,{playerId:p.id});M.requiredSubstitution={playerId:p.id,reason:'injury',state:'SUBSTITUTION_REQUIRED'};M.pause=true;M.reason='injury';M.lifecycle='PAUSED';M.lastStop=M.min}}
- // cards/injuries above may have removed the ball owner or stacked players on a restart spot
- enforceBallInvariants();settleShape();
- if(M.min>=90)playLastAttack();
- if(M.min===45||M.min>=90)settlePlay();
- if(M.min===45){matchEvent('half',"⏸ 45' Devre sona erdi. Oyuncular soyunma odasına yöneliyor.");M.pause=true;M.reason='half';M.lifecycle='HALF_TIME'}
- if(M.min>=90)finalizeMatch();
-}
-export function positionPenaltyV61(p,role){if(role=="GK")return p.pos=="GK"?1:.12;if(p.pos=="GK")return .22;if(p.pos.split("/").includes(role))return 1;let near={ST:["LW","RW","CAM"],CAM:["CM","LW","RW"],CM:["CAM"],CB:["LB","RB"],LW:["RW","CAM"],RW:["LW","CAM"],LB:["CB"],RB:["CB"]};return (near[p.pos.split("/")[0]]||[]).includes(role)?.72:.45}
-export function strength(){
- const players=S.players.filter(p=>M.active.includes(p.id));if(!players.length)return 30;
- const strength=players.reduce((sum,p)=>{let bonus=1,ins=M.playerOrders[p.id]||S.instructions[p.id]||"";
- if((ins==="Merkeze yaklaş"||ins==="Merkeze yaklaş ve oyunu kur")&&p.passing>=72)bonus+=.04;
- if(ins==="Savunma arkasına koş"&&p.pace>=78)bonus+=.04;
- if(ins==="Topu sakla"&&p.physical>=75)bonus+=.04;
- if(ins==="İçe kat et"&&p.dribbling>=70)bonus+=.035;
- if(ins==="Bindirme yap"&&p.pace>=70)bonus+=.025;
- if((ins==="Pozisyonunu koru"||ins==="Geride kal")&&p.defending>=68)bonus+=.03;
- const role=M.matchRoles[p.id]||roleAtSlot(p,M.matchPositions[p.id]),fit=finite(p.fitness,100),mor=finite(p.morale,70),base=(p.passing+p.dribbling+p.finishing+p.pace)/4;
- return sum+base*(.55+fit/200)*(mor/85)*bonus*positionPenaltyV61(p,role)},0)/players.length;
- return finite(strength,65)*tacticalEffects().control*(players.length/11);
-}
-export function attacker(){
- const players=S.players.filter(p=>M.active.includes(p.id)&&M.matchRoles[p.id]!=="GK"),r=currentOpponent();
- if(!players.length)return S.players.find(p=>M.active.includes(p.id));
- const weights=players.map(p=>{const key=orderKey(p);let weight=(p.finishing*2+p.pace+p.physical+(p.pos.includes("ST")?40:0))*styleEdge(p,r[2]);
- if(key==='runBehind')weight*=1.4;if(key==='holdUp')weight*=1.25;if(key==='box'||key==='shoot')weight*=1.35;if(key==='inside'||key==='free')weight*=1.2;if(key==='creator'||key==='riskPass')weight*=1.1;if(key==='stay')weight*=.65;
- if(M.approach==='Kanatlar'&&['LW','RW','LB','RB'].includes(M.matchRoles[p.id]))weight*=1.3;
- if(M.approach==='Merkez'&&['ST','CAM','CM'].includes(M.matchRoles[p.id]))weight*=1.15;
- return weight;});let roll=M.rand()*weights.reduce((a,b)=>a+b,0),sum=0;
- return players[weights.findIndex(v=>(sum+=v)>=roll)]||players[0];
-}
-export function chance(user){
- const r=currentOpponent(),side=user?userSide():1-userSide(),p=user?attacker():{name:r[0].split(" ")[0]+" forvet",finishing:r[3],pace:65+r[8]/5,physical:r[8],dribbling:r[4],fitness:90};if(!p)return;
- const previous=M.ballOwner,previousSide=M.ballSide;
- if(user)setUserOwner(p.id);else setOppOwner(8+Math.floor(M.rand()*3));
- if(previous!==M.ballOwner||previousSide!==M.ballSide)matchEvent('run',`${M.min}' ${p.name} hücum koşusuyla topu aldı.`,{fromId:previous,toId:M.ballOwner,fromSide:previousSide,toSide:M.ballSide,ballSide:M.ballSide,fromPos:eventPoint(previous,previousSide),toPos:eventPoint(M.ballOwner,M.ballSide),playerId:user?p.id:null,side});
- M.shots[side]++;
- const effects=tacticalEffects(),key=user?orderKey(p):'balanced';let q=p.finishing*.5+p.pace*.12+p.physical*.1+p.dribbling*.12+p.fitness*.16;
- if(user){q*=effects.attack;if(key==='runBehind'&&r[2]==='high')q*=1.07;if(key==='holdUp'&&p.physical>=75)q*=1.04;if(key==='shoot')q*=.97;M.playerStats[p.id].shots++;}else q/=effects.defence;
- const gk=S.players.find(x=>M.active.includes(x.id)&&M.matchRoles[x.id]==='GK');
- const keeper=user?r[6]:gk?gk.overall*(.65+gk.fitness/300):30;
- const onProbability=Math.min(.72,.38+q/360),goalProbability=clamp(.20+(q-keeper)/210,.14,.48),xg=onProbability*goalProbability;
- M.stats.xg[side]+=xg;if(xg>=.20)M.stats.bigChances[side]++;
- const on=M.rand()<onProbability;if(on)M.ont[side]++;
- const goal=on&&M.rand()<goalProbability,seq=user?seqText(p):`${r[0]} paslarla çıkıyor. ${p.name} ceza sahasına yöneldi.`;
- const shooter=M.ballOwner,fromSide=M.ballSide,shotFrom=eventPoint(shooter,fromSide),shotTo=[50,user?3:97];
- matchEvent('shot',`${M.min}' ${p.name} şut çekti.`,{side,playerId:user?p.id:null,fromId:shooter,toId:null,fromSide,ballSide:fromSide,fromPos:shotFrom,toPos:shotTo,xg,onTarget:on});
- if(goal){matchEvent('goal',`⚽ ${M.min}' ${seq} ${p.name} vurdu... GOL!`,{side,playerId:user?p.id:null,scorer:p.name,xg,fromId:shooter,fromSide,ballSide:fromSide,fromPos:shotFrom,toPos:shotTo});M.goalScene={scorer:p.name,minute:M.min};if(user){p.goals=(p.goals||0)+1;p.morale=Math.min(100,p.morale+2);p.form=Math.min(100,p.form+2);M.playerStats[p.id].goals++;M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+1,1,10);}else if(gk)M.playerStats[gk.id].rating=clamp(M.playerStats[gk.id].rating-.35,1,10);
- }else{if(on)matchEvent('save',`${M.min}' ${user?'Rakip kaleci':gk?.name||'Kaleci'} topu kurtardı.`,{side,playerId:user?null:gk?.id,fromId:shooter,fromSide,ballSide:fromSide,fromPos:shotTo,toPos:[50,user?10:90]});matchEvent('chance',`${M.min}' ${seq} ${on?'Vuruşu kaleci çıkardı!':'Top dışarıda.'}`,{side,playerId:user?p.id:null,xg,onTarget:on});if(!user&&on&&gk){M.playerStats[gk.id].saves++;M.playerStats[gk.id].rating=clamp(M.playerStats[gk.id].rating+.12,1,10);}if(user&&on)M.playerStats[p.id].rating=clamp(M.playerStats[p.id].rating+.06,1,10);if(M.rand()<(on?.42:.12)){M.stats.corners[side]++;matchEvent('corner',`🚩 ${M.min}' ${side===0?M.home:M.away} korner kullanacak.`,{side,ballSide:fromSide,fromId:shooter,toId:shooter,fromPos:shotTo,toPos:[user?95:5,user?5:95]});}}
-}
-export function seqText(p){if(p.pos.split("/").includes("ST")&&p.pace>=80)return `Orta saha baskıyı kırdı. ${p.name} savunmanın arkasındaki boşluğu gördü ve hızlandı.`;if(p.pos.split("/").includes("ST")&&p.physical>=78)return `${p.name} stoperi sırtına aldı, topu sakladı ve atağın devamını sağladı.`;if(["CAM","CM"].some(x=>p.pos.split("/").includes(x))&&p.passing>=74)return `${p.name} iki hat arasında topu aldı, yüzünü kaleye döndü ve boşluğu değerlendirdi.`;if(["RW","LW"].some(x=>p.pos.split("/").includes(x)))return `${p.name} kanatta bire biri gördü ve içeri kat etti.`;return `${p.name} boşluğu gördü ve hücuma katıldı.`}
 export function stopCheck(){return false}
 export function applyScheduled(){const d=S.scheduled.find(x=>!x.done&&M.min>=x.min);if(!d)return;const low=d.text.toLocaleLowerCase('tr'),incoming=S.players.find(p=>low.includes(p.name.toLocaleLowerCase('tr'))&&!M.active.includes(p.id)&&!M.out.includes(p.id)&&!M.sentOff.includes(p.id)&&!['Transfer oldu','Kirada'].includes(p.status));if(incoming){const options=S.players.filter(p=>M.active.includes(p.id)&&positionPenaltyV61(incoming,M.matchRoles[p.id])>=.7).sort((a,b)=>a.fitness-b.fitness);if(!options.length){alert('Plan için uygun pozisyonda oyuncu bulunamadı. Değişikliği kendin seç.');return subUI()}subOut=options[0].id;if(!doSub(incoming.id))return;}d.done=true;matchEvent('order',`✅ ${M.min}' Plan uygulandı: ${d.text}`);save();render()}
 export function delayScheduled(){let d=S.scheduled.find(x=>!x.done&&M.min>=x.min);if(d)d.min+=5;M.story.push("⏱ Plan 5 dakika ertelendi.");save();render()}
@@ -679,14 +578,27 @@ export function doSub(id){
  subOut=null;save();closeMatchOverlay();return true;
 }
 export function matchField(){let cards=M.active.map(id=>{let p=S.players.find(x=>x.id==id),q=S.positions[id]||[50,50];return `<div class=pc style="left:${q[0]}%;top:${q[1]}%"><b>${p.name}</b><br>${p.pos} ${Math.round(p.fitness)}%</div>`}).join("");$("#app").innerHTML=`<button class=secondary data-action="redraw">‹ Maça dön</button><h1>Sahadaki 11</h1><div class=pitch>${cards}</div>`}
-export function teamProfile(name){if(name==managedClubName())return {atk:72,mid:72,def:70,gk:70,home:3};let r=OPP.find(x=>x[0]==name);return {atk:r[3],mid:r[4],def:r[5],gk:r[6],home:3}}
-export function poisson(lambda,rnd){let L=Math.exp(-lambda),k=0,p=1;do{k++;p*=rnd()}while(p>L&&k<8);return k-1}
-export function simAIGame(g,week,index){let h=teamProfile(g.home),a=teamProfile(g.away),rnd=R(41000+week*211+index*17+(typeof seasonSeedOffset==='function'?seasonSeedOffset():0)),hf=(S.form[g.home]||[]).slice(-5).reduce((x,y)=>x+(y=="G"?1:y=="M"?-.7:0),0),af=(S.form[g.away]||[]).slice(-5).reduce((x,y)=>x+(y=="G"?1:y=="M"?-.7:0),0);let lh=Math.max(.35,1.22+(h.atk+a.mid-h.def*.15-a.def*.55)/55+h.home/20+hf*.04),la=Math.max(.3,1.08+(a.atk+h.mid-a.def*.15-h.def*.55)/55+af*.04);g.hg=Math.min(6,poisson(lh,rnd));g.ag=Math.min(6,poisson(la,rnd));g.played=true;applyTableGame(g);recordForm(g)}
-export function applyTableGame(g){let h=S.table.find(x=>x.n==g.home),a=S.table.find(x=>x.n==g.away);if(!h||!a)return;h.p++;a.p++;h.gf+=g.hg;h.ga+=g.ag;a.gf+=g.ag;a.ga+=g.hg;if(g.hg>g.ag)h.pts+=3;else if(g.ag>g.hg)a.pts+=3;else{h.pts++;a.pts++}}
-export function recordForm(g){let hf=g.hg>g.ag?"G":g.hg==g.ag?"B":"M",af=g.ag>g.hg?"G":g.ag==g.hg?"B":"M";S.form[g.home].push(hf);S.form[g.away].push(af)}
-export function simulateRoundOthers(){ensureLeague();let games=S.leagueSchedule[S.fixture];games.forEach((g,i)=>{if(!g.played&&g.home!=managedClubName()&&g.away!=managedClubName())simAIGame(g,S.fixture,i)})}
 export function pressQuestion(ug,og){return makeV71PostPress(ug,og)}
 export function finishMatch(){if(!M||!M.finished||livePresentationPending()||currentFixture().game.played||M.resultCommitted)return;M.resultCommitted=true;const completedMatch=M;let ug=M.userHome?M.hg:M.ag,og=M.userHome?M.ag:M.hg,game=currentFixture().game;game.hg=M.hg;game.ag=M.ag;game.played=true;applyTableGame(game);recordForm(game);simulateRoundOthers();evolveOpponentSquads(S.fixture);S.results.push({home:M.home,away:M.away,hg:M.hg,ag:M.ag,week:S.fixture+1});S.board=Math.max(20,Math.min(100,S.board+(ug>og?3:ug==og?0:-2)));S.fans=Math.max(20,Math.min(100,S.fans+(ug>og?3:ug==og?0:-2)));let result=ug>og?"galibiyet":ug==og?"beraberlik":"mağlubiyet";S.history.push(`${M.home} ${M.hg}-${M.ag} ${M.away} • ${result}.`);S.v6.academyCounter++;evolveV6();seasonWonderTick();if(S.v6.academyCounter>=3+(S.fixture%2))refreshAcademy();if(S.results.length>=3){let recent=S.results.slice(-4),gf=recent.reduce((n,r)=>n+(r.home==managedClubName()?r.hg:r.ag),0),ga=recent.reduce((n,r)=>n+(r.home==managedClubName()?r.ag:r.hg),0),wins=recent.filter(r=>(r.home==managedClubName()?r.hg:r.ag)>(r.home==managedClubName()?r.ag:r.hg)).length;if(wins<=1){let msg=gf<4?`Son ${recent.length} maçta ${gf} gol ürettik. Hücum bağlantıları ve ceza sahası koşuları yetersiz kaldı.`:ga>gf?`Son ${recent.length} maçta ${ga} gol yedik. Özellikle maçların ikinci bölümünde savunma dengemiz bozuluyor.`:`Son ${recent.length} maçta sonuç almakta zorlandık. Orta saha ile hücum arasındaki mesafe açılıyor.`;pushInbox("Yardımcı Antrenör","Son Maçlar Analizi",msg+" Bir sonraki teknik ekip toplantısında planı buna göre gözden geçirelim.","player")}}let pq=pressQuestion(ug,og);S.results[S.results.length-1].matchSummary=matchSummary(completedMatch);if(typeof seasonRecordMatch==='function')seasonRecordMatch(completedMatch,S.results[S.results.length-1]);S.v71.lastMatch=matchSummary(completedMatch);settlePlayerPromises();setMatch(null);setModal(null);delete S.activeMatchV71;S.fixture=Math.min(33,S.fixture+1);S.event={kind:"postpress",title:"🎤 Maç Sonu Röportajı",speaker:"Muhabir",text:pq[0],choices:pq[1],questionId:pq[2],category:pq[3]};save();render()}
 export function choosePost(x){ }
 // the day's choice: press and post-match answers here, every other choice in chooseBase
 export function choose(x){if(S.event&&["press","postpress","office"].includes(S.event.kind))applyConversationEffect(S.event.kind,x);if(S.event&&S.event.kind=="postpress"){if(x=="postTeam"){S.players.forEach(p=>p.morale=Math.min(100,p.morale+2));S.fans+=1;S.history.push("Maç sonunda oyuncularını övdün.")}if(x=="postMe"){S.players.forEach(p=>p.relation=Math.min(100,p.relation+1));S.board-=1;S.history.push("Sonucun sorumluluğunu üstlendin.")}if(x==="postTactical"){S.players.filter(p=>S.xi.includes(p.id)).forEach(p=>p.form=Math.min(100,p.form+1));S.history.push("Maçın taktik yönünü açıkladın.")}if(x=="postDemand"){S.board+=1;S.players.forEach(p=>p.morale=Math.max(35,p.morale-1));S.history.push("Takımdan daha fazlasını istedin.")}save();advance();return}return chooseBase(x)}
+export function goMain(section) {
+  if (runHooks('goMain', section).includes(true)) return;
+  if (M) return;
+  setModal(["squad", "plan", "formation", "settings"].includes(section) ? section : null);
+  if (section === "league") return showLeague();
+  if (section === "transfer") return showV6Transfers();
+  if (section === "academy") return showAcademy();
+  render(); window.scrollTo?.(0, 0);
+}
+export function setScreenMode() {
+  document.body.classList.toggle("in-match", !!M);
+  $("#app").classList.toggle("match-mode", !!M);
+}
+export function decorateMainScreen(section) {
+  setScreenMode();
+  if (M || !S) return;
+  if (typeof decorateAtmosphereScenes === "function") decorateAtmosphereScenes();
+  if (!$(".bottomnav")) $("#app").insertAdjacentHTML("beforeend", bottomNav(section));
+}

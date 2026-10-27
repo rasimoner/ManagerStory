@@ -1,11 +1,14 @@
 /* V7.2 live clock and event renderer. Simulation time is never derived from frame count. */
-import { M, S } from '../state.js';
-import { presentation } from '../presentation/registry.js';
-import { clamp, matchEvent, matchPossession, userSide } from './match-support.js';
-import { opponentPlayer } from '../league/opponents-v731.js';
-import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js';
-import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js';
-import { render, save, tick } from '../../modes/manager/app.js';
+import { M } from '../state.js?v=7.11.0';
+import { presentation } from '../presentation/registry.js?v=7.11.0';
+import { matchPossession, userSide } from './match-support.js?v=7.11.0';
+import { opponentPlayer } from '../league/opponents-v731.js?v=7.11.0';
+import { basePitchPosition, eventPoint, paintLivePitch, pitchSpace, pitchV73, userDirection } from './pitch-v73.js?v=7.11.0';
+import { playerAttribute, resolveUnfillableSubstitution } from './pitch-v731.js?v=7.11.0';
+import { tick } from './match-minute.js?v=7.11.0';
+import { save } from '../save.js?v=7.11.0';
+import { changed } from '../hooks.js?v=7.11.0';
+import { userSquad } from './user-team.js?v=7.11.0';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
 export const MATCH_PLAYBACK_SCALE = .5;
@@ -63,19 +66,19 @@ export function advanceLive(realSeconds) {
 }
 export function setMatchSpeed(speed) {
   if (!M || ![0.5, 1, 2].includes(Number(speed))) return;
-  M.speed = Number(speed); save(); render();
+  M.speed = Number(speed); save(); changed();
 }
 export const livePresentationPending = () => !!(presentation.live3d?.finishing||presentation.live3d?.halfPending);
 export const livePlaybackPaused = () => livePresentationPending() ? presentation.live3d.paused : M?.pause;
 export function pauseLive(reason = 'manual') {
-  if(livePresentationPending()){presentation.live3d.setTerminalPaused(true);liveLastFrame=null;render();return;}
+  if(livePresentationPending()){presentation.live3d.setTerminalPaused(true);liveLastFrame=null;changed();return;}
   if (!M || M.finished || M.reason === 'half') return;
   M.pause = true; M.reason = reason; M.lifecycle=reason==='half'?'HALF_TIME':'PAUSED';liveLastFrame = null;
   if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;
-  save(); render();
+  save(); changed();
 }
 export function resumeLive() {
-  if(livePresentationPending()){presentation.live3d.setTerminalPaused(false);liveLastFrame=null;render();return;}
+  if(livePresentationPending()){presentation.live3d.setTerminalPaused(false);liveLastFrame=null;changed();return;}
   if (!M || M.finished || M.reason === 'half') return;
   if (M.requiredSubstitution) resolveUnfillableSubstitution();
   if (M.requiredSubstitution && M.active.includes(M.requiredSubstitution.playerId)) {
@@ -84,7 +87,7 @@ export function resumeLive() {
   if(M.requiredSubstitution&&!M.active.includes(M.requiredSubstitution.playerId))M.requiredSubstitution=null;
   M.pause = false; M.reason = ''; M.uiOverlay = null; M.injuryFeedback=null;
   M.lifecycle=M.secondHalf?'RUNNING_SECOND_HALF':'RUNNING';
-  liveLastFrame = null;if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;save(); render();
+  liveLastFrame = null;if(typeof pitchV73!=='undefined'&&pitchV73)pitchV73.lastTime=null;save(); changed();
 }
 export function liveFrameStep(now) {
   liveFrame = null;
@@ -99,7 +102,7 @@ export function liveFrameStep(now) {
   // A draining half has M.pause=true but its presentation is still running.
   // Re-rendering every frame resets liveLastFrame through ensureLiveLoop, so
   // the following RAF receives dt=0 forever. Render only a state transition.
-  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused) render();
+  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused) changed();
   else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);
@@ -114,7 +117,7 @@ export function installBackgroundPause(){
   if(typeof document==='undefined'||typeof document.addEventListener!=='function')return;
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden&&M&&!livePlaybackPaused()&&(!M.finished||livePresentationPending())){pauseLive('background');}
-    else if(!document.hidden&&M&&M.reason==='background')render();
+    else if(!document.hidden&&M&&M.reason==='background')changed();
   });
 }
 export function finalizeMatch(){
@@ -179,7 +182,7 @@ export function choosePassTarget(side, owner) {
 export function liveAssistantNote() {
   if (!M || M.min % 5 || M.min === 0) return;
   M.assistantCooldown ??={};
-  const players = S.players.filter(p => M.active.includes(p.id));
+  const players = userSquad().filter(p => M.active.includes(p.id));
   const low = players.slice().sort((a,b) => a.fitness - b.fitness)[0];
   const last = M.events.slice(-40);
   const oppWing = last.filter(e => e.side !== userSide() && e.type === 'cross').length;
@@ -219,27 +222,10 @@ export function liveAssistantNote() {
 }
 export function halfAnalysisV72() {
   const own=userSide(),rival=1-own,ours=M.stats.xg[own],theirs=M.stats.xg[rival];
-  const low=S.players.filter(p=>M.active.includes(p.id)).sort((a,b)=>a.fitness-b.fitness)[0];
+  const low=userSquad().filter(p=>M.active.includes(p.id)).sort((a,b)=>a.fitness-b.fitness)[0];
   if(low?.fitness<75)return `${low.name} fitness %${Math.round(low.fitness)}. İkinci yarıda temposunu izleyin.`;
   if(theirs>ours+.2)return `Rakibin xG'si ${theirs.toFixed(2)}, bizimki ${ours.toFixed(2)}. Tehlikeli bölgelere daha sık giriyorlar.`;
   if(ours>theirs+.2)return `${M.shots[own]} şut ve ${ours.toFixed(2)} xG ürettik; rakip ${M.shots[rival]} şutta kaldı.`;
   const passes=M.stats.passes[own],accuracy=passes?Math.round(100*M.stats.completedPasses[own]/passes):0;
   return `İlk yarı ${passes} pas yaptık; pas isabeti %${accuracy}. Skor ${M.hg}–${M.ag}.`;
-}
-export function shoutLive(type, id = null) {
-  if (!M || M.finished || !M.pause) return;
-  const labels = { calm:'Sakin olun!', forward:'Öne çıkın!', press:'Presi artırın!', hold:'Topu tutun!', brave:'Daha cesur!', fight:'Sonuna kadar!' };
-  if (!labels[type]) return;
-  const key = `${type}:${id ?? 'team'}`;
-  if (M.min - (M.shoutLast[key] ?? -100) < 10) { alert('Bu seslenişin etkisi için yaklaşık 10 oyun dakikası bekle.'); return; }
-  M.shoutLast[key] = M.min;
-  const targets = id == null ? S.players.filter(p => M.active.includes(p.id)) : S.players.filter(p => p.id === id && M.active.includes(id));
-  for (const p of targets) {
-    const temperament = p.age >= 29 || p.personality === 'Lider' ? 1 : p.age < 21 ? .5 : .8;
-    const response = (p.form || 70) >= 55 ? 1 : -1;
-    const delta = Math.round((type === 'calm' || type === 'hold' ? 1 : 2) * temperament * response);
-    p.morale = clamp(p.morale + delta, 25, 100);
-  }
-  matchEvent('shout', `📣 ${M.min}' ${id == null ? 'Takıma' : targets[0]?.name + ' oyuncusuna'}: ${labels[type]}`, { playerId:id });
-  save(); render();
 }

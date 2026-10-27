@@ -5,29 +5,15 @@
      for a named moment (core/hooks.js), so the code a reader sees is the code that runs.
    - Every page script is an ES module that says what it takes from where (import), and nothing of the
      game is on window.
-   - core/ does not know the modes: what it still takes from modes/manager is pinned here and may only
-     shrink (refactor D empties it). */
+   - Tests reach the game through one access point (refactor D0): names, never module files. A function can
+     move to another module without a test changing.
+   - core/ does not know the modes: no core module imports from modes/ (refactor D emptied the list that
+     pinned what it still took). */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { loadGame, gameSources, pageScripts, DIST } = require('./support/game.cjs');
-
-/* What core/ still takes from the manager mode, by file. Refactor D moves these into core (the engine
-   core, the league, the clubs, the save) or passes them in; the list may only shrink. */
-const CORE_FROM_MODES = {
-  'core/engine/live-match.js': 'render save tick',
-  'core/engine/match-support.js': '$ bottomNav currentOpponent decorateAtmosphereScenes matchOrderOptions render save showAcademy showLeague showV6Transfers',
-  'core/engine/pitch-v73.js': 'currentOpponent fanPhoto oppRadarPos resolveClubIdentity setOppOwner setUserOwner',
-  'core/engine/pitch-v731.js': 'currentOpponent positionPenaltyV61 setOppOwner setUserOwner',
-  'core/league/opponents-v731.js': 'OPP syncWonderOffers',
-  'core/presentation/match3d/match-view-adapter.js': 'OPP currentOpponent resolveClubIdentity',
-  'core/presentation/match3d/match3d-live-clock.js': 'render resolveClubIdentity',
-  'core/presentation/match3d/match3d-newview.js': 'CLUBSTYLE openDecisionSheet render resolveClubIdentity',
-  'core/presentation/scenes/star-transfer-scene.js': 'CLUBSTYLE',
-  'core/save.js': 'init render save',
-  'core/season/season.js': 'CLUBSTYLE OPP SKILL_NAMES SLOT_POS V6FN V6LN V6POS allTeams bottomNav createUniqueAcademyCandidate crest ensureLeague header makeLeagueSchedule managedClubName marketProfile money movesNow normalizeFormation pushInbox refreshAcademy render save setClock syncWonderOffers',
-};
 
 const walk = dir => fs.readdirSync(path.join(DIST, dir), { withFileTypes: true }).flatMap(d => {
   const f = path.posix.join(dir, d.name);
@@ -61,8 +47,9 @@ test('no script replaces a function at run time', () => {
 test('extension points: the star transfer and the navigation register for named moments', () => {
   const g = loadGame({ quiet: true });
   const hooks = g.json('Object.fromEntries(Object.entries(HOOKS).map(([k,v])=>[k,v.length]))');
+  // main.js: the manager mode redraws and readies a career when core says so (D4)
   // star-transfer.js: before and after a signing, and the transfer list (nav.js needs a document)
-  assert.deepEqual(hooks, { beforeSigning: 1, afterSigning: 1, transferListShown: 1 });
+  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1, transferListShown: 1 });
   // a big signing still starts the scene; a small one does not
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
   const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');
@@ -93,20 +80,47 @@ test('nothing of the game is on window', () => {
   assert.deepEqual(used, []);
 });
 
-test('core/ takes from modes/ only what is pinned here (the list may only shrink)', () => {
-  const now = {};
+test('core/ does not know the modes: no core module imports anything from modes/ (refactor D)', () => {
+  // static imports, re-exports and dynamic import() alike; what core needs a mode to do it says through
+  // core/hooks.js (main.js connects the mode), and the mode imports core, never the other way round.
+  // After C core took 63 names from modes/ in 11 files; D brought that to none, and it stays none.
+  const SPEC = /(?:^|[\s;(])(?:import|export)\s*(?:[^'"()]*?\s+from\s*)?\(?\s*['"](\.{1,2}\/[^'"]+)['"]/g;
+  const found = [];
   for (const file of walk('core')) {
-    const code = fs.readFileSync(path.join(DIST, file), 'utf8');
-    for (const m of code.matchAll(IMPORTS)) {
-      const to = path.posix.normalize(path.posix.join(path.posix.dirname(file), m[2]));
-      if (to.startsWith('modes/')) (now[file] ??= new Set());
-      if (to.startsWith('modes/')) (m[1] || '*').split(',').map(x => x.trim()).filter(Boolean).forEach(n => now[file].add(n));
+    const code = fs.readFileSync(path.join(DIST, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/[^\n]*/g, '$1');
+    for (const m of code.matchAll(SPEC)) {
+      const to = path.posix.normalize(path.posix.join(path.posix.dirname(file), m[1]));
+      if (to.startsWith('modes/')) found.push(`${file} → ${to}`);
     }
   }
-  const extra = [];
-  for (const [file, names] of Object.entries(now)) {
-    const allowed = new Set((CORE_FROM_MODES[file] || '').split(' ').filter(Boolean));
-    for (const n of names) if (!allowed.has(n)) extra.push(`${file}: ${n}`);
+  assert.deepEqual(found, []);
+  // the rule sees what it guards: core imports core, and modes/manager imports core
+  const sees = file => [...fs.readFileSync(path.join(DIST, file), 'utf8').matchAll(SPEC)].map(m => m[1]);
+  assert.ok(sees('core/engine/match-minute.js').some(x => x.startsWith('./')), 'a core import is seen');
+  assert.ok(sees('modes/manager/app.js').some(x => x.includes('/core/')), 'a mode-to-core import is seen');
+});
+
+test('tests reach the game by name, through the access point, not by module file', () => {
+  // the game's modules (not the presentation layers, whose files are their own subject): a test that read
+  // one of them by file name would break when a function moves; the access point, sourceDefining(name)
+  // and gameSources() follow the code instead
+  const game = new Set(gameSources().map(s => path.posix.basename(s.file)));
+  const dir = path.join(__dirname);
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.cjs')).map(f => path.join(dir, f))
+    .concat(fs.readdirSync(path.join(dir, 'support')).filter(f => f.endsWith('.cjs')).map(f => path.join(dir, 'support', f)));
+  const offenders = [];
+  for (const f of files) {
+    const code = fs.readFileSync(f, 'utf8');
+    for (const m of code.matchAll(/\b(?:readDist|locate)\(\s*['"]([^'"]+)['"]/g)) {
+      if (game.has(path.posix.basename(m[1]))) offenders.push(`${path.basename(f)}: ${m[0]}`);
+    }
   }
-  assert.deepEqual(extra, [], 'core/ must not take anything new from modes/');
+  assert.deepEqual(offenders, []);
+  // and every export is on the access point, under its own name, owned by exactly one module
+  const g = loadGame({ quiet: true });
+  for (const name of ['tick', 'S', 'render', 'save', 'R', 'defineActions']) {
+    assert.ok(name in g.api, name);
+    assert.ok(g.owner(name), `${name} has an owner`);
+  }
+  assert.equal(g.api.tick, g.run('tick'), 'run() and api are one game');
 });
