@@ -1,3 +1,4 @@
+import { recordLabShotMapEvents } from './shot-map.js';
 import { requestSimulationShot } from '../../sim/shot-execution.js';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { createSimulation, readSimulation } from '../../sim/simulation-state.js';
@@ -46,6 +47,7 @@ function resetLabSession(context, changes) {
   context.options = options;
   context.simulation = simulation;
   context.pendingBall = null;
+  context.shotMap = { cursor: 0, shots: [], current: null };
 }
 
 function labSessionSnapshot(context, session) {
@@ -53,7 +55,8 @@ function labSessionSnapshot(context, session) {
   // A paused referee placement is a preview; its physical application happens at the next tick.
   if (context.pendingBall) simulation.ball = structuredClone(context.pendingBall);
   const recentEvents = recentLabEvents(context.simulation);
-  return { ...session, simulation, recentEvents, metrics: readSimulationStatistics(context.simulation) };
+  recordLabShotMapEvents(context.shotMap, context.simulation.events);
+  return { ...session, simulation, recentEvents, shotMap: context.shotMap.shots, metrics: readSimulationStatistics(context.simulation) };
 }
 
 function queueLabIntervention(context, session, change) {

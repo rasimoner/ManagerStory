@@ -1,3 +1,4 @@
+import { planSimulationBoxDefence } from './box-defending.js';
 import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { pointDistance, pointSquaredDistance } from './geometry.js';
@@ -6,7 +7,7 @@ import { fitTeamTarget, simAnchorPosition, simKeeperTarget, simTeamShape, teamOw
 import { dangerousSimReceiver, simCoverTarget, simMarkTarget, simSupportTarget } from './off-ball-targets.js';
 
 const { assign } = Object;
-const exclusiveRoles = new Set(['press', 'cover', 'mark', 'support', 'depth']);
+const exclusiveRoles = new Set(['press', 'cover', 'mark', 'support', 'depth', 'rebound']);
 const planningStates = new WeakMap();
 function teamPlanningState(team) {
   if (!planningStates.has(team)) planningStates.set(team, { players: team.players.filter(player => player.slot !== 'GK'), plan: new Map() });
@@ -69,6 +70,7 @@ function planDefensiveRoles(context) {
   for (const presser of pressers) assignSimRole(context, presser, { role: 'press', target: simPressTarget(simulation, presser) });
   const receiver = dangerousSimReceiver(simulation, team);
   if (pressers.length) planSimCover(context, pressers[0], receiver);
+  if (planSimulationBoxDefence(context, assignSimRole)) return;
   if (receiver) {
     const target = simMarkTarget(receiver, team);
     for (let index = 0; index < MATCH_SIM_DATA.roles.markCount; index++) assignSimRole(context, nearestPlayer(context.available, target), { role: 'mark', target, laneTargetId: receiver.id });

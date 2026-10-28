@@ -287,7 +287,8 @@
       "recover": "S",
       "restart": "Ç",
       "grounded": "Y",
-      "sentOff": "KIR"
+      "sentOff": "KIR",
+      "rebound": "DT"
     },
     "pathSeconds": 3,
     "pathStepSeconds": 0.2,
@@ -306,7 +307,18 @@
       "sentOff": "Kırmızı"
     },
     "longPressMovePixels": 12,
-    "doubleTapMilliseconds": 350
+    "doubleTapMilliseconds": 350,
+    "shotMap": {
+      "minimumRadius": 0.45,
+      "xgAreaScale": 6,
+      "colors": {
+        "goal": "#82ef91",
+        "save": "#6cc8ff",
+        "block": "#ffa94f",
+        "wide": "#bdc7ca",
+        "pending": "#f4e3a0"
+      }
+    }
   },
   "ball": {
     "radius": 0.11,
@@ -450,13 +462,13 @@
     "jockeySpeedRatio": 0.64,
     "standingReach": 1.85,
     "slidingReach": 3.1,
-    "footRadius": 0.16,
-    "legRadius": 0.22,
+    "footRadius": 0.32,
+    "legRadius": 0.26,
     "standingSeconds": 0.2,
     "slidingSeconds": 0.4,
     "timingErrorSeconds": 0.25,
     "directionError": 0.25,
-    "cooldownSeconds": 8,
+    "cooldownSeconds": 6,
     "recoveryMinimumSeconds": 1.2,
     "recoverySkillSeconds": 1.2,
     "opportunityDistance": 0.75,
@@ -506,9 +518,9 @@
   "shooting": {
     "maximumDistance": 38,
     "threatDistance": 32,
-    "xgIntercept": 1.4,
-    "distanceCost": 0.14,
-    "angleWeight": 0.65,
+    "xgIntercept": -0.1,
+    "distanceCost": 0.08,
+    "angleWeight": 1.1,
     "blockedAngleCost": 1.4,
     "pressureCost": 0.65,
     "bodyCost": 0.4,
@@ -517,7 +529,7 @@
     "minimumXg": 0.005,
     "maximumXg": 0.85,
     "scoreBase": 8,
-    "scoreXgWeight": 280,
+    "scoreXgWeight": 700,
     "scoreSkillWeight": 7,
     "pressureUrgency": 5,
     "longShotDistance": 25,
@@ -555,17 +567,16 @@
     "blockLift": 0.8,
     "postRestitution": 0.72,
     "maxContactsPerStep": 4,
-    "outfieldShotReach": 0.72,
-    "minimumDecisionXg": 0.045,
+    "minimumDecisionXg": 0.035,
     "blockedChanceFloor": 0.025,
     "blockedChancePower": 1.5,
     "placedPowerFactor": 0.8,
     "passChanceWeight": 120
   },
   "goalkeeper": {
-    "reactionMinimum": 0.12,
-    "reactionSkillSeconds": 0.26,
-    "unsetDelay": 0.18,
+    "reactionMinimum": 0.16,
+    "reactionSkillSeconds": 0.2,
+    "unsetDelay": 0.08,
     "setSeconds": 0.35,
     "setSpeed": 0.45,
     "minimumDepth": 1.2,
@@ -573,7 +584,7 @@
     "distanceDepthFactor": 0.075,
     "threatDepth": 2.2,
     "bisectorSideLimit": 3.3,
-    "bodyReach": 0.65,
+    "bodyReach": 0.75,
     "stepReach": 1.05,
     "maximumDiveReach": 2.65,
     "diveSpeed": 4.1,
@@ -592,7 +603,7 @@
     "reachHandlingCost": 0.35,
     "tipThreshold": 0.25,
     "parrySpeedFactor": 0.48,
-    "tipSpeedFactor": 0.85,
+    "tipSpeedFactor": 0.32,
     "parrySideWeight": 0.9,
     "parryForwardWeight": 0.4,
     "parryVerticalSpeed": 1.5,
@@ -609,7 +620,8 @@
     "rushBodyReach": 1.3,
     "oneOnOneReach": 0.5,
     "lastMomentSeconds": 0.08,
-    "lastMomentDifficulty": 0.9
+    "lastMomentDifficulty": 0.9,
+    "tipSideWeight": 0.6
   },
   "match": {
     "halfSeconds": 2700,
@@ -682,5 +694,20 @@
       2,
       3
     ]
+  },
+  "boxDefending": {
+    "triggerDistance": 35,
+    "blendDistance": 18,
+    "length": 24,
+    "width": 30,
+    "envelopeLength": 30,
+    "envelopeWidth": 38,
+    "markCount": 2,
+    "markDistance": 0.75,
+    "markSkillDistance": 2,
+    "goalMargin": 1.5,
+    "receiverDistance": 23,
+    "reboundDepth": 11,
+    "reboundSideFactor": 0.18
   }
 }

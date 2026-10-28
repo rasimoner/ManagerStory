@@ -17,7 +17,7 @@ export function resolveSimulationTackle(simulation, attempt) {
   const result = contact.contact === 'ball' ? canControl ? 'won' : 'loose' : 'missed';
   emitSimulationEvent(simulation, { type: 'tackle', fromId: defender.id, toId: victim.id, fromPos: { ...attempt.from }, toPos: { ...contact.position },
     kind: attempt.kind, result, contact: contact.contact, speed: attempt.speed, success: contact.contact === 'ball',
-    victimSpeed: attempt.victimSpeed, preparationSeconds: attempt.preparationSeconds, distance: attempt.distance });
+    ballPosition: { ...simulation.ball.position }, victimPosition: { ...victim.position }, victimSpeed: attempt.victimSpeed, preparationSeconds: attempt.preparationSeconds, distance: attempt.distance });
   recordTackleStatistics(simulation, defender, result);
   simulation.defending.lastContact = { ...contact, time: simulation.time, defenderId: defender.id, victimId: victim.id };
   finishTackleRecovery(simulation, defender, attempt.kind);

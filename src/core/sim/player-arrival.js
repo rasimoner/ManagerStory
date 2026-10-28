@@ -1,3 +1,4 @@
+import { integrateSimPlayer } from './player-movement.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue } from './geometry.js';
 
@@ -30,4 +31,12 @@ export function simulationOpponentArrival(player, point, knownDistance) {
   const projected = max(0, (player.velocity.x * offsetX + player.velocity.y * offsetY) / distance);
   // Opponents get an optimistic bound: no extra reaction or turn delay for an already developing lane.
   return acceleratedTravelSeconds(player.limits, travel, clampSimValue(projected, 0, player.limits.maxSpeed));
+}
+
+// Reuse the movement integrator: a braking or turning carrier is not a constant-velocity target.
+export function predictSimulationPlayerPosition(player, seconds) {
+  const projected = { ...player, position: { ...player.position }, velocity: { ...player.velocity } };
+  const steps = Math.ceil(seconds / MATCH_SIM_DATA.clock.stepSeconds);
+  for (let tick = 0; tick < steps; tick++) integrateSimPlayer(projected);
+  return { position: projected.position, heading: projected.heading };
 }
