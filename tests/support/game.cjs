@@ -45,8 +45,8 @@ const read = (f, root = SRC) => fs.readFileSync(path.join(root, f), 'utf8');
 
 /* What the page loads, in order, without cache-busters: [{ file, layer, module }]. A module page lists its
    module entries (main.js, then the presentation layers); an old page lists its classic scripts. */
-function pageScripts(root = SRC) {
-  const html = read('index.html', root);
+function pageScripts(root = SRC, page = 'index.html') {
+  const html = read(page, root);
   return [...html.matchAll(/<script\s+(type="module"\s+)?src="([^"?]+)(?:\?[^"]*)?"([^>]*)><\/script>/g)]
     .map(m => ({ file: m[2], module: !!m[1], layer: /data-layer="([^"]+)"/.exec(m[3])?.[1] || 'game' }));
 }
@@ -57,9 +57,9 @@ function pageScripts(root = SRC) {
 const IMPORT = /(?:^|\n)\s*import\s+(?:[^'"]*?\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g;
 const isJson = file => file.endsWith('.json');
 const resolveFrom = (file, spec) => path.posix.normalize(path.posix.join(path.posix.dirname(file), spec.replace(/\?.*$/, '')));
-function moduleGraph(root = SRC) {
+function moduleGraph(root = SRC, page = 'index.html') {
   const seen = new Map();
-  for (const entry of pageScripts(root).filter(s => s.module)) {
+  for (const entry of pageScripts(root, page).filter(s => s.module)) {
     const visit = file => {
       if (seen.has(file) || file.startsWith('vendor/')) return;
       const code = read(file, root);
@@ -74,20 +74,21 @@ function moduleGraph(root = SRC) {
 }
 
 const cache = new Map();
-function sources(root = SRC) {
-  if (!cache.has(root)) {
-    const page = pageScripts(root);
-    cache.set(root, page.some(s => s.module) ? moduleGraph(root) : page.map(s => ({ ...s, code: read(s.file, root) })));
+function sources(root = SRC, page = 'index.html') {
+  const key = path.join(root, page);
+  if (!cache.has(key)) {
+    const entries = pageScripts(root, page);
+    cache.set(key, entries.some(s => s.module) ? moduleGraph(root, page) : entries.map(s => ({ ...s, code: read(s.file, root) })));
   }
-  return cache.get(root);
+  return cache.get(key);
 }
 
 /* The name each JSON module goes by: the default-import binding its importers give it (one name per file, one
    file per name). A JSON module imported only by named imports (package.json's version) has no name. */
 const JSON_DEFAULT = /(?:^|\n)\s*import\s+([A-Za-z_$][\w$]*)\s+from\s+['"](\.{1,2}\/[^'"]+\.json)['"]/g;
-function jsonNames(root = SRC) {
+function jsonNames(root = SRC, page = 'index.html') {
   const names = new Map();
-  for (const m of sources(root).filter(s => !s.json)) for (const [, name, spec] of m.code.matchAll(JSON_DEFAULT)) {
+  for (const m of sources(root, page).filter(s => !s.json)) for (const [, name, spec] of m.code.matchAll(JSON_DEFAULT)) {
     const file = resolveFrom(m.file, spec);
     if (names.has(file) && names.get(file) !== name) throw new Error(`${file} is imported as both ${names.get(file)} and ${name}`);
     names.set(file, name);
@@ -103,7 +104,7 @@ function fakeCrypto(seed) {
   return { getRandomValues(array) { for (let i = 0; i < array.length; i++) array[i] = next(); return array; } };
 }
 
-function loadGame({ storage = new Map(), layers = [], document: extra = null, skip = [], first = [], prepend = false, quiet = false, entropy = 0x5eed, root = SRC } = {}) {
+function loadGame({ storage = new Map(), layers = [], document: extra = null, skip = [], first = [], prepend = false, quiet = false, entropy = 0x5eed, root = SRC, page = 'index.html' } = {}) {
   const alerts = [], confirms = [];
   const app = {
     innerHTML: '', classList: { toggle() {} },
@@ -128,8 +129,8 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
   ctx.window = ctx; ctx.window.scrollTo = () => {};
   vm.createContext(ctx);
   let access = { api: ctx, owner: () => undefined };
-  if (pageScripts(root).some(s => s.module)) access = loadModules(ctx, { layers, skip, first, root });
-  else for (const { file, layer, code } of sources(root)) {
+  if (pageScripts(root, page).some(s => s.module)) access = loadModules(ctx, { layers, skip, first, root, page });
+  else for (const { file, layer, code } of sources(root, page)) {
     if ((layer !== 'game' && !layers.includes(layer)) || skip.includes(file)) continue;
     vm.runInContext(code, ctx, { filename: file });
   }
@@ -158,10 +159,10 @@ function loadGame({ storage = new Map(), layers = [], document: extra = null, sk
    module's own setter). The context's globals are that same object's names, so run('…') and g.api.… see
    one game. A name exported by two modules is an error: the access point would not know which one. */
 const SETTERS = { S: 'setCareer', M: 'setMatch', modal: 'setModal', loadError: 'setLoadError', subOut: 'setSubOut' };
-function loadModules(ctx, { layers, skip, first = [], root }) {
+function loadModules(ctx, { layers, skip, first = [], root, page }) {
   if (!vm.SourceTextModule) throw new Error('the game is ES modules: run the tests with node --experimental-vm-modules (npm test does)');
-  const graph = new Map(sources(root).map(m => [m.file, m]));
-  const names = jsonNames(root);
+  const graph = new Map(sources(root, page).map(m => [m.file, m]));
+  const names = jsonNames(root, page);
   const parse = vm.runInContext('JSON.parse', ctx); // the data belongs to the game's realm, as it did when it was code
   const records = new Map();
   const build = file => {
@@ -185,7 +186,7 @@ function loadModules(ctx, { layers, skip, first = [], root }) {
     mod.linkRequests(mod.moduleRequests.map(r => build(resolveFrom(file, r.specifier))));
     return mod;
   };
-  const entries = pageScripts(root).filter(s => s.module && (s.layer === 'game' || layers.includes(s.layer)));
+  const entries = pageScripts(root, page).filter(s => s.module && (s.layer === 'game' || layers.includes(s.layer)));
   const run = file => {
     const mod = build(file);
     if (mod.status === 'unlinked') mod.instantiate();
@@ -250,7 +251,7 @@ function actionsOn(html) {
 /* For the few rules about the code itself ("the engine never calls Math.random"): the source of the page
    modules (or an old page's scripts), or of those that define the given functions, found by what they
    define rather than by file name, so the rules follow the code when it moves. */
-const gameSources = ({ layers = [], root = SRC } = {}) => sources(root).filter(s => !s.json && (s.layer === 'game' || layers.includes(s.layer)));
+const gameSources = ({ layers = [], root = SRC, page = 'index.html' } = {}) => sources(root, page).filter(s => !s.json && (s.layer === 'game' || layers.includes(s.layer)));
 function scriptsDefining(names, options) {
   const defines = (code, name) => new RegExp(`function\\s+${name}\\s*\\(`).test(code);
   const found = gameSources(options).filter(s => names.some(n => defines(s.code, n)));

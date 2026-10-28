@@ -13,6 +13,7 @@ src/              kaynak (npm run build → dist/, depoda değil)
     random.js       tohumlanabilir tek rastgele üretici
     hooks.js        çekirdeğin söyledikleri ve genişletme noktaları
     save.js         kayıt, taşıma zinciri
+    sim/            ayrı saniyelik deney çekirdeği: saf konum/hız/rol; henüz kariyere veya 3D’ye bağlı değil
     engine/         maç motoru: dakika, aksiyonlar, özellik modeli, duran toplar, saat, kullanıcı takımı
     league/ clubs/  lig, fikstür, puan tablosu, rakipler; kulüp kimliği
     players/        oyuncu tipleri, profiller, özel hareketler
@@ -117,3 +118,14 @@ Yeniden yapılanmadan sonra bilerek bırakılanlar:
 - 3D ayar panelinde geçici "Hız ayarları" (gerçek hızlar telefonda ayarlanınca kalkar).
 - Eski (V5) transfer listesi (`bidPlayer`, `S.transferList`) yeni oyuncuya maaş ve forma numarası veriyor ama maaş alanına bakmıyor; ekranına sadece eski bir olay akışı (`newSigningRole`) götürüyor. Kaldırılması ya da yeni pazara bağlanması ayrı iş (V7.13.2).
 - "Transfer oldu" durumu `core/players/shirt-numbers.js`'te ayrıca yazılı (sezon modülünü almasın, kayıt zinciri döngüsüz kalsın diye); durum adları tek bir veri/çekirdek sabitine toplanınca kalkar.
+
+
+## Faz 4: saniyelik simülasyon ve laboratuvar
+
+`core/sim/` ayrı durum nesnesiyle çalışan saf çekirdektir: `createSimulation`, `stepSimulation`, `advanceSimulation`, `readSimulation`. İki takım, özellikler, taktik ve dış top referansı alır; konum/hız/rol üretir. DOM, three.js, kariyer (`S`), maç (`M`) veya mod bağımlılığı yoktur. Mevcut `core/engine/` ve 3D yönetmeni kullanılmaya devam eder. Yeni motorun kural kaynağı `docs/match-sim.md`; değerleri `data/match-sim.json`.
+
+`lab.html` ikinci Vite girişidir. `core/presentation/lab/` içindeki oturum sürücüsü çekirdeği API'sinden ilerletir; SVG görünümü yalnız durum kopyasını okur. Otomatik top bu sürücüde seed'li bir senaryodur, motorun top kararı değildir. Oyun girişinden laboratuvara import veya ekran bağlantısı yoktur; kayıt biçimi değişmez.
+
+Yalnız laboratuvara ait üç çıktı (`lab.html`, `lab/laboratory.js`, `lab/laboratory.css`) `NOT_CACHED` listesindedir. Sabit adları HTML'de içerik hash'i sorgusuyla sürümlenir; Vite bu ikinci girişi bağımsız bir paketleme grafiğiyle kurar; mevcut oyunun betiklerine yeni ortak parça veya import eklenmez. Service worker yalnız laboratuvar sayfası/ad alanını ağdan geçirir; eski oyun betiklerini engelleyen kuralı korunur. Deney kendi worker'ını kaydetmez. Test yükleyicisi `page` seçeneğiyle her girişin gerçek modül grafiğini ayrı yükler; kariyer testleri varsayılan oyunda, laboratuvar testleri ayrı sayfada kalır.
+
+Henüz uygulanmayan top teması, oyuncu çarpışması, ofsayt, pas/şut/faul, 3D entegrasyonu ve denge bu ilk teslimin bilinçli sınırıdır; takip soruları şartnamededir.

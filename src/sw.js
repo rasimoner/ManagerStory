@@ -30,10 +30,14 @@ self.addEventListener("activate", event => {
    copy of the game next to the old one, with its own state; fail it instead, and the old page falls back (2D
    match, photo scene) until it is reopened as this release. */
 const SCOPE = new URL(self.registration.scope).pathname;
+const LAB_DIRECTORY = new URL("./lab/", self.location).pathname;
+const LAB_PAGE = new URL("./lab.html", self.location).pathname;
 const OWN_SCRIPTS = new Set(ASSETS.filter(url => url.endsWith(".js")).map(url => new URL(url, self.location).pathname));
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
+  // The experiment is online-only; its modules never belong to the career build cache.
+  if (url.pathname === LAB_PAGE || url.pathname.startsWith(LAB_DIRECTORY)) return;
   if (url.pathname.startsWith(SCOPE) && url.pathname.endsWith(".js") && !OWN_SCRIPTS.has(url.pathname)) {
     event.respondWith(Response.error());
     return;

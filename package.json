@@ -10,7 +10,7 @@
     "lint": "node tools/lint/lint.js",
     "test": "node tests/run.cjs",
     "test:fast": "node tests/run.cjs --fast",
-    "smoke": "node tests/smoke/smoke.mjs"
+    "smoke": "node tests/smoke/smoke.mjs && node tests/smoke/lab.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

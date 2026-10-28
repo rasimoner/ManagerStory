@@ -1,0 +1,26 @@
+{
+  "pitch": {"length":105,"width":68,"targetMargin":2,"goalWidth":7.32,"penaltyDepth":16.5,"penaltyWidth":40.32,"centerCircleRadius":9.15},
+  "clock": {"stepSeconds":0.1,"epsilon":1e-9},
+  "attributes": {"minimum":0,"maximum":100},
+  "movement": {"baseSpeed":5.2,"paceSpeed":3.8,"baseAcceleration":2.4,"attributeAcceleration":2.6,"minimumFitnessFactor":0.72,"fitnessFactorRange":0.28,"turnRate":6,"arrivalRadius":0.12,"walkDistance":2,"jogDistance":6,"sprintDistance":14,"gaits":{"walk":0.28,"jog":0.5,"run":0.76,"sprint":1}},
+  "decisions": {"minimumSeconds":0.3,"maximumSeconds":0.6},
+  "phases": {"winningSeconds":3,"counterpressSeconds":4,"counterpressTriggerFactor":1.15},
+  "roles": {"maxPressers":1,"coverCount":1,"coverDistance":7,"coverLaneFraction":0.35,"markCount":1,"markGoalSideDistance":2,"supportCount":2,"supportBackDistance":8,"supportSideDistance":10,"depthRunDistance":10},
+  "shape": {"defending":{"length":32,"width":40,"envelopeLength":38,"envelopeWidth":44,"ballBehindCenter":12,"ballSideShift":0.55},"attacking":{"length":48,"width":56,"envelopeLength":52,"envelopeWidth":60,"ballAheadCenter":5,"ballSideShift":0.35},"keeper":{"minimumDepth":3,"maximumDepth":12,"progressDepthFactor":0.09,"sideFactor":0.13}},
+  "tactics": {"pressDistance":{"Düşük":12,"Normal":19,"Yüksek":27},"lineShift":{"Geride":-6,"Normal":0,"Önde":6}},
+  "formations": {
+    "4-2-3-1":[
+      {"slot":"GK","line":"keeper","x":-1,"y":0},
+      {"slot":"LB","line":"defence","x":-0.5,"y":-0.5},{"slot":"LCB","line":"defence","x":-0.5,"y":-0.17},{"slot":"RCB","line":"defence","x":-0.5,"y":0.17},{"slot":"RB","line":"defence","x":-0.5,"y":0.5},
+      {"slot":"LCM","line":"midfield","x":-0.1,"y":-0.18},{"slot":"RCM","line":"midfield","x":-0.1,"y":0.18},
+      {"slot":"LW","line":"attack","x":0.2,"y":-0.5},{"slot":"CAM","line":"attack","x":0.2,"y":0},{"slot":"RW","line":"attack","x":0.2,"y":0.5},{"slot":"ST","line":"attack","x":0.5,"y":0}
+    ],
+    "4-4-2":[
+      {"slot":"GK","line":"keeper","x":-1,"y":0},
+      {"slot":"LB","line":"defence","x":-0.5,"y":-0.5},{"slot":"LCB","line":"defence","x":-0.5,"y":-0.17},{"slot":"RCB","line":"defence","x":-0.5,"y":0.17},{"slot":"RB","line":"defence","x":-0.5,"y":0.5},
+      {"slot":"LM","line":"midfield","x":0,"y":-0.5},{"slot":"LCM","line":"midfield","x":0,"y":-0.17},{"slot":"RCM","line":"midfield","x":0,"y":0.17},{"slot":"RM","line":"midfield","x":0,"y":0.5},
+      {"slot":"LST","line":"attack","x":0.5,"y":-0.17},{"slot":"RST","line":"attack","x":0.5,"y":0.17}
+    ]
+  },
+  "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL"}}
+}
