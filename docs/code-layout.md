@@ -169,8 +169,17 @@ Genişletme noktaları (`core/hooks.js`):
 | `core/sim/team-measurements.js` | Kaleci hariç, basan dahil gerçek boy/en; pres uzaklığı ve ilk tepki |
 | `core/sim/tactic-settings.js`, `validation.js`, `geometry.js` | Canlı taktik API'si, açık girdi hataları, metre vektör işlemleri |
 | `core/presentation/lab/main.js`, `controller.js`, `session.js` | Deneyi açma, dokunma/klavye/kontroller, sabit adım sürücüsü; kariyer durumuna erişim yok |
-| `core/presentation/lab/scenario.js`, `automatic-ball.js` | Seed'li örnek takımlar ve motorun dışında otomatik top senaryosu |
+| `core/presentation/lab/scenario.js`, `automatic-ball.js` | Seed'li örnek takımlar; eski otomatik betik yalnız değişmemiş topsuz tekrar testleri için, canlı oturumda kullanılmaz |
 | `core/presentation/lab/screen.js`, `field-view.js`, `field-layers.js`, `field-markings.js`, `laboratory.css` | Telefon arayüzü, SVG saha/22 oyuncu, rol/hat/hız/çapa katmanları, canlı ölçümler |
+| `core/sim/ball-physics.js`, `ball-state.js` | Analitik sürtünme/parabol ve tahmin; top girdisi, hakem müdahalesi/erişim doğrulaması |
+| `core/sim/player-arrival.js`, `pass-evaluation.js` | Fiziksel varış zamanları; alıcı/koşu alanı ve tüm pas yolunun rakip güvenliği; deterministik puan |
+| `core/sim/owner-decision.js`, `pass-execution.js` | Tutma/baskı/dönüş, bırakırken yeniden değerlendirme, seed'li yön/hız uygulama hatası |
+| `core/sim/ball-chasing.js`, `ball-contact.js`, `ball-possession.js` | Karşılama hedefi, süpürülmüş gerçek temas/erişilebilir yükseklik, ilk dokunuş ve sekme |
+| `core/sim/ball-step.js`, `ball-restart.js` | Serbest top adımı, temas/çizgi sırası, **geçici** çizgiden rakip yeniden başlatma |
+| `core/sim/ball-events.js`, `simulation-runtime.js`, `simulation-phases.js` | Gerçek anlı olaylar/istatistikler, simülasyona özel dizin/zar, sahiplik faz geçişleri |
+| `core/presentation/lab/pass-layers.js`, `stats-view.js` | Güvenli/riskli seçenekler, seçilen pas, alıcı/rakip saniyeleri, yol ve canlı pas/sahiplik sayıları |
+| `tools/match-sim-report.cjs`, `tests/match-sim-performance.test.cjs` | Derlemeyi zaman dışına alan yerel Node 22 ölçümü; 3/4,5 sn seri CI bütçesi ve koordinat özeti |
+| `tests/match-sim-ball.test.cjs`, `tests/match-sim-passing.test.cjs`, `tests/smoke/lab-passing.mjs` | Sentetik kesme/yükseklik/ilk dokunuş/çizgi, deterministik maç/fizik, telefonda dokunarak pas ve hızlı 90 dk |
 | `data/match-sim.json` | Yeni çekirdeğin tüm oyun değerleri, iki diziliş ve deney ayarları; `data/README.md` açıklar |
 | `tests/support/lab.cjs`, `tests/match-sim*.test.cjs` | Sayfa grafiğinden adla API erişimi, davranış/saat/fizik/blok ve yayın sınırı testleri |
 | `docs/match-sim.md` | Yeni motorun Türkçe şartnamesi, ölçümleri ve sonraki adımların açık soruları |

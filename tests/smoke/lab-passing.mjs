@@ -17,6 +17,7 @@ async function testManualPass() {
   const receiver = await page.locator(`[data-player^="${team}-"]`).evaluateAll((players, holder) => players.find(player => player.dataset.player !== holder && !player.dataset.player.endsWith('GK')).dataset.player, owner);
   await page.locator('#lab-lob').check();
   await page.locator(`[data-player="${receiver}"]`).tap();
+  await page.waitForFunction(() => !document.querySelector('#lab-auto').checked);
   assert.equal(await page.locator('#lab-auto').isChecked(), false);
   await page.locator('[data-command="play"]').click();
   await page.waitForSelector(`[data-selected-pass][data-to-id="${receiver}"]`);
