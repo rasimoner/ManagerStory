@@ -1,5 +1,5 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
-import { pointDistance, subtractPoints } from './geometry.js';
+import { pointDistance, pointSquaredDistance, subtractPoints } from './geometry.js';
 
 // Bind once: hot steps also run in an isolated VM for deterministic acceptance tests.
 const { min } = Math;
@@ -10,7 +10,7 @@ export function dangerousSimReceiver(simulation, team) {
   let receiver = null, minimum = Infinity;
   for (const player of opponents) {
     if (player.slot === 'GK' || (player.position.x - simulation.ball.position.x) * team.direction >= 0) continue;
-    const distance = pointDistance(player.position, goal);
+    const distance = pointSquaredDistance(player.position, goal);
     if (distance < minimum) { receiver = player; minimum = distance; }
   }
   return receiver;

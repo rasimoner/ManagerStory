@@ -2,6 +2,8 @@ import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { measureTeam } from '../../sim/team-measurements.js';
 import { laboratoryPitchMarkup, toLabFieldPoint } from './field-markings.js';
 import { labAnchorsMarkup, labCoverLaneMarkup, labTeamShapeMarkup, labVelocityMarkup } from './field-layers.js';
+import { labPassOptionsMarkup, labBallPathMarkup } from './pass-layers.js';
+import { labStatisticsMarkup } from './stats-view.js';
 
 const phaseLabels = { possession: 'Topa sahip', defending: 'Savunma', winning: 'Kazanma geçişi', counterpress: 'Karşı pres' };
 
@@ -9,8 +11,12 @@ export function renderLaboratoryField(view, snapshot, layers) {
   const simulation = snapshot.simulation;
   const teams = simulation.teams.map((team, index) => laboratoryTeamMarkup({ simulation, team, layers, color: MATCH_SIM_DATA.lab.teams[index].color })).join('');
   const ball = toLabFieldPoint(simulation.ball.position);
-  view.field.innerHTML = laboratoryPitchMarkup() + teams + `<g data-ball="true"><circle cx="${ball.x}" cy="${ball.y}" r="2.1" fill="none" stroke="#fff" opacity=".25" stroke-width=".2"/><circle cx="${ball.x}" cy="${ball.y}" r=".85" fill="#fff" stroke="#102b28" stroke-width=".25"/></g>`;
+  const passes = layers.passes ? labPassOptionsMarkup(simulation) : '';
+  const flight = layers.flight ? labBallPathMarkup(simulation) : '';
+  const height = simulation.ball.height ?? 0;
+  view.field.innerHTML = laboratoryPitchMarkup() + passes + flight + teams + `<g data-ball="true" data-ball-owner="${simulation.ball.ownerId ?? ''}" pointer-events="none"><circle cx="${ball.x}" cy="${ball.y}" r="2.1" fill="none" stroke="#fff" opacity=".25" stroke-width=".2"/><circle cx="${ball.x}" cy="${ball.y}" r="${.85 + height * MATCH_SIM_DATA.lab.ballHeightScale}" fill="#fff" stroke="#102b28" stroke-width=".25"/>${height > 0 ? `<text x="${ball.x + 2}" y="${ball.y}" fill="#fff" font-size="1.7">${height.toFixed(1)} m</text>` : ''}</g>`;
   view.metrics.innerHTML = simulation.teams.map((team, index) => teamMetricMarkup(simulation, team, MATCH_SIM_DATA.lab.teams[index])).join('');
+  view.stats.innerHTML = labStatisticsMarkup(snapshot.metrics);
 }
 
 function laboratoryTeamMarkup({ simulation, team, layers, color }) {

@@ -3,6 +3,7 @@
 const { hypot } = Math;
 export const vectorLength = vector => hypot(vector.x, vector.y);
 export const pointDistance = (left, right) => hypot(left.x - right.x, left.y - right.y);
+export const pointSquaredDistance = (left, right) => (left.x - right.x) ** 2 + (left.y - right.y) ** 2;
 export const clampSimValue = (value, minimum, maximum) => value < minimum ? minimum : value > maximum ? maximum : value;
 export const subtractPoints = (left, right) => ({ x: left.x - right.x, y: left.y - right.y });
 

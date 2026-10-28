@@ -3,7 +3,7 @@ import { clampSimValue, pointDistance, subtractPoints } from './geometry.js';
 import { accelerateInsidePitch } from './pitch-movement.js';
 
 // Bind once: hot steps also run in an isolated VM for deterministic acceptance tests.
-const { ceil, max, min, atan2, cos, sin, sqrt } = Math;
+const { ceil, max, min, atan2, cos, sin, sqrt, SQRT2 } = Math;
 
 export function playerMovementLimits(attributes) {
   const movement = MATCH_SIM_DATA.movement;
@@ -12,9 +12,11 @@ export function playerMovementLimits(attributes) {
   const decisions = MATCH_SIM_DATA.decisions;
   const reaction = decisions.maximumSeconds - (decisions.maximumSeconds - decisions.minimumSeconds) * attributes.reactions / scale;
   const reactionTicks = ceil((reaction - MATCH_SIM_DATA.clock.epsilon) / MATCH_SIM_DATA.clock.stepSeconds);
+  const maxSpeed = (movement.baseSpeed + movement.paceSpeed * attributes.pace / scale) * fitness;
+  const acceleration = (movement.baseAcceleration + movement.attributeAcceleration * attributes.acceleration / scale) * fitness;
   return {
-    maxSpeed: (movement.baseSpeed + movement.paceSpeed * attributes.pace / scale) * fitness,
-    acceleration: (movement.baseAcceleration + movement.attributeAcceleration * attributes.acceleration / scale) * fitness,
+    maxSpeed, acceleration,
+    boundaryClearance: maxSpeed * maxSpeed / (2 * acceleration / SQRT2) + maxSpeed * MATCH_SIM_DATA.clock.stepSeconds,
     turnRate: movement.turnRate,
     reactionTicks, reactionSeconds: reactionTicks * MATCH_SIM_DATA.clock.stepSeconds,
   };
@@ -30,6 +32,7 @@ export function movementGait(role, distance) {
 export function integrateSimPlayer(player) {
   const seconds = MATCH_SIM_DATA.clock.stepSeconds;
   const desired = desiredPlayerVelocity(player);
+  if (!desired.x && !desired.y && !player.velocity.x && !player.velocity.y) return;
   player.velocity = accelerateInsidePitch(player, desired);
   player.position.x += player.velocity.x * seconds;
   player.position.y += player.velocity.y * seconds;
@@ -56,5 +59,9 @@ function turnPlayerTowards(player, targetHeading) {
   player.heading += clampSimValue(difference, -maximum, maximum);
   // Keep long headless runs numerically stable without changing the direction.
   player.heading = atan2(sin(player.heading), cos(player.heading));
+}
+
+export function faceSimulationPlayer(player, point) {
+  turnPlayerTowards(player, atan2(point.y - player.position.y, point.x - player.position.x));
 }
 

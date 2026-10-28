@@ -33,3 +33,16 @@ test('the native headless off-ball engine stays within its 3 s CI budget', async
   assert.equal(simulation.time, 5400);
   assert.ok(elapsed < 3000, `native off-ball exceeded 3 s CI budget: ${elapsed.toFixed(1)} ms`);
 });
+
+test('the native headless passing engine stays within its 4.5 s CI budget', async t => {
+  const api = await loadNativeLab(['createSimulation', 'createLabScenario', 'stepSimulation', 'readSimulationStatistics']);
+  const simulation = api.createSimulation(api.createLabScenario({ seed: 901 }));
+  const started = performance.now();
+  for (let tick = 0; tick < 54000; tick++) api.stepSimulation(simulation);
+  const elapsed = performance.now() - started;
+  const stats = api.readSimulationStatistics(simulation);
+  t.diagnostic(`Node ${process.version}: native passing 90 minutes ${elapsed.toFixed(1)} ms; ${JSON.stringify(stats)}`);
+  assert.equal(simulation.time, 5400);
+  assert.ok(stats.passes > 0 && stats.interceptions > 0);
+  assert.ok(elapsed < 4500, `native passing exceeded 4.5 s CI budget: ${elapsed.toFixed(1)} ms`);
+});

@@ -7,7 +7,7 @@ import { renderLaboratoryField } from './field-view.js';
 export function startLaboratory() {
   const view = createLaboratoryView(document.querySelector('#lab'));
   const runner = createLabSession();
-  const context = { view, runner, layers: { roles: true, shape: true, velocity: false, anchors: false }, lastFrame: null };
+  const context = { view, runner, layers: { roles: true, shape: true, velocity: false, anchors: false, passes: true, flight: true }, lastFrame: null };
   bindLaboratoryControls(context);
   document.addEventListener('visibilitychange', () => {
     context.lastFrame = null;
@@ -25,8 +25,17 @@ function advanceLaboratoryFrame(context, timestamp) {
   context.lastFrame = timestamp;
   context.runner.advance(elapsed);
   const snapshot = context.runner.snapshot();
-  renderLaboratoryField(context.view, snapshot, context.layers);
+  renderChangedLaboratoryField(context, snapshot);
   showLaboratoryControls(context.view, snapshot);
+}
+
+function renderChangedLaboratoryField(context, snapshot) {
+  const simulation = snapshot.simulation;
+  const revision = JSON.stringify([simulation.seed, simulation.tick, simulation.ball.position, simulation.ball.teamId,
+    context.layers, simulation.teams.map(team => [team.formation, team.tactics]), simulation.passing.requested]);
+  if (revision === context.lastRevision) return;
+  renderLaboratoryField(context.view, snapshot, context.layers);
+  context.lastRevision = revision;
 }
 
 function bindLaboratoryControls(context) {
@@ -37,7 +46,7 @@ function bindLaboratoryControls(context) {
     event.preventDefault();
     guardedLabAction(context.view, () => resetLaboratorySeed(context));
   });
-  context.view.field.addEventListener('pointerdown', event => placeLaboratoryBall(context, event));
+  context.view.field.addEventListener('pointerdown', event => guardedLabAction(context.view, () => placeLaboratoryBall(context, event)));
   context.view.field.addEventListener('keydown', event => moveLaboratoryBallWithKeys(context, event));
 }
 
@@ -49,6 +58,7 @@ function handleLaboratoryCommand(context, event) {
     play: () => { runner.session.running = !runner.session.running; },
     speed: () => { runner.session.speed = Number(button.dataset.speed); },
     owner: () => runner.chooseOwner(button.dataset.team),
+    finish: () => { runner.completeMatch(); context.lastFrame = null; },
   };
   commands[button.dataset.command]();
 }
@@ -57,8 +67,9 @@ function handleLaboratorySetting(context, target) {
   const { runner, view } = context;
   if (target.dataset.layer) { context.layers[target.dataset.layer] = target.checked; return; }
   if (target.id === 'lab-auto') { runner.enableAutomatic(target.checked); return; }
-  if (['lab-press', 'lab-line'].includes(target.id)) {
-    runner.setTactics({ press: view.root.querySelector('#lab-press').value, line: view.root.querySelector('#lab-line').value });
+  if (['lab-press', 'lab-line', 'lab-passing-style'].includes(target.id)) {
+    runner.setTactics({ press: view.root.querySelector('#lab-press').value, line: view.root.querySelector('#lab-line').value,
+      passingStyle: view.root.querySelector('#lab-passing-style').value });
   }
   if (['lab-formation', 'lab-away-formation'].includes(target.id)) {
     runner.reset({ formation: view.root.querySelector('#lab-formation').value, awayFormation: view.root.querySelector('#lab-away-formation').value });
@@ -74,6 +85,8 @@ function resetLaboratorySeed(context) {
 
 function placeLaboratoryBall(context, event) {
   event.preventDefault();
+  const player = event.target.closest('[data-player]');
+  if (player) { context.runner.passTo({ toId: player.dataset.player, lofted: context.view.root.querySelector('#lab-lob').checked }); return; }
   const field = context.view.field;
   const point = field.createSVGPoint();
   point.x = event.clientX;
