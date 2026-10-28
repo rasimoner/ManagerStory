@@ -22,7 +22,7 @@
       {"slot":"LST","line":"attack","x":0.5,"y":-0.17},{"slot":"RST","line":"attack","x":0.5,"y":0.17}
     ]
   },
-  "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.25,0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL","holder":"T","receive":"A","intercept":"P","recover":"S","restart":"Ç"},"pathSeconds":3,"pathStepSeconds":0.2,"ballHeightScale":0.1,"matchSeconds":5400,"passLabelPadding":19},
+  "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.25,0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL","holder":"T","receive":"A","intercept":"P","recover":"S","restart":"Ç","grounded":"Y","sentOff":"KIR"},"pathSeconds":3,"pathStepSeconds":0.2,"ballHeightScale":0.1,"matchSeconds":5400,"passLabelPadding":19,"longPressMilliseconds":550,"recentEventCount":10,"incidentSeconds":2.2,"duelLabels":{"idle":"","jockey":"Jokey","ready":"Hazır","tackling":"Müdahale","grounded":"Yerde","sentOff":"Kırmızı"},"longPressMovePixels":12},
   "ball": {
     "controlRadius": 1.2,
     "reachableHeight": 1.8,
@@ -32,10 +32,10 @@
     "defaultAttribute": 65,
     "contactCooldownSeconds": 0.3,
     "firstTouch": {
-      "baseRisk": 0.08,
-      "speedRisk": 0.55,
+      "baseRisk": 0.04,
+      "speedRisk": 0.28,
       "referenceSpeed": 25,
-      "techniqueRisk": 0.1,
+      "techniqueRisk": 0.05,
       "maximumRisk": 0.85,
       "deflectionSpeedFactor": 0.48,
       "minimumDeflectionSpeed": 2,
@@ -81,9 +81,9 @@
         "spaceWeight": 0.65
       },
       "Dengeli": {
-        "preferredDistance": 22,
-        "distanceWeight": 0.2,
-        "progressWeight": 0.65,
+        "preferredDistance": 20,
+        "distanceWeight": 0.5,
+        "progressWeight": 0.38,
         "spaceWeight": 0.5
       },
       "Direkt": {
@@ -92,6 +92,129 @@
         "progressWeight": 1,
         "spaceWeight": 0.3
       }
-    }
+    },
+    "receiverMotionSeconds": 0.4
+  },
+  "dribbling": {
+    "minimumSpeedRatio": 0.68,
+    "skillSpeedRatio": 0.2,
+    "turnRatio": 0.62,
+    "touchMinimum": 0.5,
+    "touchSpeedDistance": 1.55,
+    "touchSkillDistance": 0.65,
+    "touchPressureFactor": 0.55,
+    "touchMinimumSeconds": 0.3,
+    "touchErrorAngle": 0.16,
+    "touchErrorDistance": 0.35,
+    "lookAheadSeconds": 1.6,
+    "minimumLookAhead": 3,
+    "safeTimeCap": 3,
+    "angles": [
+      0,
+      0.65,
+      -0.65,
+      1.3,
+      -1.3,
+      2.3,
+      -2.3,
+      3.141592653589793
+    ],
+    "shieldOffset": 0.5,
+    "shieldSpeedRatio": 0.28,
+    "routeFractions": [
+      0.5,
+      1
+    ]
+  },
+  "ownerDecision": {
+    "passBase": 15,
+    "passScoreWeight": 0.3,
+    "passPressureWeight": 16,
+    "passDistanceCost": 0.45,
+    "passWaitWeight": 2,
+    "passWaitCap": 7,
+    "preferredDistance": 20,
+    "dribbleBase": 27,
+    "dribbleSafetyWeight": 7,
+    "dribbleProgressWeight": 0.65,
+    "dribblePressureCost": 32,
+    "turnCost": 1.4,
+    "shieldBase": -10,
+    "shieldPressureWeight": 40,
+    "shieldSkillWeight": 7,
+    "perceptionErrorCost": 6,
+    "defaultTempo": "Normal",
+    "tempos": {
+      "Düşük": 0.8,
+      "Normal": 1,
+      "Yüksek": 1.2
+    },
+    "styleCarry": {
+      "Kısa": -1,
+      "Dengeli": 0,
+      "Direkt": -3
+    },
+    "shieldSupportSeconds": 1.5,
+    "shieldWaitCost": 10,
+    "passScanReactions": 5
+  },
+  "duels": {
+    "jockeyDistance": 1.65,
+    "jockeyRange": 5,
+    "jockeySpeedRatio": 0.64,
+    "standingReach": 1.85,
+    "slidingReach": 3.1,
+    "footRadius": 0.16,
+    "legRadius": 0.22,
+    "standingSeconds": 0.2,
+    "slidingSeconds": 0.4,
+    "timingErrorSeconds": 0.25,
+    "directionError": 0.25,
+    "cooldownSeconds": 8,
+    "recoveryMinimumSeconds": 1.2,
+    "recoverySkillSeconds": 1.2,
+    "opportunityDistance": 0.75,
+    "opportunitySkillReduction": 0.25,
+    "opportunityPressureReduction": 0.12,
+    "bookedOpportunityAddition": 0.15,
+    "pressAggression": {
+      "Düşük": 0.65,
+      "Normal": 0.85,
+      "Yüksek": 1.1
+    },
+    "lungeSpeed": 7,
+    "looseSpeedFactor": 0.55,
+    "shoulderDistance": 0.8,
+    "shoulderBallDistance": 5,
+    "shoulderSpeedRatio": 0.7,
+    "shoulderStrengthWeight": 0.65,
+    "shoulderSpeedWeight": 0.35,
+    "shoulderCooldownSeconds": 1.2,
+    "beatEngageDistance": 3,
+    "beatEscapeDistance": 4,
+    "beatMinimumProgress": 2,
+    "beatWindowSeconds": 5,
+    "controlledBodyMargin": 0.5,
+    "coverJockeyFactor": 2
+  },
+  "refereeing": {
+    "advantageSeconds": 3,
+    "advantageForwardSpeed": 0.8,
+    "advantageProgress": 1,
+    "speedSeverityWeight": 0.1,
+    "behindSeverity": 0.65,
+    "slideSeverity": 0.45,
+    "noBallSeverity": 0.55,
+    "yellowThreshold": 2.15,
+    "redThreshold": 3.2,
+    "dogsoGoalDistance": 30,
+    "dogsoGoalWidth": 22,
+    "dogsoMinimumSpeed": 1,
+    "restartMinimumSeconds": 2,
+    "restartDistance": 9.15,
+    "restartClearance": 0.3,
+    "restartPassDistance": 12,
+    "restartPositionTolerance": 0.8,
+    "restartDirectionCount": 32
   }
 }

@@ -5,6 +5,7 @@ import { placeSimulationBall } from '../../sim/ball-state.js';
 import { readSimulationStatistics } from '../../sim/ball-events.js';
 import { requestSimulationPass } from '../../sim/owner-decision.js';
 import { setSimulationTactics } from '../../sim/tactic-settings.js';
+import { forceSimulationDribble } from '../../sim/dribbling.js';
 import { createLabScenario } from './scenario.js';
 // The old scripted driver stays reachable by name for the unchanged off-ball regression tests only.
 import './automatic-ball.js';
@@ -22,6 +23,7 @@ export function createLabSession(initial = {}) {
     setTactics: tactics => { setSimulationTactics(context.simulation, tactics); context.options = { ...context.options, ...tactics }; },
     enableAutomatic: value => { session.automatic = value; context.simulation.automaticPasses = value; },
     passTo: request => { requestSimulationPass(context.simulation, request); session.automatic = false; context.simulation.automaticPasses = false; },
+    forceDribble: playerId => forceSimulationDribble(context.simulation, playerId),
     completeMatch: () => completeLabMatch(context, session),
   };
 }
@@ -48,7 +50,8 @@ function labSessionSnapshot(context, session) {
   const simulation = readSimulation(context.simulation, { includeEvents: false });
   // A paused referee placement is a preview; its physical application happens at the next tick.
   if (context.pendingBall) simulation.ball = structuredClone(context.pendingBall);
-  return { ...session, simulation, metrics: readSimulationStatistics(context.simulation) };
+  const recentEvents = recentLabEvents(context.simulation);
+  return { ...session, simulation, recentEvents, metrics: readSimulationStatistics(context.simulation) };
 }
 
 function queueLabIntervention(context, session, change) {
@@ -63,4 +66,13 @@ function advanceLabSession(context, session, seconds) {
   if (context.pendingBall) { placeSimulationBall(context.simulation, context.pendingBall); context.pendingBall = null; }
   context.simulation.automaticPasses = session.automatic;
   advanceSimulation(context.simulation, { seconds: seconds * session.speed });
+}
+
+function recentLabEvents(simulation) {
+  const events = [];
+  const types = new Set(['dribble', 'tackle', 'duel', 'foul', 'advantage', 'yellow', 'red', 'beat', 'pass']);
+  for (let index = simulation.events.length - 1; index >= 0 && events.length < MATCH_SIM_DATA.lab.recentEventCount; index--) {
+    if (types.has(simulation.events[index].type)) events.unshift({ ...simulation.events[index] });
+  }
+  return structuredClone(events);
 }

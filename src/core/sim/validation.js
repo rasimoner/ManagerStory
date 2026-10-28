@@ -37,6 +37,7 @@ function validateSimTeam(team) {
 
 function validateInitialPassingStyle(tactics) {
   const style = tactics.passingStyle ?? MATCH_SIM_DATA.passing.defaultStyle;
+  if (tactics.tempo !== undefined && !(tactics.tempo in MATCH_SIM_DATA.ownerDecision.tempos)) throw new TypeError('Unknown team tempo.');
   if (!(style in MATCH_SIM_DATA.passing.styles)) throw new TypeError('Unknown team passing style.');
 }
 
@@ -50,7 +51,7 @@ function validateSimAttributes(attributes) {
   for (const attribute of ['pace', 'acceleration', 'reactions', 'fitness']) {
     validateSimAttribute(attribute, attributes?.[attribute]);
   }
-  for (const attribute of ['passing', 'vision', 'technique', 'firstTouch']) {
+  for (const attribute of ['passing', 'vision', 'technique', 'firstTouch', 'dribbling', 'strength', 'composure', 'tackling', 'positioning']) {
     validateSimAttribute(attribute, attributes?.[attribute] ?? MATCH_SIM_DATA.ball.defaultAttribute);
   }
 }

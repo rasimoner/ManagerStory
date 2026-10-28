@@ -174,12 +174,19 @@ Genişletme noktaları (`core/hooks.js`):
 | `core/sim/ball-physics.js`, `ball-state.js` | Analitik sürtünme/parabol ve tahmin; top girdisi, hakem müdahalesi/erişim doğrulaması |
 | `core/sim/player-arrival.js`, `pass-evaluation.js` | Fiziksel varış zamanları; alıcı/koşu alanı ve tüm pas yolunun rakip güvenliği; deterministik puan |
 | `core/sim/owner-decision.js`, `pass-execution.js` | Tutma/baskı/dönüş, bırakırken yeniden değerlendirme, seed'li yön/hız uygulama hatası |
-| `core/sim/ball-chasing.js`, `ball-contact.js`, `ball-possession.js` | Karşılama hedefi, süpürülmüş gerçek temas/erişilebilir yükseklik, ilk dokunuş ve sekme |
+| `core/sim/ball-chasing.js`, `ball-contact.js`, `ball-possession.js` | Pas/bağımsız boş top karşılama hedefi (sürmede taktik rol korunur), süpürülmüş gerçek temas/erişilebilir yükseklik, ilk dokunuş ve sekme |
 | `core/sim/ball-step.js`, `ball-restart.js` | Serbest top adımı, temas/çizgi sırası, **geçici** çizgiden rakip yeniden başlatma |
 | `core/sim/ball-events.js`, `simulation-runtime.js`, `simulation-phases.js` | Gerçek anlı olaylar/istatistikler, simülasyona özel dizin/zar, sahiplik faz geçişleri |
 | `core/presentation/lab/pass-layers.js`, `stats-view.js` | Güvenli/riskli seçenekler, seçilen pas, alıcı/rakip saniyeleri, yol ve canlı pas/sahiplik sayıları |
-| `tools/match-sim-report.cjs`, `tests/match-sim-performance.test.cjs` | Derlemeyi zaman dışına alan yerel Node 22 ölçümü; 3/4,5 sn seri CI bütçesi ve koordinat özeti |
+| `tools/match-sim-report.cjs`, `tests/match-sim-performance.test.cjs` | Derlemeyi zaman dışına alan yerel Node 22 ölçümü; 3 sn topsuz / 2 sn sürme ve mücadele seri bütçesi ve koordinat özeti |
 | `tests/match-sim-ball.test.cjs`, `tests/match-sim-passing.test.cjs`, `tests/smoke/lab-passing.mjs` | Sentetik kesme/yükseklik/ilk dokunuş/çizgi, deterministik maç/fizik, telefonda dokunarak pas ve hızlı 90 dk |
+| `core/sim/owner-options.js`, `owner-pass-scan.js`, `dribble-evaluation.js`, `dribbling.js` | Tepki anında pas/sür/koru karşılaştırması, geçerli çıkış algısı, varış farkıyla sürme yönü, serbest dokunuş ve taşıma metriği |
+| `core/sim/duel-state.js`, `defending.js`, `tackle-contact.js`, `tackle-resolution.js` | Uygunluk/kalkış, kale tarafı jokey, seed'li uygulama hatası, süpürülmüş ayak–top/bacak ilk teması ve kazanma/sekme/ıska |
+| `core/sim/shoulder-duels.js`, `beat-tracking.js` | Güçten ivmeyle yavaşlama; gerçek birebirden çıkış kaydı, özel hareket seçimi yok |
+| `core/sim/foul-severity.js`, `refereeing.js`, `foul-restart.js` | Temastan faul/kart/DOGSO adayı, avantaj ve geri çağırma; 7. işe kadar **geçici** 9,15 m ve ceza alanı dışı kısa pas |
+| `core/presentation/lab/duel-layers.js`, `event-view.js`, `long-press.js` | Seçenek puanları/ok, savunmacı durumu/temas, son 10 olay ve işaret, telefonda native uzun basma |
+| `tests/match-sim-duels.test.cjs`, `tests/smoke/lab-duels.mjs` | Önce kırmızı çalışan sentetik geometri/kart/avantaj/yeniden başlama senaryoları ve telefonda uzun basma; tam 90 dk deterministik koordinat/olay ve her faulün teması hız testinde |
+| `docs/match-sim-duels-report.md` | 28 Ekim 2026 karşılaştırması, üç tohum, hedef dışı sayılar, hız ve doğrulama |
 | `data/match-sim.json` | Yeni çekirdeğin tüm oyun değerleri, iki diziliş ve deney ayarları; `data/README.md` açıklar |
 | `tests/support/lab.cjs`, `tests/match-sim*.test.cjs` | Sayfa grafiğinden adla API erişimi, davranış/saat/fizik/blok ve yayın sınırı testleri |
 | `docs/match-sim.md` | Yeni motorun Türkçe şartnamesi, ölçümleri ve sonraki adımların açık soruları |

@@ -39,23 +39,28 @@ export function integrateSimPlayer(player) {
 }
 
 function desiredPlayerVelocity(player) {
+  if (player.sentOff || player.duel?.state === 'grounded') return { x: 0, y: 0 };
   const offset = subtractPoints(player.target, player.position);
   const distance = pointDistance(player.target, player.position);
   const movement = MATCH_SIM_DATA.movement;
   if (distance <= movement.arrivalRadius) return { x: 0, y: 0 };
   const targetHeading = atan2(offset.y, offset.x);
-  turnPlayerTowards(player, targetHeading);
+  const jockey = player.motionMode === 'jockey';
+  const facing = jockey ? atan2(player.facingTarget.y - player.position.y, player.facingTarget.x - player.position.x) : targetHeading;
+  turnPlayerTowards(player, facing);
   const arrivalSpeed = sqrt(2 * player.limits.acceleration * max(0, distance - movement.arrivalRadius));
-  const desiredSpeed = min(player.limits.maxSpeed * movement.gaits[player.gait], arrivalSpeed);
+  const desiredSpeed = min(player.limits.maxSpeed * movement.gaits[player.gait] * playerMotionSpeedRatio(player), arrivalSpeed);
   // The facing limit also steers travel; a target switch cannot rotate a sprint instantly.
-  const alignment = max(0, cos(player.heading - targetHeading));
+  const alignment = jockey ? 1 : max(0, cos(player.heading - targetHeading));
   const speed = desiredSpeed * alignment;
-  return { x: cos(player.heading) * speed, y: sin(player.heading) * speed };
+  const travelHeading = jockey ? targetHeading : player.heading;
+  return { x: cos(travelHeading) * speed, y: sin(travelHeading) * speed };
 }
 
 function turnPlayerTowards(player, targetHeading) {
   const difference = atan2(sin(targetHeading - player.heading), cos(targetHeading - player.heading));
-  const maximum = player.limits.turnRate * MATCH_SIM_DATA.clock.stepSeconds;
+  const turnRatio = player.motionMode === 'dribble' ? MATCH_SIM_DATA.dribbling.turnRatio : 1;
+  const maximum = player.limits.turnRate * turnRatio * MATCH_SIM_DATA.clock.stepSeconds;
   player.heading += clampSimValue(difference, -maximum, maximum);
   // Keep long headless runs numerically stable without changing the direction.
   player.heading = atan2(sin(player.heading), cos(player.heading));
@@ -65,3 +70,11 @@ export function faceSimulationPlayer(player, point) {
   turnPlayerTowards(player, atan2(point.y - player.position.y, point.x - player.position.x));
 }
 
+
+function playerMotionSpeedRatio(player) {
+  let ratio = 1;
+  if (player.motionMode === 'dribble') ratio = player.carrySpeedRatio;
+  if (player.motionMode === 'shield') ratio = MATCH_SIM_DATA.dribbling.shieldSpeedRatio;
+  if (player.motionMode === 'jockey') ratio = MATCH_SIM_DATA.duels.jockeySpeedRatio;
+  return ratio * (player.shoulderSpeedRatio ?? 1);
+}

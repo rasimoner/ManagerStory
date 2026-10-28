@@ -1,3 +1,4 @@
+import { endSimulationCarry } from './dribbling.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { validateSimBall } from './validation.js';
 import { pointDistance } from './geometry.js';
@@ -8,7 +9,7 @@ import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
 export function createSimulationBall(input) {
   return { position: { ...input.position }, teamId: input.teamId, ownerId: input.ownerId ?? null,
     velocity: { ...(input.velocity ?? { x: 0, y: 0 }) }, height: input.height ?? 0, verticalVelocity: input.verticalVelocity ?? 0,
-    lastTouchId: input.ownerId ?? null, lastTouchTeamId: input.teamId, flight: null, restart: null,
+    lastTouchId: input.ownerId ?? null, lastTouchTeamId: input.teamId, flight: null, restart: null, carry: null,
     ownerSinceTick: 0, controlAfterTick: 0, excludedId: null };
 }
 
@@ -17,10 +18,13 @@ export function placeSimulationBall(simulation, input) {
   validateBallPhysics(input);
   validateBallOwner(simulation, input);
   settleSimulationPass(simulation, { position: simulation.ball.position, controlled: false });
+  endSimulationCarry(simulation);
   emitSimulationEvent(simulation, { type: 'referee', fromId: simulation.ball.ownerId ?? null, toId: input.ownerId ?? null,
     fromPos: { ...simulation.ball.position }, toPos: { ...input.position }, success: true });
   if (simulation.ball.teamId !== input.teamId) beginSimTransition(simulation, input.teamId);
   simulation.ball = createSimulationBall(input);
+  simulation.ownerDecision = { selected: null, forcedPlayerId: simulation.ownerDecision.forcedPlayerId };
+  simulation.referee = { advantage: null, stoppage: null };
   simulation.ball.ownerSinceTick = simulation.tick;
   if (input.ownerId != null) simulation.statistics.teams[input.teamId].controls++;
   simulation.passing = { options: [], selected: null, requested: null, nextEvaluationTick: simulation.tick };

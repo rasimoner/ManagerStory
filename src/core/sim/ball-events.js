@@ -2,6 +2,7 @@ import { pointDistance } from './geometry.js';
 
 export function createSimulationStatistics(teams) {
   return { possessionTeamId: null, teams: Object.fromEntries(teams.map(team => [team.id, { passes: 0, completedPasses: 0, resolvedPasses: 0, passDistance: 0,
+    dribbles: 0, dribbleDistance: 0, beats: 0, tackles: 0, tacklesWon: 0, tacklesLoose: 0, tacklesMissed: 0, duels: 0, fouls: 0, yellow: 0, red: 0, advantages: 0, ballWins: 0,
     interceptions: 0, possessions: 0, possessionSeconds: 0, controlSeconds: 0, controls: 0 }])) };
 }
 
@@ -34,6 +35,7 @@ export function readSimulationStatistics(simulation) {
   const passes = sum('passes'), resolved = sum('resolvedPasses'), controls = sum('controls');
   return { passes, completedPasses: sum('completedPasses'), accuracy: resolved ? sum('completedPasses') / resolved * 100 : 0,
     averageDistance: resolved ? sum('passDistance') / resolved : 0, passesPerMinute: simulation.time ? passes / (simulation.time / 60) : 0,
-    interceptions: sum('interceptions'), averageHoldSeconds: controls ? sum('controlSeconds') / controls : 0,
+    ...Object.fromEntries(['dribbles', 'dribbleDistance', 'beats', 'tackles', 'tacklesWon', 'tacklesLoose', 'tacklesMissed', 'duels', 'fouls', 'yellow', 'red', 'advantages', 'ballWins'].map(field => [field, sum(field)])),
+    duels: sum('duels') / 2, interceptions: sum('interceptions'), averageHoldSeconds: controls ? sum('controlSeconds') / controls : 0,
     averagePossessionSeconds: sum('possessions') ? totalPossession / sum('possessions') : 0, teams };
 }

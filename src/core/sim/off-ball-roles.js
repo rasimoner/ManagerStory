@@ -1,3 +1,4 @@
+import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { pointDistance, pointSquaredDistance } from './geometry.js';
 import { movementGait } from './player-movement.js';
@@ -35,7 +36,7 @@ function createOffBallPlan(simulation, team) {
     target: player.slot === 'GK' ? simKeeperTarget(simulation, team) : simAnchorPosition(team, player, shape),
     coveringId: null, laneTargetId: null,
   });
-  const context = { simulation, team, shape, plan, available: outfieldPlayers(team) };
+  const context = { simulation, team, shape, plan, available: outfieldPlayers(team).filter(simulationPlayerAvailable) };
   if (teamOwnsSimBall(simulation, team)) planAttackingRoles(context);
   else planDefensiveRoles(context);
   return { instructions: plan, shape };
@@ -81,14 +82,14 @@ function simPressTarget(simulation, player) {
   const standOff = MATCH_SIM_DATA.roles.holderStandOffDistance;
   const team = simulation.teams.find(candidate => candidate.id === player.teamId);
   if (!distance) return { x: ball.position.x - team.direction * standOff, y: ball.position.y };
-  // Tackles are a later phase. Pressure occupies a passing lane instead of running through the holder.
+  // This coarse approach target is refined into a goal-side jockey by the contact system.
   return { x: ball.position.x + (player.position.x - ball.position.x) / distance * standOff,
     y: ball.position.y + (player.position.y - ball.position.y) / distance * standOff };
 }
 
 function selectSimPressers(simulation, team) {
   const ball = simulation.ball.position;
-  const candidates = outfieldPlayers(team);
+  const candidates = outfieldPlayers(team).filter(simulationPlayerAvailable);
   const nearest = nearestSimPressers(candidates, ball).filter(player => pointDistance(player.position, ball) <= team.pressTriggerDistance);
   const ready = nearest.filter(player => player.nextDecisionTick <= simulation.tick || player.role === 'press');
   if (ready.length) return ready;
@@ -96,7 +97,7 @@ function selectSimPressers(simulation, team) {
 }
 
 function nearestSimPressers(players, point) {
-  if (MATCH_SIM_DATA.roles.maxPressers === 1) return [nearestPlayer(players, point)];
+  if (MATCH_SIM_DATA.roles.maxPressers === 1) { const nearest = nearestPlayer(players, point); return nearest ? [nearest] : []; }
   const remaining = players.slice(), selected = [];
   for (let index = 0; index < MATCH_SIM_DATA.roles.maxPressers; index++) {
     const nearest = nearestPlayer(remaining, point);
@@ -116,6 +117,7 @@ function planSimCover(context, presser, receiver) {
 
 function applyPlayerDecision(context, player) {
   const { simulation, team, plan } = context;
+  if (!simulationPlayerAvailable(player)) return;
   const instruction = plan.instructions.get(player.id);
   const cancelled = exclusiveRoles.has(player.role) && player.role !== instruction.role;
   if (player.nextDecisionTick > simulation.tick && !cancelled) return;

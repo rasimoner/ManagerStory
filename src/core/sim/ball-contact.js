@@ -1,3 +1,4 @@
+import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { predictSimulationBall } from './ball-physics.js';
 import { simulationRuntime } from './simulation-runtime.js';
@@ -28,6 +29,7 @@ export function earliestSimulationBallContact(simulation, motion) {
 
 function canTouchSimulationBall(simulation, player) {
   const ball = simulation.ball;
+  if (!simulationPlayerAvailable(player)) return false;
   if (ball.restart && ball.restart.takerId !== player.id) return false;
   return ball.excludedId !== player.id || simulation.tick >= ball.controlAfterTick;
 }

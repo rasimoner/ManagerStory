@@ -3,6 +3,7 @@ import { playerMovementLimits } from './player-movement.js';
 import { simAnchorPosition, simKeeperTarget, simTeamShape } from './team-shape.js';
 import { validateSimulationInput } from './validation.js';
 import { createSimulationBall, validateBallPhysics, validateBallOwner } from './ball-state.js';
+import { createSimulationDuelState } from './duel-state.js';
 import { createSimulationStatistics } from './ball-events.js';
 
 export function createSimulation(input) {
@@ -10,6 +11,7 @@ export function createSimulation(input) {
   validateBallPhysics(input.ball);
   const simulation = { seed: input.seed, rngState: input.seed, tick: 0, time: 0, accumulator: 0, automaticPasses: true, ball: createSimulationBall(input.ball),
     teams: input.teams.map(createSimTeam), events: [], statistics: createSimulationStatistics(input.teams),
+    ownerDecision: { selected: null, forcedPlayerId: null }, defending: { engagements: [], lastContact: null }, referee: { advantage: null, stoppage: null },
     passing: { options: [], selected: null, requested: null, nextEvaluationTick: 0 } };
   for (const team of simulation.teams) initializeTeamPositions(simulation, team);
   validateBallOwner(simulation, simulation.ball);
@@ -35,6 +37,8 @@ function createSimPlayer(input, anchors) {
     anchor: { x: anchor.x, y: anchor.y }, attributes: simPlayerAttributes(input.attributes), limits,
     position: input.position ? { ...input.position } : null, velocity: { x: 0, y: 0 }, heading: 0,
     role: input.slot === 'GK' ? 'keeper' : 'block', gait: 'walk', target: null,
+    motionMode: null, facingTarget: null, shoulderSpeedRatio: 1, shoulderAfterTick: 0,
+    duel: createSimulationDuelState(), yellowCards: 0, sentOff: false, carrySpeedRatio: carrySpeedRatio(input.attributes),
     nextDecisionTick: limits.reactionTicks, coveringId: null, laneTargetId: null,
   };
 }
@@ -52,12 +56,18 @@ function initializeTeamPositions(simulation, team) {
 
 function simPlayerAttributes(input) {
   const attributes = { ...input };
-  for (const name of ['passing', 'vision', 'technique', 'firstTouch']) attributes[name] ??= MATCH_SIM_DATA.ball.defaultAttribute;
+  for (const name of ['passing', 'vision', 'technique', 'firstTouch', 'dribbling', 'strength', 'composure', 'tackling', 'positioning']) attributes[name] ??= MATCH_SIM_DATA.ball.defaultAttribute;
   return attributes;
+}
+
+function carrySpeedRatio(attributes) {
+  const skill = ((attributes.dribbling ?? MATCH_SIM_DATA.ball.defaultAttribute) + (attributes.technique ?? MATCH_SIM_DATA.ball.defaultAttribute)) / (2 * MATCH_SIM_DATA.attributes.maximum);
+  return MATCH_SIM_DATA.dribbling.minimumSpeedRatio + skill * MATCH_SIM_DATA.dribbling.skillSpeedRatio;
 }
 
 export function readSimulation(simulation, options = {}) {
   return structuredClone({ seed: simulation.seed, rngState: simulation.rngState, tick: simulation.tick, time: simulation.time,
+    ownerDecision: simulation.ownerDecision, defending: simulation.defending, referee: simulation.referee,
     ball: simulation.ball, teams: simulation.teams, passing: simulation.passing, statistics: simulation.statistics,
     events: options.includeEvents === false ? [] : simulation.events });
 }

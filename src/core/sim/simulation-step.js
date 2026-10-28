@@ -1,3 +1,9 @@
+import { prepareSimulationDefenders, finishSimulationTackles } from './defending.js';
+import { prepareSimulationShoulders, recordSimulationShoulders } from './shoulder-duels.js';
+import { trackSimulationBeats } from './beat-tracking.js';
+import { recordSimulationCarryDistance } from './dribbling.js';
+import { prepareSimulationFoulRestart, finishSimulationFoulRestart } from './foul-restart.js';
+import { updateSimulationReferee } from './refereeing.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { validateSimBall } from './validation.js';
 import { integrateSimPlayer } from './player-movement.js';
@@ -25,13 +31,23 @@ export function stepSimulation(simulation, replayBall) {
 }
 
 function prepareBallMovement(simulation, owned) {
-  if (owned) prepareSimulationOwner(simulation);
-  else { updateSimulationBallChasers(simulation); captureSimulationPlayerPositions(simulation); }
+  prepareSimulationDefenders(simulation);
+  if (!owned && !simulation.referee.stoppage) updateSimulationBallChasers(simulation);
+  prepareSimulationOwner(simulation);
+  prepareSimulationShoulders(simulation);
+  prepareSimulationFoulRestart(simulation);
+  if (!owned) captureSimulationPlayerPositions(simulation);
 }
 
 function finishBallMovement(simulation, owned) {
+  if (simulation.referee.stoppage) { finishSimulationFoulRestart(simulation); return; }
+  recordSimulationCarryDistance(simulation);
   if (owned) finishSimulationOwnerStep(simulation);
   else advanceSimulationFreeBall(simulation);
+  recordSimulationShoulders(simulation);
+  finishSimulationTackles(simulation);
+  trackSimulationBeats(simulation);
+  updateSimulationReferee(simulation);
   recordSimulationPossessionTime(simulation);
 }
 
