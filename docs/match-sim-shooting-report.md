@@ -8,7 +8,7 @@
 
 Doğrulama kaynağı [PR #5'in kontrolleri](https://github.com/rasimoner/ManagerStory/pull/5/checks) ve `Verify match simulation` iş akışıdır: Node 22 lint, hızlı/tam test, build, değişmemiş **12 oyun duman kontrolü + beş laboratuvar senaryosu**, beş tohum JSON'u ve 390 × 844 telefon görüntüsü. Main'e birleşmenin önkoşulu bu kontrollerin yeşil olmasıdır. İş akışı tam git geçmişini alır; lint tabanının büyümeme testi atlanmaz. Gerçek telefon kayıt fikstürlerinin depoda henüz bulunmamasıyla ilgili eski koşullu test yeni bir atlama değildir.
 
-**22 sentetik şut/kaleci senaryosu** vardır. İlk test grubu özellik yokken kırmızı çalıştırıldı. Tarayıcı denemesinin bulduğu santra hatası ayrıca önce kırmızı testle tekrarlandı: uzaktaki ve hâlâ koşan alıcıya merkez pası arkasından gidiyordu. Alıcı artık merkeze yakın oyuncudan seçilir; taker ve alıcı 0,5 m/sn altına fiziksel olarak frenlemeden pas çıkmaz. Varsayılan 731'de ilk kontrollü sahiplik **6,2 sn**'de oluşur; 0,25× telefon denemesi 30 sn bekleme sınırına sığar. Kalecinin eski boş top hedefinde takılı kalması, köşede ilk geçen çizginin korunması ve rakip kontrolsüz dokunuşunda geri pas yasağının kalkması da kırmızı/yeşil regresyonlarla korunur.
+**23 sentetik şut/kaleci senaryosu** vardır. İlk test grubu özellik yokken kırmızı çalıştırıldı. Tarayıcı denemesinin bulduğu santra hatası ayrıca önce kırmızı testle tekrarlandı: uzaktaki ve hâlâ koşan alıcıya merkez pası arkasından gidiyordu. Alıcı artık merkeze yakın oyuncudan seçilir; taker ve alıcı 0,5 m/sn altına fiziksel olarak frenlemeden pas çıkmaz. Varsayılan 731'de ilk kontrollü sahiplik **6,2 sn**'de oluşur; 0,25× telefon denemesi 30 sn bekleme sınırına sığar. Kalecinin eski boş top hedefinde takılı kalması, köşede ilk geçen çizginin korunması ve rakip kontrolsüz dokunuşunda geri pas yasağının kalkması da kırmızı/yeşil regresyonlarla korunur.
 
 Eski topsuz 54.000 adım koordinat SHA-256 özeti **9b1126b840f9ad5ec641b19abbdc01fd4f66afd11acba238e6207aee31d16754** değişmez. Yeni tam maçta oyuncuların ve topun bütün adımları, olaylar ve skor aynı tohumda iki kez karşılaştırılır; her gol aynı oyuncunun önceki şutuna bağlıdır ve olaylar kronolojiktir. Yeni dosyalarda lint ihlali yoktur; taban artırılmadı. Altın dosyalar aynen korunur.
 
@@ -17,6 +17,8 @@ Eski topsuz 54.000 adım koordinat SHA-256 özeti **9b1126b840f9ad5ec641b19abbdc
 Şut yön/güç/yükseklik hatası seed'lidir; mesafe, görünen/örtülen açı, kalecinin iki eksendeki konumu, baskı ve vücut durumu karar içindir. Aynı fizik yolu savunmacı blokları, kalecinin gerçek tepki/erişim sınırı ve kale çerçevesiyle yarışır. Topun tamamı çizgiyi geçmeden gol yoktur. Kaleci parmak ucuyla değip golü önleyemediyse temas günlükte korunur, başarılı kurtarış sayısına girmez.
 
 Kaleci set olur, adım/plonjonla uzanır; handling yalnız temas sonrası tutma/çelme/saptırma kalitesini etkiler. Elde top dokunulmazdır; 3,5 sn sonra elle atış/elden uzun vuruş çıkar. Geri pas ve ceza alanı dışı elle alma engellenir. Birebirde oneOnOne/positioning ile çıkar; sürme, plase veya aynı parabollü aşırtma karşılık olabilir. `save` zorluğu ve son an bilgisi özel hareketler için yalnız kayıttır.
+
+Kale ölçüleri direk merkezlerini değil **net 7,32 × 2,44 m açıklığı** ifade eder; çerçeve merkezleri bir yarıçap dışarıdadır. Açıklığın içinde kalan topa yanlış direk teması yazılmaması ayrı kabul testiyle korunur.
 
 Gol yiyen takım santraya fiziksel olarak yerleşir ve merkezden gerçek pas çıkarır. 45'te yön değişimi, 90'da bitiş vardır; uzatma yoktur. Kale çizgisinde kalecinin elinden dağıtım / kısa korner, taçta rakip kısa pası ve önceki faul yeniden başlatmaları **7. işe kadar geçicidir**. Orta, kafa, gerçek duran top, ofsayt veya özel hareket seçimi eklenmedi.
 
@@ -30,33 +32,33 @@ Başarılı kurtarış / isabetli şut oranı kullanılır; gol olan parmak ucu 
 
 | Tohum | Skor Sarı–Mavi | Şut | İsabet | Gol | xG | xG/şut | Gol−xG | Blok | Kurtarış | Kurtarış % | Direk |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 901 | 2–2 | 32 | 10 | 4 | 4,38 | 0,137 | -0,38 | 8 | 6 | 60,0 | 2 |
-| 731 | 3–5 | 28 | 14 | 8 | 6,42 | 0,229 | 1,58 | 7 | 6 | 42,9 | 5 |
+| 901 | 5–0 | 33 | 11 | 5 | 5,91 | 0,179 | -0,91 | 10 | 6 | 54,5 | 3 |
+| 731 | 3–1 | 26 | 10 | 4 | 5,10 | 0,196 | -1,10 | 6 | 6 | 60,0 | 4 |
 | 42 | 0–4 | 21 | 6 | 4 | 1,91 | 0,091 | 2,09 | 12 | 2 | 33,3 | 1 |
-| 2026 | 1–2 | 25 | 11 | 3 | 3,55 | 0,142 | -0,55 | 7 | 8 | 72,7 | 2 |
-| 508 | 4–1 | 32 | 13 | 5 | 5,99 | 0,187 | -0,99 | 8 | 8 | 61,5 | 2 |
+| 2026 | 0–3 | 26 | 11 | 3 | 5,66 | 0,218 | -2,66 | 6 | 8 | 72,7 | 1 |
+| 508 | 3–3 | 30 | 12 | 6 | 4,63 | 0,154 | 1,37 | 8 | 6 | 50,0 | 2 |
 | Futbol hedefi | — | 20–28 | 8–10 | 2,5–3 | Yaklaşık 2–3,4 | 0,10–0,12 | Kalibrasyonda 0 çevresi | 4–8 | İsabete bağlı | 65–75 | Sabit hedef yok |
 
 | Tohum | Pas | İsabet % | Ort. mesafe m | Faul | Sarı | Kırmızı | Müdahale | Kazandı | Sekti | Iska | Iska % |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 901 | 792 | 76,64 | 18,70 | 20 | 2 | 0 | 146 | 20 | 35 | 91 | 62,3 |
-| 731 | 792 | 75,76 | 18,77 | 14 | 1 | 0 | 146 | 20 | 25 | 101 | 69,2 |
+| 901 | 794 | 79,47 | 18,57 | 19 | 0 | 0 | 152 | 20 | 30 | 102 | 67,1 |
+| 731 | 797 | 75,78 | 18,16 | 24 | 3 | 0 | 130 | 19 | 27 | 84 | 64,6 |
 | 42 | 809 | 74,54 | 18,21 | 15 | 2 | 0 | 139 | 30 | 22 | 87 | 62,6 |
-| 2026 | 831 | 76,90 | 17,96 | 16 | 3 | 0 | 145 | 19 | 33 | 93 | 64,1 |
-| 508 | 776 | 79,12 | 19,06 | 16 | 2 | 0 | 129 | 24 | 32 | 73 | 56,6 |
+| 2026 | 823 | 76,55 | 18,01 | 14 | 2 | 0 | 149 | 24 | 29 | 96 | 64,4 |
+| 508 | 775 | 78,06 | 18,51 | 21 | 4 | 0 | 154 | 25 | 37 | 92 | 59,7 |
 | Futbol hedefi | 800–1.000 | 75–88 | 15–20 | 20–25 | 3–5 | Nadir; beş maçla oran çıkarılmaz | Sabit hedef yok | Kazanma + sekme >%50 | Aynı ölçü | <50% | <50 |
 
-**Beş maç ortalaması:** 27,6 şut, 10,8 isabet, 4,8 gol, 4,45 xG; ağırlıklı xG/şut **0,161**, başarılı kurtarış **%55,6**. Müdahalelerin **%63,1**'i ıska. Fiziksel/işlevsel testlerin geçmesi futbol kalibrasyonunun tamamlandığı anlamına gelmez.
+**Beş maç ortalaması:** 27,2 şut, 10,0 isabet, 4,4 gol, 4,64 xG; ağırlıklı xG/şut **0,171**, başarılı kurtarış **%56,0**. Müdahalelerin **%63,7**'i ıska. Fiziksel/işlevsel testlerin geçmesi futbol kalibrasyonunun tamamlandığı anlamına gelmez.
 
 ### Aralık dışı sonuçların yorumu
 
-Şut sayısı ortalamada hedefin üst kenarında, bazı tohumlarda 32 ile yüksektir. İsabetli şut ve gol ortalaması yüksektir; **kurtarış %55,6 ile %65–75 hedefinin altındadır**. 2026'da kaleci 11 isabetten 8'ini çıkarırken (%72,7), 42'de 6 isabetin yalnız 2'sini önlüyor (%33,3). Kaleciyi her şutu alan sabit bir duvar yapmak veya skoru kota ile düşürmek yerine bu fark kayda bırakıldı. Yakın mesafeli ikinci şutlar, henüz olmayan ofsayt, savunmanın hareket/temas zarfı ve set olmadan gelen şutların gecikmesi birlikte etkili. 8. işte şut mesafesi/açısı, ilk ve ikinci şut ayrımı, set/tepki payı ve handling sonuçları ayrı dilimlerde kalibre edilmeli.
+Şut ortalaması **27,2** ile hedefin üst kenarında; 901'de 33, 508'de 30 ile yüksek. İsabet ortalaması **10,0** hedefte, ancak tohumlar arasında 6–12 değişiyor. Gol ortalaması **4,4** yüksek; **kurtarış %56,0 ile %65–75 hedefinin altında**. 2026'da kaleci 11 isabetten 8'ini çıkarırken (%72,7), 42'de 6 isabetin yalnız 2'sini önlüyor (%33,3). Kaleciyi her şutu alan sabit bir duvar yapmak veya skoru kota ile düşürmek yerine fark kayda bırakıldı. Yakın mesafeli ikinci şutlar, henüz olmayan ofsayt, savunmanın hareket/temas zarfı ve set olmadan gelen şutların gecikmesi birlikte etkili. 8. işte şut mesafesi/açısı, ilk ve ikinci şut ayrımı, set/tepki payı ve handling sonuçları ayrı dilimlerde kalibre edilmeli.
 
-xG/şut **0,161** ile 0,10–0,12'nin üzerinde. Toplam xG ile gerçek gol farkı beş maç toplamında yaklaşık **+1,75 gol**; bu küçük örnek modele kalibre edildiği iddiası vermez. xG karar modeli saha oyuncusu için 0,72 m izdüşüm silueti, gerçek blok ise önceki 1,2 m kontrol zarfını kullanır; model/temas farkı blok ve xG dengesinde incelenmeli. Bloklar 42'de 12, diğerlerinde 7–8; direkler 0–5 arasında. Tam örtülmüş açıda düşük değerli şut tekrarı engellenir; şut/gol sonucu önceden belirlenmez.
+xG/şut **0,171** ile 0,10–0,12'nin üzerinde. Toplam xG ile gerçek gol farkı beş maç toplamında yaklaşık **−1,20 gol**; bu küçük örnek modele kalibre edildiği iddiası vermez. xG karar modeli saha oyuncusu için 0,72 m izdüşüm silueti, gerçek blok ise önceki 1,2 m kontrol zarfını kullanır; model/temas farkı blok ve xG dengesinde incelenmeli. Bloklar 901/42'de 10/12, diğerlerinde 6–8; direkler 1–4 arasında. Tam örtülmüş açıda düşük değerli şut tekrarı engellenir; şut/gol sonucu önceden belirlenmez.
 
-Pas ortalaması **800**, mesafe her tohumda 15–20 m içinde. 901/731/508'de 792/792/776 pas hedefin biraz altında; 42'de isabet %74,54 ile %75'in biraz altında. Şut, elde top ve fiziksel santra bekleyişleri önceki yalnız pas/sürme akışının süresini değiştirir; pas davranışının bütünü aralıkta diye sunulmaz. Faul ortalaması **16,2**, sarı **2,0**: çoğunluk hedefin altında; yalnız 901'de faul ve 2026'da sarı hedefe girer.
+Pas ortalaması **799,6**, mesafe her tohumda 15–20 m içinde. 901/731/508'de 794/797/775 pas hedefin biraz altında; 42'de isabet %74,54 ile %75'in biraz altında. Şut, elde top ve fiziksel santra bekleyişleri önceki yalnız pas/sürme akışının süresini değiştirir; pas davranışının bütünü aralıkta diye sunulmaz. Faul ortalaması **18,6**, sarı **2,2**: çoğunluk düşük; 731 ve 508'de hem faul hem sarı hedefe girer.
 
-**Müdahale sonuçları:** 705 girişimin 445'i ıska (**%63,1**); kazanma + sekme **%36,9**. Önceki 154'te 95 ıska (%61,7) sorunu çözülmüş sayılmaz. Jokey mesafesinden hazırlanan 0,2/0,4 sn hamlede, sürücünün serbest dokunuşu ve hareketi hedefi değiştiriyor; küçük ayak temas yarıçapı ve yön/zaman uygulama hatası ıskayı artırıyor. Temkinli fırsat marjı ile 8 sn bekleyiş de yeniden hamleyi azaltıyor. Faul için önce oyuncuya gerçekten değmek gerektiğinden bu ıskalar faul sayısını da aşağı çeker. İstenen düzeltme bu işte kota ekleyerek yapılmadı; 8. işte hazırlık/öngörü/temas geometrisi birlikte ölçülmeli.
+**Müdahale sonuçları:** 724 girişimin 461'i ıska (**%63,7**); kazanma + sekme **%36,3**. Önceki 154'te 95 ıska (%61,7) sorunu çözülmüş sayılmaz. Jokey mesafesinden hazırlanan 0,2/0,4 sn hamlede, sürücünün serbest dokunuşu ve hareketi hedefi değiştiriyor; küçük ayak temas yarıçapı ve yön/zaman uygulama hatası ıskayı artırıyor. Temkinli fırsat marjı ile 8 sn bekleyiş de yeniden hamleyi azaltıyor. Faul için önce oyuncuya gerçekten değmek gerektiğinden bu ıskalar faul sayısını da aşağı çeker. İstenen düzeltme bu işte kota ekleyerek yapılmadı; 8. işte hazırlık/öngörü/temas geometrisi birlikte ölçülmeli.
 
 ### 90 dakika süresi
 

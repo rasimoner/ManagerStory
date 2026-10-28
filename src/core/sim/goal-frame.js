@@ -5,14 +5,15 @@ import { emitSimulationEvent } from './ball-events.js';
 export function simulationGoalFrameContact(motion) {
   const pitch = MATCH_SIM_DATA.pitch, radius = MATCH_SIM_DATA.ball.radius + pitch.goalPostRadius;
   let nearest = null;
+  // Regulation dimensions measure the clear opening; the frame centres sit one post radius outside it.
   for (const direction of [-1, 1]) {
     const goalX = direction * pitch.length / 2;
     if (Math.min(Math.abs(motion.before.position.x - goalX), Math.abs(motion.after.position.x - goalX)) > Math.abs(motion.after.position.x - motion.before.position.x) + radius) continue;
     for (const side of [-1, 1]) {
-      const contact = frameCylinderContact(motion, { x: goalX, y: side * pitch.goalWidth / 2, kind: 'post' });
+      const contact = frameCylinderContact(motion, { x: goalX, y: side * (pitch.goalWidth / 2 + pitch.goalPostRadius), kind: 'post' });
       if (contact && (!nearest || contact.fraction < nearest.fraction)) nearest = contact;
     }
-    const bar = frameCylinderContact(motion, { x: goalX, height: pitch.goalHeight, kind: 'crossbar' });
+    const bar = frameCylinderContact(motion, { x: goalX, height: pitch.goalHeight + pitch.goalPostRadius, kind: 'crossbar' });
     if (bar && (!nearest || bar.fraction < nearest.fraction)) nearest = bar;
   }
   return nearest;
@@ -29,7 +30,7 @@ function frameCylinderContact(motion, frame) {
   const fraction = (-product - Math.sqrt(discriminant)) / squared;
   if (fraction < 0 || fraction > 1) return null;
   const touching = predictSimulationBall(motion.before, fraction * motion.seconds);
-  if (frame.kind === 'post' ? touching.height > MATCH_SIM_DATA.pitch.goalHeight + radius : Math.abs(touching.position.y) > MATCH_SIM_DATA.pitch.goalWidth / 2 + radius) return null;
+  if (frame.kind === 'post' ? touching.height > MATCH_SIM_DATA.pitch.goalHeight + MATCH_SIM_DATA.pitch.goalPostRadius + radius : Math.abs(touching.position.y) > MATCH_SIM_DATA.pitch.goalWidth / 2 + MATCH_SIM_DATA.pitch.goalPostRadius + radius) return null;
   return { kind: 'frame', frame, touching, fraction };
 }
 

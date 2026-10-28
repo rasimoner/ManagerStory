@@ -315,3 +315,14 @@ test('an opponent touch clears the deliberate backpass restriction even when tha
   assert.equal(simulation.ball.backpassTeamId, null);
   assert.ok(events(fixture, 'looseBall').length > 0, 'the opponent did not need a controlled interception');
 });
+
+test('goal dimensions describe the clear opening rather than the centres of the posts and bar', () => {
+  for (const point of [{ y: 3.51, height: 1 }, { y: 0, height: 2.29 }]) {
+    const fixture = shootingScene({ x: 48, keeperY: -3 });
+    fire(fixture);
+    Object.assign(fixture.simulation.ball, { position: { x: 51.5, y: point.y }, velocity: { x: 30, y: 0 }, height: point.height, verticalVelocity: 0 });
+    run(fixture, 0.1);
+    assert.equal(events(fixture, 'post').length, 0, 'a ball completely within the 7.32 by 2.44 m opening clears the frame');
+    assert.equal(events(fixture, 'goal').length, 1);
+  }
+});

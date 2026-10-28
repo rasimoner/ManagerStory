@@ -41,7 +41,7 @@ Team tactics: the options of each setting, their labels, and the team orders.
 
 Yeni saniyelik çekirdeğin ve ayrı laboratuvarın verisi; mevcut kariyer motoru bunu yüklemez. Kural kaynağı `docs/match-sim.md`.
 
-- `pitch`: metre cinsinden 105 × 68 saha, hedeflerin çizgiye payı, 7,32 × 2,44 kale, direk yarıçapı, 16,5 × 40,32 ceza alanı, 5,5 × 18,32 altıpas ve orta daire ölçüleri.
+- `pitch`: metre cinsinden 105 × 68 saha, hedeflerin çizgiye payı, net açıklığı 7,32 × 2,44 kale (çerçeve merkezleri açıklığın dışında), direk yarıçapı, 16,5 × 40,32 ceza alanı, 5,5 × 18,32 altıpas ve orta daire ölçüleri.
 - `clock`: sabit adım (saniye); `epsilon` sadece kayan noktalı birikimin adım sınırını kaçırmaması için tolerans.
 - `attributes`: kabul edilen özellik aralığı. `movement`: metre/sn hız ve metre/sn² ivmenin tabanı/özellik payı, kondisyon çarpanı, radyan/sn dönüş, varış toleransı, aciliyet mesafeleri ve yürüyüş/hafif koşu/koşu/sprint hız oranları.
 - `decisions`: özelliğe göre 0,3–0,6 saniyelik tepki aralığı; üst tam adıma yuvarlanır. `phases`: kazanma/karşı pres pencereleri ve karşı preste tetik mesafesi çarpanı.
