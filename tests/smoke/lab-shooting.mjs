@@ -16,11 +16,15 @@ async function doubleTapOwner() {
   const player = page.locator(`[data-player="${owner}"]`);
   await player.tap();
   await player.tap();
-  await page.waitForSelector('[data-overlay="shot-path"]');
+  await page.waitForSelector('[data-overlay="shot-path"]', { state: 'attached' });
   await page.waitForFunction(() => !document.querySelector('[data-ball]').dataset.ballOwner);
   assert.equal(Number(await page.locator(`[data-stat="shots-${owner.split('-')[0]}"]`).textContent()), 1);
   assert.ok(await page.locator('[data-overlay="keeper-reach"]').count() === 2);
   assert.equal(await page.locator('#lab-auto').isChecked(), true);
+  await page.locator('[data-command="play"]').click();
+  await page.waitForFunction(() => document.querySelector('[data-overlay="shot-path"]')?.points.numberOfItems > 1);
+  await page.waitForSelector('[data-overlay="shot-path"]');
+  await page.locator('[data-command="play"]').click();
 }
 
 async function finishPhysicalMatch() {

@@ -64,7 +64,7 @@ Pas ortalaması **799,6**, mesafe her tohumda 15–20 m içinde. 901/731/508'de 
 
 Zamanlayıcı derleme/snapshot/JSON dışında başlar; bütün **54.000 adım** ve olaylar içeridedir. Hız testindeki **üç ayrı tam maçın her birinde 2.000 ms** eşiği korunur; medyan ayrıca yazdırılır. Kanonik Node 22 masaüstü CI süreleri PR'nin `native shooting/keepers 90 minutes` satırında; aynı beş tohumun ham JSON'u ve telefon görüntüsü `match-sim-verification` çıktısındadır. Laboratuvarın telefondaki duvar süresi bu masaüstü ölçümüyle aynı değildir.
 
-Yerel kısıtlı ortamda bazı başlangıç koşuları 2,4–3,3 sn sınır aşımı ve bir koşuda zamanlama duraklaması gösterdi; bu sayılar gizlenip eşik yükseltilmedi. İlk CI adayında üç gerçek maç **1.442,1 / 1.046,2 / 979,4 ms** idi; bunlar santra/boş top regresyon düzeltmesinden önceki `98306f4` ölçümüdür. Son kaynak için bütün ölçüm ve tarayıcı kontrolleri PR akışında yeniden çalışır; son yeşil koşu birleşme kanıtıdır.
+Yerel kısıtlı ortamda bazı başlangıç koşuları 2,4–3,3 sn sınır aşımı ve bir koşuda zamanlama duraklaması gösterdi; bu sayılar gizlenip eşik yükseltilmedi. Son motor kaynağı `511a1fd` için Node 22.23.4 CI'da üç gerçek maç **762,7 / 589,8 / 543,4 ms**, medyan **589,8 ms** idi. Aynı koşuda 394 davranış testinin 393'ü geçti, mevcut telefon fikstürü testi atlandı; lint, build, 12 oyun ve ilk dört laboratuvar duman kontrolü geçti. Yeni telefon testi şutu duraklatılmışken başlattığından yalnız başlangıç noktası olan çizgiyi görünür bekliyordu; test artık önce şutu ve boşalan sahipliği doğrular, oyunu ilerletip çok noktalı gerçek yolu bekler. Son kaynak için bütün ölçüm ve tarayıcı kontrolleri PR akışında yeniden çalışır; son yeşil koşu birleşme kanıtıdır.
 
 ## Telefonda dört deneme
 
