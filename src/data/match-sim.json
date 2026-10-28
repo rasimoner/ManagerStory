@@ -294,7 +294,6 @@
     "standingHeight": 2.05,
     "maximumHeight": 2.9,
     "jumpSpeed": 3.8,
-    "lowReach": 0.16,
     "handRadius": 0.22,
     "holdSeconds": 3.5,
     "carryHeight": 1.1,
@@ -315,10 +314,8 @@
     "rushBallOffset": 1.1,
     "distributionDistance": 30,
     "throwSpeed": 14,
-    "puntDistance": 42,
     "puntSpeed": 23,
     "puntVerticalSpeed": 10,
-    "distributionControlSeconds": 0.4,
     "dogsoMinimumOpenReach": 0.8,
     "readyBodyReach": 1.05,
     "rushBodyReach": 1.3,
@@ -333,11 +330,10 @@
     "halfPauseSeconds": 3,
     "kickoffMinimumSeconds": 1,
     "kickoffPositionTolerance": 1.4,
+    "kickoffReadySpeed": 0.5,
     "kickoffOwnHalfMargin": 0.7,
     "kickoffReceiverBack": 3,
     "kickoffReceiverSide": 2,
-    "kickoffPassDistance": 8,
-    "kickoffMaximumWait": 35,
     "cornerPassDistance": 8
   }
 }

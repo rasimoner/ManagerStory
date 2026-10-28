@@ -271,3 +271,47 @@ test('both teams accept the game keeper profile schema and reject invalid keeper
   input.teams[1].players[0].gk = { reflexes: NaN, handling: 80, oneOnOne: 80 };
   assert.throws(() => api.createSimulation(input), /gk.reflexes/);
 });
+
+test('the opening kickoff reaches its settled receiver instead of rolling forty metres through the shape', () => {
+  const { api, simulation } = labFixture({ seed: 731 });
+  while (simulation.tick < 100 && !simulation.events.some(event => event.type === 'kickoff')) api.stepSimulation(simulation);
+  const kickoff = simulation.events.find(event => event.type === 'kickoff');
+  assert.ok(kickoff);
+  for (const player of simulation.teams[1].players) assert.ok(Math.hypot(player.position.x, player.position.y) >= api.MATCH_SIM_DATA.pitch.centerCircleRadius);
+  for (let tick = 0; tick < 15 && simulation.ball.ownerId == null; tick++) api.stepSimulation(simulation);
+  assert.equal(simulation.ball.ownerId, kickoff.toId);
+  assert.ok(simulation.time - kickoff.time <= 1.5);
+});
+
+test('a keeper stops following an old loose-ball target once an opponent controls the ball', () => {
+  const fixture = shootingScene();
+  fixture.keeper.role = 'recover';
+  fixture.keeper.target = { x: 40, y: 20 };
+  fixture.api.prepareSimulationKeepers(fixture.simulation);
+  assert.equal(fixture.keeper.role, 'keeper');
+  assert.notDeepEqual(plain(fixture.keeper.target), { x: 40, y: 20 });
+});
+
+test('the first crossed boundary wins at a corner and keeps the event log chronological', () => {
+  const fixture = shootingScene();
+  fire(fixture);
+  Object.assign(fixture.simulation.ball, { position: { x: 52.5, y: 33.9 }, velocity: { x: 2, y: 10 }, height: 3, verticalVelocity: 0 });
+  run(fixture, 0.1);
+  assert.equal(events(fixture, 'wide').length, 0, 'the ball left through the touchline before the goal line');
+  assert.equal(fixture.simulation.ball.restart.kind, 'touchline');
+  let previous = 0;
+  for (const event of fixture.simulation.events) { assert.ok(event.time >= previous); previous = event.time; }
+});
+
+test('an opponent touch clears the deliberate backpass restriction even when that first touch rebounds', () => {
+  const fixture = shootingScene({ seed: 0 });
+  const { api, simulation, shooter } = fixture;
+  simulation.ball.backpassTeamId = 'away';
+  shooter.attributes.firstTouch = 0;
+  shooter.attributes.technique = 0;
+  const before = { position: { ...shooter.position }, velocity: { x: 80, y: 0 }, height: 0, verticalVelocity: 0 };
+  const after = api.predictSimulationBall(before, 0.1);
+  api.controlSimulationBall(simulation, { player: shooter, previous: { ...shooter.position }, fraction: 0 }, { before, after });
+  assert.equal(simulation.ball.backpassTeamId, null);
+  assert.ok(events(fixture, 'looseBall').length > 0, 'the opponent did not need a controlled interception');
+});

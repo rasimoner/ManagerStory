@@ -38,6 +38,7 @@ function firstTouchRisk(player, ball) {
 function recordSimulationTouch(simulation, contact, result) {
   const { player, fraction, previous } = contact;
   const flight = simulation.ball.flight;
+  if (simulation.ball.backpassTeamId !== player.teamId) simulation.ball.backpassTeamId = null;
   const fromId = flight?.fromId ?? simulation.ball.lastTouchId;
   const toPos = { x: previous.x + (player.position.x - previous.x) * fraction, y: previous.y + (player.position.y - previous.y) * fraction };
   const event = { time: result.time, fromId, toId: player.id, fromPos: { ...result.touching.position }, toPos,
@@ -78,7 +79,7 @@ function deflectSimulationBall(simulation, player, { touching, remaining, time }
   const speed = max(settings.minimumDeflectionSpeed, hypot(touching.velocity.x, touching.velocity.y) * settings.deflectionSpeedFactor);
   const deflected = { ...touching, velocity: { x: cos(angle) * speed, y: sin(angle) * speed }, verticalVelocity: abs(touching.verticalVelocity) * settings.verticalDeflectionFactor };
   Object.assign(simulation.ball, predictSimulationBall(deflected, remaining), { ownerId: null, lastTouchId: player.id, lastTouchTeamId: player.teamId,
-    excludedId: player.id, controlAfterTick: simulation.tick + ceil(MATCH_SIM_DATA.ball.contactCooldownSeconds / MATCH_SIM_DATA.clock.stepSeconds) });
+    excludedId: player.id, assist: null, controlAfterTick: simulation.tick + ceil(MATCH_SIM_DATA.ball.contactCooldownSeconds / MATCH_SIM_DATA.clock.stepSeconds) });
   emitSimulationEvent(simulation, { type: 'looseBall', time, fromId: player.id, fromPos: { ...touching.position }, toPos: { ...touching.position }, success: false });
   simulation.passing.options = [];
   return deflected;

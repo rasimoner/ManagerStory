@@ -224,7 +224,7 @@ Elde top `heldBy` ile görünür; mevcut kontrol sahibinin erişiminde taşını
 
 ### Maç, santra, devre ve geçici kale çizgisi kuralı
 
-`createSimulation({...,match:true})` tam maçı etkinleştirir; laboratuvar bunu açar. Maç başında ev sahibi, golden sonra yiyen, ikinci yarıda diğer takım santra yapar. Gol sonrası en az 2 sn, devrede en az 3 sn beklenir; oyuncular **aynı fiziksel hareketle kendi yarı alanlarına koşar**, karşı takım orta daire dışına yerleşir. Taker gerçekten kontrol erişimine gelince merkezdeki toptan takım arkadaşına gerçek yerden **santra pası** çıkar. Oyuncu konumu değiştirilerek hızlı başlatılmaz.
+`createSimulation({...,match:true})` tam maçı etkinleştirir; laboratuvar bunu açar. Maç başında ev sahibi, golden sonra yiyen, ikinci yarıda diğer takım santra yapar. Gol sonrası en az 2 sn, devrede en az 3 sn beklenir; oyuncular **aynı fiziksel hareketle kendi yarı alanlarına koşar**, karşı takım orta daire dışına yerleşir. Taker gerçekten kontrol erişimine gelince ve taker ile merkeze yakın seçilen alıcı 0,5 m/sn altına frenleyince merkezdeki toptan takım arkadaşına gerçek yerden **santra pası** çıkar. Karşı takımın orta daire dışındaki gerçek uzaklığı da kontrol edilir. Oyuncu konumu değiştirilerek hızlı başlatılmaz.
 
 Saat 2.700 sn'de `half`, iki takımın yönünün tersine çevrilmesi ve ikinci yarı santrasını üretir. 5.400 sn'de `end` olur, adım/konum/olay/skor ilerlemesi durur. Uzatma yok; bu aşamada gol/devre/yeniden başlama beklemeleri 90 dakikalık sabit saatin içindedir. Sentetik sahneler için `match:false` saat akışını kapatır; golün skor kaydı yine gerçektir.
 
@@ -289,3 +289,8 @@ Node 22.23.4, tohum 901, 22 oyuncu ve aynı 54.000 adım; çizimsiz yerel paket,
 ### Sürme/müdahale ölçümü — 28 Ekim 2026
 
 Node 22.23.4, tohum 901, iki 4-2-3-1, Normal pres/hat/tempo ve Dengeli pas; 22 oyuncu ve 54.000 gerçek adım. **807 pas, %77,94 isabet, 19,78 m ortalama**; önceki 1.358 / %55,82 / 25,84 m belirgin iyileşti. 748 taşıma / 10.871,91 m, 51 beat, 154 müdahale (28 kazanma / 31 sekme / 95 ıska), 159 kontrollü kazanma; 13 faul, 1 sarı, 0 kırmızı, 2 avantaj. Faul ve sarı hedefin altında; nedenleri, üç tohum ve hız serisi [ayrı raporda](match-sim-duels-report.md). Eski altınlar ve topsuz koordinat özeti korunur.
+
+
+### Şut/kaleci ölçümü — 28 Ekim 2026
+
+Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ayrıntılı tablo ve hedefler [şut raporundadır](match-sim-shooting-report.md). Ortalama **27,6 şut, 10,8 isabet, 4,8 gol, 4,45 xG**, ağırlıklı xG/şut **0,161**, başarılı kurtarış **%55,6**; şut kalitesi/gol/kurtarış dengesi hedefleri tamamlanmadı. Pas ortalaması **800**; beş maçta mesafe hedefte, bazı pas sayısı/isabet değerleri biraz dışında. Faul **16,2**, sarı **2,0**; 705 müdahalenin 445'i ıska (**%63,1**). 8. iş bu dağılımları birlikte kalibre edecek; fiziksel sonuç yerine ayrı gol/faul/kurtarış zarı eklenmeyecek. Üç ayrı tam maç için 2 saniye CI eşiği ve değişmemiş topsuz koordinat özeti korunur.

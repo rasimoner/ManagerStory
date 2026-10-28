@@ -54,7 +54,7 @@ function resolveShotContact(simulation, contact, motion) {
 function resolveShotGoalLine(simulation, motion) {
   const ball = simulation.ball, pitch = MATCH_SIM_DATA.pitch;
   const direction = Math.sign(ball.position.x), boundary = pitch.length / 2 + MATCH_SIM_DATA.ball.radius;
-  if (Math.abs(ball.position.x) < boundary || !direction) { resolveSimulationBallOut(simulation, motion.before, motion); return; }
+  if (!shotClearedGoalLine(simulation, motion)) { resolveSimulationBallOut(simulation, motion.before, motion); return; }
   const fraction = (direction * boundary - motion.before.position.x) / (ball.position.x - motion.before.position.x);
   const safeFraction = Math.max(0, Math.min(1, fraction));
   const touching = predictSimulationBall(motion.before, safeFraction * motion.seconds);
@@ -68,4 +68,12 @@ function resolveShotGoalLine(simulation, motion) {
 
 function snapshotBall(ball) {
   return { position: { ...ball.position }, velocity: { ...ball.velocity }, height: ball.height, verticalVelocity: ball.verticalVelocity };
+}
+
+function shotClearedGoalLine(simulation, motion) {
+  const ball = simulation.ball;
+  const boundary = MATCH_SIM_DATA.pitch.length / 2 + MATCH_SIM_DATA.ball.radius;
+  if (Math.abs(ball.position.x) < boundary) return false;
+  const fraction = (Math.sign(ball.position.x) * boundary - motion.before.position.x) / (ball.position.x - motion.before.position.x);
+  return simulationBallExitFraction({ ...motion, shot: true }) >= fraction - MATCH_SIM_DATA.clock.epsilon;
 }

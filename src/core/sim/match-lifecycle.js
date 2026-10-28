@@ -82,7 +82,9 @@ function kickoffParticipants(simulation) {
   const team = simulation.teams.find(candidate => candidate.id === simulation.match.kickoffTeamId);
   const players = team.players.filter(player => player.slot !== 'GK' && !player.sentOff);
   const taker = players.reduce((best, player) => player.anchor.x > best.anchor.x ? player : best);
-  return { takerId: taker.id, receiverId: players.find(player => player.id !== taker.id).id };
+  const target = { x: -MATCH_SIM_DATA.match.kickoffReceiverBack * team.direction, y: MATCH_SIM_DATA.match.kickoffReceiverSide };
+  const receiver = players.filter(player => player.id !== taker.id).reduce((best, player) => pointDistance(player.position, target) < pointDistance(best.position, target) ? player : best);
+  return { takerId: taker.id, receiverId: receiver.id };
 }
 
 function kickoffTarget(simulation, team, player) {
@@ -92,18 +94,18 @@ function kickoffTarget(simulation, team, player) {
   if (player.slot === 'GK') return { x: (-MATCH_SIM_DATA.pitch.length / 2 + MATCH_SIM_DATA.goalkeeper.threatDepth) * team.direction, y: 0 };
   const localX = Math.min(-settings.kickoffOwnHalfMargin, player.anchor.x * MATCH_SIM_DATA.shape.attacking.length - MATCH_SIM_DATA.shape.attacking.length / 2);
   const y = player.anchor.y * MATCH_SIM_DATA.shape.defending.width;
-  const x = team.id !== simulation.match.kickoffTeamId && Math.hypot(localX, y) < MATCH_SIM_DATA.pitch.centerCircleRadius ? -MATCH_SIM_DATA.pitch.centerCircleRadius : localX;
+  const x = team.id !== simulation.match.kickoffTeamId && Math.hypot(localX, y) < MATCH_SIM_DATA.pitch.centerCircleRadius + settings.kickoffPositionTolerance ? -MATCH_SIM_DATA.pitch.centerCircleRadius - settings.kickoffPositionTolerance : localX;
   return { x: x * team.direction, y };
 }
 
 function kickoffReady(simulation) {
   const settings = MATCH_SIM_DATA.match, match = simulation.match;
   const pause = match.phase === 'goal' ? settings.goalPauseSeconds : match.phase === 'half' ? settings.halfPauseSeconds : settings.kickoffMinimumSeconds;
-  if ((simulation.tick - match.phaseSinceTick) * MATCH_SIM_DATA.clock.stepSeconds < pause) return false;
+  if ((simulation.tick - match.phaseSinceTick) * MATCH_SIM_DATA.clock.stepSeconds < pause || !kickoffPairSettled(simulation)) return false;
   return simulation.teams.every(team => team.players.filter(player => !player.sentOff).every(player => {
     const distance = pointDistance(player.position, player.target);
     const ownHalf = player.id === match.restart.takerId || player.position.x * team.direction <= MATCH_SIM_DATA.clock.epsilon;
-    const outsideCircle = team.id === match.kickoffTeamId || Math.hypot(player.position.x, player.position.y) >= MATCH_SIM_DATA.pitch.centerCircleRadius - settings.kickoffPositionTolerance;
+    const outsideCircle = team.id === match.kickoffTeamId || Math.hypot(player.position.x, player.position.y) >= MATCH_SIM_DATA.pitch.centerCircleRadius;
     return distance <= Math.min(settings.kickoffPositionTolerance, MATCH_SIM_DATA.ball.controlRadius) && ownHalf && outsideCircle;
   }));
 }
@@ -136,4 +138,10 @@ function undoUnsuccessfulSave(simulation, shot) {
   if (save.onTarget) simulation.statistics.teams[keeperTeam.id].saves--;
   save.success = false;
   save.goalAfterTouch = true;
+}
+
+function kickoffPairSettled(simulation) {
+  const restart = simulation.match.restart;
+  return simulation.teams.flatMap(team => team.players).filter(player => player.id === restart.takerId || player.id === restart.receiverId)
+    .every(player => Math.hypot(player.velocity.x, player.velocity.y) <= MATCH_SIM_DATA.match.kickoffReadySpeed);
 }

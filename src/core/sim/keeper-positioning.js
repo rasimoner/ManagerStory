@@ -43,6 +43,7 @@ export function prepareSimulationKeepers(simulation) {
 function prepareTeamKeeper(simulation, team) {
   const keeper = team.players.find(player => player.slot === 'GK');
   if (keeperUnavailableForPositioning(simulation, keeper)) return;
+  if (keeperFollowsFreeBall(simulation, keeper)) { keeper.keeper.setSeconds = 0; keeper.keeper.mode = 'rush'; return; }
   const state = keeper.keeper;
   keeper.role = 'keeper';
   if (state.shotIndex === simulation.ball.shot?.eventIndex && keeperShotActive(simulation.ball)) { prepareKeeperReaction(simulation, keeper); return; }
@@ -53,8 +54,13 @@ function prepareTeamKeeper(simulation, team) {
 }
 
 function keeperUnavailableForPositioning(simulation, keeper) {
-  if (!keeper || keeper.sentOff || simulation.ball.ownerId === keeper.id || simulation.ball.carry?.playerId === keeper.id) return true;
-  return !keeperShotActive(simulation.ball) && ['restart', 'recover', 'receive', 'intercept'].includes(keeper.role);
+  return !keeper || keeper.sentOff || simulation.ball.ownerId === keeper.id || simulation.ball.carry?.playerId === keeper.id;
+}
+
+function keeperFollowsFreeBall(simulation, keeper) {
+  const ball = simulation.ball;
+  if (ball.ownerId != null || ball.carry || keeperShotActive(ball)) return false;
+  return ['restart', 'recover', 'receive', 'intercept'].includes(keeper.role);
 }
 
 function prepareKeeperSet(simulation, team, keeper) {

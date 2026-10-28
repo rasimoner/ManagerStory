@@ -39,7 +39,8 @@ function simulationBoundaryCrossing(start, end, shot) {
   const horizontal = crossingFraction(start.x, end.x, pitch.length / 2 + (shot ? MATCH_SIM_DATA.ball.radius : 0));
   const vertical = crossingFraction(start.y, end.y, pitch.width / 2);
   const fraction = min(horizontal, vertical);
-  return { fraction, position: { x: clampSimValue(start.x + (end.x - start.x) * fraction, -pitch.length / 2, pitch.length / 2),
+  // Keep the crossed axis: a clamped touchline point can sit on the goal line at a corner.
+  return { fraction, goalLine: horizontal <= vertical, position: { x: clampSimValue(start.x + (end.x - start.x) * fraction, -pitch.length / 2, pitch.length / 2),
     y: clampSimValue(start.y + (end.y - start.y) * fraction, -pitch.width / 2, pitch.width / 2) } };
 }
 

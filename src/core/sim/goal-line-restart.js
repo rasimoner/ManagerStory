@@ -4,7 +4,7 @@ import { simulationPlayerAvailable } from './duel-state.js';
 
 export function temporaryGoalLineRestart(simulation, crossing) {
   const ball = simulation.ball, pitch = MATCH_SIM_DATA.pitch;
-  if (Math.abs(crossing.position.x) < pitch.length / 2 - MATCH_SIM_DATA.clock.epsilon) return null;
+  if (!crossing.goalLine) return null;
   const direction = Math.sign(crossing.position.x);
   const defending = simulation.teams.find(team => team.direction === -direction);
   const attacking = simulation.teams.find(team => team.id !== defending.id);
