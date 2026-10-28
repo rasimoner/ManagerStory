@@ -282,3 +282,12 @@ test('a rolling dribble touch preserves the jockey and support roles instead of 
   assert.deepEqual(plain(fixture.defender.target), defenderTarget);
   assert.deepEqual(plain(support.target), supportTarget);
 });
+
+test('a carrier at the corner cannot prefer a clipped direction with no running space', () => {
+  const fixture = duelScene();
+  fixture.owner.position = { x: 50.5, y: 32 };
+  for (const player of fixture.simulation.teams[1].players) player.position.x = -40;
+  const option = fixture.api.evaluateSimulationDribble(fixture.simulation, fixture.owner);
+  const distance = Math.hypot(option.target.x - fixture.owner.position.x, option.target.y - fixture.owner.position.y);
+  assert.ok(distance >= fixture.api.MATCH_SIM_DATA.dribbling.minimumLookAhead);
+});

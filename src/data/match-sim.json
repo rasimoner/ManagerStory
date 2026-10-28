@@ -134,7 +134,7 @@
     "passWaitWeight": 2,
     "passWaitCap": 7,
     "preferredDistance": 20,
-    "dribbleBase": 32,
+    "dribbleBase": 27,
     "dribbleSafetyWeight": 7,
     "dribbleProgressWeight": 0.65,
     "dribblePressureCost": 32,

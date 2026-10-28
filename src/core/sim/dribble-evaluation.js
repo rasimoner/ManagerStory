@@ -20,6 +20,7 @@ function evaluateCarryDirection({ owner, carrier, team, opponents }, angle) {
   const heading = (team.direction > 0 ? 0 : Math.PI) + angle;
   const distance = Math.max(settings.minimumLookAhead, owner.limits.maxSpeed * owner.carrySpeedRatio * settings.lookAheadSeconds);
   const target = fitCarryTarget({ x: owner.position.x + Math.cos(heading) * distance, y: owner.position.y + Math.sin(heading) * distance });
+  if (planningDistance(owner.position, target) < settings.minimumLookAhead) return { target, safeSeconds: 0, progress: 0, score: -Infinity };
   const safeSeconds = carrySafeSeconds({ owner, carrier, opponents, target });
   const turn = Math.abs(Math.atan2(Math.sin(heading - owner.heading), Math.cos(heading - owner.heading)));
   const progress = (target.x - owner.position.x) * team.direction;

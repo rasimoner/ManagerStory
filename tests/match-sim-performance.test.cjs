@@ -58,6 +58,9 @@ function measureCompleteDuelsMatch(api) {
   const milliseconds = performance.now() - started;
   const statistics = api.readSimulationStatistics(simulation);
   assert.equal(simulation.time, 5400);
+  assert.ok(statistics.passes >= 800 && statistics.passes <= 1000, 'reference match pass volume');
+  assert.ok(statistics.accuracy >= 75 && statistics.accuracy <= 88, 'reference match pass accuracy');
+  assert.ok(statistics.averageDistance >= 15 && statistics.averageDistance <= 20, 'reference match pass distance');
   assert.ok(statistics.passes > 0 && statistics.interceptions > 0 && statistics.dribbles > 0 && statistics.tackles > 0);
   return { milliseconds, statistics };
 }
