@@ -5,7 +5,7 @@
   "movement": {"baseSpeed":5.2,"paceSpeed":3.8,"baseAcceleration":2.4,"attributeAcceleration":2.6,"minimumFitnessFactor":0.72,"fitnessFactorRange":0.28,"turnRate":6,"arrivalRadius":0.12,"walkDistance":2,"jogDistance":6,"sprintDistance":14,"gaits":{"walk":0.28,"jog":0.5,"run":0.76,"sprint":1}},
   "decisions": {"minimumSeconds":0.3,"maximumSeconds":0.6},
   "phases": {"winningSeconds":3,"counterpressSeconds":4,"counterpressTriggerFactor":1.15},
-  "roles": {"maxPressers":1,"coverCount":1,"coverDistance":7,"coverLaneFraction":0.35,"markCount":1,"markGoalSideDistance":2,"supportCount":2,"supportBackDistance":8,"supportSideDistance":10,"depthRunDistance":10},
+  "roles": {"maxPressers":1,"coverCount":1,"coverDistance":7,"coverLaneFraction":0.35,"markCount":1,"markGoalSideDistance":2,"supportCount":2,"supportBackDistance":8,"supportSideDistance":10,"depthRunDistance":10,"holderStandOffDistance":2.4},
   "shape": {"defending":{"length":32,"width":40,"envelopeLength":38,"envelopeWidth":44,"ballBehindCenter":12,"ballSideShift":0.55},"attacking":{"length":48,"width":56,"envelopeLength":52,"envelopeWidth":60,"ballAheadCenter":5,"ballSideShift":0.35},"keeper":{"minimumDepth":3,"maximumDepth":12,"progressDepthFactor":0.09,"sideFactor":0.13}},
   "tactics": {"pressDistance":{"Düşük":12,"Normal":19,"Yüksek":27},"lineShift":{"Geride":-6,"Normal":0,"Önde":6}},
   "formations": {
@@ -22,5 +22,76 @@
       {"slot":"LST","line":"attack","x":0.5,"y":-0.17},{"slot":"RST","line":"attack","x":0.5,"y":0.17}
     ]
   },
-  "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL"}}
+  "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.25,0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL","holder":"T","receive":"A","intercept":"P","recover":"S","restart":"Ç"},"pathSeconds":3,"pathStepSeconds":0.2,"ballHeightScale":0.1,"matchSeconds":5400,"passLabelPadding":19},
+  "ball": {
+    "controlRadius": 1.2,
+    "reachableHeight": 1.8,
+    "rollingDeceleration": 1.25,
+    "gravity": 9.81,
+    "footOffset": 0.35,
+    "defaultAttribute": 65,
+    "contactCooldownSeconds": 0.3,
+    "firstTouch": {
+      "baseRisk": 0.08,
+      "speedRisk": 0.55,
+      "referenceSpeed": 25,
+      "techniqueRisk": 0.1,
+      "maximumRisk": 0.85,
+      "deflectionSpeedFactor": 0.48,
+      "minimumDeflectionSpeed": 2,
+      "deflectionAngle": 1.1,
+      "verticalDeflectionFactor": 0.2
+    }
+  },
+  "passing": {
+    "holdMinimumSeconds": 0.85,
+    "holdSkillSeconds": 0.7,
+    "pressureHoldReduction": 0.4,
+    "pressureDistance": 6,
+    "angleTolerance": 0.18,
+    "minimumSpeed": 10,
+    "maximumSpeed": 25,
+    "distanceSpeedFactor": 0.28,
+    "lobMinimumSeconds": 0.9,
+    "lobSecondsPerMetre": 0.04,
+    "minimumDistance": 3,
+    "leadDistance": 6,
+    "leadVelocitySeconds": 0.5,
+    "evaluationStepSeconds": 0.1,
+    "arrivalGraceSeconds": 0.1,
+    "minimumVisionDistance": 16,
+    "visionDistanceRange": 60,
+    "spaceCap": 15,
+    "safetyWeight": 3,
+    "lobPenalty": 7,
+    "angleError": 0.14,
+    "speedError": 0.16,
+    "pressureErrorFactor": 0.8,
+    "riskWaitSeconds": 3,
+    "chasePlayersPerTeam": 2,
+    "chaseHorizonSeconds": 5,
+    "chaseStepSeconds": 0.25,
+    "recoverySpeedThreshold": 0.5,
+    "defaultStyle": "Dengeli",
+    "styles": {
+      "Kısa": {
+        "preferredDistance": 12,
+        "distanceWeight": 0.4,
+        "progressWeight": 0.35,
+        "spaceWeight": 0.65
+      },
+      "Dengeli": {
+        "preferredDistance": 22,
+        "distanceWeight": 0.2,
+        "progressWeight": 0.65,
+        "spaceWeight": 0.5
+      },
+      "Direkt": {
+        "preferredDistance": 34,
+        "distanceWeight": 0.14,
+        "progressWeight": 1,
+        "spaceWeight": 0.3
+      }
+    }
+  }
 }

@@ -1,5 +1,8 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 
+const { isFinite, isSafeInteger, isInteger } = Number;
+const { abs } = Math;
+
 export function validateSimBall(ball, teams) {
   if (!ball || !teams.some(team => team.id === ball.teamId)) throw new TypeError('Ball team must identify a simulation team.');
   validateSimPosition(ball.position);
@@ -7,12 +10,12 @@ export function validateSimBall(ball, teams) {
 
 export function validateSimPosition(position) {
   const pitch = MATCH_SIM_DATA.pitch;
-  if (!position || !Number.isFinite(position.x) || !Number.isFinite(position.y)) throw new TypeError('Player or ball position must be finite.');
-  if (Math.abs(position.x) > pitch.length / 2 || Math.abs(position.y) > pitch.width / 2) throw new RangeError('Position must be inside the pitch.');
+  if (!position || !isFinite(position.x) || !isFinite(position.y)) throw new TypeError('Player or ball position must be finite.');
+  if (abs(position.x) > pitch.length / 2 || abs(position.y) > pitch.width / 2) throw new RangeError('Position must be inside the pitch.');
 }
 
 export function validateSimulationInput(input) {
-  if (!Number.isSafeInteger(input.seed) || input.seed < 0) throw new TypeError('Simulation seed must be a non-negative safe integer.');
+  if (!isSafeInteger(input.seed) || input.seed < 0) throw new TypeError('Simulation seed must be a non-negative safe integer.');
   if (!Array.isArray(input.teams) || input.teams.length !== 2) throw new TypeError('Simulation requires two teams.');
   input.teams.forEach(validateSimTeam);
   if (input.teams[0].direction === input.teams[1].direction) throw new TypeError('Teams must attack in opposite directions.');
@@ -28,15 +31,31 @@ function validateSimTeam(team) {
   const slots = new Set(team.players.map(player => player.slot));
   if (!formation.every(anchor => slots.has(anchor.slot))) throw new TypeError('Players must fill each formation slot once.');
   if (!(team.tactics.press in MATCH_SIM_DATA.tactics.pressDistance) || !(team.tactics.line in MATCH_SIM_DATA.tactics.lineShift)) throw new TypeError('Unknown team tactic.');
+  validateInitialPassingStyle(team.tactics);
   team.players.forEach(validateSimPlayer);
 }
 
+function validateInitialPassingStyle(tactics) {
+  const style = tactics.passingStyle ?? MATCH_SIM_DATA.passing.defaultStyle;
+  if (!(style in MATCH_SIM_DATA.passing.styles)) throw new TypeError('Unknown team passing style.');
+}
+
 function validateSimPlayer(player) {
-  const { minimum, maximum } = MATCH_SIM_DATA.attributes;
-  for (const attribute of ['pace', 'acceleration', 'reactions', 'fitness']) {
-    const value = player.attributes?.[attribute];
-    if (!Number.isFinite(value) || value < minimum || value > maximum) throw new RangeError(`Invalid player attribute: ${attribute}.`);
-  }
+  validateSimAttributes(player.attributes);
   if (player.position) validateSimPosition(player.position);
-  if (player.id == null || !Number.isInteger(player.number)) throw new TypeError('Player identity and shirt number are required.');
+  if (player.id == null || !isInteger(player.number)) throw new TypeError('Player identity and shirt number are required.');
+}
+
+function validateSimAttributes(attributes) {
+  for (const attribute of ['pace', 'acceleration', 'reactions', 'fitness']) {
+    validateSimAttribute(attribute, attributes?.[attribute]);
+  }
+  for (const attribute of ['passing', 'vision', 'technique', 'firstTouch']) {
+    validateSimAttribute(attribute, attributes?.[attribute] ?? MATCH_SIM_DATA.ball.defaultAttribute);
+  }
+}
+
+function validateSimAttribute(attribute, value) {
+  const { minimum, maximum } = MATCH_SIM_DATA.attributes;
+  if (!isFinite(value) || value < minimum || value > maximum) throw new RangeError(`Invalid player attribute: ${attribute}.`);
 }

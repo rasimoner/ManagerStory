@@ -1,56 +1,66 @@
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { createSimulation, readSimulation } from '../../sim/simulation-state.js';
 import { advanceSimulation } from '../../sim/simulation-step.js';
+import { placeSimulationBall } from '../../sim/ball-state.js';
+import { readSimulationStatistics } from '../../sim/ball-events.js';
+import { requestSimulationPass } from '../../sim/owner-decision.js';
 import { setSimulationTactics } from '../../sim/tactic-settings.js';
 import { createLabScenario } from './scenario.js';
-import { createLabBallDriver, advanceLabBall } from './automatic-ball.js';
+// The old scripted driver stays reachable by name for the unchanged off-ball regression tests only.
+import './automatic-ball.js';
 
 export function createLabSession(initial = {}) {
-  let options = { seed: MATCH_SIM_DATA.lab.defaultSeed, ...initial };
-  let simulation = createSimulation(createLabScenario(options));
-  let driver = createLabBallDriver(options.seed);
-  let manualBall = structuredClone(simulation.ball);
-  let accumulator = 0;
+  const context = { options: { seed: MATCH_SIM_DATA.lab.defaultSeed, ...initial }, simulation: null, pendingBall: null };
   const session = { running: true, automatic: true, speed: 1 };
-  const snapshot = () => {
-    const copy = readSimulation(simulation);
-    if (!session.automatic) copy.ball = structuredClone(manualBall);
-    return { ...session, simulation: copy };
-  };
-  const reset = changes => {
-    const candidate = { ...options, ...changes };
-    const next = createSimulation(createLabScenario(candidate));
-    options = candidate;
-    simulation = next;
-    driver = createLabBallDriver(options.seed);
-    manualBall = structuredClone(simulation.ball);
-    accumulator = 0;
-  };
-  const advance = seconds => {
-    if (!session.running) return;
-    accumulator = consumeLabTime({ simulation, driver, manualBall, session, accumulator, seconds });
-  };
-  const placeBall = position => {
-    manualBall = { teamId: session.automatic ? simulation.ball.teamId : manualBall.teamId, position: { ...position } };
-    session.automatic = false;
-  };
-  const chooseOwner = teamId => {
-    manualBall = { position: { ...(session.automatic ? simulation.ball.position : manualBall.position) }, teamId };
-    session.automatic = false;
-  };
-  const setTactics = tactics => { setSimulationTactics(simulation, tactics); options = { ...options, ...tactics }; };
-  return { session, snapshot, reset, advance, placeBall, chooseOwner, setTactics,
-    enableAutomatic(value) { session.automatic = value; driver = createLabBallDriver(options.seed); },
+  resetLabSession(context, {});
+  return { session,
+    snapshot: () => labSessionSnapshot(context, session),
+    reset: changes => resetLabSession(context, changes),
+    advance: seconds => advanceLabSession(context, session, seconds),
+    placeBall: position => queueLabIntervention(context, session, { position }),
+    chooseOwner: teamId => queueLabIntervention(context, session, { teamId }),
+    setTactics: tactics => { setSimulationTactics(context.simulation, tactics); context.options = { ...context.options, ...tactics }; },
+    enableAutomatic: value => { session.automatic = value; context.simulation.automaticPasses = value; },
+    passTo: request => { requestSimulationPass(context.simulation, request); session.automatic = false; context.simulation.automaticPasses = false; },
+    completeMatch: () => completeLabMatch(context, session),
   };
 }
 
-function consumeLabTime(context) {
-  const { stepSeconds, epsilon } = MATCH_SIM_DATA.clock;
-  let remaining = context.accumulator + context.seconds * context.session.speed;
-  while (remaining + epsilon >= stepSeconds) {
-    const ball = context.session.automatic ? advanceLabBall(context.driver, context.simulation) : context.manualBall;
-    advanceSimulation(context.simulation, { seconds: stepSeconds, ball });
-    remaining = Math.max(0, remaining - stepSeconds);
-  }
-  return remaining;
+function completeLabMatch(context, session) {
+  const started = performance.now();
+  session.automatic = true;
+  context.simulation.automaticPasses = true;
+  if (context.pendingBall) { placeSimulationBall(context.simulation, context.pendingBall); context.pendingBall = null; }
+  advanceSimulation(context.simulation, { seconds: Math.max(0, MATCH_SIM_DATA.lab.matchSeconds - context.simulation.time) });
+  session.lastRunSeconds = (performance.now() - started) / 1000;
+  session.running = false;
+}
+
+function resetLabSession(context, changes) {
+  const options = { ...context.options, ...changes };
+  const simulation = createSimulation(createLabScenario(options));
+  context.options = options;
+  context.simulation = simulation;
+  context.pendingBall = null;
+}
+
+function labSessionSnapshot(context, session) {
+  const simulation = readSimulation(context.simulation, { includeEvents: false });
+  // A paused referee placement is a preview; its physical application happens at the next tick.
+  if (context.pendingBall) simulation.ball = structuredClone(context.pendingBall);
+  return { ...session, simulation, metrics: readSimulationStatistics(context.simulation) };
+}
+
+function queueLabIntervention(context, session, change) {
+  const current = context.pendingBall ?? context.simulation.ball;
+  context.pendingBall = { position: { ...(change.position ?? current.position) }, teamId: change.teamId ?? current.teamId };
+  session.automatic = false;
+  context.simulation.automaticPasses = false;
+}
+
+function advanceLabSession(context, session, seconds) {
+  if (!session.running) return;
+  if (context.pendingBall) { placeSimulationBall(context.simulation, context.pendingBall); context.pendingBall = null; }
+  context.simulation.automaticPasses = session.automatic;
+  advanceSimulation(context.simulation, { seconds: seconds * session.speed });
 }
