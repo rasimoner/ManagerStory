@@ -64,7 +64,7 @@ Topa sahipken hedef boy 48 m, en 56 m: genişlik pas açılarını, boy derin ko
 
 Sahaya dokunmak otomatik modu kapatır ve top referansını oraya koyar. Takım düğmeleri sahipliği değiştirir. Otomatik modda top sahip takımın farklı oyuncularına doğru veri hızıyla akar; bekleme aralıkları ve ara sıra sahiplik değişimi seed'lidir. Yeni motor topun kime gideceğine karar vermez. Kontroller: duraklat, hız, tohumla sıfırla, iki takımın dizilişi, pres ve savunma hattı. Katmanlar: roller ve örtme çizgisi, hatlar ve ölçülü takım kutusu, hız okları, çapa hedefleri.
 
-Sayfa ayrı Vite girişidir; oyun hiçbir laboratuvar modülü yüklemez. Laboratuvar dosyaları çevrimdışı önbelleğe alınmaz; service worker laboratuvar ad alanını ağdan geçirebilir. Laboratuvar kendi service worker'ını kaydetmez, kariyerin localStorage alanını okumaz/yazmaz.
+Sayfa ayrı Vite girişidir; oyun hiçbir laboratuvar modülü yüklemez. Laboratuvar dosyaları çevrimdışı önbelleğe alınmaz; service worker laboratuvar ad alanını ağdan geçirebilir. Önceden kurulmuş oyun worker'ı listesinde olmayan `.js` dosyalarını reddettiği için bağımsız giriş `lab/laboratory.mjs` olarak yayınlanır; böylece kullanıcı önce oyunu açıp yenilemek zorunda kalmaz. Bu geçiş eski worker fikstürüyle ayrıca tarayıcıda sınanır. Laboratuvar kendi service worker'ını kaydetmez, kariyerin localStorage alanını okumaz/yazmaz.
 
 ## Kabul ve ölçüm
 
