@@ -1,6 +1,8 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue, pointDistance } from './geometry.js';
 import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
+import { endSimulationCarry } from './dribbling.js';
+import { simulationPlayerAvailable } from './duel-state.js';
 import { beginSimTransition } from './simulation-phases.js';
 
 const { min } = Math;
@@ -8,6 +10,7 @@ const { min } = Math;
 export function resolveSimulationBallOut(simulation, before, timing) {
   const ball = simulation.ball, pitch = MATCH_SIM_DATA.pitch;
   if (ball.ownerId != null || (Math.abs(ball.position.x) <= pitch.length / 2 && Math.abs(ball.position.y) <= pitch.width / 2)) return;
+  endSimulationCarry(simulation);
   const crossing = simulationBoundaryCrossing(before.position, ball.position);
   const team = simulation.teams.find(candidate => candidate.id !== ball.lastTouchTeamId);
   const time = timing.startTime + crossing.fraction * timing.seconds;
@@ -44,7 +47,7 @@ function crossingFraction(start, end, boundary) {
 
 function nearestRestartTaker(team, position) {
   let nearest = team.players[0], minimum = Infinity;
-  for (const player of team.players) {
+  for (const player of team.players.filter(simulationPlayerAvailable)) {
     const distance = pointDistance(player.position, position);
     if (distance < minimum) { nearest = player; minimum = distance; }
   }

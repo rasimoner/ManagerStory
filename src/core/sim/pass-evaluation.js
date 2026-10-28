@@ -1,5 +1,6 @@
+import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
-import { pointDistance, clampSimValue } from './geometry.js';
+import { planningDistance, clampSimValue } from './geometry.js';
 import { simulationPassFlight, simulationBallTravelSeconds } from './ball-physics.js';
 import { simulationPlayerArrival, simulationOpponentArrival } from './player-arrival.js';
 import { simulationRuntime } from './simulation-runtime.js';
@@ -11,33 +12,52 @@ export function evaluateSimulationPass(simulation, request, prepared) {
   const { passer, receiver, fromPos, target, distance, receiverSeconds, opponentSeconds, space } = context;
   const flight = simulationPassFlight(fromPos, target, request.lofted);
   const ballSeconds = simulationBallTravelSeconds(flight, distance);
-  const route = evaluatePassRoute({ flight, ballSeconds, opponents: context.opponents });
   const reachable = receiverSeconds <= ballSeconds + MATCH_SIM_DATA.passing.arrivalGraceSeconds;
+  const route = reachable ? evaluatePassRoute({ flight, ballSeconds, opponents: context.opponents, launchChecked: context.launchChecked })
+    : { interceptingId: null, interceptionSeconds: null, minimumMargin: -Infinity };
   const option = { fromId: passer.id, toId: receiver.id, fromPos, target, lofted: !!request.lofted, distance, ballSeconds, receiverSeconds,
     opponentSeconds, space, reachable, safe: reachable && route.interceptingId === null, ...route };
   option.score = scoreSimulationPass(context, option);
   return option;
 }
 
-function preparePassEvaluation(simulation, request) {
-  const players = simulationRuntime(simulation).byId;
-  const passer = players.get(request.fromId ?? simulation.ball.ownerId), receiver = players.get(request.toId);
-  if (!passer || !receiver || passer.id === receiver.id || passer.teamId !== receiver.teamId) throw new TypeError('Pass requires an owner and a different teammate.');
-  const team = simulation.teams.find(candidate => candidate.id === passer.teamId);
-  const opponents = simulation.teams.find(candidate => candidate.id !== team.id).players;
-  const target = { ...(request.target ?? receiver.position) }, fromPos = { ...simulation.ball.position };
-  const distances = opponents.map(player => pointDistance(player.position, target));
-  return { passer, receiver, team, opponents, target, fromPos, distance: pointDistance(fromPos, target),
-    receiverSeconds: simulationPlayerArrival(receiver, target),
-    opponentSeconds: min(...opponents.map((player, index) => simulationOpponentArrival(player, target, distances[index]))),
-    space: min(MATCH_SIM_DATA.passing.spaceCap, ...distances) };
+function preparePassEvaluation(simulation, request, scope) {
+  const { owner: passer, team, opponents, fromPos } = scope ?? createPassEvaluationScope(simulation, request);
+  const receiver = simulationRuntime(simulation).byId.get(request.toId);
+  validatePassParticipants(passer, receiver);
+  const target = { ...(request.target ?? receiver.position) };
+  return { passer, receiver, team, opponents, target, fromPos, distance: planningDistance(fromPos, target),
+    receiverSeconds: simulationPlayerArrival(receiver, target), launchChecked: scope?.launchChecked ?? false, ...evaluateTargetCompetition(opponents, target) };
 }
 
-function evaluatePassRoute({ flight, ballSeconds, opponents }) {
+function createPassEvaluationScope(simulation, request) {
+  const owner = simulationRuntime(simulation).byId.get(request.fromId ?? simulation.ball.ownerId);
+  if (!owner) throw new TypeError('Pass requires an owner and a different teammate.');
+  const team = simulation.teams.find(candidate => candidate.id === owner.teamId);
+  const opponents = simulation.teams.find(candidate => candidate.id !== team.id).players.filter(simulationPlayerAvailable);
+  return { owner, team, opponents, fromPos: { ...simulation.ball.position } };
+}
+
+function validatePassParticipants(passer, receiver) {
+  if (!receiver || passer.id === receiver.id || passer.teamId !== receiver.teamId) throw new TypeError('Pass requires an owner and a different teammate.');
+}
+
+function evaluateTargetCompetition(opponents, target) {
+  let opponentSeconds = Infinity, space = MATCH_SIM_DATA.passing.spaceCap;
+  for (const player of opponents) {
+    const distance = planningDistance(player.position, target);
+    space = min(space, distance);
+    const maximumReach = MATCH_SIM_DATA.ball.controlRadius + player.limits.maxSpeed * opponentSeconds + MATCH_SIM_DATA.clock.epsilon;
+    if (distance <= maximumReach) opponentSeconds = min(opponentSeconds, simulationOpponentArrival(player, target, distance));
+  }
+  return { opponentSeconds, space };
+}
+
+function evaluatePassRoute({ flight, ballSeconds, opponents, launchChecked }) {
   const interval = MATCH_SIM_DATA.passing.evaluationStepSeconds;
   const route = { interceptingId: null, interceptionSeconds: null, minimumMargin: Infinity };
   const speed = hypot(flight.velocity.x, flight.velocity.y);
-  for (let time = interval; time < ballSeconds + interval; time += interval) {
+  for (let time = launchChecked ? interval : 0; time < ballSeconds + interval; time += interval) {
     const sampleTime = min(time, ballSeconds);
     const sample = samplePassRoute(flight, sampleTime, speed);
     if (sample.height > MATCH_SIM_DATA.ball.reachableHeight) continue;
@@ -84,19 +104,23 @@ export function evaluateSimulationPassOptions(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
   if (!owner) return [];
   const team = simulation.teams.find(candidate => candidate.id === owner.teamId);
+  const opponents = simulation.teams.find(candidate => candidate.id !== team.id).players.filter(simulationPlayerAvailable);
+  if (isPassLaunchBlocked(simulation, opponents)) return [];
   const options = [];
+  const context = { simulation, owner, options, team, opponents, fromPos: { ...simulation.ball.position }, launchChecked: true };
   for (const receiver of team.players) {
-    if (receiver.id === owner.id) continue;
-    appendReceiverOptions({ simulation, owner, options }, receiver, team.direction);
+    if (receiver.id === owner.id || !simulationPlayerAvailable(receiver)) continue;
+    appendReceiverOptions(context, receiver, team.direction);
   }
   return options;
 }
 
 function appendReceiverOptions(context, receiver, direction) {
   const lead = simulationLeadTarget(receiver, direction);
-  for (const target of [receiver.position, lead]) {
+  const moving = simulationMovingReceiverTarget(receiver);
+  for (const target of [moving, lead]) {
     const request = { fromId: context.owner.id, toId: receiver.id, target };
-    const prepared = preparePassEvaluation(context.simulation, request);
+    const prepared = preparePassEvaluation(context.simulation, request, context);
     const ground = evaluateSimulationPass(context.simulation, request, prepared);
     if (ground.distance < MATCH_SIM_DATA.passing.minimumDistance) continue;
     context.options.push(ground);
@@ -115,6 +139,17 @@ function simulationLeadTarget(receiver, direction) {
 
 export function simulationOwnerPressure(simulation, owner) {
   const opponents = simulation.teams.find(team => team.id !== owner.teamId).players;
-  const distance = min(...opponents.map(player => pointDistance(player.position, owner.position)));
+  let distance = Infinity;
+  for (const player of opponents) if (simulationPlayerAvailable(player)) distance = min(distance, planningDistance(player.position, owner.position));
   return max(0, 1 - distance / MATCH_SIM_DATA.passing.pressureDistance);
+}
+
+function simulationMovingReceiverTarget(receiver) {
+  const seconds = MATCH_SIM_DATA.passing.receiverMotionSeconds, pitch = MATCH_SIM_DATA.pitch;
+  return { x: clampSimValue(receiver.position.x + receiver.velocity.x * seconds, -pitch.length / 2 + pitch.targetMargin, pitch.length / 2 - pitch.targetMargin),
+    y: clampSimValue(receiver.position.y + receiver.velocity.y * seconds, -pitch.width / 2 + pitch.targetMargin, pitch.width / 2 - pitch.targetMargin) };
+}
+
+function isPassLaunchBlocked(simulation, opponents) {
+  return opponents.some(player => simulationPlayerAvailable(player) && planningDistance(player.position, simulation.ball.position) <= MATCH_SIM_DATA.ball.controlRadius);
 }

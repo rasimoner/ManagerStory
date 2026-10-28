@@ -1,11 +1,11 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue } from './geometry.js';
 
-const { hypot, max, sqrt, atan2, sin, cos, abs } = Math;
+const { max, sqrt, atan2, sin, cos, abs } = Math;
 
 export function simulationPlayerArrival(player, point) {
   const offsetX = point.x - player.position.x, offsetY = point.y - player.position.y;
-  const distance = hypot(offsetX, offsetY);
+  const distance = sqrt(offsetX * offsetX + offsetY * offsetY);
   const travel = max(0, distance - MATCH_SIM_DATA.ball.controlRadius);
   if (!travel) return 0;
   const projected = max(0, (player.velocity.x * offsetX + player.velocity.y * offsetY) / distance);
@@ -24,7 +24,7 @@ function acceleratedTravelSeconds(limits, distance, initial) {
 
 export function simulationOpponentArrival(player, point, knownDistance) {
   const offsetX = point.x - player.position.x, offsetY = point.y - player.position.y;
-  const distance = knownDistance ?? hypot(offsetX, offsetY);
+  const distance = knownDistance ?? sqrt(offsetX * offsetX + offsetY * offsetY);
   const travel = max(0, distance - MATCH_SIM_DATA.ball.controlRadius);
   if (!travel) return 0;
   const projected = max(0, (player.velocity.x * offsetX + player.velocity.y * offsetY) / distance);

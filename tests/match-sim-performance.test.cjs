@@ -4,6 +4,14 @@ const { performance } = require('node:perf_hooks');
 const { createHash } = require('node:crypto');
 const { labFixture, loadNativeLab } = require('./support/lab.cjs');
 
+let measuredLab;
+function loadMeasuredLab() {
+  // The application and report reuse one loaded module; separate tree-shaken imports would benchmark cold JIT variants.
+  measuredLab ??= loadNativeLab(['createSimulation', 'createLabScenario', 'createLabBallDriver', 'advanceLabBall', 'stepSimulation', 'readSimulationStatistics']);
+  return measuredLab;
+}
+
+
 test('off-ball optimisation preserves every baseline position over 90 minutes', t => {
   const { api, simulation } = labFixture({ seed: 901 });
   const driver = api.createLabBallDriver(901);
@@ -23,7 +31,7 @@ test('off-ball optimisation preserves every baseline position over 90 minutes', 
 });
 
 test('the native headless off-ball engine stays within its 3 s CI budget', async t => {
-  const api = await loadNativeLab(['createSimulation', 'createLabScenario', 'createLabBallDriver', 'advanceLabBall', 'stepSimulation']);
+  const api = await loadMeasuredLab();
   const simulation = api.createSimulation(api.createLabScenario({ seed: 901 }));
   const driver = api.createLabBallDriver(901);
   const started = performance.now();
@@ -34,15 +42,56 @@ test('the native headless off-ball engine stays within its 3 s CI budget', async
   assert.ok(elapsed < 3000, `native off-ball exceeded 3 s CI budget: ${elapsed.toFixed(1)} ms`);
 });
 
-test('the native headless passing engine stays within its 4.5 s CI budget', async t => {
-  const api = await loadNativeLab(['createSimulation', 'createLabScenario', 'stepSimulation', 'readSimulationStatistics']);
+test('each of three complete native duels matches stays within the 2 s budget', async t => {
+  const api = await loadMeasuredLab();
+  const runs = Array.from({ length: 3 }, () => measureCompleteDuelsMatch(api));
+  const milliseconds = runs.map(run => run.milliseconds);
+  const median = [...milliseconds].sort((left, right) => left - right)[1];
+  t.diagnostic(`Node ${process.version}: native dribbling/duels 90 minutes median ${median.toFixed(1)} ms; runs ${milliseconds.map(value => value.toFixed(1)).join(', ')} ms; ${JSON.stringify(runs[0].statistics)}`);
+  assert.ok(milliseconds.every(value => value < 2000), `native dribbling and duels exceeded 2 s budget: ${milliseconds.map(value => value.toFixed(1)).join(", ")} ms`);
+});
+
+function measureCompleteDuelsMatch(api) {
   const simulation = api.createSimulation(api.createLabScenario({ seed: 901 }));
   const started = performance.now();
   for (let tick = 0; tick < 54000; tick++) api.stepSimulation(simulation);
-  const elapsed = performance.now() - started;
-  const stats = api.readSimulationStatistics(simulation);
-  t.diagnostic(`Node ${process.version}: native passing 90 minutes ${elapsed.toFixed(1)} ms; ${JSON.stringify(stats)}`);
+  const milliseconds = performance.now() - started;
+  const statistics = api.readSimulationStatistics(simulation);
   assert.equal(simulation.time, 5400);
-  assert.ok(stats.passes > 0 && stats.interceptions > 0);
-  assert.ok(elapsed < 4500, `native passing exceeded 4.5 s CI budget: ${elapsed.toFixed(1)} ms`);
+  assert.ok(statistics.passes > 0 && statistics.interceptions > 0 && statistics.dribbles > 0 && statistics.tackles > 0);
+  return { milliseconds, statistics };
+}
+
+test('all 54,000 duels steps and contact events repeat with the same seed and input', async () => {
+  const api = await loadMeasuredLab();
+  const first = completeDuelsDigest(api), second = completeDuelsDigest(api);
+  assert.deepEqual(first, second);
 });
+
+function completeDuelsDigest(api) {
+  const simulation = api.createSimulation(api.createLabScenario({ seed: 901 }));
+  const hash = createHash('sha256'), positions = Buffer.alloc(22 * 2 * 8);
+  for (let tick = 0; tick < 54000; tick++) {
+    api.stepSimulation(simulation);
+    let offset = 0;
+    for (const team of simulation.teams) for (const player of team.players) {
+      positions.writeDoubleLE(player.position.x, offset); offset += 8;
+      positions.writeDoubleLE(player.position.y, offset); offset += 8;
+    }
+    hash.update(positions);
+  }
+  assertFullMatchContactLog(simulation.events);
+  return { positions: hash.digest('hex'), events: createHash('sha256').update(JSON.stringify(simulation.events)).digest('hex') };
+}
+
+function assertFullMatchContactLog(events) {
+  for (let index = 0; index < events.length; index++) {
+    const foul = events[index];
+    if (foul.type !== 'foul') continue;
+    const contact = events[index - 1];
+    assert.ok(['tackle', 'duel'].includes(contact?.type));
+    assert.equal(contact.fromId, foul.fromId);
+    assert.equal(contact.toId, foul.toId);
+    assert.equal(contact.time, foul.time);
+  }
+}

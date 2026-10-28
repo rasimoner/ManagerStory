@@ -3,6 +3,7 @@ import { clampSimValue } from './geometry.js';
 import { drawSimulationRandom, simulationRuntime } from './simulation-runtime.js';
 import { beginSimTransition } from './simulation-phases.js';
 import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
+import { endSimulationCarry } from './dribbling.js';
 import { predictSimulationBall } from './ball-physics.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
@@ -11,7 +12,8 @@ export function controlSimulationBall(simulation, contact, motion) {
   const seconds = MATCH_SIM_DATA.clock.stepSeconds;
   const touching = predictSimulationBall(motion.before, contact.fraction * seconds);
   const time = simulation.time - seconds + contact.fraction * seconds;
-  const success = drawSimulationRandom(simulation) >= firstTouchRisk(contact.player, touching);
+  const returning = simulation.ball.carry?.playerId === contact.player.id;
+  const success = returning || drawSimulationRandom(simulation) >= firstTouchRisk(contact.player, touching);
   recordSimulationTouch(simulation, contact, { touching, time, success });
   if (success) { acquireSimulationBall(simulation, contact.player); return null; }
   const remaining = (1 - contact.fraction) * seconds;
@@ -44,11 +46,18 @@ function recordSimulationTouch(simulation, contact, result) {
 
 export function acquireSimulationBall(simulation, player) {
   const ball = simulation.ball;
+  const returning = ball.carry?.playerId === player.id;
+  if (ball.teamId !== player.teamId) simulation.statistics.teams[player.teamId].ballWins++;
+  if (ball.carry && !returning) endSimulationCarry(simulation);
+  const ownerSinceTick = returning ? ball.carry.ownerSinceTick : simulation.tick;
   if (ball.teamId !== player.teamId) beginSimTransition(simulation, player.teamId);
   Object.assign(ball, { ownerId: player.id, teamId: player.teamId, lastTouchId: player.id, lastTouchTeamId: player.teamId,
-    ownerSinceTick: simulation.tick, restart: null, excludedId: null, height: 0, verticalVelocity: 0 });
-  simulation.passing = { options: [], selected: null, requested: null, nextEvaluationTick: simulation.tick + player.limits.reactionTicks };
-  simulation.statistics.teams[player.teamId].controls++;
+    ownerSinceTick, restart: null, excludedId: null, height: 0, verticalVelocity: 0 });
+  if (!returning) {
+    simulation.passing = { options: [], selected: null, requested: null, nextEvaluationTick: simulation.tick + player.limits.reactionTicks };
+    simulation.ownerDecision.selected = null;
+    simulation.statistics.teams[player.teamId].controls++;
+  }
   followSimulationBallOwner(simulation);
 }
 
