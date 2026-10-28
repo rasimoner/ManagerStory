@@ -8,7 +8,7 @@
 
 Doğrulama kaynağı [PR #5'in kontrolleri](https://github.com/rasimoner/ManagerStory/pull/5/checks) ve `Verify match simulation` iş akışıdır: Node 22 lint, hızlı/tam test, build, değişmemiş **12 oyun duman kontrolü + beş laboratuvar senaryosu**, beş tohum JSON'u ve 390 × 844 telefon görüntüsü. Main'e birleşmenin önkoşulu bu kontrollerin yeşil olmasıdır. İş akışı tam git geçmişini alır; lint tabanının büyümeme testi atlanmaz. Gerçek telefon kayıt fikstürlerinin depoda henüz bulunmamasıyla ilgili eski koşullu test yeni bir atlama değildir.
 
-**23 sentetik şut/kaleci senaryosu** vardır. İlk test grubu özellik yokken kırmızı çalıştırıldı. Tarayıcı denemesinin bulduğu santra hatası ayrıca önce kırmızı testle tekrarlandı: uzaktaki ve hâlâ koşan alıcıya merkez pası arkasından gidiyordu. Alıcı artık merkeze yakın oyuncudan seçilir; taker ve alıcı 0,5 m/sn altına fiziksel olarak frenlemeden pas çıkmaz. Varsayılan 731'de ilk kontrollü sahiplik **6,2 sn**'de oluşur; 0,25× telefon denemesi 30 sn bekleme sınırına sığar. Kalecinin eski boş top hedefinde takılı kalması, köşede ilk geçen çizginin korunması ve rakip kontrolsüz dokunuşunda geri pas yasağının kalkması da kırmızı/yeşil regresyonlarla korunur.
+**24 sentetik şut/kaleci senaryosu** vardır. İlk test grubu özellik yokken kırmızı çalıştırıldı. Tarayıcı denemesinin bulduğu santra hatası ayrıca önce kırmızı testle tekrarlandı: uzaktaki ve hâlâ koşan alıcıya merkez pası arkasından gidiyordu. Alıcı artık merkeze yakın oyuncudan seçilir; taker ve alıcı 0,5 m/sn altına fiziksel olarak frenlemeden pas çıkmaz. Varsayılan 731'de ilk kontrollü sahiplik **6,2 sn**'de oluşur; 0,25× telefon denemesi 30 sn bekleme sınırına sığar. Kalecinin eski boş top hedefinde takılı kalması, köşede ilk geçen çizginin korunması ve rakip kontrolsüz dokunuşunda geri pas yasağının kalkması da kırmızı/yeşil regresyonlarla korunur.
 
 Eski topsuz 54.000 adım koordinat SHA-256 özeti **9b1126b840f9ad5ec641b19abbdc01fd4f66afd11acba238e6207aee31d16754** değişmez. Yeni tam maçta oyuncuların ve topun bütün adımları, olaylar ve skor aynı tohumda iki kez karşılaştırılır; her gol aynı oyuncunun önceki şutuna bağlıdır ve olaylar kronolojiktir. Yeni dosyalarda lint ihlali yoktur; taban artırılmadı. Altın dosyalar aynen korunur.
 
@@ -32,39 +32,43 @@ Başarılı kurtarış / isabetli şut oranı kullanılır; gol olan parmak ucu 
 
 | Tohum | Skor Sarı–Mavi | Şut | İsabet | Gol | xG | xG/şut | Gol−xG | Blok | Kurtarış | Kurtarış % | Direk |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 901 | 5–0 | 33 | 11 | 5 | 5,91 | 0,179 | -0,91 | 10 | 6 | 54,5 | 3 |
-| 731 | 3–1 | 26 | 10 | 4 | 5,10 | 0,196 | -1,10 | 6 | 6 | 60,0 | 4 |
-| 42 | 0–4 | 21 | 6 | 4 | 1,91 | 0,091 | 2,09 | 12 | 2 | 33,3 | 1 |
-| 2026 | 0–3 | 26 | 11 | 3 | 5,66 | 0,218 | -2,66 | 6 | 8 | 72,7 | 1 |
-| 508 | 3–3 | 30 | 12 | 6 | 4,63 | 0,154 | 1,37 | 8 | 6 | 50,0 | 2 |
+| 901 | 1–7 | 32 | 12 | 8 | 6,47 | 0,202 | 1,53 | 12 | 4 | 33,3 | 3 |
+| 731 | 7–6 | 38 | 18 | 13 | 10,87 | 0,286 | 2,13 | 7 | 5 | 27,8 | 4 |
+| 42 | 0–2 | 22 | 5 | 2 | 4,11 | 0,187 | -2,11 | 10 | 3 | 60,0 | 1 |
+| 2026 | 2–2 | 47 | 14 | 4 | 9,80 | 0,209 | -5,80 | 25 | 10 | 71,4 | 3 |
+| 508 | 10–4 | 32 | 21 | 14 | 6,77 | 0,211 | 7,23 | 5 | 7 | 33,3 | 0 |
 | Futbol hedefi | — | 20–28 | 8–10 | 2,5–3 | Yaklaşık 2–3,4 | 0,10–0,12 | Kalibrasyonda 0 çevresi | 4–8 | İsabete bağlı | 65–75 | Sabit hedef yok |
 
 | Tohum | Pas | İsabet % | Ort. mesafe m | Faul | Sarı | Kırmızı | Müdahale | Kazandı | Sekti | Iska | Iska % |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 901 | 794 | 79,47 | 18,57 | 19 | 0 | 0 | 152 | 20 | 30 | 102 | 67,1 |
-| 731 | 797 | 75,78 | 18,16 | 24 | 3 | 0 | 130 | 19 | 27 | 84 | 64,6 |
-| 42 | 809 | 74,54 | 18,21 | 15 | 2 | 0 | 139 | 30 | 22 | 87 | 62,6 |
-| 2026 | 823 | 76,55 | 18,01 | 14 | 2 | 0 | 149 | 24 | 29 | 96 | 64,4 |
-| 508 | 775 | 78,06 | 18,51 | 21 | 4 | 0 | 154 | 25 | 37 | 92 | 59,7 |
+| 901 | 803 | 78,58 | 17,42 | 19 | 1 | 0 | 143 | 28 | 26 | 89 | 62,2 |
+| 731 | 776 | 75,39 | 18,46 | 16 | 3 | 0 | 125 | 16 | 20 | 89 | 71,2 |
+| 42 | 816 | 75,37 | 19,34 | 10 | 2 | 0 | 134 | 24 | 26 | 84 | 62,7 |
+| 2026 | 801 | 75,91 | 18,16 | 13 | 1 | 0 | 139 | 17 | 25 | 97 | 69,8 |
+| 508 | 779 | 77,54 | 18,48 | 20 | 5 | 0 | 148 | 16 | 27 | 105 | 70,9 |
 | Futbol hedefi | 800–1.000 | 75–88 | 15–20 | 20–25 | 3–5 | Nadir; beş maçla oran çıkarılmaz | Sabit hedef yok | Kazanma + sekme >%50 | Aynı ölçü | <50% | <50 |
 
-**Beş maç ortalaması:** 27,2 şut, 10,0 isabet, 4,4 gol, 4,64 xG; ağırlıklı xG/şut **0,171**, başarılı kurtarış **%56,0**. Müdahalelerin **%63,7**'i ıska. Fiziksel/işlevsel testlerin geçmesi futbol kalibrasyonunun tamamlandığı anlamına gelmez.
+**Beş maç ortalaması:** 34,2 şut, 14,0 isabet, 8,2 gol, 7,60 xG; ağırlıklı xG/şut **0,222**, başarılı kurtarış **%41,4**. Müdahalelerin **%67,3**'ü ıska. **Futbol dengesi kabul hedeflerinde değildir**; fiziksel/işlevsel testlerin geçmesi bu kalibrasyonun tamamlandığı anlamına gelmez.
 
 ### Aralık dışı sonuçların yorumu
 
-Şut ortalaması **27,2** ile hedefin üst kenarında; 901'de 33, 508'de 30 ile yüksek. İsabet ortalaması **10,0** hedefte, ancak tohumlar arasında 6–12 değişiyor. Gol ortalaması **4,4** yüksek; **kurtarış %56,0 ile %65–75 hedefinin altında**. 2026'da kaleci 11 isabetten 8'ini çıkarırken (%72,7), 42'de 6 isabetin yalnız 2'sini önlüyor (%33,3). Kaleciyi her şutu alan sabit bir duvar yapmak veya skoru kota ile düşürmek yerine fark kayda bırakıldı. Yakın mesafeli ikinci şutlar, henüz olmayan ofsayt, savunmanın hareket/temas zarfı ve set olmadan gelen şutların gecikmesi birlikte etkili. 8. işte şut mesafesi/açısı, ilk ve ikinci şut ayrımı, set/tepki payı ve handling sonuçları ayrı dilimlerde kalibre edilmeli.
+Şut ortalaması **34,2**, isabet **14,0** ve gol **8,2** ile hedefin belirgin üzerindedir; 731 ve 508'de **13 ve 14 gol** vardır. Son güç hatası düzeltmesinden önceki daha iyi beş maç sonuçları nihai sonuç diye tutulmadı: baskı/koşu/dönüş güç sapmasına da katılınca gerçek fizik ve bütün sonraki sahiplik akışı değişir. Aynı kaynak/tohum hâlâ birebir tekrarlanır; bu değişkenliğin kendisi denge duyarlılığıdır.
 
-xG/şut **0,171** ile 0,10–0,12'nin üzerinde. Toplam xG ile gerçek gol farkı beş maç toplamında yaklaşık **−1,20 gol**; bu küçük örnek modele kalibre edildiği iddiası vermez. xG karar modeli saha oyuncusu için 0,72 m izdüşüm silueti, gerçek blok ise önceki 1,2 m kontrol zarfını kullanır; model/temas farkı blok ve xG dengesinde incelenmeli. Bloklar 901/42'de 10/12, diğerlerinde 6–8; direkler 1–4 arasında. Tam örtülmüş açıda düşük değerli şut tekrarı engellenir; şut/gol sonucu önceden belirlenmez.
+**Kurtarış %41,4 ile %65–75 hedefinin altında.** 2026'da kaleci 14 isabetten 10'unu önlerken (%71,4), 731'de 18 isabetin yalnız 5'ini önlüyor (%27,8). Kaleciyi her şutu alan sabit bir duvar yapmak veya skoru kota ile düşürmek yerine fark kayda bırakıldı. Yakın mesafeli ikinci şutlar, henüz olmayan ofsayt, savunmanın hareket/temas zarfı ve set olmadan gelen şutların gecikmesi olası etkenlerdir; aşağıdaki ölçüm tek başına bunların nedensel payını ayırmaz. 8. işte şut mesafesi/açısı, ilk ve ikinci şut ayrımı, set/tepki payı ve handling sonuçları ayrı dilimlerde kalibre edilmeli.
 
-Pas ortalaması **799,6**, mesafe her tohumda 15–20 m içinde. 901/731/508'de 794/797/775 pas hedefin biraz altında; 42'de isabet %74,54 ile %75'in biraz altında. Şut, elde top ve fiziksel santra bekleyişleri önceki yalnız pas/sürme akışının süresini değiştirir; pas davranışının bütünü aralıkta diye sunulmaz. Faul ortalaması **18,6**, sarı **2,2**: çoğunluk düşük; 731 ve 508'de hem faul hem sarı hedefe girer.
+xG/şut **0,222** ile 0,10–0,12'nin üzerinde; maç başına **7,60 xG** de yüksek tehlike/fırsat dağılımı gösterir. Toplam xG ile gerçek gol farkı beş maç toplamında **+2,98 gol**; bu küçük örnek modele kalibre edildiği iddiası vermez. xG karar modeli saha oyuncusu için 0,72 m izdüşüm silueti, gerçek blok ise önceki 1,2 m kontrol zarfını kullanır; model/temas farkı blok ve xG dengesinde incelenmeli. Bloklar 5–25, direkler 0–4 arasında; blok ortalaması **11,8** ile yüksek. Tam örtülmüş açıda düşük değerli şut tekrarı engellenir; şut/gol sonucu önceden belirlenmez.
 
-**Müdahale sonuçları:** 724 girişimin 461'i ıska (**%63,7**); kazanma + sekme **%36,3**. Önceki 154'te 95 ıska (%61,7) sorunu çözülmüş sayılmaz. Jokey mesafesinden hazırlanan 0,2/0,4 sn hamlede, sürücünün serbest dokunuşu ve hareketi hedefi değiştiriyor; küçük ayak temas yarıçapı ve yön/zaman uygulama hatası ıskayı artırıyor. Temkinli fırsat marjı ile 8 sn bekleyiş de yeniden hamleyi azaltıyor. Faul için önce oyuncuya gerçekten değmek gerektiğinden bu ıskalar faul sayısını da aşağı çeker. İstenen düzeltme bu işte kota ekleyerek yapılmadı; 8. işte hazırlık/öngörü/temas geometrisi birlikte ölçülmeli.
+Pas ortalaması **795,0**; isabet ve mesafe beş tohumda da %75–88 / 15–20 m içinde. 731/508'de 776/779 pas hedefin altında. Şut, elde top ve fiziksel santra bekleyişleri önceki yalnız pas/sürme akışının süresini değiştirir; pas davranışının bütünü aralıkta diye sunulmaz. Faul ortalaması **15,6**, sarı **2,4**: çoğunluk düşük; yalnız 508'de hem faul hem sarı hedefe girer.
+
+**Müdahale sonuçları:** 689 girişimin 464'ü ıska (**%67,3**); kazanma + sekme **%32,7**. Önceki 154'te 95 ıska (%61,7) sorunu çözülmüş sayılmaz. Jokey mesafesinden hazırlanan 0,2/0,4 sn hamlede, sürücünün serbest dokunuşu ve hareketi hedefi değiştiriyor; küçük ayak temas yarıçapı ve yön/zaman uygulama hatası ıskayı artırıyor. Temkinli fırsat marjı ile 8 sn bekleyiş de yeniden hamleyi azaltıyor. Faul için önce oyuncuya gerçekten değmek gerektiğinden bu ıskalar faul sayısını da aşağı çeker. İstenen düzeltme bu işte kota ekleyerek yapılmadı; 8. işte hazırlık/öngörü/temas geometrisi birlikte ölçülmeli.
 
 ### 90 dakika süresi
 
 Zamanlayıcı derleme/snapshot/JSON dışında başlar; bütün **54.000 adım** ve olaylar içeridedir. Hız testindeki **üç ayrı tam maçın her birinde 2.000 ms** eşiği korunur; medyan ayrıca yazdırılır. Kanonik Node 22 masaüstü CI süreleri PR'nin `native shooting/keepers 90 minutes` satırında; aynı beş tohumun ham JSON'u ve telefon görüntüsü `match-sim-verification` çıktısındadır. Laboratuvarın telefondaki duvar süresi bu masaüstü ölçümüyle aynı değildir.
 
-Yerel kısıtlı ortamda bazı başlangıç koşuları 2,4–3,3 sn sınır aşımı ve bir koşuda zamanlama duraklaması gösterdi; bu sayılar gizlenip eşik yükseltilmedi. Son motor kaynağı `511a1fd` için Node 22.23.4 CI'da üç gerçek maç **762,7 / 589,8 / 543,4 ms**, medyan **589,8 ms** idi. Aynı koşuda 394 davranış testinin 393'ü geçti, mevcut telefon fikstürü testi atlandı; lint, build, 12 oyun ve ilk dört laboratuvar duman kontrolü geçti. Yeni telefon testi şutu duraklatılmışken başlattığından yalnız başlangıç noktası olan çizgiyi görünür bekliyordu; test artık önce şutu ve boşalan sahipliği doğrular, oyunu ilerletip çok noktalı gerçek yolu bekler. Son kaynak için bütün ölçüm ve tarayıcı kontrolleri PR akışında yeniden çalışır; son yeşil koşu birleşme kanıtıdır.
+Son kaynak için yerel Node 22.23.4 raporundaki üç gerçek maç **1.813,2 / 1.218,6 / 1.296,1 ms**, medyan **1.296,1 ms** idi. Yerel kısıtlı ortamda önceki bazı başlangıç koşuları 2,4–3,3 sn sınır aşımı ve bir koşuda zamanlama duraklaması da gösterdi; bu sayılar gizlenip eşik yükseltilmedi. Son kaynak için bütün ölçüm ve tarayıcı kontrolleri PR akışında yeniden çalışır; son yeşil koşu birleşme kanıtıdır.
+
+Yeni telefon testi şutu duraklatılmışken başlattığından yalnız başlangıç noktası olan çizgiyi görünür bekliyordu; test artık önce şutu ve boşalan sahipliği doğrular, oyunu ilerletip çok noktalı gerçek yolu bekler. Güç hatasında baskı/koşu/dönüş paylarının eksikliği ayrı kırmızı testle saptandı ve giderildi; aynı hedef/güç/seed'de her etkenin gerçek hız sapmasını artırdığı doğrulanır.
 
 ## Telefonda dört deneme
 

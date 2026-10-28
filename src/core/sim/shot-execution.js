@@ -45,7 +45,8 @@ function shotErrors(simulation, owner, option) {
   const skill = (owner.attributes.finishing + owner.attributes.technique + owner.attributes.composure) / (3 * scale);
   const angle = settings.minimumAngleError + (1 - skill) * settings.skillAngleError + option.pressure * settings.pressureAngleError
     + option.body.running * settings.runningAngleError + option.body.turn * settings.bodyAngleError;
-  const power = settings.minimumPowerError + (1 - skill) * settings.skillPowerError;
+  const power = settings.minimumPowerError + (1 - skill) * settings.skillPowerError + option.pressure * settings.pressurePowerError
+    + option.body.running * settings.runningPowerError + option.body.turn * settings.bodyPowerError;
   return { angle: (drawSimulationRandom(simulation) * 2 - 1) * angle,
     power: 1 + (drawSimulationRandom(simulation) * 2 - 1) * power,
     height: (drawSimulationRandom(simulation) * 2 - 1) * settings.heightError * (1 - skill + option.pressure + option.body.turn) };

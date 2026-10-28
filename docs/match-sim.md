@@ -190,6 +190,8 @@ Hedef kalecinin konumunun karşı köşesidir. Finishing/technique yükseldikçe
 
 Şutun yön/güç/yükseklik uygulama hatası finishing, technique, composure, baskı, koşu oranı ve vücut dönüş açısıyla büyür. **Kusursuz şutçuda da** yön tabanı 0,014 radyan ve güç tabanı %2,5'tir. `core/random.js` üretecinden yalnız uygulamada üç zar çekilir. Kalecinin uzanma başarısı veya gol için zar çekilmez. Şut bekleme tabanı 0,35 sn; oyuncu gerçek dönüşüyle yüzünü kaleye çevirir, ters vücutla erken vurmanın bedelini hata zarfında öder. Elle çift dokunma beklemeyi aşar, aynı özellik/hata/fizik kurallarını kullanır.
 
+Güç hatasının yarı genişliği `0,025 + 0,14·(1−k) + 0,06·baskı + 0,04·koşu + 0,08·dönüş` olur; `k` üç şut özelliğinin 0–1 ortalamasıdır. Aynı seed ve aynı hedef/güçte baskı, koşu ve dönüşün her biri gerçek hız sapmasını artırır; bu ayrı regresyonla korunur. Yeni bir sonuç zarı çekilmez.
+
 Bu aşamada sağ/sol ayak veya ayak dışı spin modeli yoktur. Ayak/vücut hazırlığı mevcut heading, fiziksel dönüş ve hızla temsil edilir; plase/sert/aşırtma ilk hız farkıdır. Ayak tercihi, falso ve ayak dışının ayrıca modellenmesi 7/8. işte veri/temas modeli kararıdır; mevcut oyuncuda olmayan ayak alanı uydurulmaz.
 
 ### Uçuş, blok, direk ve gol
@@ -293,4 +295,4 @@ Node 22.23.4, tohum 901, iki 4-2-3-1, Normal pres/hat/tempo ve Dengeli pas; 22 o
 
 ### Şut/kaleci ölçümü — 28 Ekim 2026
 
-Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ayrıntılı tablo ve hedefler [şut raporundadır](match-sim-shooting-report.md). Ortalama **27,2 şut, 10,0 isabet, 4,4 gol, 4,64 xG**, ağırlıklı xG/şut **0,171**, başarılı kurtarış **%56,0**; şut kalitesi/gol/kurtarış dengesi hedefleri tamamlanmadı. Pas ortalaması **799,6**; beş maçta mesafe hedefte, bazı pas sayısı/isabet değerleri biraz dışında. Faul **18,6**, sarı **2,2**; 724 müdahalenin 461'i ıska (**%63,7**). 8. iş bu dağılımları birlikte kalibre edecek; fiziksel sonuç yerine ayrı gol/faul/kurtarış zarı eklenmeyecek. Üç ayrı tam maç için 2 saniye CI eşiği ve değişmemiş topsuz koordinat özeti korunur.
+Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ayrıntılı tablo ve hedefler [şut raporundadır](match-sim-shooting-report.md). Ortalama **34,2 şut, 14,0 isabet, 8,2 gol, 7,60 xG**, ağırlıklı xG/şut **0,222**, başarılı kurtarış **%41,4**; şut kalitesi/gol/kurtarış dengesi hedeflerinden belirgin uzak. Pas ortalaması **795,0**; beş maçta isabet ve mesafe hedefte, iki pas sayısı dışında. Faul **15,6**, sarı **2,4**; 689 müdahalenin 464'ü ıska (**%67,3**). Son güç hatası düzeltmesinden önceki daha iyi dağılım nihai sonuç diye korunmadı. 8. iş bu dağılımları birlikte kalibre edecek; fiziksel sonuç yerine ayrı gol/faul/kurtarış zarı eklenmeyecek. Üç ayrı tam maç için 2 saniye CI eşiği ve değişmemiş topsuz koordinat özeti korunur.

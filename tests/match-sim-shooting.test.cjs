@@ -263,6 +263,20 @@ test('mentality, finishing and the nonzero error floor affect execution and sele
   assert.throws(() => api.setSimulationTactics(simulation, { press: 'Normal', line: 'Normal', mentality: 'missing' }), /mentality/);
 });
 
+test('pressure, running and turning each increase power scatter for an otherwise identical shot', () => {
+  function powerError(condition) {
+    const { api, simulation, shooter } = shootingScene();
+    const option = api.evaluateSimulationShot(simulation, shooter);
+    Object.assign(option, { pressure: 0, body: { running: 0, turn: 0 } }, condition);
+    api.releaseSimulationShot(simulation, shooter, option);
+    return Math.abs(Math.hypot(simulation.ball.velocity.x, simulation.ball.velocity.y) / option.power - 1);
+  }
+  const settled = powerError({});
+  for (const condition of [{ pressure: 1 }, { body: { running: 1, turn: 0 } }, { body: { running: 0, turn: 1 } }]) {
+    assert.ok(powerError(condition) > settled, JSON.stringify(condition));
+  }
+});
+
 test('both teams accept the game keeper profile schema and reject invalid keeper attributes', () => {
   const { api, input } = labFixture();
   input.teams[0].players[0].gk = { reflexes: 95, handling: 83, oneOnOne: 91 };
