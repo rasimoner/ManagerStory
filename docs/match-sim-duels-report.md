@@ -60,7 +60,9 @@ Pas taraması ortak kadro/çıkış verisini paylaşır; ulaşılamayan alıcın
 
 Eski topsuz 90 dakika koordinat SHA-256 özeti **9b1126b840f9ad5ec641b19abbdc01fd4f66afd11acba238e6207aee31d16754** korunur. Yeni maçın bütün 54.000 × 22 × 2 konumu ve bütün olayları aynı tohumda iki kez karşılaştırılır. Tam maçta her faulün önceki teması denetlenir. Pasın üç ana hedefi de 901 referans maçında test edilir.
 
-Son tam doğrulama ve üç süre, birleştirmeden önce bu bölüme kaydedilir.
+Nihai doğrulama (Node 22.23.4): **371 davranış testi + 4 tam maç/hız kontrolü**, hızlı pakette **281 + 4** kontrol yeşil. Lint yeni ihlal yok; taban büyümedi. Build ve değişmemiş **12 duman kontrolü + dört laboratuvar tarayıcı denemesi** yeşil. Telefon görünümü ayrıca 390 × 844'te incelendi; canlı sayaçlar seçenek satırını kapatmayacak biçimde saha üstünde ayrı alana alındı.
+
+Tam paket sonundaki üç gerçek 90 dakika süresi: **1.192,3 / 869,0 / 838,9 ms**; medyan **869,0 ms**. Hızlı paket: **997,3 / 810,5 / 780,3 ms**. Her koşu 2 saniyenin altında. Derleme ve çıktı kopyaları ölçüm dışında; aynı modül gerekli topsuz kontrolde de kullanılıyor. Eski motor, 3D, kariyer, kayıt biçimi, altınlar ve sürüm değişmedi.
 
 ## Telefonda dört deneme
 
