@@ -1,3 +1,4 @@
+import { keeperCoversClearChance } from './keeper-rushing.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { planningDistance } from './geometry.js';
 import { simulationPlayerAvailable } from './duel-state.js';
@@ -22,7 +23,9 @@ function hasClearGoalChance(simulation, { defender, victim, team }) {
   const goalDistance = MATCH_SIM_DATA.pitch.length / 2 - victim.position.x * team.direction;
   const forwardSpeed = victim.velocity.x * team.direction;
   if (goalDistance > settings.dogsoGoalDistance || Math.abs(victim.position.y) > settings.dogsoGoalWidth / 2 || forwardSpeed < settings.dogsoMinimumSpeed) return false;
-  const defenders = simulation.teams.find(candidate => candidate.id === defender.teamId).players;
+  const defending = simulation.teams.find(candidate => candidate.id === defender.teamId);
+  if (keeperCoversClearChance(simulation, victim, defending)) return false;
+  const defenders = defending.players;
   return !defenders.some(player => player.id !== defender.id && player.slot !== 'GK' && simulationPlayerAvailable(player)
     && (player.position.x - victim.position.x) * team.direction > 0 && Math.abs(player.position.y - victim.position.y) < settings.dogsoGoalWidth / 2);
 }

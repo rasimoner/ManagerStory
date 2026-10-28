@@ -1,6 +1,6 @@
 # Saniyelik maç simülasyonu — şartname
 
-Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas ve sürme/müdahale/faul uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
+Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
 
 Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. Oyunda bağlantısı yoktur. Kariyer, mevcut dakika motoru, 3D yönetmeni, kayıt biçimi ve V7.14.0 sürümü değişmez. Diğer lig maçları ileride de `simAIGame` ile kalır.
 
@@ -72,7 +72,7 @@ Topa sahipken hedef boy 48 m, en 56 m: genişlik pas açılarını, boy derin ko
 
 ### Karar, uygulama ve ilk yetişen
 
-Pas seçen sahip, tepki/teknik özellikleri ve yakındaki baskıya göre en az tepki süresi kadar tutar; taban tutma 0,85 sn, düşük özellik ilavesi en çok 0,7 sn, baskı en çok 0,4 sn kısaltır. Pas yönüne fiziksel dönüş sınırıyla döner ve frenler. Bu süre sürmenin yerine geçmez: her tepki anında pas, sürme ve koruma aşağıdaki puanlarla yarışır. Basanın eski 2,4 m kaba yaklaşma hedefi fizik adımında 1,65 m kale tarafı jokey hedefiyle yenilenir; değişmemiş topsuz tekrar fikstürü eski yaklaşımı korur. Şut hâlâ yoktur.
+Pas seçen sahip, tepki/teknik özellikleri ve yakındaki baskıya göre en az tepki süresi kadar tutar; taban tutma 0,85 sn, düşük özellik ilavesi en çok 0,7 sn, baskı en çok 0,4 sn kısaltır. Pas yönüne fiziksel dönüş sınırıyla döner ve frenler. Bu süre sürmenin yerine geçmez: her tepki anında pas, sürme ve koruma aşağıdaki puanlarla yarışır. Basanın eski 2,4 m kaba yaklaşma hedefi fizik adımında 1,65 m kale tarafı jokey hedefiyle yenilenir; değişmemiş topsuz tekrar fikstürü eski yaklaşımı korur. Şutun tutma/uygulama kuralı aşağıdaki "Şut ve kaleci" bölümündedir.
 
 Her takım arkadaşı ve onun önündeki 6 m koşu alanı (hareket hızından 0,5 sn ek öngörüyle, saha içine sığdırılarak) değerlendirilir. Yerden pas hızı `min(25, 10 + 0,28·mesafe)` m/sn. Yerden çizgi güvensizse havadan seçenek de denenir; onun uçuş süresi `0,9 + 0,04·mesafe` sn, ilk düşey hız `g·süre/2` olur. Topun süre hesabı bu gerçek fizikledir.
 
@@ -90,7 +90,7 @@ Bir seed'li zar buna göre gerçek teması kontrol veya sekme yapar. Başarısı
 
 ### Geçici saha dışı kuralı
 
-**GEÇİCİ:** taç, kale vuruşu ve korner ayrımı yapılmaz. Topun ilk çizgi kesişimi bulunur; son dokunanın rakibi tam o çizgi noktasından yeniden başlatır. En yakın oyuncu çizgiye gerçekten koşar; yalnız o oyuncu kontrol edebilir, ulaşınca normal tutma/pas kuralına döner. Kaleci seçilebilir. Gerçek duran toplar 7. işte yapılacaktır; bu basit kural o işin yerine geçmiş sayılmaz.
+**GEÇİCİ:** taç çizgisinde son dokunanın rakibi çizgiden kısa pasla başlar. Kale çizgisinde artık kalecinin elinden basit dağıtım / kısa korner ayrımı vardır; "Şut ve kaleci" bölümündeki kesin geçici kural uygulanır. Taker topa gerçekten gelir; oyuncu ışınlanmaz. Gerçek duran toplar 7. işte bu kuralların yerini alacaktır.
 
 ### Konumdan doğan günlük ve ölçüler
 
@@ -150,9 +150,9 @@ Yeni çekirdek eski dakika motorunun faul zarını çağırmaz. Bir `foul` yaln�
 
 Şiddet `0,10·müdahaleHızı + 0,65·arkadan + 0,45·kayma + 0,55·topaŞansYok`. Müdahale hızı savunmacının gerçek sürati + 7 m/sn ayak uzanma hızıdır. Arkadan gelme, rakibin **gerçek bakış yönüne** göre geri yarı düzlemidir. Topa oynama şansı, o türün gerçek uzanma mesafesi ve ayak erişim yüksekliğiyle değerlendirilir. Sarı eşiği 2,15; doğrudan kırmızı şiddeti 3,20. Sarı sonrası fırsat marjı büyür; ikinci sarı kırmızıdır. Kırmızılı oyuncu tüm rol/kontrol listelerinden çıkarılır, fiziksel olarak frenler.
 
-**Net gol şansı için bu aşamanın kesin kuralı:** faul yapılan oyuncunun kontrolü/taşıması olmalı; kaleye en çok 30 m, ortadaki 22 m koridorda, hücum yönüne en az 1 m/sn gidiyor olmalı. İlerisinde aynı koridorda uygun saha savunmacısı kalmamışsa `dogso:true`; arkadan da gelindiyse `redCandidate:true` ve doğrudan kırmızı. Şiddet eşiği de ayrı kırmızı adayıdır. Şut ve kaleci yetişme olasılığı henüz olmadığı için bu konumsal aday hesabıdır. Tam DOGSO/ceza sahasında topa oynama indirimi, şut/kaleci ve gerçek penaltı işinde genişletilecektir. Kuralın dayanağı [IFAB Law 12](https://theifab.com/laws/latest/fouls-and-misconduct/)'deki kontrol, yön, kaleye uzaklık ve kalan savunmacı ölçütleridir; bu sayısal eşikler simülasyonun kendi kararıdır.
+**Net gol şansı için bu aşamanın kesin kuralı:** faul yapılan oyuncunun kontrolü/taşıması olmalı; kaleye en çok 30 m, ortadaki 22 m koridorda, hücum yönüne en az 1 m/sn gidiyor olmalı. İlerisinde aynı koridorda uygun saha savunmacısı kalmamışsa `dogso:true`; arkadan da gelindiyse `redCandidate:true` ve doğrudan kırmızı. Şiddet eşiği de ayrı kırmızı adayıdır. Bu konumsal aday hesabı artık aşağıdaki kaleci erişimi/perspektif hesabıyla da süzülür. Tam DOGSO/ceza sahasında topa oynama indirimi, şut/kaleci ve gerçek penaltı işinde genişletilecektir. Kuralın dayanağı [IFAB Law 12](https://theifab.com/laws/latest/fouls-and-misconduct/)'deki kontrol, yön, kaleye uzaklık ve kalan savunmacı ölçütleridir; bu sayısal eşikler simülasyonun kendi kararıdır.
 
-Faul yapılan takımın sahibi/taşıyıcısı kontrolü sürdürüp hücum yönüne en az 0,8 m/sn gidiyorsa avantaj başlar. Pencere **3 sn**. Bu sırada rakip kontrolü veya saha dışı atağı bitirirse ilk faul konumuna geri dönülür. Pencere sonunda aynı takım devam edip en az 1 m ilerlemişse avantaj kalır; ilerleyememişse geri çağrılır. İlk `foul` silinmez veya yeniden yazılmaz; `advantage.status` `played/recalled` olur. Bu aşamada kart kararı temas anında kayda girer. Doğrudan kırmızı/ikinci sarıda oyun durur; henüz gol/şut olmadığı için bu ihlallerde gol fırsatı avantajı uygulanmaz. Avantajda kartın sonraki duruşta gösterilmesi ve DOGSO avantajında gol sonucuna göre indirim, gerçek duran top/şut entegrasyonunun açık işidir.
+Faul yapılan takımın sahibi/taşıyıcısı kontrolü sürdürüp hücum yönüne en az 0,8 m/sn gidiyorsa avantaj başlar. Pencere **3 sn**. Bu sırada rakip kontrolü veya saha dışı atağı bitirirse ilk faul konumuna geri dönülür. Pencere sonunda aynı takım devam edip en az 1 m ilerlemişse avantaj kalır; ilerleyememişse geri çağrılır. İlk `foul` silinmez veya yeniden yazılmaz; `advantage.status` `played/recalled` olur. Bu aşamada kart kararı temas anında kayda girer. Doğrudan kırmızı/ikinci sarıda oyun durur; bu aşamada kırmızı adaylarında oyun durdurulur; gol fırsatı avantajındaki kart indirimi henüz uygulanmaz. Avantajda kartın sonraki duruşta gösterilmesi ve DOGSO avantajında gol sonucuna göre indirim, gerçek duran top/şut entegrasyonunun açık işidir.
 
 ### GEÇİCİ serbest vuruş — 7. işe kadar
 
@@ -168,11 +168,84 @@ Sürücü 3 m içinde gerçekten jokey/hazır/müdahale durumundaki bir savunmac
 
 `dribble`, `tackle` (`won/loose/missed`), `duel`, `foul`, `advantage`, `yellow`, `red`, `beat` zaman sıralı gerçek olaylardır. Sürme metreleri ve kontrollü top kazanma ayrı istatistiktir. Omuz mücadelesi takım satırlarında iki oyuncunun katılımını, toplamda tek karşılaşmayı sayar. Pas kesme ile müdahaleyle kontrollü kazanma aynı sayaç değildir.
 
+## Şut ve kaleci
+
+### Karar ve xG — sonuç zarı değil
+
+Sahip, her tepki anında **pas / sür / koru / şut** puanlarını aynı ölçekte karşılaştırır. Seçim seed tüketmez. Şut en çok 38 m'den, otomatik kararda xG en az 0,045 ise adaydır; düşük finishing/composure ile 25 m ötesinin maliyeti artar. Mentalite ortak `tactics.json` seçenekleridir: Temkinli/Dengeli/Cesur şut değerini 0,85/1/1,18 ile çarpar. Finishing/composure şut tercihini, vision/composure pas algısını etkiler. Güvenli pasın alıcısı hedef konumda daha yüksek xG alıyorsa fark ×120 pas puanına eklenir; bu nedenle iyi durumdaki takım arkadaşına pas, hemen şuta üstün gelebilir. Güvenli sürme açıyı iyileştirebildiğinde sürme de kazanır.
+
+`d`: kale merkezine metre mesafe; `a`: iki direğe çizilen ışının arasındaki radyan açı; `b`: saha savunmacılarının kapattığı kale ağzı oranı; `p`: mevcut 6 m baskı değeri; `t`: kaleye dönme açısı / π; `v`: koşu hızı / azami hız; `k`: kalecinin perspektifteki konumu.
+
+Savunmacının etkili 0,72 m silueti kale ağzına izdüşürülür; örtüşen aralıkların birleşimi alınır, aynı açı iki kez sayılmaz. Kaleci için şutçu–kale boyuna aralığındaki oran `f` hesaplanır. Kalecinin gördüğü kale merkezinden enine uzaklığı /7,32, öne çıkıp açıyı daraltma payı `max(0,1−f)·(oneOnOne+positioning)/200` ile azaltılır. Kaleci şutçunun gerisinde kaldıysa veya yoksa `k=1`; böylece kalecinin hem boyuna hem enine konumu hesaba girer.
+
+`L = 1,4 − 0,14d + 0,65ln(max(a,ε)) − 1,4b − 0,65p − 0,4t − 0,3v + 0,35k`
+
+`xG = clamp(max(0,025,1−b)^1,5 / (1+exp(−L)), 0,005, 0,85)`
+
+Bu simülasyonun **yaklaşık karar/istatistik modeli**dir; gerçek maç verisine kalibre edilmiş model değildir. xG şut sonucuna, kurtarışa veya gole yazılmaz. Kale ağzı tümüyle örtülünce düşük değerli şutu tekrar tekrar seçmek yerine çıkış aranır. Şut puanı `8 + 280·xG + 7·(finishing+composure)/200`, mentalite, baskı aciliyeti ve uzak şut maliyetiyle karşılaştırılır. Bütün katsayılar JSON'dadır.
+
+### Hedef, ayak/vücut ve uygulama
+
+Hedef kalecinin konumunun karşı köşesidir. Finishing/technique yükseldikçe hedefin direğe payı küçülür; kusursuz oyuncunun bile 0,24 m hedef payı vardır. Hedef yüksekliği tekniğe göre yaklaşık 0,55–1,10 m. Güç `18 + 9·strength/100 + 4·technique/100` m/sn; plasede bunun 0,8'i. Güçlü/uzak vuruş sert, bitiriciliği yüksek yakın vuruş plase olur. Kaleci 6 m'den fazla çıkmış, oyuncuya boyuna 12 m'den yakın ve technique en az 65 ise 10 m/sn aşırtma denenir; aynı parabol kalecinin üzerinden geçip geçmediğini çözer.
+
+Şutun yön/güç/yükseklik uygulama hatası finishing, technique, composure, baskı, koşu oranı ve vücut dönüş açısıyla büyür. **Kusursuz şutçuda da** yön tabanı 0,014 radyan ve güç tabanı %2,5'tir. `core/random.js` üretecinden yalnız uygulamada üç zar çekilir. Kalecinin uzanma başarısı veya gol için zar çekilmez. Şut bekleme tabanı 0,35 sn; oyuncu gerçek dönüşüyle yüzünü kaleye çevirir, ters vücutla erken vurmanın bedelini hata zarfında öder. Elle çift dokunma beklemeyi aşar, aynı özellik/hata/fizik kurallarını kullanır.
+
+Güç hatasının yarı genişliği `0,025 + 0,14·(1−k) + 0,06·baskı + 0,04·koşu + 0,08·dönüş` olur; `k` üç şut özelliğinin 0–1 ortalamasıdır. Aynı seed ve aynı hedef/güçte baskı, koşu ve dönüşün her biri gerçek hız sapmasını artırır; bu ayrı regresyonla korunur. Yeni bir sonuç zarı çekilmez.
+
+Bu aşamada sağ/sol ayak veya ayak dışı spin modeli yoktur. Ayak/vücut hazırlığı mevcut heading, fiziksel dönüş ve hızla temsil edilir; plase/sert/aşırtma ilk hız farkıdır. Ayak tercihi, falso ve ayak dışının ayrıca modellenmesi 7/8. işte veri/temas modeli kararıdır; mevcut oyuncuda olmayan ayak alanı uydurulmaz.
+
+### Uçuş, blok, direk ve gol
+
+Top mevcut analitik parabol/sürtünmeyle uçar. Kontrol altındaki topa veya kaleye bağlanan bir şut animasyonu yoktur. Her 0,1 sn adımda saha oyuncusu, kaleci ve kale çerçevesi temasları çizgi çıkışıyla **aynı zaman sırasına** girer. Şut yolundaki savunmacının mevcut süpürülmüş kontrol/1,8 m yükseklik zarfına ilk temas **blok**tur; hız temas normaline göre 0,48 sekme katsayısıyla yansıtılır, top serbest kalır. Sonraki temaslar tekrar sonsuz blok sayılmaz; topa gerçekten ilk yetişen kontrol/ilk dokunuş kurallarıyla alır. Basan kale tarafı jokeyini korur, örten şut tehdidinde pas alıcısı yerine top–kale çizgisini kapatır.
+
+Kalenin **net açıklığı 7,32 × 2,44 m**; direk merkezleri bu açıklığın 0,06 m dışında, üst direğin merkezi yerden 2,50 m'dedir. Direk yarıçapı 0,06 m, top yarıçapı **0,11 m**. Direkler dikey silindir, üst direk enine silindir olarak süpürülmüş top yoluyla çözülür; sekme katsayısı **0,72**. Şut dışındaki top da çerçeveden fiziksel seker. Uçuşun sabit adım içindeki temas geometrisi doğrusal süpürmedir; yükseklik temas anında aynı parabolle okunur. Hava direnci/falso/ağ etkileşimi yoktur.
+
+Gol için top merkezi hücum edilen kale çizgisini **0,11 m tamamen geçmeli**, `abs(y)+0,11 < 3,66` ve `height+0,11 < 2,44` olmalıdır. Üstten veya yandan çıkış gol değildir. Bir topun çizgiyi yalnız kısmen geçmesi, çizgiye değmesi veya şutsuz geçmesi gol yazmaz. Her `goal`, önündeki aynı oyuncunun gerçek `shot` kaydına `shotId` ile bağlıdır. Skor olayın gerçek çizgi anında artar. Şutsuz kendi kalesine gol ile gol atan/son dokunan kimliği sözleşmesi bu kabul kuralı değiştirilmeden genişletilemez; açık sorudur.
+
+Asist, aynı atakta şutçuyu bulmuş son başarılı pasın vereni olur; sürme bunu bozmaz. Rakip kontrolü, hakem müdahalesi ve yeniden başlama pas izini temizler. Blok, direk veya kaleci sekmesinden sonra asist kaldırılır; ikinci şut yeni şut olayıdır. Parmağın değdiği top yine kaleye girerse fiziksel `save` teması günlükte kalır ama `success:false/goalAfterTouch:true` olur; başarılı kurtarış sayacından düşer. İsabetli şut yalnız gerçekten kaleye girecek yoldaki kurtarış veya golle sayılır; kalecinin dışarı giden topa dokunması isabet üretmez.
+
+### Kalecinin konumu, set ve kurtarış erişimi
+
+İki takım aynı `gk.reflexes`, `gk.handling`, `gk.oneOnOne` ve genel pace/acceleration/positioning/composure şemasını kullanır. `gk` oyuncunun doğrudan alanı veya deney girdisindeki `attributes.gk` olabilir; eksik alan 65, geçersiz verilen alan açık hatadır. Rakip için ayrı sabit kaleci puanı yoktur.
+
+Kaleci topun iki direğe göre açıortayında konum alır. Normal derinlik `clamp(1,2 + 0,075·topun kale uzaklığı,1,2,5)` m; enine hedef ±3,3 m. Kaleci tehditte hedefinin 1,05 m yakınına gelince frenler; hızı ≤0,45 m/sn iken 0,35 sn dengede kaldıysa **set** olur. Konum değişimi de aynı oyuncu hız/ivme/dönüş sınırlarını kullanır.
+
+Şut anında topun gerçek hız/yükseklik/sürtünmesiyle kale çizgisine varış noktası kestirilir. Tepki `0,12 + (1−reflexes/100)·0,26` sn; set değilse **0,18 sn ek** gecikme vardır. Tepki bitmeden yeni plonjon uzanması oluşmaz; yalnız zaten o noktadaki gövde/önceden açılmış kollar fiziksel temas edebilir. Set gövde/kol zarfı 1,05 m, normal gövde 0,65 m; birebirde önceden kapanmış zarf oneOnOne ile genişler.
+
+Tepki sonrası yatay ek uzanma saniyede `4,1 + 2,2·reflexes/100 + 1,1·acceleration/100` m, en çok **2,65 m**. Yakındaki topa adım, uzağa plonjon hedefi alınır. Dikey erişim 2,05 m'den 3,8 m/sn ile en çok **2,90 m**'ye büyür; yatay/dikey uzanma elipsi aşılırsa topa değemez. Kalecinin gövdesi ışınlanmaz: temas, adım başı/sonu gerçek gövde konumuyla ball–keeper bağıl hareketinde çözülür; kol erişimi ayrı zarf olarak laboratuvarda görünür.
+
+Gerçek temas varsa handling, topun üç boyutlu hızı ve uzanma zorluğu tutma kalitesini verir. **Tutma / yana veya kornere çelme / parmak ucuyla saptırma** için yalnız bu kalitede seed'li zar vardır. Çelme ve saptırma yeni gerçek hız/düşey hız üretir; top tekrar uçup ilk yetişene gidebilir, ikinci şut mümkün olur. Zorluk 0–1 arası yatay/dikey erişim oranından gelir; son anda erişimde en az 0,9 kaydedilir. `save` ayrıca `reachDifficulty`, `reactionAt`, `reactionMarginSeconds`, `lastMoment` taşır. Özel hareket ve akrep vuruşu seçilmez; ileride bu kayıtlar aday üretir.
+
+### Birebir, elde top ve geri pas
+
+Kaleye 19 m içinde, merkezi 18,32 m koridorda savunmacıyı geçmiş kontrollü taşıyıcı varsa kaleci açıyı daraltır. oneOnOne/positioning, en çok 13 m çıkışı ve önceden açılan zarfı etkiler. Top kalecinin gerçek el/gövde erişimine önce gelirse ceza alanında ayağa kapanarak alabilir; serbest sürme dokunuşunda da diğer oyuncularla aynı ilk temas yarışına girer. Hücumcu sürme/şut seçenekleriyle kaleciyi geçebilir, plase veya aşırtma deneyebilir.
+
+Kaleci ceza alanında düşük hızlı serbest topu elle alabilir; kendi takımının bilerek ayakla gönderdiği pas `backpassTeamId` izi taşır ve **elle alınamaz**. O top ayakla kontrol/pas/sürme kurallarına döner; kalecinin serbest dokunuşu konum alma hedefiyle ezilmez. Ceza alanı dışı elle tutma/kurtarma yoktur, ayak teması mümkündür. Ceza alanı 16,5 × 40,32 m, altıpas 5,5 × 18,32 m; kalecinin elle oynama sınırı altıpas değil ceza alanıdır.
+
+Elde top `heldBy` ile görünür; mevcut kontrol sahibinin erişiminde taşınır, müdahale başlayamaz veya çözülemez. Kaleci **3,5 sn** içinde takım arkadaşına elle atar veya mesafe uzunsa elinden uzun vurur; `keeperDistribution.kind` `throw/punt` olur. Dağıtılan top yine gerçek uçuş, ilk dokunuş ve pas sonucuna tabidir. Henüz topu elde tutma ihlali, kalecinin ikinci kez elle alması ve dolaylı serbest vuruş modeli yoktur; 7. işin açık kuralıdır.
+
+### Maç, santra, devre ve geçici kale çizgisi kuralı
+
+`createSimulation({...,match:true})` tam maçı etkinleştirir; laboratuvar bunu açar. Maç başında ev sahibi, golden sonra yiyen, ikinci yarıda diğer takım santra yapar. Gol sonrası en az 2 sn, devrede en az 3 sn beklenir; oyuncular **aynı fiziksel hareketle kendi yarı alanlarına koşar**, karşı takım orta daire dışına yerleşir. Taker gerçekten kontrol erişimine gelince ve taker ile merkeze yakın seçilen alıcı 0,5 m/sn altına frenleyince merkezdeki toptan takım arkadaşına gerçek yerden **santra pası** çıkar. Karşı takımın orta daire dışındaki gerçek uzaklığı da kontrol edilir. Oyuncu konumu değiştirilerek hızlı başlatılmaz.
+
+Saat 2.700 sn'de `half`, iki takımın yönünün tersine çevrilmesi ve ikinci yarı santrasını üretir. 5.400 sn'de `end` olur, adım/konum/olay/skor ilerlemesi durur. Uzatma yok; bu aşamada gol/devre/yeniden başlama beklemeleri 90 dakikalık sabit saatin içindedir. Sentetik sahneler için `match:false` saat akışını kapatır; golün skor kaydı yine gerçektir.
+
+**GEÇİCİ — 7. işe kadar:** kale çizgisi çıkışında son dokunan hücum takımıysa top ceza alanı/altıpas içindeki basit yeniden başlama noktasına alınır; kaleci oraya gerçekten gelir, elle alır ve dağıtır. Son dokunan savunmaysa hücum takımı en yakın köşeden en çok 8 m hedefli yerden kısa pasla başlar. Topun ayak çıkış hatası ve rakibin gerçek teması bu kısa pası da etkiler. Bunlar gerçek kale vuruşu/korner yerleşimi ve orta değildir. Taç çizgisinin önceki rakipten kısa yeniden başlama kuralı sürer.
+
+DOGSO'nun önceki kontrol/yön/mesafe/kalan saha savunmacısı koşulları korunur; artık kalecinin perspektifte iki köşeyi fiziksel olarak kapatabildiği durumlar net gol şansı adayı sayılmaz. Bu, özelliklerden tepki/erişim hesabıdır; kurtarış olasılığı zarı değildir. Ceza sahasında topa oynama indirimi ve avantajda kartın sonraki duruşa bırakılması gerçek duran top işine kalır.
+
+### Günlük ve laboratuvar
+
+Gerçek ayak/temas/çizgi/yeniden başlama anında `shot` (xG, hedef, güç, stil), `block`, `save` (tür/zorluk), `post`, `wide`, `goal`, `keeperClaim`, `keeperDistribution`, `kickoff`, `half`, `end` oluşur. Konumlar metre, zaman saniye; golün şut kaydı ve asist kimliği açıktır. Aynı tohum ve aynı komut adımları aynı fizik/olay/skoru üretir.
+
+Üstte skor ve saat, devrede değişen yönler; şut değeri/xG, kaleyi gören iki çizgi, şutun gerçek izi, kalecinin erişimi/tepki anı ve kurtarış türü gösterilir. Top sahibine **iki kez dokunmak** (350 ms içinde) hemen şut ister; ilk dokunma kendine pas hatası üretmez. Tek takım arkadaşı dokunuşu ve uzun basma korunur. Canlı takım tablosu şut, isabet, gol, xG, blok, kurtarış, direk gösterir. Olay listesinde şut/kurtarış/gol; golde kısa işaret vardır. Telefon denemeleri ve tarihli beş tohum ölçümü [şut raporundadır](match-sim-shooting-report.md).
+
+
 ## Laboratuvarın sınırı ve kullanım
 
 Otomatik mod çekirdeğin kendi oyunudur: iki takım fiziksel topu sürer, pas verir, korur, mücadeleyle kazanır ve kaybeder. Sahadaki bir takım arkadaşına dokunmak sahibinden elle pas ister; bu istek güvenlik seçimini aşabilir ve kesilebilir. `Elle havadan pas` aynı deneyi lobla yapar. Oyuncuya 550 ms uzun basmak, o oyuncuyu topu aldığında sürmeye zorlar; kısa dokunmanın pası aynı anda gönderilmez. Sürme tercihi fizik/müdahale sınırlarını aşmaz. Hareket 12 pikseli geçer veya dokunma iptal edilirse uzun basma iptal edilir. Boş sahaya dokunmak otomatiği kapatıp hakem müdahalesi kuyruğuna top yerleştirir; duraklatılmışken önizlenir, sonraki fizik adımında uygulanır. Takım düğmeleri hakemin yeniden başlatma takımını seçer. Oyuncu konumu değişmez. Otomatik kapalıyken topun fiziği sürer, otomatik pas kararı bekler; elle istek çalışır.
 
-Kontroller: duraklat, **0,25×**/0,5×/1×/2×, tohumla sıfırla, iki diziliş, pres, hat, pas stili ve tempo. `90 dakikayı tamamla` çizim yapmadan kalan sabit adımları tamamlar, duvar süresini gösterir ve durur; adım atlamaz. Katmanlar: roller/örtme, hat/blok, hız, çapalar; **pas seçenekleri** (yeşil güvenli, kırmızı riskli, çizgi kalınlığı değerlendirme), **seçilen pas**, **top yolu**, hedefte alıcı/rakip saniyeleri. Havada topun metre yüksekliği görünür. Ek katmanlar sahibin pas/sür/koru puanları ve sürme yönü oku; savunmacının jokey/hazır/müdahale/yerde durumu; müdahaledeki top/oyuncu/ıska temas noktasıdır. Faul/kart/avantaj 2,2 sn işaretlenir. Son 10 ilgili olay listelenir. Canlı sayılar pas/isabet/mesafe ve sahipliğin yanında sürme/metre, beat, kazanılan/seken/ıska müdahale, top kazanma, faul, sarı, kırmızı ve avantajı içerir. Duraklatılmış sabit SVG her çizim karesinde yeniden kurulmaz; oyuncuya dokunma hedefi kararlı kalır.
+Kontroller: duraklat, **0,25×**/0,5×/1×/2×, tohumla sıfırla, iki diziliş, pres, hat, pas stili, tempo ve mentalite. `90 dakikayı tamamla` çizim yapmadan kalan sabit adımları tamamlar, duvar süresini gösterir ve durur; adım atlamaz. Katmanlar: roller/örtme, hat/blok, hız, çapalar; **pas seçenekleri** (yeşil güvenli, kırmızı riskli, çizgi kalınlığı değerlendirme), **seçilen pas**, **top yolu**, hedefte alıcı/rakip saniyeleri. Havada topun metre yüksekliği görünür. Ek katmanlar sahibin pas/sür/koru puanları ve sürme yönü oku; savunmacının jokey/hazır/müdahale/yerde durumu; müdahaledeki top/oyuncu/ıska temas noktasıdır. Faul/kart/avantaj 2,2 sn işaretlenir. Son 10 ilgili olay listelenir. Canlı sayılar pas/isabet/mesafe ve sahipliğin yanında sürme/metre, beat, kazanılan/seken/ıska müdahale, top kazanma, faul, sarı, kırmızı ve avantajı içerir. Duraklatılmış sabit SVG her çizim karesinde yeniden kurulmaz; oyuncuya dokunma hedefi kararlı kalır.
 
 Sayfa ayrı Vite girişidir; oyun hiçbir laboratuvar modülü yüklemez. Laboratuvar dosyaları çevrimdışı önbelleğe alınmaz; service worker laboratuvar ad alanını ağdan geçirebilir. Önceden kurulmuş oyun worker'ı listesinde olmayan `.js` dosyalarını reddettiği için bağımsız giriş `lab/laboratory.mjs` olarak yayınlanır; böylece kullanıcı önce oyunu açıp yenilemek zorunda kalmaz. Bu geçiş eski worker fikstürüyle ayrıca tarayıcıda sınanır. Laboratuvar kendi service worker'ını kaydetmez, kariyerin localStorage alanını okumaz/yazmaz.
 
@@ -200,7 +273,7 @@ Başsız otomatik top deneyi: tohum 901, 22 oyuncu, 54.000 adım = 90 dakika; **
 |---|---|---|
 | Top fiziği ve pas (uygulandı) | Yukarıdaki kurallar ve kabul testleri | Spin/çim/hava direnci eklenecek mi; 1,8 m zarfı sıçrama ve kafa mücadelesine nasıl ayrılacak? |
 | Sürme, müdahale, faul (uygulandı) | Yukarıdaki fizik, temas, karar ve geçici yeniden başlama kuralları | Çok tohumlu faul/kart dengesi, tam gövde temas geometrisi ve avantajda kart gösterme zamanı? |
-| Şut ve kaleci | Şut uçuşundan isabet, blok, direk, kurtarış ve gol | Reaksiyon ve görüş engeli, uzanma sınırı, parmak ucu sapması ne düzeyde? |
+| Şut ve kaleci (uygulandı) | Gerçek uçuş, blok/direk/kaleci teması, gol/skor, santra/devre | Çok tohumlu xG/kurtarış kalibrasyonu, görüş engeli, ayak tercihi/falso ve şutsuz kendi kalesine gol sözleşmesi? |
 | Orta ve duran toplar | Açık oyun ortası, kafa, ofsayt, korner, penaltı, serbest vuruş/baraj, taç/kale vuruşu, kaleci yumruğu ve elle dağıtım; geçici faul yeniden başlamasını kaldırma | Hava topu zamanlaması, ofsayt anı, duran top yerleşimi ve kart eşikleri? |
 | Özel hareket | Motor özellik, hız ve rakip mesafesinden seçer; 3D sadece oynatır | Başarı/başarısızlık zarfı ve hareket sırasında kontrol kaybı nasıl ölçülecek? |
 | Olay günlüğü ve 3D | Konumlardan yan ürün `{type,minute,second,…}`; mevcut 3D olay alanlarıyla uyum ve gerçek konum akışı | Sürekli konum örnekleri günlüğe mi ayrı zaman çizgisine mi; tekrar/saklama bütçesi ne? |
@@ -218,3 +291,8 @@ Node 22.23.4, tohum 901, 22 oyuncu ve aynı 54.000 adım; çizimsiz yerel paket,
 ### Sürme/müdahale ölçümü — 28 Ekim 2026
 
 Node 22.23.4, tohum 901, iki 4-2-3-1, Normal pres/hat/tempo ve Dengeli pas; 22 oyuncu ve 54.000 gerçek adım. **807 pas, %77,94 isabet, 19,78 m ortalama**; önceki 1.358 / %55,82 / 25,84 m belirgin iyileşti. 748 taşıma / 10.871,91 m, 51 beat, 154 müdahale (28 kazanma / 31 sekme / 95 ıska), 159 kontrollü kazanma; 13 faul, 1 sarı, 0 kırmızı, 2 avantaj. Faul ve sarı hedefin altında; nedenleri, üç tohum ve hız serisi [ayrı raporda](match-sim-duels-report.md). Eski altınlar ve topsuz koordinat özeti korunur.
+
+
+### Şut/kaleci ölçümü — 28 Ekim 2026
+
+Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ayrıntılı tablo ve hedefler [şut raporundadır](match-sim-shooting-report.md). Ortalama **34,2 şut, 14,0 isabet, 8,2 gol, 7,60 xG**, ağırlıklı xG/şut **0,222**, başarılı kurtarış **%41,4**; şut kalitesi/gol/kurtarış dengesi hedeflerinden belirgin uzak. Pas ortalaması **795,0**; beş maçta isabet ve mesafe hedefte, iki pas sayısı dışında. Faul **15,6**, sarı **2,4**; 689 müdahalenin 464'ü ıska (**%67,3**). Son güç hatası düzeltmesinden önceki daha iyi dağılım nihai sonuç diye korunmadı. 8. iş bu dağılımları birlikte kalibre edecek; fiziksel sonuç yerine ayrı gol/faul/kurtarış zarı eklenmeyecek. Üç ayrı tam maç için 2 saniye CI eşiği ve değişmemiş topsuz koordinat özeti korunur.

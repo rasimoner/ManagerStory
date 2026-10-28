@@ -2,7 +2,7 @@ import MATCH_SIM_DATA from '../../../data/match-sim.json';
 
 export function bindLabLongPress(context, onTap) {
   const field = context.view.field;
-  let press = null;
+  let press = null, lastTap = null;
   const cancel = () => { if (press) clearTimeout(press.timer); press = null; };
   field.addEventListener('pointerdown', event => {
     if (!event.target.closest('[data-player]')) { onTap(event); return; }
@@ -19,7 +19,11 @@ export function bindLabLongPress(context, onTap) {
     }, MATCH_SIM_DATA.lab.longPressMilliseconds);
   });
   field.addEventListener('pointerup', () => {
-    if (press && !press.held) onTap(press.event);
+    if (press && !press.held) {
+      const owner = context.runner.snapshot().simulation.ball.ownerId;
+      if (owner === press.playerId) lastTap = handleOwnerTap(context, press, lastTap);
+      else { lastTap = null; onTap(press.event); }
+    }
     cancel();
   });
   field.addEventListener('pointercancel', cancel);
@@ -27,4 +31,13 @@ export function bindLabLongPress(context, onTap) {
     if (press && Math.hypot(event.clientX - press.x, event.clientY - press.y) > MATCH_SIM_DATA.lab.longPressMovePixels) cancel();
   });
   field.addEventListener('contextmenu', event => event.preventDefault());
+}
+
+function handleOwnerTap(context, press, lastTap) {
+  const time = performance.now();
+  if (lastTap?.playerId === press.playerId && time - lastTap.time <= MATCH_SIM_DATA.lab.doubleTapMilliseconds) {
+    context.runner.shoot();
+    return null;
+  }
+  return { playerId: press.playerId, time };
 }

@@ -1,3 +1,4 @@
+import { requestSimulationShot } from '../../sim/shot-execution.js';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { createSimulation, readSimulation } from '../../sim/simulation-state.js';
 import { advanceSimulation } from '../../sim/simulation-step.js';
@@ -23,6 +24,7 @@ export function createLabSession(initial = {}) {
     setTactics: tactics => { setSimulationTactics(context.simulation, tactics); context.options = { ...context.options, ...tactics }; },
     enableAutomatic: value => { session.automatic = value; context.simulation.automaticPasses = value; },
     passTo: request => { requestSimulationPass(context.simulation, request); session.automatic = false; context.simulation.automaticPasses = false; },
+    shoot: () => requestSimulationShot(context.simulation),
     forceDribble: playerId => forceSimulationDribble(context.simulation, playerId),
     completeMatch: () => completeLabMatch(context, session),
   };
@@ -70,7 +72,7 @@ function advanceLabSession(context, session, seconds) {
 
 function recentLabEvents(simulation) {
   const events = [];
-  const types = new Set(['dribble', 'tackle', 'duel', 'foul', 'advantage', 'yellow', 'red', 'beat', 'pass']);
+  const types = new Set(['dribble', 'tackle', 'duel', 'foul', 'advantage', 'yellow', 'red', 'beat', 'pass', 'shot', 'block', 'save', 'post', 'wide', 'goal', 'keeperClaim', 'keeperDistribution', 'kickoff', 'half', 'end']);
   for (let index = simulation.events.length - 1; index >= 0 && events.length < MATCH_SIM_DATA.lab.recentEventCount; index--) {
     if (types.has(simulation.events[index].type)) events.unshift({ ...simulation.events[index] });
   }

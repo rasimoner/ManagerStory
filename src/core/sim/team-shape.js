@@ -1,3 +1,4 @@
+import { simulationKeeperTarget } from './keeper-positioning.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue } from './geometry.js';
 
@@ -36,6 +37,7 @@ export function fitTeamTarget(target, shape) {
 }
 
 export function simKeeperTarget(simulation, team) {
+  if (simulation.liveBall) return simulationKeeperTarget(simulation, team);
   const { keeper } = MATCH_SIM_DATA.shape;
   const ownGoal = -MATCH_SIM_DATA.pitch.length / 2 * team.direction;
   const progress = simulation.ball.position.x * team.direction + MATCH_SIM_DATA.pitch.length / 2;

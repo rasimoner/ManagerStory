@@ -12,3 +12,5 @@
 .signal-yellow { background: #ffe07a; }
 .signal-red { background: #e55262; color: white; }
 #lab-field { touch-action: none; user-select: none; -webkit-user-select: none; }
+
+#lab-score{font-size:13px;color:#ffe09d;letter-spacing:.2px;font-variant-numeric:tabular-nums}.shot-stats{width:100%;border-collapse:collapse;margin-top:7px;font-size:9px;text-align:center}.shot-stats th,.shot-stats td{padding:4px 2px;border-top:1px solid #34534d}.shot-stats th{font-weight:500;color:#8faea6}.shot-stats tr[data-shot-team=home] td{color:#ffd45c}.shot-stats tr[data-shot-team=away] td{color:#65beff}.event-panel li[data-event=goal]{color:#ffe09d;background:#294239}.event-panel li[data-event=save]{color:#96ddff}

@@ -37,7 +37,7 @@ function nearestBallChasers(team, ball) {
 function chaseSimulationBall(simulation, player, role) {
   if (!simulationPlayerAvailable(player)) return;
   const runtime = simulationRuntime(simulation), ball = simulation.ball;
-  const launchTick = ball.flight?.launchTick ?? 0;
+  const launchTick = ball.flight?.launchTick ?? ball.shot?.launchTick ?? 0;
   if (simulation.tick < launchTick + player.limits.reactionTicks) return;
   let chase = runtime.chaseTicks.get(player.id);
   if (!chase || simulation.tick >= chase.nextTick) {

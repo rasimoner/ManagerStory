@@ -12,6 +12,7 @@ export function prepareSimulationDefenders(simulation) {
   for (const player of runtime.players) {
     player.motionMode = null;
     recoverSimulationDefender(simulation, player);
+    if (simulation.ball.heldBy != null) { player.duel.tackle = null; continue; }
     if (!victim || victim.teamId === player.teamId || !simulationPlayerAvailable(player)) continue;
     if (player.duel.tackle) { player.motionMode = 'tackling'; continue; }
     if (!['press', 'cover'].includes(player.role)) { player.duel.state = 'idle'; continue; }

@@ -1,3 +1,4 @@
+import { simulationPenaltyAreaContains } from './keeper-positioning.js';
 import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { predictSimulationBall } from './ball-physics.js';
@@ -18,7 +19,7 @@ export function earliestSimulationBallContact(simulation, motion) {
   let earliest = null;
   runtime.players.forEach((player, index) => {
     if (!canTouchSimulationBall(simulation, player)) return;
-    const previous = { x: runtime.previousPositions[index * 2], y: runtime.previousPositions[index * 2 + 1] };
+    const previous = playerSegmentStart(runtime, index, motion);
     const fraction = simulationContactFraction(player, previous, motion);
     if (fraction === null) return;
     const candidate = { player, fraction, previous };
@@ -30,6 +31,8 @@ export function earliestSimulationBallContact(simulation, motion) {
 function canTouchSimulationBall(simulation, player) {
   const ball = simulation.ball;
   if (!simulationPlayerAvailable(player)) return false;
+  if (ball.heldBy != null) return false;
+  if (keeperAwaitsShotContact(simulation, player)) return false;
   if (ball.restart && ball.restart.takerId !== player.id) return false;
   return ball.excludedId !== player.id || simulation.tick >= ball.controlAfterTick;
 }
@@ -50,7 +53,7 @@ export function simulationContactFraction(player, previous, motion) {
     y: motion.after.position.y - motion.before.position.y - player.position.y + previous.y };
   const interval = circleContactInterval(offset, relative);
   if (!interval) return null;
-  const seconds = MATCH_SIM_DATA.clock.stepSeconds;
+  const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
   if (predictSimulationBall(motion.before, interval.start * seconds).height <= MATCH_SIM_DATA.ball.reachableHeight) return interval.start;
   const descending = reachableDescentSeconds(motion.before) / seconds;
   return descending >= interval.start && descending <= interval.end ? descending : null;
@@ -73,4 +76,17 @@ function reachableDescentSeconds(ball) {
   const { gravity, reachableHeight } = MATCH_SIM_DATA.ball;
   const discriminant = ball.verticalVelocity ** 2 + 2 * gravity * (ball.height - reachableHeight);
   return discriminant >= 0 ? (ball.verticalVelocity + sqrt(discriminant)) / gravity : Infinity;
+}
+
+function keeperAwaitsShotContact(simulation, player) {
+  const shot = simulation.ball.shot;
+  if (!shot || shot.saved || shot.rebound || player.slot !== 'GK') return false;
+  return simulationPenaltyAreaContains(simulation.teams.find(team => team.id === player.teamId), player.position);
+}
+
+function playerSegmentStart(runtime, index, motion) {
+  const player = runtime.players[index];
+  const elapsed = 1 - (motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds) / MATCH_SIM_DATA.clock.stepSeconds;
+  const x = runtime.previousPositions[index * 2], y = runtime.previousPositions[index * 2 + 1];
+  return { x: x + (player.position.x - x) * elapsed, y: y + (player.position.y - y) * elapsed };
 }

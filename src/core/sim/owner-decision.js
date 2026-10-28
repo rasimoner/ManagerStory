@@ -1,3 +1,5 @@
+import { releaseSimulationShot } from './shot-execution.js';
+import { evaluateSimulationShot } from './shot-evaluation.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { pointDistance, pointSquaredDistance } from './geometry.js';
 import { validateSimPosition } from './validation.js';
@@ -59,6 +61,7 @@ function refreshSimulationOwnerPlan(simulation, owner) {
 export function finishSimulationOwnerStep(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
   if (!owner) return;
+  if (simulation.ownerDecision.selected === 'shot') { finishOwnerShot(simulation, owner); return; }
   const option = simulation.passing.selected;
   if (option && simulation.ownerDecision.selected === 'pass') faceSimulationPlayer(owner, option.target);
   followSimulationBallOwner(simulation);
@@ -90,4 +93,12 @@ function carryMovementTarget(simulation, owner) {
   const ball = simulation.ball;
   const chasing = ball.ownerId == null && pointSquaredDistance(owner.position, ball.position) > MATCH_SIM_DATA.ball.controlRadius ** 2;
   return chasing ? ball.position : simulation.ownerDecision.dribble.target;
+}
+
+function finishOwnerShot(simulation, owner) {
+  const option = evaluateSimulationShot(simulation, owner);
+  faceSimulationPlayer(owner, option.target);
+  followSimulationBallOwner(simulation);
+  const waiting = (simulation.tick - simulation.ball.ownerSinceTick) * MATCH_SIM_DATA.clock.stepSeconds;
+  if (waiting >= MATCH_SIM_DATA.shooting.releaseSeconds) releaseSimulationShot(simulation, owner, option);
 }
