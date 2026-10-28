@@ -35,3 +35,18 @@ Scripted moments of the first season. transferOffer: in the first season, on the
 ## tactics.json (`TACTIC_DATA`)
 
 Team tactics: the options of each setting, their labels, and the team orders.
+
+
+## match-sim.json (`MATCH_SIM_DATA`)
+
+Yeni saniyelik çekirdeğin ve ayrı laboratuvarın verisi; mevcut kariyer motoru bunu yüklemez. Kural kaynağı `docs/match-sim.md`.
+
+- `pitch`: metre cinsinden saha, hedeflerin çizgiye payı, kale/ceza alanı/orta daire ölçüleri.
+- `clock`: sabit adım (saniye); `epsilon` sadece kayan noktalı birikimin adım sınırını kaçırmaması için tolerans.
+- `attributes`: kabul edilen özellik aralığı. `movement`: metre/sn hız ve metre/sn² ivmenin tabanı/özellik payı, kondisyon çarpanı, radyan/sn dönüş, varış toleransı, aciliyet mesafeleri ve yürüyüş/hafif koşu/koşu/sprint hız oranları.
+- `decisions`: özelliğe göre 0,3–0,6 saniyelik tepki aralığı; üst tam adıma yuvarlanır. `phases`: kazanma/karşı pres pencereleri ve karşı preste tetik mesafesi çarpanı.
+- `roles`: eşzamanlı pres/örtme/markaj/destek sayıları; örtme çizgisine mesafe/oran, markajın kale tarafı mesafesi, destek açıları ve derin koşu mesafesi.
+- `shape`: savunma/hücum hedef boyu ve eni, takımın ortak rol hedef zarfı; topa boyuna mesafe ve enine kayma. Bunlar mevkiye özel sabit kutular değildir. Kaleci derinliği ve enine açı payı ayrıca burada.
+- `tactics`: `tactics.json`'daki pres seçeneklerinin metre tetik mesafeleri ve savunma hattı seçeneklerinin metre kaydırmaları. Seçeneklerin adları kopya bir seçenek listesi oluşturmaz; arayüz doğrudan `TACTIC_DATA.options` okur.
+- `formations`: yalnız deneyin 4-2-3-1 ve 4-4-2 yuvaları; hat ve merkezlenmiş normalize çapa. `x` boyuna, `y` enine. Kalecinin yeri ayrı hesaplanır. Kariyerdeki `SLOT_POS`/`oppRadarPos` aynen kalır.
+- `lab`: başlangıç tohumu/taktik/diziliş/top, takım renkleri/kimlikleri, seed'li örnek oyuncu özellik aralığı, topun metre/sn senaryo hızı, bekleme süresi ve sahiplik değişim olasılığı, hız seçenekleri, klavyenin metre adımı, hız oklarının saniye ufku ve rol etiketleri. Otomatik top sunum betiğidir; motor pas kararı değildir.

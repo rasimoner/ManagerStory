@@ -10,12 +10,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { loadGame, gameSources, SRC } = require('./support/game.cjs');
 
+const { loadLab } = require('./support/lab.cjs');
+const dataSources = () => [...gameSources(), ...gameSources({ page: 'lab.html' })];
+
 const files = fs.readdirSync(path.join(SRC, 'data')).filter(f => f.endsWith('.json')).sort().map(f => 'data/' + f);
 const read = file => JSON.parse(fs.readFileSync(path.join(SRC, file), 'utf8'));
 // the name a data file goes by: what the modules that import it call it
 const nameOf = file => {
   const names = new Set();
-  for (const s of gameSources()) for (const m of s.code.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from\s+['"](\.{1,2}\/[^'"]+\.json)['"]/g)) {
+  for (const s of dataSources()) for (const m of s.code.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from\s+['"](\.{1,2}\/[^'"]+\.json)['"]/g)) {
     if (path.posix.normalize(path.posix.join(path.posix.dirname(s.file), m[2])) === file) names.add(m[1]);
   }
   return [...names];
@@ -37,7 +40,12 @@ test('the game imports every data file, each under one name', () => {
 
 test('the game reads the same values the data files hold', () => {
   const g = loadGame();
-  for (const f of files) assert.deepEqual(g.json(nameOf(f)[0]), read(f), f);
+  const lab = loadLab();
+  for (const f of files) {
+    const name = nameOf(f)[0];
+    const page = name in g.api ? g : lab;
+    assert.deepEqual(page.json(name), read(f), f);
+  }
   // what the code builds from the data
   assert.equal(g.run('OPP.length'), 17);
   assert.equal(g.run('Object.keys(CLUBSTYLE).length'), 18);

@@ -154,3 +154,25 @@ Genişletme noktaları (`core/hooks.js`):
 - Bir modüldeki `import('...')` o modülün adresine göre çözülür.
 - Görsel yolları (`assets/...`) sayfaya göredir; scriptin yeri değişince değişmez (stil sayfalarında kökten: yukarıda).
 - Testler tek dosya okurken `locate(ad)` / `readSource(ad)` kullanır (`tests/support/game.cjs`): dosya klasör değiştirince test değişmez.
+
+
+## Faz 4 — saniyelik motor ve ayrı deney sayfası
+
+| Dosya | Sorumluluk |
+|---|---|
+| `src/lab.html` | Oyunla bağlantısız ikinci Vite girişi; `/ManagerStory/lab.html` |
+| `core/sim/simulation-state.js` | Girdi kopyası, takım/oyuncu durumu ve salt-okunur bağımsız çıktı kopyası |
+| `core/sim/simulation-step.js` | 0,1 sn adım, kare zamanı birikimi, sahiplik geçişleri ve faz saati |
+| `core/sim/player-movement.js`, `pitch-movement.js` | Özelliklerden kapasite, aciliyet/yürüyüş, ivme ve dönüş; çizgide vektör ivme bütçesiyle önceden frenleme |
+| `core/sim/team-shape.js` | Top/taktikten blok, hat çapaları, ortak hedef zarfı ve kaleci |
+| `core/sim/off-ball-roles.js`, `off-ball-targets.js` | Ayrı karar saatleri; basan, örten, markaj, destek, derin koşu; gerçek rakip pas çizgisi |
+| `core/sim/team-measurements.js` | Kaleci hariç, basan dahil gerçek boy/en; pres uzaklığı ve ilk tepki |
+| `core/sim/tactic-settings.js`, `validation.js`, `geometry.js` | Canlı taktik API'si, açık girdi hataları, metre vektör işlemleri |
+| `core/presentation/lab/main.js`, `controller.js`, `session.js` | Deneyi açma, dokunma/klavye/kontroller, sabit adım sürücüsü; kariyer durumuna erişim yok |
+| `core/presentation/lab/scenario.js`, `automatic-ball.js` | Seed'li örnek takımlar ve motorun dışında otomatik top senaryosu |
+| `core/presentation/lab/screen.js`, `field-view.js`, `field-layers.js`, `field-markings.js`, `laboratory.css` | Telefon arayüzü, SVG saha/22 oyuncu, rol/hat/hız/çapa katmanları, canlı ölçümler |
+| `data/match-sim.json` | Yeni çekirdeğin tüm oyun değerleri, iki diziliş ve deney ayarları; `data/README.md` açıklar |
+| `tests/support/lab.cjs`, `tests/match-sim*.test.cjs` | Sayfa grafiğinden adla API erişimi, davranış/saat/fizik/blok ve yayın sınırı testleri |
+| `docs/match-sim.md` | Yeni motorun Türkçe şartnamesi, ölçümleri ve sonraki adımların açık soruları |
+
+Build iki HTML girişini bağımsız grafiklerle paketler; laboratuvar için oyuna yeni ortak parça yükletilmez. Laboratuvarın sabit ad alanı çevrimdışı listeden çıkarılır; HTML sorguları içerik hash'i taşır. Oyun paketinin import grafiğine deney girmez. `tests/support/game.cjs` varsayılan `index.html` dışında `page: 'lab.html'` de yükler; adla erişim kuralı her iki sayfada aynıdır. Veri testleri iki girişin JSON kullanımını denetler.

@@ -7,7 +7,7 @@
    - package.json's version is the one place a release is written: the game reads it (src/core/version.js), the
      page title and the web manifest get it here.
    - dist/sw.js is written from src/sw.js with the list of every file this build published (but NOT_CACHED). */
-import { defineConfig } from 'vite';
+import { build as buildVite, defineConfig } from 'vite';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, posix, resolve } from 'node:path';
@@ -19,7 +19,7 @@ export const BASE = '/ManagerStory/';
 
 // published but not cached for offline play: the worker itself, and the crowd pictures kept for weather and night
 // matches, not used yet (tests/assets.test.cjs). Dotfiles (.nojekyll, .gitkeep) are never cached.
-export const NOT_CACHED = ['sw.js', 'assets/atmosphere/fans-day.webp', 'assets/atmosphere/fans-rain.webp', 'assets/atmosphere/fans-night.webp'];
+export const NOT_CACHED = ['lab.html', 'lab/laboratory.js', 'lab/laboratory.css', 'sw.js', 'assets/atmosphere/fans-day.webp', 'assets/atmosphere/fans-rain.webp', 'assets/atmosphere/fans-night.webp'];
 
 const filesUnder = (dir, at = '') => readdirSync(join(dir, at), { withFileTypes: true }).flatMap(d => {
   const f = at ? posix.join(at, d.name) : d.name;
@@ -41,6 +41,30 @@ export function serviceWorker(outDir, template) {
   return `const RELEASE = ${JSON.stringify(version)};\nconst BUILD = ${JSON.stringify(build)};\nconst ASSETS = ${JSON.stringify(assets, null, 0).replace(/","/g, '",\n  "')};\n${template}`;
 }
 
+async function buildLaboratory(outDir) {
+  // A separate entry graph keeps the career's initial import graph independent of the experiment.
+  await buildVite({
+    configFile: false, root: join(ROOT, 'src'), base: BASE, publicDir: false, logLevel: 'error',
+    build: {
+      outDir, emptyOutDir: false, assetsInlineLimit: 0,
+      rolldownOptions: {
+        input: { lab: join(ROOT, 'src/lab.html') },
+        output: { entryFileNames: 'lab/laboratory.js', assetFileNames: 'lab/laboratory[extname]' },
+      },
+    },
+  });
+}
+
+function stampLaboratoryAssets(outDir) {
+  const page = join(outDir, 'lab.html');
+  let html = readFileSync(page, 'utf8');
+  for (const asset of ['lab/laboratory.js', 'lab/laboratory.css']) {
+    const hash = createHash('sha256').update(readFileSync(join(outDir, asset))).digest('hex').slice(0, 10);
+    html = html.replaceAll(BASE + asset, BASE + asset + '?build=' + hash);
+  }
+  writeFileSync(page, html);
+}
+
 function managerStory() {
   let outDir;
   return {
@@ -48,7 +72,9 @@ function managerStory() {
     configResolved(config) { outDir = resolve(config.root, config.build.outDir); },
     transformIndexHtml: html => html.replaceAll('%APP_VERSION%', version),
     // after everything is written (the bundle and public/): the manifest's name, then the worker and its list
-    closeBundle() {
+    async closeBundle() {
+      await buildLaboratory(outDir);
+      stampLaboratoryAssets(outDir);
       const manifest = join(outDir, 'manifest.json');
       writeFileSync(manifest, readFileSync(manifest, 'utf8').replaceAll('%APP_VERSION%', version));
       writeFileSync(join(outDir, 'sw.js'), serviceWorker(outDir, readFileSync(join(ROOT, 'src/sw.js'), 'utf8')));
