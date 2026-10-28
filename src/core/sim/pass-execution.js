@@ -1,7 +1,7 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { simulationPassFlight } from './ball-physics.js';
 import { pointDistance } from './geometry.js';
-import { drawSimulationRandom } from './simulation-runtime.js';
+import { drawSimulationRandom, simulationRuntime } from './simulation-runtime.js';
 import { simulationOwnerPressure } from './pass-evaluation.js';
 import { emitSimulationEvent } from './ball-events.js';
 
@@ -13,7 +13,7 @@ export function releaseSimulationPass(simulation, owner, option) {
   applyPassError(simulation, owner, flight);
   Object.assign(ball, flight, { ownerId: null, excludedId: owner.id, controlAfterTick: simulation.tick + owner.limits.reactionTicks });
   const eventIndex = emitSimulationEvent(simulation, { type: 'pass', fromId: owner.id, toId: option.toId, fromPos,
-    toPos: { ...option.target }, teamId: owner.teamId, lofted: option.lofted, distance: pointDistance(fromPos, option.target) });
+    toPos: { ...option.target }, teamId: owner.teamId, lofted: option.lofted, leadDistance: pointDistance(option.target, simulationRuntime(simulation).byId.get(option.toId).position), distance: pointDistance(fromPos, option.target) });
   ball.backpassTeamId = owner.teamId;
   ball.shot = null;
   ball.flight = { eventIndex, teamId: owner.teamId, fromId: owner.id, toId: option.toId, fromPos, target: { ...option.target }, launchTick: simulation.tick };

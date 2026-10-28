@@ -68,7 +68,8 @@ export function beginSimulationTackle(simulation, defender, { victim, kind }) {
   const direction = Math.atan2(predicted.y - defender.position.y, predicted.x - defender.position.x)
     + (drawSimulationRandom(simulation) * 2 - 1) * settings.directionError * error;
   const reach = kind === 'sliding' ? settings.slidingReach : settings.standingReach;
-  defender.duel.tackle = { victimId: victim.id, kind, direction, reach, startTick: simulation.tick, contactTick: simulation.tick + simulationDurationTicks(duration) };
+  defender.duel.tackle = { victimId: victim.id, kind, direction, reach, startTick: simulation.tick, contactTick: simulation.tick + simulationDurationTicks(duration),
+    distance: planningDistance(defender.position, simulation.ball.position), victimSpeed: Math.hypot(victim.velocity.x, victim.velocity.y) };
   defender.duel.state = 'tackling';
   defender.target = fitCarryTarget(predicted);
   defender.motionMode = 'tackling';
@@ -82,6 +83,7 @@ export function finishSimulationTackles(simulation) {
     const from = { ...defender.position };
     const to = { x: from.x + Math.cos(tackle.direction) * tackle.reach, y: from.y + Math.sin(tackle.direction) * tackle.reach };
     resolveSimulationTackle(simulation, { defenderId: defender.id, victimId: tackle.victimId, kind: tackle.kind, from, to,
+      distance: tackle.distance, victimSpeed: tackle.victimSpeed, preparationSeconds: (simulation.tick - tackle.startTick) * MATCH_SIM_DATA.clock.stepSeconds,
       speed: Math.hypot(defender.velocity.x, defender.velocity.y) + MATCH_SIM_DATA.duels.lungeSpeed });
     if (simulation.referee.stoppage) break;
   }

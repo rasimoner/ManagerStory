@@ -22,6 +22,9 @@ function armKeeper(simulation, keeper) {
   const arrival = simulationShotGoalProjection(simulation) ?? ball;
   keeper.keeper = { ...keeper.keeper, shotIndex: ball.shot.eventIndex, reactionAt: simulation.time + delay,
     launchPosition: { ...keeper.position }, launchMode: keeper.keeper.mode, target: { ...arrival.position, height: arrival.height }, mode: 'reacting' };
+  simulation.events[ball.shot.eventIndex].keeper = { set: keeper.keeper.setSeconds >= settings.setSeconds, reactionSeconds: delay,
+    distance: Math.hypot(ball.position.x - keeper.position.x, ball.position.y - keeper.position.y),
+    lateralDistance: Math.abs(arrival.position.y - keeper.position.y), contact: false, saved: false };
 }
 
 export function simulationKeeperReach(keeper, time) {
@@ -48,7 +51,11 @@ export function keeperShotContact(simulation, motion) {
   const time = motion.startTime + fraction * motion.seconds;
   const touching = predictSimulationBall(motion.before, fraction * motion.seconds);
   const position = { x: previous.x + (keeper.position.x - previous.x) * fraction, y: previous.y + (keeper.position.y - previous.y) * fraction };
-  return evaluateKeeperReach(keeper, { touching, time, fraction, position });
+  const contact = evaluateKeeperReach(keeper, { touching, time, fraction, position });
+  const telemetry = simulation.events[shot.eventIndex].keeper;
+  Object.assign(telemetry, { arrival: true, extension: Math.max(0, Math.abs(touching.position.y - position.y) - keeperBodyReach(keeper)),
+    availableReach: simulationKeeperReach(keeper, time).horizontal, timeToKeeper: time - simulation.events[shot.eventIndex].time });
+  return contact;
 }
 
 function evaluateKeeperReach(keeper, { touching, time, fraction, position }) {

@@ -16,6 +16,8 @@ export function saveSimulationShot(simulation, contact, remaining) {
   const kind = keeperSaveKind(simulation, contact);
   if (onTarget) simulation.statistics.teams[player.teamId].saves++;
   simulation.ball.shot.saved = true;
+  simulation.events[simulation.ball.shot.eventIndex].keeper.contact = true;
+  simulation.events[simulation.ball.shot.eventIndex].keeper.saved = onTarget;
   simulation.ball.shot.assistId = null;
   const timing = keeperSaveTiming(contact);
   const recordedDifficulty = Math.max(difficulty, timing.lastMoment ? MATCH_SIM_DATA.goalkeeper.lastMomentDifficulty : 0);
