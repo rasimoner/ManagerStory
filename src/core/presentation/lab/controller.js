@@ -8,7 +8,7 @@ import { renderLaboratoryField } from './field-view.js';
 export function startLaboratory() {
   const view = createLaboratoryView(document.querySelector('#lab'));
   const runner = createLabSession();
-  const context = { view, runner, layers: { roles: true, shape: true, velocity: false, anchors: false, passes: true, flight: true, decisions: true, duels: true }, lastFrame: null };
+  const context = { view, runner, layers: { roles: true, shape: true, velocity: false, anchors: false, passes: true, flight: true, decisions: true, duels: true, shooting: true }, lastFrame: null };
   bindLaboratoryControls(context);
   document.addEventListener('visibilitychange', () => {
     context.lastFrame = null;
@@ -32,7 +32,7 @@ function advanceLaboratoryFrame(context, timestamp) {
 
 function renderChangedLaboratoryField(context, snapshot) {
   const simulation = snapshot.simulation;
-  const revision = JSON.stringify([simulation.seed, simulation.tick, simulation.ball.position, simulation.ball.teamId,
+  const revision = JSON.stringify([simulation.seed, simulation.tick, simulation.ball.position, simulation.ball.teamId, simulation.ball.ownerId, simulation.match.score,
     context.layers, simulation.teams.map(team => [team.formation, team.tactics]), simulation.passing.requested, simulation.ownerDecision.forcedPlayerId]);
   if (revision === context.lastRevision) return;
   renderLaboratoryField(context.view, snapshot, context.layers);
@@ -68,9 +68,9 @@ function handleLaboratorySetting(context, target) {
   const { runner, view } = context;
   if (target.dataset.layer) { context.layers[target.dataset.layer] = target.checked; return; }
   if (target.id === 'lab-auto') { runner.enableAutomatic(target.checked); return; }
-  if (['lab-press', 'lab-line', 'lab-passing-style', 'lab-tempo'].includes(target.id)) {
+  if (['lab-press', 'lab-line', 'lab-passing-style', 'lab-tempo', 'lab-mentality'].includes(target.id)) {
     runner.setTactics({ press: view.root.querySelector('#lab-press').value, line: view.root.querySelector('#lab-line').value,
-      passingStyle: view.root.querySelector('#lab-passing-style').value, tempo: view.root.querySelector('#lab-tempo').value });
+      mentality: view.root.querySelector('#lab-mentality').value, passingStyle: view.root.querySelector('#lab-passing-style').value, tempo: view.root.querySelector('#lab-tempo').value });
   }
   if (['lab-formation', 'lab-away-formation'].includes(target.id)) {
     runner.reset({ formation: view.root.querySelector('#lab-formation').value, awayFormation: view.root.querySelector('#lab-away-formation').value });

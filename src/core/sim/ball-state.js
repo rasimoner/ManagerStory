@@ -9,7 +9,7 @@ import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
 export function createSimulationBall(input) {
   return { position: { ...input.position }, teamId: input.teamId, ownerId: input.ownerId ?? null,
     velocity: { ...(input.velocity ?? { x: 0, y: 0 }) }, height: input.height ?? 0, verticalVelocity: input.verticalVelocity ?? 0,
-    lastTouchId: input.ownerId ?? null, lastTouchTeamId: input.teamId, flight: null, restart: null, carry: null,
+    heldBy: null, heldSinceTick: 0, shot: null, assist: null, backpassTeamId: null, lastTouchId: input.ownerId ?? null, lastTouchTeamId: input.teamId, flight: null, restart: null, carry: null,
     ownerSinceTick: 0, controlAfterTick: 0, excludedId: null };
 }
 
@@ -23,6 +23,7 @@ export function placeSimulationBall(simulation, input) {
     fromPos: { ...simulation.ball.position }, toPos: { ...input.position }, success: true });
   if (simulation.ball.teamId !== input.teamId) beginSimTransition(simulation, input.teamId);
   simulation.ball = createSimulationBall(input);
+  if (simulation.match.phase !== 'ended') { simulation.match.phase = 'playing'; simulation.match.restart = null; }
   simulation.ownerDecision = { selected: null, forcedPlayerId: simulation.ownerDecision.forcedPlayerId };
   simulation.referee = { advantage: null, stoppage: null };
   simulation.ball.ownerSinceTick = simulation.tick;

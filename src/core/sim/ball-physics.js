@@ -49,7 +49,12 @@ export function simulationPassFlight(start, target, lofted = false) {
 
 export function simulationBallTravelSeconds(flight, distance) {
   const speed = hypot(flight.velocity.x, flight.velocity.y);
-  if (flight.verticalVelocity > 0) return speed ? distance / speed : Infinity;
-  const discriminant = speed * speed - 2 * MATCH_SIM_DATA.ball.rollingDeceleration * distance;
-  return discriminant >= 0 ? 2 * distance / (speed + sqrt(discriminant)) : Infinity;
+  if (!speed) return distance === 0 ? 0 : Infinity;
+  const gravity = MATCH_SIM_DATA.ball.gravity;
+  const airborne = flight.height > 0 || flight.verticalVelocity > 0;
+  const landing = airborne ? (flight.verticalVelocity + sqrt(flight.verticalVelocity ** 2 + 2 * gravity * flight.height)) / gravity : 0;
+  if (distance <= speed * landing) return distance / speed;
+  const rollingDistance = distance - speed * landing;
+  const discriminant = speed * speed - 2 * MATCH_SIM_DATA.ball.rollingDeceleration * rollingDistance;
+  return discriminant >= 0 ? landing + 2 * rollingDistance / (speed + sqrt(discriminant)) : Infinity;
 }

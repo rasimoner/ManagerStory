@@ -6,8 +6,8 @@ export function labOwnerOptionsMarkup(simulation) {
   const ownerId = simulation.ball.ownerId ?? simulation.ball.carry?.playerId;
   if (ownerId == null || !decision.dribble || decision.selected == null) return '';
   const start = toLabFieldPoint(simulation.ball.position), end = toLabFieldPoint(decision.dribble.target);
-  const scores = [['pass', 'Pas'], ['dribble', 'Sür'], ['shield', 'Koru']].map(([key, label]) => `${decision.selected === key ? '● ' : ''}${label} ${scoreLabel(decision[key]?.score)}`).join(' · ');
-  return `<g data-overlay="decisions" pointer-events="none"><path data-dribble-direction d="M${start.x},${start.y} L${end.x},${end.y}" fill="none" stroke="#f5ce66" stroke-width=".6" marker-end="url(#dribble-arrow)"/><defs><marker id="dribble-arrow" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4" fill="#f5ce66"/></marker></defs><rect x="1" y="-5.5" width="66" height="3.8" rx="1" fill="#09282f"/><text data-owner-options x="34" y="-2.8" fill="#fff1bc" text-anchor="middle" font-size="2.1">${scores}</text></g>`;
+  const scores = [['pass', 'Pas'], ['dribble', 'Sür'], ['shield', 'Koru'], ['shot', 'Şut']].map(([key, label]) => `${decision.selected === key ? '● ' : ''}${label} ${scoreLabel(decision[key]?.score)}`).join(' · ');
+  return `<g data-overlay="decisions" pointer-events="none"><path data-dribble-direction d="M${start.x},${start.y} L${end.x},${end.y}" fill="none" stroke="#f5ce66" stroke-width=".6" marker-end="url(#dribble-arrow)"/><defs><marker id="dribble-arrow" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4" fill="#f5ce66"/></marker></defs><rect x="1" y="-5.5" width="66" height="3.8" rx="1" fill="#09282f"/><text data-owner-options x="34" y="-2.8" fill="#fff1bc" text-anchor="middle" font-size="1.8">${scores}${decision.shot ? ` · xG ${decision.shot.xg.toFixed(2)}` : ''}</text></g>`;
 }
 
 function scoreLabel(score) {

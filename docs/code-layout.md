@@ -175,10 +175,10 @@ Genişletme noktaları (`core/hooks.js`):
 | `core/sim/player-arrival.js`, `pass-evaluation.js` | Fiziksel varış zamanları; alıcı/koşu alanı ve tüm pas yolunun rakip güvenliği; deterministik puan |
 | `core/sim/owner-decision.js`, `pass-execution.js` | Tutma/baskı/dönüş, bırakırken yeniden değerlendirme, seed'li yön/hız uygulama hatası |
 | `core/sim/ball-chasing.js`, `ball-contact.js`, `ball-possession.js` | Pas/bağımsız boş top karşılama hedefi (sürmede taktik rol korunur), süpürülmüş gerçek temas/erişilebilir yükseklik, ilk dokunuş ve sekme |
-| `core/sim/ball-step.js`, `ball-restart.js` | Serbest top adımı, temas/çizgi sırası, **geçici** çizgiden rakip yeniden başlatma |
+| `core/sim/ball-step.js`, `ball-restart.js`, `goal-line-restart.js` | Serbest top adımı ve temas/çizgi sırası; **geçici** taç, kalecinin elinden başlatma ve kısa korner |
 | `core/sim/ball-events.js`, `simulation-runtime.js`, `simulation-phases.js` | Gerçek anlı olaylar/istatistikler, simülasyona özel dizin/zar, sahiplik faz geçişleri |
 | `core/presentation/lab/pass-layers.js`, `stats-view.js` | Güvenli/riskli seçenekler, seçilen pas, alıcı/rakip saniyeleri, yol ve canlı pas/sahiplik sayıları |
-| `tools/match-sim-report.cjs`, `tests/match-sim-performance.test.cjs` | Derlemeyi zaman dışına alan yerel Node 22 ölçümü; 3 sn topsuz / 2 sn sürme ve mücadele seri bütçesi ve koordinat özeti |
+| `tools/match-sim-report.cjs`, `tests/match-sim-performance.test.cjs` | Derlemeyi zaman dışına alan yerel Node 22 ölçümü; 3 sn topsuz / 2 sn şut ve kaleci dahil tam maç seri bütçesi; beş tohum ölçümü ve koordinat özeti |
 | `tests/match-sim-ball.test.cjs`, `tests/match-sim-passing.test.cjs`, `tests/smoke/lab-passing.mjs` | Sentetik kesme/yükseklik/ilk dokunuş/çizgi, deterministik maç/fizik, telefonda dokunarak pas ve hızlı 90 dk |
 | `core/sim/owner-options.js`, `owner-pass-scan.js`, `dribble-evaluation.js`, `dribbling.js` | Tepki anında pas/sür/koru karşılaştırması, geçerli çıkış algısı, varış farkıyla sürme yönü, serbest dokunuş ve taşıma metriği |
 | `core/sim/duel-state.js`, `defending.js`, `tackle-contact.js`, `tackle-resolution.js` | Uygunluk/kalkış, kale tarafı jokey, seed'li uygulama hatası, süpürülmüş ayak–top/bacak ilk teması ve kazanma/sekme/ıska |
@@ -192,3 +192,18 @@ Genişletme noktaları (`core/hooks.js`):
 | `docs/match-sim.md` | Yeni motorun Türkçe şartnamesi, ölçümleri ve sonraki adımların açık soruları |
 
 Build iki HTML girişini bağımsız grafiklerle paketler; laboratuvar için oyuna yeni ortak parça yükletilmez. Laboratuvarın `.mjs` girişi eski oyun worker'larıyla da doğrudan açılır; sabit ad alanı çevrimdışı listeden çıkarılır; HTML sorguları içerik hash'i taşır. Oyun paketinin import grafiğine deney girmez. `tests/support/game.cjs` varsayılan `index.html` dışında `page: 'lab.html'` de yükler; adla erişim kuralı her iki sayfada aynıdır. Veri testleri iki girişin JSON kullanımını denetler.
+
+### Şut, kaleci ve maç akışı
+
+| Dosya | Sorumluluk |
+|---|---|
+| `core/sim/shot-evaluation.js`, `shot-pass-value.js` | Mesafe/açı/örtülen açı/kaleci/baskı/vücut durumundan deterministik xG; daha iyi konumdaki pasın fırsat değeri |
+| `core/sim/shot-execution.js`, `shot-trajectory.js` | Özelliklerden köşe, stil ve güç; seed'li uygulama sapması; aynı parabol ve sürtünmeyle gerçek kale varış noktası |
+| `core/sim/shot-step.js`, `shot-blocks.js`, `goal-frame.js` | Adım içindeki en erken temas; gerçek blok/kaleci/direk sırası ve sekme; topun tamamının çizgi geçişi |
+| `core/sim/keeper-positioning.js`, `keeper-reaction.js` | Açıortayda konum, set, şuta tepki saati, adım/plonjon erişim zarfı ve gerçek temas |
+| `core/sim/keeper-saves.js`, `keeper-possession.js`, `keeper-rushing.js` | Tutma/çelme/saptırma, zorluk/son an kaydı, elde dokunulmaz top/dağıtım, geri pas ve ceza alanı sınırı, birebir çıkış ve DOGSO'da erişim |
+| `core/sim/match-lifecycle.js` | Skor, gerçek santra pası için fiziksel yerleşme, gol duruşu, devre/yön değişimi ve bitiş |
+| `core/presentation/lab/shot-layers.js` | Görünen kale açısı, gerçek şut izi, kalecinin erişimi/tepki saati/kurtarış türü ve kısa gol işareti |
+| `tests/match-sim-shooting.test.cjs`, `tests/smoke/lab-shooting.mjs` | Sentetik kabul sahneleri; telefonda çift dokunma, skor/istatistik, yön değişimi ve maç bitişi |
+| `.github/workflows/match-sim-verify.yml` | Main'e birleşmeden önce Node 22, tam test, build ve değişmemiş 12 duman kontrolü + laboratuvar kontrolleri; beş tohum ve telefon görüntüsü |
+| `docs/match-sim-shooting-report.md` | Tarihli beş tohum, gerçek futbol hedefleriyle farklar, süre, doğrulama ve oyun bağlantısı için arayüz eksikleri |

@@ -8,7 +8,7 @@ export function laboratoryPitchMarkup() {
     <rect x="-4" y="-6" width="76" height="117" fill="#102b28"/><rect width="${pitch.width}" height="${pitch.length}" fill="url(#grass)"/>
     <g fill="none" stroke="#8cae94" stroke-width=".22" opacity=".7"><rect width="${pitch.width}" height="${pitch.length}"/>
     <path d="M0,${centerY} H${pitch.width}"/><circle cx="${centerX}" cy="${centerY}" r="${pitch.centerCircleRadius}"/>
-    ${penaltyBoxMarkup(0, pitch.penaltyDepth)}${penaltyBoxMarkup(pitch.length - pitch.penaltyDepth, pitch.penaltyDepth)}
+    ${penaltyBoxMarkup(0, pitch.penaltyDepth)}${penaltyBoxMarkup(pitch.length - pitch.penaltyDepth, pitch.penaltyDepth)}${goalAreaMarkup(0)}${goalAreaMarkup(pitch.length - pitch.goalAreaDepth)}
     <rect x="${(pitch.width - pitch.goalWidth) / 2}" y="-1.8" width="${pitch.goalWidth}" height="1.8"/><rect x="${(pitch.width - pitch.goalWidth) / 2}" y="${pitch.length}" width="${pitch.goalWidth}" height="1.8"/></g>
     <circle cx="${centerX}" cy="${centerY}" r=".35" fill="#b4c6b4"/>`;
 }
@@ -20,4 +20,9 @@ function penaltyBoxMarkup(top, depth) {
 
 export function toLabFieldPoint(position) {
   return { x: MATCH_SIM_DATA.pitch.width / 2 + position.y, y: MATCH_SIM_DATA.pitch.length / 2 - position.x };
+}
+
+function goalAreaMarkup(top) {
+  const pitch = MATCH_SIM_DATA.pitch;
+  return `<rect x="${(pitch.width - pitch.goalAreaWidth) / 2}" y="${top}" width="${pitch.goalAreaWidth}" height="${pitch.goalAreaDepth}"/>`;
 }

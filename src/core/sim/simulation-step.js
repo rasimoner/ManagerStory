@@ -1,3 +1,7 @@
+import { finishSimulationKeeperRush } from './keeper-rushing.js';
+import { prepareSimulationMatch } from './match-lifecycle.js';
+import { prepareSimulationKeepers } from './keeper-positioning.js';
+import { advanceSimulationKeeperPossession } from './keeper-possession.js';
 import { prepareSimulationDefenders, finishSimulationTackles } from './defending.js';
 import { prepareSimulationShoulders, recordSimulationShoulders } from './shoulder-duels.js';
 import { trackSimulationBeats } from './beat-tracking.js';
@@ -15,9 +19,11 @@ import { prepareSimulationOwner, finishSimulationOwnerStep } from './owner-decis
 import { advanceSimulationFreeBall, recordSimulationPossessionTime } from './ball-step.js';
 
 export function stepSimulation(simulation, replayBall) {
+  if (simulationHasEnded(simulation, replayBall)) return simulation;
   if (replayBall !== undefined) applyOffBallReplay(simulation, replayBall);
   simulation.tick++;
   simulation.time = simulation.tick * MATCH_SIM_DATA.clock.stepSeconds;
+  if (prepareLiveSimulationStep(simulation, replayBall)) return simulation;
   for (const team of simulation.teams) {
     updateSimPhase(simulation, team);
     updateOffBallDecisions(simulation, team);
@@ -33,7 +39,8 @@ export function stepSimulation(simulation, replayBall) {
 function prepareBallMovement(simulation, owned) {
   prepareSimulationDefenders(simulation);
   if (!owned && !simulation.referee.stoppage) updateSimulationBallChasers(simulation);
-  prepareSimulationOwner(simulation);
+  if (simulation.ball.heldBy == null) prepareSimulationOwner(simulation);
+  prepareSimulationKeepers(simulation);
   prepareSimulationShoulders(simulation);
   prepareSimulationFoulRestart(simulation);
   if (!owned) captureSimulationPlayerPositions(simulation);
@@ -41,9 +48,11 @@ function prepareBallMovement(simulation, owned) {
 
 function finishBallMovement(simulation, owned) {
   if (simulation.referee.stoppage) { finishSimulationFoulRestart(simulation); return; }
+  if (simulation.ball.heldBy != null) { advanceSimulationKeeperPossession(simulation); recordSimulationPossessionTime(simulation); return; }
   recordSimulationCarryDistance(simulation);
   if (owned) finishSimulationOwnerStep(simulation);
   else advanceSimulationFreeBall(simulation);
+  finishSimulationKeeperRush(simulation);
   recordSimulationShoulders(simulation);
   finishSimulationTackles(simulation);
   trackSimulationBeats(simulation);
@@ -68,4 +77,14 @@ export function advanceSimulation(simulation, input) {
     simulation.accumulator = Math.max(0, simulation.accumulator - stepSeconds);
   }
   return simulation;
+}
+
+function simulationHasEnded(simulation, replayBall) {
+  return replayBall === undefined && simulation.match.phase === 'ended';
+}
+
+function prepareLiveSimulationStep(simulation, replayBall) {
+  if (replayBall !== undefined) return false;
+  simulation.liveBall = true;
+  return prepareSimulationMatch(simulation);
 }

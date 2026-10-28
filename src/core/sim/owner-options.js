@@ -1,3 +1,5 @@
+import { simulationPassChanceValue } from './shot-pass-value.js';
+import { evaluateSimulationShot } from './shot-evaluation.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { simulationOwnerPressure } from './pass-evaluation.js';
 import { scanSimulationOwnerPasses, retainSimulationOwnerOutlet } from './owner-pass-scan.js';
@@ -18,9 +20,11 @@ export function evaluateSimulationOwnerOptions(simulation, owner) {
   const skill = (owner.attributes.strength + owner.attributes.composure) / (2 * MATCH_SIM_DATA.attributes.maximum);
   const shield = { score: weights.shieldBase + pressure * weights.shieldPressureWeight + skill * weights.shieldSkillWeight - shieldingWaitCost(simulation) };
   const perception = (owner.attributes.vision + owner.attributes.composure) / (2 * MATCH_SIM_DATA.attributes.maximum);
-  const passScore = pass ? pass.decisionScore - (1 - perception) * weights.perceptionErrorCost : -Infinity;
-  const selected = passScore >= Math.max(dribble.score, shield.score) ? 'pass' : dribble.score >= shield.score ? 'dribble' : 'shield';
-  return { selected, pass: { score: passScore, option: pass }, dribble, shield, pressure, passOptions: scan.visibleOptions };
+  const shot = evaluateSimulationShot(simulation, owner);
+  const passScore = (pass ? pass.decisionScore - (1 - perception) * weights.perceptionErrorCost : -Infinity) + simulationPassChanceValue(simulation, pass, shot);
+  const choice = { pass: passScore, dribble: dribble.score, shield: shield.score, shot: shot.score };
+  const selected = Object.keys(choice).reduce((best, key) => choice[key] > choice[best] ? key : best);
+  return { selected, shot, pass: { score: passScore, option: pass }, dribble, shield, pressure, passOptions: scan.visibleOptions };
 }
 
 function bestOwnerOutlet(options, { pressure, waiting, tempo }) {

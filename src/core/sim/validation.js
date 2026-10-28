@@ -36,6 +36,7 @@ function validateSimTeam(team) {
 }
 
 function validateInitialPassingStyle(tactics) {
+  if (tactics.mentality !== undefined && !(tactics.mentality in MATCH_SIM_DATA.shooting.mentalities)) throw new TypeError('Unknown team mentality.');
   const style = tactics.passingStyle ?? MATCH_SIM_DATA.passing.defaultStyle;
   if (tactics.tempo !== undefined && !(tactics.tempo in MATCH_SIM_DATA.ownerDecision.tempos)) throw new TypeError('Unknown team tempo.');
   if (!(style in MATCH_SIM_DATA.passing.styles)) throw new TypeError('Unknown team passing style.');
@@ -43,6 +44,7 @@ function validateInitialPassingStyle(tactics) {
 
 function validateSimPlayer(player) {
   validateSimAttributes(player.attributes);
+  validateKeeperAttributes(player.gk ?? player.attributes?.gk);
   if (player.position) validateSimPosition(player.position);
   if (player.id == null || !isInteger(player.number)) throw new TypeError('Player identity and shirt number are required.');
 }
@@ -51,7 +53,7 @@ function validateSimAttributes(attributes) {
   for (const attribute of ['pace', 'acceleration', 'reactions', 'fitness']) {
     validateSimAttribute(attribute, attributes?.[attribute]);
   }
-  for (const attribute of ['passing', 'vision', 'technique', 'firstTouch', 'dribbling', 'strength', 'composure', 'tackling', 'positioning']) {
+  for (const attribute of ['finishing', 'passing', 'vision', 'technique', 'firstTouch', 'dribbling', 'strength', 'composure', 'tackling', 'positioning']) {
     validateSimAttribute(attribute, attributes?.[attribute] ?? MATCH_SIM_DATA.ball.defaultAttribute);
   }
 }
@@ -59,4 +61,8 @@ function validateSimAttributes(attributes) {
 function validateSimAttribute(attribute, value) {
   const { minimum, maximum } = MATCH_SIM_DATA.attributes;
   if (!isFinite(value) || value < minimum || value > maximum) throw new RangeError(`Invalid player attribute: ${attribute}.`);
+}
+
+function validateKeeperAttributes(attributes) {
+  for (const name of ['reflexes', 'handling', 'oneOnOne']) validateSimAttribute(`gk.${name}`, attributes?.[name] ?? MATCH_SIM_DATA.ball.defaultAttribute);
 }

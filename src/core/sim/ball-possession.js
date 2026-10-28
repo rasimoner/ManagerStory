@@ -1,3 +1,5 @@
+import { prepareTemporaryCornerPass } from './goal-line-restart.js';
+import { keeperCanHandleSimulationBall, claimSimulationKeeperBall } from './keeper-possession.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue } from './geometry.js';
 import { drawSimulationRandom, simulationRuntime } from './simulation-runtime.js';
@@ -9,16 +11,21 @@ import { predictSimulationBall } from './ball-physics.js';
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
 export function controlSimulationBall(simulation, contact, motion) {
-  const seconds = MATCH_SIM_DATA.clock.stepSeconds;
+  const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
   const touching = predictSimulationBall(motion.before, contact.fraction * seconds);
-  const time = simulation.time - seconds + contact.fraction * seconds;
+  const time = (motion.startTime ?? simulation.time - seconds) + contact.fraction * seconds;
+  if (keeperCanHandleSimulationBall(simulation, contact.player, touching)) {
+    Object.assign(simulation.ball, touching);
+    claimSimulationKeeperBall(simulation, contact.player, { time });
+    return null;
+  }
   const returning = simulation.ball.carry?.playerId === contact.player.id;
   const success = returning || drawSimulationRandom(simulation) >= firstTouchRisk(contact.player, touching);
   recordSimulationTouch(simulation, contact, { touching, time, success });
   if (success) { acquireSimulationBall(simulation, contact.player); return null; }
   const remaining = (1 - contact.fraction) * seconds;
-  deflectSimulationBall(simulation, contact.player, { touching, remaining, time });
-  return { before: touching, seconds: remaining, startTime: time };
+  const deflected = deflectSimulationBall(simulation, contact.player, { touching, remaining, time });
+  return { before: deflected, seconds: remaining, startTime: time };
 }
 
 function firstTouchRisk(player, ball) {
@@ -46,10 +53,13 @@ function recordSimulationTouch(simulation, contact, result) {
 
 export function acquireSimulationBall(simulation, player) {
   const ball = simulation.ball;
+  const restart = ball.restart;
   const returning = ball.carry?.playerId === player.id;
   if (ball.teamId !== player.teamId) simulation.statistics.teams[player.teamId].ballWins++;
   if (ball.carry && !returning) endSimulationCarry(simulation);
   const ownerSinceTick = returning ? ball.carry.ownerSinceTick : simulation.tick;
+  if (ball.teamId !== player.teamId) { ball.assist = null; ball.backpassTeamId = null; }
+  ball.shot = null;
   if (ball.teamId !== player.teamId) beginSimTransition(simulation, player.teamId);
   Object.assign(ball, { ownerId: player.id, teamId: player.teamId, lastTouchId: player.id, lastTouchTeamId: player.teamId,
     ownerSinceTick, restart: null, excludedId: null, height: 0, verticalVelocity: 0 });
@@ -59,6 +69,7 @@ export function acquireSimulationBall(simulation, player) {
     simulation.statistics.teams[player.teamId].controls++;
   }
   followSimulationBallOwner(simulation);
+  prepareTemporaryCornerPass(simulation, player, restart);
 }
 
 function deflectSimulationBall(simulation, player, { touching, remaining, time }) {
@@ -70,6 +81,7 @@ function deflectSimulationBall(simulation, player, { touching, remaining, time }
     excludedId: player.id, controlAfterTick: simulation.tick + ceil(MATCH_SIM_DATA.ball.contactCooldownSeconds / MATCH_SIM_DATA.clock.stepSeconds) });
   emitSimulationEvent(simulation, { type: 'looseBall', time, fromId: player.id, fromPos: { ...touching.position }, toPos: { ...touching.position }, success: false });
   simulation.passing.options = [];
+  return deflected;
 }
 
 export function followSimulationBallOwner(simulation) {
@@ -79,6 +91,6 @@ export function followSimulationBallOwner(simulation) {
   ball.position = { x: clampSimValue(owner.position.x + cos(owner.heading) * offset, -pitch.length / 2, pitch.length / 2),
     y: clampSimValue(owner.position.y + sin(owner.heading) * offset, -pitch.width / 2, pitch.width / 2) };
   ball.velocity = { ...owner.velocity };
-  ball.height = 0;
+  ball.height = ball.heldBy != null ? MATCH_SIM_DATA.goalkeeper.carryHeight : 0;
   ball.verticalVelocity = 0;
 }

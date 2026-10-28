@@ -33,7 +33,7 @@ export function stopSimulationForFoul(simulation, foul) {
   simulation.referee.stoppage = { position: { ...foul.restartPosition }, foulPosition: { ...foul.toPos }, teamId: team.id,
     takerId: taker.id, readyTick: simulation.tick + simulationDurationTicks(MATCH_SIM_DATA.refereeing.restartMinimumSeconds), penaltyPending: foul.penaltyPending };
   Object.assign(simulation.ball, { position: { ...foul.restartPosition }, ownerId: null, teamId: team.id, velocity: { x: 0, y: 0 }, height: 0, verticalVelocity: 0,
-    flight: null, restart: { teamId: team.id, takerId: taker.id }, excludedId: null });
+    heldBy: null, shot: null, assist: null, backpassTeamId: null, flight: null, restart: { teamId: team.id, takerId: taker.id }, excludedId: null });
   simulation.passing.selected = null;
   simulation.passing.options = [];
 }

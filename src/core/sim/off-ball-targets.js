@@ -18,7 +18,9 @@ export function dangerousSimReceiver(simulation, team) {
 
 export function simCoverTarget(simulation, team, receiver) {
   const ball = simulation.ball.position;
-  const end = receiver?.position ?? { x: -MATCH_SIM_DATA.pitch.length / 2 * team.direction, y: 0 };
+  const goal = { x: -MATCH_SIM_DATA.pitch.length / 2 * team.direction, y: 0 };
+  const threat = simulation.liveBall && pointDistance(ball, goal) < MATCH_SIM_DATA.shooting.threatDistance;
+  const end = threat ? goal : receiver?.position ?? goal;
   const distance = pointDistance(ball, end);
   const fraction = distance ? min(MATCH_SIM_DATA.roles.coverDistance / distance, MATCH_SIM_DATA.roles.coverLaneFraction) : 0;
   const offset = subtractPoints(end, ball);

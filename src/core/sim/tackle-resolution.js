@@ -9,6 +9,7 @@ import { endSimulationCarry } from './dribbling.js';
 import { simulationDurationTicks } from './duel-state.js';
 
 export function resolveSimulationTackle(simulation, attempt) {
+  if (simulation.ball.heldBy != null) return null;
   const players = simulationRuntime(simulation).byId;
   const defender = players.get(attempt.defenderId), victim = players.get(attempt.victimId);
   const contact = simulationTackleContact({ ...attempt, ball: simulation.ball, victim });
