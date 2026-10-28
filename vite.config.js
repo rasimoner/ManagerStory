@@ -19,7 +19,7 @@ export const BASE = '/ManagerStory/';
 
 // published but not cached for offline play: the worker itself, and the crowd pictures kept for weather and night
 // matches, not used yet (tests/assets.test.cjs). Dotfiles (.nojekyll, .gitkeep) are never cached.
-export const NOT_CACHED = ['lab.html', 'lab/laboratory.js', 'lab/laboratory.css', 'sw.js', 'assets/atmosphere/fans-day.webp', 'assets/atmosphere/fans-rain.webp', 'assets/atmosphere/fans-night.webp'];
+export const NOT_CACHED = ['lab.html', 'lab/laboratory.mjs', 'lab/laboratory.css', 'sw.js', 'assets/atmosphere/fans-day.webp', 'assets/atmosphere/fans-rain.webp', 'assets/atmosphere/fans-night.webp'];
 
 const filesUnder = (dir, at = '') => readdirSync(join(dir, at), { withFileTypes: true }).flatMap(d => {
   const f = at ? posix.join(at, d.name) : d.name;
@@ -42,14 +42,14 @@ export function serviceWorker(outDir, template) {
 }
 
 async function buildLaboratory(outDir) {
-  // A separate entry graph keeps the career's initial import graph independent of the experiment.
+  // The independent .mjs entry also loads under older workers that reject unknown .js game scripts.
   await buildVite({
     configFile: false, root: join(ROOT, 'src'), base: BASE, publicDir: false, logLevel: 'error',
     build: {
       outDir, emptyOutDir: false, assetsInlineLimit: 0,
       rolldownOptions: {
         input: { lab: join(ROOT, 'src/lab.html') },
-        output: { entryFileNames: 'lab/laboratory.js', assetFileNames: 'lab/laboratory[extname]' },
+        output: { entryFileNames: 'lab/laboratory.mjs', assetFileNames: 'lab/laboratory[extname]' },
       },
     },
   });
@@ -58,7 +58,7 @@ async function buildLaboratory(outDir) {
 function stampLaboratoryAssets(outDir) {
   const page = join(outDir, 'lab.html');
   let html = readFileSync(page, 'utf8');
-  for (const asset of ['lab/laboratory.js', 'lab/laboratory.css']) {
+  for (const asset of ['lab/laboratory.mjs', 'lab/laboratory.css']) {
     const hash = createHash('sha256').update(readFileSync(join(outDir, asset))).digest('hex').slice(0, 10);
     html = html.replaceAll(BASE + asset, BASE + asset + '?build=' + hash);
   }
