@@ -1,31 +1,32 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
-import { clampSimValue, limitVector, pointDistance, subtractPoints } from './geometry.js';
+import { clampSimValue } from './geometry.js';
+
+// Bind once: hot steps also run in an isolated VM for deterministic acceptance tests.
+const { max, sqrt, hypot, SQRT2 } = Math;
 
 export function accelerateInsidePitch(player, desired) {
   const seconds = MATCH_SIM_DATA.clock.stepSeconds;
   const bounds = pitchVelocityBounds(player, seconds);
-  const safe = fitVelocity(player.velocity, bounds);
-  const remaining = Math.max(0, player.limits.acceleration * seconds - pointDistance(safe, player.velocity));
-  const change = limitVector(subtractPoints(desired, safe), remaining);
-  return fitVelocity({ x: safe.x + change.x, y: safe.y + change.y }, bounds);
+  const safeX = clampSimValue(player.velocity.x, bounds.minX, bounds.maxX);
+  const safeY = clampSimValue(player.velocity.y, bounds.minY, bounds.maxY);
+  const remaining = max(0, player.limits.acceleration * seconds - hypot(safeX - player.velocity.x, safeY - player.velocity.y));
+  const changeX = desired.x - safeX, changeY = desired.y - safeY;
+  const length = hypot(changeX, changeY);
+  const factor = length > remaining ? remaining / length : 1;
+  return { x: clampSimValue(safeX + changeX * factor, bounds.minX, bounds.maxX), y: clampSimValue(safeY + changeY * factor, bounds.minY, bounds.maxY) };
 }
 
 function pitchVelocityBounds(player, seconds) {
   const pitch = MATCH_SIM_DATA.pitch;
   // Each axis reserves its share of the vector acceleration, so corner braking is feasible too.
-  const acceleration = player.limits.acceleration / Math.SQRT2;
-  const maximum = (distance) => safeBoundarySpeed(distance, acceleration, seconds);
+  const acceleration = player.limits.acceleration / SQRT2;
   return {
-    minX: -maximum(pitch.length / 2 + player.position.x), maxX: maximum(pitch.length / 2 - player.position.x),
-    minY: -maximum(pitch.width / 2 + player.position.y), maxY: maximum(pitch.width / 2 - player.position.y),
+    minX: -safeBoundarySpeed(pitch.length / 2 + player.position.x, acceleration, seconds), maxX: safeBoundarySpeed(pitch.length / 2 - player.position.x, acceleration, seconds),
+    minY: -safeBoundarySpeed(pitch.width / 2 + player.position.y, acceleration, seconds), maxY: safeBoundarySpeed(pitch.width / 2 - player.position.y, acceleration, seconds),
   };
 }
 
 function safeBoundarySpeed(distance, acceleration, seconds) {
   const brakingStep = acceleration * seconds;
-  return Math.max(0, Math.sqrt(brakingStep * brakingStep + 2 * acceleration * Math.max(0, distance)) - brakingStep);
-}
-
-function fitVelocity(velocity, bounds) {
-  return { x: clampSimValue(velocity.x, bounds.minX, bounds.maxX), y: clampSimValue(velocity.y, bounds.minY, bounds.maxY) };
+  return max(0, sqrt(brakingStep * brakingStep + 2 * acceleration * max(0, distance)) - brakingStep);
 }

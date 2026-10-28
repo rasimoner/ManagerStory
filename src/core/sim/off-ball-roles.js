@@ -6,7 +6,14 @@ import { dangerousSimReceiver, simCoverTarget, simMarkTarget, simSupportTarget }
 
 const exclusiveRoles = new Set(['press', 'cover', 'mark', 'support', 'depth']);
 const outfieldPlayers = team => team.players.filter(player => player.slot !== 'GK');
-const nearestPlayer = (players, point) => [...players].sort((left, right) => pointDistance(left.position, point) - pointDistance(right.position, point))[0];
+function nearestPlayer(players, point) {
+  let nearest, minimum = Infinity;
+  for (const player of players) {
+    const distance = pointDistance(player.position, point);
+    if (distance < minimum) { nearest = player; minimum = distance; }
+  }
+  return nearest;
+}
 
 export function updateOffBallDecisions(simulation, team) {
   if (!team.players.some(player => player.nextDecisionTick <= simulation.tick)) return;
@@ -24,7 +31,7 @@ function createOffBallPlan(simulation, team) {
   const context = { simulation, team, shape, plan, available: outfieldPlayers(team) };
   if (teamOwnsSimBall(simulation, team)) planAttackingRoles(context);
   else planDefensiveRoles(context);
-  return plan;
+  return { instructions: plan, shape };
 }
 
 function assignSimRole(context, player, instruction) {
@@ -62,11 +69,22 @@ function planDefensiveRoles(context) {
 
 function selectSimPressers(simulation, team) {
   const ball = simulation.ball.position;
-  const candidates = outfieldPlayers(team).sort((left, right) => pointDistance(left.position, ball) - pointDistance(right.position, ball));
-  const nearest = candidates.slice(0, MATCH_SIM_DATA.roles.maxPressers).filter(player => pointDistance(player.position, ball) <= team.pressTriggerDistance);
+  const candidates = outfieldPlayers(team);
+  const nearest = nearestSimPressers(candidates, ball).filter(player => pointDistance(player.position, ball) <= team.pressTriggerDistance);
   const ready = nearest.filter(player => player.nextDecisionTick <= simulation.tick || player.role === 'press');
   if (ready.length) return ready;
   return candidates.filter(player => player.role === 'press' && pointDistance(player.position, ball) <= team.pressTriggerDistance).slice(0, MATCH_SIM_DATA.roles.maxPressers);
+}
+
+function nearestSimPressers(players, point) {
+  const remaining = players.slice(), selected = [];
+  for (let index = 0; index < MATCH_SIM_DATA.roles.maxPressers; index++) {
+    const nearest = nearestPlayer(remaining, point);
+    if (!nearest) break;
+    selected.push(nearest);
+    remaining.splice(remaining.indexOf(nearest), 1);
+  }
+  return selected;
 }
 
 function planSimCover(context, presser, receiver) {
@@ -78,13 +96,13 @@ function planSimCover(context, presser, receiver) {
 
 function applyPlayerDecision(context, player) {
   const { simulation, team, plan } = context;
-  const instruction = plan.get(player.id);
+  const instruction = plan.instructions.get(player.id);
   const cancelled = exclusiveRoles.has(player.role) && player.role !== instruction.role;
   if (player.nextDecisionTick > simulation.tick && !cancelled) return;
   if (player.nextDecisionTick > simulation.tick) {
     // Exclusive jobs are handed over atomically; cancelling one must not create a second presser.
     player.role = 'block';
-    player.target = simAnchorPosition(team, player, simTeamShape(simulation, team));
+    player.target = simAnchorPosition(team, player, plan.shape);
     player.gait = movementGait(player.role, pointDistance(player.position, player.target));
     player.coveringId = null;
     player.laneTargetId = null;
