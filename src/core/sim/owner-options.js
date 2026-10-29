@@ -18,9 +18,10 @@ export function evaluateSimulationOwnerOptions(simulation, owner) {
   const dribble = evaluateSimulationDribble(simulation, owner);
   dribble.score += weights.styleCarry[team.tactics.passingStyle ?? MATCH_SIM_DATA.passing.defaultStyle] - pressure * weights.dribblePressureCost;
   const skill = (owner.attributes.strength + owner.attributes.composure) / (2 * MATCH_SIM_DATA.attributes.maximum);
-  const shield = { score: weights.shieldBase + pressure * weights.shieldPressureWeight + skill * weights.shieldSkillWeight - shieldingWaitCost(simulation) };
+  const shield = { score: weights.shieldBase + pressure * weights.shieldPressureWeight + skill * weights.shieldSkillWeight - shieldingWaitCost(simulation) + (MATCH_SIM_DATA.instructions[owner.instruction]?.shieldBonus ?? 0) };
   const perception = (owner.attributes.vision + owner.attributes.composure) / (2 * MATCH_SIM_DATA.attributes.maximum);
   const shot = evaluateSimulationShot(simulation, owner);
+  shot.score *= MATCH_SIM_DATA.instructions[owner.instruction]?.shotScoreScale ?? 1;
   const passScore = (pass ? pass.decisionScore - (1 - perception) * weights.perceptionErrorCost : -Infinity) + simulationPassChanceValue(simulation, pass, shot);
   const choice = { pass: passScore, dribble: dribble.score, shield: shield.score, shot: shot.score };
   const selected = Object.keys(choice).reduce((best, key) => choice[key] > choice[best] ? key : best);

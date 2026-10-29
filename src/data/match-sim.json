@@ -7,7 +7,8 @@
   "phases": {"winningSeconds":3,"counterpressSeconds":4,"counterpressTriggerFactor":1.15},
   "roles": {"maxPressers":1,"coverCount":1,"coverDistance":7,"coverLaneFraction":0.35,"markCount":1,"markGoalSideDistance":2,"supportCount":2,"supportBackDistance":8,"supportSideDistance":10,"depthRunDistance":10,"holderStandOffDistance":2.4},
   "shape": {"defending":{"length":32,"width":40,"envelopeLength":38,"envelopeWidth":44,"ballBehindCenter":12,"ballSideShift":0.55},"attacking":{"length":48,"width":56,"envelopeLength":52,"envelopeWidth":60,"ballAheadCenter":5,"ballSideShift":0.35},"keeper":{"minimumDepth":3,"maximumDepth":12,"progressDepthFactor":0.09,"sideFactor":0.13}},
-  "tactics": {"pressDistance":{"Düşük":12,"Normal":19,"Yüksek":27},"lineShift":{"Geride":-6,"Normal":0,"Önde":6}},
+  "tactics": {
+    "widthScale": {"Dar": 0.84, "Normal": 1, "Geniş": 1.08},"pressDistance":{"Düşük":12,"Normal":19,"Yüksek":27},"lineShift":{"Geride":-6,"Normal":0,"Önde":6}},
   "formations": {
     "4-2-3-1":[
       {"slot":"GK","line":"keeper","x":-1,"y":0},
@@ -430,5 +431,8 @@
     "receiverDistance": 23,
     "reboundDepth": 11,
     "reboundSideFactor": 0.18
-  }
+  },
+  "workload": {"minimumFitness": 20, "perSecond": 0.0012, "perMetre": 0.0016, "sprintPerMetre": 0.0007, "perContact": 0.035, "staminaBase": 0.7, "staminaRange": 0.8},
+  "injuries": {"checkSeconds": 60, "perPlayerSecond": 1.2e-06, "fatigueMultiplier": 3, "hardContactSpeed": 6, "hardContactRisk": 0.002, "careerWeeks": 1},
+  "instructions": {"balanced": {"effective": true}, "runBehind": {"effective": false}, "holdUp": {"effective": true, "shieldBonus": 6}, "box": {"effective": false}, "shoot": {"effective": true, "shotScoreScale": 1.18}, "press": {"effective": false}, "creator": {"effective": false}, "riskPass": {"effective": false}, "free": {"effective": false}, "wide": {"effective": false}, "inside": {"effective": false}, "overlap": {"effective": false}, "stay": {"effective": false}, "step": {"effective": false}, "shortGK": {"effective": true, "distributionDistance": 12}, "longGK": {"effective": true, "distributionDistance": 45}, "sweeper": {"effective": false}}
 }

@@ -11,6 +11,8 @@ import { forceSimulationDribble } from '../../sim/dribbling.js';
 import { createLabScenario } from './scenario.js';
 // The old scripted driver stays reachable by name for the unchanged off-ball regression tests only.
 import './automatic-ball.js';
+import '../../sim/simulation-checkpoint.js';
+import '../../sim/team-commands.js';
 
 export function createLabSession(initial = {}) {
   const context = { options: { seed: MATCH_SIM_DATA.lab.defaultSeed, ...initial }, simulation: null, pendingBall: null };

@@ -11,7 +11,7 @@ export function simTeamShape(simulation, team) {
   const attacking = teamOwnsSimBall(simulation, team);
   const base = attacking ? MATCH_SIM_DATA.shape.attacking : MATCH_SIM_DATA.shape.defending;
   const depth = simulationBoxDepth(simulation, team);
-  const settings = depth ? simulationBoxShape(base, depth) : base;
+  const settings = scaleSimulationWidth(depth ? simulationBoxShape(base, depth) : base, team);
   const localBall = simulation.ball.position.x * team.direction;
   const shift = MATCH_SIM_DATA.tactics.lineShift[team.tactics.line];
   const center = {
@@ -19,6 +19,11 @@ export function simTeamShape(simulation, team) {
     y: simulation.ball.position.y * settings.ballSideShift,
   };
   return { ...settings, center: fitShapeCenter(center, settings) };
+}
+
+function scaleSimulationWidth(shape, team) {
+  const scale = MATCH_SIM_DATA.tactics.widthScale[team.tactics.width ?? 'Normal'];
+  return scale === 1 ? shape : { ...shape, width: shape.width * scale, envelopeWidth: Math.min(MATCH_SIM_DATA.pitch.width - 2 * MATCH_SIM_DATA.pitch.targetMargin, shape.envelopeWidth * scale) };
 }
 
 function fitShapeCenter(center, shape) {

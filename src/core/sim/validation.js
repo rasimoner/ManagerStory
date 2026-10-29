@@ -49,6 +49,11 @@ function validateSimPlayer(player) {
   if (player.id == null || !isInteger(player.number)) throw new TypeError('Player identity and shirt number are required.');
 }
 
+export function validateSimulationReplacement(player) {
+  if (!player) throw new TypeError('A substitute is required.');
+  validateSimPlayer(player);
+}
+
 function validateSimAttributes(attributes) {
   for (const attribute of ['pace', 'acceleration', 'reactions', 'fitness']) {
     validateSimAttribute(attribute, attributes?.[attribute]);

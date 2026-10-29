@@ -1,5 +1,7 @@
 # Oyun verisi
 
+`match-sim.json` kariyer komutları: `tactics.widthScale` takım genişliği; `workload` süre/mesafe/sprint/temas tüketimi ve stamina çarpanı; `injuries` periyodik yorgunluk/sert temas riskleri; `instructions` her bireysel talimatın gerçekten etkili olup olmadığı ve karar/kaleci çıkış katsayıları. Tüketim kariyer girdisinde açılır; Denge 1 laboratuvar karşılaştırması sabit kalır.
+
 Oyunun verisi koddan ayrı, düz JSON dosyalarında (refactor B, V7.9.13; E4, V7.13.0’dan beri `.json`). Kod onları adıyla alır: `import CLUB_DATA from "../../data/clubs.json"`. Bir dosyayı her yerde aynı adla alın; testlerin erişim noktası (`tests/support/game.cjs`) dosyayı bu adla verir (`g.api.CLUB_DATA`). Başka bir motor (Godot) aynı dosyaları okuyabilir.
 
 `tests/data.test.cjs`: her dosya geçerli JSON, her dosyayı oyun kullanıyor ve oyun dosyadaki değerleri okuyor.

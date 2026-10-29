@@ -7,11 +7,15 @@ export function simulationRuntime(simulation) {
   let runtime = runtimes.get(simulation);
   if (!runtime) {
     const players = simulation.teams.flatMap(team => team.players);
-    runtime = { random: R(simulation.seed), players, byId: new Map(players.map(player => [player.id, player])),
+    runtime = { random: R(simulation.rngState), players, byId: new Map(players.map(player => [player.id, player])),
       previousPositions: new Float64Array(players.length * 2), chaseTicks: new Map() };
     runtimes.set(simulation, runtime);
   }
   return runtime;
+}
+
+export function invalidateSimulationRuntime(simulation) {
+  runtimes.delete(simulation);
 }
 
 export function drawSimulationRandom(simulation) {

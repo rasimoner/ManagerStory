@@ -27,7 +27,7 @@ Geçici çizgi duruşları 52 golün 18'inin penceresinde bulunur; tek taraflı 
 ## İlerleme
 
 - A: tamamlandı; davranış değiştirilmedi, ham tanı saklandı.
-- B: bekliyor.
+- B: komutlar, duruşta değişiklik, tek takım taktik/diziliş, bireysel talimat günlüğü, tüketim/sakatlık ve JSON üzerinden eksiksiz deterministik devam uygulandı; testler önce kırmızı çalıştırıldı.
 - C: bekliyor.
 - D: bekliyor.
 - Tam doğrulama, sezon deneyi ve main birleşmesi: bekliyor.

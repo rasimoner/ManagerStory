@@ -12,6 +12,7 @@ export function createSimulation(input) {
   validateBallPhysics(input.ball);
   const simulation = { match: createSimulationMatch(input), liveBall: false, shooting: null, seed: input.seed, rngState: input.seed, tick: 0, time: 0, accumulator: 0, automaticPasses: true, ball: createSimulationBall(input.ball),
     teams: input.teams.map(createSimTeam), events: [], statistics: createSimulationStatistics(input.teams),
+    paused: false, commands: { substitutions: [] }, departed: [], workload: { enabled: input.workload === true, eventCursor: 0, nextInjuryTick: 0 },
     ownerDecision: { selected: null, forcedPlayerId: null }, defending: { engagements: [], lastContact: null }, referee: { advantage: null, stoppage: null },
     passing: { options: [], selected: null, requested: null, nextEvaluationTick: 0 } };
   for (const team of simulation.teams) initializeTeamPositions(simulation, team);
@@ -26,11 +27,11 @@ function createSimTeam(input) {
     id: input.id, direction: input.direction, formation: input.formation, tactics: { ...input.tactics },
     phase: 'defending', phaseSinceTick: 0, ownershipChangedTick: 0, pressReactionSeconds: null,
     pressTriggerDistance: MATCH_SIM_DATA.tactics.pressDistance[input.tactics.press],
-    players: input.players.map(player => createSimPlayer({ ...player, teamId: input.id }, anchors)),
+    players: input.players.map(player => createSimulationPlayer({ ...player, teamId: input.id }, anchors)),
   };
 }
 
-function createSimPlayer(input, anchors) {
+export function createSimulationPlayer(input, anchors) {
   const anchor = anchors.find(candidate => candidate.slot === input.slot);
   const limits = playerMovementLimits(input.attributes);
   return {
@@ -40,6 +41,7 @@ function createSimPlayer(input, anchors) {
     role: input.slot === 'GK' ? 'keeper' : 'block', gait: 'walk', target: null,
     motionMode: null, facingTarget: null, shoulderSpeedRatio: 1, shoulderAfterTick: 0,
     keeper: { setSeconds: 0, mode: 'positioning', reactionAt: null, target: null, shotIndex: null, lastSave: null },
+    workload: { playedSeconds: 0, distanceMetres: 0, sprintMetres: 0, contacts: 0 },
     duel: createSimulationDuelState(), yellowCards: 0, sentOff: false, carrySpeedRatio: carrySpeedRatio(input.attributes),
     nextDecisionTick: limits.reactionTicks, coveringId: null, laneTargetId: null,
   };

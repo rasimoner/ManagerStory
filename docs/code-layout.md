@@ -1,5 +1,7 @@
 # Kod düzeni
 
+Kariyer komut arayüzleri: `core/sim/substitutions.js` duruşta uygulanan kadro kuyruğu; `team-commands.js` tek takım taktik/diziliş ve bireysel talimat; `player-workload.js` gerçek mesafeden kondisyon/seyrek sakatlık; `player-injuries.js` oyuncuyu çıkaran hakem duruşu; `simulation-checkpoint.js` ve `checkpoint-values.js` RNG/önbellek/ortak referansları JSON'da koruyan kayıt. Motor kariyer veya DOM tanımaz.
+
 Refactor C (V7.9.13 üzerinde), D (V7.10.0 üzerinde), E1/E7/E8 (V7.11.0 üzerinde), E2–E6 (V7.12.0 üzerinde: Vite). Kaynak `src/`'te, olduğu gibi yayınlananlar `public/`'te; `dist/` sadece build çıktısı (`npm run build`), depoda değil. Katmanlar ve akışlar: `docs/architecture.md`.
 Kural: çekirdek modları tanımaz; bağımlılık sadece moddan çekirdeğe akar. D'den beri bu bir test (`tests/structure.test.cjs`): hiçbir `core/` modülü `modes/`'tan bir şey almaz. Çekirdeğin bir modun yapmasını istediği şey `core/hooks.js` üzerinden söylenir, `main.js` modu bağlar (aşağıda "Çekirdeğin söyledikleri"). Hangi dosyanın nerede olduğu bu tabloda; yeri değişen dosyada bu tablo da güncellenir.
 

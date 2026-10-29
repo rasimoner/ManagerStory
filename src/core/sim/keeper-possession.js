@@ -38,7 +38,7 @@ function distributeKeeperBall(simulation, keeper) {
   const team = simulation.teams.find(candidate => candidate.id === keeper.teamId), settings = MATCH_SIM_DATA.goalkeeper;
   const receiver = keeperOutlet(team, keeper);
   const distance = pointDistance(keeper.position, receiver.position);
-  const kind = distance <= settings.distributionDistance ? 'throw' : 'punt';
+  const kind = keeper.instruction === 'longGK' ? 'punt' : distance <= settings.distributionDistance ? 'throw' : 'punt';
   const target = { ...receiver.position };
   simulation.ball.heldBy = null;
   releaseSimulationPass(simulation, keeper, { toId: receiver.id, target, lofted: kind === 'punt' });
@@ -55,6 +55,6 @@ function distributeKeeperBall(simulation, keeper) {
 
 function keeperOutlet(team, keeper) {
   const candidates = team.players.filter(player => player.slot !== 'GK' && !player.sentOff);
-  const preferred = MATCH_SIM_DATA.goalkeeper.distributionDistance;
+  const preferred = MATCH_SIM_DATA.instructions[keeper.instruction]?.distributionDistance ?? MATCH_SIM_DATA.goalkeeper.distributionDistance;
   return candidates.reduce((best, player) => Math.abs(pointDistance(player.position, keeper.position) - preferred) < Math.abs(pointDistance(best.position, keeper.position) - preferred) ? player : best);
 }
