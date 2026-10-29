@@ -17,7 +17,8 @@ export function releaseSimulationShot(simulation, owner, option) {
   const flight = createShotFlight(simulation, owner, option);
   const assistId = ball.assist?.teamId === owner.teamId && ball.assist.toId === owner.id ? ball.assist.fromId : null;
   const eventIndex = emitSimulationEvent(simulation, { type: 'shot', fromId: owner.id, fromPos, toPos: { ...option.target },
-    teamId: owner.teamId, xg: option.xg, power: Math.hypot(flight.velocity.x, flight.velocity.y), target: { ...option.target }, style: option.style, onTarget: false });
+    teamId: owner.teamId, xg: option.xg, distance: option.distance, angle: option.angle, blocked: option.blocked, pressure: option.pressure,
+    power: Math.hypot(flight.velocity.x, flight.velocity.y), target: { ...option.target }, style: option.style, onTarget: false });
   Object.assign(ball, flight, { ownerId: null, heldBy: null, flight: null, carry: null, restart: null, excludedId: owner.id,
     controlAfterTick: simulation.tick + owner.limits.reactionTicks, lastTouchId: owner.id, lastTouchTeamId: owner.teamId,
     shot: { eventIndex, fromId: owner.id, teamId: owner.teamId, assistId, launchTick: simulation.tick, saved: false }, assist: null, backpassTeamId: null });

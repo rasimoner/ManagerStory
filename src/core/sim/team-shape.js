@@ -1,3 +1,4 @@
+import { simulationBoxDepth, simulationBoxShape } from './box-defending.js';
 import { simulationKeeperTarget } from './keeper-positioning.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue } from './geometry.js';
@@ -8,7 +9,9 @@ export function teamOwnsSimBall(simulation, team) {
 
 export function simTeamShape(simulation, team) {
   const attacking = teamOwnsSimBall(simulation, team);
-  const settings = attacking ? MATCH_SIM_DATA.shape.attacking : MATCH_SIM_DATA.shape.defending;
+  const base = attacking ? MATCH_SIM_DATA.shape.attacking : MATCH_SIM_DATA.shape.defending;
+  const depth = simulationBoxDepth(simulation, team);
+  const settings = depth ? simulationBoxShape(base, depth) : base;
   const localBall = simulation.ball.position.x * team.direction;
   const shift = MATCH_SIM_DATA.tactics.lineShift[team.tactics.line];
   const center = {

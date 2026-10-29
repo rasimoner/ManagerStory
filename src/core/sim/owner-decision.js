@@ -97,6 +97,7 @@ function carryMovementTarget(simulation, owner) {
 
 function finishOwnerShot(simulation, owner) {
   const option = evaluateSimulationShot(simulation, owner);
+  if (!Number.isFinite(option.score)) { simulation.ownerDecision.selected = 'shield'; simulation.passing.nextEvaluationTick = simulation.tick; return; }
   faceSimulationPlayer(owner, option.target);
   followSimulationBallOwner(simulation);
   const waiting = (simulation.tick - simulation.ball.ownerSinceTick) * MATCH_SIM_DATA.clock.stepSeconds;

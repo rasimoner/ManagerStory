@@ -8,7 +8,7 @@ import { renderLaboratoryField } from './field-view.js';
 export function startLaboratory() {
   const view = createLaboratoryView(document.querySelector('#lab'));
   const runner = createLabSession();
-  const context = { view, runner, layers: { roles: true, shape: true, velocity: false, anchors: false, passes: true, flight: true, decisions: true, duels: true, shooting: true }, lastFrame: null };
+  const context = { view, runner, layers: { roles: true, shape: true, velocity: false, anchors: false, passes: true, flight: true, decisions: true, duels: true, shooting: true, shotMap: true }, lastFrame: null };
   bindLaboratoryControls(context);
   document.addEventListener('visibilitychange', () => {
     context.lastFrame = null;

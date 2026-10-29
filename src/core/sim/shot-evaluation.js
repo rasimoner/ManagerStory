@@ -33,7 +33,7 @@ function blockedGoalFraction(position, goal, players) {
     const fraction = (player.position.x - position.x) / depth;
     if (fraction <= 0 || fraction >= 1) continue;
     const centre = position.y + (player.position.y - position.y) / fraction;
-    const radius = MATCH_SIM_DATA.shooting.outfieldShotReach / fraction;
+    const radius = MATCH_SIM_DATA.shooting.blockRadius / fraction;
     if (centre + radius >= -half && centre - radius <= half) intervals.push([Math.max(-half, centre - radius), Math.min(half, centre + radius)]);
   }
   return mergedIntervalWidth(intervals) / (2 * half);
@@ -76,7 +76,7 @@ function shotStyle(owner, { keeper, goal, distance }) {
   const settings = MATCH_SIM_DATA.shooting;
   const depth = keeper ? Math.abs(goal.x - keeper.position.x) : 0;
   if (depth > settings.chipDepth && Math.abs(keeper.position.x - owner.position.x) < settings.chipDistance && owner.attributes.technique >= settings.chipTechnique) return 'chip';
-  return distance > settings.longShotDistance || owner.attributes.strength > owner.attributes.finishing ? 'drive' : 'placed';
+  return distance > settings.longShotDistance || owner.attributes.strength > owner.attributes.technique ? 'drive' : 'placed';
 }
 
 function shotTarget(owner, { goal, keeper }) {

@@ -138,6 +138,7 @@ function undoUnsuccessfulSave(simulation, shot) {
   if (save.onTarget) simulation.statistics.teams[keeperTeam.id].saves--;
   save.success = false;
   save.goalAfterTouch = true;
+  simulation.events[shot.eventIndex].keeper.saved = false;
 }
 
 function kickoffPairSettled(simulation) {

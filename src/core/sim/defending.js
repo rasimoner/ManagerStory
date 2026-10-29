@@ -1,3 +1,4 @@
+import { predictSimulationPlayerPosition } from './player-arrival.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { simulationRuntime, drawSimulationRandom } from './simulation-runtime.js';
 import { planningDistance } from './geometry.js';
@@ -63,12 +64,14 @@ export function beginSimulationTackle(simulation, defender, { victim, kind }) {
   const error = 1 - defender.attributes.tackling / MATCH_SIM_DATA.attributes.maximum;
   const duration = (kind === 'sliding' ? settings.slidingSeconds : settings.standingSeconds)
     + drawSimulationRandom(simulation) * settings.timingErrorSeconds * error;
-  const predicted = simulation.ball.ownerId == null ? predictSimulationBall(simulation.ball, duration).position
-    : { x: simulation.ball.position.x + victim.velocity.x * duration, y: simulation.ball.position.y + victim.velocity.y * duration };
-  const direction = Math.atan2(predicted.y - defender.position.y, predicted.x - defender.position.x)
-    + (drawSimulationRandom(simulation) * 2 - 1) * settings.directionError * error;
+  const contactTick = simulation.tick + simulationDurationTicks(duration);
+  const preparation = (contactTick - simulation.tick) * MATCH_SIM_DATA.clock.stepSeconds;
+  const predicted = predictTackleBall(simulation, victim, preparation);
+  const aimError = (drawSimulationRandom(simulation) * 2 - 1) * settings.directionError * error;
+  const direction = Math.atan2(predicted.y - defender.position.y, predicted.x - defender.position.x) + aimError;
   const reach = kind === 'sliding' ? settings.slidingReach : settings.standingReach;
-  defender.duel.tackle = { victimId: victim.id, kind, direction, reach, startTick: simulation.tick, contactTick: simulation.tick + simulationDurationTicks(duration) };
+  defender.duel.tackle = { victimId: victim.id, kind, direction, reach, aim: predicted, aimError, startTick: simulation.tick, contactTick,
+    distance: planningDistance(defender.position, simulation.ball.position), victimSpeed: Math.hypot(victim.velocity.x, victim.velocity.y) };
   defender.duel.state = 'tackling';
   defender.target = fitCarryTarget(predicted);
   defender.motionMode = 'tackling';
@@ -80,8 +83,10 @@ export function finishSimulationTackles(simulation) {
     const tackle = defender.duel.tackle;
     if (!tackle || simulation.tick < tackle.contactTick) continue;
     const from = { ...defender.position };
-    const to = { x: from.x + Math.cos(tackle.direction) * tackle.reach, y: from.y + Math.sin(tackle.direction) * tackle.reach };
+    const direction = Math.atan2(tackle.aim.y - from.y, tackle.aim.x - from.x) + tackle.aimError;
+    const to = { x: from.x + Math.cos(direction) * tackle.reach, y: from.y + Math.sin(direction) * tackle.reach };
     resolveSimulationTackle(simulation, { defenderId: defender.id, victimId: tackle.victimId, kind: tackle.kind, from, to,
+      distance: tackle.distance, victimSpeed: tackle.victimSpeed, preparationSeconds: (simulation.tick - tackle.startTick) * MATCH_SIM_DATA.clock.stepSeconds,
       speed: Math.hypot(defender.velocity.x, defender.velocity.y) + MATCH_SIM_DATA.duels.lungeSpeed });
     if (simulation.referee.stoppage) break;
   }
@@ -96,4 +101,12 @@ function canReachUnshieldedBall(simulation, defender, victim) {
   const skill = (defender.attributes.tackling + defender.attributes.positioning + defender.attributes.composure) / (3 * MATCH_SIM_DATA.attributes.maximum);
   const margin = (1 - skill) * settings.controlledBodyMargin;
   return ballDistance + settings.legRadius + caution + margin < bodyDistance;
+}
+
+function predictTackleBall(simulation, victim, seconds) {
+  if (simulation.ball.ownerId == null) return predictSimulationBall(simulation.ball, seconds).position;
+  const motion = { ...victim, motionMode: simulation.ownerDecision.selected };
+  if (['pass', 'shot'].includes(motion.motionMode)) { motion.target = victim.position; motion.gait = 'walk'; }
+  const predicted = predictSimulationPlayerPosition(motion, seconds), offset = MATCH_SIM_DATA.ball.footOffset;
+  return { x: predicted.position.x + Math.cos(predicted.heading) * offset, y: predicted.position.y + Math.sin(predicted.heading) * offset };
 }

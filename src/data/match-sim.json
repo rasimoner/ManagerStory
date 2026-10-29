@@ -22,7 +22,7 @@
       {"slot":"LST","line":"attack","x":0.5,"y":-0.17},{"slot":"RST","line":"attack","x":0.5,"y":0.17}
     ]
   },
-  "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.25,0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL","holder":"T","receive":"A","intercept":"P","recover":"S","restart":"Ç","grounded":"Y","sentOff":"KIR"},"pathSeconds":3,"pathStepSeconds":0.2,"ballHeightScale":0.1,"matchSeconds":5400,"passLabelPadding":19,"longPressMilliseconds":550,"recentEventCount":10,"incidentSeconds":2.2,"duelLabels":{"idle":"","jockey":"Jokey","ready":"Hazır","tackling":"Müdahale","grounded":"Yerde","sentOff":"Kırmızı"},"longPressMovePixels":12,"doubleTapMilliseconds":350},
+  "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.25,0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL","holder":"T","receive":"A","intercept":"P","recover":"S","restart":"Ç","grounded":"Y","sentOff":"KIR","rebound":"DT"},"pathSeconds":3,"pathStepSeconds":0.2,"ballHeightScale":0.1,"matchSeconds":5400,"passLabelPadding":19,"longPressMilliseconds":550,"recentEventCount":10,"incidentSeconds":2.2,"duelLabels":{"idle":"","jockey":"Jokey","ready":"Hazır","tackling":"Müdahale","grounded":"Yerde","sentOff":"Kırmızı"},"longPressMovePixels":12,"doubleTapMilliseconds":350,"shotMap":{"minimumRadius":0.45,"xgAreaScale":6,"colors":{"goal":"#82ef91","save":"#6cc8ff","block":"#ffa94f","wide":"#bdc7ca","pending":"#f4e3a0"}}},
   "ball": {
     "radius": 0.11,
     "controlRadius": 1.2,
@@ -165,13 +165,13 @@
     "jockeySpeedRatio": 0.64,
     "standingReach": 1.85,
     "slidingReach": 3.1,
-    "footRadius": 0.16,
-    "legRadius": 0.22,
+    "footRadius": 0.36,
+    "legRadius": 0.3,
     "standingSeconds": 0.2,
     "slidingSeconds": 0.4,
     "timingErrorSeconds": 0.25,
     "directionError": 0.25,
-    "cooldownSeconds": 8,
+    "cooldownSeconds": 5,
     "recoveryMinimumSeconds": 1.2,
     "recoverySkillSeconds": 1.2,
     "opportunityDistance": 0.75,
@@ -196,7 +196,9 @@
     "beatMinimumProgress": 2,
     "beatWindowSeconds": 5,
     "controlledBodyMargin": 0.5,
-    "coverJockeyFactor": 2
+    "coverJockeyFactor": 2,
+    "recklessSlideSpeed": 9,
+    "recklessStandingSpeed": 10
   },
   "refereeing": {
     "advantageSeconds": 3,
@@ -221,10 +223,10 @@
   "shooting": {
     "maximumDistance": 38,
     "threatDistance": 32,
-    "xgIntercept": 1.4,
-    "distanceCost": 0.14,
-    "angleWeight": 0.65,
-    "blockedAngleCost": 1.4,
+    "xgIntercept": 0.15,
+    "distanceCost": 0.09,
+    "angleWeight": 1.1,
+    "blockedAngleCost": 0.35,
     "pressureCost": 0.65,
     "bodyCost": 0.4,
     "runningCost": 0.3,
@@ -232,7 +234,7 @@
     "minimumXg": 0.005,
     "maximumXg": 0.85,
     "scoreBase": 8,
-    "scoreXgWeight": 280,
+    "scoreXgWeight": 1200,
     "scoreSkillWeight": 7,
     "pressureUrgency": 5,
     "longShotDistance": 25,
@@ -270,17 +272,17 @@
     "blockLift": 0.8,
     "postRestitution": 0.72,
     "maxContactsPerStep": 4,
-    "outfieldShotReach": 0.72,
-    "minimumDecisionXg": 0.045,
+    "minimumDecisionXg": 0.032,
     "blockedChanceFloor": 0.025,
-    "blockedChancePower": 1.5,
+    "blockedChancePower": 1,
     "placedPowerFactor": 0.8,
-    "passChanceWeight": 120
+    "passChanceWeight": 120,
+    "blockRadius": 0.72
   },
   "goalkeeper": {
-    "reactionMinimum": 0.12,
-    "reactionSkillSeconds": 0.26,
-    "unsetDelay": 0.18,
+    "reactionMinimum": 0.16,
+    "reactionSkillSeconds": 0.2,
+    "unsetDelay": 0.04,
     "setSeconds": 0.35,
     "setSpeed": 0.45,
     "minimumDepth": 1.2,
@@ -288,7 +290,7 @@
     "distanceDepthFactor": 0.075,
     "threatDepth": 2.2,
     "bisectorSideLimit": 3.3,
-    "bodyReach": 0.65,
+    "bodyReach": 1.15,
     "stepReach": 1.05,
     "maximumDiveReach": 2.65,
     "diveSpeed": 4.1,
@@ -307,7 +309,7 @@
     "reachHandlingCost": 0.35,
     "tipThreshold": 0.25,
     "parrySpeedFactor": 0.48,
-    "tipSpeedFactor": 0.85,
+    "tipSpeedFactor": 0.32,
     "parrySideWeight": 0.9,
     "parryForwardWeight": 0.4,
     "parryVerticalSpeed": 1.5,
@@ -320,11 +322,12 @@
     "puntSpeed": 23,
     "puntVerticalSpeed": 10,
     "dogsoMinimumOpenReach": 0.8,
-    "readyBodyReach": 1.05,
+    "readyBodyReach": 1.25,
     "rushBodyReach": 1.3,
     "oneOnOneReach": 0.5,
     "lastMomentSeconds": 0.08,
-    "lastMomentDifficulty": 0.9
+    "lastMomentDifficulty": 0.9,
+    "tipSideWeight": 0.6
   },
   "match": {
     "halfSeconds": 2700,
@@ -338,5 +341,94 @@
     "kickoffReceiverBack": 3,
     "kickoffReceiverSide": 2,
     "cornerPassDistance": 8
+  },
+  "reporting": {
+    "seedCount": 50,
+    "referenceSeeds": [
+      901,
+      731,
+      42,
+      2026,
+      508
+    ],
+    "shotDistances": [
+      6,
+      11,
+      18,
+      25
+    ],
+    "shotAngles": [
+      15,
+      30,
+      45
+    ],
+    "xgBins": [
+      0.05,
+      0.1,
+      0.2,
+      0.4
+    ],
+    "shotSpeeds": [
+      20,
+      25,
+      30
+    ],
+    "keeperDistances": [
+      6,
+      11,
+      18,
+      25
+    ],
+    "keeperOffsets": [
+      1,
+      2,
+      3
+    ],
+    "pressureThreshold": 0.25,
+    "carrierSpeeds": [
+      2,
+      4,
+      6
+    ],
+    "preparationSeconds": [
+      0.25,
+      0.4,
+      0.6
+    ],
+    "tackleDistances": [
+      1,
+      2,
+      3
+    ],
+    "controlledShots": {
+      "distances": [
+        5,
+        8,
+        11,
+        18,
+        22
+      ],
+      "seconds": 3,
+      "keeperDepth": 1.5,
+      "finishingBoost": 10,
+      "parkingX": -35,
+      "parkingStartY": -30,
+      "parkingStepY": 4
+    }
+  },
+  "boxDefending": {
+    "triggerDistance": 35,
+    "blendDistance": 18,
+    "length": 24,
+    "width": 30,
+    "envelopeLength": 30,
+    "envelopeWidth": 38,
+    "markCount": 2,
+    "markDistance": 0.75,
+    "markSkillDistance": 2,
+    "goalMargin": 1.5,
+    "receiverDistance": 23,
+    "reboundDepth": 11,
+    "reboundSideFactor": 0.18
   }
 }

@@ -16,6 +16,8 @@ export function saveSimulationShot(simulation, contact, remaining) {
   const kind = keeperSaveKind(simulation, contact);
   if (onTarget) simulation.statistics.teams[player.teamId].saves++;
   simulation.ball.shot.saved = true;
+  simulation.events[simulation.ball.shot.eventIndex].keeper.contact = true;
+  simulation.events[simulation.ball.shot.eventIndex].keeper.saved = onTarget;
   simulation.ball.shot.assistId = null;
   const timing = keeperSaveTiming(contact);
   const recordedDifficulty = Math.max(difficulty, timing.lastMoment ? MATCH_SIM_DATA.goalkeeper.lastMomentDifficulty : 0);
@@ -40,10 +42,10 @@ function keeperSaveKind(simulation, { player, touching, difficulty }) {
 }
 
 function parryKeeperShot(simulation, contact, { remaining, kind, team }) {
-  const { touching, player } = contact, settings = MATCH_SIM_DATA.goalkeeper;
+  const { touching, player, difficulty } = contact, settings = MATCH_SIM_DATA.goalkeeper;
   const side = touching.position.y >= contact.keeperPosition.y ? 1 : -1;
   const speed = Math.hypot(touching.velocity.x, touching.velocity.y);
-  const velocity = kind === 'tip' ? { x: touching.velocity.x * settings.tipSpeedFactor, y: touching.velocity.y + side * settings.handRadius * speed }
+  const velocity = kind === 'tip' ? { x: touching.velocity.x * settings.tipSpeedFactor * difficulty, y: touching.velocity.y + side * speed * settings.tipSideWeight }
     : { x: team.direction * speed * settings.parrySpeedFactor * settings.parryForwardWeight, y: side * speed * settings.parrySpeedFactor * settings.parrySideWeight };
   const deflected = { ...touching, velocity, verticalVelocity: kind === 'tip' ? touching.verticalVelocity : settings.parryVerticalSpeed };
   Object.assign(simulation.ball, predictSimulationBall(deflected, remaining), { lastTouchId: player.id, lastTouchTeamId: team.id,

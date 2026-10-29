@@ -63,3 +63,16 @@ Yeni saniyelik çekirdeğin ve ayrı laboratuvarın verisi; mevcut kariyer motor
 - `goalkeeper`: reflexes kaynaklı tepki ve set olmama gecikmesi, açıortayda konum, set eşiği, adım/plonjon yatay/dikey erişim ve hızı; handling ile tutma/çelme/saptırma kalitesi; birebirde çıkış ve önceden açılan gövde/kol zarfı; elde taşıma/elle atma/elden uzun vurma; son an zorluk işareti ve DOGSO'da perspektif payı.
 - `match`: 2.700/5.400 saniyede devre/bitiş, gol/devre kısa bekleyişi, oyuncuları ışınlamadan santraya yerleştirme payları ve gerçek ilk pas; **geçici** kısa korner mesafesi. `ball.radius` topun tamamının kale çizgisini geçmesi ve direk temasında kullanılır.
 - `finishing` ve `gk.reflexes/handling/oneOnOne` 0–100'dür. İki takım aynı şemayı kullanır; kaleci alanları oyuncunun `gk` nesnesinden veya deney girdisindeki `attributes.gk` üzerinden alınabilir. Eksikler `ball.defaultAttribute` olur; geçersiz verilen değerler reddedilir. Laboratuvar bunları eski fiziksel özelliklerin zar sırasını değiştirmeden türetir. `lab.doubleTapMilliseconds` top sahibine iki kez dokunarak şut istemenin süresidir.
+
+Denge 1 ekleri:
+
+- `boxDefending`: kale uzaklığıyla etkinleşen ortak blok boy/en/zarfı, kademeli geçiş mesafesi, iki markajın kale tarafı ve positioning payı, penaltı noktası çevresindeki dönen top görevi. Savunmacıyı hedefe ışınlayan sayı yoktur.
+- `shooting.blockRadius`: şut kararının izdüşümü ve gerçek hızlı şut temasının tek yarıçapı; pas/serbest top kontrol yarıçapı değildir. `minimumDecisionXg`, xG eğrisi ve şutun diğer seçeneklerle puan ağırlığı, tam örtülmüş yolu beklemek yerine gerçek fırsatta vurmayı belirler. Sonuç sayacı okunmaz.
+- `duels.footRadius/legRadius`: uzanan ayağın süpürme ve bacak temas zarfı. `cooldownSeconds`: ardışık müdahale bekleyişi. `recklessSlideSpeed/recklessStandingSpeed`: top sonrası **gerçek bacak kesişimi de varsa** tehlikeli devam teması eşiği; kendiliğinden faul üretmez.
+- `goalkeeper.tipSpeedFactor/tipSideWeight`: fiziksel parmak ucu temasının ileri ve yana hız bileşenleri. Uzanma başarısı için kura yoktur; dokunup yine gol olan top kurtarıştan düşer.
+- `reporting`: sabit 50 tohumun ilk referansları ve şut/kaleci/xG/müdahale dilim sınırları. Futbol davranışından ayrıdır; `sim:report` en az 50 maç çalıştırır. `--strength` aynı kadroları karşılaştırır; `--experiments` pahalı deneyin seçilmiş parçalarını yeniden çalıştırabilir.
+- `lab.shotMap`: xG'den nokta alanına ölçek, en küçük görünür nokta ve sonuç renkleri. Şut sayısına veya fiziğe etkisi yoktur.
+
+`reporting.controlledShots`: aynı atış konumları, set kaleci derinliği, +10 özellik artışı ve kısa uçuş süresi; finishing ve reflexes etkisini maçın sonraki RNG akışından ayıran eşlenmiş deney içindir. Normal/set kaleci ön erişimi 1,15/1,25 m, set olmama ek tepki payı 0,04 sn olarak kalibre edildi; plonjon sınırı değişmez.
+
+Raporun `milliseconds` alanı performans ölçümüdür, deterministik sonuç değildir. CI kaydedilen maç/güç/kontrollü şut sayaçlarını yeniden üretip `tools/sim-report/compare.cjs` ile karşılaştırır; yüzdelik ve istisnalar tarihli raporda açıklanır.

@@ -14,14 +14,16 @@ export function resolveSimulationTackle(simulation, attempt) {
   const defender = players.get(attempt.defenderId), victim = players.get(attempt.victimId);
   const contact = simulationTackleContact({ ...attempt, ball: simulation.ball, victim });
   const canControl = attempt.kind !== 'sliding' && planningDistance(defender.position, simulation.ball.position) <= MATCH_SIM_DATA.ball.controlRadius;
+  const followThrough = isRecklessFollowThrough(attempt, contact);
   const result = contact.contact === 'ball' ? canControl ? 'won' : 'loose' : 'missed';
   emitSimulationEvent(simulation, { type: 'tackle', fromId: defender.id, toId: victim.id, fromPos: { ...attempt.from }, toPos: { ...contact.position },
-    kind: attempt.kind, result, contact: contact.contact, speed: attempt.speed, success: contact.contact === 'ball' });
+    kind: attempt.kind, result, contact: contact.contact, bodyContact: followThrough, speed: attempt.speed, success: contact.contact === 'ball',
+    ballPosition: { ...simulation.ball.position }, victimPosition: { ...victim.position }, victimSpeed: attempt.victimSpeed, preparationSeconds: attempt.preparationSeconds, distance: attempt.distance });
   recordTackleStatistics(simulation, defender, result);
   simulation.defending.lastContact = { ...contact, time: simulation.time, defenderId: defender.id, victimId: victim.id };
   finishTackleRecovery(simulation, defender, attempt.kind);
-  if (contact.contact === 'player') recordSimulationFoul(simulation, defender, { victim, kind: attempt.kind, speed: attempt.speed });
   if (contact.contact === 'ball') takeTackledBall(simulation, defender, { result, attempt });
+  if (contact.contact === 'player' || followThrough) recordSimulationFoul(simulation, defender, { victim, kind: attempt.kind, speed: attempt.speed });
   return contact;
 }
 
@@ -52,4 +54,11 @@ function takeTackledBall(simulation, defender, { result, attempt }) {
   const speed = Math.max(MATCH_SIM_DATA.ball.firstTouch.minimumDeflectionSpeed, attempt.speed * MATCH_SIM_DATA.duels.looseSpeedFactor);
   Object.assign(simulation.ball, { ownerId: null, velocity: { x: Math.cos(direction) * speed, y: Math.sin(direction) * speed },
     lastTouchId: defender.id, lastTouchTeamId: defender.teamId, excludedId: defender.id, controlAfterTick: defender.duel.untilTick });
+}
+
+function isRecklessFollowThrough(attempt, contact) {
+  const settings = MATCH_SIM_DATA.duels;
+  const threshold = attempt.kind === 'sliding' ? settings.recklessSlideSpeed : settings.recklessStandingSpeed;
+  return attempt.speed >= threshold
+    && contact.contact === 'ball' && Number.isFinite(contact.bodyFraction) && contact.bodyFraction > contact.fraction;
 }

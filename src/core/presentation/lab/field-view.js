@@ -1,3 +1,4 @@
+import { labShotMapMarkup } from './shot-map.js';
 import { labShootingMarkup, labGoalSignalMarkup } from './shot-layers.js';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { measureTeam } from '../../sim/team-measurements.js';
@@ -18,7 +19,8 @@ export function renderLaboratoryField(view, snapshot, layers) {
   const flight = layers.flight ? labBallPathMarkup(simulation) : '';
   const height = simulation.ball.height ?? 0;
   const overlays = labInteractionOverlays(simulation, layers);
-  view.field.innerHTML = laboratoryPitchMarkup() + passes + flight + overlays.shooting + labGoalSignalMarkup(simulation, snapshot.recentEvents ?? []) + overlays.decisions + teams + overlays.contact + `<g data-ball="true" data-ball-owner="${simulation.ball.ownerId ?? ''}" pointer-events="none"><circle cx="${ball.x}" cy="${ball.y}" r="2.1" fill="none" stroke="#fff" opacity=".25" stroke-width=".2"/><circle cx="${ball.x}" cy="${ball.y}" r="${.85 + height * MATCH_SIM_DATA.lab.ballHeightScale}" fill="#fff" stroke="#102b28" stroke-width=".25"/>${height > 0 ? `<text x="${ball.x + 2}" y="${ball.y}" fill="#fff" font-size="1.7">${height.toFixed(1)} m</text>` : ''}</g>`;
+  const shotMap = laboratoryShotMap(snapshot, layers);
+  view.field.innerHTML = laboratoryPitchMarkup() + shotMap + passes + flight + overlays.shooting + labGoalSignalMarkup(simulation, snapshot.recentEvents ?? []) + overlays.decisions + teams + overlays.contact + `<g data-ball="true" data-ball-owner="${simulation.ball.ownerId ?? ''}" pointer-events="none"><circle cx="${ball.x}" cy="${ball.y}" r="2.1" fill="none" stroke="#fff" opacity=".25" stroke-width=".2"/><circle cx="${ball.x}" cy="${ball.y}" r="${.85 + height * MATCH_SIM_DATA.lab.ballHeightScale}" fill="#fff" stroke="#102b28" stroke-width=".25"/>${height > 0 ? `<text x="${ball.x + 2}" y="${ball.y}" fill="#fff" font-size="1.7">${height.toFixed(1)} m</text>` : ''}</g>`;
   view.metrics.innerHTML = simulation.teams.map((team, index) => teamMetricMarkup(simulation, team, MATCH_SIM_DATA.lab.teams[index])).join('');
   view.stats.innerHTML = labStatisticsMarkup(snapshot.metrics) + labRefereeSignalMarkup(simulation, snapshot.recentEvents ?? []);
   if (view.events) view.events.innerHTML = labRecentEventsMarkup(snapshot.recentEvents ?? []);
@@ -51,4 +53,8 @@ function teamMetricMarkup(simulation, team, appearance) {
 
 function labInteractionOverlays(simulation, layers) {
   return { decisions: layers.decisions ? labOwnerOptionsMarkup(simulation) : '', contact: layers.duels ? labContactMarkup(simulation) : '', shooting: layers.shooting ? labShootingMarkup(simulation) : '' };
+}
+
+function laboratoryShotMap(snapshot, layers) {
+  return layers.shotMap ? labShotMapMarkup(snapshot.shotMap ?? []) : '';
 }
