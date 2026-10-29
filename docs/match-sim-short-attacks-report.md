@@ -42,8 +42,10 @@ Değişmemiş main üzerinde Node 22.23.4 ile lint ve hızlı paketin işlev tes
 
 ## Aday doğrulaması
 
-Node 22.23.4: lint temiz; hızlı işlev paketi 391 başarılı / 1 mevcut atlama / 0 başarısız; build başarılı. Ayrı performans dosyasında 4/5 başarılı; kalan kondisyonlu referans maç kapısı 1.663 / 1.588 / 2.381 ms ile yerelde başarısız. Eşik değiştirilmedi; tam test ve duman için GitHub Node 22 doğrulaması beklenecek.
+Uygulama commit'i `9996e5ffcb7acb526a23b90eef4f5b0c4a0d1fc4`, [GitHub Node 22.23.4 doğrulaması](https://github.com/rasimoner/ManagerStory/actions/runs/40972046959): lint, hızlı paket **391 başarılı / 1 mevcut atlama**, tam paket **481 başarılı / 1 mevcut atlama**, her iki pakette ayrı **5/5 performans**, build ve bütün mevcut duman kontrolleri başarılı. Eski oyunun 12 dumanı, mobil laboratuvar/fizik/pas/müdahale/şut/harita, eski worker uyumu ve kariyer komut/değişiklik/kaydet-devam/sonuna-geç/tablo/sezon yolları geçti. Altın kayıtlar ve lint tabanı değiştirilmedi.
+
+Yerel adayın işlevleri ve build'i de geçti; ayrı performans dosyasında 4/5 başarılı, kalan kondisyonlu referans maç kapısı 1.663 / 1.588 / 2.381 ms ile yerelde başarısızdı. Eşik değiştirilmedi. Aynı uygulamanın CI'daki şut/kaleci koşuları 1.401 / 1.038 / 964 ms; kondisyonlu koşular 1.197 / 1.294 / 1.079 ms ile mevcut 2 sn sınırının altında kaldı.
 
 Mevcut bekleyen oyuncu değişikliği testi 120. saniyede açık oyun varsayıyordu; daha sık hücum bu anı bir duruşa taşıdı. Test şimdi gerçek açık oyuna ilerler, onu doğrular; iki kez istenen değişikliğin tek bekleyen istek olması ve kullanıcıya bekleme açıklaması aynen denetlenir. Test veya beklenti kapatılmadı.
 
-CI'da yalnız `feat/short-match-flow` için ek 50/güç ve beş süre ×50 ölçümü ile ayrı uzun 1× izleme çalıştırılmaz; kullanıcı bu işte 20 tohum ve kısa işlev kontrolleri istedi. Lint, hızlı/tam test, performans bütçeleri, build ve bütün mevcut duman kontrolleri korunur. Diğer dalların varsayılan kapsamı değişmez. Birleşme/yayın henüz yapılmadı.
+CI'da yalnız `feat/short-match-flow` için ek 50/güç ve beş süre ×50 ölçümü ile ayrı uzun 1× izleme çalıştırılmaz; kullanıcı bu işte 20 tohum ve kısa işlev kontrolleri istedi. Lint, hızlı/tam test, performans bütçeleri, build ve bütün mevcut duman kontrolleri korunur. Diğer dalların varsayılan kapsamı değişmez. Bu son kayıt yalnız belgedir; aynı uygulamanın geçen kontrolleri tekrar başlatılmaz. Main'e birleşme sonrası mevcut Pages kapısı kendi lint/tam test/build/duman doğrulamasıyla yayınlar; dal korunur.
