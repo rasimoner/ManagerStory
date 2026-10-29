@@ -1,5 +1,5 @@
 import { pointDistance } from './geometry.js';
-import { simulationMatchSeconds } from './simulation-clock.js';
+import { simulationMatchSeconds, usesNaturalMatchClock } from './simulation-clock.js';
 
 export function createSimulationStatistics(teams) {
   return { possessionTeamId: null, teams: Object.fromEntries(teams.map(team => [team.id, { passes: 0, completedPasses: 0, resolvedPasses: 0, passDistance: 0,
@@ -8,7 +8,7 @@ export function createSimulationStatistics(teams) {
 }
 
 export function emitSimulationEvent(simulation, event) {
-  const entry = { time: simulation.time, fromId: null, toId: null, fromPos: null, toPos: null, success: null, ...event };
+  const entry = { tick: simulation.tick, time: simulation.time, fromId: null, toId: null, fromPos: null, toPos: null, success: null, ...event };
   entry.physicsTime = entry.time;
   entry.matchTime = simulationMatchSeconds(simulation, entry.time);
   simulation.events.push(entry);
@@ -41,7 +41,8 @@ export function readSimulationStatistics(simulation) {
   for (const team of teams) team.possessionPercent = totalPossession ? team.possessionSeconds / totalPossession * 100 : 0;
   const passes = sum('passes'), resolved = sum('resolvedPasses'), controls = sum('controls');
   return { passes, completedPasses: sum('completedPasses'), accuracy: resolved ? sum('completedPasses') / resolved * 100 : 0,
-    averageDistance: resolved ? sum('passDistance') / resolved : 0, passesPerMinute: simulation.time ? passes / (simulation.time / 60) : 0,
+    averageDistance: resolved ? sum('passDistance') / resolved : 0, passesPerMinute: simulation.matchTime ? passes / (simulation.matchTime / 60) : 0,
+    ...(usesNaturalMatchClock(simulation) ? { passesPerPhysicsMinute: simulation.time ? passes / (simulation.time / 60) : 0 } : {}),
     ...Object.fromEntries(['shots', 'shotsOnTarget', 'goals', 'xg', 'blocks', 'saves', 'posts', 'dribbles', 'dribbleDistance', 'beats', 'tackles', 'tacklesWon', 'tacklesLoose', 'tacklesMissed', 'duels', 'fouls', 'yellow', 'red', 'advantages', 'ballWins'].map(field => [field, sum(field)])),
     duels: sum('duels') / 2, interceptions: sum('interceptions'), averageHoldSeconds: controls ? sum('controlSeconds') / controls : 0,
     averagePossessionSeconds: sum('possessions') ? totalPossession / sum('possessions') : 0, teams };

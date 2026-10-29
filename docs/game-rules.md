@@ -90,3 +90,7 @@ Düz JSON, sürümlü biçim ve tek taşıma zinciri: `docs/save-format.md`. Yen
 2. Üreteci ve hash'i birebir yaz; ilk birkaç değeri JS ile karşılaştır.
 3. Motoru dakika sırasına sadık yaz; `tests/golden/matches.json`'daki olay günlüğü hash'lerini (anahtarları sıralanmış JSON üzerinden) üret ve karşılaştır.
 4. Lig, sezon sonu ve kariyeri `seasons.json` ile doğrula.
+
+## Deneysel maçta süre (V7.16.0)
+
+Varsayılan kapalı yeni motor açıldığında yeni kullanıcı maçları Ayarlar'daki toplam 3/5/7/10 dakikayı kullanır (varsayılan 7). Fizik 1× gerçek hızda, maç saati 90 dakikaya orantılı ilerler. Menü/devre bekleyişi dahil değildir. Aktif maç kendi süresini saklar; eski yarım maçın modeli ve eski motor/3D değiştirilmez. Dakika 90 üzerinden, gerçek olay ve mesafe adetleri çoğaltılmadan kaydedilir. Kondisyon, kayıt ve sonraki 3D sözleşmesi `match-sim.md` ve `match-sim-duration-report.md` içindedir.

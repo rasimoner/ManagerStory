@@ -67,3 +67,43 @@ test('workload uses match exposure once, stores real distance and leaves contact
     assert.ok(Math.abs(before - player.attributes.fitness - ordinary - api.MATCH_SIM_DATA.workload.perContact) < 1e-9);
   }
 });
+
+test('the final whistle cannot create a new fatigue injury after football has ended', () => {
+  const { api, simulation } = fixture(180);
+  simulation.workload.enabled = true;
+  simulation.match.phase = 'ended';
+  simulation.matchTime = 5400;
+  api.MATCH_SIM_DATA.injuries.perPlayerSecond = 1;
+  api.consumeSimulationFitness(simulation);
+  assert.equal(simulation.events.filter(event => event.type === 'injury').length, 0);
+});
+
+test('keeper holding waits in physical seconds and fatigue exposure checks follow match minutes', () => {
+  for (const duration of [180, 600]) {
+    const { api, simulation } = fixture(duration);
+    const keeper = simulation.teams[0].players[0];
+    api.claimSimulationKeeperBall(simulation, keeper);
+    const ticks = Math.ceil(api.MATCH_SIM_DATA.goalkeeper.holdSeconds / api.MATCH_SIM_DATA.clock.stepSeconds);
+    simulation.tick = ticks - 1;
+    api.advanceSimulationKeeperPossession(simulation);
+    assert.equal(simulation.ball.heldBy, keeper.id);
+    simulation.tick++;
+    api.advanceSimulationKeeperPossession(simulation);
+    assert.equal(simulation.ball.heldBy, null);
+  }
+  const short = fixture(180), long = fixture(600);
+  for (const { api, simulation } of [short, long]) {
+    simulation.workload.enabled = true;
+    for (let tick = 0; tick < 20; tick++) api.stepSimulation(simulation);
+  }
+  assert.equal(short.simulation.workload.lastInjuryMatchTime, 60);
+  assert.equal(long.simulation.workload.lastInjuryMatchTime, undefined);
+});
+
+test('per-minute statistics distinguish the match clock from real physical tempo', () => {
+  const { api, simulation } = fixture(180);
+  for (let tick = 0; tick < 100; tick++) api.stepSimulation(simulation);
+  const stats = api.readSimulationStatistics(simulation);
+  assert.equal(stats.passesPerMinute, stats.passes / (simulation.matchTime / 60));
+  assert.equal(stats.passesPerPhysicsMinute, stats.passes / (simulation.physicsTime / 60));
+});

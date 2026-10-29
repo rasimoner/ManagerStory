@@ -27,6 +27,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run test:fast
+        env:
+          DURATION_CLOCK_METRICS: duration-clocks.json
       - run: npm test
       - run: npm run build
       - run: npx playwright install --with-deps chromium
@@ -40,12 +42,16 @@ jobs:
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
           node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
+      - name: Measure all five durations with the same fifty equal-squad seeds
+        run: npm run sim:duration-report -- duration-measurements.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: match-sim-verification
           path: |
             balance-measurements.json
+            duration-measurements.json
+            duration-clocks.json
             balance-mobile.png
             shooting-mobile.png
           if-no-files-found: ignore

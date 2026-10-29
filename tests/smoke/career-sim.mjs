@@ -195,7 +195,7 @@ async function measureContinuousMatch() {
   const match = await savedMatch(), career = await savedCareer();
   const report = { milliseconds: measurement.activeMilliseconds, seconds: measurement.activeMilliseconds / 1000,
     overallMilliseconds: milliseconds, node: process.version, cpuThrottle: 4, viewport: [390, 844], ...measurement,
-    physicsSeconds: match.simulationCheckpoint.state.physicsTime, matchSeconds: match.matchElapsedSeconds, ticks: match.simulationCheckpoint.state.tick,
+    seed: match.simulationCheckpoint.state.seed, physicsSeconds: match.simulationCheckpoint.state.physicsTime, matchSeconds: match.matchElapsedSeconds, ticks: match.simulationCheckpoint.state.tick,
     score: [match.hg, match.ag], savedUtf16Bytes: JSON.stringify(career).length * 2, simulationMetrics: match.simulationPlayback.metrics };
   writeFileSync(process.env.CAREER_METRICS || 'career-mobile-metrics.json', JSON.stringify(report, null, 2) + '\n');
   if (process.env.CAREER_SCREENSHOT) await page.screenshot({ path: process.env.CAREER_SCREENSHOT, fullPage: true });

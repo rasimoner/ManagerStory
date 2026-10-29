@@ -14,8 +14,8 @@ const UPDATE = process.env.UPDATE_GOLDEN === '1';
 
 /* The game's version is written into the career and onto some screens; a release must not change a golden. */
 const VERSION = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8')).version;
-// Format 4 adds an opt-in switch. Compare the legacy payload with the unchanged format-3 goldens;
-// migration and the added switch have dedicated tests, while every football/career field still hashes.
+// Compare only the default-off switch and default-seven-minute metadata with format-3 goldens.
+// Non-default settings remain visible; every football and career field still hashes unchanged.
 const withoutVersion = state => {
   const rest = { ...state };
   delete rest.version;

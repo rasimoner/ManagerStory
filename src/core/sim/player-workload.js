@@ -62,7 +62,7 @@ function checkSimulationFatigueInjuries(simulation) {
 
 function checkNaturalMatchInjuries(simulation) {
   const settings = MATCH_SIM_DATA.injuries, workload = simulation.workload;
-  if (simulation.paused || simulation.matchTime < (workload.nextInjuryMatchTime ?? settings.checkSeconds)) return;
+  if (simulation.paused || simulation.match.phase === 'ended' || simulation.matchTime < (workload.nextInjuryMatchTime ?? settings.checkSeconds)) return;
   const exposure = simulation.matchTime - (workload.lastInjuryMatchTime ?? 0);
   workload.lastInjuryMatchTime = simulation.matchTime;
   workload.nextInjuryMatchTime = (Math.floor(simulation.matchTime / settings.checkSeconds) + 1) * settings.checkSeconds;

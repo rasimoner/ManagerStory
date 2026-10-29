@@ -1,16 +1,22 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const { loadNativeGame } = require('./support/native.cjs');
 let pending;
 const native = () => pending ??= loadNativeGame(['createSimulation', 'createSimulationPlayback', 'advanceSimulationPlayback', 'commandSimulationTactics', 'snapshotSimulation']);
 const { loadLab } = require('./support/lab.cjs');
+const measurements = [];
+
+test.after(() => {
+  if (process.env.DURATION_CLOCK_METRICS) fs.writeFileSync(process.env.DURATION_CLOCK_METRICS, JSON.stringify({ node: process.version, type: 'virtual clock, not a real wall-time watch', measurements }, null, 2) + '\n');
+});
 
 async function watch(options) {
   const api = await native();
   const input = structuredClone(loadLab().api.createLabScenario({ seed: 42 }));
   const simulation = api.createSimulation({ ...input, durationSeconds: options.seconds });
   const playback = api.createSimulationPlayback(simulation);
-  let elapsed = 0, applied = false;
+  let elapsed = 0, applied = false, half = null;
   while (simulation.match.phase !== 'ended') {
     if (simulation.tick === 100 && !applied) {
       api.commandSimulationTactics(simulation, { teamId: 'home', tactics: { press: 'Yüksek' } });
@@ -18,9 +24,10 @@ async function watch(options) {
     }
     api.advanceSimulationPlayback(playback, simulation, { seconds: 1 / options.fps, speed: options.speed, maxSteps: 512 });
     elapsed += 1 / options.fps;
+    if (simulation.match.half === 2 && half == null) half = { virtualSeconds: elapsed, physicsSeconds: simulation.physicsTime, matchSeconds: simulation.matchTime, tick: simulation.tick };
     assert.equal(playback.currentRate, options.speed);
   }
-  return { elapsed, simulation, playback };
+  return { elapsed, simulation, playback, half };
 }
 
 for (const seconds of [180, 300, 420, 600]) {
@@ -30,6 +37,8 @@ for (const seconds of [180, 300, 420, 600]) {
     assert.equal(result.simulation.tick, seconds * 10);
     assert.equal(result.simulation.matchTime, 5400);
     assert.equal(result.playback.metrics.budgetLimitedFrames, 0);
+    measurements.push({ durationSeconds: seconds, speed: 1, virtualSeconds: result.elapsed, half: result.half,
+      physicsSeconds: result.simulation.physicsTime, matchSeconds: result.simulation.matchTime, ticks: result.simulation.tick });
   });
 }
 
