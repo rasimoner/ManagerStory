@@ -1,0 +1,62 @@
+{
+  "milliseconds": 423299.8,
+  "seconds": 423.2998,
+  "overallMilliseconds": 423316,
+  "node": "v22.23.4",
+  "cpuThrottle": 4,
+  "viewport": [
+    390,
+    844
+  ],
+  "frames": 25264,
+  "medianFrameMs": 16.69999999999709,
+  "p95FrameMs": 16.79999999998836,
+  "maximumFrameMs": 233.40000000002328,
+  "longFrames": [
+    {
+      "milliseconds": 233.40000000002328,
+      "gameSecond": 5400,
+      "physicsSecond": 420,
+      "phase": "natural",
+      "status": "90:00 • MAÇ BİTTİ"
+    },
+    {
+      "milliseconds": 166.60000000000582,
+      "gameSecond": 2700,
+      "physicsSecond": 210,
+      "phase": "natural",
+      "status": "45:00 • CANLI"
+    },
+    {
+      "milliseconds": 116.59999999999991,
+      "gameSecond": 2,
+      "physicsSecond": 0.2,
+      "phase": "natural",
+      "status": "00:02 • CANLI"
+    }
+  ],
+  "phases": {
+    "natural": 25266
+  },
+  "backwards": false,
+  "activeMilliseconds": 423299.8,
+  "waitingMilliseconds": 0,
+  "seed": 8873,
+  "physicsSeconds": 420,
+  "matchSeconds": 5400,
+  "ticks": 4200,
+  "score": [
+    0,
+    0
+  ],
+  "savedUtf16Bytes": 616074,
+  "simulationMetrics": {
+    "realSeconds": 420.0174000000783,
+    "frames": 25265,
+    "steps": 4200,
+    "budgetLimitedFrames": 0,
+    "phaseSeconds": {
+      "natural": 420.0174000000783
+    }
+  }
+}

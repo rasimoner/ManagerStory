@@ -99,9 +99,30 @@ Adım başındaki gerçek durum sınıflanır; her fizik adımı bir kez sayıl�
 
 ## Gerçek 7 dakika / 1× Chromium izlemesi
 
-Son adayın 390×844, dokunmatik Chromium, 4× CPU yavaşlatmada tam izlemesi doğrulama işinde yürütülür. Gerçek izleme sonucu aşağıdaki doğrulama tamamlandığında eklenecek; sanal 420 sn sonucu gerçek tarayıcı süresi olarak sunulmaz.
+[Actions 40938196215 / gerçek izleme işi](https://github.com/rasimoner/ManagerStory/actions/runs/40938196215/job/123675067352), uygulama SHA `889591ba461ebe284a6eccadc0223774591aea6a`; Node 22.23.4, 390×844 dokunmatik Chromium, 4× CPU yavaşlatma, 1×, tohum 8873. Tek tam izleme başarıyla tamamlandı; aynı uzun test yeniden çalıştırılmadı. Ham [JSON](measurements/match-sim-duration-mobile.json) ve [son ekran](measurements/match-sim-duration-mobile.png) Actions arşivinden alındı; arşiv SHA-256 ve logdaki JSON ile eşitlik doğrulandı.
 
-Ölçüm kullanıcı beklemesini RAF örneklerindeki duraklatma durumundan ayrı tutar; etkin duvar süresi, toplam gözlem süresi, bekleme, fizik/maç saniyesi, adım, RAF medyan/P95/en uzun aralık, en uzun 10 takılma ve bütçesi sınırlanan kareler kaydedilir. Büyük aralıklar/final kayıt ve devre yeniden çizim sıçramaları rapordan çıkarılmaz. Kısa maçta ceza alanında üst üste gelen forma numaraları, çizgi kenarında kesilen işaretler ve mevcut CSS ara konumun 0,1 sn gecikmesi için fiziksel telefon incelemesi sürer. Chromium CPU emülasyonu fiziksel iPhone/Safari onayı değildir.
+| Gerçek izleme ölçüsü | Sonuç |
+|---|---:|
+| Aktif RAF duvar süresi | **423,2998 sn = 7 dk 3,30 sn** |
+| Nominal 420 saniyeye göre fark | +3,2998 sn / %0,79 |
+| Hazırlık tamamlandıktan sonraki toplam gözlem | 423,316 sn |
+| RAF örneklerinde ayrı işaretlenen bekleme | 0 ms; otomatik devre geçişi, ek insan beklemesi yok |
+| Fizik / maç zamanı | **420 / 5.400 sn** |
+| Adım | **4.200 / 4.200** |
+| Motor sürücüsünün biriktirdiği kare süresi | 420,0174 sn |
+| RAF aralığı adedi | 25.264 |
+| RAF medyan / P95 | **16,7 / 16,8 ms** |
+| En uzun aralık | **233,4 ms**, son düdükte |
+| Diğer 100 ms üstü aralıklar | 166,6 ms devrede; 116,6 ms başlangıçta |
+| Bütçesi dolan kare / geri giden saat | **0 / yok** |
+| Skor | **0–0** |
+| Aktif kaydın UTF-16 boyutu | 616.074 bayt |
+
+Aktif süre, pitch mevcutken RAF aralıklarından ve önceki duraklatma durumundan ölçülür. Saha DOM'u olmayan ekran aralıklarında örnek dizisi kesilir; bu geçişler aktif süreye eklenmez. `waitingMilliseconds` yalnız saha mevcutken duraklatma işaretli aralıkları sayar, bütün menü yokluğu sürelerinin ayrı sayacı değildir. Toplam gözlem saati hazırlıktan sonra başladığı, RAF gözlemi saha görünmeden önce kurulduğu için iki sayaç tam aynı başlangıç çizgisine sahip değildir. Otomatik koşuya ek kullanıcı beklemesi konmadı; beklemelerin simülasyonu ilerletmediği ayrı testlerle korunur. Bu sınırlama 423,2998'i bütün insan etkileşimlerini kapsayan bir kronometre garantisine dönüştürmez.
+
+3,30 sn fark, fizik adımı atlamadan çizim/yeniden çizim ve kare sınırlarının getirdiği duvar uzamasıdır; motorun 420 sn'si ve 4.200 adımı tamdır. 25.264 RAF örneği ekrandaki her pikselin veya dokunma gecikmesinin ayrı ölçümü değildir. Tek tohum/tek emüle cihaz bütün telefonlarda süre garantisi vermez. Önceki referans izleme raporundaki 3.416,6 ms son-düdük takılması bu yeni kısa koşuda 233,4 ms'dir; farklı zaman modeli ve olay hacmi olduğundan yalnız bir optimizasyonun kontrollü kıyası sayılmaz.
+
+Görüntüde bazı forma numaraları üst üste gelir; önceki çizgi kenarı kırpılmasının bütün pozisyonlarda giderildiği doğrulanmadı. 0,1 sn fizik arasındaki CSS çizim geçişi görsel gecikme taşıyabilir. Bunlar kapsamlı bir 2D tasarım yenilemesiyle örtülmedi. **Chromium CPU emülasyonu fiziksel iPhone/Safari onayı değildir.**
 
 ## Sonraki 3D sözleşmesi
 
@@ -112,8 +133,10 @@ Son adayın 390×844, dokunmatik Chromium, 4× CPU yavaşlatmada tam izlemesi do
 
 ## Doğrulama ve yayın
 
-Aday [PR #8](https://github.com/rasimoner/ManagerStory/pull/8). İlk entegrasyon `484774d` için [Node 22 Actions](https://github.com/rasimoner/ManagerStory/actions/runs/40932433766) lint/hızlı/tam test/build geçti; son süre ölçümü ve son-düdük koruması bu adayın sonrasındadır, son oyun SHA'sı için yeniden doğrulanır. Tam gerçek izleme yalnız son hazır adayda çalışır. Önce test sonra uygulama; süre, kayıt/kariyer ve rapor testlerinin kırmızı sonuçları yerelde gözlendi. Altınlar değiştirilmedi, lint tabanı büyümedi.
+[PR #8](https://github.com/rasimoner/ManagerStory/pull/8) uygulama SHA'sı `889591ba461ebe284a6eccadc0223774591aea6a` için [son Node 22 doğrulaması](https://github.com/rasimoner/ManagerStory/actions/runs/40938196215) bütünüyle geçti: lint, hızlı testte 383 başarılı/1 mevcut atlama, tam pakette 473 başarılı/1 mevcut atlama, ayrıca her iki paketin 5/5 performans kontrolü, build, mevcut 12 duman kontrolü, mobil laboratuvarlar ve kariyer kontrolleri. Mevcut 50 referans maç/8 güç deneyi karşılaştırması ve yeni 250 maç ölçümü de geçti. Altın kayıtlar değiştirilmedi, lint tabanı büyümedi. Önce test sonra uygulama; süre, kayıt/kariyer ve rapor testlerinin kırmızı sonuçları yerelde gözlendi.
 
-Yerel Chromium kurulu değildir. Yerel Node 22'de eski değişmemiş main de bazı 2 sn soğuk performans bütçelerini aştı (şut 3.309/2.020/1.703 ms; tüketimli 2.832/4.092/2.559 ms). Yeni adayda da aşım görüldü. Eşikler değiştirilmedi, bu kontroller Actions'ta geçmek zorundadır; tekrar tekrar yerel zaman denemesiyle iyi sonuç seçilmez.
+Actions'ın 250 maçındaki bütün futbol/kariyer alanları depodaki ham ölçümlerle birebir eşleşti; yalnız çalıştırma makinesine bağlı `milliseconds` karşılaştırılmadı. Dört sanal saat çıktısı tamamen aynı. [Karşılaştırma kanıtı](measurements/match-sim-duration-ci-verification.json) kaynak SHA'sını ve doğrulanmış arşiv SHA-256'sını taşır. Gerçek 7 dakikalık izleme aynı SHA'da bir kez çalıştı ve geçti. Sonraki rapor/ham kanıt commit'i yalnız `docs/` değiştirir; aynı uzun izleme yeniden çalıştırılmaz.
 
-Son gerçek ölçüm, tam kapı ve Pages bağlantıları doğrulama sonrasında bu bölüme eklenecek. Birleşen dallar silinmez; birleşme sonrasında `feat/match-sim-duration`, önceki birleşmiş `feat/match-sim-career` silinebilecek adaylardır.
+Yerel Chromium kurulu değildir. Yerel Node 22'de eski değişmemiş main de bazı 2 sn soğuk performans bütçelerini aştı (şut 3.309/2.020/1.703 ms; tüketimli 2.832/4.092/2.559 ms). Son belge kontrolünde lint ve bütün hızlı işlev testleri geçti; yerel soğuk şut medyanı 2.030,9 ms ile aynı bütçeyi aştı. Eşikler değiştirilmedi; son uygulamanın bütün performans kontrolleri Actions'ta geçti. Tekrar tekrar yerel zaman denemesiyle iyi sonuç seçilmedi.
+
+Main'e birleşme sonrası [Pages yayın kapısı](https://github.com/rasimoner/ManagerStory/actions/workflows/pages.yml) lint/tam test/build/dumanı tekrar doğrular ve [canlı oyunu](https://rasimoner.github.io/ManagerStory/) yayımlar. Kesin birleşme SHA'sı ve yayın koşusu teslim mesajında verilir. Birleşen dallar silinmez; birleşme sonrasında `feat/match-sim-duration` silinebilecek adaydır.
