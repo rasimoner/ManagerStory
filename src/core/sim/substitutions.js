@@ -64,6 +64,8 @@ function copySubstitutionSlot(incoming, outgoing) {
 function replaceTeamPlayer(simulation, { team, outgoing, incoming }) {
   const index = team.players.indexOf(outgoing);
   outgoing.replaced = true;
+  outgoing.leftSeconds ??= simulation.time;
+  incoming.enteredSeconds = simulation.time;
   if (index >= 0) { team.players.splice(index, 1, incoming); simulation.departed.push(outgoing); }
   else team.players.push(incoming);
 }

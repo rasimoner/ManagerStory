@@ -45,6 +45,11 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | 1 | V7.9.13 (yeniden yapılanma B) – V7.13.1 | 0 → 1 |
 | 2 | V7.13.2 | 1 → 2 |
 | 3 | V7.14.0 sonrası | 2 → 3 |
+| 4 | V7.15.0 sonrası | 3 → 4 |
+
+**3 → 4:** `experimentalMatchEngine` yoksa `false` eklenir. Ayarlar'daki anahtar bu kariyerde saklanır; devam eden maçın motoru değiştirilmez. Eski maç kayıtlarının dakika motoru, RNG ve 3D durumu korunur.
+
+Deneysel `activeMatchV71` ek alanları: `experimental:true`, `fieldView:"2d"`, `simulationCheckpoint`, `simulationCursor`, `simulationNames`, `simulationTeams`, `simulationPendingPasses`. Çalışma sırasında `M.simulation` saf çekirdek nesnesidir; kayda onun yerine `snapshotSimulation` format 1 JSON nesnesi yazılır. RNG, kesirli saat, geçici duruş/avantaj, bekleyen değişiklikler, ayrılan oyuncular, kondisyon/sakatlık, tüm günlük ve karar/kovalama önbelleği içindedir. Ortak referans ve JSON'da kaybolan skaler yan tabloları yeniden kurulur. Kariyere aktarılmış olay cursor'ı ve oyuncu dakika sayaçları çift gol/kart/dakika yazılmasını önler. Detay: `docs/match-sim.md`.
 
 **0 → 1** (eski `migrateV71`'in yaptığı, artık tek seferlik):
 - `currentClubId` yoksa başlangıç kulübü (`data/clubs.json` `startingClub`).
@@ -71,6 +76,7 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | Alan | Tür | Ne |
 |---|---|---|
 | `schemaVersion` | sayı | Kayıt biçimi (yukarıda). |
+| `experimentalMatchEngine` | boolean | Deneysel 2D motor tercihi; eski kayıtta kapalı, bir sonraki maçta seçilir. |
 | `version` | metin | Son yazan oyun sürümü. |
 | `currentClubId` | metin | Yönetilen kulüp (`managedClubName()`). Lig şimdilik başlangıç kulübünün etrafında kurulu; rakip bir kulüp adı yazılmışsa başlangıç kulübüne düşer. |
 | `matchSalt` | sayı | Maç zarlarının tuzu; her başlama vuruşunda cihazdan yenilenir. Yoksa (testler) fikstürün kendi tohumu. |

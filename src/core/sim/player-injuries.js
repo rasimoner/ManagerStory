@@ -10,6 +10,7 @@ export function injureSimulationPlayer(simulation, incident) {
   settleSimulationPass(simulation, { position: simulation.ball.position, controlled: false });
   team.players.splice(team.players.indexOf(player), 1);
   player.injured = true;
+  player.leftSeconds = simulation.time;
   simulation.departed.push(player);
   invalidateSimulationRuntime(simulation);
   invalidateSimulationPlanning(team);

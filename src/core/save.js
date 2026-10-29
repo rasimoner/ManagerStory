@@ -18,8 +18,9 @@ import { careerOpened, changed } from './hooks.js';
 import { MATCH_TACTICS } from './engine/tactics.js';
 import { GAME_VERSION } from './version.js';
 import { numberSquadKeepingShown } from './players/shirt-numbers.js';
+import { snapshotSimulation } from './sim/simulation-checkpoint.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 3;
+export const SAVE_SCHEMA = 4;
 export let saveWarning = false;
 
 export const SAVE_MIGRATIONS = [
@@ -78,6 +79,11 @@ export const SAVE_MIGRATIONS = [
       }));
     },
   },
+  {
+    from: 3, to: 4,
+    about: 'opt-in experimental 2D match simulation; earlier careers continue with the legacy engine',
+    run(state) { state.experimentalMatchEngine ??= false; },
+  },
 ];
 
 /* Bring a save (or a new career) up to the current format. Changes and returns the same object. */
@@ -121,6 +127,10 @@ export function persistCareer() {
   if (!S) return;
   if (M) {
     const { rand, ...snapshot } = M;
+    if (M.experimental) {
+      snapshot.simulationCheckpoint = snapshotSimulation(M.simulation);
+      delete snapshot.simulation;
+    }
     S.activeMatchV71 = { ...snapshot, rngState: rand.state };
   } else delete S.activeMatchV71;
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); saveWarning = false; }

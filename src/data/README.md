@@ -1,5 +1,9 @@
 # Oyun verisi
 
+## match-sim-career.json (`CAREER_SIM_DATA`)
+
+Kariyer ile saniyelik motor arasındaki eşleme: serbest/4-2-3-1/4-4-2 dizilişleri, yuvalar ve uyumlu roller, mevcut oyuncu alanlarından özellik okuma sırası, eksik alan varsayılanı, normalize çapa sınırı, takım talimatları ve henüz etkisiz seçeneklerin açık listesi. `rating` olay ağırlıkları (6,5 taban, gol/asist/şut/pas/müdahale/hata/kurtarış/yenilen gol/kart, 1–10 sınırı), büyük fırsat xG eşiği ve temel izleme saati. Kulüp renkleri bu dosyaya kopyalanmaz; kulüp kimliğinden gelir.
+
 `match-sim.json` kariyer komutları: `tactics.widthScale` takım genişliği; `workload` süre/mesafe/sprint/temas tüketimi ve stamina çarpanı; `injuries` periyodik yorgunluk/sert temas riskleri; `instructions` her bireysel talimatın gerçekten etkili olup olmadığı ve karar/kaleci çıkış katsayıları. Tüketim kariyer girdisinde açılır; Denge 1 laboratuvar karşılaştırması sabit kalır.
 
 Oyunun verisi koddan ayrı, düz JSON dosyalarında (refactor B, V7.9.13; E4, V7.13.0’dan beri `.json`). Kod onları adıyla alır: `import CLUB_DATA from "../../data/clubs.json"`. Bir dosyayı her yerde aynı adla alın; testlerin erişim noktası (`tests/support/game.cjs`) dosyayı bu adla verir (`g.api.CLUB_DATA`). Başka bir motor (Godot) aynı dosyaları okuyabilir.

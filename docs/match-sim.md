@@ -4,6 +4,34 @@ Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul
 
 Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. Oyunda bağlantısı yoktur. Kariyer, mevcut dakika motoru, 3D yönetmeni, kayıt biçimi ve V7.14.0 sürümü değişmez. Diğer lig maçları ileride de `simAIGame` ile kalır.
 
+V7.15.0 güncellemesi: laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. Üstteki ifade önceki laboratuvar teslimini anlatır; güncel geçiş sözleşmesi aşağıdadır. Diğer lig maçları yine `simAIGame` ile kalır.
+
+## Kariyer adaptörü (C)
+
+Saf `core/match/` kariyer modunu import etmez. Girdi kullanıcının mevcut ilk on biri, `M.matchPositions`/`M.matchRoles`, rakibin `opponentPlayer` kayıtları ve `oppRadarPos` düzenidir. `match-sim-career.json` serbest yerleşimi 4-2-3-1 yuvalarına, 4-4-2'yi kendi yuvalarına eşler; uyumlu roller ve en yakın başlangıç yuvası seçilir. Kullanıcının serbestçe taşıdığı oyuncunun çapa farkı korunur. Özellikler aynı JSON'daki alan okuma sırasıyla gelir; verilmemiş teknik alanın varsayılanı 65, değer sınırı 0–100; `gk.reflexes/handling/oneOnOne` doğrudan okunur. Tohum `matchSeed()`; deneysel maç başlangıcı kariyer salt'ını değiştirmez. Aynı kayıt/fikstür aynı maçı üretir.
+
+| Kariyer seçeneği | Motor karşılığı |
+|---|---|
+| Pres, savunma hattı, mentalite, tempo, pas stili | Aynı adlı takım kararı; rakibin taktiğine yazmaz |
+| Dar / Normal / Geniş | Ortak blok ve hedef zarfı genişliği |
+| Serbest yerleşim / diziliş | JSON yuva/rol eşlemesi, kaydırılan çapalar; anlık ışınlanma yok |
+| Alanı daralt | Genişlik Dar |
+| Topu dolaştır | Tempo Düşük + pas Kısa |
+| Hızlı geçiş | Tempo Yüksek + pas Direkt (birlikte seçilirse listedeki son talimat öncelikli) |
+| Dengeli bireysel talimat | Varsayılan rol/karar |
+| Topu sakla | Koruma puanı +6 |
+| Daha fazla şut | Şut karar puanı ×1,18; gol zarı eklemez |
+| Kısa kullan / Uzun kullan | Kaleci alıcı mesafesi 12/45 m; uzunda punt |
+| Hücum yaklaşımı: Dengeli/Kanatlar/Merkez/Kontra | **Henüz etkisiz**, diğer etkili taktikler aynen uygulanır |
+| Savunma arkasına koş, Ceza sahasında kal, Presi artır (bireysel), Merkeze yaklaş, Daha riskli pas, Serbest rol, Geniş oyna, İçe kat et, Bindirme yap, Geride kal, Öne çık, Süpürücü kaleci | **Henüz etkisiz**, komut `effective:false` olarak kaydedilir |
+| Bağırma ve devre arası konuşması | Kariyerde mevcut moral/konuşma etkisi; motorda **henüz davranış karşılığı yok**, motivasyon komutu günlükte |
+
+Motor olayları `matchEvent` üzerinden Türkçe yorumla aktarılır. Gol skoru bu tek kancadan artırır; adaptör skoru ikinci kez yazmaz. İkinci sarı+sarıdan kırmızı, mevcut kariyer kart kancasının beklediği tek kırmızı olayına katlanır; böylece sezon sarısı üçe çıkmaz. Dakika `minutePlayed` kancasından, kondisyon çekirdek oyuncusundan gelir; eski dakika tüketimi çalıştırılmaz. Asist gol olayındaki aynı atakta son başarılı pas kimliğidir; sezon araması rastgele son 14 olaya dayanmaz. Geçici çizgi duruşları ayrı sayaç/etikettir; gerçek korner/penaltı şutu varmış gibi yazılmaz.
+
+**Reyting:** taban 6,5; gol +0,85, asist +0,45; şut +0,035, isabette ek +0,04; başarılı pas +0,0015, kayıp pas −0,008; kontrollü kesme +0,03, yasal müdahale +0,045; kontrol hatası −0,04; isabetli şutta kurtarış +0,10; kalecinin sahadayken yediği gol −0,40; sarı −0,20, kırmızı −1,10. Sınır 1–10. Küçük sık aksiyonlar tabanı az değiştirir, gol/kurtarış/hata/kart daha belirgindir; iyi maç 8+, çok gol yiyen veya kırmızı gören kötü maç 5 altına inebilir. Bütün ağırlıklar JSON'dadır. Bu basit kural xG'yi sonuç yerine kullanmaz.
+
+Eski 34 maç/ekran/kariyer altın dosyaları yenilenmez. Karşılaştırma yardımcısı yalnız format 4'teki kapalı anahtar meta verisini format 3 görünümüne taşır ve Ayarlar'a bilinçli eklenen tek anahtar bölümünü çıkarır. Futbol olayları, skorlar, istatistikler ve diğer kariyer alanları hâlâ birebir hash'lenir; yeni anahtar ve göç ayrıca test edilir. Bu, eski altınlara deneysel skor yazılması değildir.
+
 ## Neden yeni motor
 
 Mevcut motor dakikada bir ilerler; az sayıdaki aksiyon arasını sunum doldurur. Mevki çevresindeki LEASH kutuları topsuz hareketi sınırlar. Pasın sonucu çizgideki oyunculara ulaşmadan belirlenir; bazı uzun paslarda alıcı topa yetişmek için hızlanır. Dakika sonundaki faul zarı müdahaleden bağımsızdır. Bu motor yamalanmayacak: yeni motor kısa adımlarla gerçek konum üretir, olay günlüğü bu konumların sonucudur.

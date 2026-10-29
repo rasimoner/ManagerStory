@@ -28,6 +28,6 @@ Geçici çizgi duruşları 52 golün 18'inin penceresinde bulunur; tek taraflı 
 
 - A: tamamlandı; davranış değiştirilmedi, ham tanı saklandı.
 - B: komutlar, duruşta değişiklik, tek takım taktik/diziliş, bireysel talimat günlüğü, tüketim/sakatlık ve JSON üzerinden eksiksiz deterministik devam uygulandı; testler önce kırmızı çalıştırıldı.
-- C: bekliyor.
+- C: anahtar/göç 4, saf kariyer adaptörü, gerçek kadro/özellikler, Türkçe olaylar, gol/kart/dakika/kondisyon/reyting, mevcut sonuç/sezon akışı ve basit 2D bağlantısı uygulandı. Tam maç ve kaydet/yükle kariyer akışı testleri yeşil. Yeni ayar/biçim meta verisi dışında eski altın dosyalar değiştirilmez; eski mantık hash'leri uyumluluk görünümüyle sınanır. Laboratuvara özel eski "oyun simülasyon modülü yüklemez" varsayımı, bu işin amacı gereği "oyun laboratuvar arayüzü yüklemez" olur. Özel ES modül fonksiyonlarının global olmaması yapı testinde doğru ele alınır; ek motor karar kancası açıkça beklenir.
 - D: bekliyor.
 - Tam doğrulama, sezon deneyi ve main birleşmesi: bekliyor.

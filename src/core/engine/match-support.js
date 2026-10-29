@@ -9,6 +9,7 @@ import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from 
 import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js';
 import { save } from '../save.js';
 import { userOpponent, userSquad } from './user-team.js';
+import { restoreSimulation } from '../sim/simulation-checkpoint.js';
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
@@ -23,6 +24,7 @@ export function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
   setMatch(structuredClone(S.activeMatchV71));
   M.rand = R(M.rngState ?? matchSeed());
+  if (M.experimental) { M.simulation = restoreSimulation(M.simulationCheckpoint); delete M.simulationCheckpoint; }
   delete M.uiOverlay;
   ensureMatchState();
   ensureLiveState();
@@ -90,7 +92,7 @@ export function matchEvent(type, text, data = {}) {
   M.events.push(event);
   if (M.minuteEvents && ['kickoff','pass','interception','run','dribble','ballCarry','offBallRun','counterAttack','press','tackle','cross','shot','save','block','post','wide','goal','throwIn','goalKick','corner','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery','foul','freeKick','penalty','offside'].includes(type)) M.minuteEvents.push(event);
   M.story.push(text);
-  if (typeof enqueuePitchEvent === 'function') enqueuePitchEvent(event);
+  if (!M.experimental && typeof enqueuePitchEvent === 'function') enqueuePitchEvent(event);
   return event;
 }
 // Read-only actor classification. Generic engine blocks can be keeper contacts.

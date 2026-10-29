@@ -1,0 +1,255 @@
+{
+  "formationMap": {
+    "free": "4-2-3-1",
+    "4-2-3-1": "4-2-3-1",
+    "4-4-2": "4-4-2"
+  },
+  "slotPositions": {
+    "GK": [
+      50,
+      90
+    ],
+    "LB": [
+      15,
+      72
+    ],
+    "LCB": [
+      38,
+      73
+    ],
+    "RCB": [
+      62,
+      73
+    ],
+    "RB": [
+      85,
+      72
+    ],
+    "LCM": [
+      40,
+      54
+    ],
+    "RCM": [
+      60,
+      54
+    ],
+    "LW": [
+      16,
+      31
+    ],
+    "RW": [
+      84,
+      31
+    ],
+    "CAM": [
+      50,
+      36
+    ],
+    "ST": [
+      50,
+      13
+    ],
+    "LM": [
+      16,
+      52
+    ],
+    "RM": [
+      84,
+      52
+    ],
+    "LST": [
+      38,
+      13
+    ],
+    "RST": [
+      62,
+      13
+    ]
+  },
+  "slotRoles": {
+    "GK": [
+      "GK"
+    ],
+    "LB": [
+      "LB"
+    ],
+    "LCB": [
+      "CB"
+    ],
+    "RCB": [
+      "CB"
+    ],
+    "RB": [
+      "RB"
+    ],
+    "LCM": [
+      "CM",
+      "CDM"
+    ],
+    "RCM": [
+      "CM",
+      "CDM"
+    ],
+    "LW": [
+      "LW",
+      "LM"
+    ],
+    "RW": [
+      "RW",
+      "RM"
+    ],
+    "CAM": [
+      "CAM",
+      "CM"
+    ],
+    "ST": [
+      "ST"
+    ],
+    "LM": [
+      "LW",
+      "LM"
+    ],
+    "RM": [
+      "RW",
+      "RM"
+    ],
+    "LST": [
+      "ST"
+    ],
+    "RST": [
+      "ST"
+    ]
+  },
+  "attributes": {
+    "pace": [
+      "pace"
+    ],
+    "acceleration": [
+      "acceleration",
+      "pace"
+    ],
+    "reactions": [
+      "reactions",
+      "positioning",
+      "composure"
+    ],
+    "fitness": [
+      "fitness"
+    ],
+    "finishing": [
+      "finishing"
+    ],
+    "passing": [
+      "passing"
+    ],
+    "vision": [
+      "vision",
+      "passing"
+    ],
+    "technique": [
+      "technique",
+      "dribbling"
+    ],
+    "firstTouch": [
+      "firstTouch",
+      "technique",
+      "dribbling"
+    ],
+    "dribbling": [
+      "dribbling"
+    ],
+    "strength": [
+      "strength",
+      "physical"
+    ],
+    "composure": [
+      "composure"
+    ],
+    "tackling": [
+      "tackling",
+      "defending"
+    ],
+    "positioning": [
+      "positioning",
+      "defending"
+    ],
+    "stamina": [
+      "stamina",
+      "physical"
+    ]
+  },
+  "defaultAttribute": 65,
+  "attributeMaximum": 100,
+  "anchorMaximum": 0.65,
+  "positionScale": 100,
+  "roleMismatchCost": 100000,
+  "defaultTactics": {
+    "press": "Normal",
+    "line": "Normal",
+    "mentality": "Dengeli",
+    "tempo": "Normal",
+    "passingStyle": "Dengeli",
+    "width": "Normal"
+  },
+  "teamOrders": {
+    "compact": {
+      "width": "Dar"
+    },
+    "patience": {
+      "tempo": "Düşük",
+      "passingStyle": "Kısa"
+    },
+    "quick": {
+      "tempo": "Yüksek",
+      "passingStyle": "Direkt"
+    }
+  },
+  "ineffective": {
+    "approach": [
+      "Dengeli",
+      "Kanatlar",
+      "Merkez",
+      "Kontra"
+    ],
+    "instructions": [
+      "runBehind",
+      "box",
+      "press",
+      "creator",
+      "riskPass",
+      "free",
+      "wide",
+      "inside",
+      "overlap",
+      "stay",
+      "step",
+      "sweeper"
+    ],
+    "motivation": [
+      "teamTalk",
+      "shout"
+    ]
+  },
+  "rating": {
+    "base": 6.5,
+    "minimum": 1,
+    "maximum": 10,
+    "goal": 0.85,
+    "assist": 0.45,
+    "shot": 0.035,
+    "onTarget": 0.04,
+    "completedPass": 0.0015,
+    "failedPass": -0.008,
+    "ballWin": 0.03,
+    "tackle": 0.045,
+    "error": -0.04,
+    "save": 0.1,
+    "concededKeeper": -0.4,
+    "yellow": -0.2,
+    "red": -1.1
+  },
+  "bigChanceXg": 0.2,
+  "secondsPerMinute": 60,
+  "basicFastRate": 90,
+  "epsilon": 1e-06
+}

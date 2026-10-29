@@ -228,3 +228,9 @@ body.in-match .navtop{display:none}
 .hlfilters{display:grid;gap:8px}.hlfilters label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px}.hlfilters select{min-height:40px;font-size:16px;max-width:62%}
 .hlmini{padding:8px 0;border-top:1px solid #ffffff12}.hlmini:first-of-type{border-top:0}.hlmini button{margin:0;min-height:40px;white-space:nowrap}
 .inboxmsg .hlwatch{margin-right:8px}
+
+.sim-career-pitch{position:relative;overflow:hidden;min-height:220px;background:repeating-linear-gradient(90deg,#24673a 0 10%,#2a7141 10% 20%)}
+.sim-career-pitch .sim-player{position:absolute;transform:translate(-50%,-50%);margin:0;padding:0;width:24px;height:24px;min-height:0;border-radius:50%;border:3px solid var(--kit-secondary);background:var(--kit-primary);color:#fff;text-shadow:0 1px 3px #000;font-size:11px;font-weight:800;box-shadow:0 1px 3px #0008;z-index:2}
+.sim-career-pitch .sim-owner{outline:2px solid #fff;outline-offset:3px}
+.sim-ball{position:absolute;transform:translate(-50%,-50%);color:#fff;font-size:15px;text-shadow:0 1px 2px #000;z-index:4;pointer-events:none}
+.sim-event{position:absolute;left:6px;bottom:5px;right:6px;color:white;background:#061a12bd;padding:5px 8px;border-radius:6px;font-size:11px;pointer-events:none;z-index:5}

@@ -19,7 +19,7 @@ export function matchStatsUI() {
   const percent = side => st.passes[side] ? Math.round(st.completedPasses[side] * 100 / st.passes[side]) + "%" : "—";
   const rows = [
     ["Şut", ...M.shots], ["İsabetli şut", ...M.ont], ["Topa sahip olma", ...poss.map(x => x + "%")],
-    ["xG", ...st.xg.map(x => x.toFixed(2))], ["Korner", ...st.corners], ["Faul", ...st.fouls],
+    ["xG", ...st.xg.map(x => x.toFixed(2))], [M.experimental ? "Geçici çizgi duruşu" : "Korner", ...(M.experimental ? st.temporaryStoppages ?? [0, 0] : st.corners)], ["Faul", ...st.fouls],
     ["Pas yüzdesi", percent(0), percent(1)], ["İsabetli / toplam pas", `${st.completedPasses[0]} / ${st.passes[0]}`, `${st.completedPasses[1]} / ${st.passes[1]}`],
     ["Büyük fırsatlar", ...st.bigChances], ["Top kazanma", ...st.possessionsWon], ["Başarılı müdahale", ...st.tackles], ["Sarı kart", ...st.yellow], ["Kırmızı kart", ...st.red]
   ];

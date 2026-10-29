@@ -1,5 +1,7 @@
 # ManagerStory oyun kuralları ve maç motoru
 
+V7.15.0 geçiş dönemi: Ayarlar → Deneysel maç motoru (yeni, 2D), varsayılan kapalı. Yalnız kullanıcının sonraki kariyer maçı saniyelik `core/sim/` ile oynanır; diğer lig maçları eski `simAIGame` ile kalır. Kapalıyken eski dakika motoru ve 3D aynı tohum/komutlarda aynı olayı üretir. Açıkken sonucu fizik belirler, mevcut `matchEvent`/`minutePlayed` kancaları kariyeri yazar. Yeni motorun geçici çizgi/faul duruşları gerçek korner/penaltı uygulanmış gibi gösterilmez. Kurallar ve henüz etkisiz talimatlar `docs/match-sim.md` içindedir.
+
 Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin neyi aynen koruması gerektiğini anlatır. JS kodu taşınmaz; taşınan şey veri (`src/data/*.json`), bu kurallar ve testlerdir. Kaynak her bölümde yazılı; sayıların kesin hali kodda ve `data/balance.jsonon`'da.
 
 **Doğruluk ölçütü**: aynı tohumla aynı olay günlüğü. `tests/golden/matches.json` 34 fikstürün her biri için olay günlüğünün hash'ini, skoru, istatistikleri ve maç özetini tutar; `seasons.json` üç sezonluk kariyeri. Hash: anahtarları sıralanmış JSON'un SHA-256'sının ilk 24 onaltılık karakteri (`tests/support/golden.cjs`). Yeni motor bu kayıtları üretebiliyorsa kuralları doğru taşımıştır. Bunun için rastgele sayıların **aynı sırayla** çekilmesi gerekir: aşağıdaki "dakika" sırası bu yüzden önemlidir.

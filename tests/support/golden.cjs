@@ -14,8 +14,19 @@ const UPDATE = process.env.UPDATE_GOLDEN === '1';
 
 /* The game's version is written into the career and onto some screens; a release must not change a golden. */
 const VERSION = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8')).version;
-const withoutVersion = state => { const rest = { ...state }; delete rest.version; return rest; };
-const versionless = text => text.split(VERSION).join('<VERSION>');
+// Format 4 adds an opt-in switch. Compare the legacy payload with the unchanged format-3 goldens;
+// migration and the added switch have dedicated tests, while every football/career field still hashes.
+const withoutVersion = state => {
+  const rest = { ...state };
+  delete rest.version;
+  if (rest.schemaVersion === 4 && rest.experimentalMatchEngine === false) {
+    rest.schemaVersion = 3;
+    delete rest.experimentalMatchEngine;
+  }
+  return rest;
+};
+const versionless = text => text.split(VERSION).join('<VERSION>')
+  .replace(/<section class=card data-experimental-setting>[\s\S]*?<\/section>/, '');
 
 function canonical(value) {
   return JSON.stringify(value, (_key, v) => {

@@ -92,6 +92,7 @@ export function seasonMatchAssists(match) {
   const neutral = new Set(['shot', 'chance', 'offBallRun', 'run', 'ballCarry', 'firstTouch', 'hold', 'shout', 'order', 'press']);
   events.forEach((e, i) => {
     if (e.type !== 'goal' || e.fromSide !== 'user' || e.penalty || typeof e.fromId !== 'number') return;
+    if (e.simulationEvent) { if (typeof e.assistId === 'number' && e.assistId !== e.fromId) out[e.assistId] = (out[e.assistId] || 0) + 1; return; }
     for (let j = i - 1; j >= 0 && j >= i - 14; j--) {
       const x = events[j];
       if (neutral.has(x.type)) continue;

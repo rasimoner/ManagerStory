@@ -36,7 +36,7 @@ export function createSimulationPlayer(input, anchors) {
   const limits = playerMovementLimits(input.attributes);
   return {
     id: input.id, teamId: input.teamId, number: input.number, slot: input.slot, line: anchor.line,
-    anchor: { x: anchor.x, y: anchor.y }, attributes: simPlayerAttributes({ ...input.attributes, gk: input.gk ?? input.attributes.gk }), limits,
+    anchor: { ...(input.anchor ?? { x: anchor.x, y: anchor.y }) }, attributes: simPlayerAttributes({ ...input.attributes, gk: input.gk ?? input.attributes.gk }), limits,
     position: input.position ? { ...input.position } : null, velocity: { x: 0, y: 0 }, heading: 0,
     role: input.slot === 'GK' ? 'keeper' : 'block', gait: 'walk', target: null,
     motionMode: null, facingTarget: null, shoulderSpeedRatio: 1, shoulderAfterTick: 0,

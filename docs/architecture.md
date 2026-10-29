@@ -1,5 +1,7 @@
 # ManagerStory mimarisi
 
+V7.15.0'da iki motor birlikte durur. `core/match/career-input.js`, `career-events.js`, `career-ratings.js` saf adaptördür; `core/engine/experimental-*.js` yalnız açık anahtarlı kullanıcı maçını `core/sim/` ile sürer ve mevcut kariyer kancalarına iletir. Diğer lig maçları `simAIGame` ile kalır. Ayar kapalıysa eski dakika/3D akışı kullanılır. `modes/manager/experimental-settings.js` tercihi çizer; `core/presentation/sim/` salt okuyan 2D görünümdür.
+
 Yeni `core/sim/` komutları kariyerden bağımsızdır: takım kimliğiyle taktik, duruşta uygulanan değişiklik, hareketten tüketim ve hakem duruşuyla sakatlık. Kayıt salt düz nesnedir; RNG yanında algı/kovalama önbelleklerini ve JSON'da kaybolacak ortak konum referanslarını da taşır. Kariyer adaptörü bu sözleşmeyi kullanacak; çekirdeğe `modes/` bağımlılığı eklenmez.
 
 Yeniden yapılanma A–E sonrası (V7.13.0: E'nin tamamı, Vite ile build dahil). Dosyaların tek tek yeri: `docs/code-layout.md`. Kayıt: `docs/save-format.md`. Oyunun kuralları ve motor (başka bir motora taşımak için): `docs/game-rules.md`.
