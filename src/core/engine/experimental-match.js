@@ -46,9 +46,13 @@ export function advanceExperimentalPlayback(seconds, options = {}) {
 }
 
 export function synchronizeExperimentalMatch(input = {}) {
-  const view = input.frame ? input : readSimulationPlayback(M.simulationPlayback);
-  const revision = M.simulationImportantRevision;
+  let view = input.frame ? input : readSimulationPlayback(M.simulationPlayback);
+  const revision = M.simulationImportantRevision, roster = M.simulationRosterRevision;
   consumeExperimentalEvents(view.time);
+  if (roster !== M.simulationRosterRevision) {
+    refreshPlaybackFrame(M.simulationPlayback, M.simulation);
+    view = { ...view, frame: M.simulationPlayback.frame };
+  }
   M.matchElapsedSeconds = view.time;
   M.min = Math.floor(view.time / CAREER_SIM_DATA.secondsPerMinute);
   M.simulationDisplayFrame = view.frame;

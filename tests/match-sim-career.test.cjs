@@ -101,6 +101,15 @@ test('repeating a pending substitution through the match screen keeps one reques
   assert.match(game.alerts.at(-1), /bekliyor/);
 });
 
+test('an automatic opponent injury replacement appears in the same displayed frame', () => {
+  const game = career();
+  game.run('setExperimentalMatchEngine(true);startMatch();advanceExperimentalSeconds(120)');
+  game.run('injureSimulationPlayer(M.simulation,{playerId:M.oppIds.at(-1),cause:"contact"});synchronizeExperimentalMatch()');
+  assert.deepEqual(game.json('M.simulationDisplayFrame.players.filter(p=>!p.sentOff).map(p=>p.id).sort()'),
+    game.json('M.simulation.teams.flatMap(t=>t.players.filter(p=>!p.sentOff).map(p=>p.id)).sort()'));
+  assert.equal(game.run('M.simulationDisplayFrame.time'), game.run('M.simulation.time'));
+});
+
 test('a complete experimental match writes goals, cards, minutes, fitness, table, summary and season records through career hooks', () => {
   const game = career();
   game.run('setExperimentalMatchEngine(true);startMatch();completeExperimentalMatchForTest()');
