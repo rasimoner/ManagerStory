@@ -6,6 +6,7 @@ const { shotRows } = require('./sim-report/analysis.cjs');
 const { shotSlices, tackleSlices, matchSummary } = require('./sim-report/slices.cjs');
 const { controlledFinishing, controlledGoalkeeping } = require('./sim-report/finishing.cjs');
 const { strengthExperiments } = require('./sim-report/strength.cjs');
+const { analyseGoalTail } = require('./sim-report/tail.cjs');
 const { reporting, match, clock } = require('../src/data/match-sim.json');
 
 function measureMatch(api, input) {
@@ -23,7 +24,7 @@ function measureMatch(api, input) {
     goalXgDifference: statistics.goals - statistics.xg,
     tackleContactPercent: statistics.tackles ? (statistics.tacklesWon + statistics.tacklesLoose) / statistics.tackles * 100 : 0,
     tackleSuccessPercent: tackles.length ? tackles.filter(event => event.contact === 'ball' && !event.bodyContact).length / tackles.length * 100 : 0 };
-  return { run, shots, tackles };
+  return { run, shots, tackles, tail: analyseGoalTail(simulation.events) };
 }
 
 async function report() {
@@ -35,7 +36,8 @@ async function report() {
   const output = { node: process.version, seeds, minutes: 90, steps: match.fullSeconds / clock.stepSeconds,
     summary: matchSummary(results.map(result => result.run)),
     shots: shotSlices(results.flatMap(result => result.shots)), tackles: tackleSlices(results.flatMap(result => result.tackles)),
-    runs: results.map(result => result.run) };
+    runs: results.map(result => result.run),
+    highScoring: results.filter(result => result.run.statistics.goals >= 5).map(result => ({ seed: result.run.seed, score: result.run.score, ...result.tail })) };
   if (process.argv.includes('--strength')) runStrengthReport(output, { api, seeds });
   output.status = 'complete';
   writeReport(output);

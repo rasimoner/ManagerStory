@@ -301,6 +301,8 @@ Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ay
 
 ## Denge 1 — 28–29 Ekim 2026
 
+Kariyere bağlama öncesi A teşhisi: 50 maçın dokuz yüksek skorlu örneğinde 52 golün önceki 30 sn'si incelendi. Santradan 30 sn içinde gol yok; goller arası medyan 693,36 sn. Kaleci çıkışının hemen kesilmesinden doğan beş gol görüldü; çıkış seçimi/ilk alçak uçuş zayıflığı son denge işine bırakıldı. Durumu bozup kalan bir santra döngüsü saptanmadı. Motor değiştirilmedi; 50 skor ve sayaçlar Denge 1 ile aynı. Ayrıntı ve ham tanılar [kariyer raporunda](match-sim-career-report.md).
+
 Ölçüm ayardan önce kuruldu: 50 benzersiz tohum, aynı iki takım/diziliş/taktik, 54.000 gerçek adım; derleme ve rapor zaman dışında. Her ölçünün ortalama/medyan/P10/P90’ı, şut/kaleci/müdahale dilimleri, xG kalibrasyonu ve +5/+10/+20 güç farkı aynı düzenekle raporlanır. Rastgelelik yalnız uygulama/temas kalitesindedir; gol/kurtarış/müdahale sonucuna kota veya ayrı zar yoktur.
 
 | Ölçü | Önce | Sonra | Hedef |
