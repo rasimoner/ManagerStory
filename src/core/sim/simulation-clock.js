@@ -18,6 +18,7 @@ export function usesNaturalMatchClock(simulation) {
 }
 
 export function simulationMatchSeconds(simulation, physicsSeconds = simulation.time) {
+  if (!usesNaturalMatchClock(simulation)) return physicsSeconds;
   const duration = simulation.clock?.durationSeconds ?? MATCH_SIM_DATA.match.fullSeconds;
   return Math.min(MATCH_SIM_DATA.match.fullSeconds, physicsSeconds * MATCH_SIM_DATA.match.fullSeconds / duration);
 }

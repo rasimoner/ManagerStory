@@ -6,7 +6,7 @@ export function createCareerSimulation(input) {
   const user = createCareerSimulationTeam({ ...input.user, id: 'user', direction: 1 });
   const opponent = createCareerSimulationTeam({ ...input.opponent, id: 'opponent', direction: -1 });
   const teams = input.userHome ? [user, opponent] : [opponent, user];
-  return createSimulation({ seed: input.seed, teams, workload: true, match: true, ball: { position: { x: 0, y: 0 }, teamId: teams[0].id } });
+  return createSimulation({ seed: input.seed, durationSeconds: input.durationSeconds, teams, workload: true, match: true, ball: { position: { x: 0, y: 0 }, teamId: teams[0].id } });
 }
 
 function createCareerSimulationTeam(input) {

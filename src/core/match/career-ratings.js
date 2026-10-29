@@ -1,10 +1,11 @@
 import CAREER_SIM_DATA from '../../data/match-sim-career.json';
+import { simulationExposureRate } from '../sim/simulation-clock.js';
 
 export function simulationPlayerRatings(simulation, input = {}) {
   const untilTime = input.time ?? simulation.time;
   const players = [...simulation.teams.flatMap(team => team.players), ...simulation.departed].filter(player => (player.enteredSeconds ?? 0) <= untilTime);
   const frames = new Map((input.frame?.players ?? []).map(player => [player.id, player]));
-  const rows = Object.fromEntries(players.map(player => [player.id, createPlayerRow(player, frames.get(player.id))]));
+  const rows = Object.fromEntries(players.map(player => [player.id, createPlayerRow(player, frames.get(player.id), simulationExposureRate(simulation))]));
   for (const event of simulation.events) {
     if (event.time <= untilTime) rateSimulationEvent(rows, event.resolvedAt > untilTime ? { ...event, success: null } : event, players);
   }
@@ -12,9 +13,9 @@ export function simulationPlayerRatings(simulation, input = {}) {
   return rows;
 }
 
-function createPlayerRow(player, frame) {
+function createPlayerRow(player, frame, exposureRate) {
   return { rating: CAREER_SIM_DATA.rating.base, goals: 0, assists: 0, shots: 0, saves: 0,
-    minutes: Math.floor(((frame?.playedSeconds ?? player.workload.playedSeconds) + CAREER_SIM_DATA.epsilon) / CAREER_SIM_DATA.secondsPerMinute),
+    minutes: Math.floor(((frame?.playedSeconds ?? player.workload.playedSeconds) * exposureRate + CAREER_SIM_DATA.epsilon) / CAREER_SIM_DATA.secondsPerMinute),
     touches: 0, passesAttempted: 0, passesCompleted: 0, keyPasses: 0, dribblesAttempted: 0, dribbles: 0,
     tacklesAttempted: 0, tackles: 0, runs: 0, distanceKm: (frame?.distanceMetres ?? player.workload.distanceMetres) / 1000 };
 }

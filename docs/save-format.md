@@ -17,7 +17,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | `schemaVersion` | Kaydın **biçimi**. Taşıma zinciri buna bakar. | Biçim değişince (yeni taşıma adımıyla). V7.9.13 öncesi kayıtlarda yok = biçim 0. |
 | `version` | Kaydı en son yazan **oyun sürümü** (ör. `"7.9.13"`). | Her yüklemede güncel sürüme yazılır. Yedek anahtarları buna göre. |
 
-Şu anki biçim: **3** (`SAVE_SCHEMA`).
+Şu anki biçim: **5** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
 - Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
@@ -45,7 +45,10 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | 1 | V7.9.13 (yeniden yapılanma B) – V7.13.1 | 0 → 1 |
 | 2 | V7.13.2 | 1 → 2 |
 | 3 | V7.14.0 sonrası | 2 → 3 |
-| 4 | V7.15.0 sonrası | 3 → 4 |
+| 4 | V7.15.0 | 3 → 4 |
+| 5 | V7.16.0 sonrası | 4 → 5 |
+
+**4 → 5:** `matchDurationMinutes` 3/5/7/10 seçeneklerinden biridir; eksik veya geçersiz kayıtta 7 olur. Çalışan maçın kaydı değiştirilmez. Yeni deneysel maçın `simulationCheckpoint.state.clock` nesnesi `model:"natural"`, `durationSeconds`, `totalTicks` ve gerçek faaliyet adımlarını içerir; `time`/`physicsTime` fizik, `matchTime` 0–5.400 maç saniyesidir. Süre aktif maç başlangıcında kopyalanır. Daha sonra tercih değişikliği aktif maçı ve geri yüklemesini değiştirmez. Saat modeli bulunmayan V7.15.0 checkpoint’i `restoreSimulation` içinde `reference`/5.400 fizik saniyesi olarak açılır; eski değişken hızlı gösterimiyle tamamlanır. Eski dakika/3D kayıtlarının alanlarına dokunulmaz.
 
 **3 → 4:** `experimentalMatchEngine` yoksa `false` eklenir. Ayarlar'daki anahtar bu kariyerde saklanır; devam eden maçın motoru değiştirilmez. Eski maç kayıtlarının dakika motoru, RNG ve 3D durumu korunur.
 
@@ -73,13 +76,14 @@ Tamamlanmış deneysel `matchSummary` kayıtları `engine:"continuous"` işaretl
 
 Ayrıca yükleyici (zincirden önce): zar tuzu (`matchSalt`) olmayan kariyere cihazdan bir tuz verir (V7.8 öncesi). Bu adım cihaza bağlı olduğu için zincirde değil; yeni kariyerin tuzunu çağıran taraf verir.
 
-## Alanlar (biçim 3)
+## Alanlar (biçim 5)
 Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabilir ama kayıttaki ad değişirse zincire bir adım yazılır.
 
 ### Kariyer
 | Alan | Tür | Ne |
 |---|---|---|
 | `schemaVersion` | sayı | Kayıt biçimi (yukarıda). |
+| `matchDurationMinutes` | sayı | Yeni deneysel maçın 1× toplam süresi: 3/5/7/10, varsayılan 7; aktif maç kendi süresini korur. |
 | `experimentalMatchEngine` | boolean | Deneysel 2D motor tercihi; eski kayıtta kapalı, bir sonraki maçta seçilir. |
 | `version` | metin | Son yazan oyun sürümü. |
 | `currentClubId` | metin | Yönetilen kulüp (`managedClubName()`). Lig şimdilik başlangıç kulübünün etrafında kurulu; rakip bir kulüp adı yazılmışsa başlangıç kulübüne düşer. |

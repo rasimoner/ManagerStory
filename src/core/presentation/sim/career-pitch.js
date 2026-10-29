@@ -5,11 +5,13 @@ import CAREER_SIM_DATA from '../../../data/match-sim-career.json';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { captureSimulationFrame } from '../../match/playback-frames.js';
 import { clockFromSeconds } from '../../engine/live-match.js';
+import { usesNaturalMatchClock } from '../../sim/simulation-clock.js';
+import MATCH_DURATION_DATA from '../../../data/match-duration.json';
 
 export function experimentalPitch() {
   const frame = M.simulationDisplayFrame ?? captureSimulationFrame(M.simulation);
   const players = frame.players.filter(player => !player.sentOff).map(player => experimentalPlayerDot(player)).join('');
-  return `<div class="sim-status"><span data-sim-mode>Kesintisiz · 2D</span><small>Müdahale anında; oyuncu değişikliği ilk duruşta.</small></div><div class="livepitch v73pitch sim-career-pitch" data-sim-pitch aria-label="Deneysel 2D maç sahası"><div class=pitch-half-line></div><div class=pitch-center-circle></div><div class="pitch-box pitch-box-left"></div><div class="pitch-box pitch-box-right"></div><div class="pitch-goal-area pitch-goal-area-left"></div><div class="pitch-goal-area pitch-goal-area-right"></div>${players}<span class=sim-ball data-sim-ball aria-label=Top style="left:${M.ballX}%;top:${M.ballY}%">●</span><span class=sim-event data-sim-event></span></div>`;
+  return `<div class="sim-status"><span data-sim-mode>Kesintisiz · 2D</span><small>Müdahale anında; oyuncu değişikliği ilk duruşta.</small></div><div class="livepitch v73pitch sim-career-pitch" data-sim-pitch data-sim-paused="${M.pause}" aria-label="Deneysel 2D maç sahası"><div class=pitch-half-line></div><div class=pitch-center-circle></div><div class="pitch-box pitch-box-left"></div><div class="pitch-box pitch-box-right"></div><div class="pitch-goal-area pitch-goal-area-left"></div><div class="pitch-goal-area pitch-goal-area-right"></div>${players}<span class=sim-ball data-sim-ball aria-label=Top style="left:${M.ballX}%;top:${M.ballY}%">●</span><span class=sim-event data-sim-event></span></div>`;
 }
 
 function experimentalPlayerDot(player) {
@@ -25,6 +27,9 @@ export function paintExperimentalPitch() {
   if (!root) return;
   const bounds = { width: root.clientWidth, height: root.clientHeight };
   root.dataset.simTime = String(M.matchElapsedSeconds);
+  root.dataset.simPhysicsTime = String(M.simulation.time);
+  root.dataset.simTick = String(M.simulation.tick);
+  root.dataset.simPaused = String(M.pause);
   paintExperimentalTransition(root);
   for (const element of root.querySelectorAll('[data-sim-player]')) {
     const position = M.dynamicPositions[element.dataset.simPlayer];
@@ -47,9 +52,10 @@ function paintExperimentalTransition(root) {
 function paintExperimentalCaption(root) {
   root.dataset.playback = M.simulationPlayback.mode;
   const label = document.querySelector('[data-sim-mode]');
-  paintExperimentalText(label, `Kesintisiz · ${M.simulationPlayback.currentRate.toFixed(1)}× · 2D`);
+  const mode = usesNaturalMatchClock(M.simulation) ? `Doğal akış · ${M.simulation.clock.durationSeconds / MATCH_DURATION_DATA.secondsPerMinute} dk (1×)` : 'Kesintisiz';
+  paintExperimentalText(label, `${mode} · ${M.simulationPlayback.currentRate.toFixed(1)}× · 2D`);
   const event = M.events.findLast(entry => ['goal', 'shot', 'save', 'red', 'injury'].includes(entry.type));
-  const visible = event && M.matchElapsedSeconds - event.simulationTime <= CAREER_SIM_DATA.playback.eventCaptionSeconds;
+  const visible = event && M.simulation.time - event.simulationTime <= CAREER_SIM_DATA.playback.eventCaptionSeconds;
   paintExperimentalText(root.querySelector('[data-sim-event]'), visible ? event.text : '');
   root.classList.toggle('sim-goal', !!(visible && event.type === 'goal'));
 }

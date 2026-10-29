@@ -22,8 +22,9 @@ import { snapshotSimulation } from './sim/simulation-checkpoint.js';
 import { packExperimentalMatch, prepareExperimentalMatchArchive, completeExperimentalMatchArchive } from './match/match-storage.js';
 import { packSimulationHistory, restoreSimulationHistory } from './match/history-storage.js';
 import { presentation } from './presentation/registry.js';
+import { normalizeMatchDurationMinutes } from './match/duration-setting.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 4;
+export const SAVE_SCHEMA = 5;
 export let saveWarning = false;
 let saveSerial = 0;
 
@@ -88,6 +89,11 @@ export const SAVE_MIGRATIONS = [
     about: 'opt-in experimental 2D match simulation; earlier careers continue with the legacy engine',
     run(state) { state.experimentalMatchEngine ??= false; },
   },
+  {
+    from: 4, to: 5,
+    about: 'persistent total match duration; active matches retain their checkpoint clock or legacy reference model',
+    run(state) { state.matchDurationMinutes = normalizeMatchDurationMinutes(state.matchDurationMinutes); },
+  },
 ];
 
 /* Bring a save (or a new career) up to the current format. Changes and returns the same object. */
@@ -101,6 +107,7 @@ export function migrateSave(state) {
   }
   state.schemaVersion = format;
   state.version = GAME_VERSION;
+  state.matchDurationMinutes = normalizeMatchDurationMinutes(state.matchDurationMinutes);
   restoreSimulationHistory(state);
   return state;
 }

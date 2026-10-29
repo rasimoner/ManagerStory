@@ -14,12 +14,13 @@ import { consumeExperimentalEvents } from './experimental-events.js';
 import { synchronizeExperimentalPlayers, synchronizeExperimentalTeamStats } from './experimental-players.js';
 import { createSimulationPlayback, advanceSimulationPlayback, readSimulationPlayback } from '../match/continuous-playback.js';
 import { captureSimulationFrame, refreshPlaybackFrame } from '../match/playback-frames.js';
+import { simulationDurationSeconds, simulationMatchSeconds } from '../sim/simulation-clock.js';
 
 export function advanceExperimentalSeconds(seconds) {
   if (!experimentalCanAdvance()) return 0;
   if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid simulation elapsed time.');
   const simulation = M.simulation, half = simulation.match.half;
-  const target = Math.min(MATCH_SIM_DATA.match.fullSeconds, simulation.time + seconds);
+  const target = Math.min(simulationDurationSeconds(simulation), simulation.time + seconds);
   const before = simulation.tick;
   while (simulation.time + CAREER_SIM_DATA.epsilon < target && !simulation.paused && simulation.match.phase !== 'ended') {
     stepSimulation(simulation);
@@ -61,14 +62,18 @@ export function synchronizeExperimentalMatch(input = {}) {
     refreshPlaybackFrame(M.simulationPlayback, M.simulation);
     view = { ...view, frame: M.simulationPlayback.frame };
   }
-  M.matchElapsedSeconds = view.time;
-  M.min = Math.floor(view.time / CAREER_SIM_DATA.secondsPerMinute);
+  M.matchElapsedSeconds = experimentalMatchSeconds(view);
+  M.min = Math.floor(M.matchElapsedSeconds / CAREER_SIM_DATA.secondsPerMinute);
   M.simulationDisplayFrame = view.frame;
   M.simulationPlayback.mode = view.mode ?? M.simulationPlayback.mode;
   synchronizeExperimentalTeamStats(view);
   projectVisiblePlayers(view, input.forcePlayers || revision !== M.simulationImportantRevision || M.pause);
   synchronizeExperimentalPositions(view);
-  if (M.simulation.match.phase === 'ended' && view.time >= MATCH_SIM_DATA.match.fullSeconds) finalizeMatch();
+  if (M.simulation.match.phase === 'ended' && M.matchElapsedSeconds >= MATCH_SIM_DATA.match.fullSeconds) finalizeMatch();
+}
+
+function experimentalMatchSeconds(view) {
+  return view.matchTime ?? view.frame.matchTime ?? simulationMatchSeconds(M.simulation, view.time);
 }
 
 function projectVisiblePlayers(view, force) {
@@ -107,7 +112,7 @@ export function skipExperimentalMatch() {
 export function pauseExperimentalMatch() {
   if (!M?.experimental) return;
   pauseSimulation(M.simulation);
-  synchronizeExperimentalPlayers({ time: M.matchElapsedSeconds, frame: M.simulationDisplayFrame });
+  synchronizeExperimentalPlayers({ time: M.simulation.time, frame: M.simulationDisplayFrame });
 }
 export function resumeExperimentalMatch() {
   if (!M?.experimental) return;

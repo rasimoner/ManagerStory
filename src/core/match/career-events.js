@@ -29,7 +29,7 @@ function eventTeam(event, context) {
 }
 
 export function careerSimulationCommentary(event, names) {
-  const minute = Math.floor(event.time / 60), name = names[event.fromId] ?? 'Oyuncu';
+  const minute = Math.floor((event.matchTime ?? event.time) / 60), name = names[event.fromId] ?? 'Oyuncu';
   const descriptions = {
     goal: `${name} vurdu… GOL!`, shot: `${name} şut çekti.`, save: `${name} kurtardı.`, post: 'Top direkten döndü.', wide: 'Top dışarıda.',
     yellow: `${name} sarı kart gördü.`, red: `${name} ${event.secondYellow ? 'ikinci sarıdan' : 'doğrudan'} kırmızı kart gördü.`,
