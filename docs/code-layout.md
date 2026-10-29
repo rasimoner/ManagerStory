@@ -233,3 +233,5 @@ Build iki HTML girişini bağımsız grafiklerle paketler; laboratuvar için oyu
 | `tests/match-sim-balance-metrics.test.cjs` | Futbol aralıkları, açıkça belirtilen istisnalar, kontrollü özellik etkisi ve bağımsız 100 maçtaki ilk 50’nin birebir tekrarı |
 
 Süre ölçümü: `tools/match-sim-duration-report.cjs`, `tools/duration-report/measure.cjs`, `career.cjs`, `summary.cjs`; aynı 50 tohum/eşit kadro, beş süre, gerçek kariyer gol/kart/dakika/asist yazıcıları. `tests/match-sim-duration*.test.cjs` saat/fizik/ayar/eski kayıt/rapor; `tests/support/native.cjs` adla bulunan oyun API'sini yerel ölçüme paketler. Ham veriler `docs/measurements/match-sim-duration*.json`.
+
+Doğal süreli maçın hücum alanı değeri: `core/sim/attacking-space.js` hücum kalesine mesafe kazancını hesaplar; `dribble-evaluation.js` ve `owner-options.js` aynı ölçeği okur. `off-ball-roles.js` ayrı taşıyıcı/derin koşu ve ileri/geri destek planlar. Katsayılar `data/balance.json.shortMatchFlow`; kabul testleri `tests/match-sim-short-flow.test.cjs`, küçük eşlenmiş ölçüm `docs/measurements/match-sim-short-flow.json`. Yeni rapor aracı yoktur.

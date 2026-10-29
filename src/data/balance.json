@@ -1,5 +1,11 @@
 {
   "league": {"lift":5},
+  "shortMatchFlow": {
+    "carrySafetyBonusCapSeconds": 0.5,
+    "carryProgressWeight": 1.2,
+    "passProgressWeight": 1.2,
+    "supportForwardDistance": 10
+  },
   "starScene": {"minStars":4,"shirtWish":[10,7,9,11,8,17,19,21,23,99]},
   "shirtNumbers": {"lowest":1,"highest":99},
   "highlights": {"perPlayer":10,"typeRank":{"starTransfer":4,"keeperSave":3,"skillMove":2,"newMove":1}},

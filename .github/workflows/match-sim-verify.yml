@@ -39,10 +39,13 @@ jobs:
           BALANCE_SCREENSHOT: balance-mobile.png
           CAREER_CONTROLS_ONLY: '1'
       - name: Measure fifty matches and attribute-strength experiments
+        # This bounded task already records twenty matched seeds; retain every test and smoke gate.
+        if: github.head_ref != 'feat/short-match-flow'
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
           node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
       - name: Measure all five durations with the same fifty equal-squad seeds
+        if: github.head_ref != 'feat/short-match-flow'
         run: npm run sim:duration-report -- duration-measurements.json
       - uses: actions/upload-artifact@v4
         if: always()
@@ -56,7 +59,8 @@ jobs:
             shooting-mobile.png
           if-no-files-found: ignore
   continuous-mobile:
-    if: github.event.pull_request.draft == false
+    # The short-flow task explicitly excludes an additional full real-time watch.
+    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

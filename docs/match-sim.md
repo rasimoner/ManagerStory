@@ -57,6 +57,14 @@ Yeni maçta gösterim hızı bütün pozisyonlarda aynıdır: 1× fizik saniyesi
 
 Süre işlevi ile futbol dengesi farklıdır: aynı 50 eşit kadro/tohumda kısa maçların %80–92'si golsüzdür, toplam şut 0,44–1,86 aralığındadır. Bütün seçenekler futbol açısından zayıftır. Sayı/süre/skor çarpanı, kota, sonuç zarı, tohum seçme veya gizli maç eklenmedi. Denge 2, kısa formatta gerçek atak üretimini ve kararları ayrıca ele almalıdır. Ölçümler ve doğrulama [süre raporunda](match-sim-duration-report.md).
 
+## V7.17.0 — doğal süreli maçlarda hücum akışı
+
+Yalnız doğal saat modelinde sürme ve güvenli pas, hedefin hücum kalesine gerçek mesafeyi azaltmasını aynı metre başına 1,2 puanla değerlendirir. Sürmede olumlu varış güvenliği katkısı 0,5 saniyede doyar; negatif güvenlik farkının maliyeti aynen kalır. Pasın görünürlük, alıcının yetişmesi, yolun kesilmesi ve çıkış anındaki yeniden kontrol şartları korunur. Sürme yolu, gerçek rakip varışı ve temas hesabı değişmez.
+
+Top sahibi veya serbest sürme dokunuşunu takip eden taşıyıcı topsuz görevlerden çıkar. Ondan ayrı ileri hat oyuncusu derin koşu yapar; desteklerden biri 10 m önde, diğeri mevcut 8 m geride iki pas açısı kurar. Hedefler ortak zarfın içinde kalır; oyunculara yeni hız veya ışınlama verilmez. Katsayılar `balance.json.shortMatchFlow`; 3/5/7/10 dakika arasında aynı davranış, süreye veya skora göre kota yoktur.
+
+Referans laboratuvar kararları ve eski motor/3D korunur. Şut, xG, kaleci, fizik, RNG ve kayıt biçimi değişmez. Aynı 20 sabit tohumda 7 dakika toplam şut 1,10→7,55, gol 0,20→0,70, xG 0,102→0,708; golsüzlük %80→%50 ve pas isabeti %77,57→%71,96. Bu, V7.16.0'ın yukarıdaki 50 maçlık başlangıç tablosunun yenilenmesi değildir. Yöntem, sınırlar ve doğrulama [kısa hücum raporunda](match-sim-short-attacks-report.md).
+
 ## V7.15.0 yarım kayıtları için korunan değişken hızlı 2D
 
 Aşağıdaki eski D sözleşmesi yalnız referans modeliyle kalmış maçlar içindir; yeni kısa maçları tanımlamaz.
