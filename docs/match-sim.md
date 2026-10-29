@@ -1,8 +1,8 @@
 # Saniyelik maç simülasyonu — şartname
 
-Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D bağlantısı ve kesintisiz değişken hızlı izleme uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
+Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D bağlantısı, ortak süre modeli ve yeni maçlarda doğal 2D uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
 
-Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. Açıkken kullanıcı maçı kesintisiz değişken hızlı 2D ile izlenir; 3D sonraki iştir. Diğer lig maçları yine `simAIGame` ile kalır. Kapalıyken eski dakika/3D yolu korunur.
+Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. V7.16.0 ile yeni maç 3/5/7/10 dakika ve doğal 2D ile izlenir; önceki yarım maç kendi referans modeliyle kalır. 3D sonraki iştir. Diğer lig maçları yine `simAIGame` ile kalır. Kapalıyken eski dakika/3D yolu korunur.
 
 ## Kariyer adaptörü (C)
 
@@ -28,9 +28,38 @@ Motor olayları `matchEvent` üzerinden Türkçe yorumla aktarılır. Gol skoru 
 
 **Reyting:** taban 6,5; gol +0,85, asist +0,45; şut +0,035, isabette ek +0,04; başarılı pas +0,0015, kayıp pas −0,008; kontrollü kesme +0,03, yasal müdahale +0,045; kontrol hatası −0,04; isabetli şutta kurtarış +0,10; kalecinin sahadayken yediği gol −0,40; sarı −0,20, kırmızı −1,10. Sınır 1–10. Küçük sık aksiyonlar tabanı az değiştirir, gol/kurtarış/hata/kart daha belirgindir; iyi maç 8+, çok gol yiyen veya kırmızı gören kötü maç 5 altına inebilir. Bütün ağırlıklar JSON'dadır. Bu basit kural xG'yi sonuç yerine kullanmaz.
 
-Eski 34 maç/ekran/kariyer altın dosyaları yenilenmez. Karşılaştırma yardımcısı yalnız format 4'teki kapalı anahtar meta verisini format 3 görünümüne taşır ve Ayarlar'a bilinçli eklenen tek anahtar bölümünü çıkarır. Futbol olayları, skorlar, istatistikler ve diğer kariyer alanları hâlâ birebir hash'lenir; yeni anahtar ve göç ayrıca test edilir. Bu, eski altınlara deneysel skor yazılması değildir.
+Eski 34 maç/ekran/kariyer altın dosyaları yenilenmez. Karşılaştırma yardımcısı yalnız format 5'teki varsayılan 7 dakika ve kapalı anahtar meta verisini format 3 görünümüne taşır; Ayarlar'a eklenen motor/süre bölümünü çıkarır. Varsayılan dışı tercih gizlenmez. Futbol olayları, skorlar, istatistikler ve diğer kariyer alanları hâlâ birebir hash'lenir; yeni anahtar ve göç ayrıca test edilir. Bu, eski altınlara deneysel skor yazılması değildir.
 
-## Kesintisiz değişken hızlı 2D izleme (güncel D)
+## Ortak süre modeli ve doğal 2D (V7.16.0)
+
+Ayarlar → **Maç süresi**: 3, 5, 7 (varsayılan), 10 dakika, iki devrenin toplamıdır. Normal 1× izleme süresidir; 0,5× iki kat, 2× yarı süre verir. Duraklatma, devre arası ve taktik ekranında bekleme bu bütçeye girmez. Yeni kariyer ve eski kayıt göçü 7 dakika alır; bozuk kayıt tercihi 7'ye döner, geçersiz ayar komutu reddedilir. Her maç öncesi soru/ek onay yoktur. Süre şimdilik yalnız yeni deneysel maçlarda etkilidir. Deneysel anahtar varsayılan kapalı; açık maçta 3D seçilemez. Diğer lig maçları ve eski motor/3D değişmez.
+
+Saf `createSimulation({…,durationSeconds})` genel bir süredir; kariyer, DOM ve görünüm bilmez. Pozitif, sonlu ve iki devreye eşit bölünebilen tam 0,1 sn adımları ister; örneğin 12 sn kabul edilir, `null`, metin, 0, negatif ve adım dışı süre reddedilir. Girdi verilmezse `clock.model:"reference"`, 5.400 fizik saniyesi ve laboratuvarın eski davranışı kalır. Girdi verilirse `clock.model:"natural"` olur. Seçenekler `data/match-duration.json`; futbol/fizik sabitleri değişmez.
+
+| Seçim | Fizik saniyesi | Adım | Maç saati oranı | Devre |
+|---|---:|---:|---:|---:|
+| 3 dk | 180 | 1.800 | 30 | 90 sn |
+| 5 dk | 300 | 3.000 | 18 | 150 sn |
+| 7 dk | 420 | 4.200 | 5.400 / 420 | 210 sn |
+| 10 dk | 600 | 6.000 | 9 | 300 sn |
+
+**İki zaman:** `tick` tam fizik adımıdır; `physicsTime = time = tick × 0,1` saniye. `time` eski fizik API'sinin uyumluluk adıdır. `matchTime = min(5.400, tick × 5.400 / clock.totalTicks)` maç saniyesidir; katsayı yuvarlanıp biriktirilmez. 45:00/90:00 bu saatle belirlenir. `clock.durationSeconds/totalTicks/model` başlangıçta aktif maça kopyalanır; tercih sonradan değişse de maç ve onun geri yüklemesi aynı süreyi kullanır.
+
+Hareket/ivme, pas/top hızı, sürme, şut uçuşu, yerçekimi, saha boyutu ve özellikler fizik zamanında kalır. Tepki/karar, avantaj, kalecinin topu tutması, faz geçişi ve kısa yeniden başlama beklemeleri de fizik adımı/saniyesidir. Bunlara maç saati oranı uygulanmaz. Gol/santra/devre hazırlığı gerçek hareketle tamamlanır; bütçeye dahildir, oyuncu ışınlanmaz. `clock.activityTicks` açık oyun (`playing`), santra/gol/devre yerleşimi (`kickoff`) ve çizgi/hakem duruşu (`restart`) paylarını, adım başındaki duruma göre ölçer; toplamı adım sayısıdır.
+
+Yeni maçta gösterim hızı bütün pozisyonlarda aynıdır: 1× fizik saniyesi gerçek saniyeye yakındır; manuel 0,5/1/2 doğrudan ve bütün akışa uygulanır. `view-tempo.js` tehlike katsayıları yalnız eski referans maçlar için kalır. Önden hesaplanmış sonuç, gizli sakin bölüm veya pozisyon atlama yoktur. `continuous-playback` görülen durumu sabit adımlarla ilerletir; kare bütçesi yetmezse fizik atlanmaz ve gösterim uzar. Büyük kare aralığı/adım bütçesi sınırlaması duvar süresinden ayrı raporlanır. Fizik kareleri arasındaki CSS geçişi yalnız çizimdir; top/oyuncu konumu çekirdeğin gerçek karesidir. Taktik görülen adıma, değişiklik ilk gerçek futbol duruşuna uygulanır; menü/duraklatma futbol duruşu değildir.
+
+**Dakika ve kondisyon:** `player.workload.playedSeconds` fizik süresidir; kariyer dakika hesabında yalnız bir kez `5.400/durationSeconds` ile çevrilir ve mevcut dakika kancasına artan fark yazılır. Tam maç 90 dakika, 60'da giren yaklaşık 30 dakikadır. Gerçek mesafe, sprint mesafesi, temas, şut/pas/faul/kart ve xG çoğaltılmaz. Kondisyonun mevcut saniye, mesafe ve sprint enerji terimlerinin her biri bir kez aynı süre oranıyla ağırlıklanır; temas başına sabit tüketim ağırlıklanmaz. Stamina çarpanı ve ayrı kaleci/saha oyuncusu saniye katsayısı korunur. Böylece 3 fizik dakikasında maç yorgunluğu sıfıra yaklaşmaz; bu enerji normalleştirmesi mesafe istatistiği değildir. Sakatlıkta yorgunluk riski maç dakikası sınırlarında gerçekten geçen maç saniyeleri üzerinden bir kez hesaplanır; kalan kondisyon risk katsayısını etkiler. Sert gerçek temas başına risk aynı kalır. Son düdükten sonra yeni yorgunluk sakatlığı oluşturulmaz. Referans model eski kondisyon/RNG zamanlamasını korur.
+
+**Kayıt ve ilerideki 3D:** biçim 5 tercihi ekler. `snapshotSimulation` içindeki `clock`, iki saat, kesirli birikim, faaliyet/yorgunluk sayaçları, RNG, komutlar, fiziksel karar/kovalama durumu ve bütün olaylar kayıpsız saklanır. Cursor ve oyuncu dakika sayaçları gol/asist/kart/dakika çift yazılmasını önler. Saat modeli bulunmayan V7.15.0 checkpoint'i 5.400 fizik saniyelik referans olarak açılır; 32/12/3/1/8 yumuşak gösterimiyle tamamlanır, kısa maça çevrilmez. Eski dakika/3D yarım maç alanları değiştirilmez. “Maçı sonuna geç” aynı nesnenin `durationSeconds - time` kalan fizik adımlarını işler; sakatlıkta durur, devreyi otomatik sürdürür.
+
+3D aynı `readSimulation` veya `captureSimulationFrame` durumunu kullanmalıdır: `tick`, `physicsTime/time`, `matchTime`, devre ve gerçek metre konumları; topun yüksekliği/sahibi ve çekirdekteki hız/heading/rol/eylem/kaleci durumu. Olaylar adım kimliği `tick`, adım içindeki gerçek `physicsTime/time`, oransal `matchTime`, oyuncu kimlikleri, konumlar, `shotId` ve gerçek sonuç taşır. Tamamlanan pasın `resolvedAt` alanı fizik, `resolvedMatchTime` alanı maç zamanıdır. Eski olaylarda eksik yeni alanların fizik `time`/referans karşılığı kullanılır. 3D yalnız bu sözleşmeyi okur; animasyon/camera sonucu veya çekirdeğin zamanını değiştirmez. Bu işte 3D yönetmenine bağlantı eklenmedi.
+
+Süre işlevi ile futbol dengesi farklıdır: aynı 50 eşit kadro/tohumda kısa maçların %80–92'si golsüzdür, toplam şut 0,44–1,86 aralığındadır. Bütün seçenekler futbol açısından zayıftır. Sayı/süre/skor çarpanı, kota, sonuç zarı, tohum seçme veya gizli maç eklenmedi. Denge 2, kısa formatta gerçek atak üretimini ve kararları ayrıca ele almalıdır. Ölçümler ve doğrulama [süre raporunda](match-sim-duration-report.md).
+
+## V7.15.0 yarım kayıtları için korunan değişken hızlı 2D
+
+Aşağıdaki eski D sözleşmesi yalnız referans modeliyle kalmış maçlar içindir; yeni kısa maçları tanımlamaz.
 
 29 Ekim kapsam güncellemesi, önceki önemli-an kesmeleri ve 22 sn önden hesaplama önerisinin yerini alır. **Motor ile ekrandaki saat aynı sabit adımdadır.** Gelecek skor, konum veya olay önden oynatılmaz. Bütün 54.000 fizik adımı hesaplanır; sakin bölümde sahneyi gizleme, zaman kesmesi veya pozisyonu atlayarak yeni sahneye geçme yoktur. Görünüm oyuncuları, numaraları, topu ve top sahibini sürekli gösterir. Kareler arasındaki kısa çizim geçişi çizim içindir; motorun eriştiği zamandan ileri konum kullanılmaz.
 
@@ -51,7 +80,7 @@ Mevcut motor dakikada bir ilerler; az sayıdaki aksiyon arasını sunum doldurur
 ## Koordinat ve girdi sözleşmesi
 
 - Birimler metre ve saniye. Saha 105 × 68. Orijin merkez, `x` boyuna, `y` enine; sınırlar ±52,5 ve ±34. `newview/runtime.js` içindeki `toWorld` ile ölçek aynıdır: simülasyon `(x,y)` → three.js `(x,0,y)`. Yüzdeye dönüştürülüp tekrar ölçeklenmez; ileride boyuna/enine eksen açıkça eşlenir.
-- `createSimulation({ teams, seed, ball })`: karşı yönlerde oynayan iki takım ve motorun başlangıç topu. Takım `{id, direction: 1|-1, formation, tactics: {press,line,passingStyle?,tempo?}, players}`. Oyuncu `{id, number, slot, attributes: {pace,acceleration,reactions,fitness,passing?,vision?,technique?,firstTouch?,dribbling?,strength?,composure?,tackling?,positioning?}, position?}`. Özellikler 0–100, kimlikler benzersiz. Diziliş yuvaları JSON'dadır; core modları bilmez.
+- `createSimulation({ teams, seed, ball, durationSeconds? })`: karşı yönlerde oynayan iki takım ve motorun başlangıç topu. Takım `{id, direction: 1|-1, formation, tactics: {press,line,passingStyle?,tempo?}, players}`. Oyuncu `{id, number, slot, attributes: {pace,acceleration,reactions,fitness,passing?,vision?,technique?,firstTouch?,dribbling?,strength?,composure?,tackling?,positioning?}, position?}`. Özellikler 0–100, kimlikler benzersiz. Diziliş yuvaları JSON'dadır; core modları bilmez.
 - Başlangıç `ball: {position:{x,y}, teamId, ownerId?, velocity?:{x,y}, height?, verticalVelocity?}`. `ownerId` yoksa serbesttir; `teamId` son sahiplik takımını, `lastTouchTeamId` son teması taşır. Konum/hız/yükseklik/sahiplik bundan sonra motorundur. Özelliklerde verilmeyen teknik/mücadele alanları JSON'daki 65 değerini alır; verilmiş geçersiz değerler reddedilir.
 - `stepSimulation(simulation)` tam bir adım atar. `advanceSimulation(simulation,{seconds})` kare zamanını biriktirir. `readSimulation` bağımsız düz nesne kopyası verir; `{includeEvents:false}` günlük büyüdükçe her çizimde geçmişi kopyalamamak içindir. `placeSimulationBall` doğrulanan bir **hakem müdahalesi**, `requestSimulationPass` kesilebilir bir elle pas isteğidir. Eski ikinci `ball` parametresi yalnız değişmemiş topsuz kabul testlerinin tekrarında korunur; laboratuvar bunu kullanmaz. Girdi nesnelerine, `S`, `M`, kariyer ya da kayda yazılmaz. Geçersiz takım, özellik, tohum, konum ve negatif zaman açık hata verir.
 

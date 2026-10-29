@@ -19,16 +19,19 @@ page.on('dialog', async dialog => { if (dialog.type() === 'alert') dialogs.push(
 async function savedCareer() { return page.evaluate(() => JSON.parse(localStorage.getItem('msv4'))); }
 async function savedMatch() { return api.unpackMatchSnapshot((await savedCareer()).activeMatchV71); }
 
-async function prepareCareer() {
+async function prepareCareer(beforeMatch) {
   await page.goto(server.url);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.locator('[data-action="newCareer"]').click();
   await page.locator('[data-action="showSettings"]').click();
   await page.locator('[data-action="setExperimentalMatchEngine"]').check();
-  assert.equal((await savedCareer()).schemaVersion, 4);
+  assert.equal((await savedCareer()).schemaVersion, 5);
+  assert.equal((await savedCareer()).matchDurationMinutes, 7);
+  assert.equal(await page.locator('[data-action="setMatchDurationMinutes"] option').count(), 4);
   await page.evaluate(() => { const career = JSON.parse(localStorage.getItem('msv4')); career.matchSalt = 73; localStorage.setItem('msv4', JSON.stringify(career)); });
   await page.reload();
+  await beforeMatch?.();
   await enterMatchThroughCareer();
   await page.waitForSelector('[data-sim-pitch]');
   assert.equal(await page.locator('[data-action="setMatchView"][data-view="3d"]').count(), 0);
@@ -82,7 +85,7 @@ async function verifyControlsAndReload() {
 }
 
 async function verifyDisplayedTime(match) {
-  assert.equal(match.matchElapsedSeconds, match.simulationCheckpoint.state.time);
+  assert.equal(match.matchElapsedSeconds, match.simulationCheckpoint.state.matchTime);
   assert.equal(Number(await page.locator('[data-sim-pitch]').getAttribute('data-sim-time')), match.matchElapsedSeconds);
   await verifyDisplayedPositions(match);
 }
@@ -127,7 +130,8 @@ async function verifyCareerResult() {
   const result = saved.results[0], ownGoals = result.matchSummary.userHome ? result.hg : result.ag;
   assert.equal(result.matchSummary.players.reduce((sum, row) => sum + row.goals, 0), ownGoals);
   assert.ok(saved.players.some(player => player.minutes > 0 && player.fitness < 100));
-  assert.ok(saved.v71.lastMatch.events.some(event => event.type === 'shot'));
+  assert.equal(result.matchSummary.durationSeconds, 420);
+  assert.equal(result.matchSummary.timeModel, 'natural');
   assert.match(await page.locator('#app').textContent(), /Maç Sonu|Röportaj|Basın/);
   await verifySeasonOutputs(saved, result);
 }
@@ -143,18 +147,24 @@ async function verifySeasonOutputs(career, result) {
 
 async function startFrameMeasurement() {
   await page.evaluate(() => {
-    const measurement = { running: true, intervals: [], longFrames: [], phases: {}, last: null, backwards: false, clock: 0 };
+    const measurement = { running: true, intervals: [], longFrames: [], phases: {}, last: null, backwards: false, clock: 0,
+      activeMilliseconds: 0, waitingMilliseconds: 0, lastPaused: false };
     globalThis.careerWatchMeasurement = measurement;
     function observe(now) {
       const pitch = document.querySelector('[data-sim-pitch]');
       if (pitch && measurement.running) {
-        if (measurement.last != null) measurement.intervals.push(now - measurement.last);
+        if (measurement.last != null) {
+          const interval = now - measurement.last;
+          measurement.intervals.push(interval);
+          measurement[measurement.lastPaused ? 'waitingMilliseconds' : 'activeMilliseconds'] += interval;
+        }
         measurement.last = now;
+        measurement.lastPaused = pitch.dataset.simPaused === 'true';
         measurement.phases[pitch.dataset.playback] = (measurement.phases[pitch.dataset.playback] ?? 0) + 1;
         const [minute, second] = document.querySelector('#live-clock').textContent.split(':').map(Number);
         const clock = minute * 60 + second;
         const interval = measurement.intervals.at(-1);
-        if (interval > 100) measurement.longFrames.push({ milliseconds: interval, gameSecond: clock, phase: pitch.dataset.playback,
+        if (interval > 100) measurement.longFrames.push({ milliseconds: interval, gameSecond: clock, physicsSecond: Number(pitch.dataset.simPhysicsTime), phase: pitch.dataset.playback,
           status: document.querySelector('.matchscore small')?.textContent });
         if (clock < measurement.clock) measurement.backwards = true;
         measurement.clock = clock;
@@ -166,10 +176,11 @@ async function startFrameMeasurement() {
 }
 
 async function measureContinuousMatch() {
-  await prepareCareer();
   const session = await context.newCDPSession(page);
-  await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-  await startFrameMeasurement();
+  await prepareCareer(async () => {
+    await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+    await startFrameMeasurement();
+  });
   const started = Date.now();
   await waitForMatchEnd();
   const milliseconds = Date.now() - started;
@@ -179,16 +190,21 @@ async function measureContinuousMatch() {
     const sorted = [...sample.intervals].sort((left, right) => left - right);
     return { frames: sorted.length, medianFrameMs: sorted[Math.floor(sorted.length / 2)], p95FrameMs: sorted[Math.floor(sorted.length * .95)],
       maximumFrameMs: sorted.at(-1), longFrames: sample.longFrames.sort((left, right) => right.milliseconds - left.milliseconds).slice(0, 10),
-      phases: sample.phases, backwards: sample.backwards };
+      phases: sample.phases, backwards: sample.backwards, activeMilliseconds: sample.activeMilliseconds, waitingMilliseconds: sample.waitingMilliseconds };
   });
   const match = await savedMatch(), career = await savedCareer();
-  const report = { milliseconds, seconds: milliseconds / 1000, node: process.version, cpuThrottle: 4, viewport: [390, 844], ...measurement,
+  const report = { milliseconds: measurement.activeMilliseconds, seconds: measurement.activeMilliseconds / 1000,
+    overallMilliseconds: milliseconds, node: process.version, cpuThrottle: 4, viewport: [390, 844], ...measurement,
+    seed: match.simulationCheckpoint.state.seed, physicsSeconds: match.simulationCheckpoint.state.physicsTime, matchSeconds: match.matchElapsedSeconds, ticks: match.simulationCheckpoint.state.tick,
     score: [match.hg, match.ag], savedUtf16Bytes: JSON.stringify(career).length * 2, simulationMetrics: match.simulationPlayback.metrics };
   writeFileSync(process.env.CAREER_METRICS || 'career-mobile-metrics.json', JSON.stringify(report, null, 2) + '\n');
   if (process.env.CAREER_SCREENSHOT) await page.screenshot({ path: process.env.CAREER_SCREENSHOT, fullPage: true });
   assert.equal(measurement.backwards, false);
   assert.ok(report.savedUtf16Bytes < 5 * 1024 * 1024, 'the match fits the mobile storage budget');
-  assert.ok(milliseconds >= 360000 && milliseconds <= 600000, `actual continuous viewing took ${report.seconds.toFixed(1)} s; target 360–600 s`);
+  assert.equal(report.physicsSeconds, 420);
+  assert.equal(report.matchSeconds, 5400);
+  assert.equal(report.ticks, 4200);
+  assert.ok(report.seconds >= 419 && report.seconds <= 525, `actual natural viewing took ${report.seconds.toFixed(1)} s; nominal 420 s, maximum extension 25%`);
   await session.send('Emulation.setCPUThrottlingRate', { rate: 1 });
   await verifyCareerResult();
   console.log('ok   continuous 2D: ' + JSON.stringify(report));

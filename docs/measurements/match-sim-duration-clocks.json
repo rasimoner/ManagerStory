@@ -1,0 +1,62 @@
+{
+  "node": "v22.23.4",
+  "type": "virtual clock, not a real wall-time watch",
+  "measurements": [
+    {
+      "durationSeconds": 180,
+      "speed": 1,
+      "virtualSeconds": 180.00000000003539,
+      "half": {
+        "virtualSeconds": 89.99999999999618,
+        "physicsSeconds": 90,
+        "matchSeconds": 2700,
+        "tick": 900
+      },
+      "physicsSeconds": 180,
+      "matchSeconds": 5400,
+      "ticks": 1800
+    },
+    {
+      "durationSeconds": 300,
+      "speed": 1,
+      "virtualSeconds": 300.0000000000558,
+      "half": {
+        "virtualSeconds": 150.0000000000115,
+        "physicsSeconds": 150,
+        "matchSeconds": 2700,
+        "tick": 1500
+      },
+      "physicsSeconds": 300,
+      "matchSeconds": 5400,
+      "ticks": 3000
+    },
+    {
+      "durationSeconds": 420,
+      "speed": 1,
+      "virtualSeconds": 419.9999999999467,
+      "half": {
+        "virtualSeconds": 210.00000000005926,
+        "physicsSeconds": 210,
+        "matchSeconds": 2700,
+        "tick": 2100
+      },
+      "physicsSeconds": 420,
+      "matchSeconds": 5400,
+      "ticks": 4200
+    },
+    {
+      "durationSeconds": 600,
+      "speed": 1,
+      "virtualSeconds": 599.999999999783,
+      "half": {
+        "virtualSeconds": 300.0000000000558,
+        "physicsSeconds": 300,
+        "matchSeconds": 2700,
+        "tick": 3000
+      },
+      "physicsSeconds": 600,
+      "matchSeconds": 5400,
+      "ticks": 6000
+    }
+  ]
+}

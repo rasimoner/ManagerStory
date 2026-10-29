@@ -1,0 +1,221 @@
+{
+  "score": [
+    1,
+    5
+  ],
+  "rng": -1902229106,
+  "statistics": {
+    "possessionTeamId": "opponent",
+    "teams": {
+      "user": {
+        "passes": 450,
+        "completedPasses": 340,
+        "resolvedPasses": 450,
+        "passDistance": 8290.430550157635,
+        "dribbles": 419,
+        "dribbleDistance": 4916.918252502472,
+        "beats": 18,
+        "tackles": 51,
+        "tacklesWon": 8,
+        "tacklesLoose": 27,
+        "tacklesMissed": 16,
+        "duels": 53,
+        "fouls": 5,
+        "yellow": 1,
+        "red": 0,
+        "advantages": 1,
+        "ballWins": 107,
+        "shots": 13,
+        "shotsOnTarget": 5,
+        "goals": 1,
+        "xg": 2.107177538786451,
+        "blocks": 1,
+        "saves": 10,
+        "posts": 1,
+        "interceptions": 30,
+        "possessions": 166,
+        "possessionSeconds": 2630.699999998703,
+        "controlSeconds": 982.9000000001549,
+        "controls": 605
+      },
+      "opponent": {
+        "passes": 351,
+        "completedPasses": 256,
+        "resolvedPasses": 351,
+        "passDistance": 7489.720348335474,
+        "dribbles": 324,
+        "dribbleDistance": 5119.713532901496,
+        "beats": 24,
+        "tackles": 68,
+        "tacklesWon": 6,
+        "tacklesLoose": 38,
+        "tacklesMissed": 24,
+        "duels": 53,
+        "fouls": 6,
+        "yellow": 1,
+        "red": 0,
+        "advantages": 2,
+        "ballWins": 119,
+        "shots": 25,
+        "shotsOnTarget": 15,
+        "goals": 5,
+        "xg": 4.52132920979494,
+        "blocks": 4,
+        "saves": 4,
+        "posts": 0,
+        "interceptions": 36,
+        "possessions": 166,
+        "possessionSeconds": 2328.8999999989774,
+        "controlSeconds": 827.5000000001196,
+        "controls": 514
+      }
+    }
+  },
+  "players": [
+    [
+      0,
+      90,
+      0,
+      0,
+      0,
+      0,
+      81.07220053114612
+    ],
+    [
+      1,
+      90,
+      0,
+      0,
+      0,
+      0,
+      82.12788875782135
+    ],
+    [
+      2,
+      90,
+      0,
+      0,
+      0,
+      0,
+      82.68852960789184
+    ],
+    [
+      3,
+      90,
+      0,
+      0,
+      0,
+      0,
+      81.68135375393481
+    ],
+    [
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      100
+    ],
+    [
+      5,
+      90,
+      0,
+      0,
+      0,
+      0,
+      82.40624256108353
+    ],
+    [
+      6,
+      90,
+      0,
+      0,
+      0,
+      0,
+      83.77185248023746
+    ],
+    [
+      7,
+      90,
+      0,
+      0,
+      0,
+      0,
+      82.55591507258936
+    ],
+    [
+      8,
+      0,
+      0,
+      0,
+      0,
+      0,
+      100
+    ],
+    [
+      9,
+      90,
+      0,
+      0,
+      0,
+      0,
+      81.33885489133874
+    ],
+    [
+      10,
+      90,
+      0,
+      0,
+      1,
+      0,
+      82.09312297707697
+    ],
+    [
+      11,
+      90,
+      0,
+      0,
+      0,
+      0,
+      82.29991409460276
+    ],
+    [
+      12,
+      90,
+      1,
+      0,
+      0,
+      0,
+      81.09358777320327
+    ],
+    [
+      13,
+      0,
+      0,
+      0,
+      0,
+      0,
+      100
+    ],
+    [
+      14,
+      0,
+      0,
+      0,
+      0,
+      0,
+      100
+    ],
+    [
+      15,
+      0,
+      0,
+      0,
+      0,
+      0,
+      100
+    ]
+  ],
+  "eventsSha256": "4f0c6363b2790c7b3254b48b8c9799caa0869e40c836a2acd87456393f5722d2"
+}

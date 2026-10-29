@@ -6,6 +6,7 @@ import { matchSeed, orderKey } from './match-support.js';
 import { commandSimulationInstruction } from '../sim/team-commands.js';
 import { userSquad } from './user-team.js';
 import { createSimulationPlayback } from '../match/continuous-playback.js';
+import { matchDurationSeconds } from '../match/duration-setting.js';
 
 export function initializeExperimentalMatch() {
   const own = userSquad().filter(player => M.active.includes(player.id)).map(player => ({ ...player, role: M.matchRoles[player.id], lineupPosition: M.matchPositions[player.id] }));
@@ -16,7 +17,8 @@ export function initializeExperimentalMatch() {
   M.simulationCursor = 0;
   M.simulationNames = Object.fromEntries([...own, ...opponent].map(player => [player.id, player.name]));
   M.simulationTeams = Object.fromEntries([...own.map(player => [player.id, 'user']), ...opponent.map(player => [player.id, 'opponent'])]);
-  M.simulation = createCareerSimulation({ seed: matchSeed(), userHome: M.userHome, user: { players: own, tactics: M }, opponent: { players: opponent } });
+  M.simulation = createCareerSimulation({ seed: matchSeed(), durationSeconds: matchDurationSeconds(S.matchDurationMinutes),
+    userHome: M.userHome, user: { players: own, tactics: M }, opponent: { players: opponent } });
   for (const player of own) commandSimulationInstruction(M.simulation, { teamId: 'user', playerId: player.id, key: orderKey(player) });
   M.simulationPlayback = createSimulationPlayback(M.simulation);
 }

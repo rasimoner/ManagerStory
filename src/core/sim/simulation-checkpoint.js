@@ -1,6 +1,7 @@
 import { simulationRuntime } from './simulation-runtime.js';
 import { emitSimulationEvent } from './ball-events.js';
 import { encodeSimulationCheckpoint, decodeSimulationCheckpoint } from './checkpoint-values.js';
+import { restoreSimulationClock } from './simulation-clock.js';
 
 export function snapshotSimulation(simulation) {
   const runtime = simulationRuntime(simulation);
@@ -14,6 +15,7 @@ export function restoreSimulation(snapshot) {
   }
   const decoded = decodeSimulationCheckpoint(snapshot);
   const simulation = decoded.state;
+  restoreSimulationClock(simulation);
   const runtime = simulationRuntime(simulation);
   runtime.chaseTicks = new Map(decoded.runtime.chaseTicks);
   runtime.ownerPassScan = decoded.runtime.ownerPassScan;

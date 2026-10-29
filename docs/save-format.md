@@ -17,7 +17,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | `schemaVersion` | Kaydın **biçimi**. Taşıma zinciri buna bakar. | Biçim değişince (yeni taşıma adımıyla). V7.9.13 öncesi kayıtlarda yok = biçim 0. |
 | `version` | Kaydı en son yazan **oyun sürümü** (ör. `"7.9.13"`). | Her yüklemede güncel sürüme yazılır. Yedek anahtarları buna göre. |
 
-Şu anki biçim: **3** (`SAVE_SCHEMA`).
+Şu anki biçim: **5** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
 - Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
@@ -45,15 +45,18 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | 1 | V7.9.13 (yeniden yapılanma B) – V7.13.1 | 0 → 1 |
 | 2 | V7.13.2 | 1 → 2 |
 | 3 | V7.14.0 sonrası | 2 → 3 |
-| 4 | V7.15.0 sonrası | 3 → 4 |
+| 4 | V7.15.0 | 3 → 4 |
+| 5 | V7.16.0 sonrası | 4 → 5 |
+
+**4 → 5:** `matchDurationMinutes` 3/5/7/10 seçeneklerinden biridir; eksik veya geçersiz kayıtta 7 olur. Çalışan maçın kaydı değiştirilmez. Yeni deneysel maçın `simulationCheckpoint.state.clock` nesnesi `model:"natural"`, `durationSeconds`, `totalTicks` ve gerçek faaliyet adımlarını içerir; `time`/`physicsTime` fizik, `matchTime` 0–5.400 maç saniyesidir. Süre aktif maç başlangıcında kopyalanır. Daha sonra tercih değişikliği aktif maçı ve geri yüklemesini değiştirmez. Saat modeli bulunmayan V7.15.0 checkpoint’i `restoreSimulation` içinde `reference`/5.400 fizik saniyesi olarak açılır; eski değişken hızlı gösterimiyle tamamlanır. Eski dakika/3D kayıtlarının alanlarına dokunulmaz.
 
 **3 → 4:** `experimentalMatchEngine` yoksa `false` eklenir. Ayarlar'daki anahtar bu kariyerde saklanır; devam eden maçın motoru değiştirilmez. Eski maç kayıtlarının dakika motoru, RNG ve 3D durumu korunur.
 
 Deneysel `activeMatchV71` ek alanları: `experimental:true`, `fieldView:"2d"`, `simulationCheckpoint`, `simulationCursor`, `simulationNames`, `simulationTeams`, `simulationPendingPasses`. Çalışma sırasında `M.simulation` saf çekirdek nesnesidir; kayda onun yerine `snapshotSimulation` format 1 JSON nesnesi yazılır. RNG, kesirli saat, geçici duruş/avantaj, bekleyen değişiklikler, ayrılan oyuncular, kondisyon/sakatlık, tüm günlük ve karar/kovalama önbelleği içindedir. Ortak referans ve JSON'da kaybolan skaler yan tabloları yeniden kurulur. Kariyere aktarılmış olay cursor'ı ve oyuncu dakika sayaçları çift gol/kart/dakika yazılmasını önler. Detay: `docs/match-sim.md`.
 
-Son biçimde ağır alanlar (`simulationCheckpoint`, `simulationPlayback`, `simulationDisplayFrame`, `events`, `story`, `minuteEvents`) cihazda `simulationArchive:{encoding:"lzw-varint-utf16",data}` içinde kayıpsız sıkıştırılır; yüklemede düz alanlara açılır. Aynı nesneleri kullanan `minuteEvents`, arşivde `minuteEventIds` ile tam olaylara bağlanır; açıldığında referansları geri kurulur. Ön adayın `lzw-varint-base64` arşivi de okunur. `simulationPlayback` artık yalnız anlık/önceki görünüm ve yumuşak hız integrali taşır; önden hesaplanmış maç veya halka tampon yoktur. `M.matchElapsedSeconds` çekirdeğin zamanıyla aynıdır. Çekirdeğin kamuya açık `snapshotSimulation` sözleşmesi sıkıştırılmamış düz nesne kalır.
+Son biçimde ağır alanlar (`simulationCheckpoint`, `simulationPlayback`, `simulationDisplayFrame`, `events`, `story`, `minuteEvents`) cihazda `simulationArchive:{encoding:"lzw-varint-utf16",data}` içinde kayıpsız sıkıştırılır; yüklemede düz alanlara açılır. Aynı nesneleri kullanan `minuteEvents`, arşivde `minuteEventIds` ile tam olaylara bağlanır; açıldığında referansları geri kurulur. Ön adayın `lzw-varint-base64` arşivi de okunur. `simulationPlayback` artık yalnız anlık/önceki görünüm ve yumuşak hız integrali taşır; önden hesaplanmış maç veya halka tampon yoktur. `M.matchElapsedSeconds` maç saatidir (`matchTime`); çekirdeğin `time`/`physicsTime` alanları fizik saniyesidir. Referans modelde iki değer aynıdır. Çekirdeğin kamuya açık `snapshotSimulation` sözleşmesi sıkıştırılmamış düz nesne kalır.
 
-Tamamlanmış deneysel `matchSummary` kayıtları `engine:"continuous"` işaretlidir. `results` ve `v71.lastMatch` özetleri cihazda ayrı kayıpsız arşivlerdir, açılınca mevcut ekranların beklediği tam nesneler olur. Normal maçın özet/kayıt yolu değişmez. Otomatik aktif-maç sıkıştırması Worker'da, açık kaydetme/duraklatma/ihracat eşzamanlıdır; sıra numarası eski asenkron işin yeni kayıt üzerine yazmasını önler. Hızlı sonuna-geç sırasında ara otomatik kayıt yığılmaz; kullanıcı durdurursa, sakatlıkta ve maç bitiminde kayıt alınır. Testte 33 maç arşivi + aktif tam maç 5 MiB UTF-16 bütçesinde korunur.
+Tamamlanmış deneysel `matchSummary` kayıtları `engine:"continuous"` işaretlidir; yeni özetler `timeModel` ve `durationSeconds` ile oynanan aktif süresini taşır. `results` ve `v71.lastMatch` özetleri cihazda ayrı kayıpsız arşivlerdir, açılınca mevcut ekranların beklediği tam nesneler olur. Normal maçın özet/kayıt yolu değişmez. Otomatik aktif-maç sıkıştırması Worker'da, açık kaydetme/duraklatma/ihracat eşzamanlıdır; sıra numarası eski asenkron işin yeni kayıt üzerine yazmasını önler. Hızlı sonuna-geç sırasında ara otomatik kayıt yığılmaz; kullanıcı durdurursa, sakatlıkta ve maç bitiminde kayıt alınır. Testte 33 maç arşivi + aktif tam maç 5 MiB UTF-16 bütçesinde korunur.
 
 **0 → 1** (eski `migrateV71`'in yaptığı, artık tek seferlik):
 - `currentClubId` yoksa başlangıç kulübü (`data/clubs.json` `startingClub`).
@@ -73,13 +76,14 @@ Tamamlanmış deneysel `matchSummary` kayıtları `engine:"continuous"` işaretl
 
 Ayrıca yükleyici (zincirden önce): zar tuzu (`matchSalt`) olmayan kariyere cihazdan bir tuz verir (V7.8 öncesi). Bu adım cihaza bağlı olduğu için zincirde değil; yeni kariyerin tuzunu çağıran taraf verir.
 
-## Alanlar (biçim 3)
+## Alanlar (biçim 5)
 Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabilir ama kayıttaki ad değişirse zincire bir adım yazılır.
 
 ### Kariyer
 | Alan | Tür | Ne |
 |---|---|---|
 | `schemaVersion` | sayı | Kayıt biçimi (yukarıda). |
+| `matchDurationMinutes` | sayı | Yeni deneysel maçın 1× toplam süresi: 3/5/7/10, varsayılan 7; aktif maç kendi süresini korur. |
 | `experimentalMatchEngine` | boolean | Deneysel 2D motor tercihi; eski kayıtta kapalı, bir sonraki maçta seçilir. |
 | `version` | metin | Son yazan oyun sürümü. |
 | `currentClubId` | metin | Yönetilen kulüp (`managedClubName()`). Lig şimdilik başlangıç kulübünün etrafında kurulu; rakip bir kulüp adı yazılmışsa başlangıç kulübüne düşer. |

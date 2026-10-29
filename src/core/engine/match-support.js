@@ -213,7 +213,8 @@ export function matchSummary(match = M) {
     all.slice(index + 1, index + 4).some(next => ['shot','goal','chance'].includes(next.type)));
   return {
     home: match.home, away: match.away, hg: match.hg, ag: match.ag, userHome: match.userHome,
-    ...(match.experimental ? { engine: 'continuous' } : {}),
+    ...(match.experimental ? { engine: 'continuous', timeModel: match.simulation.clock.model,
+      durationSeconds: match.simulation.clock.durationSeconds } : {}),
     week: S.week, fixture: S.fixture, shots: [...match.shots], onTarget: [...match.ont],
     stats: structuredClone(match.stats), events: structuredClone(replayEvents), highlights: structuredClone(match.events.filter(e => ['goal','chance','save','red','injury'].includes(e.type))),
     players: Object.entries(match.playerStats).map(([id, stats]) => ({ id: +id, name: userSquad().find(p => p.id === +id)?.name || 'Oyuncu', ...stats })),

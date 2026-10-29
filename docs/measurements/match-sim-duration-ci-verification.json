@@ -1,0 +1,20 @@
+{
+  "applicationCommit": "889591ba461ebe284a6eccadc0223774591aea6a",
+  "workflowRun": 40938196215,
+  "node": "v22.23.4",
+  "matches": 250,
+  "seeds": 50,
+  "comparedDurations": [
+    "180",
+    "300",
+    "420",
+    "600",
+    "reference"
+  ],
+  "ignoredFields": [
+    "milliseconds"
+  ],
+  "allFootballAndCareerValuesIdentical": true,
+  "virtualClockMeasurementsIdentical": true,
+  "artifactSha256": "e4b77993447c2898534bf8aa1d6020a770ef4375e3ff029648ce736373bb66e3"
+}

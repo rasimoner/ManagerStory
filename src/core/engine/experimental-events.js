@@ -13,8 +13,8 @@ export function consumeExperimentalEvents(untilTime = M.simulation.time) {
   while (experimentalEventDue(untilTime)) {
     const event = M.simulation.events[M.simulationCursor++];
     if (event.type === 'yellow' && event.secondYellow) continue;
-    M.matchElapsedSeconds = event.time;
-    M.min = Math.floor(event.time / 60);
+    M.matchElapsedSeconds = event.matchTime ?? event.time;
+    M.min = Math.floor(M.matchElapsedSeconds / CAREER_SIM_DATA.secondsPerMinute);
     applyExperimentalEventState(event);
     if (!narrated.has(event.type)) continue;
     const converted = careerSimulationEvent(event, { names: M.simulationNames, teams: M.simulationTeams, userSide: userSide() });

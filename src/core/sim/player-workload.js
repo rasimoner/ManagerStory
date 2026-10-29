@@ -2,15 +2,16 @@ import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { playerMovementLimits } from './player-movement.js';
 import { drawSimulationRandom } from './simulation-runtime.js';
 import { injureSimulationPlayer } from './player-injuries.js';
+import { simulationExposureRate, usesNaturalMatchClock } from './simulation-clock.js';
 
 export function consumeSimulationFitness(simulation) {
   if (!simulation.workload.enabled) return;
-  for (const team of simulation.teams) for (const player of team.players) consumePlayerFitness(player);
+  for (const team of simulation.teams) for (const player of team.players) consumePlayerFitness(player, simulationExposureRate(simulation));
   consumeSimulationContacts(simulation);
   checkSimulationFatigueInjuries(simulation);
 }
 
-function consumePlayerFitness(player) {
+function consumePlayerFitness(player, exposureRate) {
   if (player.sentOff) return;
   const settings = MATCH_SIM_DATA.workload, seconds = MATCH_SIM_DATA.clock.stepSeconds;
   const distance = Math.hypot(player.velocity.x, player.velocity.y) * seconds;
@@ -20,7 +21,7 @@ function consumePlayerFitness(player) {
   player.workload.sprintMetres += sprint;
   const stamina = player.attributes.stamina ?? MATCH_SIM_DATA.ball.defaultAttribute;
   const drain = seconds * (player.slot === 'GK' ? settings.keeperPerSecond : settings.perSecond) + distance * settings.perMetre + sprint * settings.sprintPerMetre;
-  drainPlayerFitness(player, drain * (settings.staminaBase + (1 - stamina / MATCH_SIM_DATA.attributes.maximum) * settings.staminaRange));
+  drainPlayerFitness(player, drain * exposureRate * (settings.staminaBase + (1 - stamina / MATCH_SIM_DATA.attributes.maximum) * settings.staminaRange));
 }
 
 function drainPlayerFitness(player, drain) {
@@ -47,6 +48,7 @@ function checkSimulationContactInjury(simulation, event) {
 }
 
 function checkSimulationFatigueInjuries(simulation) {
+  if (usesNaturalMatchClock(simulation)) { checkNaturalMatchInjuries(simulation); return; }
   if (simulation.paused || simulation.tick < simulation.workload.nextInjuryTick) return;
   const settings = MATCH_SIM_DATA.injuries;
   simulation.workload.nextInjuryTick = simulation.tick + Math.ceil(settings.checkSeconds / MATCH_SIM_DATA.clock.stepSeconds);
@@ -54,6 +56,20 @@ function checkSimulationFatigueInjuries(simulation) {
   for (const player of players) {
     const fatigue = 1 - player.attributes.fitness / MATCH_SIM_DATA.attributes.maximum;
     const risk = settings.perPlayerSecond * settings.checkSeconds * (1 + fatigue * settings.fatigueMultiplier);
+    if (drawSimulationRandom(simulation) < risk) { injureSimulationPlayer(simulation, { playerId: player.id, cause: 'fatigue' }); return; }
+  }
+}
+
+function checkNaturalMatchInjuries(simulation) {
+  const settings = MATCH_SIM_DATA.injuries, workload = simulation.workload;
+  if (simulation.paused || simulation.match.phase === 'ended' || simulation.matchTime < (workload.nextInjuryMatchTime ?? settings.checkSeconds)) return;
+  const exposure = simulation.matchTime - (workload.lastInjuryMatchTime ?? 0);
+  workload.lastInjuryMatchTime = simulation.matchTime;
+  workload.nextInjuryMatchTime = (Math.floor(simulation.matchTime / settings.checkSeconds) + 1) * settings.checkSeconds;
+  const players = simulation.teams.flatMap(team => team.players).filter(player => !player.sentOff);
+  for (const player of players) {
+    const fatigue = 1 - player.attributes.fitness / MATCH_SIM_DATA.attributes.maximum;
+    const risk = settings.perPlayerSecond * exposure * (1 + fatigue * settings.fatigueMultiplier);
     if (drawSimulationRandom(simulation) < risk) { injureSimulationPlayer(simulation, { playerId: player.id, cause: 'fatigue' }); return; }
   }
 }
