@@ -118,6 +118,16 @@ async function verifyCareerResult() {
   assert.ok(saved.players.some(player => player.minutes > 0 && player.fitness < 100));
   assert.ok(saved.v71.lastMatch.events.some(event => event.type === 'shot'));
   assert.match(await page.locator('#app').textContent(), /Maç Sonu|Röportaj|Basın/);
+  await verifySeasonOutputs(saved, result);
+}
+
+async function verifySeasonOutputs(career, result) {
+  api.setCareer(career);
+  const stats = api.seasonPlayerStats(career.seasonIndex ?? 0);
+  assert.equal(stats.reduce((sum, row) => sum + row.goals, 0), result.matchSummary.userGoals);
+  assert.equal(stats.reduce((sum, row) => sum + row.assists, 0), Object.values(result.assists).reduce((sum, count) => sum + count, 0));
+  for (const row of result.matchSummary.players) assert.equal(row.assists ?? 0, result.assists[row.id] ?? 0);
+  assert.match(await page.locator('.newspaper').textContent(), /GAZETESİ.*Maç Sonu Röportajı/s);
 }
 
 async function startFrameMeasurement() {

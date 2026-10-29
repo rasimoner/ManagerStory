@@ -136,3 +136,13 @@ test('explicit simulation assists reach the season record even when intervening 
   const result = game.run('seasonMatchAssists({events:[{type:"goal",fromSide:"user",fromId:1,assistId:2,simulationEvent:true}]})');
   assert.deepEqual(JSON.parse(JSON.stringify(result)), { 2: 1 });
 });
+
+test('a simulation assist is recorded once in the career, match summary and derived season statistics', () => {
+  const game = career();
+  const result = { matchSummary: { engine: 'continuous', players: [{ id: 2, name: 'Furkan', minutes: 90, assists: 1, goals: 0, rating: 7 }] } };
+  game.api.seasonRecordMatch({ experimental: true, events: [{ type: 'goal', fromSide: 'user', fromId: 1, assistId: 2, simulationEvent: true }] }, result);
+  game.api.S.results = [result];
+  assert.equal(game.run('S.players.find(p=>p.id===2).assists'), 1);
+  assert.equal(result.matchSummary.players[0].assists, 1);
+  assert.equal(game.run('seasonPlayerStats(0)[0].assists'), 1);
+});

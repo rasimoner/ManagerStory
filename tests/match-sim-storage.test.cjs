@@ -29,6 +29,15 @@ test('completed experimental summaries are compact in storage and remain full re
   assert.deepEqual(restored.json('S.results[0].matchSummary.events'), [{ type: 'goal', text: '⚽ Aras' }]);
 });
 
+test('season cleanup cannot restore discarded replay events from an older compressed summary', () => {
+  const game = loadGame();
+  game.run('S=fresh();init();S.results=[{matchSummary:{engine:"continuous",players:[],events:[{type:"shot"}]}}];save()');
+  game.run('delete S.results[0].matchSummary.events;S.results[0].matchSummary.compact=true;save()');
+  const restored = loadGame({ storage: new Map(game.storage) });
+  assert.equal(restored.run('S.results[0].matchSummary.events'), undefined);
+  assert.equal(restored.run('S.results[0].matchSummary.compact'), true);
+});
+
 test('an older background autosave cannot overwrite a newer explicit save', async () => {
   const game = loadGame();
   game.run('S=fresh();init();S.experimentalMatchEngine=true;startMatch()');

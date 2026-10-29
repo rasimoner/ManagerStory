@@ -1,6 +1,6 @@
 import { compressSimulationArchive, decompressSimulationArchive, SIMULATION_ARCHIVE_ENCODING } from './archive-codec.js';
 
-// A committed summary is immutable; repeated autosaves reuse its compressed representation.
+// Season cleanup removes replay events in place; its revision must invalidate the autosave cache.
 const packedSummaries = new WeakMap();
 
 export function packSimulationHistory(state) {
@@ -15,10 +15,13 @@ function hasSimulationHistory(state) {
 
 function packSimulationSummary(summary) {
   if (summary?.engine !== 'continuous') return summary;
-  if (!packedSummaries.has(summary)) packedSummaries.set(summary, { engine: 'continuous',
+  const cached = packedSummaries.get(summary);
+  if (!cached || cached.events !== summary.events || cached.compact !== summary.compact) rememberPackedSummary(summary, { engine: 'continuous',
     archive: { encoding: SIMULATION_ARCHIVE_ENCODING, data: compressSimulationArchive(JSON.stringify(summary)) } });
-  return packedSummaries.get(summary);
+  return packedSummaries.get(summary).packed;
 }
+
+function rememberPackedSummary(summary, packed) { packedSummaries.set(summary, { events: summary.events, compact: summary.compact, packed }); }
 
 export function restoreSimulationHistory(state) {
   for (const result of state.results ?? []) result.matchSummary = unpackSimulationSummary(result.matchSummary);
@@ -29,6 +32,6 @@ export function restoreSimulationHistory(state) {
 function unpackSimulationSummary(summary) {
   if (!summary?.archive) return summary;
   const restored = JSON.parse(decompressSimulationArchive(summary.archive.data, summary.archive.encoding));
-  packedSummaries.set(restored, summary);
+  rememberPackedSummary(restored, summary);
   return restored;
 }

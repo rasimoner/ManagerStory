@@ -110,8 +110,13 @@ export function seasonRecordMatch(match, result) {
   result.assists = assists;
   for (const [id, n] of Object.entries(assists)) {
     const p = S.players.find(q => q.id === +id); if (p) p.assists = (p.assists || 0) + n;
-    const row = result.matchSummary?.players?.find(q => q.id === +id); if (row) row.assists = (row.assists || 0) + n;
+    writeSummaryAssist(result, { id: +id, count: n, experimental: match.experimental });
   }
+}
+
+function writeSummaryAssist(result, { id, count, experimental }) {
+  const row = result.matchSummary?.players?.find(player => player.id === id);
+  if (row) row.assists = experimental ? count : (row.assists || 0) + count;
 }
 
 /* ---------- ageing, retirement and development rules ---------- */
