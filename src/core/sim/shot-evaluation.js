@@ -76,7 +76,7 @@ function shotStyle(owner, { keeper, goal, distance }) {
   const settings = MATCH_SIM_DATA.shooting;
   const depth = keeper ? Math.abs(goal.x - keeper.position.x) : 0;
   if (depth > settings.chipDepth && Math.abs(keeper.position.x - owner.position.x) < settings.chipDistance && owner.attributes.technique >= settings.chipTechnique) return 'chip';
-  return distance > settings.longShotDistance || owner.attributes.strength > owner.attributes.finishing ? 'drive' : 'placed';
+  return distance > settings.longShotDistance || owner.attributes.strength > owner.attributes.technique ? 'drive' : 'placed';
 }
 
 function shotTarget(owner, { goal, keeper }) {

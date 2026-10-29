@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const { loadNativeLab } = require('../tests/support/lab.cjs');
 const { shotRows } = require('./sim-report/analysis.cjs');
 const { shotSlices, tackleSlices, matchSummary } = require('./sim-report/slices.cjs');
+const { controlledFinishing, controlledGoalkeeping } = require('./sim-report/finishing.cjs');
 const { strengthExperiments } = require('./sim-report/strength.cjs');
 const { reporting, match, clock } = require('../src/data/match-sim.json');
 
@@ -26,7 +27,7 @@ function measureMatch(api, input) {
 }
 
 async function report() {
-  const api = await loadNativeLab(['createSimulation', 'createLabScenario', 'stepSimulation', 'readSimulationStatistics']);
+  const api = await loadNativeLab(['createSimulation', 'createLabScenario', 'stepSimulation', 'readSimulationStatistics', 'requestSimulationShot']);
   const count = Number(argument('--count') ?? reporting.seedCount);
   if (!Number.isInteger(count) || count < 50) throw new RangeError('At least 50 seeds are required.');
   const seeds = [...new Set([...reporting.referenceSeeds, ...Array.from({ length: count }, (_, index) => index + 1)])].slice(0, count);
@@ -42,6 +43,8 @@ async function report() {
 
 function runStrengthReport(output, { api, seeds }) {
   output.status = 'running-strength';
+  output.controlledFinishing = controlledFinishing(api, seeds);
+  output.controlledGoalkeeping = controlledGoalkeeping(api, seeds);
   output.strength = {};
   writeReport(output, true);
   strengthExperiments(api, seeds, { measure: measureMatch, names: argument('--experiments')?.split(','), onProgress: (name, result) => {

@@ -172,7 +172,7 @@ Sürücü 3 m içinde gerçekten jokey/hazır/müdahale durumundaki bir savunmac
 
 ### Karar ve xG — sonuç zarı değil
 
-Sahip, her tepki anında **pas / sür / koru / şut** puanlarını aynı ölçekte karşılaştırır. Seçim seed tüketmez. Şut en çok 38 m'den, otomatik kararda xG en az 0,035 ise adaydır; düşük finishing/composure ile 25 m ötesinin maliyeti artar. Mentalite ortak `tactics.json` seçenekleridir: Temkinli/Dengeli/Cesur şut değerini 0,85/1/1,18 ile çarpar. Finishing/composure şut tercihini, vision/composure pas algısını etkiler. Güvenli pasın alıcısı hedef konumda daha yüksek xG alıyorsa fark ×120 pas puanına eklenir; bu nedenle iyi durumdaki takım arkadaşına pas, hemen şuta üstün gelebilir. Güvenli sürme açıyı iyileştirebildiğinde sürme de kazanır.
+Sahip, her tepki anında **pas / sür / koru / şut** puanlarını aynı ölçekte karşılaştırır. Seçim seed tüketmez. Şut en çok 38 m'den, otomatik kararda xG en az 0,032 ise adaydır; düşük finishing/composure ile 25 m ötesinin maliyeti artar. Mentalite ortak `tactics.json` seçenekleridir: Temkinli/Dengeli/Cesur şut değerini 0,85/1/1,18 ile çarpar. Finishing/composure şut tercihini, vision/composure pas algısını etkiler. Güvenli pasın alıcısı hedef konumda daha yüksek xG alıyorsa fark ×120 pas puanına eklenir; bu nedenle iyi durumdaki takım arkadaşına pas, hemen şuta üstün gelebilir. Güvenli sürme açıyı iyileştirebildiğinde sürme de kazanır.
 
 `d`: kale merkezine metre mesafe; `a`: iki direğe çizilen ışının arasındaki radyan açı; `b`: saha savunmacılarının kapattığı kale ağzı oranı; `p`: mevcut 6 m baskı değeri; `t`: kaleye dönme açısı / π; `v`: koşu hızı / azami hız; `k`: kalecinin perspektifteki konumu.
 
@@ -210,7 +210,7 @@ Asist, aynı atakta şutçuyu bulmuş son başarılı pasın vereni olur; sürme
 
 Kaleci topun iki direğe göre açıortayında konum alır. Normal derinlik `clamp(1,2 + 0,075·topun kale uzaklığı,1,2,5)` m; enine hedef ±3,3 m. Kaleci tehditte hedefinin 1,05 m yakınına gelince frenler; hızı ≤0,45 m/sn iken 0,35 sn dengede kaldıysa **set** olur. Konum değişimi de aynı oyuncu hız/ivme/dönüş sınırlarını kullanır.
 
-Şut anında topun gerçek hız/yükseklik/sürtünmesiyle kale çizgisine varış noktası kestirilir. Tepki `0,16 + (1−reflexes/100)·0,20` sn; set değilse **0,08 sn ek** gecikme vardır. Tepki bitmeden yeni plonjon uzanması oluşmaz; yalnız zaten o noktadaki gövde/önceden açılmış kollar fiziksel temas edebilir. Set gövde/kol zarfı 1,15 m, normal gövde 0,95 m; birebirde önceden kapanmış zarf oneOnOne ile genişler.
+Şut anında topun gerçek hız/yükseklik/sürtünmesiyle kale çizgisine varış noktası kestirilir. Tepki `0,16 + (1−reflexes/100)·0,20` sn; set değilse **0,04 sn ek** gecikme vardır. Tepki bitmeden yeni plonjon uzanması oluşmaz; yalnız zaten o noktadaki gövde/önceden açılmış kollar fiziksel temas edebilir. Set gövde/kol zarfı 1,25 m, normal gövde 1,15 m; birebirde önceden kapanmış zarf oneOnOne ile genişler.
 
 Tepki sonrası yatay ek uzanma saniyede `4,1 + 2,2·reflexes/100 + 1,1·acceleration/100` m, en çok **2,65 m**. Yakındaki topa adım, uzağa plonjon hedefi alınır. Dikey erişim 2,05 m'den 3,8 m/sn ile en çok **2,90 m**'ye büyür; yatay/dikey uzanma elipsi aşılırsa topa değemez. Kalecinin gövdesi ışınlanmaz: temas, adım başı/sonu gerçek gövde konumuyla ball–keeper bağıl hareketinde çözülür; kol erişimi ayrı zarf olarak laboratuvarda görünür.
 
@@ -296,3 +296,5 @@ Node 22.23.4, tohum 901, iki 4-2-3-1, Normal pres/hat/tempo ve Dengeli pas; 22 o
 ### Şut/kaleci ölçümü — 28 Ekim 2026
 
 Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ayrıntılı tablo ve hedefler [şut raporundadır](match-sim-shooting-report.md). Ortalama **34,2 şut, 14,0 isabet, 8,2 gol, 7,60 xG**, ağırlıklı xG/şut **0,222**, başarılı kurtarış **%41,4**; şut kalitesi/gol/kurtarış dengesi hedeflerinden belirgin uzak. Pas ortalaması **795,0**; beş maçta isabet ve mesafe hedefte, iki pas sayısı dışında. Faul **15,6**, sarı **2,4**; 689 müdahalenin 464'ü ıska (**%67,3**). Son güç hatası düzeltmesinden önceki daha iyi dağılım nihai sonuç diye korunmadı. 8. iş bu dağılımları birlikte kalibre edecek; fiziksel sonuç yerine ayrı gol/faul/kurtarış zarı eklenmeyecek. Üç ayrı tam maç için 2 saniye CI eşiği ve değişmemiş topsuz koordinat özeti korunur.
+
+Bitiricilik tek başına artınca aynı şutun amaçlanan gücü düşmez. Plase/sert stilinde fiziksel güç teknikle karşılaştırılır; finishing köşe seçimi ve uygulama doğruluğunu etkiler. Bu ayrım +10 finishing artışının yanlışlıkla %20 daha zayıf plaseye geçmesine karşı testle korunur.

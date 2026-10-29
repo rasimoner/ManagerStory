@@ -220,3 +220,5 @@ Build iki HTML girişini bağımsız grafiklerle paketler; laboratuvar için oyu
 | `tools/match-sim-report.cjs`, `tools/sim-report/` | En az 50 ayrı tohum, dağılım/yüzdelik/dilim/xG kalibrasyonu, güç farkı ve iki yön deneyi; pahalı deneyler arasında kısmi dosya checkpoint'i |
 | `tests/match-sim-balance.test.cjs`, `tests/match-sim-report.test.cjs`, `tests/match-sim-shot-map.test.cjs`, `tests/smoke/lab-balance.mjs` | Önce kırmızı davranış/rapor/harita testleri, ortak blok geometrisi ve temas sonrası faul; telefonda harita/sayaç/katman/sıfırlama |
 | `docs/match-sim-balance-report.md`, `docs/measurements/match-sim-balance-*.json` | Ayardan önce teşhis, aynı tohumlarla önce/sonra, yayılım, istisnalar ve tek özellik deneyleri |
+
+| `tools/sim-report/finishing.cjs` | Aynı 50 tohum ve beş konumda eşlenmiş 250 şut: yalnız finishing / yalnız kaleci reflexes değişimi, stil/güç karışmasını ayıran gerçek uçuş deneyi |

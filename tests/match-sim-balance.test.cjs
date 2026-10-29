@@ -87,3 +87,14 @@ test('shot blocking uses the same planted body and leg envelope as the decision 
   assert.equal(simulation.events.filter(event => event.type === 'block').length, 0);
   assert.ok(api.MATCH_SIM_DATA.shooting.blockRadius < api.MATCH_SIM_DATA.ball.controlRadius);
 });
+
+test('improving only finishing cannot silently turn the same shot into a weaker strike', () => {
+  const { api, simulation } = boxScene();
+  const shooter = simulation.teams[0].players.at(-1);
+  Object.assign(shooter.attributes, { strength: 80, technique: 70, finishing: 75 });
+  const before = api.evaluateSimulationShot(simulation, shooter);
+  shooter.attributes.finishing = 85;
+  const improved = api.evaluateSimulationShot(simulation, shooter);
+  assert.equal(improved.style, before.style);
+  assert.equal(improved.power, before.power);
+});

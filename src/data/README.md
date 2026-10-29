@@ -72,3 +72,5 @@ Denge 1 ekleri:
 - `goalkeeper.tipSpeedFactor/tipSideWeight`: fiziksel parmak ucu temasının ileri ve yana hız bileşenleri. Uzanma başarısı için kura yoktur; dokunup yine gol olan top kurtarıştan düşer.
 - `reporting`: sabit 50 tohumun ilk referansları ve şut/kaleci/xG/müdahale dilim sınırları. Futbol davranışından ayrıdır; `sim:report` en az 50 maç çalıştırır. `--strength` aynı kadroları karşılaştırır; `--experiments` pahalı deneyin seçilmiş parçalarını yeniden çalıştırabilir.
 - `lab.shotMap`: xG'den nokta alanına ölçek, en küçük görünür nokta ve sonuç renkleri. Şut sayısına veya fiziğe etkisi yoktur.
+
+`reporting.controlledShots`: aynı atış konumları, set kaleci derinliği, +10 özellik artışı ve kısa uçuş süresi; finishing ve reflexes etkisini maçın sonraki RNG akışından ayıran eşlenmiş deney içindir. Normal/set kaleci ön erişimi 1,15/1,25 m, set olmama ek tepki payı 0,04 sn olarak kalibre edildi; plonjon sınırı değişmez.
