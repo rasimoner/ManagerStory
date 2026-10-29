@@ -1,8 +1,48 @@
 # Saniyelik maç simülasyonu — şartname
 
-Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1 uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
+Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D bağlantısı ve kesintisiz değişken hızlı izleme uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
 
-Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. Oyunda bağlantısı yoktur. Kariyer, mevcut dakika motoru, 3D yönetmeni, kayıt biçimi ve V7.14.0 sürümü değişmez. Diğer lig maçları ileride de `simAIGame` ile kalır.
+Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. Açıkken kullanıcı maçı kesintisiz değişken hızlı 2D ile izlenir; 3D sonraki iştir. Diğer lig maçları yine `simAIGame` ile kalır. Kapalıyken eski dakika/3D yolu korunur.
+
+## Kariyer adaptörü (C)
+
+Saf `core/match/` kariyer modunu import etmez. Girdi kullanıcının mevcut ilk on biri, `M.matchPositions`/`M.matchRoles`, rakibin `opponentPlayer` kayıtları ve `oppRadarPos` düzenidir. `match-sim-career.json` serbest yerleşimi 4-2-3-1 yuvalarına, 4-4-2'yi kendi yuvalarına eşler; uyumlu roller ve en yakın başlangıç yuvası seçilir. Kullanıcının serbestçe taşıdığı oyuncunun çapa farkı korunur. Özellikler aynı JSON'daki alan okuma sırasıyla gelir; verilmemiş teknik alanın varsayılanı 65, değer sınırı 0–100; `gk.reflexes/handling/oneOnOne` doğrudan okunur. Tohum `matchSeed()`; deneysel maç başlangıcı kariyer salt'ını değiştirmez. Aynı kayıt/fikstür aynı maçı üretir.
+
+| Kariyer seçeneği | Motor karşılığı |
+|---|---|
+| Pres, savunma hattı, mentalite, tempo, pas stili | Aynı adlı takım kararı; rakibin taktiğine yazmaz |
+| Dar / Normal / Geniş | Ortak blok ve hedef zarfı genişliği |
+| Serbest yerleşim / diziliş | JSON yuva/rol eşlemesi, kaydırılan çapalar; anlık ışınlanma yok |
+| Alanı daralt | Genişlik Dar |
+| Topu dolaştır | Tempo Düşük + pas Kısa |
+| Hızlı geçiş | Tempo Yüksek + pas Direkt (birlikte seçilirse listedeki son talimat öncelikli) |
+| Dengeli bireysel talimat | Varsayılan rol/karar |
+| Topu sakla | Koruma puanı +6 |
+| Daha fazla şut | Şut karar puanı ×1,18; gol zarı eklemez |
+| Kısa kullan / Uzun kullan | Kaleci alıcı mesafesi 12/45 m; uzunda punt |
+| Hücum yaklaşımı: Dengeli/Kanatlar/Merkez/Kontra | **Henüz etkisiz**, diğer etkili taktikler aynen uygulanır |
+| Savunma arkasına koş, Ceza sahasında kal, Presi artır (bireysel), Merkeze yaklaş, Daha riskli pas, Serbest rol, Geniş oyna, İçe kat et, Bindirme yap, Geride kal, Öne çık, Süpürücü kaleci | **Henüz etkisiz**, komut `effective:false` olarak kaydedilir |
+| Bağırma ve devre arası konuşması | Kariyerde mevcut moral/konuşma etkisi; motorda **henüz davranış karşılığı yok**, motivasyon komutu günlükte |
+
+Motor olayları `matchEvent` üzerinden Türkçe yorumla aktarılır. Gol skoru bu tek kancadan artırır; adaptör skoru ikinci kez yazmaz. İkinci sarı+sarıdan kırmızı, mevcut kariyer kart kancasının beklediği tek kırmızı olayına katlanır; böylece sezon sarısı üçe çıkmaz. Dakika `minutePlayed` kancasından, kondisyon çekirdek oyuncusundan gelir; eski dakika tüketimi çalıştırılmaz. Asist gol olayındaki aynı atakta son başarılı pas kimliğidir; sezon araması rastgele son 14 olaya dayanmaz. Geçici çizgi duruşları ayrı sayaç/etikettir; gerçek korner/penaltı şutu varmış gibi yazılmaz.
+
+**Reyting:** taban 6,5; gol +0,85, asist +0,45; şut +0,035, isabette ek +0,04; başarılı pas +0,0015, kayıp pas −0,008; kontrollü kesme +0,03, yasal müdahale +0,045; kontrol hatası −0,04; isabetli şutta kurtarış +0,10; kalecinin sahadayken yediği gol −0,40; sarı −0,20, kırmızı −1,10. Sınır 1–10. Küçük sık aksiyonlar tabanı az değiştirir, gol/kurtarış/hata/kart daha belirgindir; iyi maç 8+, çok gol yiyen veya kırmızı gören kötü maç 5 altına inebilir. Bütün ağırlıklar JSON'dadır. Bu basit kural xG'yi sonuç yerine kullanmaz.
+
+Eski 34 maç/ekran/kariyer altın dosyaları yenilenmez. Karşılaştırma yardımcısı yalnız format 4'teki kapalı anahtar meta verisini format 3 görünümüne taşır ve Ayarlar'a bilinçli eklenen tek anahtar bölümünü çıkarır. Futbol olayları, skorlar, istatistikler ve diğer kariyer alanları hâlâ birebir hash'lenir; yeni anahtar ve göç ayrıca test edilir. Bu, eski altınlara deneysel skor yazılması değildir.
+
+## Kesintisiz değişken hızlı 2D izleme (güncel D)
+
+29 Ekim kapsam güncellemesi, önceki önemli-an kesmeleri ve 22 sn önden hesaplama önerisinin yerini alır. **Motor ile ekrandaki saat aynı sabit adımdadır.** Gelecek skor, konum veya olay önden oynatılmaz. Bütün 54.000 fizik adımı hesaplanır; sakin bölümde sahneyi gizleme, zaman kesmesi veya pozisyonu atlayarak yeni sahneye geçme yoktur. Görünüm oyuncuları, numaraları, topu ve top sahibini sürekli gösterir. Kareler arasındaki kısa çizim geçişi çizim içindir; motorun eriştiği zamandan ileri konum kullanılmaz.
+
+Sunum katsayıları `match-sim-career.json.continuous`: sakin 32×; hücum kalesine 42 m yaklaşımda 12×; boyuna 28 m ve enine 50 m tehdit koridorunda 3×; şut hazırlığı/uçuşu ve önemli olaydan sonraki 2 oyun saniyesinde 1×; yeniden başlamada 8×. Bunlar futbolcu hızı/ivmesi değildir. Topun mevcut hızından 1 sn'lik doğrusal yön kestirimi yalnız yavaşlamayı zamanında başlatmak içindir; yeni fizik, başarı zarı veya gelecek olay üretmez. Düşüş 0,18 sn, hızlanma 0,8 sn zaman sabitli üstel geçiştir; bir karenin oyun süresi bu eğrinin analitik integraliyle bulunur. Aynı sabit hedefte 60/15 fps aynı süreyi üretir.
+
+0,5× / 1× / 2× düğmeleri bütün bu izleme hızlarının çarpanıdır; **6–10 dakika hedefi 1× seçiliyken** geçerlidir. Böylece ortalama 9–15× oyun hızı amaçlanır; sakin bölümler 3–4× ile sınırlanmaz. Süre hedefi için maçın fiziği, olay sayısı veya gol/pas dengesi değiştirilmez. Kesintisiz ve başsız aynı maçı bitiren testte bütün fizik olayları, RNG ve skor birebir aynıdır. `Maçı sonuna geç` kalan adımları karelere bölerek hesaplar; sakatlıkta karar için durur, devreyi otomatik sürdürür.
+
+**Komut sözleşmesi:** duraklatma anında fizik durur; taktik/talimat günlüğünün `tick` değeri kullanıcının gördüğü `M.matchElapsedSeconds/0,1` adımıdır. Oyuncu değişikliği isteği aynı anda kuyruğa girer, B gereği ilk gerçek futbol duruşunda uygulanır. Menü açmak topu oyundan çıkarmaz. Eski tampon gecikmesi kaldırıldı. Devre arası ve sakatlıkta biriken duvar zamanı dönüşte hız patlamasına çevrilmez; ikinci yarı santrasında alt-adım zamanı kaybedilip saat kilitlenmez.
+
+Motoru mevcut `liveFrameStep` saat sürücüsü ilerletir; 2D görünüm ve sunumdaki maliyet ölçer simülasyonu ilerletmez. Adım bütçesine yalnız fiziksel ilerleme maliyeti yüklenir; sabit kariyer projeksiyonu/olay aktarımı ayrıca yürür. Büyük fırsat/geçici çizgi duruşu cursor ilerlerken bir kez sayılır, bütün geçmiş her karede taranmaz. Böylece sabit maliyetin adım başına bölünmesinden doğan kendini yavaşlatma önlenir. Kare başına iş sunumda ölçülür: başlangıç adım maliyeti 0,04 ms; 7 ms hedef, en çok 512 adım ve ölçülen maliyetle uyarlama. Bütçe yetmezse fizik adımı atlanmaz; izleme uzar ve `budgetLimitedFrames` sayılır. RNG bu bütçeyi okumaz. Arka plandan dönünce geçen gerçek süre yakalanmaz. iPhone gerçek donanım doğrulaması ayrıdır; 390×844 dokunmatik Chromium ve 4× CPU yavaşlatmada bütün 1× maçın gerçek duvar süresi/RAF dağılımı Actions'ta ölçülür. Hedef dışı süre gizlenmez; ham ölçüm yüklenir.
+
+Kayıt çekirdekte hâlâ düz `snapshotSimulation` nesnesidir. Cihazda aktif maçın ağır alanları ve tamamlanmış deneysel maç özetleri kayıpsız LZW/varint/UTF-16 arşivinde saklanır; Unicode ve RNG değişmez. Otomatik arşiv sıkıştırması ayrı Worker'dadır; duraklatma, açık kaydetme ve dışa aktarma eşzamanlı kaydeder. Sıra numarası eski bir arka plan kaydının daha yeni kaydı veya yeni kariyeri ezmesini engeller. Normal motorun kayıt yolu bu arşivi kullanmaz.
 
 ## Neden yeni motor
 
@@ -24,7 +64,7 @@ Mevcut motor dakikada bir ilerler; az sayıdaki aksiyon arasını sunum doldurur
 
 ## Hareket
 
-Tüm katsayılar `src/data/match-sim.json`'dadır. Hız `5,2 + 3,8 × pace/100` m/sn, ivme `2,4 + 2,6 × acceleration/100` m/sn². İkisi de `0,72 + 0,28 × fitness/100` ile çarpılır. Bu aşamada kondisyon tüketilmez; girdideki kondisyon kapasiteyi etkiler.
+Tüm katsayılar `src/data/match-sim.json`'dadır. Hız `5,2 + 3,8 × pace/100` m/sn, ivme `2,4 + 2,6 × acceleration/100` m/sn². İkisi de `0,72 + 0,28 × fitness/100` ile çarpılır. Laboratuvar karşılaştırmasında kondisyon tüketilmez; kariyer `workload:true` ile aşağıdaki tüketimi açar.
 
 Oyuncu hedefe hız ve ivme sınırlarıyla yaklaşır; durma mesafesine göre frenler. İvme sınırı hız vektörünün değişimine uygulanır, sadece sürat artışına değil. Yön saniyede en fazla `movement.turnRate` radyan döner. Aciliyet mesafeyle yürüyüş, hafif koşu, koşu veya sprint seçer; basan sprint ister, yakında frenler. Hedefe varınca küçük durma toleransı titreşimi önler. Saha çizgisine yaklaşırken her eksen ivmenin 1/√2 payıyla durma mesafesi ayırır; sonraki adımın yolu da hesaba katılır. Önce zorunlu sınır freni, kalan vektör ivmesiyle hedefe yönelme uygulanır. Konum kırpılmaz ve hız aniden sıfırlanmaz. Kaleci kendi kalesi ile topun açısına göre ayrı bir konum alır.
 
@@ -94,7 +134,7 @@ Bir seed'li zar buna göre gerçek teması kontrol veya sekme yapar. Başarısı
 
 ### Konumdan doğan günlük ve ölçüler
 
-Olaylar `{type,time,fromId,toId,fromPos,toPos,success,…}`; zaman saniye, konumlar metredir. `pass` gerçek ayak çıkışında `success:null` ile yazılır. İlk temas veya saha dışı gerçekten oluşunca aynı kaydın `success`, `resolvedAt`, `actualToId`, `actualToPos`, gerçek `distance` alanları tamamlanır. Bu bir önceden sonuç belirleme değildir. `firstTouch`, `interception`, `looseBall`, `ballOut` olayları gerçek temas/çizgi zamanında eklenir. Hakem müdahalesi ayrı `referee` olayıdır; havadaki önceki pası başarısız olarak kapatır. Günlük sıralıdır; geçmişe dönük yeni olay eklenmez. Eski oyun günlüğüne çeviri ve 3D sahneleme bu işte yoktur.
+Olaylar `{type,time,fromId,toId,fromPos,toPos,success,…}`; zaman saniye, konumlar metredir. `pass` gerçek ayak çıkışında `success:null` ile yazılır. İlk temas veya saha dışı gerçekten oluşunca aynı kaydın `success`, `resolvedAt`, `actualToId`, `actualToPos`, gerçek `distance` alanları tamamlanır. Bu bir önceden sonuç belirleme değildir. `firstTouch`, `interception`, `looseBall`, `ballOut` olayları gerçek temas/çizgi zamanında eklenir. Hakem müdahalesi ayrı `referee` olayıdır; havadaki önceki pası başarısız olarak kapatır. Günlük sıralıdır; geçmişe dönük yeni olay eklenmez. Pas aşamasında eski oyun günlüğüne çeviri yoktu; V7.15.0 kariyer adaptörü bunu yapar. 3D sahneleme sonraki iştir.
 
 Pas isabeti kontrolle tamamlanan / çözülen pas; ortalama mesafe gerçek çıkıştan ilk temasa/çizgiye kadar ölçülür. Bir sekmeden sonra aynı takımın tekrar kazanması ilk dokunuşu başarılıya çevirmez. Top kazanma sayısı kontrollü rakip kesmeleridir; kontrolsüz çelmeler olayda kalır. Topla oynama yüzdesi pas uçuşunda son sahip takımına yazılır; serbest top da yeni kontrol gelene kadar son sahipte sayılır. Çizgide yeniden başlama bekleyişi yüzdelerden çıkar. Oyuncunun ortalama tutması ve takımın kesintisiz ortalama sahiplik süresi ayrı raporlanır.
 
@@ -251,6 +291,15 @@ Sayfa ayrı Vite girişidir; oyun hiçbir laboratuvar modülü yüklemez. Labora
 
 ## Kabul ve ölçüm
 
+### Kariyer için motor komutları (B)
+
+- `requestSimulationSubstitution(simulation,{teamId,outId,player,slot?})` isteği günlükte bekletir. `applySimulationCommands` yalnız santra/devre/gol, çizgi veya hakem duruşunda uygular; menüde duraklatmak futbol duruşu değildir. Gelen aynı yuvayı, verilen farklı boş yuva varsa onu alır. Çıkan aktif kadrodan `departed` arşivine geçer; geri giremez. Kırmızı kartlı oyuncunun yerine oyuncu alınamaz; bekleyen oyuncu kart görürse isteği iptal edilir. Kadro değişince hızlandırma indisleri ve topsuz önbellekler yenilenir.
+- `commandSimulationTactics(simulation,{teamId,tactics,formation?})`: pres, hat, mentalite, tempo, pas stili ve genişlik yalnız o takıma uygulanır; olay tam `tick` ve `time` taşır. Diziliş yeni çapa verir; oyuncu ışınlanmaz. Eksik yuvayı korur. Genişlik çarpanları Dar 0,84 / Normal 1 / Geniş 1,08; saha sınırı ortak zarfı sınırlar.
+- `commandSimulationInstruction`: Dengeli varsayılan; Topu sakla koruma puanına +6; Daha fazla şut karar puanına ×1,18; Kısa/Uzun kullan kaleci alıcı mesafesini 12/45 m yapar (uzunda punt). Diğer bireysel talimatlar `effective:false`: henüz etkisiz. `commandSimulationMotivation` motivasyon komutunu kaydeder; moral etkisi kariyerdedir.
+- `workload:true` maçta kondisyon hareketten tüketilir: saha oyuncusunda saniyede 0,0006, kalecide 0,0032; metrede 0,0008, sprint metresinde ek 0,00035, mücadelede 0,0175 puan; stamina çarpanı `0,7+0,8·(1−stamina/100)`, taban 20. Kalan kondisyon hız/ivmeyi her adımda yeniler. Oyuncunun süre/mesafe/sprint/temas sayacı vardır. Eski topsuz koordinat fikstürü ve laboratuvarın Denge 1 karşılaştırması tüketimsiz kalır; kariyer tüketimi açar.
+- Sakatlık yalnız tüketimli maçlarda: 60 sn'de bir oyuncu başına saniyelik 0,0000012 temel seed'li risk, yorgunlukla `1+3·(1−fitness/100)`; en az 6 m/sn sert bacak temasında 0,002 ek risk. `injureSimulationPlayer` oyuncuyu çıkarır, hakem duruşu ve `paused` üretir. Kullanıcıdan değişiklik istemek ve rakibin otomatik seçimi adaptörün işidir. Oranlar JSON'dadır; eski motorun maç başına yaklaşık 0,135 kullanıcı sakatlığı referanstır.
+- `pauseSimulation` / `resumeSimulation` günlüklüdür; dururken saat/fizik ilerlemez. `snapshotSimulation` salt okur, `restoreSimulation` format 1 düz nesneden devam eder. Kesirli zaman, RNG, bekleyen komutlar, top/oyuncular/hakem/avantaj, kararlar, sayaç/günlük ve kovalamaca/alıcı algısı önbelleği saklanır. JSON'un kaybettiği ortak konum referansları, `undefined` ve sonsuz karar puanları yan tablolarla geri kurulur. Kaydetme yeni zar çekmez veya olay eklemez. Test: 45. dakikadan sonra bekleyen değişiklikle JSON'a kaydet/yükle ve kaydetmeden sürdürme, 90'daki **bütün durum** için eşittir.
+
 `tests/match-sim.test.cjs`: deterministik konum dizisi, değişen kare hızında aynı adım sayısı, her adımda hız/ivme/dönüş sınırları, özellik ve kondisyon etkisi, presin tepki süresi ve sayısı, gerçek pas çizgisinin örtülmesi, blok ölçüleri/kayması/genişlemesi, taktik karşılıkları, girdi ve kopya sınırı. Başsız test: 90 dk = 54.000 adım, 22 oyuncu; otomatik top betiğiyle süre ölçülür. Hız bütçesi `tests/match-sim-performance.test.cjs` içinde ayrı korunur. Tüm pahalı maç testleri bittikten sonra seri çalışır; paketlenmiş yerel motor için topsuz 3 sn ve sürme/müdahale dahil gerçek oyun için **üç ayrı tam 90 dakika koşusunun her birinde 2 sn** CI sınırları vardır; bütün süreler test çıktısında görünür. Önceki pas bütçesi 4,5 sn idi; eski profil ayrımı [pas raporunda](match-sim-passing-report.md), yeni sonuç [sürme/mücadele raporunda](match-sim-duels-report.md). Aynı dosya, başlangıç main sürümünün 54.000 × 22 × 2 koordinatının SHA-256 özetini birebir korur; eski testler veya altınlar güncellenmez.
 
 ### Ölçülen ilk sonuçlar (28 Ekim 2026)
@@ -280,7 +329,7 @@ Başsız otomatik top deneyi: tohum 901, 22 oyuncu, 54.000 adım = 90 dakika; **
 | Taktikler | Mentalite, tempo, genişlik, pas stili, yaklaşım ve bireysel talimatlar davranış olur | Kullanıcı müdahalesinin ilk görülen etkisi ve denge sınırları? |
 | Denge ve geçiş | Pres süresi, koşu mesafesi/sprintler, pas mesafesi/başarı, top kazanma yerleri, şut/xG/faul/kart dağılımları ölçülür | Hedef maç temposu ve istatistik aralıkları birlikte seçilecek; eski altınlar yeni motorun birebir skor hedefi değildir |
 
-Yeni motor yalnız kullanıcının maçına bağlanacak. 3D entegrasyonu, denge ve kayıt geçişi ayrı işlerdir; eski motor ancak açık geçiş kararı ve testlerden sonra silinir.
+V7.15.0 yeni motoru yalnız kullanıcının maçına, varsayılan kapalı anahtarla bağlar; kayıt biçimi 4 geçişi bu iştedir. 3D entegrasyonu ve son denge sonraki işlerdir; eski motor ancak açık geçiş kararı ve testlerden sonra silinir.
 
 ### Top/pas ölçümü — 28 Ekim 2026
 
@@ -300,6 +349,8 @@ Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ay
 
 
 ## Denge 1 — 28–29 Ekim 2026
+
+Kariyere bağlama öncesi A teşhisi: 50 maçın dokuz yüksek skorlu örneğinde 52 golün önceki 30 sn'si incelendi. Santradan 30 sn içinde gol yok; goller arası medyan 693,36 sn. Kaleci çıkışının hemen kesilmesinden doğan beş gol görüldü; çıkış seçimi/ilk alçak uçuş zayıflığı son denge işine bırakıldı. Durumu bozup kalan bir santra döngüsü saptanmadı. Motor değiştirilmedi; 50 skor ve sayaçlar Denge 1 ile aynı. Ayrıntı ve ham tanılar [kariyer raporunda](match-sim-career-report.md).
 
 Ölçüm ayardan önce kuruldu: 50 benzersiz tohum, aynı iki takım/diziliş/taktik, 54.000 gerçek adım; derleme ve rapor zaman dışında. Her ölçünün ortalama/medyan/P10/P90’ı, şut/kaleci/müdahale dilimleri, xG kalibrasyonu ve +5/+10/+20 güç farkı aynı düzenekle raporlanır. Rastgelelik yalnız uygulama/temas kalitesindedir; gol/kurtarış/müdahale sonucuna kota veya ayrı zar yoktur.
 

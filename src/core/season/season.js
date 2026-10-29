@@ -92,6 +92,7 @@ export function seasonMatchAssists(match) {
   const neutral = new Set(['shot', 'chance', 'offBallRun', 'run', 'ballCarry', 'firstTouch', 'hold', 'shout', 'order', 'press']);
   events.forEach((e, i) => {
     if (e.type !== 'goal' || e.fromSide !== 'user' || e.penalty || typeof e.fromId !== 'number') return;
+    if (e.simulationEvent) { if (typeof e.assistId === 'number' && e.assistId !== e.fromId) out[e.assistId] = (out[e.assistId] || 0) + 1; return; }
     for (let j = i - 1; j >= 0 && j >= i - 14; j--) {
       const x = events[j];
       if (neutral.has(x.type)) continue;
@@ -109,8 +110,13 @@ export function seasonRecordMatch(match, result) {
   result.assists = assists;
   for (const [id, n] of Object.entries(assists)) {
     const p = S.players.find(q => q.id === +id); if (p) p.assists = (p.assists || 0) + n;
-    const row = result.matchSummary?.players?.find(q => q.id === +id); if (row) row.assists = (row.assists || 0) + n;
+    writeSummaryAssist(result, { id: +id, count: n, experimental: match.experimental });
   }
+}
+
+function writeSummaryAssist(result, { id, count, experimental }) {
+  const row = result.matchSummary?.players?.find(player => player.id === id);
+  if (row) row.assists = experimental ? count : (row.assists || 0) + count;
 }
 
 /* ---------- ageing, retirement and development rules ---------- */

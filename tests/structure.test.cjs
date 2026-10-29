@@ -36,6 +36,8 @@ test('no script replaces a function at run time', () => {
   const replaced = [];
   for (const { file, code } of gameSources({ layers: ['clock', 'view'] })) {
     for (const m of code.matchAll(/^(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/gm)) {
+      // Private module declarations are not page globals; only the owning module's exports are observable.
+      if (g.owner(m[1]) !== file) continue;
       const now = g.run(`typeof ${m[1]}==='function'?${m[1]}.toString().slice(0,200):'missing'`);
       if (!now.replace(/^async\s+/, '').startsWith(`function ${m[1]}(`) && !now.replace(/^async\s+/, '').startsWith(`function ${m[1]} (`)) replaced.push(`${file}: ${m[1]}`);
     }
@@ -49,7 +51,7 @@ test('extension points: the star transfer and the navigation register for named 
   // main.js: the manager mode redraws and readies a career when core says so (D4)
   // star-transfer.js: before and after a signing (nav.js needs a document)
   // highlight-recorder.js: a star moment of a match and the moves learnt over a summer
-  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 1, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1, starMoment: 1, movesLearned: 1 });
+  assert.deepEqual(hooks, { changed: 1, careerOpened: 1, decisionsRequested: 1, opponentsEvolved: 1, matchEvent: 2, minutePlayed: 1, seasonStarted: 1, beforeSigning: 1, afterSigning: 1, starMoment: 1, movesLearned: 1 });
   // a big signing still starts the scene; a small one does not
   g.run('S=fresh();S.matchSalt=newMatchSalt();init();S.budget=1e12;S.v6.transferWindow=true;render()');
   const star = g.run('S.v6.transferPool.find(x=>starSceneQualifies(x))?.id');

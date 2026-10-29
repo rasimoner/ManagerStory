@@ -1,0 +1,104 @@
+{
+  "milliseconds": 551685,
+  "seconds": 551.685,
+  "node": "v22.23.4",
+  "cpuThrottle": 4,
+  "viewport": [
+    390,
+    844
+  ],
+  "frames": 20831,
+  "medianFrameMs": 16.79999999998836,
+  "p95FrameMs": 49.899999999965075,
+  "maximumFrameMs": 2749.899999999907,
+  "longFrames": [
+    {
+      "milliseconds": 2749.899999999907,
+      "gameSecond": 5400,
+      "phase": "quiet",
+      "status": "90:00 • MAÇ BİTTİ"
+    },
+    {
+      "milliseconds": 1300,
+      "gameSecond": 2700,
+      "phase": "restart",
+      "status": "45:00 • CANLI"
+    },
+    {
+      "milliseconds": 350,
+      "gameSecond": 5160,
+      "phase": "quiet",
+      "status": "86:00 • CANLI"
+    },
+    {
+      "milliseconds": 333.4000000000233,
+      "gameSecond": 5280,
+      "phase": "approach",
+      "status": "88:00 • CANLI"
+    },
+    {
+      "milliseconds": 333.29999999998836,
+      "gameSecond": 4080,
+      "phase": "quiet",
+      "status": "68:00 • CANLI"
+    },
+    {
+      "milliseconds": 333.29999999998836,
+      "gameSecond": 4140,
+      "phase": "quiet",
+      "status": "69:00 • CANLI"
+    },
+    {
+      "milliseconds": 316.79999999998836,
+      "gameSecond": 3900,
+      "phase": "approach",
+      "status": "65:00 • CANLI"
+    },
+    {
+      "milliseconds": 316.70000000001164,
+      "gameSecond": 4740,
+      "phase": "threat",
+      "status": "79:00 • CANLI"
+    },
+    {
+      "milliseconds": 300.0999999999767,
+      "gameSecond": 4980,
+      "phase": "threat",
+      "status": "83:00 • CANLI"
+    },
+    {
+      "milliseconds": 300,
+      "gameSecond": 3960,
+      "phase": "quiet",
+      "status": "66:00 • CANLI"
+    }
+  ],
+  "phases": {
+    "restart": 1696,
+    "quiet": 8111,
+    "approach": 5971,
+    "threat": 3160,
+    "critical": 1895
+  },
+  "backwards": false,
+  "score": [
+    3,
+    3
+  ],
+  "savedUtf16Bytes": 1651986,
+  "simulationMetrics": {
+    "realSeconds": 531.2779680000768,
+    "frames": 20840,
+    "steps": 54000,
+    "budgetLimitedFrames": 5826,
+    "phaseSeconds": {
+      "restart": 41.03116800000045,
+      "quiet": 220.69180000002186,
+      "approach": 149.6093000000093,
+      "threat": 75.29730000000112,
+      "critical": 44.64840000000017
+    }
+  },
+  "sourceCommit": "922e4b3a94f7a8b95c32734d49cc2fcab926ccc4",
+  "workflowRun": "https://github.com/rasimoner/ManagerStory/actions/runs/40864845060"
+}

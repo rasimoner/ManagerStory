@@ -45,6 +45,15 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | 1 | V7.9.13 (yeniden yapılanma B) – V7.13.1 | 0 → 1 |
 | 2 | V7.13.2 | 1 → 2 |
 | 3 | V7.14.0 sonrası | 2 → 3 |
+| 4 | V7.15.0 sonrası | 3 → 4 |
+
+**3 → 4:** `experimentalMatchEngine` yoksa `false` eklenir. Ayarlar'daki anahtar bu kariyerde saklanır; devam eden maçın motoru değiştirilmez. Eski maç kayıtlarının dakika motoru, RNG ve 3D durumu korunur.
+
+Deneysel `activeMatchV71` ek alanları: `experimental:true`, `fieldView:"2d"`, `simulationCheckpoint`, `simulationCursor`, `simulationNames`, `simulationTeams`, `simulationPendingPasses`. Çalışma sırasında `M.simulation` saf çekirdek nesnesidir; kayda onun yerine `snapshotSimulation` format 1 JSON nesnesi yazılır. RNG, kesirli saat, geçici duruş/avantaj, bekleyen değişiklikler, ayrılan oyuncular, kondisyon/sakatlık, tüm günlük ve karar/kovalama önbelleği içindedir. Ortak referans ve JSON'da kaybolan skaler yan tabloları yeniden kurulur. Kariyere aktarılmış olay cursor'ı ve oyuncu dakika sayaçları çift gol/kart/dakika yazılmasını önler. Detay: `docs/match-sim.md`.
+
+Son biçimde ağır alanlar (`simulationCheckpoint`, `simulationPlayback`, `simulationDisplayFrame`, `events`, `story`, `minuteEvents`) cihazda `simulationArchive:{encoding:"lzw-varint-utf16",data}` içinde kayıpsız sıkıştırılır; yüklemede düz alanlara açılır. Aynı nesneleri kullanan `minuteEvents`, arşivde `minuteEventIds` ile tam olaylara bağlanır; açıldığında referansları geri kurulur. Ön adayın `lzw-varint-base64` arşivi de okunur. `simulationPlayback` artık yalnız anlık/önceki görünüm ve yumuşak hız integrali taşır; önden hesaplanmış maç veya halka tampon yoktur. `M.matchElapsedSeconds` çekirdeğin zamanıyla aynıdır. Çekirdeğin kamuya açık `snapshotSimulation` sözleşmesi sıkıştırılmamış düz nesne kalır.
+
+Tamamlanmış deneysel `matchSummary` kayıtları `engine:"continuous"` işaretlidir. `results` ve `v71.lastMatch` özetleri cihazda ayrı kayıpsız arşivlerdir, açılınca mevcut ekranların beklediği tam nesneler olur. Normal maçın özet/kayıt yolu değişmez. Otomatik aktif-maç sıkıştırması Worker'da, açık kaydetme/duraklatma/ihracat eşzamanlıdır; sıra numarası eski asenkron işin yeni kayıt üzerine yazmasını önler. Hızlı sonuna-geç sırasında ara otomatik kayıt yığılmaz; kullanıcı durdurursa, sakatlıkta ve maç bitiminde kayıt alınır. Testte 33 maç arşivi + aktif tam maç 5 MiB UTF-16 bütçesinde korunur.
 
 **0 → 1** (eski `migrateV71`'in yaptığı, artık tek seferlik):
 - `currentClubId` yoksa başlangıç kulübü (`data/clubs.json` `startingClub`).
@@ -71,6 +80,7 @@ Kayıt alan adları "kayıt sözleşmesi"dir: kodda anlamlı adlar kullanılabil
 | Alan | Tür | Ne |
 |---|---|---|
 | `schemaVersion` | sayı | Kayıt biçimi (yukarıda). |
+| `experimentalMatchEngine` | boolean | Deneysel 2D motor tercihi; eski kayıtta kapalı, bir sonraki maçta seçilir. |
 | `version` | metin | Son yazan oyun sürümü. |
 | `currentClubId` | metin | Yönetilen kulüp (`managedClubName()`). Lig şimdilik başlangıç kulübünün etrafında kurulu; rakip bir kulüp adı yazılmışsa başlangıç kulübüne düşer. |
 | `matchSalt` | sayı | Maç zarlarının tuzu; her başlama vuruşunda cihazdan yenilenir. Yoksa (testler) fikstürün kendi tohumu. |

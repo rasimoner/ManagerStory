@@ -1,5 +1,11 @@
 # ManagerStory mimarisi
 
+V7.15.0'da iki motor birlikte durur. `core/match/career-input.js`, `career-events.js`, `career-ratings.js` saf adaptördür; `core/engine/experimental-*.js` yalnız açık anahtarlı kullanıcı maçını `core/sim/` ile sürer ve mevcut kariyer kancalarına iletir. Diğer lig maçları `simAIGame` ile kalır. Ayar kapalıysa eski dakika/3D akışı kullanılır. `modes/manager/experimental-settings.js` tercihi çizer; `core/presentation/sim/` salt okuyan 2D görünümdür.
+
+Güncel D kesintisizdir: `continuous-playback.js` motoru görülen andan ileri götürmez; `view-tempo.js` yalnız duvar zamanı → oyun zamanı dönüşümünü yumuşatır. Taktik/duraklatma komutu görülen adıma uygulanır; değişiklik isteği aynı adımda sıraya girer. `live-match.js` saat sürücüsü motoru ilerletir; `frame-clock.js` yalnız ölçülen maliyet ve adım bütçesini verir. `career-pitch.js` sabit yerleşimden GPU transform ile çizer; futbol durumuna yazmaz. `archive-codec.js`, `match-storage.js`, `history-storage.js` kayıpsız ve saf saklama sınırıdır; `archive-persistence.js`/`archive-worker.js` otomatik sıkıştırmayı çizim işinden çıkarır. Gecikmiş kayıtlar sıra kontrolüyle elenir. Üretimde simülasyon `core → modes` importu yapmaz.
+
+Yeni `core/sim/` komutları kariyerden bağımsızdır: takım kimliğiyle taktik, duruşta uygulanan değişiklik, hareketten tüketim ve hakem duruşuyla sakatlık. Kayıt salt düz nesnedir; RNG yanında algı/kovalama önbelleklerini ve JSON'da kaybolacak ortak konum referanslarını da taşır. Kariyer adaptörü bu sözleşmeyi kullanır; çekirdeğe `modes/` bağımlılığı eklenmez.
+
 Yeniden yapılanma A–E sonrası (V7.13.0: E'nin tamamı, Vite ile build dahil). Dosyaların tek tek yeri: `docs/code-layout.md`. Kayıt: `docs/save-format.md`. Oyunun kuralları ve motor (başka bir motora taşımak için): `docs/game-rules.md`.
 
 ## Katmanlar
@@ -13,7 +19,8 @@ src/              kaynak (npm run build → dist/, depoda değil)
     random.js       tohumlanabilir tek rastgele üretici
     hooks.js        çekirdeğin söyledikleri ve genişletme noktaları
     save.js         kayıt, taşıma zinciri
-    sim/            ayrı saniyelik deney çekirdeği: saf konum/hız/rol; henüz kariyere veya 3D’ye bağlı değil
+    sim/            saf saniyelik çekirdek; deneysel kariyer adaptörü bağlı, 3D ayrı
+    match/          saf kariyer eşlemesi/olay/reyting, kesintisiz izleme saati ve kayıt arşivi
     engine/         maç motoru: dakika, aksiyonlar, özellik modeli, duran toplar, saat, kullanıcı takımı
     league/ clubs/  lig, fikstür, puan tablosu, rakipler; kulüp kimliği
     players/        oyuncu tipleri, profiller, özel hareketler
@@ -106,6 +113,7 @@ Sorumluluğa göre modüller (yardımcılar torbası yok); saf oyun mantığı; 
 ## Kalan borçlar
 
 Yeniden yapılanmadan sonra bilerek bırakılanlar:
+- Deneysel motorda gerçek duran toplar/orta/kafa/ofsayt ve 3D henüz bağlı değil; desteklenmeyen talimatlar açık eşleme tablosunda. 1× süre ve CPU emülasyonundaki uzun kayıt/yeniden çizim kareleri `docs/match-sim-career-report.md` içinde ölçülür; CPU emülasyonu gerçek telefon/Safari denemesinin yerini tutmaz.
 - Motorun kariyerde yazdıkları: kondisyon, sakatlık bayrağı, `S.matchSalt`. Ayrılmaları maça özel kadro kopyası ister (oyuncu kariyeri moduyla birlikte).
 - Motor kullanıcı takımının ayarlarını (`S.plan`, `S.instructions`, `S.positions`) kariyerden okuyor; `user-team.js`'e taşınabilir.
 - Çekirdekte DOM/tarayıcı kullanan yerler: `core/save.js` (alert, indirme), `live-match.js` (sekme görünürlüğü), `pitch-v73.js`'in 2D saha çizimi, sezon sonu "devam" (alert, kaydırma).
@@ -128,7 +136,7 @@ Yeniden yapılanmadan sonra bilerek bırakılanlar:
 
 Yalnız laboratuvara ait üç çıktı (`lab.html`, `lab/laboratory.mjs`, `lab/laboratory.css`) `NOT_CACHED` listesindedir. Sabit adları HTML'de içerik hash'i sorgusuyla sürümlenir; Vite bu ikinci girişi bağımsız bir paketleme grafiğiyle kurar; mevcut oyunun betiklerine yeni ortak parça veya import eklenmez. Service worker yalnız laboratuvar sayfası/ad alanını ağdan geçirir; eski oyun betiklerini engelleyen kuralı korunur. Deney kendi worker'ını kaydetmez. `.mjs` girişi eski, henüz güncellenmemiş oyun worker'ının bilinmeyen `.js` engeline takılmaz; geçiş `tests/smoke/lab-legacy-worker.mjs` ile eski worker fikstürü altında doğrulanır. Test yükleyicisi `page` seçeneğiyle her girişin gerçek modül grafiğini ayrı yükler; kariyer testleri varsayılan oyunda, laboratuvar testleri ayrı sayfada kalır.
 
-Top teması, ilk dokunuş, pas kesilmesi, gerçek serbest sürme dokunuşları, jokey/ayakla-kayarak müdahale, omuz yavaşlaması ve temastan faul/kart/avantaj uygulandı. Şut/kaleci, kale çerçevesinden fiziksel sekme, gol/skor ve 45/90 dakika maç akışı da uygulandı. Genel sert gövde çarpışması, ofsayt/gerçek duran toplar, eski olay biçimine çeviri, 3D entegrasyonu ve futbol dengesi sonraki işlerdir. Taç çizgisindeki rakip kısa pası ile kale çizgisindeki kaleci elinden dağıtımı/kısa korner **geçici** borçtur; duran toplar işinde kaldırılacaktır. 1,8 m erişim zarfı da henüz sıçrama/kafa mücadelesi modeli değildir; kararlar ve takip soruları şartnamededir.
+Top teması, ilk dokunuş, pas kesilmesi, gerçek serbest sürme dokunuşları, jokey/ayakla-kayarak müdahale, omuz yavaşlaması ve temastan faul/kart/avantaj uygulandı. Şut/kaleci, kale çerçevesinden fiziksel sekme, gol/skor ve 45/90 dakika maç akışı da uygulandı. Kariyerin olay biçimine çeviri V7.15.0 adaptöründe uygulanmıştır. Genel sert gövde çarpışması, ofsayt/gerçek duran toplar, 3D entegrasyonu ve son futbol dengesi sonraki işlerdir. Taç çizgisindeki rakip kısa pası ile kale çizgisindeki kaleci elinden dağıtımı/kısa korner **geçici** borçtur; duran toplar işinde kaldırılacaktır. 1,8 m erişim zarfı da henüz sıçrama/kafa mücadelesi modeli değildir; kararlar ve takip soruları şartnamededir.
 
 Çekirdeğin `simulation-runtime` dizinleri ve seed'li üreteci simülasyon nesnesine bağlı özel WeakMap kaydındadır; kopyaya işlev, Map veya kariyer başvurusu sızmaz. Rol planı/kadro dizini takım bazında yeniden kullanılır. Hareketin saha fren hesabı, azami hızda bile çizgiye erişilemeyeceği kanıtlı iç bölgede tam eşdeğer serbest ivme yolunu kullanır; sınırda eski vektör freni aynen korunur. 54.000 adımın koordinat özeti bu optimizasyonun korumasıdır. Hız testi ağır testlerle yarışmadan seri çalışır; profil ve yerel paket/test VM ayrımı `docs/match-sim-passing-report.md`'dedir.
 

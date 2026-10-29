@@ -302,6 +302,7 @@ export function eligibleSubstitutes(){
 export function resolveUnfillableSubstitution(){
  const req=M?.requiredSubstitution;
  if(!req||!M.active.includes(req.playerId)||eligibleSubstitutes().length)return false;
+ if(M.experimental){M.active=M.active.filter(id=>id!==req.playerId);M.requiredSubstitution=null;matchEvent('order',M.min+'’ Uygun yedek yok; takım eksik devam edecek.',{simulationEvent:true});return true;}
  const p=userSquad().find(x=>x.id===req.playerId);
  if(p){p.fitness=Math.min(p.fitness,55);}
  M.requiredSubstitution=null;

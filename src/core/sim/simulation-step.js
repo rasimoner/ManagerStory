@@ -1,4 +1,6 @@
 import { finishSimulationKeeperRush } from './keeper-rushing.js';
+import { applySimulationCommands } from './substitutions.js';
+import { consumeSimulationFitness } from './player-workload.js';
 import { prepareSimulationMatch } from './match-lifecycle.js';
 import { prepareSimulationKeepers } from './keeper-positioning.js';
 import { advanceSimulationKeeperPossession } from './keeper-possession.js';
@@ -19,11 +21,11 @@ import { prepareSimulationOwner, finishSimulationOwnerStep } from './owner-decis
 import { advanceSimulationFreeBall, recordSimulationPossessionTime } from './ball-step.js';
 
 export function stepSimulation(simulation, replayBall) {
-  if (simulationHasEnded(simulation, replayBall)) return simulation;
+  if (simulationStepStopped(simulation, replayBall)) return simulation;
   if (replayBall !== undefined) applyOffBallReplay(simulation, replayBall);
   simulation.tick++;
   simulation.time = simulation.tick * MATCH_SIM_DATA.clock.stepSeconds;
-  if (prepareLiveSimulationStep(simulation, replayBall)) return simulation;
+  if (prepareLiveSimulationStep(simulation, replayBall)) { consumeSimulationFitness(simulation); return simulation; }
   for (const team of simulation.teams) {
     updateSimPhase(simulation, team);
     updateOffBallDecisions(simulation, team);
@@ -32,7 +34,7 @@ export function stepSimulation(simulation, replayBall) {
   if (replayBall === undefined) prepareBallMovement(simulation, owned);
   // Decisions read the same positions; neither team's integration gets a first-mover advantage.
   for (const team of simulation.teams) for (const player of team.players) integrateSimPlayer(player);
-  if (replayBall === undefined) finishBallMovement(simulation, owned);
+  if (replayBall === undefined) { finishBallMovement(simulation, owned); consumeSimulationFitness(simulation); }
   return simulation;
 }
 
@@ -70,9 +72,10 @@ function applyOffBallReplay(simulation, ball) {
 export function advanceSimulation(simulation, input) {
   if (!Number.isFinite(input.seconds) || input.seconds < 0) throw new RangeError('Elapsed seconds must be finite and non-negative.');
   if (input.ball !== undefined) validateSimBall(input.ball, simulation.teams);
+  if (simulation.paused) return simulation;
   simulation.accumulator += input.seconds;
   const { stepSeconds, epsilon } = MATCH_SIM_DATA.clock;
-  while (simulation.accumulator + epsilon >= stepSeconds) {
+  while (!simulation.paused && simulation.accumulator + epsilon >= stepSeconds) {
     stepSimulation(simulation, input.ball);
     simulation.accumulator = Math.max(0, simulation.accumulator - stepSeconds);
   }
@@ -83,8 +86,13 @@ function simulationHasEnded(simulation, replayBall) {
   return replayBall === undefined && simulation.match.phase === 'ended';
 }
 
+function simulationStepStopped(simulation, replayBall) {
+  return simulation.paused || simulationHasEnded(simulation, replayBall);
+}
+
 function prepareLiveSimulationStep(simulation, replayBall) {
   if (replayBall !== undefined) return false;
+  applySimulationCommands(simulation);
   simulation.liveBall = true;
   return prepareSimulationMatch(simulation);
 }

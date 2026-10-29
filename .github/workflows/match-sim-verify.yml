@@ -2,6 +2,7 @@ name: Verify match simulation
 on:
   pull_request:
     branches: [main]
+    paths-ignore: ['docs/**', 'README.md']
 permissions:
   contents: read
 concurrency:
@@ -33,6 +34,7 @@ jobs:
         env:
           SHOOTING_SCREENSHOT: shooting-mobile.png
           BALANCE_SCREENSHOT: balance-mobile.png
+          CAREER_CONTROLS_ONLY: '1'
       - name: Measure fifty matches and attribute-strength experiments
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
@@ -45,4 +47,28 @@ jobs:
             balance-measurements.json
             balance-mobile.png
             shooting-mobile.png
+          if-no-files-found: ignore
+  continuous-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Watch a complete continuous 1x career match on a mobile viewport
+        run: node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/career-sim.mjs
+        env:
+          CAREER_SCREENSHOT: career-mobile.png
+          CAREER_METRICS: career-mobile-metrics.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: continuous-career-mobile
+          path: |
+            career-mobile.png
+            career-mobile-metrics.json
           if-no-files-found: ignore

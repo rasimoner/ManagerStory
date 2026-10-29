@@ -9,6 +9,9 @@ import { currentPitchState, enqueuePitchEvent, eventPoint, nearestMarker } from 
 import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './pitch-v731.js';
 import { save } from '../save.js';
 import { userOpponent, userSquad } from './user-team.js';
+import { restoreSimulation } from '../sim/simulation-checkpoint.js';
+import { createSimulationPlayback } from '../match/continuous-playback.js';
+import { unpackMatchSnapshot } from '../match/match-storage.js';
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
@@ -21,8 +24,9 @@ export function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0);
 export function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
 export function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
-  setMatch(structuredClone(S.activeMatchV71));
+  setMatch(unpackMatchSnapshot(S.activeMatchV71));
   M.rand = R(M.rngState ?? matchSeed());
+  if (M.experimental) { M.simulation = restoreSimulation(M.simulationCheckpoint); delete M.simulationCheckpoint; M.simulationPlayback ??= createSimulationPlayback(M.simulation); }
   delete M.uiOverlay;
   ensureMatchState();
   ensureLiveState();
@@ -90,7 +94,7 @@ export function matchEvent(type, text, data = {}) {
   M.events.push(event);
   if (M.minuteEvents && ['kickoff','pass','interception','run','dribble','ballCarry','offBallRun','counterAttack','press','tackle','cross','shot','save','block','post','wide','goal','throwIn','goalKick','corner','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery','foul','freeKick','penalty','offside'].includes(type)) M.minuteEvents.push(event);
   M.story.push(text);
-  if (typeof enqueuePitchEvent === 'function') enqueuePitchEvent(event);
+  if (!M.experimental && typeof enqueuePitchEvent === 'function') enqueuePitchEvent(event);
   return event;
 }
 // Read-only actor classification. Generic engine blocks can be keeper contacts.
@@ -209,6 +213,7 @@ export function matchSummary(match = M) {
     all.slice(index + 1, index + 4).some(next => ['shot','goal','chance'].includes(next.type)));
   return {
     home: match.home, away: match.away, hg: match.hg, ag: match.ag, userHome: match.userHome,
+    ...(match.experimental ? { engine: 'continuous' } : {}),
     week: S.week, fixture: S.fixture, shots: [...match.shots], onTarget: [...match.ont],
     stats: structuredClone(match.stats), events: structuredClone(replayEvents), highlights: structuredClone(match.events.filter(e => ['goal','chance','save','red','injury'].includes(e.type))),
     players: Object.entries(match.playerStats).map(([id, stats]) => ({ id: +id, name: userSquad().find(p => p.id === +id)?.name || 'Oyuncu', ...stats })),

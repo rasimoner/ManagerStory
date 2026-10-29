@@ -3,7 +3,7 @@
     "complexity": 1
   },
   "src/core/engine/live-match.js": {
-    "complexity": 7,
+    "complexity": 6,
     "max-lines-per-function": 1,
     "max-statements": 3
   },
@@ -125,7 +125,7 @@
     "complexity": 16,
     "max-lines": 1,
     "max-params": 1,
-    "max-statements": 8
+    "max-statements": 7
   },
   "src/modes/manager/career-events.js": {
     "complexity": 4,

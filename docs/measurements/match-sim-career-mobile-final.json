@@ -1,0 +1,104 @@
+{
+  "milliseconds": 464034,
+  "seconds": 464.034,
+  "node": "v22.23.4",
+  "cpuThrottle": 4,
+  "viewport": [
+    390,
+    844
+  ],
+  "frames": 26206,
+  "medianFrameMs": 16.69999999999709,
+  "p95FrameMs": 16.79999999998836,
+  "maximumFrameMs": 2899.899999999965,
+  "longFrames": [
+    {
+      "milliseconds": 2899.899999999965,
+      "gameSecond": 5400,
+      "phase": "quiet",
+      "status": "90:00 • MAÇ BİTTİ"
+    },
+    {
+      "milliseconds": 1233.1999999999825,
+      "gameSecond": 2700,
+      "phase": "restart",
+      "status": "45:00 • CANLI"
+    },
+    {
+      "milliseconds": 316.70000000001164,
+      "gameSecond": 5340,
+      "phase": "quiet",
+      "status": "89:00 • CANLI"
+    },
+    {
+      "milliseconds": 300,
+      "gameSecond": 5100,
+      "phase": "quiet",
+      "status": "85:00 • CANLI"
+    },
+    {
+      "milliseconds": 299.8999999999651,
+      "gameSecond": 5160,
+      "phase": "quiet",
+      "status": "86:00 • CANLI"
+    },
+    {
+      "milliseconds": 266.70000000001164,
+      "gameSecond": 5220,
+      "phase": "quiet",
+      "status": "87:00 • CANLI"
+    },
+    {
+      "milliseconds": 266.6000000000349,
+      "gameSecond": 5280,
+      "phase": "approach",
+      "status": "88:00 • CANLI"
+    },
+    {
+      "milliseconds": 233.40000000002328,
+      "gameSecond": 4980,
+      "phase": "threat",
+      "status": "83:00 • CANLI"
+    },
+    {
+      "milliseconds": 233.39999999996508,
+      "gameSecond": 4320,
+      "phase": "quiet",
+      "status": "72:00 • CANLI"
+    },
+    {
+      "milliseconds": 233.29999999998836,
+      "gameSecond": 4260,
+      "phase": "approach",
+      "status": "71:00 • CANLI"
+    }
+  ],
+  "phases": {
+    "restart": 2190,
+    "quiet": 9567,
+    "approach": 7589,
+    "threat": 4207,
+    "critical": 2655
+  },
+  "backwards": false,
+  "score": [
+    3,
+    3
+  ],
+  "savedUtf16Bytes": 1651998,
+  "simulationMetrics": {
+    "realSeconds": 447.53150200008736,
+    "frames": 26215,
+    "steps": 54000,
+    "budgetLimitedFrames": 526,
+    "phaseSeconds": {
+      "restart": 37.26560199999984,
+      "quiet": 164.70870000002364,
+      "approach": 130.04360000001506,
+      "threat": 71.01510000000206,
+      "critical": 44.498499999999936
+    }
+  },
+  "sourceCommit": "fbaf22c0eb536b383d51e83b1f90fe454e6f9d13",
+  "workflowRun": "https://github.com/rasimoner/ManagerStory/actions/runs/40890614739"
+}

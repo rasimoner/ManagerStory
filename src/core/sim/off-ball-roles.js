@@ -14,6 +14,7 @@ function teamPlanningState(team) {
   return planningStates.get(team);
 }
 const outfieldPlayers = team => teamPlanningState(team).players;
+export function invalidateSimulationPlanning(team) { planningStates.delete(team); }
 function nearestPlayer(players, point) {
   let nearest, minimum = Infinity;
   for (const player of players) {

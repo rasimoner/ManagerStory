@@ -1,6 +1,6 @@
 {
   "name": "managerstory",
-  "version": "7.14.0",
+  "version": "7.15.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,8 +10,9 @@
     "lint": "node tools/lint/lint.js",
     "test": "node tests/run.cjs",
     "test:fast": "node tests/run.cjs --fast",
-    "smoke": "node tests/smoke/smoke.mjs && node tests/smoke/lab.mjs && node tests/smoke/lab-legacy-worker.mjs && node tests/smoke/lab-passing.mjs && node tests/smoke/lab-duels.mjs && node tests/smoke/lab-shooting.mjs && node tests/smoke/lab-balance.mjs",
-    "sim:report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-report.cjs"
+    "smoke": "node tests/smoke/smoke.mjs && node tests/smoke/lab.mjs && node tests/smoke/lab-legacy-worker.mjs && node tests/smoke/lab-passing.mjs && node tests/smoke/lab-duels.mjs && node tests/smoke/lab-shooting.mjs && node tests/smoke/lab-balance.mjs && node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/career-sim.mjs",
+    "sim:report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-report.cjs",
+    "sim:career-report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-career-report.cjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

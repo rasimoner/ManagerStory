@@ -8,6 +8,7 @@ import { aerialHeight, aerialRating, aerialWinProbability, attributeEdge, boxCha
 import { fanPhoto, resolveClubIdentity } from '../clubs/clubs.js';
 import { oppRadarPos, setOppOwner, setUserOwner } from './match-minute.js';
 import { userOpponent, userSquad } from './user-team.js';
+import { paintExperimentalPitch } from '../presentation/sim/career-pitch.js';
 export let pitchState = null;
 export const PITCH_ACTIONS = new Set(['kickoff','pass','cross','interception','press','tackle','dribble','ballCarry','offBallRun','counterAttack','run','shot','save','block','post','wide','goal','throwIn','restart','goalKick','corner','freeKick','penalty','hold','ballOut','restartPosition','restartPlayers','restartWait','firstTouch','looseBall','recovery']);
 export const IMPORTANT_ACTIONS = new Set(['kickoff','shot','save','block','post','wide','goal','throwIn','goalKick','corner','offBallRun','dribble','ballCarry','tackle']);
@@ -328,6 +329,7 @@ export function paintPitchGoalFeedback(overlay,feedback){
 }
 
 export function paintLivePitch() {
+  if (M?.experimental) { paintExperimentalPitch(); return; }
   if(!M||typeof document==='undefined')return;
   const clock=document.querySelector('#live-clock');if(clock)clock.textContent=matchClock();
   const now=typeof performance!=='undefined'?performance.now():0;

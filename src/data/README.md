@@ -1,5 +1,13 @@
 # Oyun verisi
 
+## match-sim-career.json (`CAREER_SIM_DATA`)
+
+Kariyer ile saniyelik motor arasındaki eşleme: serbest/4-2-3-1/4-4-2 dizilişleri, yuvalar ve uyumlu roller, mevcut oyuncu alanlarından özellik okuma sırası, eksik alan varsayılanı, normalize çapa sınırı, takım talimatları ve henüz etkisiz seçeneklerin açık listesi. `rating` olay ağırlıkları (6,5 taban, gol/asist/şut/pas/müdahale/hata/kurtarış/yenilen gol/kart, 1–10 sınırı), büyük fırsat xG eşiği ve temel izleme saati. Kulüp renkleri bu dosyaya kopyalanmaz; kulüp kimliğinden gelir.
+
+`continuous`: 1× seçiliyken sakin/ yaklaşım/ tehdit/ kritik/ yeniden başlama gösterim hızları 32/12/3/1/8; geometrik eşikler, 1 sn yön kestirimi, 0,18 sn yavaşlama ve 0,8 sn hızlanma zaman sabitleri. Hedef 6–10 dk; bu değerler oyuncu fiziğini veya olay sıklığını değiştirmez. `playback` yalnız kare işi bütçesi, adım sınırı ve çizim/sayaç yenileme oranlarını tutar; önden hesaplama/halka tampon katsayıları kaldırıldı.
+
+`match-sim.json` kariyer komutları: `tactics.widthScale` takım genişliği; `workload` süre/mesafe/sprint/temas tüketimi ve stamina çarpanı; `injuries` periyodik yorgunluk/sert temas riskleri; `instructions` her bireysel talimatın gerçekten etkili olup olmadığı ve karar/kaleci çıkış katsayıları. Tüketim kariyer girdisinde açılır; Denge 1 laboratuvar karşılaştırması sabit kalır.
+
 Oyunun verisi koddan ayrı, düz JSON dosyalarında (refactor B, V7.9.13; E4, V7.13.0’dan beri `.json`). Kod onları adıyla alır: `import CLUB_DATA from "../../data/clubs.json"`. Bir dosyayı her yerde aynı adla alın; testlerin erişim noktası (`tests/support/game.cjs`) dosyayı bu adla verir (`g.api.CLUB_DATA`). Başka bir motor (Godot) aynı dosyaları okuyabilir.
 
 `tests/data.test.cjs`: her dosya geçerli JSON, her dosyayı oyun kullanıyor ve oyun dosyadaki değerleri okuyor.
@@ -39,7 +47,7 @@ Team tactics: the options of each setting, their labels, and the team orders.
 
 ## match-sim.json (`MATCH_SIM_DATA`)
 
-Yeni saniyelik çekirdeğin ve ayrı laboratuvarın verisi; mevcut kariyer motoru bunu yüklemez. Kural kaynağı `docs/match-sim.md`.
+Yeni saniyelik çekirdeğin ve ayrı laboratuvarın verisi; V7.15.0 deneysel kariyer adaptörü aynı veriyi kullanır. Eski dakika motoru kendi kurallarıyla kalır. Kural kaynağı `docs/match-sim.md`.
 
 - `pitch`: metre cinsinden 105 × 68 saha, hedeflerin çizgiye payı, net açıklığı 7,32 × 2,44 kale (çerçeve merkezleri açıklığın dışında), direk yarıçapı, 16,5 × 40,32 ceza alanı, 5,5 × 18,32 altıpas ve orta daire ölçüleri.
 - `clock`: sabit adım (saniye); `epsilon` sadece kayan noktalı birikimin adım sınırını kaçırmaması için tolerans.

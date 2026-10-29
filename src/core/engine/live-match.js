@@ -9,6 +9,8 @@ import { tick } from './match-minute.js';
 import { save } from '../save.js';
 import { changed } from '../hooks.js';
 import { userSquad } from './user-team.js';
+import { advanceExperimentalFrame, advanceExperimentalSimulation, projectExperimentalPlayback, pauseExperimentalMatch, resumeExperimentalMatch } from './experimental-match.js';
+import { prepareExperimentalFrame, recordExperimentalFrame } from '../presentation/sim/frame-clock.js';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
 export const MATCH_PLAYBACK_SCALE = .5;
@@ -46,48 +48,58 @@ export function ensureLiveState() {
 export function advanceLive(realSeconds) {
   if (!M || M.pause || M.finished || ['FINISHING','FINISHED'].includes(M.lifecycle) || !Number.isFinite(realSeconds) || realSeconds <= 0) return 0;
   if (liveTickBusy) return 0; // one football minute is processed exactly once, never re-entrantly
+  if (M.experimental) return advanceExperimentalFrame(realSeconds);
   ensureLiveState();
   const next = Math.min(5400, matchSecond() + realSeconds * 90 * M.speed);
   let elapsed = 0;
   liveTickBusy = true;
   try {
   while (!M.pause && !M.finished && matchSecond()<5400 && (Math.floor(matchSecond()/60)+1) * 60 <= next + 1e-7) {
-    M.matchElapsedSeconds=(Math.floor(matchSecond()/60)+1)*60;
-    M.min=Math.floor(matchSecond()/60);
-    M.minuteEvents = [];
-    tick();
-    liveAssistantNote();
-    save();
+    advanceLegacyMinute();
     elapsed++;
   }
   } finally { liveTickBusy = false; }
   if (!M.pause && !M.finished) {M.matchElapsedSeconds=next;M.min=Math.floor(matchSecond()/60);}
   return elapsed;
 }
+function advanceLegacyMinute() {
+  M.matchElapsedSeconds=(Math.floor(matchSecond()/60)+1)*60;
+  M.min=Math.floor(matchSecond()/60);
+  M.minuteEvents = [];
+  tick();
+  liveAssistantNote();
+  save();
+}
 export function setMatchSpeed(speed) {
   if (!M || ![0.5, 1, 2].includes(Number(speed))) return;
   M.speed = Number(speed); save(); changed();
 }
-export const livePresentationPending = () => !!(presentation.live3d?.finishing||presentation.live3d?.halfPending);
+export const livePresentationPending = () => !M?.experimental && !!(presentation.live3d?.finishing||presentation.live3d?.halfPending);
 export const livePlaybackPaused = () => livePresentationPending() ? presentation.live3d.paused : M?.pause;
 export function pauseLive(reason = 'manual') {
   if(livePresentationPending()){presentation.live3d.setTerminalPaused(true);liveLastFrame=null;changed();return;}
   if (!M || M.finished || M.reason === 'half') return;
   M.pause = true; M.reason = reason; M.lifecycle=reason==='half'?'HALF_TIME':'PAUSED';liveLastFrame = null;
+  pauseExperimentalMatch();
   if(typeof pitchState!=='undefined'&&pitchState)pitchState.lastTime=null;
   save(); changed();
 }
 export function resumeLive() {
   if(livePresentationPending()){presentation.live3d.setTerminalPaused(false);liveLastFrame=null;changed();return;}
   if (!M || M.finished || M.reason === 'half') return;
-  if (M.requiredSubstitution) resolveUnfillableSubstitution();
-  if (M.requiredSubstitution && M.active.includes(M.requiredSubstitution.playerId)) {
-    alert('Sakatlanan oyuncu devam edemiyor. Önce oyuncu değişikliği yapın.'); return;
-  }
-  if(M.requiredSubstitution&&!M.active.includes(M.requiredSubstitution.playerId))M.requiredSubstitution=null;
+  if (!substitutionAllowsResume()) return;
   M.pause = false; M.reason = ''; M.uiOverlay = null; M.injuryFeedback=null;
+  resumeExperimentalMatch();
   M.lifecycle=M.secondHalf?'RUNNING_SECOND_HALF':'RUNNING';
   liveLastFrame = null;if(typeof pitchState!=='undefined'&&pitchState)pitchState.lastTime=null;save(); changed();
+}
+function substitutionAllowsResume() {
+  if (M.requiredSubstitution) resolveUnfillableSubstitution();
+  if (M.requiredSubstitution && M.active.includes(M.requiredSubstitution.playerId)) {
+    alert('Sakatlanan oyuncu devam edemiyor. Önce oyuncu değişikliği yapın.'); return false;
+  }
+  if(M.requiredSubstitution&&!M.active.includes(M.requiredSubstitution.playerId))M.requiredSubstitution=null;
+  return true;
 }
 export function liveFrameStep(now) {
   liveFrame = null;
@@ -96,16 +108,24 @@ export function liveFrameStep(now) {
   // Catch up clock time when Safari throttles frames; presentation retains its own .12s cap.
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
   liveLastFrame = now;
-  const oldMin = M.min, wasPlaybackPaused = livePlaybackPaused();
-  if(presentation.live3d?.enabled){presentation.live3d.step(dt,now);}
+  const oldMin = M.min, wasPlaybackPaused = livePlaybackPaused(), oldRoster = M.simulationRosterRevision;
+  if(M.experimental)advanceExperimentalLiveFrame(dt);
+  else if(presentation.live3d?.enabled){presentation.live3d.step(dt,now);}
   else if (!M.finished) advanceLive(dt * MATCH_PLAYBACK_SCALE);
   // A draining half has M.pause=true but its presentation is still running.
   // Re-rendering every frame resets liveLastFrame through ensureLiveLoop, so
   // the following RAF receives dt=0 forever. Render only a state transition.
-  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused) changed();
-  else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
+  if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused || M.simulationRosterRevision !== oldRoster) changed();
+  else if (livePitchNeedsPaint(now)) { paintLivePitch(); liveLastPaint = now; }
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);
+}
+function livePitchNeedsPaint(now) { return M.experimental || now - liveLastPaint >= 45; }
+function advanceExperimentalLiveFrame(seconds) {
+  const frame = prepareExperimentalFrame(seconds);
+  const view = advanceExperimentalSimulation(frame.seconds, { maxSteps: frame.maxSteps });
+  recordExperimentalFrame(frame, view?.steps ?? 0);
+  projectExperimentalPlayback(view);
 }
 export function ensureLiveLoop() {
   if (typeof requestAnimationFrame !== 'function' || !M || livePlaybackPaused() || ((M.finished || M.lifecycle==='FINISHED')&&!livePresentationPending()) || liveFrame !== null) return;
@@ -123,7 +143,7 @@ export function installBackgroundPause(){
 export function finalizeMatch(){
   if(!M||M.lifecycle==='FINISHED'||M.lifecycle==='FINISHING')return false;
   M.lifecycle='FINISHING';M.matchElapsedSeconds=5400;M.min=90;M.pause=true;M.reason='end';
-  if(presentation.live3d?.enabled)presentation.live3d.beginFinish();
+  if(legacyPresentationEnabled())presentation.live3d.beginFinish();
   else {
    if(liveFrame!==null&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(liveFrame);
    liveFrame=null;liveLastFrame=null;
@@ -133,6 +153,7 @@ export function finalizeMatch(){
   M.events.push({type:'end',minute:90,second:5400,gameSecond:5400,text:"🏁 90' Son düdük.",homeGoals:M.hg,awayGoals:M.ag});
   M.story.push("🏁 90' Son düdük.");save();return true;
 }
+function legacyPresentationEnabled() { return !M.experimental && presentation.live3d?.enabled; }
 export function matchSyncDebug(){
   if(!M)return null;
   const last=M.events?.at(-1),next=typeof pitchState!=='undefined'?pitchState?.queue?.[0]:null;
