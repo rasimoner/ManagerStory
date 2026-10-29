@@ -47,7 +47,7 @@ Team tactics: the options of each setting, their labels, and the team orders.
 
 ## match-sim.json (`MATCH_SIM_DATA`)
 
-Yeni saniyelik çekirdeğin ve ayrı laboratuvarın verisi; mevcut kariyer motoru bunu yüklemez. Kural kaynağı `docs/match-sim.md`.
+Yeni saniyelik çekirdeğin ve ayrı laboratuvarın verisi; V7.15.0 deneysel kariyer adaptörü aynı veriyi kullanır. Eski dakika motoru kendi kurallarıyla kalır. Kural kaynağı `docs/match-sim.md`.
 
 - `pitch`: metre cinsinden 105 × 68 saha, hedeflerin çizgiye payı, net açıklığı 7,32 × 2,44 kale (çerçeve merkezleri açıklığın dışında), direk yarıçapı, 16,5 × 40,32 ceza alanı, 5,5 × 18,32 altıpas ve orta daire ölçüleri.
 - `clock`: sabit adım (saniye); `epsilon` sadece kayan noktalı birikimin adım sınırını kaçırmaması için tolerans.

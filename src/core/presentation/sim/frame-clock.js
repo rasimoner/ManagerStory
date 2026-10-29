@@ -1,21 +1,22 @@
 import { M } from '../../state.js';
 import CAREER_SIM_DATA from '../../../data/match-sim-career.json';
-import { advanceExperimentalPlayback } from '../../engine/experimental-match.js';
 
 const budgets = new WeakMap();
 
-export function runExperimentalPresentationFrame(seconds) {
+export function prepareExperimentalFrame(seconds) {
   const settings = CAREER_SIM_DATA.playback;
   const budget = experimentalFrameBudget();
   const maxSteps = Math.max(1, Math.min(settings.maximumFrameSteps, Math.floor(settings.frameBudgetMs / budget.msPerStep)));
-  const started = performance.now();
-  const steps = advanceExperimentalPlayback(Math.min(seconds, settings.maximumFrameSeconds), { maxSteps });
-  const milliseconds = performance.now() - started;
+  return { seconds: Math.min(seconds, settings.maximumFrameSeconds), maxSteps, started: performance.now(), budget };
+}
+
+export function recordExperimentalFrame(frame, steps) {
+  const settings = CAREER_SIM_DATA.playback, budget = frame.budget;
+  const milliseconds = performance.now() - frame.started;
   budget.frames++;
   budget.totalMs += milliseconds;
   budget.maximumMs = Math.max(budget.maximumMs, milliseconds);
   if (steps) budget.msPerStep += (milliseconds / steps - budget.msPerStep) * settings.budgetSmoothing;
-  return steps;
 }
 
 function experimentalFrameBudget() {

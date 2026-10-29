@@ -9,8 +9,8 @@ import { tick } from './match-minute.js';
 import { save } from '../save.js';
 import { changed } from '../hooks.js';
 import { userSquad } from './user-team.js';
-import { advanceExperimentalFrame, pauseExperimentalMatch, resumeExperimentalMatch } from './experimental-match.js';
-import { runExperimentalPresentationFrame } from '../presentation/sim/frame-clock.js';
+import { advanceExperimentalFrame, advanceExperimentalPlayback, pauseExperimentalMatch, resumeExperimentalMatch } from './experimental-match.js';
+import { prepareExperimentalFrame, recordExperimentalFrame } from '../presentation/sim/frame-clock.js';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
 export const MATCH_PLAYBACK_SCALE = .5;
@@ -109,7 +109,7 @@ export function liveFrameStep(now) {
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
   liveLastFrame = now;
   const oldMin = M.min, wasPlaybackPaused = livePlaybackPaused(), oldRoster = M.simulationRosterRevision;
-  if(M.experimental)runExperimentalPresentationFrame(dt);
+  if(M.experimental)advanceExperimentalLiveFrame(dt);
   else if(presentation.live3d?.enabled){presentation.live3d.step(dt,now);}
   else if (!M.finished) advanceLive(dt * MATCH_PLAYBACK_SCALE);
   // A draining half has M.pause=true but its presentation is still running.
@@ -121,6 +121,11 @@ export function liveFrameStep(now) {
     liveFrame = requestAnimationFrame(liveFrameStep);
 }
 function livePitchNeedsPaint(now) { return M.experimental || now - liveLastPaint >= 45; }
+function advanceExperimentalLiveFrame(seconds) {
+  const frame = prepareExperimentalFrame(seconds);
+  const steps = advanceExperimentalPlayback(frame.seconds, { maxSteps: frame.maxSteps });
+  recordExperimentalFrame(frame, steps);
+}
 export function ensureLiveLoop() {
   if (typeof requestAnimationFrame !== 'function' || !M || livePlaybackPaused() || ((M.finished || M.lifecycle==='FINISHED')&&!livePresentationPending()) || liveFrame !== null) return;
   liveLastFrame = null;
