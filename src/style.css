@@ -235,6 +235,5 @@ body.in-match .navtop{display:none}
 .sim-ball{position:absolute;transform:translate(-50%,-50%);color:#fff;font-size:15px;text-shadow:0 1px 2px #000;z-index:4;pointer-events:none}
 .sim-event{position:absolute;left:6px;bottom:5px;right:6px;color:white;background:#061a12bd;padding:5px 8px;border-radius:6px;font-size:11px;pointer-events:none;z-index:5}
 .sim-status{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;color:#b8e6cb;font-size:12px}.sim-status small{max-width:48%;text-align:right;color:#8cb09c;font-size:10px}
-.sim-fast-label{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 18px;border-radius:12px;background:#092016e8;color:#d9f7e4;font-size:14px;z-index:6;white-space:nowrap}
-.sim-fast .sim-fast-label{display:block}.sim-fast .sim-player,.sim-fast .sim-ball{opacity:.18}.sim-player,.sim-ball{transition:opacity .18s ease}
 .sim-goal .sim-event{font-size:17px;font-weight:900;text-align:center;background:#083d23ef;color:#fff1b7;padding:14px}
+.sim-career-pitch .sim-player,.sim-career-pitch .sim-ball{transition:left .016s linear,top .016s linear}

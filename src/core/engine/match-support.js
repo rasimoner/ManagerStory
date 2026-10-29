@@ -10,7 +10,7 @@ import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './
 import { save } from '../save.js';
 import { userOpponent, userSquad } from './user-team.js';
 import { restoreSimulation } from '../sim/simulation-checkpoint.js';
-import { createSimulationPlayback } from '../match/highlight-playback.js';
+import { createSimulationPlayback } from '../match/continuous-playback.js';
 import { unpackMatchSnapshot } from '../match/match-storage.js';
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -213,6 +213,7 @@ export function matchSummary(match = M) {
     all.slice(index + 1, index + 4).some(next => ['shot','goal','chance'].includes(next.type)));
   return {
     home: match.home, away: match.away, hg: match.hg, ag: match.ag, userHome: match.userHome,
+    ...(match.experimental ? { engine: 'continuous' } : {}),
     week: S.week, fixture: S.fixture, shots: [...match.shots], onTarget: [...match.ont],
     stats: structuredClone(match.stats), events: structuredClone(replayEvents), highlights: structuredClone(match.events.filter(e => ['goal','chance','save','red','injury'].includes(e.type))),
     players: Object.entries(match.playerStats).map(([id, stats]) => ({ id: +id, name: userSquad().find(p => p.id === +id)?.name || 'Oyuncu', ...stats })),

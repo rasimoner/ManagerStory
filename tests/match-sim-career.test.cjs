@@ -26,6 +26,15 @@ function installDriver(game) {
   }`);
 }
 
+function assertCareerStorageBudget(game, completed) {
+  const result = game.api.S.results[0];
+  game.api.S.results = Array.from({ length: 33 }, (_, index) => ({ ...structuredClone(result), week: index + 1 }));
+  game.api.M = completed;
+  game.run('save()');
+  assert.equal(game.run('saveWarning'), false);
+  assert.ok(game.storage.get('msv4').length * 2 < 5 * 1024 * 1024, '33 archived matches plus a complete active match fit the mobile UTF-16 quota');
+}
+
 test('format 3 migrates to format 4 with the experiment disabled, and the setting survives reopening', () => {
   const game = career();
   game.run('S.schemaVersion=3;delete S.experimentalMatchEngine;migrateSave(S)');
@@ -88,11 +97,13 @@ test('a complete experimental match writes goals, cards, minutes, fitness, table
   assert.equal(game.run('Object.values(M.playerStats).reduce((n,p)=>n+p.goals,0)'), game.run('userSide()===0?M.hg:M.ag'));
   assert.ok(game.run('S.players.some(p=>p.minutes>0&&p.fitness<95)'));
   assert.equal(game.run('M.shots.reduce((a,b)=>a+b,0)'), game.run('M.simulation.events.filter(e=>e.type==="shot").length'));
+  const completed = game.api.M;
   game.run('finishMatch()');
   assert.equal(game.run('S.results.length'), 1);
   assert.equal(game.run('S.results[0].matchSummary.players.length>=11'), true);
   assert.equal(game.run('S.results[0].season'), 0);
   assert.ok(game.run('S.table.every(t=>t.p===1)'));
+  assertCareerStorageBudget(game, completed);
 });
 
 test('saving and reopening an experimental match resumes the same result without duplicating career events', () => {

@@ -2,6 +2,8 @@
 
 V7.15.0 geçiş dönemi: Ayarlar → Deneysel maç motoru (yeni, 2D), varsayılan kapalı. Yalnız kullanıcının sonraki kariyer maçı saniyelik `core/sim/` ile oynanır; diğer lig maçları eski `simAIGame` ile kalır. Kapalıyken eski dakika motoru ve 3D aynı tohum/komutlarda aynı olayı üretir. Açıkken sonucu fizik belirler, mevcut `matchEvent`/`minutePlayed` kancaları kariyeri yazar. Yeni motorun geçici çizgi/faul duruşları gerçek korner/penaltı uygulanmış gibi gösterilmez. Kurallar ve henüz etkisiz talimatlar `docs/match-sim.md` içindedir.
 
+İzleme kesintisiz değişken hızlıdır: 90 dakikanın bütün adımları oynanır, sakin bölüm çok hızlı, tehlikeli bölüm yumuşakça yavaşlar. 1× seçiminde hedef 6–10 dakika; 0,5×/2× bütün sunum hızlarını ölçekler. Süre için futbol fiziği veya denge değiştirilmez. Motor önden gitmez; komutlar görülen ana yazılır. Değişiklik yine gerçek duruşta uygulanır. Kısa oyuncu tepkisi fiziksel karar süresidir; tampon gecikmesi yoktur. 3D sonraki işte bağlanır.
+
 Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin neyi aynen koruması gerektiğini anlatır. JS kodu taşınmaz; taşınan şey veri (`src/data/*.json`), bu kurallar ve testlerdir. Kaynak her bölümde yazılı; sayıların kesin hali kodda ve `data/balance.jsonon`'da.
 
 **Doğruluk ölçütü**: aynı tohumla aynı olay günlüğü. `tests/golden/matches.json` 34 fikstürün her biri için olay günlüğünün hash'ini, skoru, istatistikleri ve maç özetini tutar; `seasons.json` üç sezonluk kariyeri. Hash: anahtarları sıralanmış JSON'un SHA-256'sının ilk 24 onaltılık karakteri (`tests/support/golden.cjs`). Yeni motor bu kayıtları üretebiliyorsa kuralları doğru taşımıştır. Bunun için rastgele sayıların **aynı sırayla** çekilmesi gerekir: aşağıdaki "dakika" sırası bu yüzden önemlidir.

@@ -1,0 +1,138 @@
+{
+  "node": "v22.23.4",
+  "status": "playback-only",
+  "baseline": null,
+  "stronger": null,
+  "progress": null,
+  "playback": {
+    "seconds": 447.1,
+    "computingMs": 6750.406732,
+    "metrics": {
+      "realSeconds": 447.10000000003316,
+      "frames": 4471,
+      "steps": 54000,
+      "budgetLimitedFrames": 0,
+      "phaseSeconds": {
+        "restart": 33.1000000000002,
+        "quiet": 165.3999999999949,
+        "approach": 124.69999999999719,
+        "threat": 78.7999999999998,
+        "critical": 45.10000000000037
+      }
+    },
+    "score": [
+      1,
+      5
+    ],
+    "saveBytes": 2270737,
+    "fitness": [
+      {
+        "id": 0,
+        "fitness": 81.07220053114612,
+        "minutes": 90
+      },
+      {
+        "id": 1,
+        "fitness": 82.12788875782135,
+        "minutes": 90
+      },
+      {
+        "id": 2,
+        "fitness": 82.68852960789184,
+        "minutes": 90
+      },
+      {
+        "id": 3,
+        "fitness": 81.68135375393481,
+        "minutes": 90
+      },
+      {
+        "id": 5,
+        "fitness": 82.40624256108353,
+        "minutes": 90
+      },
+      {
+        "id": 6,
+        "fitness": 83.77185248023746,
+        "minutes": 90
+      },
+      {
+        "id": 7,
+        "fitness": 82.55591507258936,
+        "minutes": 90
+      },
+      {
+        "id": 9,
+        "fitness": 81.33885489133874,
+        "minutes": 90
+      },
+      {
+        "id": 10,
+        "fitness": 82.09312297707697,
+        "minutes": 90
+      },
+      {
+        "id": 11,
+        "fitness": 82.29991409460276,
+        "minutes": 90
+      },
+      {
+        "id": 12,
+        "fitness": 81.09358777320327,
+        "minutes": 90
+      }
+    ]
+  },
+  "legacyFitness": [
+    {
+      "id": 0,
+      "fitness": 81.05535999999944,
+      "minutes": 90
+    },
+    {
+      "id": 1,
+      "fitness": 82.99503999999942,
+      "minutes": 90
+    },
+    {
+      "id": 3,
+      "fitness": 76.19536000000053,
+      "minutes": 90
+    },
+    {
+      "id": 5,
+      "fitness": 83.48608000000027,
+      "minutes": 90
+    },
+    {
+      "id": 6,
+      "fitness": 83.41120000000004,
+      "minutes": 90
+    },
+    {
+      "id": 7,
+      "fitness": 83.3420800000006,
+      "minutes": 90
+    },
+    {
+      "id": 9,
+      "fitness": 83.20671999999959,
+      "minutes": 90
+    },
+    {
+      "id": 10,
+      "fitness": 83.68912000000051,
+      "minutes": 90
+    },
+    {
+      "id": 11,
+      "fitness": 82.9000000000002,
+      "minutes": 90
+    },
+    {
+      "id": 12,
+      "fitness": 82.78336000000053,
+      "minutes": 90
+    }
+  ]
+}

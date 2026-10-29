@@ -88,6 +88,7 @@ function report() {
   const output = { node: process.version, status: 'running', baseline: null, stronger: null, progress: null };
   output.playback = playbackTrial();
   output.legacyFitness = referenceMatch();
+  if (process.argv.includes('--playback-only')) { output.status = 'playback-only'; write(output); return; }
   write(output);
   for (const [name, boost] of [['baseline', 0], ['stronger', 10]]) {
     output[name] = season(boost, (completed, matches) => {

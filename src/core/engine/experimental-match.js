@@ -12,7 +12,7 @@ import { userSquad } from './user-team.js';
 import { prepareExperimentalSubstitute } from './experimental-input.js';
 import { consumeExperimentalEvents } from './experimental-events.js';
 import { synchronizeExperimentalPlayers, synchronizeExperimentalTeamStats } from './experimental-players.js';
-import { createSimulationPlayback, advanceSimulationPlayback, readSimulationPlayback } from '../match/highlight-playback.js';
+import { createSimulationPlayback, advanceSimulationPlayback, readSimulationPlayback } from '../match/continuous-playback.js';
 import { captureSimulationFrame, refreshPlaybackFrame } from '../match/playback-frames.js';
 
 export function advanceExperimentalSeconds(seconds) {
@@ -99,7 +99,6 @@ export function pauseExperimentalMatch() {
 }
 export function resumeExperimentalMatch() {
   if (!M?.experimental) return;
-  if (M.secondHalf) M.simulationPlayback.releasedHalf = M.simulation.match.half;
   resumeSimulation(M.simulation);
 }
 

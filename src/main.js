@@ -49,6 +49,7 @@ import { managerSeasonStarted } from './modes/manager/season-end.js';
 import { installWebMcp } from './ui/webmcp.js';
 import { installServiceWorker } from './ui/updates.js';
 import { applyExperimentalDecision } from './core/engine/experimental-match.js';
+import { installSimulationArchiveWorker } from './core/presentation/sim/archive-persistence.js';
 
 // the manager mode is the one playing: core tells it when to redraw and when a career has been put in place
 onHook('changed', render);
@@ -61,6 +62,7 @@ onHook('minutePlayed', recordMinutePlayed);
 onHook('seasonStarted', managerSeasonStarted);
 setCareer(loadCareer());
 installActions();
+installSimulationArchiveWorker();
 installBackgroundPause();
 installStarTransfer();
 installHighlightRecorder();

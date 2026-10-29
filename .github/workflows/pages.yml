@@ -39,6 +39,9 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Smoke test the build
         run: npm run smoke
+        # The full real-time 1x watch is the PR gate; publication repeats controls and legacy smoke.
+        env:
+          CAREER_CONTROLS_ONLY: '1'
       - uses: actions/configure-pages@v5
         with:
           enablement: true

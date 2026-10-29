@@ -253,24 +253,6 @@
   "basicFastRate": 90,
   "epsilon": 1e-06,
   "playback": {
-    "lookaheadSeconds": 22,
-    "capacity": 260,
-    "preSeconds": 8,
-    "postSeconds": 2,
-    "boundaryPreSeconds": 2,
-    "quietRate": 120,
-    "importantTypes": [
-      "goal",
-      "shot",
-      "save",
-      "post",
-      "yellow",
-      "red",
-      "injury"
-    ],
-    "dangerDepth": 12,
-    "dangerWidth": 18,
-    "dangerCooldownSeconds": 60,
     "maxSteps": 128,
     "maximumFrameSteps": 512,
     "frameBudgetMs": 7,
@@ -278,8 +260,29 @@
     "budgetSmoothing": 0.15,
     "projectionSeconds": 30,
     "eventCaptionSeconds": 3,
-    "maximumFrameSeconds": 0.15,
-    "maximumLookaheadSeconds": 25,
-    "dangerMinimumXg": 0.2
+    "maximumFrameSeconds": 0.15
+  },
+  "continuous": {
+    "quietRate": 32,
+    "approachRate": 12,
+    "threatRate": 3,
+    "criticalRate": 1,
+    "restartRate": 8,
+    "approachDepth": 42,
+    "threatDepth": 28,
+    "threatWidth": 50,
+    "anticipationSeconds": 1,
+    "slowdownSeconds": 0.18,
+    "accelerationSeconds": 0.8,
+    "afterEventSeconds": 2,
+    "criticalTypes": [
+      "shot",
+      "goal",
+      "save",
+      "post",
+      "yellow",
+      "red",
+      "injury"
+    ]
   }
 }

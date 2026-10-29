@@ -1,5 +1,6 @@
 const FIRST_WORD = 65537, RESET = 65536, DICTIONARY_LIMIT = 131072;
 const BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+export const SIMULATION_ARCHIVE_ENCODING = 'lzw-varint-utf16';
 
 export function compressSimulationArchive(input) {
   const dictionary = new Map(), bytes = [];
@@ -13,13 +14,13 @@ export function compressSimulationArchive(input) {
     if (nextWord === DICTIONARY_LIMIT) { writeArchiveInteger(bytes, RESET); dictionary.clear(); nextWord = FIRST_WORD; }
   }
   if (phrase) writeArchiveInteger(bytes, phrase.length === 1 ? phrase.charCodeAt(0) : dictionary.get(phrase));
-  return archiveBase64(bytes);
+  return archiveUTF16(bytes);
 }
 
-export function decompressSimulationArchive(input) {
+export function decompressSimulationArchive(input, encoding = SIMULATION_ARCHIVE_ENCODING) {
   const dictionary = new Map(), output = [];
   let previous = '', nextWord = FIRST_WORD;
-  for (const code of readArchiveIntegers(archiveBytes(input))) {
+  for (const code of readArchiveIntegers(readArchiveBytes(input, encoding))) {
     if (code === RESET) { dictionary.clear(); previous = ''; nextWord = FIRST_WORD; continue; }
     const word = code < RESET ? String.fromCharCode(code) : dictionary.get(code) ?? (code === nextWord ? previous + previous[0] : null);
     if (word == null) throw new TypeError('Corrupt simulation archive.');
@@ -45,13 +46,35 @@ function* readArchiveIntegers(bytes) {
   if (shift) throw new TypeError('Truncated simulation archive.');
 }
 
-function archiveBase64(bytes) {
-  const output = [];
-  for (let index = 0; index < bytes.length; index += 3) {
-    const bits = (bytes[index] << 16) | ((bytes[index + 1] ?? 0) << 8) | (bytes[index + 2] ?? 0);
-    output.push(BASE64[bits >>> 18], BASE64[(bits >>> 12) & 63], index + 1 < bytes.length ? BASE64[(bits >>> 6) & 63] : '=', index + 2 < bytes.length ? BASE64[bits & 63] : '=');
+function archiveUTF16(bytes) {
+  const output = [String.fromCharCode(256 + (bytes.length & 32767)), String.fromCharCode(256 + (bytes.length >>> 15))];
+  let value = 0, bits = 0;
+  for (const byte of bytes) {
+    value = (value << 8) | byte;
+    bits += 8;
+    if (bits >= 15) { bits -= 15; output.push(String.fromCharCode(256 + ((value >>> bits) & 32767))); }
   }
+  if (bits) output.push(String.fromCharCode(256 + ((value << (15 - bits)) & 32767)));
   return output.join('');
+}
+
+function readArchiveBytes(input, encoding) {
+  if (encoding === SIMULATION_ARCHIVE_ENCODING) return archiveUTF16Bytes(input);
+  if (encoding === 'lzw-varint-base64') return archiveBytes(input);
+  throw new TypeError('Unsupported simulation archive encoding.');
+}
+
+function archiveUTF16Bytes(input) {
+  if (input.length < 2 || /[^\u0100-\u80ff]/.test(input)) throw new TypeError('Invalid simulation archive encoding.');
+  const length = (input.charCodeAt(0) - 256) | ((input.charCodeAt(1) - 256) << 15), bytes = [];
+  let value = 0, bits = 0;
+  for (let index = 2; index < input.length && bytes.length < length; index++) {
+    value = (value << 15) | (input.charCodeAt(index) - 256);
+    bits += 15;
+    while (bits >= 8 && bytes.length < length) { bits -= 8; bytes.push((value >>> bits) & 255); }
+  }
+  if (bytes.length !== length) throw new TypeError('Truncated simulation archive.');
+  return bytes;
 }
 
 function archiveBytes(input) {

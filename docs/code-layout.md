@@ -2,6 +2,8 @@
 
 Kariyer bağlantısı: `core/match/career-input.js` gerçek kadro/yuva/özellik/taktik girdisi; `career-events.js` metre → saha yüzdesi ve Türkçe olay; `career-ratings.js` olaydan oyuncu sayaçları/reyting. `core/engine/experimental-input.js`, `experimental-match.js`, `experimental-events.js`, `experimental-players.js` mevcut `M` ile komut/olay/kariyer köprüsü. `modes/manager/experimental-settings.js` varsayılan kapalı ayar; `core/presentation/sim/career-pitch.js` numaralı/renkli 2D saha.
 
+Kesintisiz gösterim: `core/match/continuous-playback.js`, `view-tempo.js`, `playback-frames.js`; anlık durum ve yumuşak hız, gelecek tamponu yok. `core/presentation/sim/frame-clock.js` kare işi ölçümü; `archive-persistence.js` ve `archive-worker.js` arka plan kayıt sıkıştırması. `core/match/archive-codec.js`, `match-storage.js`, `history-storage.js` aktif maç/sezon özetlerini kayıpsız saklar. `tests/match-sim-continuous.test.cjs`, `match-sim-storage.test.cjs` zaman/komut/RNG/kayıt sınırını; `tests/smoke/career-sim.mjs` gerçek 1× maç süresini ve telefon boyutlu akışı korur.
+
 Kariyer komut arayüzleri: `core/sim/substitutions.js` duruşta uygulanan kadro kuyruğu; `team-commands.js` tek takım taktik/diziliş ve bireysel talimat; `player-workload.js` gerçek mesafeden kondisyon/seyrek sakatlık; `player-injuries.js` oyuncuyu çıkaran hakem duruşu; `simulation-checkpoint.js` ve `checkpoint-values.js` RNG/önbellek/ortak referansları JSON'da koruyan kayıt. Motor kariyer veya DOM tanımaz.
 
 Refactor C (V7.9.13 üzerinde), D (V7.10.0 üzerinde), E1/E7/E8 (V7.11.0 üzerinde), E2–E6 (V7.12.0 üzerinde: Vite). Kaynak `src/`'te, olduğu gibi yayınlananlar `public/`'te; `dist/` sadece build çıktısı (`npm run build`), depoda değil. Katmanlar ve akışlar: `docs/architecture.md`.

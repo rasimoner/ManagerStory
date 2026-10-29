@@ -8,7 +8,7 @@ import { clockFromSeconds } from '../../engine/live-match.js';
 export function experimentalPitch() {
   const frame = M.simulationDisplayFrame ?? captureSimulationFrame(M.simulation);
   const players = frame.players.filter(player => !player.sentOff).map(player => experimentalPlayerDot(player)).join('');
-  return `<div class="sim-status"><span data-sim-mode>Önemli anlar · 2D</span><small>Komutlar kısa izleme gecikmesiyle uygulanır.</small></div><div class="livepitch v73pitch sim-career-pitch" data-sim-pitch aria-label="Deneysel 2D maç sahası"><div class=pitch-half-line></div><div class=pitch-center-circle></div><div class="pitch-box pitch-box-left"></div><div class="pitch-box pitch-box-right"></div><div class="pitch-goal-area pitch-goal-area-left"></div><div class="pitch-goal-area pitch-goal-area-right"></div>${players}<span class=sim-ball data-sim-ball aria-label=Top>●</span><span class=sim-fast-label>⏩ Oyun akıyor…</span><span class=sim-event data-sim-event></span></div>`;
+  return `<div class="sim-status"><span data-sim-mode>Kesintisiz · 2D</span><small>Müdahale anında; oyuncu değişikliği ilk duruşta.</small></div><div class="livepitch v73pitch sim-career-pitch" data-sim-pitch aria-label="Deneysel 2D maç sahası"><div class=pitch-half-line></div><div class=pitch-center-circle></div><div class="pitch-box pitch-box-left"></div><div class="pitch-box pitch-box-right"></div><div class="pitch-goal-area pitch-goal-area-left"></div><div class="pitch-goal-area pitch-goal-area-right"></div>${players}<span class=sim-ball data-sim-ball aria-label=Top>●</span><span class=sim-event data-sim-event></span></div>`;
 }
 
 function experimentalPlayerDot(player) {
@@ -35,10 +35,9 @@ export function paintExperimentalPitch() {
 }
 
 function paintExperimentalCaption(root) {
-  const fast = M.simulationPlayback.mode !== 'highlight';
-  root.classList.toggle('sim-fast', fast);
+  root.dataset.playback = M.simulationPlayback.mode;
   const label = document.querySelector('[data-sim-mode]');
-  if (label) label.textContent = fast ? 'Hızlı geçiş · 2D' : `Önemli an · ${M.speed}× · 2D`;
+  if (label) label.textContent = `Kesintisiz · ${M.simulationPlayback.currentRate.toFixed(1)}× · 2D`;
   const event = M.events.filter(entry => ['goal', 'shot', 'save', 'red', 'injury'].includes(entry.type)).at(-1);
   const visible = event && M.matchElapsedSeconds - event.simulationTime <= CAREER_SIM_DATA.playback.eventCaptionSeconds;
   root.querySelector('[data-sim-event]').textContent = visible ? event.text : '';

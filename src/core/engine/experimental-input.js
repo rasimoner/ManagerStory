@@ -5,7 +5,7 @@ import { oppRadarPos } from './match-minute.js';
 import { matchSeed, orderKey } from './match-support.js';
 import { commandSimulationInstruction } from '../sim/team-commands.js';
 import { userSquad } from './user-team.js';
-import { createSimulationPlayback } from '../match/highlight-playback.js';
+import { createSimulationPlayback } from '../match/continuous-playback.js';
 
 export function initializeExperimentalMatch() {
   const own = userSquad().filter(player => M.active.includes(player.id)).map(player => ({ ...player, role: M.matchRoles[player.id], lineupPosition: M.matchPositions[player.id] }));

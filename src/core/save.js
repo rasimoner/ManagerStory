@@ -19,10 +19,13 @@ import { MATCH_TACTICS } from './engine/tactics.js';
 import { GAME_VERSION } from './version.js';
 import { numberSquadKeepingShown } from './players/shirt-numbers.js';
 import { snapshotSimulation } from './sim/simulation-checkpoint.js';
-import { packExperimentalMatch } from './match/match-storage.js';
+import { packExperimentalMatch, prepareExperimentalMatchArchive, completeExperimentalMatchArchive } from './match/match-storage.js';
+import { packSimulationHistory, restoreSimulationHistory } from './match/history-storage.js';
+import { presentation } from './presentation/registry.js';
 export const SAVE_KEY = "msv4";
 export const SAVE_SCHEMA = 4;
 export let saveWarning = false;
+let saveSerial = 0;
 
 export const SAVE_MIGRATIONS = [
   {
@@ -98,6 +101,7 @@ export function migrateSave(state) {
   }
   state.schemaVersion = format;
   state.version = GAME_VERSION;
+  restoreSimulationHistory(state);
   return state;
 }
 
@@ -124,8 +128,9 @@ export function loadCareer() {
     return null;
   }
 }
-export function persistCareer() {
-  if (!S) return;
+export function persistCareer(options = {}) {
+  if (!S || skipFastForwardAutosave(options)) return;
+  const serial = ++saveSerial;
   if (M) {
     const { rand, ...snapshot } = M;
     if (M.experimental) {
@@ -133,18 +138,45 @@ export function persistCareer() {
       delete snapshot.simulation;
     }
     const record = { ...snapshot, rngState: rand.state };
+    if (M.experimental && options.automatic && backgroundExperimentalSave(record, serial)) return;
     S.activeMatchV71 = M.experimental ? packExperimentalMatch(record) : record;
   } else delete S.activeMatchV71;
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); saveWarning = false; }
+  writeSerializedCareer(JSON.stringify(packSimulationHistory(S)));
+}
+
+function skipFastForwardAutosave(options) {
+  return options.automatic && M?.skipExperimental && !M.pause && !M.finished;
+}
+
+function writeSerializedCareer(serialized) {
+  try { localStorage.setItem(SAVE_KEY, serialized); saveWarning = false; }
   catch (error) {
     if (!saveWarning) alert("Cihazda kayıt için yeterli alan yok. Kariyer yedeğini Ayarlar’dan dışa aktar.");
     saveWarning = true;
   }
 }
+
+function backgroundExperimentalSave(record, serial) {
+  if (!presentation.archivePersistence) return false;
+  const { packed, json } = prepareExperimentalMatchArchive(record);
+  const career = { ...packSimulationHistory(S) }, owner = S;
+  delete career.activeMatchV71;
+  const serialized = JSON.stringify(career);
+  const commit = data => {
+    if (serial !== saveSerial || S !== owner) return;
+    S.activeMatchV71 = completeExperimentalMatchArchive(packed, data);
+    writeSerializedCareer(serialized.slice(0, -1) + ',"activeMatchV71":' + JSON.stringify(S.activeMatchV71) + '}');
+  };
+  presentation.archivePersistence.compress(json).then(commit).catch(error => {
+    console.warn('Background match save failed; saving on the main thread.', error);
+    if (serial === saveSerial && S === owner) { S.activeMatchV71 = packExperimentalMatch(record); writeSerializedCareer(JSON.stringify(packSimulationHistory(S))); }
+  });
+  return true;
+}
 export function exportCareer() {
   if (!S) return;
   save();
-  const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(packSimulationHistory(S), null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob), a = document.createElement("a");
   a.href = url; a.download = `ManagerStory-V7.3-Hafta-${S.week}.json`; a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -176,4 +208,4 @@ export async function importCareer(file) {
   } catch (error) { alert(error.message || "Kariyer yedeği yüklenemedi. Mevcut kayıt korundu."); }
 }
 // the game keeps the career after every change it makes (D4: moved from app.js; core no longer asks the mode to save)
-export function save(){persistCareer()}
+export function save(options){persistCareer(options)}
