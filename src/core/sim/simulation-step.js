@@ -1,4 +1,5 @@
 import { finishSimulationKeeperRush } from './keeper-rushing.js';
+import { advanceSimulationClock } from './simulation-clock.js';
 import { applySimulationCommands } from './substitutions.js';
 import { consumeSimulationFitness } from './player-workload.js';
 import { prepareSimulationMatch } from './match-lifecycle.js';
@@ -23,8 +24,7 @@ import { advanceSimulationFreeBall, recordSimulationPossessionTime } from './bal
 export function stepSimulation(simulation, replayBall) {
   if (simulationStepStopped(simulation, replayBall)) return simulation;
   if (replayBall !== undefined) applyOffBallReplay(simulation, replayBall);
-  simulation.tick++;
-  simulation.time = simulation.tick * MATCH_SIM_DATA.clock.stepSeconds;
+  advanceSimulationClock(simulation);
   if (prepareLiveSimulationStep(simulation, replayBall)) { consumeSimulationFitness(simulation); return simulation; }
   for (const team of simulation.teams) {
     updateSimPhase(simulation, team);

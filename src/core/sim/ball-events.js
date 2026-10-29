@@ -1,4 +1,5 @@
 import { pointDistance } from './geometry.js';
+import { simulationMatchSeconds } from './simulation-clock.js';
 
 export function createSimulationStatistics(teams) {
   return { possessionTeamId: null, teams: Object.fromEntries(teams.map(team => [team.id, { passes: 0, completedPasses: 0, resolvedPasses: 0, passDistance: 0,
@@ -8,6 +9,8 @@ export function createSimulationStatistics(teams) {
 
 export function emitSimulationEvent(simulation, event) {
   const entry = { time: simulation.time, fromId: null, toId: null, fromPos: null, toPos: null, success: null, ...event };
+  entry.physicsTime = entry.time;
+  entry.matchTime = simulationMatchSeconds(simulation, entry.time);
   simulation.events.push(entry);
   return simulation.events.length - 1;
 }
@@ -20,6 +23,7 @@ export function settleSimulationPass(simulation, result) {
   pass.success = result.controlled && result.teamId === flight.teamId;
   pass.actualToId = result.playerId ?? null;
   pass.resolvedAt = result.time ?? simulation.time;
+  pass.resolvedMatchTime = simulationMatchSeconds(simulation, pass.resolvedAt);
   pass.actualToPos = { ...result.position };
   pass.distance = pointDistance(pass.fromPos, result.position);
   stats.resolvedPasses++;

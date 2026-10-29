@@ -1,0 +1,7 @@
+{
+  "minutes": [3, 5, 7, 10],
+  "defaultMinutes": 7,
+  "secondsPerMinute": 60,
+  "normalPlaybackRate": 1,
+  "models": { "reference": "reference", "natural": "natural" }
+}

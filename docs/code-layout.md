@@ -1,5 +1,7 @@
 # Kod düzeni
 
+Ortak saat: `core/sim/simulation-clock.js` sabit fizik adımından fizik ve maç saatini üretir; `data/match-duration.json` süre seçeneklerini tutar. Süresiz girdi laboratuvarın 5.400 fizik saniyelik referansını korur.
+
 Kariyer bağlantısı: `core/match/career-input.js` gerçek kadro/yuva/özellik/taktik girdisi; `career-events.js` metre → saha yüzdesi ve Türkçe olay; `career-ratings.js` olaydan oyuncu sayaçları/reyting. `core/engine/experimental-input.js`, `experimental-match.js`, `experimental-events.js`, `experimental-players.js` mevcut `M` ile komut/olay/kariyer köprüsü. `modes/manager/experimental-settings.js` varsayılan kapalı ayar; `core/presentation/sim/career-pitch.js` numaralı/renkli 2D saha.
 
 Kesintisiz gösterim: `core/match/continuous-playback.js`, `view-tempo.js`, `playback-frames.js`; anlık durum ve yumuşak hız, gelecek tamponu yok. `core/engine/live-match.js` mevcut saat sürücüsünden motoru ilerletir; `core/presentation/sim/frame-clock.js` yalnız kare bütçesi ve maliyet ölçümü; `archive-persistence.js` ve `archive-worker.js` arka plan kayıt sıkıştırması. `core/match/archive-codec.js`, `match-storage.js`, `history-storage.js` aktif maç/sezon özetlerini kayıpsız saklar. `tests/match-sim-continuous.test.cjs`, `match-sim-storage.test.cjs` zaman/komut/RNG/kayıt sınırını; `tests/smoke/career-sim.mjs` gerçek 1× maç süresini ve telefon boyutlu akışı korur.

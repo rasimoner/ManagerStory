@@ -126,8 +126,8 @@ function releaseSimulationKickoff(simulation) {
 function matchClockStopped(simulation) {
   const match = simulation.match;
   if (!match.enabled) return false;
-  if (simulation.time >= MATCH_SIM_DATA.match.fullSeconds) { endSimulationMatch(simulation); return true; }
-  if (simulation.time >= MATCH_SIM_DATA.match.halfSeconds && match.half === 1) beginSimulationHalf(simulation);
+  if (simulation.matchTime >= MATCH_SIM_DATA.match.fullSeconds) { endSimulationMatch(simulation); return true; }
+  if (simulation.matchTime >= MATCH_SIM_DATA.match.halfSeconds && match.half === 1) beginSimulationHalf(simulation);
   return false;
 }
 

@@ -1,4 +1,5 @@
 import { createSimulationMatch } from './match-lifecycle.js';
+import { createSimulationClock } from './simulation-clock.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { playerMovementLimits } from './player-movement.js';
 import { simAnchorPosition, simKeeperTarget, simTeamShape } from './team-shape.js';
@@ -10,7 +11,8 @@ import { createSimulationStatistics } from './ball-events.js';
 export function createSimulation(input) {
   validateSimulationInput(input);
   validateBallPhysics(input.ball);
-  const simulation = { match: createSimulationMatch(input), liveBall: false, shooting: null, seed: input.seed, rngState: input.seed, tick: 0, time: 0, accumulator: 0, automaticPasses: true, ball: createSimulationBall(input.ball),
+  const simulation = { clock: createSimulationClock(input.durationSeconds), physicsTime: 0, matchTime: 0,
+    match: createSimulationMatch(input), liveBall: false, shooting: null, seed: input.seed, rngState: input.seed, tick: 0, time: 0, accumulator: 0, automaticPasses: true, ball: createSimulationBall(input.ball),
     teams: input.teams.map(createSimTeam), events: [], statistics: createSimulationStatistics(input.teams),
     paused: false, commands: { substitutions: [] }, departed: [], workload: { enabled: input.workload === true, eventCursor: 0, nextInjuryTick: 0 },
     ownerDecision: { selected: null, forcedPlayerId: null }, defending: { engagements: [], lastContact: null }, referee: { advantage: null, stoppage: null },
@@ -71,6 +73,7 @@ function carrySpeedRatio(attributes) {
 
 export function readSimulation(simulation, options = {}) {
   return structuredClone({ seed: simulation.seed, rngState: simulation.rngState, tick: simulation.tick, time: simulation.time,
+    physicsTime: simulation.physicsTime, matchTime: simulation.matchTime, clock: simulation.clock,
     match: simulation.match, shooting: simulation.shooting, ownerDecision: simulation.ownerDecision, defending: simulation.defending, referee: simulation.referee,
     ball: simulation.ball, teams: simulation.teams, passing: simulation.passing, statistics: simulation.statistics,
     events: options.includeEvents === false ? [] : simulation.events });

@@ -1,5 +1,9 @@
 # Oyun verisi
 
+## match-duration.json (`MATCH_DURATION_DATA`)
+
+Tam maç seçenekleri 3/5/7/10 dakika, varsayılan 7; saniye dönüşümü, doğal gösterimin 1× oranı ve referans/doğal saat modeli adları. Fizik adımı ve futbol değerleri `match-sim.json` içinde kalır.
+
 ## match-sim-career.json (`CAREER_SIM_DATA`)
 
 Kariyer ile saniyelik motor arasındaki eşleme: serbest/4-2-3-1/4-4-2 dizilişleri, yuvalar ve uyumlu roller, mevcut oyuncu alanlarından özellik okuma sırası, eksik alan varsayılanı, normalize çapa sınırı, takım talimatları ve henüz etkisiz seçeneklerin açık listesi. `rating` olay ağırlıkları (6,5 taban, gol/asist/şut/pas/müdahale/hata/kurtarış/yenilen gol/kart, 1–10 sınırı), büyük fırsat xG eşiği ve temel izleme saati. Kulüp renkleri bu dosyaya kopyalanmaz; kulüp kimliğinden gelir.
