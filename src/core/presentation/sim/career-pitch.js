@@ -9,7 +9,7 @@ import { clockFromSeconds } from '../../engine/live-match.js';
 export function experimentalPitch() {
   const frame = M.simulationDisplayFrame ?? captureSimulationFrame(M.simulation);
   const players = frame.players.filter(player => !player.sentOff).map(player => experimentalPlayerDot(player)).join('');
-  return `<div class="sim-status"><span data-sim-mode>Kesintisiz · 2D</span><small>Müdahale anında; oyuncu değişikliği ilk duruşta.</small></div><div class="livepitch v73pitch sim-career-pitch" data-sim-pitch aria-label="Deneysel 2D maç sahası"><div class=pitch-half-line></div><div class=pitch-center-circle></div><div class="pitch-box pitch-box-left"></div><div class="pitch-box pitch-box-right"></div><div class="pitch-goal-area pitch-goal-area-left"></div><div class="pitch-goal-area pitch-goal-area-right"></div>${players}<span class=sim-ball data-sim-ball aria-label=Top>●</span><span class=sim-event data-sim-event></span></div>`;
+  return `<div class="sim-status"><span data-sim-mode>Kesintisiz · 2D</span><small>Müdahale anında; oyuncu değişikliği ilk duruşta.</small></div><div class="livepitch v73pitch sim-career-pitch" data-sim-pitch aria-label="Deneysel 2D maç sahası"><div class=pitch-half-line></div><div class=pitch-center-circle></div><div class="pitch-box pitch-box-left"></div><div class="pitch-box pitch-box-right"></div><div class="pitch-goal-area pitch-goal-area-left"></div><div class="pitch-goal-area pitch-goal-area-right"></div>${players}<span class=sim-ball data-sim-ball aria-label=Top style="left:${M.ballX}%;top:${M.ballY}%">●</span><span class=sim-event data-sim-event></span></div>`;
 }
 
 function experimentalPlayerDot(player) {
@@ -23,38 +23,48 @@ function experimentalPlayerDot(player) {
 export function paintExperimentalPitch() {
   const root = document.querySelector('[data-sim-pitch]');
   if (!root) return;
+  const bounds = { width: root.clientWidth, height: root.clientHeight };
   root.dataset.simTime = String(M.matchElapsedSeconds);
-  root.style.setProperty('--sim-transition', Math.max(CAREER_SIM_DATA.playback.minimumTransitionSeconds,
-    MATCH_SIM_DATA.clock.stepSeconds / M.simulationPlayback.currentRate) + 's');
+  paintExperimentalTransition(root);
   for (const element of root.querySelectorAll('[data-sim-player]')) {
     const position = M.dynamicPositions[element.dataset.simPlayer];
     element.hidden = !position;
-    if (position) placeExperimentalElement(element, position);
+    if (position) placeExperimentalElement(element, position, bounds);
     element.classList.toggle('sim-owner', String(M.ballOwner) === element.dataset.simPlayer);
   }
   const ball = root.querySelector('[data-sim-ball]');
-  placeExperimentalElement(ball, [M.ballX, M.ballY]);
+  placeExperimentalElement(ball, [M.ballX, M.ballY], bounds);
   paintExperimentalCaption(root);
   paintExperimentalClock();
+}
+
+function paintExperimentalTransition(root) {
+  const duration = Math.max(CAREER_SIM_DATA.playback.minimumTransitionSeconds,
+    MATCH_SIM_DATA.clock.stepSeconds / M.simulationPlayback.currentRate).toFixed(3) + 's';
+  if (root.style.getPropertyValue('--sim-transition') !== duration) root.style.setProperty('--sim-transition', duration);
 }
 
 function paintExperimentalCaption(root) {
   root.dataset.playback = M.simulationPlayback.mode;
   const label = document.querySelector('[data-sim-mode]');
-  if (label) label.textContent = `Kesintisiz · ${M.simulationPlayback.currentRate.toFixed(1)}× · 2D`;
-  const event = M.events.filter(entry => ['goal', 'shot', 'save', 'red', 'injury'].includes(entry.type)).at(-1);
+  paintExperimentalText(label, `Kesintisiz · ${M.simulationPlayback.currentRate.toFixed(1)}× · 2D`);
+  const event = M.events.findLast(entry => ['goal', 'shot', 'save', 'red', 'injury'].includes(entry.type));
   const visible = event && M.matchElapsedSeconds - event.simulationTime <= CAREER_SIM_DATA.playback.eventCaptionSeconds;
-  root.querySelector('[data-sim-event]').textContent = visible ? event.text : '';
+  paintExperimentalText(root.querySelector('[data-sim-event]'), visible ? event.text : '');
   root.classList.toggle('sim-goal', !!(visible && event.type === 'goal'));
 }
 
 function paintExperimentalClock() {
   const clock = document.querySelector('#live-clock'), score = document.querySelector('#live-score');
-  if (clock) clock.textContent = clockFromSeconds(M.matchElapsedSeconds);
-  if (score) score.textContent = `${M.hg}–${M.ag}`;
+  paintExperimentalText(clock, clockFromSeconds(M.matchElapsedSeconds));
+  paintExperimentalText(score, `${M.hg}–${M.ag}`);
 }
 
-function placeExperimentalElement(element, position) {
-  element.style.left = position[0] + '%';
-  element.style.top = position[1] + '%';
+function placeExperimentalElement(element, position, bounds) {
+  // A fixed percentage origin avoids a jump when the pitch is rebuilt; only transforms move thereafter.
+  const x = bounds.width * (position[0] - parseFloat(element.style.left)) / CAREER_SIM_DATA.positionScale;
+  const y = bounds.height * (position[1] - parseFloat(element.style.top)) / CAREER_SIM_DATA.positionScale;
+  element.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%)`;
 }
+
+function paintExperimentalText(element, text) { if (element && element.textContent !== text) element.textContent = text; }

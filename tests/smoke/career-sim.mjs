@@ -84,6 +84,17 @@ async function verifyControlsAndReload() {
 async function verifyDisplayedTime(match) {
   assert.equal(match.matchElapsedSeconds, match.simulationCheckpoint.state.time);
   assert.equal(Number(await page.locator('[data-sim-pitch]').getAttribute('data-sim-time')), match.matchElapsedSeconds);
+  await verifyDisplayedPositions(match);
+}
+
+async function verifyDisplayedPositions(match) {
+  const geometry = await page.locator('[data-sim-pitch]').evaluate(root => ({ bounds: root.getBoundingClientRect().toJSON(),
+    dots: [...root.querySelectorAll('[data-sim-player]')].map(dot => ({ id: dot.dataset.simPlayer, bounds: dot.getBoundingClientRect().toJSON() })) }));
+  for (const dot of geometry.dots) {
+    const position = match.dynamicPositions[dot.id];
+    assert.ok(Math.abs(dot.bounds.x + dot.bounds.width / 2 - geometry.bounds.x - geometry.bounds.width * position[0] / 100) < 2);
+    assert.ok(Math.abs(dot.bounds.y + dot.bounds.height / 2 - geometry.bounds.y - geometry.bounds.height * position[1] / 100) < 2);
+  }
 }
 
 async function handleMatchStop() {
