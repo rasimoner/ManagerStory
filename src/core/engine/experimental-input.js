@@ -9,7 +9,8 @@ import { createSimulationPlayback } from '../match/continuous-playback.js';
 
 export function initializeExperimentalMatch() {
   const own = userSquad().filter(player => M.active.includes(player.id)).map(player => ({ ...player, role: M.matchRoles[player.id], lineupPosition: M.matchPositions[player.id] }));
-  const opponent = M.oppIds.map(id => ({ ...opponentPlayer(id), id, role: opponentPlayer(id).position, lineupPosition: oppositeLineupPosition(id) }));
+  const opponent = M.oppIds.map((id, index) => ({ ...opponentPlayer(id), id, number: opponentPlayer(id).number ?? index + 1,
+    role: opponentPlayer(id).position, lineupPosition: oppositeLineupPosition(id) }));
   M.experimental = true;
   M.fieldView = '2d';
   M.simulationCursor = 0;
@@ -38,5 +39,6 @@ export function experimentalSourcePlayer(id) {
 export function experimentalOpponentBench() {
   const squad = S.opponentSquads[M.userHome ? M.away : M.home];
   const used = new Set(Object.values(M.oppLineup));
-  return squad.filter(player => !used.has(player.id) && !(player.injury > 0));
+  return squad.map((player, index) => ({ ...player, number: player.number ?? index + 1 }))
+    .filter(player => !used.has(player.id) && !(player.injury > 0));
 }

@@ -116,10 +116,11 @@ export function liveFrameStep(now) {
   // Re-rendering every frame resets liveLastFrame through ensureLiveLoop, so
   // the following RAF receives dt=0 forever. Render only a state transition.
   if (M.min !== oldMin || livePlaybackPaused() !== wasPlaybackPaused || M.simulationRosterRevision !== oldRoster) changed();
-  else if (now - liveLastPaint >= 45) { paintLivePitch(); liveLastPaint = now; }
+  else if (livePitchNeedsPaint(now)) { paintLivePitch(); liveLastPaint = now; }
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);
 }
+function livePitchNeedsPaint(now) { return M.experimental || now - liveLastPaint >= 45; }
 export function ensureLiveLoop() {
   if (typeof requestAnimationFrame !== 'function' || !M || livePlaybackPaused() || ((M.finished || M.lifecycle==='FINISHED')&&!livePresentationPending()) || liveFrame !== null) return;
   liveLastFrame = null;

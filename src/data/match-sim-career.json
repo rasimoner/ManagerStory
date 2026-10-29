@@ -260,6 +260,7 @@
     "budgetSmoothing": 0.15,
     "projectionSeconds": 30,
     "eventCaptionSeconds": 3,
+    "minimumTransitionSeconds": 0.016,
     "maximumFrameSeconds": 0.15
   },
   "continuous": {

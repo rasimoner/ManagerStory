@@ -1,6 +1,6 @@
 # Saniyelik maç simülasyonu — şartname
 
-Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1 uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
+Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D bağlantısı ve kesintisiz değişken hızlı izleme uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
 
 Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. Açıkken kullanıcı maçı kesintisiz değişken hızlı 2D ile izlenir; 3D sonraki iştir. Diğer lig maçları yine `simAIGame` ile kalır. Kapalıyken eski dakika/3D yolu korunur.
 
@@ -134,7 +134,7 @@ Bir seed'li zar buna göre gerçek teması kontrol veya sekme yapar. Başarısı
 
 ### Konumdan doğan günlük ve ölçüler
 
-Olaylar `{type,time,fromId,toId,fromPos,toPos,success,…}`; zaman saniye, konumlar metredir. `pass` gerçek ayak çıkışında `success:null` ile yazılır. İlk temas veya saha dışı gerçekten oluşunca aynı kaydın `success`, `resolvedAt`, `actualToId`, `actualToPos`, gerçek `distance` alanları tamamlanır. Bu bir önceden sonuç belirleme değildir. `firstTouch`, `interception`, `looseBall`, `ballOut` olayları gerçek temas/çizgi zamanında eklenir. Hakem müdahalesi ayrı `referee` olayıdır; havadaki önceki pası başarısız olarak kapatır. Günlük sıralıdır; geçmişe dönük yeni olay eklenmez. Eski oyun günlüğüne çeviri ve 3D sahneleme bu işte yoktur.
+Olaylar `{type,time,fromId,toId,fromPos,toPos,success,…}`; zaman saniye, konumlar metredir. `pass` gerçek ayak çıkışında `success:null` ile yazılır. İlk temas veya saha dışı gerçekten oluşunca aynı kaydın `success`, `resolvedAt`, `actualToId`, `actualToPos`, gerçek `distance` alanları tamamlanır. Bu bir önceden sonuç belirleme değildir. `firstTouch`, `interception`, `looseBall`, `ballOut` olayları gerçek temas/çizgi zamanında eklenir. Hakem müdahalesi ayrı `referee` olayıdır; havadaki önceki pası başarısız olarak kapatır. Günlük sıralıdır; geçmişe dönük yeni olay eklenmez. Pas aşamasında eski oyun günlüğüne çeviri yoktu; V7.15.0 kariyer adaptörü bunu yapar. 3D sahneleme sonraki iştir.
 
 Pas isabeti kontrolle tamamlanan / çözülen pas; ortalama mesafe gerçek çıkıştan ilk temasa/çizgiye kadar ölçülür. Bir sekmeden sonra aynı takımın tekrar kazanması ilk dokunuşu başarılıya çevirmez. Top kazanma sayısı kontrollü rakip kesmeleridir; kontrolsüz çelmeler olayda kalır. Topla oynama yüzdesi pas uçuşunda son sahip takımına yazılır; serbest top da yeni kontrol gelene kadar son sahipte sayılır. Çizgide yeniden başlama bekleyişi yüzdelerden çıkar. Oyuncunun ortalama tutması ve takımın kesintisiz ortalama sahiplik süresi ayrı raporlanır.
 
@@ -329,7 +329,7 @@ Başsız otomatik top deneyi: tohum 901, 22 oyuncu, 54.000 adım = 90 dakika; **
 | Taktikler | Mentalite, tempo, genişlik, pas stili, yaklaşım ve bireysel talimatlar davranış olur | Kullanıcı müdahalesinin ilk görülen etkisi ve denge sınırları? |
 | Denge ve geçiş | Pres süresi, koşu mesafesi/sprintler, pas mesafesi/başarı, top kazanma yerleri, şut/xG/faul/kart dağılımları ölçülür | Hedef maç temposu ve istatistik aralıkları birlikte seçilecek; eski altınlar yeni motorun birebir skor hedefi değildir |
 
-Yeni motor yalnız kullanıcının maçına bağlanacak. 3D entegrasyonu, denge ve kayıt geçişi ayrı işlerdir; eski motor ancak açık geçiş kararı ve testlerden sonra silinir.
+V7.15.0 yeni motoru yalnız kullanıcının maçına, varsayılan kapalı anahtarla bağlar; kayıt biçimi 4 geçişi bu iştedir. 3D entegrasyonu ve son denge sonraki işlerdir; eski motor ancak açık geçiş kararı ve testlerden sonra silinir.
 
 ### Top/pas ölçümü — 28 Ekim 2026
 

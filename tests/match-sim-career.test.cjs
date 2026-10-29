@@ -69,6 +69,7 @@ test('the adapter reads the actual first eleven, opponent identities, fitness an
   game.run('setExperimentalMatchEngine(true);startMatch()');
   assert.deepEqual(game.json('M.simulation.teams.find(t=>t.id==="user").players.map(p=>p.id).sort((a,b)=>a-b)'), game.json('[...S.xi].sort((a,b)=>a-b)'));
   assert.deepEqual(game.json('M.simulation.teams.find(t=>t.id==="opponent").players.map(p=>p.id)'), game.json('M.oppIds'));
+  assert.equal(game.run('new Set(M.simulation.teams.find(t=>t.id==="opponent").players.map(p=>p.number)).size'), 11);
   assert.equal(game.run('M.simulation.seed'), game.run('matchSeed()'));
   assert.equal(game.run('S.matchSalt'), 73);
   assert.equal(game.run('M.simulation.workload.enabled'), true);
@@ -87,6 +88,17 @@ test('existing tactic controls affect only our team and an injury uses the requi
   game.run('queueExperimentalSubstitution({outId:M.requiredSubstitution.playerId,inId:eligibleSubstitutes()[0].id})');
   assert.equal(game.run('M.requiredSubstitution'), null);
   assert.equal(game.run('M.simulation.teams.find(t=>t.id==="user").players.length'), 11);
+});
+
+test('repeating a pending substitution through the match screen keeps one request and explains the wait', () => {
+  const game = career();
+  game.run('setExperimentalMatchEngine(true);startMatch();advanceExperimentalSeconds(120);pauseLive();setSubOut(M.active.at(-1))');
+  const incoming = game.run('eligibleSubstitutes()[0].id');
+  assert.equal(game.api.doSub(incoming), true);
+  game.run('setSubOut(M.active.at(-1))');
+  assert.equal(game.api.doSub(incoming), false);
+  assert.equal(game.run('M.simulation.commands.substitutions.length'), 1);
+  assert.match(game.alerts.at(-1), /bekliyor/);
 });
 
 test('a complete experimental match writes goals, cards, minutes, fitness, table, summary and season records through career hooks', () => {

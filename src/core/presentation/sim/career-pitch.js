@@ -2,6 +2,7 @@ import { M } from '../../state.js';
 import { simulationPitchPercent } from '../../match/career-events.js';
 import { resolveClubIdentity } from '../../clubs/clubs.js';
 import CAREER_SIM_DATA from '../../../data/match-sim-career.json';
+import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { captureSimulationFrame } from '../../match/playback-frames.js';
 import { clockFromSeconds } from '../../engine/live-match.js';
 
@@ -22,6 +23,9 @@ function experimentalPlayerDot(player) {
 export function paintExperimentalPitch() {
   const root = document.querySelector('[data-sim-pitch]');
   if (!root) return;
+  root.dataset.simTime = String(M.matchElapsedSeconds);
+  root.style.setProperty('--sim-transition', Math.max(CAREER_SIM_DATA.playback.minimumTransitionSeconds,
+    MATCH_SIM_DATA.clock.stepSeconds / M.simulationPlayback.currentRate) + 's');
   for (const element of root.querySelectorAll('[data-sim-player]')) {
     const position = M.dynamicPositions[element.dataset.simPlayer];
     element.hidden = !position;

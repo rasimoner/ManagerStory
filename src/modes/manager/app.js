@@ -600,7 +600,7 @@ export function doSub(id){
  if(!incoming||M.active.includes(id)||M.out.includes(id)||M.sentOff.includes(id)||['Kirada','Transfer oldu'].includes(incoming.status)||incoming.injury>0)return false;
  const role=M.matchRoles[out.id],pen=positionPenalty(incoming,role);
  if(pen<1&&!confirm(`${incoming.name} (${incoming.pos}), ${role} rolüne tam uyumlu değil. Tahmini performans etkisi -%${Math.round((1-pen)*100)}. YİNE DE OYNAT?`))return false;
- if(M.experimental){queueExperimentalSubstitution({outId:out.id,inId:id});subOut=null;save();closeMatchOverlay();return true;}
+ if(M.experimental)return doExperimentalSubstitution(out.id,id);
  const index=M.active.indexOf(out.id);M.active[index]=id;M.out.push(out.id);M.matchPositions[id]=[...(M.matchPositions[out.id]||S.positions[out.id]||[50,50])];M.matchRoles[id]=role;
  M.positionSuitability[id]=pen;
  const injuryResolved=M.requiredSubstitution?.playerId===out.id;
@@ -611,6 +611,12 @@ export function doSub(id){
  M.playerStats[id]??={rating:6.5,goals:0,shots:0,minutes:0,saves:0};
  M.substitutions.push({minute:M.min,out:out.id,in:id});matchEvent('sub',`🔄 ${M.min}' ${incoming.name} (${incoming.pos}, %${Math.round(incoming.fitness)}), ${out.name} (${out.pos}, %${Math.round(out.fitness)}) yerine oyunda.`,{outId:out.id,inId:id});
  subOut=null;save();closeMatchOverlay();return true;
+}
+function doExperimentalSubstitution(outId,inId){
+ if(M.simulation.commands.substitutions.some(command=>command.outId===outId||command.player.id===inId)){
+  alert('Bu oyuncunun değişikliği ilk oyun duruşunu bekliyor.');return false;
+ }
+ queueExperimentalSubstitution({outId,inId});subOut=null;save();closeMatchOverlay();return true;
 }
 export function matchField(){let cards=M.active.map(id=>{let p=S.players.find(x=>x.id==id),q=S.positions[id]||[50,50];return `<div class=pc style="left:${q[0]}%;top:${q[1]}%"><b>${p.name}</b><br>${p.pos} ${Math.round(p.fitness)}%</div>`}).join("");$("#app").innerHTML=`<button class=secondary data-action="redraw">‹ Maça dön</button><h1>Sahadaki 11</h1><div class=pitch>${cards}</div>`}
 export function pressQuestion(ug,og){return createPostMatchPress(ug,og)}

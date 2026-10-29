@@ -1,0 +1,42 @@
+{
+  "milliseconds": 468483,
+  "seconds": 468.483,
+  "node": "v22.23.4",
+  "cpuThrottle": 4,
+  "viewport": [
+    390,
+    844
+  ],
+  "frames": 26419,
+  "medianFrameMs": 16.69999999999709,
+  "p95FrameMs": 16.79999999998836,
+  "maximumFrameMs": 2866.5,
+  "phases": {
+    "restart": 2191,
+    "quiet": 9636,
+    "approach": 7714,
+    "threat": 4226,
+    "critical": 2654
+  },
+  "backwards": false,
+  "score": [
+    3,
+    3
+  ],
+  "savedUtf16Bytes": 1651970,
+  "simulationMetrics": {
+    "realSeconds": 450.7483340000891,
+    "frames": 26427,
+    "steps": 54000,
+    "budgetLimitedFrames": 769,
+    "phaseSeconds": {
+      "restart": 37.39903399999971,
+      "quiet": 166.60950000002347,
+      "approach": 131.11000000001607,
+      "threat": 70.96450000000183,
+      "critical": 44.66529999999994
+    }
+  },
+  "sourceCommit": "20f528762e7349b21c147420ad7071706465cd44",
+  "workflowRun": "https://github.com/rasimoner/ManagerStory/actions/runs/40862703879"
+}

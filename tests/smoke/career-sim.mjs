@@ -62,8 +62,7 @@ async function makeSubstitution(required = false) {
 async function verifyControlsAndReload() {
   await page.waitForFunction(() => document.querySelector('#live-clock')?.textContent !== '00:00');
   await page.locator('[data-action="pauseLive"]').click();
-  const before = await savedMatch();
-  assert.equal(before.matchElapsedSeconds, before.simulationCheckpoint.state.time);
+  await verifyDisplayedTime(await savedMatch());
   await page.locator('[data-action="openDecisionSheet"]').click();
   await page.locator('[data-action="showMatchTactics"]').click();
   await page.locator('[data-action="setMatchTactic"][data-key="press"]').selectOption('Yüksek');
@@ -80,6 +79,11 @@ async function verifyControlsAndReload() {
   await page.locator('[data-action="skipExperimentalMatch"]').click();
   await waitForMatchEnd();
   await verifyCareerResult();
+}
+
+async function verifyDisplayedTime(match) {
+  assert.equal(match.matchElapsedSeconds, match.simulationCheckpoint.state.time);
+  assert.equal(Number(await page.locator('[data-sim-pitch]').getAttribute('data-sim-time')), match.matchElapsedSeconds);
 }
 
 async function handleMatchStop() {
@@ -118,7 +122,7 @@ async function verifyCareerResult() {
 
 async function startFrameMeasurement() {
   await page.evaluate(() => {
-    const measurement = { running: true, intervals: [], phases: {}, last: null, backwards: false, clock: 0 };
+    const measurement = { running: true, intervals: [], longFrames: [], phases: {}, last: null, backwards: false, clock: 0 };
     globalThis.careerWatchMeasurement = measurement;
     function observe(now) {
       const pitch = document.querySelector('[data-sim-pitch]');
@@ -128,6 +132,9 @@ async function startFrameMeasurement() {
         measurement.phases[pitch.dataset.playback] = (measurement.phases[pitch.dataset.playback] ?? 0) + 1;
         const [minute, second] = document.querySelector('#live-clock').textContent.split(':').map(Number);
         const clock = minute * 60 + second;
+        const interval = measurement.intervals.at(-1);
+        if (interval > 100) measurement.longFrames.push({ milliseconds: interval, gameSecond: clock, phase: pitch.dataset.playback,
+          status: document.querySelector('.matchscore small')?.textContent });
         if (clock < measurement.clock) measurement.backwards = true;
         measurement.clock = clock;
       } else measurement.last = null;
@@ -150,7 +157,8 @@ async function measureContinuousMatch() {
     sample.running = false;
     const sorted = [...sample.intervals].sort((left, right) => left - right);
     return { frames: sorted.length, medianFrameMs: sorted[Math.floor(sorted.length / 2)], p95FrameMs: sorted[Math.floor(sorted.length * .95)],
-      maximumFrameMs: sorted.at(-1), phases: sample.phases, backwards: sample.backwards };
+      maximumFrameMs: sorted.at(-1), longFrames: sample.longFrames.sort((left, right) => right.milliseconds - left.milliseconds).slice(0, 10),
+      phases: sample.phases, backwards: sample.backwards };
   });
   const match = await savedMatch(), career = await savedCareer();
   const report = { milliseconds, seconds: milliseconds / 1000, node: process.version, cpuThrottle: 4, viewport: [390, 844], ...measurement,

@@ -2000,6 +2000,11 @@
         "fitness": 100
       }
     ],
+    "storage": {
+      "maximumActiveSaveUtf16Bytes": 4499782,
+      "completedSaveUtf16Bytes": 3405724,
+      "alerts": []
+    },
     "totalGoals": 135,
     "injuries": 10
   },
@@ -4005,13 +4010,18 @@
         "fitness": 100
       }
     ],
+    "storage": {
+      "maximumActiveSaveUtf16Bytes": 4696112,
+      "completedSaveUtf16Bytes": 3589120,
+      "alerts": []
+    },
     "totalGoals": 153,
     "injuries": 6
   },
   "progress": null,
   "playback": {
     "seconds": 447.1,
-    "computingMs": 7212.511254,
+    "computingMs": 6955.492437000001,
     "metrics": {
       "realSeconds": 447.10000000003316,
       "frames": 4471,
@@ -4029,7 +4039,8 @@
       1,
       5
     ],
-    "saveBytes": 2481860,
+    "saveUtf8Bytes": 1930494,
+    "saveUtf16Bytes": 1644692,
     "fitness": [
       {
         "id": 0,

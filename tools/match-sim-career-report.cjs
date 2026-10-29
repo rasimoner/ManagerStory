@@ -16,14 +16,14 @@ function handleStop(game) {
     if(M.pause)resumeLive();`);
 }
 
-function playExperimentalMatch(game, highlights = false) {
+function playExperimentalMatch(game, continuous = false) {
   let frames = 0;
   while (!game.run('M.finished') && frames++ < 10000) {
     handleStop(game);
-    game.run(highlights ? 'advanceExperimentalPlayback(.1,{maxSteps:512})' : 'advanceExperimentalSeconds(60)');
+    game.run(continuous ? 'advanceExperimentalPlayback(.1,{maxSteps:512})' : 'advanceExperimentalSeconds(60)');
   }
   if (!game.run('M.finished')) throw new Error('Career match did not finish.');
-  return highlights ? frames / 10 : null;
+  return continuous ? frames / 10 : null;
 }
 
 function boostCurrentTeam(game, boost) {
@@ -43,11 +43,13 @@ function recoverThroughCareer(game) {
 
 function season(boost, progress) {
   const game = newCareer(), matches = [];
+  let maximumActiveSaveUtf16Bytes = 0;
   for (let fixture = 0; fixture < 34; fixture++) {
     game.ctx.careerFixtureIndex = fixture;
     game.run('S.fixture=careerFixtureIndex;S.week=careerFixtureIndex+1;startMatch()');
     boostCurrentTeam(game, boost);
     playExperimentalMatch(game);
+    maximumActiveSaveUtf16Bytes = Math.max(maximumActiveSaveUtf16Bytes, game.storage.get('msv4').length * 2);
     matches.push(game.json('({fixture:S.fixture,home:M.home,away:M.away,score:[M.hg,M.ag],userGoals:userSide()===0?M.hg:M.ag,against:userSide()===0?M.ag:M.hg,shots:M.shots,xg:M.stats.xg,injuries:M.events.filter(e=>e.type==="injury").length,red:M.stats.red,fitness:S.players.filter(p=>M.playerStats[p.id]?.minutes>=80).map(p=>p.fitness),ratings:Object.values(M.playerStats).filter(p=>p.minutes>0).map(p=>p.rating)})'));
     game.run('finishMatch()');
     recoverThroughCareer(game);
@@ -58,6 +60,7 @@ function season(boost, progress) {
   const row = table.find(team => team.n === club);
   return { boost, matches, table, rank: table.findIndex(team => team.n === club) + 1, record: row,
     players: game.json('S.players.map(p=>({id:p.id,name:p.name,goals:p.goals,assists:p.assists,minutes:p.minutes,yellow:p.yellow,red:p.red,fitness:p.fitness}))'),
+    storage: { maximumActiveSaveUtf16Bytes, completedSaveUtf16Bytes: game.storage.get('msv4').length * 2, alerts: game.alerts },
     totalGoals: matches.reduce((sum, match) => sum + match.score[0] + match.score[1], 0),
     injuries: matches.reduce((sum, match) => sum + match.injuries, 0) };
 }
@@ -77,7 +80,8 @@ function playbackTrial() {
   game.run('save()');
   return { seconds, computingMs: performance.now() - started,
     metrics: game.json('M.simulationPlayback.metrics'), score: game.json('[M.hg,M.ag]'),
-    saveBytes: Buffer.byteLength(game.storage.get('msv4')), fitness: game.json('S.players.filter(p=>M.playerStats[p.id]?.minutes>=80).map(p=>({id:p.id,fitness:p.fitness,minutes:M.playerStats[p.id].minutes}))') };
+    saveUtf8Bytes: Buffer.byteLength(game.storage.get('msv4')), saveUtf16Bytes: game.storage.get('msv4').length * 2,
+    fitness: game.json('S.players.filter(p=>M.playerStats[p.id]?.minutes>=80).map(p=>({id:p.id,fitness:p.fitness,minutes:M.playerStats[p.id].minutes}))') };
 }
 
 function write(output) {

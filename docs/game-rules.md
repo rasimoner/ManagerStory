@@ -22,12 +22,14 @@ Bu belge, oyunu başka bir motorda (Godot: GDScript/C#) yeniden yazacak birinin 
 
 | Ne | Tohum |
 |---|---|
-| Maç | `matchSeed() = 8800 + S.fixture * 97 + S.matchSalt`; başlama vuruşunda `S.matchSalt` yenilenir. Maç `M.rand = R(...)` ile çeker; maç ortası kayıtta `rngState` saklanır. |
+| Maç | `matchSeed() = 8800 + S.fixture * 97 + S.matchSalt`; eski motorun başlama vuruşunda `S.matchSalt` yenilenir, deneysel motor mevcut maç tohumunu korur. Maç `M.rand = R(...)` ile çeker; maç ortası kayıtta `rngState` saklanır. |
 | Diğer kulüplerin maçları | `R(41000 + tur * 211 + maç sırası * 17 + sezon kaydırması)` |
 | Sezon sonu kuralları | `R(hash("<etiket>|<sezon sırası>|<matchSalt>"))` (`seasonRnd`) |
 | Oyuncu profili, akademi, harika çocuk, rakip kadro | her biri kendi metin tohumuyla (`academy|…`, `wonder|…`, `rival|…`) |
 
 ## 2. Maç (`core/engine/`)
+
+Aşağıdaki dakika/olasılık kuralları anahtar kapalıyken eski motor içindir. Deneysel motor 0,1 sn fizik adımıyla, `core/match/` adaptörü üzerinden aynı kariyer çıktılarını üretir; kurallar/eşlemeler `docs/match-sim.md` içindedir.
 
 ### Saat
 - Maç 90 dakika = 5400 maç saniyesi (`M.matchElapsedSeconds`). Gerçek zaman maç saniyesine `live-match.js`'te çevrilir; motor her maç dakikasında bir kez `tick()` çalıştırır. Simülasyon kare sayısından türemez; hız (0,5× / 1× / 2×) sadece gösterim hızıdır, sonucu değiştirmez.
