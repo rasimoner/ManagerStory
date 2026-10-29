@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { distribution, bucket, shotRows, sliceRows } = require('../tools/sim-report/analysis.cjs');
+const { compareSimulationReports } = require('../tools/sim-report/compare.cjs');
 
 test('report distributions include mean, median and interpolated 10th/90th percentiles', () => {
   assert.deepEqual(distribution([0, 10, 20, 30, 40]), { mean: 20, median: 20, p10: 4, p90: 36 });
@@ -56,4 +57,13 @@ test('a winning tackle assigns control to the tackler when attributing attacks',
   const rows = shotRows(events, id => id?.split('-')[0]);
   assert.ok(rows[0].sources.includes('ballWin'));
   assert.equal(rows[1].second, false);
+});
+
+test('verification detects changed physical outcomes while ignoring wall-clock noise', () => {
+  const original = require('../docs/measurements/match-sim-balance-before.json');
+  const replay = structuredClone(original);
+  replay.runs[0].milliseconds += 100;
+  compareSimulationReports(original, replay);
+  replay.runs[0].statistics.goals++;
+  assert.throws(() => compareSimulationReports(original, replay), /goals/);
 });

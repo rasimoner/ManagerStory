@@ -1,0 +1,1994 @@
+{
+  "node": "v22.23.4",
+  "seeds": [
+    901,
+    731,
+    42,
+    2026,
+    508,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96
+  ],
+  "status": "complete",
+  "strength": {
+    "all10": {
+      "wins": 70,
+      "draws": 21,
+      "losses": 9,
+      "goalDifference": {
+        "mean": 1.43,
+        "median": 1,
+        "p10": 0,
+        "p90": 3
+      },
+      "shotDifference": {
+        "mean": 10.91,
+        "median": 9,
+        "p10": 2,
+        "p90": 17.10000000000001
+      },
+      "xgDifference": {
+        "mean": 1.1754132301062277,
+        "median": 1.09118605073926,
+        "p10": -0.2971091438563563,
+        "p90": 2.4604976365073634
+      },
+      "goalsFor": {
+        "mean": 2.01,
+        "median": 2,
+        "p10": 0,
+        "p90": 4
+      },
+      "goalsAgainst": {
+        "mean": 0.58,
+        "median": 0,
+        "p10": 0,
+        "p90": 2
+      },
+      "savePercent": {
+        "mean": 77.50512032770096,
+        "median": 100,
+        "p10": 36.66666666666668,
+        "p90": 100
+      },
+      "runs": [
+        {
+          "seed": 901,
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "savePercent": 33.33333333333333,
+          "goalDifference": -2,
+          "shotDifference": 81,
+          "xgDifference": 8.103385403922116
+        },
+        {
+          "seed": 731,
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 3,
+          "shotDifference": 13,
+          "xgDifference": 0.13484264583316352
+        },
+        {
+          "seed": 42,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": -9,
+          "xgDifference": -3.9753667690988186
+        },
+        {
+          "seed": 2026,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 0,
+          "goalDifference": 1,
+          "shotDifference": 2,
+          "xgDifference": -0.13710609955018016
+        },
+        {
+          "seed": 508,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 33.33333333333333,
+          "goalDifference": 0,
+          "shotDifference": 17,
+          "xgDifference": 2.354309440883377
+        },
+        {
+          "seed": 1,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 7,
+          "xgDifference": 0.13110655834550983
+        },
+        {
+          "seed": 2,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 1,
+          "shotDifference": 6,
+          "xgDifference": 0.2691224665708529
+        },
+        {
+          "seed": 3,
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "savePercent": 50,
+          "goalDifference": -2,
+          "shotDifference": 9,
+          "xgDifference": 1.4802116303668322
+        },
+        {
+          "seed": 4,
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 4,
+          "shotDifference": 54,
+          "xgDifference": 7.005730630483793
+        },
+        {
+          "seed": 5,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 8,
+          "xgDifference": 1.6331252129062355
+        },
+        {
+          "seed": 6,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 80,
+          "goalDifference": 0,
+          "shotDifference": 7,
+          "xgDifference": 0.9259508471679749
+        },
+        {
+          "seed": 7,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 1,
+          "shotDifference": 1,
+          "xgDifference": -0.13021382494125167
+        },
+        {
+          "seed": 8,
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 5,
+          "shotDifference": 12,
+          "xgDifference": 1.0042777493475377
+        },
+        {
+          "seed": 9,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 36,
+          "xgDifference": 3.4831392340077167
+        },
+        {
+          "seed": 10,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 2,
+          "xgDifference": -0.18408768647832652
+        },
+        {
+          "seed": 11,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 12,
+          "xgDifference": 1.8454589013430063
+        },
+        {
+          "seed": 12,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 10,
+          "xgDifference": 1.0377024560244454
+        },
+        {
+          "seed": 13,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 8,
+          "xgDifference": 0.5110787557171566
+        },
+        {
+          "seed": 14,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 2,
+          "shotDifference": 14,
+          "xgDifference": 2.12321385778593
+        },
+        {
+          "seed": 15,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 33.33333333333333,
+          "goalDifference": 0,
+          "shotDifference": 11,
+          "xgDifference": 1.4675887915199035
+        },
+        {
+          "seed": 16,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 9,
+          "xgDifference": 1.411062564357633
+        },
+        {
+          "seed": 17,
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "savePercent": 66.66666666666666,
+          "goalDifference": -1,
+          "shotDifference": 10,
+          "xgDifference": -0.3072337942674175
+        },
+        {
+          "seed": 18,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 1,
+          "shotDifference": 12,
+          "xgDifference": 1.8982676715198554
+        },
+        {
+          "seed": 19,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 13,
+          "xgDifference": 1.0566751034183335
+        },
+        {
+          "seed": 20,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 0,
+          "goalDifference": 0,
+          "shotDifference": 9,
+          "xgDifference": 1.1131200746190275
+        },
+        {
+          "seed": 21,
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 3,
+          "shotDifference": 8,
+          "xgDifference": 1.0173970033652608
+        },
+        {
+          "seed": 22,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 0.3382719787894449
+        },
+        {
+          "seed": 23,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 13,
+          "xgDifference": 2.0317018910656666
+        },
+        {
+          "seed": 24,
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 5,
+          "shotDifference": 15,
+          "xgDifference": 1.6171644363178683
+        },
+        {
+          "seed": 25,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 0,
+          "shotDifference": 35,
+          "xgDifference": 3.6573973830147084
+        },
+        {
+          "seed": 26,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 17,
+          "xgDifference": 2.477306600401763
+        },
+        {
+          "seed": 27,
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 1,
+          "shotDifference": 11,
+          "xgDifference": 0.20872741236519865
+        },
+        {
+          "seed": 28,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 1,
+          "shotDifference": 11,
+          "xgDifference": 1.8664194684112045
+        },
+        {
+          "seed": 29,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 80,
+          "goalDifference": 2,
+          "shotDifference": 5,
+          "xgDifference": 1.4800542139301567
+        },
+        {
+          "seed": 30,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 1,
+          "xgDifference": 0.004159572493761254
+        },
+        {
+          "seed": 31,
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "savePercent": 0,
+          "goalDifference": -1,
+          "shotDifference": 15,
+          "xgDifference": 2.1354792518811982
+        },
+        {
+          "seed": 32,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 0,
+          "shotDifference": 15,
+          "xgDifference": 1.6348091844471015
+        },
+        {
+          "seed": 33,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 8,
+          "xgDifference": 1.579642057570538
+        },
+        {
+          "seed": 34,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 2,
+          "shotDifference": 5,
+          "xgDifference": -0.009589179117790891
+        },
+        {
+          "seed": 35,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 3,
+          "shotDifference": 8,
+          "xgDifference": 1.022911841781747
+        },
+        {
+          "seed": 36,
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "savePercent": 50,
+          "goalDifference": -2,
+          "shotDifference": 6,
+          "xgDifference": 1.8485000707975054
+        },
+        {
+          "seed": 37,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 85.71428571428571,
+          "goalDifference": 0,
+          "shotDifference": -6,
+          "xgDifference": -0.8997020898520043
+        },
+        {
+          "seed": 38,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 1.166691914865161
+        },
+        {
+          "seed": 39,
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 6,
+          "shotDifference": 24,
+          "xgDifference": 3.7302987567658854
+        },
+        {
+          "seed": 40,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 16,
+          "xgDifference": 2.671158734346584
+        },
+        {
+          "seed": 41,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 6,
+          "xgDifference": 0.809756010926362
+        },
+        {
+          "seed": 43,
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 4,
+          "shotDifference": 15,
+          "xgDifference": 2.1434090513245345
+        },
+        {
+          "seed": 44,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 15,
+          "xgDifference": 2.1670973561566385
+        },
+        {
+          "seed": 45,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 8,
+          "xgDifference": 1.4845682820939332
+        },
+        {
+          "seed": 46,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 3,
+          "xgDifference": -0.2779499178146651
+        },
+        {
+          "seed": 47,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 1,
+          "shotDifference": 3,
+          "xgDifference": 1.2155649501439552
+        },
+        {
+          "seed": 48,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 2,
+          "xgDifference": 0.196071997296565
+        },
+        {
+          "seed": 49,
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 4,
+          "shotDifference": 11,
+          "xgDifference": 1.0692520268594923
+        },
+        {
+          "seed": 50,
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": -1,
+          "shotDifference": 18,
+          "xgDifference": 1.583284003254627
+        },
+        {
+          "seed": 51,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 42,
+          "xgDifference": 5.964474984849363
+        },
+        {
+          "seed": 52,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 2,
+          "shotDifference": 7,
+          "xgDifference": 1.34091967979057
+        },
+        {
+          "seed": 53,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 12,
+          "xgDifference": 0.8051758924888138
+        },
+        {
+          "seed": 54,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 1,
+          "shotDifference": 8,
+          "xgDifference": 0.2888363567096474
+        },
+        {
+          "seed": 55,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 10,
+          "xgDifference": 1.6637259392204844
+        },
+        {
+          "seed": 56,
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": -1,
+          "shotDifference": 8,
+          "xgDifference": 1.3869050132703613
+        },
+        {
+          "seed": 57,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 9,
+          "xgDifference": -0.2959841826995717
+        },
+        {
+          "seed": 58,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 7,
+          "xgDifference": 0.3456137696569852
+        },
+        {
+          "seed": 59,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 87.5,
+          "goalDifference": 2,
+          "shotDifference": 1,
+          "xgDifference": -0.166894087293453
+        },
+        {
+          "seed": 60,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 0.2996978344416492
+        },
+        {
+          "seed": 61,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 2,
+          "xgDifference": 0.5111492122145364
+        },
+        {
+          "seed": 62,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 75,
+          "goalDifference": 2,
+          "shotDifference": 4,
+          "xgDifference": -0.4676353402078066
+        },
+        {
+          "seed": 63,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 15,
+          "xgDifference": 0.7542633830143115
+        },
+        {
+          "seed": 64,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 1.4695903767558007
+        },
+        {
+          "seed": 65,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 3,
+          "shotDifference": 8,
+          "xgDifference": 1.5005305167186886
+        },
+        {
+          "seed": 66,
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "savePercent": 60,
+          "goalDifference": 1,
+          "shotDifference": 10,
+          "xgDifference": 1.7740605059011751
+        },
+        {
+          "seed": 67,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 8,
+          "xgDifference": 0.30954421150835293
+        },
+        {
+          "seed": 68,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 2,
+          "shotDifference": 5,
+          "xgDifference": -0.3166395366502206
+        },
+        {
+          "seed": 69,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 1,
+          "shotDifference": 21,
+          "xgDifference": 1.808213292535374
+        },
+        {
+          "seed": 70,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 12,
+          "xgDifference": 0.5678150315106076
+        },
+        {
+          "seed": 71,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 0,
+          "shotDifference": 6,
+          "xgDifference": 0.7333929409518374
+        },
+        {
+          "seed": 72,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 1.8409116608927285
+        },
+        {
+          "seed": 73,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 85.71428571428571,
+          "goalDifference": 2,
+          "shotDifference": 10,
+          "xgDifference": 1.6152396079240017
+        },
+        {
+          "seed": 74,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 8,
+          "xgDifference": 0.7417915348756325
+        },
+        {
+          "seed": 75,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 9,
+          "xgDifference": 1.3234020072921189
+        },
+        {
+          "seed": 76,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 75,
+          "goalDifference": 1,
+          "shotDifference": 7,
+          "xgDifference": 0.09753315481482017
+        },
+        {
+          "seed": 77,
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 4,
+          "shotDifference": 3,
+          "xgDifference": 2.4232173813476208
+        },
+        {
+          "seed": 78,
+          "goalsFor": 2,
+          "goalsAgainst": 3,
+          "savePercent": 0,
+          "goalDifference": -1,
+          "shotDifference": 8,
+          "xgDifference": 1.6007599513800774
+        },
+        {
+          "seed": 79,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 3,
+          "xgDifference": -1.1360937996384903
+        },
+        {
+          "seed": 80,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 85.71428571428571,
+          "goalDifference": 1,
+          "shotDifference": 4,
+          "xgDifference": -2.1280094540369285
+        },
+        {
+          "seed": 81,
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 5,
+          "shotDifference": 11,
+          "xgDifference": 0.9341509956798187
+        },
+        {
+          "seed": 82,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 0,
+          "xgDifference": -0.7964348573131995
+        },
+        {
+          "seed": 83,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 11,
+          "xgDifference": 2.952195269581394
+        },
+        {
+          "seed": 84,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": -2,
+          "xgDifference": -0.7720136381695757
+        },
+        {
+          "seed": 85,
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "savePercent": 80,
+          "goalDifference": -1,
+          "shotDifference": 3,
+          "xgDifference": -0.9261317957359476
+        },
+        {
+          "seed": 86,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 18,
+          "xgDifference": 2.45862997385243
+        },
+        {
+          "seed": 87,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 9,
+          "xgDifference": 1.642234601855184
+        },
+        {
+          "seed": 88,
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "savePercent": 0,
+          "goalDifference": 3,
+          "shotDifference": 8,
+          "xgDifference": 0.85200922238305
+        },
+        {
+          "seed": 89,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 2,
+          "shotDifference": 8,
+          "xgDifference": 0.2907971685076439
+        },
+        {
+          "seed": 90,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 9,
+          "xgDifference": 0.36790448726491554
+        },
+        {
+          "seed": 91,
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 6,
+          "shotDifference": 15,
+          "xgDifference": 1.9148637791105563
+        },
+        {
+          "seed": 92,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 7,
+          "xgDifference": -0.12685392880279256
+        },
+        {
+          "seed": 93,
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "savePercent": 0,
+          "goalDifference": 1,
+          "shotDifference": 10,
+          "xgDifference": 1.381715953721741
+        },
+        {
+          "seed": 94,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 80,
+          "goalDifference": 2,
+          "shotDifference": 3,
+          "xgDifference": 1.0533504484179157
+        },
+        {
+          "seed": 95,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 33.33333333333333,
+          "goalDifference": 0,
+          "shotDifference": 23,
+          "xgDifference": 2.3455980589476964
+        },
+        {
+          "seed": 96,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 14,
+          "xgDifference": 3.088583346096056
+        }
+      ]
+    },
+    "swapped10": {
+      "wins": 75,
+      "draws": 21,
+      "losses": 4,
+      "goalDifference": {
+        "mean": 1.48,
+        "median": 1,
+        "p10": 0,
+        "p90": 3
+      },
+      "shotDifference": {
+        "mean": 9.71,
+        "median": 10,
+        "p10": 3,
+        "p90": 17.10000000000001
+      },
+      "xgDifference": {
+        "mean": 1.043023813740869,
+        "median": 0.9998687006955227,
+        "p10": 0.15838544713542893,
+        "p90": 2.266974614659176
+      },
+      "goalsFor": {
+        "mean": 1.95,
+        "median": 2,
+        "p10": 1,
+        "p90": 3
+      },
+      "goalsAgainst": {
+        "mean": 0.47,
+        "median": 0,
+        "p10": 0,
+        "p90": 1
+      },
+      "savePercent": {
+        "mean": 80.17995570321152,
+        "median": 100,
+        "p10": 50,
+        "p90": 100
+      },
+      "runs": [
+        {
+          "seed": 901,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 0,
+          "goalDifference": 0,
+          "shotDifference": 17,
+          "xgDifference": 1.271087302762487
+        },
+        {
+          "seed": 731,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 0,
+          "goalDifference": 0,
+          "shotDifference": 8,
+          "xgDifference": 1.1103680863962544
+        },
+        {
+          "seed": 42,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 8,
+          "xgDifference": 1.0115823444611183
+        },
+        {
+          "seed": 2026,
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 3,
+          "shotDifference": 19,
+          "xgDifference": 1.8936135201677418
+        },
+        {
+          "seed": 508,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 71.42857142857143,
+          "goalDifference": 0,
+          "shotDifference": 2,
+          "xgDifference": -0.2368754373075248
+        },
+        {
+          "seed": 1,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 3,
+          "shotDifference": 18,
+          "xgDifference": 2.26687613620095
+        },
+        {
+          "seed": 2,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 1,
+          "shotDifference": 11,
+          "xgDifference": 1.3580083899994417
+        },
+        {
+          "seed": 3,
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 3,
+          "shotDifference": 10,
+          "xgDifference": 0.87896314956632
+        },
+        {
+          "seed": 4,
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "savePercent": 40,
+          "goalDifference": 1,
+          "shotDifference": 16,
+          "xgDifference": 1.2254058881783483
+        },
+        {
+          "seed": 5,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 3,
+          "xgDifference": -0.4853429837652953
+        },
+        {
+          "seed": 6,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 5,
+          "xgDifference": 1.1197172329678735
+        },
+        {
+          "seed": 7,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 0,
+          "xgDifference": 0.305629376649037
+        },
+        {
+          "seed": 8,
+          "goalsFor": 4,
+          "goalsAgainst": 2,
+          "savePercent": 60,
+          "goalDifference": 2,
+          "shotDifference": 16,
+          "xgDifference": 2.1109876174865327
+        },
+        {
+          "seed": 9,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 18,
+          "xgDifference": 1.865668906246196
+        },
+        {
+          "seed": 10,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 1,
+          "xgDifference": 0.10320447373240271
+        },
+        {
+          "seed": 11,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 2,
+          "shotDifference": 14,
+          "xgDifference": 1.9247816892558478
+        },
+        {
+          "seed": 12,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 8,
+          "xgDifference": 0.9079457731843203
+        },
+        {
+          "seed": 13,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 33.33333333333333,
+          "goalDifference": 0,
+          "shotDifference": 15,
+          "xgDifference": 2.3191113521861357
+        },
+        {
+          "seed": 14,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 8,
+          "xgDifference": 0.9916067506467678
+        },
+        {
+          "seed": 15,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 5,
+          "xgDifference": 0.698617356323459
+        },
+        {
+          "seed": 16,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 5,
+          "xgDifference": 0.2749268813129364
+        },
+        {
+          "seed": 17,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 15,
+          "xgDifference": 2.617007479299063
+        },
+        {
+          "seed": 18,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 2,
+          "xgDifference": -0.4094785512034813
+        },
+        {
+          "seed": 19,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": -2,
+          "xgDifference": -2.0250370456832725
+        },
+        {
+          "seed": 20,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 21,
+          "xgDifference": 3.8450907713952738
+        },
+        {
+          "seed": 21,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 12,
+          "xgDifference": -0.6878502695685769
+        },
+        {
+          "seed": 22,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 2,
+          "shotDifference": 20,
+          "xgDifference": 2.3681530424013366
+        },
+        {
+          "seed": 23,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 4,
+          "xgDifference": 0.5837113829087338
+        },
+        {
+          "seed": 24,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 13,
+          "xgDifference": 1.107699969999176
+        },
+        {
+          "seed": 25,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 3,
+          "xgDifference": 1.5562246536570077
+        },
+        {
+          "seed": 26,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 7,
+          "xgDifference": 0.8783429682732171
+        },
+        {
+          "seed": 27,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 5,
+          "xgDifference": 0.7125666668786478
+        },
+        {
+          "seed": 28,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 75,
+          "goalDifference": 2,
+          "shotDifference": 5,
+          "xgDifference": 0.7072369788718267
+        },
+        {
+          "seed": 29,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 80,
+          "goalDifference": 1,
+          "shotDifference": 5,
+          "xgDifference": 0.3731064279057492
+        },
+        {
+          "seed": 30,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 2,
+          "shotDifference": 9,
+          "xgDifference": 0.6227824697971488
+        },
+        {
+          "seed": 31,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 12,
+          "xgDifference": 0.8617775455336519
+        },
+        {
+          "seed": 32,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 4,
+          "xgDifference": 0.15525944789972557
+        },
+        {
+          "seed": 33,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 11,
+          "xgDifference": 1.2006160285665346
+        },
+        {
+          "seed": 34,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 2,
+          "shotDifference": 12,
+          "xgDifference": 1.268813073900238
+        },
+        {
+          "seed": 35,
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "savePercent": 75,
+          "goalDifference": -1,
+          "shotDifference": 0,
+          "xgDifference": 0.15873278038384042
+        },
+        {
+          "seed": 36,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 3,
+          "shotDifference": 11,
+          "xgDifference": 0.5997698455898872
+        },
+        {
+          "seed": 37,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 16,
+          "xgDifference": 1.8622218470168477
+        },
+        {
+          "seed": 38,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 12,
+          "xgDifference": 0.3720554948989738
+        },
+        {
+          "seed": 39,
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 4,
+          "shotDifference": 11,
+          "xgDifference": 3.339419495648714
+        },
+        {
+          "seed": 40,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 13,
+          "xgDifference": 0.7307414953307028
+        },
+        {
+          "seed": 41,
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 4,
+          "shotDifference": 12,
+          "xgDifference": 0.9745537252826556
+        },
+        {
+          "seed": 43,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 8,
+          "xgDifference": 1.009709019318723
+        },
+        {
+          "seed": 44,
+          "goalsFor": 6,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 5,
+          "shotDifference": 9,
+          "xgDifference": 1.121345799436314
+        },
+        {
+          "seed": 45,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 11,
+          "xgDifference": 1.2433461388468963
+        },
+        {
+          "seed": 46,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 3,
+          "shotDifference": 19,
+          "xgDifference": 2.224125682779312
+        },
+        {
+          "seed": 47,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 1,
+          "shotDifference": 19,
+          "xgDifference": 3.032589273157304
+        },
+        {
+          "seed": 48,
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "savePercent": 83.33333333333334,
+          "goalDifference": -1,
+          "shotDifference": 6,
+          "xgDifference": 1.618675039376003
+        },
+        {
+          "seed": 49,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 0,
+          "shotDifference": 5,
+          "xgDifference": 0.2326672824226131
+        },
+        {
+          "seed": 50,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 0,
+          "shotDifference": 5,
+          "xgDifference": 0.8693999952377397
+        },
+        {
+          "seed": 51,
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "savePercent": 60,
+          "goalDifference": 0,
+          "shotDifference": 7,
+          "xgDifference": 0.23255738102448986
+        },
+        {
+          "seed": 52,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 11,
+          "xgDifference": 1.6397992581849021
+        },
+        {
+          "seed": 53,
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 3,
+          "shotDifference": 8,
+          "xgDifference": 0.4531713131679127
+        },
+        {
+          "seed": 54,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 3,
+          "xgDifference": 0.6457345073857238
+        },
+        {
+          "seed": 55,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 1,
+          "shotDifference": 11,
+          "xgDifference": 1.71463267265339
+        },
+        {
+          "seed": 56,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 9,
+          "xgDifference": 0.5768066892281535
+        },
+        {
+          "seed": 57,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 0,
+          "xgDifference": -0.17610110644475407
+        },
+        {
+          "seed": 58,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 10,
+          "xgDifference": 1.6060627599564279
+        },
+        {
+          "seed": 59,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 80,
+          "goalDifference": 0,
+          "shotDifference": 4,
+          "xgDifference": 1.0317219610030302
+        },
+        {
+          "seed": 60,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 0,
+          "goalDifference": 0,
+          "shotDifference": 13,
+          "xgDifference": 0.594640764934955
+        },
+        {
+          "seed": 61,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 13,
+          "xgDifference": 2.54191487897846
+        },
+        {
+          "seed": 62,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 83.33333333333334,
+          "goalDifference": 2,
+          "shotDifference": 13,
+          "xgDifference": 0.3121177879280439
+        },
+        {
+          "seed": 63,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 0,
+          "goalDifference": 0,
+          "shotDifference": 12,
+          "xgDifference": 0.5112652186868148
+        },
+        {
+          "seed": 64,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 3,
+          "shotDifference": 9,
+          "xgDifference": 0.9723962564874389
+        },
+        {
+          "seed": 65,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 1.579405205796717
+        },
+        {
+          "seed": 66,
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 2,
+          "shotDifference": 10,
+          "xgDifference": 1.1333072229550618
+        },
+        {
+          "seed": 67,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 1,
+          "shotDifference": 10,
+          "xgDifference": 1.7028700521919196
+        },
+        {
+          "seed": 68,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 9,
+          "xgDifference": 1.0294008931887297
+        },
+        {
+          "seed": 69,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 23,
+          "xgDifference": 2.979725091799667
+        },
+        {
+          "seed": 70,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 0.39474064204407044
+        },
+        {
+          "seed": 71,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 12,
+          "xgDifference": 0.6908996356922961
+        },
+        {
+          "seed": 72,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 2,
+          "shotDifference": 12,
+          "xgDifference": 2.2820838190268233
+        },
+        {
+          "seed": 73,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 8,
+          "xgDifference": 0.6714597829254589
+        },
+        {
+          "seed": 74,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 50,
+          "goalDifference": 0,
+          "shotDifference": 9,
+          "xgDifference": 1.1640770092630628
+        },
+        {
+          "seed": 75,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": -5,
+          "xgDifference": -0.9778388457402993
+        },
+        {
+          "seed": 76,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 12,
+          "xgDifference": 0.6208808685164295
+        },
+        {
+          "seed": 77,
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "savePercent": 0,
+          "goalDifference": -1,
+          "shotDifference": 21,
+          "xgDifference": 1.7619611470189724
+        },
+        {
+          "seed": 78,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 14,
+          "xgDifference": 2.0744634731698253
+        },
+        {
+          "seed": 79,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 15,
+          "xgDifference": 2.037499091525957
+        },
+        {
+          "seed": 80,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 1,
+          "shotDifference": 5,
+          "xgDifference": 0.321807000900619
+        },
+        {
+          "seed": 81,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 13,
+          "xgDifference": 1.684280991273039
+        },
+        {
+          "seed": 82,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 9,
+          "xgDifference": 0.5750538630392332
+        },
+        {
+          "seed": 83,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 2,
+          "shotDifference": 13,
+          "xgDifference": 1.0484043962753444
+        },
+        {
+          "seed": 84,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 2,
+          "shotDifference": 8,
+          "xgDifference": 1.0918094351765633
+        },
+        {
+          "seed": 85,
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 1,
+          "shotDifference": 9,
+          "xgDifference": 0.7848147177547553
+        },
+        {
+          "seed": 86,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 85.71428571428571,
+          "goalDifference": 0,
+          "shotDifference": 5,
+          "xgDifference": 0.7737094158333494
+        },
+        {
+          "seed": 87,
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 0,
+          "shotDifference": 19,
+          "xgDifference": 1.2619838260565475
+        },
+        {
+          "seed": 88,
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 5,
+          "shotDifference": 14,
+          "xgDifference": 1.318514086538364
+        },
+        {
+          "seed": 89,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 2,
+          "shotDifference": 7,
+          "xgDifference": 0.994420480573676
+        },
+        {
+          "seed": 90,
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 0,
+          "shotDifference": 10,
+          "xgDifference": 2.267860920783207
+        },
+        {
+          "seed": 91,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 9,
+          "xgDifference": 1.0053169208173693
+        },
+        {
+          "seed": 92,
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "savePercent": 60,
+          "goalDifference": -2,
+          "shotDifference": 5,
+          "xgDifference": 1.1817749677671512
+        },
+        {
+          "seed": 93,
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "savePercent": null,
+          "goalDifference": 2,
+          "shotDifference": 11,
+          "xgDifference": 0.529025248889121
+        },
+        {
+          "seed": 94,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 75,
+          "goalDifference": 1,
+          "shotDifference": 1,
+          "xgDifference": -1.3876893498374625
+        },
+        {
+          "seed": 95,
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "savePercent": 100,
+          "goalDifference": 3,
+          "shotDifference": 13,
+          "xgDifference": 0.4493659942086876
+        },
+        {
+          "seed": 96,
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "savePercent": 66.66666666666666,
+          "goalDifference": 1,
+          "shotDifference": 3,
+          "xgDifference": 0.5590132632777602
+        }
+      ]
+    }
+  }
+}

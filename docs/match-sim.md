@@ -297,4 +297,33 @@ Node 22.23.4, tohum 901, iki 4-2-3-1, Normal pres/hat/tempo ve Dengeli pas; 22 o
 
 Node 22.23.4; beş tohum 901/731/42/2026/508, 54.000 adım/maç, iki 4-2-3-1. Ayrıntılı tablo ve hedefler [şut raporundadır](match-sim-shooting-report.md). Ortalama **34,2 şut, 14,0 isabet, 8,2 gol, 7,60 xG**, ağırlıklı xG/şut **0,222**, başarılı kurtarış **%41,4**; şut kalitesi/gol/kurtarış dengesi hedeflerinden belirgin uzak. Pas ortalaması **795,0**; beş maçta isabet ve mesafe hedefte, iki pas sayısı dışında. Faul **15,6**, sarı **2,4**; 689 müdahalenin 464'ü ıska (**%67,3**). Son güç hatası düzeltmesinden önceki daha iyi dağılım nihai sonuç diye korunmadı. 8. iş bu dağılımları birlikte kalibre edecek; fiziksel sonuç yerine ayrı gol/faul/kurtarış zarı eklenmeyecek. Üç ayrı tam maç için 2 saniye CI eşiği ve değişmemiş topsuz koordinat özeti korunur.
 
+
+
+## Denge 1 — 28–29 Ekim 2026
+
+Ölçüm ayardan önce kuruldu: 50 benzersiz tohum, aynı iki takım/diziliş/taktik, 54.000 gerçek adım; derleme ve rapor zaman dışında. Her ölçünün ortalama/medyan/P10/P90’ı, şut/kaleci/müdahale dilimleri, xG kalibrasyonu ve +5/+10/+20 güç farkı aynı düzenekle raporlanır. Rastgelelik yalnız uygulama/temas kalitesindedir; gol/kurtarış/müdahale sonucuna kota veya ayrı zar yoktur.
+
+| Ölçü | Önce | Sonra | Hedef |
+|---|---|---|---|
+| Gol | 7,34 | 2,44 | 2,2–3,4 |
+| Şut | 38,30 | 18,14 | 18–30 |
+| İsabetli şut | 13,56 | 9,14 | 6–11 |
+| Toplam xG | 6,89 | 2,34 | Golle tutarlı |
+| xG / şut | 0,180 | 0,129 | 0,09–0,14 |
+| Kurtarış % | 45,87 | 73,30 | 62–76 |
+| Blok | 14,88 | 4,04 | 3–8 |
+| Yasal kazanma + sekme % | 35,08 | 58,15 | >50 |
+| Faul | 14,72 | 10,62 | 16–26 |
+| Sarı | 2,20 | 2,68 | 2–5 |
+| Kırmızı | 0,12 | 0,22 | Sabit hedef yok |
+| Pas | 800,92 | 776,02 | 750–1.000 |
+| Pas isabet % | 77,01 | 77,32 | 75–88 |
+| Pas mesafesi m | 18,32 | 19,90 | 15–20 |
+
 Bitiricilik tek başına artınca aynı şutun amaçlanan gücü düşmez. Plase/sert stilinde fiziksel güç teknikle karşılaştırılır; finishing köşe seçimi ve uygulama doğruluğunu etkiler. Bu ayrım +10 finishing artışının yanlışlıkla %20 daha zayıf plaseye geçmesine karşı testle korunur.
+
+Canlı top son üçte birdeyken 35 m tetik ve 18 m kademeyle blok daralır/derinleşir; iki kale tarafı markaj ve penaltı noktası çevresinde dönen top görevi vardır. Ortak hedef zarfı oyuncuyu sıçratmaz. Hızlı şutta karar/fizik tek 0,72 m blok yarıçapı kullanır; 1,2 m kontrol yarıçapı pas ve boş top içindir. Müdahale hazırlığı tam temas adımına ve taşıyıcının aynı hareket integratörüyle öngörüsüne dayanır; gerçek çıkış noktasından sabit nişana uzanır. Etkin ayak/bacak zarfı 0,36/0,30 m, bekleme 5 sn. Tehlikeli devam bacak teması top önce oynansa da ayrıca fauldür.
+
+Kalecinin normal/set gövde ve açılmış kol zarfı 1,15/1,25 m; tepki 0,16+0,20·(1−reflexes/100), set değilse +0,04 sn. Parmak ucu ileri/yana hız bileşenleri düzeltilmiştir; plonjon azami ek uzanması korunur. Gol ve kurtarış hâlâ gerçek temas ve çizgi geçişidir. Şut haritası olaylardan maç boyunca birikir; renk sonucu, alan xG’yi gösterir. Skorun altında xG/kurtarış oranı vardır.
+
+İlk 50’de şut sayısı hedefte, ek 100 maçta hafif altında; faul hedef altında ve 5+ gol oranı hedefin üstünde; xG’nin bazı dilimleri uyumsuz kalır. Genel gövde faulleri, orta/kafa/duran top şutları yoktur; uzak şut seçimi hâlâ tutucudur. Bu alanlar kapanmış sayılmaz. Ayrıntı, nedenler, başarısız adayların neden korunmadığı ve güç deneyleri [Denge 1 raporunda](match-sim-balance-report.md); ham önce/sonra dosyaları `docs/measurements/` içindedir.

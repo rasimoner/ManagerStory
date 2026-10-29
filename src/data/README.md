@@ -74,3 +74,5 @@ Denge 1 ekleri:
 - `lab.shotMap`: xG'den nokta alanına ölçek, en küçük görünür nokta ve sonuç renkleri. Şut sayısına veya fiziğe etkisi yoktur.
 
 `reporting.controlledShots`: aynı atış konumları, set kaleci derinliği, +10 özellik artışı ve kısa uçuş süresi; finishing ve reflexes etkisini maçın sonraki RNG akışından ayıran eşlenmiş deney içindir. Normal/set kaleci ön erişimi 1,15/1,25 m, set olmama ek tepki payı 0,04 sn olarak kalibre edildi; plonjon sınırı değişmez.
+
+Raporun `milliseconds` alanı performans ölçümüdür, deterministik sonuç değildir. CI kaydedilen maç/güç/kontrollü şut sayaçlarını yeniden üretip `tools/sim-report/compare.cjs` ile karşılaştırır; yüzdelik ve istisnalar tarihli raporda açıklanır.

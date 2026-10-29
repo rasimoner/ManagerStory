@@ -36,6 +36,7 @@ jobs:
       - name: Measure fifty matches and attribute-strength experiments
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
+          node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
