@@ -9,7 +9,7 @@ import { tick } from './match-minute.js';
 import { save } from '../save.js';
 import { changed } from '../hooks.js';
 import { userSquad } from './user-team.js';
-import { advanceExperimentalFrame, advanceExperimentalPlayback, pauseExperimentalMatch, resumeExperimentalMatch } from './experimental-match.js';
+import { advanceExperimentalFrame, advanceExperimentalSimulation, projectExperimentalPlayback, pauseExperimentalMatch, resumeExperimentalMatch } from './experimental-match.js';
 import { prepareExperimentalFrame, recordExperimentalFrame } from '../presentation/sim/frame-clock.js';
 export const MATCH_MINUTE_MS = 30000 / 45;
 // UI labels stay .5 / 1 / 2; each now plays at half its former rate.
@@ -123,8 +123,9 @@ export function liveFrameStep(now) {
 function livePitchNeedsPaint(now) { return M.experimental || now - liveLastPaint >= 45; }
 function advanceExperimentalLiveFrame(seconds) {
   const frame = prepareExperimentalFrame(seconds);
-  const steps = advanceExperimentalPlayback(frame.seconds, { maxSteps: frame.maxSteps });
-  recordExperimentalFrame(frame, steps);
+  const view = advanceExperimentalSimulation(frame.seconds, { maxSteps: frame.maxSteps });
+  recordExperimentalFrame(frame, view?.steps ?? 0);
+  projectExperimentalPlayback(view);
 }
 export function ensureLiveLoop() {
   if (typeof requestAnimationFrame !== 'function' || !M || livePlaybackPaused() || ((M.finished || M.lifecycle==='FINISHED')&&!livePresentationPending()) || liveFrame !== null) return;

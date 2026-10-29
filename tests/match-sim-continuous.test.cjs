@@ -43,6 +43,17 @@ test('pause, tactics and substitution requests are applied at the step the manag
   assert.equal(game.run('M.matchElapsedSeconds'), game.run('M.simulation.time'));
 });
 
+test('career projection cost cannot feed back into the physical step budget', () => {
+  const game = match();
+  let milliseconds = 0;
+  game.ctx.performance = { now: () => milliseconds };
+  game.ctx.requestAnimationFrame = () => 1;
+  game.api.onHook('minutePlayed', () => { milliseconds += 100; });
+  game.run('advanceExperimentalSeconds(59.9);liveFrameStep(0);liveFrameStep(100)');
+  assert.ok(milliseconds >= 100, 'the career projection ran and consumed the artificial time');
+  assert.equal(game.run('readExperimentalFrameMetrics().maximumMs'), 0, 'only the physical computation is charged per step');
+});
+
 test('saving a continuous match preserves both the view speed and its future physical course', () => {
   const game = match();
   for (let frame = 0; frame < 80; frame++) game.run('advanceExperimentalPlayback(1/30,{maxSteps:250})');

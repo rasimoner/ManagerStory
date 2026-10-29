@@ -3,6 +3,8 @@
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
 
+V7.15.0: opt in through Ayarlar → **Deneysel maç motoru (yeni, 2D)**. Career matches use continuous variable-speed 2D; the switch defaults off and 3D remains on the legacy engine. [Release notes](docs/v7.15.0-release.md) · [Measurements and phone checklist](docs/match-sim-career-report.md).
+
 Katkı kuralları: [AGENTS.md](AGENTS.md)
 
 ## Commands
@@ -17,7 +19,9 @@ Node.js 22. `npm ci` once (Vite, three.js, Playwright for the smoke test).
 | `npm run lint` | ESLint (`eslint.config.js`) held to `lint-baseline.json`: a new violation fails; fewer violations tighten the baseline (commit it). In CI a baseline that could be tighter fails. |
 | `npm test` | Every test file, as many at a time as there are cores. It plays complete matches: about 12 minutes on 2 cores, less on more. Run it at the end of a piece of work and before main. |
 | `npm run test:fast` | The quick check for each commit (under a minute): everything but the long whole-match engine, clock and 3D-director files, and the golden master on four fixtures. |
-| `npm run smoke` | After `npm run build`: the build in Chromium, served like GitHub Pages (opens, main screens, old and new saves, season end, 3D match, new-release notice, offline). `SMOKE_CHROMIUM=<path>` uses another Chromium; `npx playwright install chromium` gets Playwright's. |
+| `npm run smoke` | After `npm run build`: 12 legacy checks, laboratory checks, experimental career decisions/reload/skip and a complete real-time 1× mobile watch (6–10 minute target). `CAREER_CONTROLS_ONLY=1` omits the complete watch when another CI job already verifies it. `SMOKE_CHROMIUM=<path>` uses another Chromium; `npx playwright install chromium` gets Playwright's. |
+| `npm run sim:report` | Replay 50 laboratory seeds, including the high-score tail diagnosis; `-- --strength` also runs the attribute experiments. |
+| `npm run sim:career-report` | Play all 34 user fixtures through the actual career, repeat with +10 attributes, and record season outcomes, fitness, ratings and storage size. |
 
 Useful test switches:
 - `GOLDEN_FIXTURES=3,7`, `NV_FIXTURES=0,1,2`, `CLOCK_FIXTURES=...` choose which matches the golden-master, 3D-director and clock tests play.

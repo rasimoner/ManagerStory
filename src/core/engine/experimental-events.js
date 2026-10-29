@@ -1,5 +1,6 @@
 import { M } from '../state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
+import CAREER_SIM_DATA from '../../data/match-sim-career.json';
 import { careerSimulationEvent } from '../match/career-events.js';
 import { matchEvent, userSide } from './match-support.js';
 import { pauseSimulation, resumeSimulation } from '../sim/simulation-checkpoint.js';
@@ -41,11 +42,23 @@ function settleExperimentalPassEvents(untilTime) {
 }
 
 function applyExperimentalEventState(event) {
+  recordExperimentalMetrics(event);
   if (['goal', 'shot', 'save', 'red', 'yellow', 'substitution', 'injury', 'half'].includes(event.type)) M.simulationImportantRevision = (M.simulationImportantRevision ?? 0) + 1;
   if (['red', 'substitution', 'injury'].includes(event.type)) M.simulationRosterRevision = (M.simulationRosterRevision ?? 0) + 1;
   const handlers = { yellow: recordExperimentalCard, red: recordExperimentalCard, injury: recordExperimentalInjury,
     substitution: recordExperimentalSubstitution, half: recordExperimentalHalf };
   handlers[event.type]?.(event);
+}
+
+function recordExperimentalMetrics(event) {
+  if (event.type === 'shot' && event.xg >= CAREER_SIM_DATA.bigChanceXg) incrementExperimentalMetric('bigChances', event.teamId);
+  if (event.type === 'ballOut') incrementExperimentalMetric('temporaryStoppages', event.restartTeamId);
+}
+
+function incrementExperimentalMetric(key, teamId) {
+  if (!['user', 'opponent'].includes(teamId)) return;
+  const side = teamId === 'user' ? userSide() : 1 - userSide();
+  (M.stats[key] ??= [0, 0])[side]++;
 }
 
 function recordExperimentalCard(event) {

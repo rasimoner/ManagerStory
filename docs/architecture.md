@@ -2,7 +2,7 @@
 
 V7.15.0'da iki motor birlikte durur. `core/match/career-input.js`, `career-events.js`, `career-ratings.js` saf adaptördür; `core/engine/experimental-*.js` yalnız açık anahtarlı kullanıcı maçını `core/sim/` ile sürer ve mevcut kariyer kancalarına iletir. Diğer lig maçları `simAIGame` ile kalır. Ayar kapalıysa eski dakika/3D akışı kullanılır. `modes/manager/experimental-settings.js` tercihi çizer; `core/presentation/sim/` salt okuyan 2D görünümdür.
 
-Güncel D kesintisizdir: `continuous-playback.js` motoru görülen andan ileri götürmez; `view-tempo.js` yalnız duvar zamanı → oyun zamanı dönüşümünü yumuşatır. Taktik/duraklatma komutu görülen adıma uygulanır; değişiklik isteği aynı adımda sıraya girer. `frame-clock.js` ölçülen kare maliyetiyle işi böler. `archive-codec.js`, `match-storage.js`, `history-storage.js` kayıpsız ve saf saklama sınırıdır; `archive-persistence.js`/`archive-worker.js` otomatik sıkıştırmayı çizim işinden çıkarır. Gecikmiş kayıtlar sıra kontrolüyle elenir. Üretimde simülasyon `core → modes` importu yapmaz.
+Güncel D kesintisizdir: `continuous-playback.js` motoru görülen andan ileri götürmez; `view-tempo.js` yalnız duvar zamanı → oyun zamanı dönüşümünü yumuşatır. Taktik/duraklatma komutu görülen adıma uygulanır; değişiklik isteği aynı adımda sıraya girer. `live-match.js` saat sürücüsü motoru ilerletir; `frame-clock.js` yalnız ölçülen maliyet ve adım bütçesini verir. `career-pitch.js` sabit yerleşimden GPU transform ile çizer; futbol durumuna yazmaz. `archive-codec.js`, `match-storage.js`, `history-storage.js` kayıpsız ve saf saklama sınırıdır; `archive-persistence.js`/`archive-worker.js` otomatik sıkıştırmayı çizim işinden çıkarır. Gecikmiş kayıtlar sıra kontrolüyle elenir. Üretimde simülasyon `core → modes` importu yapmaz.
 
 Yeni `core/sim/` komutları kariyerden bağımsızdır: takım kimliğiyle taktik, duruşta uygulanan değişiklik, hareketten tüketim ve hakem duruşuyla sakatlık. Kayıt salt düz nesnedir; RNG yanında algı/kovalama önbelleklerini ve JSON'da kaybolacak ortak konum referanslarını da taşır. Kariyer adaptörü bu sözleşmeyi kullanır; çekirdeğe `modes/` bağımlılığı eklenmez.
 
@@ -113,6 +113,7 @@ Sorumluluğa göre modüller (yardımcılar torbası yok); saf oyun mantığı; 
 ## Kalan borçlar
 
 Yeniden yapılanmadan sonra bilerek bırakılanlar:
+- Deneysel motorda gerçek duran toplar/orta/kafa/ofsayt ve 3D henüz bağlı değil; desteklenmeyen talimatlar açık eşleme tablosunda. 1× süre ve CPU emülasyonundaki uzun kayıt/yeniden çizim kareleri `docs/match-sim-career-report.md` içinde ölçülür; CPU emülasyonu gerçek telefon/Safari denemesinin yerini tutmaz.
 - Motorun kariyerde yazdıkları: kondisyon, sakatlık bayrağı, `S.matchSalt`. Ayrılmaları maça özel kadro kopyası ister (oyuncu kariyeri moduyla birlikte).
 - Motor kullanıcı takımının ayarlarını (`S.plan`, `S.instructions`, `S.positions`) kariyerden okuyor; `user-team.js`'e taşınabilir.
 - Çekirdekte DOM/tarayıcı kullanan yerler: `core/save.js` (alert, indirme), `live-match.js` (sekme görünürlüğü), `pitch-v73.js`'in 2D saha çizimi, sezon sonu "devam" (alert, kaydırma).

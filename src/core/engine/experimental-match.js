@@ -37,9 +37,17 @@ export function advanceExperimentalFrame(seconds) {
 }
 
 export function advanceExperimentalPlayback(seconds, options = {}) {
-  if (!experimentalCanAdvance()) return 0;
-  const view = advanceSimulationPlayback(M.simulationPlayback, M.simulation, { seconds, speed: M.speed,
+  return projectExperimentalPlayback(advanceExperimentalSimulation(seconds, options));
+}
+
+export function advanceExperimentalSimulation(seconds, options = {}) {
+  if (!experimentalCanAdvance()) return null;
+  return advanceSimulationPlayback(M.simulationPlayback, M.simulation, { seconds, speed: M.speed,
     maxSteps: options.maxSteps ?? CAREER_SIM_DATA.playback.maxSteps, skip: M.skipExperimental === true });
+}
+
+export function projectExperimentalPlayback(view) {
+  if (!view) return 0;
   synchronizeExperimentalMatch(view);
   releaseSkippedHalf();
   return view.steps;

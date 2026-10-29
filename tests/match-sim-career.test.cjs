@@ -118,6 +118,8 @@ test('a complete experimental match writes goals, cards, minutes, fitness, table
   assert.equal(game.run('Object.values(M.playerStats).reduce((n,p)=>n+p.goals,0)'), game.run('userSide()===0?M.hg:M.ag'));
   assert.ok(game.run('S.players.some(p=>p.minutes>0&&p.fitness<95)'));
   assert.equal(game.run('M.shots.reduce((a,b)=>a+b,0)'), game.run('M.simulation.events.filter(e=>e.type==="shot").length'));
+  assert.deepEqual(game.json('M.stats.bigChances'), game.json('M.simulation.teams.map(t=>M.simulation.events.filter(e=>e.type==="shot"&&e.teamId===t.id&&e.xg>=CAREER_SIM_DATA.bigChanceXg).length)'));
+  assert.deepEqual(game.json('M.stats.temporaryStoppages'), game.json('M.simulation.teams.map(t=>M.simulation.events.filter(e=>e.type==="ballOut"&&e.restartTeamId===t.id).length)'));
   const completed = game.api.M;
   game.run('finishMatch()');
   assert.equal(game.run('S.results.length'), 1);
@@ -137,6 +139,7 @@ test('saving and reopening an experimental match resumes the same result without
   restored.run('completeExperimentalMatchForTest()');
   assert.deepEqual(restored.json('M.events'), game.json('M.events'));
   assert.deepEqual(restored.json('M.playerStats'), game.json('M.playerStats'));
+  assert.deepEqual(restored.json('M.stats'), game.json('M.stats'));
   assert.deepEqual(restored.json('S.players.map(p=>[p.id,p.goals,p.yellow,p.red,p.minutes,p.fitness])'), game.json('S.players.map(p=>[p.id,p.goals,p.yellow,p.red,p.minutes,p.fitness])'));
 });
 

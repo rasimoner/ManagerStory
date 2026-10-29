@@ -1,5 +1,4 @@
 import { M } from '../state.js';
-import CAREER_SIM_DATA from '../../data/match-sim-career.json';
 import { simulationPlayerRatings } from '../match/career-ratings.js';
 import { minutePlayed } from '../hooks.js';
 import { matchEvent, userSide } from './match-support.js';
@@ -35,17 +34,14 @@ export function synchronizeExperimentalTeamStats(input = {}) {
     const stats = input.frame?.statistics[team.id] ?? M.simulation.statistics.teams[team.id];
     M.shots[side] = stats.shots;
     M.ont[side] = stats.shotsOnTarget;
-    copyExperimentalTeamStats(stats, { side, untilTime: input.time ?? M.simulation.time });
+    copyExperimentalTeamStats(stats, side);
     if (team.id === 'user') M.userPossTicks = stats.possessionSeconds;
     else M.oppPossTicks = stats.possessionSeconds;
   }
 }
 
-function copyExperimentalTeamStats(stats, { side, untilTime }) {
+function copyExperimentalTeamStats(stats, side) {
   const fields = { xg: 'xg', fouls: 'fouls', passes: 'passes', completedPasses: 'completedPasses', yellow: 'yellow', red: 'red', possessionsWon: 'ballWins', tackles: 'tacklesWon' };
   for (const [target, source] of Object.entries(fields)) M.stats[target][side] = stats[source];
-  const teamId = side === userSide() ? 'user' : 'opponent';
-  M.stats.bigChances[side] = M.simulation.events.filter(event => event.time <= untilTime && event.type === 'shot' && event.teamId === teamId && event.xg >= CAREER_SIM_DATA.bigChanceXg).length;
   M.stats.temporaryStoppages ??= [0, 0];
-  M.stats.temporaryStoppages[side] = M.simulation.events.filter(event => event.time <= untilTime && event.type === 'ballOut' && event.restartTeamId === teamId).length;
 }
