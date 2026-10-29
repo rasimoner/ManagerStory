@@ -17,10 +17,11 @@ export function captureSimulationPlayerPositions(simulation) {
 export function earliestSimulationBallContact(simulation, motion) {
   const runtime = simulationRuntime(simulation);
   let earliest = null;
+  const contactMotion = { ...motion, radius: simulationShotContactRadius(simulation) };
   runtime.players.forEach((player, index) => {
     if (!canTouchSimulationBall(simulation, player)) return;
     const previous = playerSegmentStart(runtime, index, motion);
-    const fraction = simulationContactFraction(player, previous, motion);
+    const fraction = simulationContactFraction(player, previous, contactMotion);
     if (fraction === null) return;
     const candidate = { player, fraction, previous };
     if (contactPrecedes(simulation, candidate, earliest)) earliest = candidate;
@@ -51,7 +52,7 @@ export function simulationContactFraction(player, previous, motion) {
   const offset = { x: motion.before.position.x - previous.x, y: motion.before.position.y - previous.y };
   const relative = { x: motion.after.position.x - motion.before.position.x - player.position.x + previous.x,
     y: motion.after.position.y - motion.before.position.y - player.position.y + previous.y };
-  const interval = circleContactInterval(offset, relative);
+  const interval = circleContactInterval(offset, relative, motion.radius);
   if (!interval) return null;
   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
   if (predictSimulationBall(motion.before, interval.start * seconds).height <= MATCH_SIM_DATA.ball.reachableHeight) return interval.start;
@@ -59,9 +60,8 @@ export function simulationContactFraction(player, previous, motion) {
   return descending >= interval.start && descending <= interval.end ? descending : null;
 }
 
-function circleContactInterval(offset, relative) {
+function circleContactInterval(offset, relative, radius = MATCH_SIM_DATA.ball.controlRadius) {
   const squared = relative.x * relative.x + relative.y * relative.y;
-  const radius = MATCH_SIM_DATA.ball.controlRadius;
   const distance = offset.x * offset.x + offset.y * offset.y - radius * radius;
   if (!squared) return distance <= 0 ? { start: 0, end: 1 } : null;
   const product = offset.x * relative.x + offset.y * relative.y;
@@ -89,4 +89,9 @@ function playerSegmentStart(runtime, index, motion) {
   const elapsed = 1 - (motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds) / MATCH_SIM_DATA.clock.stepSeconds;
   const x = runtime.previousPositions[index * 2], y = runtime.previousPositions[index * 2 + 1];
   return { x: x + (player.position.x - x) * elapsed, y: y + (player.position.y - y) * elapsed };
+}
+
+function simulationShotContactRadius(simulation) {
+  const shot = simulation.ball.shot;
+  return shot && !shot.saved && !shot.rebound ? MATCH_SIM_DATA.shooting.blockRadius : MATCH_SIM_DATA.ball.controlRadius;
 }

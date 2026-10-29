@@ -105,6 +105,8 @@ function canReachUnshieldedBall(simulation, defender, victim) {
 
 function predictTackleBall(simulation, victim, seconds) {
   if (simulation.ball.ownerId == null) return predictSimulationBall(simulation.ball, seconds).position;
-  const predicted = predictSimulationPlayerPosition(victim, seconds), offset = MATCH_SIM_DATA.ball.footOffset;
+  const motion = { ...victim, motionMode: simulation.ownerDecision.selected };
+  if (['pass', 'shot'].includes(motion.motionMode)) { motion.target = victim.position; motion.gait = 'walk'; }
+  const predicted = predictSimulationPlayerPosition(motion, seconds), offset = MATCH_SIM_DATA.ball.footOffset;
   return { x: predicted.position.x + Math.cos(predicted.heading) * offset, y: predicted.position.y + Math.sin(predicted.heading) * offset };
 }

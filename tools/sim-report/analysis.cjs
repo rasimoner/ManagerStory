@@ -15,24 +15,31 @@ function bucket(value, boundaries) {
 }
 
 function shotRows(events, teamOf) {
-  const rows = [], goals = new Set(events.filter(event => event.type === 'goal').map(event => event.shotId));
+  const rows = [], goals = new Map(events.filter(event => event.type === 'goal').map(event => [event.shotId, event]));
   let rebound = null, previous = null;
   events.forEach((event, index) => {
     if (event.type === 'shot') {
       const second = !!(rebound && rebound.teamId === event.teamId && event.time - rebound.time <= 3);
-      rows.push({ ...event, second, goal: goals.has(index), sources: opportunitySources(events, index, teamOf) });
+      rows.push({ ...event, second, rebounded: !!rebound, goal: goals.has(index), sources: opportunitySources(events, index, teamOf),
+        goalSources: goals.has(index) ? opportunitySources(events, events.indexOf(goals.get(index)), teamOf) : [] });
       previous = event;
     }
+    annotateSaveKind(event, rows);
     if (['save', 'block', 'post'].includes(event.type) && previous) rebound = { time: event.time, teamId: previous.teamId };
     if (breaksAttack(event, rebound?.teamId, teamOf)) { rebound = null; previous = null; }
   });
   return rows;
 }
 
+function annotateSaveKind(event, rows) {
+  if (event.type === 'save' && rows.length) rows.at(-1).saveKind = event.kind;
+}
+
 function breaksAttack(event, teamId, teamOf) {
   if (['goal', 'kickoff', 'half', 'ballOut', 'referee', 'foul', 'keeperClaim'].includes(event.type)) return true;
-  const control = event.type === 'interception' || event.type === 'firstTouch' && event.success || event.type === 'tackle' && event.result === 'won';
-  return control && teamOf(event.toId ?? event.fromId) !== teamId;
+  const control = event.type === 'interception' && event.success || event.type === 'firstTouch' && event.success || event.type === 'tackle' && event.result === 'won';
+  const controllerId = event.type === 'tackle' ? event.fromId : event.toId;
+  return control && teamOf(controllerId) !== teamId;
 }
 
 function opportunitySources(events, index, teamOf) {
@@ -69,13 +76,15 @@ function summarizeSlice(rows) {
   const sum = field => rows.reduce((total, row) => total + Number(row[field] ?? 0), 0);
   const xg = sum('xg'), onTarget = sum('onTarget'), goals = sum('goal');
   const saves = rows.filter(row => row.keeper?.saved).length;
+  const saveKinds = Object.fromEntries(['catch', 'parry', 'tip'].map(kind => [kind, rows.filter(row => row.saveKind === kind).length]));
   const contacts = rows.filter(row => row.keeper?.contact).length;
-  const reached = rows.filter(row => row.keeper?.arrival).length;
+  const evaluatedAtKeeperPlane = rows.filter(row => row.keeper?.arrival).length;
   return { count: rows.length, onTarget, goals, meanXg: xg / rows.length, goalRate: goals / rows.length,
-    saves, savePercent: onTarget ? saves / onTarget * 100 : null, reached, touchedButConceded: rows.filter(row => row.goal && row.keeper?.contact).length,
+    saves, saveKinds, savePercent: onTarget ? saves / onTarget * 100 : null, reached: contacts, evaluatedAtKeeperPlane, touchedButConceded: rows.filter(row => row.goal && row.keeper?.contact).length,
     neverReached: rows.filter(row => row.onTarget && !row.keeper?.contact).length,
     reactionSeconds: distribution(rows.filter(row => row.keeper).map(row => row.keeper.reactionSeconds)),
-    extension: distribution(rows.filter(row => row.keeper?.arrival).map(row => row.keeper.extension)), contacts };
+    extension: distribution(rows.filter(row => row.keeper?.arrival).map(row => row.keeper.extension)),
+    requiredExtension: distribution(rows.filter(row => row.keeper?.arrival).map(row => row.keeper.requiredExtension)), contacts };
 }
 
 module.exports = { distribution, bucket, shotRows, sliceRows };

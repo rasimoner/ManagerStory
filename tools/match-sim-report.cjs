@@ -15,12 +15,14 @@ function measureMatch(api, input) {
   const statistics = api.readSimulationStatistics(simulation);
   const byId = new Map(input.teams.flatMap(team => team.players.map(player => [player.id, team.id])));
   const shots = shotRows(simulation.events, id => byId.get(id));
+  const tackles = simulation.events.filter(event => event.type === 'tackle');
   const run = { seed: input.seed, milliseconds, score: simulation.match.score, statistics,
     xgPerShot: statistics.shots ? statistics.xg / statistics.shots : 0,
     savePercent: statistics.shotsOnTarget ? statistics.saves / statistics.shotsOnTarget * 100 : 0,
     goalXgDifference: statistics.goals - statistics.xg,
-    tackleSuccessPercent: statistics.tackles ? (statistics.tacklesWon + statistics.tacklesLoose) / statistics.tackles * 100 : 0 };
-  return { run, shots, tackles: simulation.events.filter(event => event.type === 'tackle') };
+    tackleContactPercent: statistics.tackles ? (statistics.tacklesWon + statistics.tacklesLoose) / statistics.tackles * 100 : 0,
+    tackleSuccessPercent: tackles.length ? tackles.filter(event => event.contact === 'ball' && !event.bodyContact).length / tackles.length * 100 : 0 };
+  return { run, shots, tackles };
 }
 
 async function report() {
@@ -33,11 +35,26 @@ async function report() {
     summary: matchSummary(results.map(result => result.run)),
     shots: shotSlices(results.flatMap(result => result.shots)), tackles: tackleSlices(results.flatMap(result => result.tackles)),
     runs: results.map(result => result.run) };
-  if (process.argv.includes('--strength')) output.strength = strengthExperiments(api, seeds, measureMatch);
+  if (process.argv.includes('--strength')) runStrengthReport(output, { api, seeds });
+  output.status = 'complete';
+  writeReport(output);
+}
+
+function runStrengthReport(output, { api, seeds }) {
+  output.status = 'running-strength';
+  output.strength = {};
+  writeReport(output, true);
+  strengthExperiments(api, seeds, { measure: measureMatch, names: argument('--experiments')?.split(','), onProgress: (name, result) => {
+    output.strength[name] = result;
+    writeReport(output, true);
+  } });
+}
+
+function writeReport(output, partial = false) {
   const json = JSON.stringify(output, null, 2) + '\n';
   const destination = argument('--output');
   if (destination) fs.writeFileSync(destination, json);
-  else process.stdout.write(json);
+  else if (!partial) process.stdout.write(json);
 }
 
 function argument(name) {
@@ -45,5 +62,5 @@ function argument(name) {
   return index < 0 ? null : process.argv[index + 1];
 }
 
-if (require.main === module) report().catch(error => { console.error(error); process.exitCode = 1; });
+if (require.main === module) report().catch(error => { console.error(error.message); process.exitCode = 1; });
 module.exports = { measureMatch };

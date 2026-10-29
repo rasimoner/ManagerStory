@@ -36,3 +36,24 @@ test('late rebounds and opponent control break second-shot attribution', () => {
   ];
   assert.ok(shotRows(events, id => id?.split('-')[0]).every(row => !row.second));
 });
+
+test('the fifty-seed baseline records distinct seeds and reconciles on-target shots with real outcomes', () => {
+  const baseline = require('../docs/measurements/match-sim-balance-before.json');
+  assert.equal(new Set(baseline.seeds).size, 50);
+  assert.equal(baseline.steps, 54000);
+  for (const run of baseline.runs) assert.equal(run.statistics.goals + run.statistics.saves, run.statistics.shotsOnTarget);
+  assert.equal(baseline.summary.scoreDistribution['0'], 0);
+});
+
+test('a winning tackle assigns control to the tackler when attributing attacks', () => {
+  const events = [
+    { type: 'tackle', time: 0, fromId: 'home-CB', toId: 'away-ST', result: 'won' },
+    { type: 'shot', time: 1, teamId: 'home', xg: 0.1 },
+    { type: 'block', time: 1.5 },
+    { type: 'tackle', time: 2, fromId: 'away-CB', toId: 'home-ST', result: 'won' },
+    { type: 'shot', time: 2.5, teamId: 'home', xg: 0.1 },
+  ];
+  const rows = shotRows(events, id => id?.split('-')[0]);
+  assert.ok(rows[0].sources.includes('ballWin'));
+  assert.equal(rows[1].second, false);
+});

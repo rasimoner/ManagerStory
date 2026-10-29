@@ -53,7 +53,8 @@ export function keeperShotContact(simulation, motion) {
   const position = { x: previous.x + (keeper.position.x - previous.x) * fraction, y: previous.y + (keeper.position.y - previous.y) * fraction };
   const contact = evaluateKeeperReach(keeper, { touching, time, fraction, position });
   const telemetry = simulation.events[shot.eventIndex].keeper;
-  Object.assign(telemetry, { arrival: true, extension: Math.max(0, Math.abs(touching.position.y - position.y) - keeperBodyReach(keeper)),
+  Object.assign(telemetry, { arrival: true, requiredExtension: Math.max(0, Math.abs(touching.position.y - position.y) - keeperBodyReach(keeper)),
+    extension: simulationKeeperReach(keeper, time).horizontal - keeperBodyReach(keeper),
     availableReach: simulationKeeperReach(keeper, time).horizontal, timeToKeeper: time - simulation.events[shot.eventIndex].time });
   return contact;
 }

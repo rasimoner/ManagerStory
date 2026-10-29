@@ -178,7 +178,7 @@ Genişletme noktaları (`core/hooks.js`):
 | `core/sim/ball-step.js`, `ball-restart.js`, `goal-line-restart.js` | Serbest top adımı ve temas/çizgi sırası; **geçici** taç, kalecinin elinden başlatma ve kısa korner |
 | `core/sim/ball-events.js`, `simulation-runtime.js`, `simulation-phases.js` | Gerçek anlı olaylar/istatistikler, simülasyona özel dizin/zar, sahiplik faz geçişleri |
 | `core/presentation/lab/pass-layers.js`, `stats-view.js` | Güvenli/riskli seçenekler, seçilen pas, alıcı/rakip saniyeleri, yol ve canlı pas/sahiplik sayıları |
-| `tools/match-sim-report.cjs`, `tests/match-sim-performance.test.cjs` | Derlemeyi zaman dışına alan yerel Node 22 ölçümü; 3 sn topsuz / 2 sn şut ve kaleci dahil tam maç seri bütçesi; beş tohum ölçümü ve koordinat özeti |
+| `tools/match-sim-report.cjs`, `tests/match-sim-performance.test.cjs` | Derlemeyi zaman dışına alan yerel Node 22 ölçümü; 3 sn topsuz / 2 sn şut ve kaleci dahil tam maç seri bütçesi; en az 50 tohum ölçümü, güç farkı ve koordinat özeti |
 | `tests/match-sim-ball.test.cjs`, `tests/match-sim-passing.test.cjs`, `tests/smoke/lab-passing.mjs` | Sentetik kesme/yükseklik/ilk dokunuş/çizgi, deterministik maç/fizik, telefonda dokunarak pas ve hızlı 90 dk |
 | `core/sim/owner-options.js`, `owner-pass-scan.js`, `dribble-evaluation.js`, `dribbling.js` | Tepki anında pas/sür/koru karşılaştırması, geçerli çıkış algısı, varış farkıyla sürme yönü, serbest dokunuş ve taşıma metriği |
 | `core/sim/duel-state.js`, `defending.js`, `tackle-contact.js`, `tackle-resolution.js` | Uygunluk/kalkış, kale tarafı jokey, seed'li uygulama hatası, süpürülmüş ayak–top/bacak ilk teması ve kazanma/sekme/ıska |
@@ -205,5 +205,18 @@ Build iki HTML girişini bağımsız grafiklerle paketler; laboratuvar için oyu
 | `core/sim/match-lifecycle.js` | Skor, gerçek santra pası için fiziksel yerleşme, gol duruşu, devre/yön değişimi ve bitiş |
 | `core/presentation/lab/shot-layers.js` | Görünen kale açısı, gerçek şut izi, kalecinin erişimi/tepki saati/kurtarış türü ve kısa gol işareti |
 | `tests/match-sim-shooting.test.cjs`, `tests/smoke/lab-shooting.mjs` | Sentetik kabul sahneleri; telefonda çift dokunma, skor/istatistik, yön değişimi ve maç bitişi |
-| `.github/workflows/match-sim-verify.yml` | Main'e birleşmeden önce Node 22, tam test, build ve değişmemiş 12 duman kontrolü + laboratuvar kontrolleri; beş tohum ve telefon görüntüsü |
+| `.github/workflows/match-sim-verify.yml` | Main'e birleşmeden önce Node 22, tam test, build ve değişmemiş 12 duman kontrolü + laboratuvar kontrolleri; 50 tohum/güç farkı ve telefon görüntüsü |
 | `docs/match-sim-shooting-report.md` | Tarihli beş tohum, gerçek futbol hedefleriyle farklar, süre, doğrulama ve oyun bağlantısı için arayüz eksikleri |
+
+### Denge 1
+
+| Dosya | Sorumluluk |
+|---|---|
+| `core/sim/box-defending.js` | Canlı top son üçte birdeyken ortak bloğu derinleştirme/daraltma, iki kale tarafı markaj ve dönen top ekranı; eski topsuz tekrar değişmez |
+| `core/sim/player-arrival.js`, `defending.js` | Pasın varış hesabıyla aynı hareket sınırları; müdahale anına kadar taşıyıcının ivme/fren/dönüş öngörüsü, gerçek çıkış noktasından ayak uzatma |
+| `core/sim/ball-contact.js`, `shot-evaluation.js` | Şut kararında ve fiziksel blokta tek `shooting.blockRadius`; yavaş top/pas kontrolü `ball.controlRadius` olarak kalır |
+| `core/sim/tackle-contact.js`, `tackle-resolution.js` | İlk top/bacak teması yanında gerçek devam bacak kesişimi; yüksek hızlı devam temasından faul, sonuç zarı yok |
+| `core/presentation/lab/shot-map.js` | Olay cursor'ıyla maç boyunca şut konumu/xG/nihai sonucunu biriktirme; katmanın açılıp kapanması kaydı silmez |
+| `tools/match-sim-report.cjs`, `tools/sim-report/` | En az 50 ayrı tohum, dağılım/yüzdelik/dilim/xG kalibrasyonu, güç farkı ve iki yön deneyi; pahalı deneyler arasında kısmi dosya checkpoint'i |
+| `tests/match-sim-balance.test.cjs`, `tests/match-sim-report.test.cjs`, `tests/match-sim-shot-map.test.cjs`, `tests/smoke/lab-balance.mjs` | Önce kırmızı davranış/rapor/harita testleri, ortak blok geometrisi ve temas sonrası faul; telefonda harita/sayaç/katman/sıfırlama |
+| `docs/match-sim-balance-report.md`, `docs/measurements/match-sim-balance-*.json` | Ayardan önce teşhis, aynı tohumlarla önce/sonra, yayılım, istisnalar ve tek özellik deneyleri |

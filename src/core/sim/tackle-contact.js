@@ -7,7 +7,7 @@ export function simulationTackleContact({ from, to, ball, victim }) {
   const fraction = Math.min(ballFraction, playerFraction);
   const contact = Number.isFinite(fraction) ? ballFraction <= playerFraction ? 'ball' : 'player' : 'none';
   const along = Number.isFinite(fraction) ? fraction : 1;
-  return { contact, fraction, position: { x: from.x + (to.x - from.x) * along, y: from.y + (to.y - from.y) * along } };
+  return { contact, fraction, bodyFraction: playerFraction, position: { x: from.x + (to.x - from.x) * along, y: from.y + (to.y - from.y) * along } };
 }
 
 function segmentCircleEntry({ from, to, center, radius }) {

@@ -62,3 +62,28 @@ test('goal, reach and tackle resolution cannot draw an outcome lottery', () => {
     assert.doesNotMatch(source, /drawSimulationRandom|Math\.random|goalQuota|saveQuota|tackleQuota/);
   }
 });
+
+test('a fast slide through the ball into a leg is a foul; stopping before the leg stays legal', () => {
+  for (const [endX, expected] of [[36.7, true], [37.5, false]]) {
+    const { api, simulation } = boxScene();
+    const victim = simulation.teams[0].players.at(-1), defender = simulation.teams[1].players[2];
+    defender.position = { x: 39, y: 2 };
+    api.resolveSimulationTackle(simulation, { defenderId: defender.id, victimId: victim.id, kind: 'sliding',
+      from: { ...defender.position }, to: { x: endX, y: 2 }, speed: 11 });
+    assert.equal(simulation.events.some(event => event.type === 'foul'), expected);
+  }
+});
+
+test('shot blocking uses the same planted body and leg envelope as the decision model', () => {
+  const { api, simulation } = boxScene();
+  const shooter = simulation.teams[0].players.at(-1), defender = simulation.teams[1].players[2];
+  shooter.position = { x: 35, y: 0 };
+  api.placeSimulationBall(simulation, { ownerId: shooter.id, teamId: 'home', position: { ...shooter.position } });
+  defender.position = { x: 39, y: 1.1 };
+  simulation.automaticPasses = false;
+  api.requestSimulationShot(simulation);
+  Object.assign(simulation.ball, { velocity: { x: 25, y: 0 }, height: 0, verticalVelocity: 0 });
+  for (let tick = 0; tick < 2; tick++) api.stepSimulation(simulation);
+  assert.equal(simulation.events.filter(event => event.type === 'block').length, 0);
+  assert.ok(api.MATCH_SIM_DATA.shooting.blockRadius < api.MATCH_SIM_DATA.ball.controlRadius);
+});

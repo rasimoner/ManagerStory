@@ -6,7 +6,7 @@ function shotSlices(rows) {
     distance: sliceRows(rows, row => bucket(row.distance, reporting.shotDistances)),
     angleDegrees: sliceRows(rows, row => bucket(row.angle * 180 / Math.PI, reporting.shotAngles)),
     technique: sliceRows(rows, row => row.style ?? 'foot'),
-    origin: sliceRows(rows, row => row.second ? 'rebound' : 'foot'),
+    origin: sliceRows(rows, row => row.rebounded ? 'rebound' : 'foot'),
     sequence: sliceRows(rows, row => row.second ? 'second' : 'first'),
     pressure: sliceRows(rows, row => row.pressure >= reporting.pressureThreshold ? 'pressured' : 'open'),
     keeperSet: sliceRows(rows, row => row.keeper?.set ? 'set' : 'unset'),
@@ -16,7 +16,7 @@ function shotSlices(rows) {
     keeperLateralDistance: sliceRows(rows, row => bucket(row.keeper?.lateralDistance, reporting.keeperOffsets)),
     sources: Object.fromEntries(['ballWin', 'throughPass', 'dribbleBeat', 'rebound', 'other'].map(source => [source, {
       shots: rows.filter(row => row.sources.includes(source)).length,
-      goals: rows.filter(row => row.goal && row.sources.includes(source)).length,
+      goals: rows.filter(row => row.goal && row.goalSources.includes(source)).length,
     }])),
   };
 }
@@ -32,13 +32,14 @@ function tackleGroups(rows, keyOf) {
   for (const row of rows) {
     const stats = groups[keyOf(row)] ??= { count: 0, won: 0, loose: 0, missed: 0, foul: 0 };
     stats.count++; stats[row.result]++;
-    if (row.contact === 'player') stats.foul++;
+    if (row.contact === 'ball' && !row.bodyContact) stats.legalSuccess = (stats.legalSuccess ?? 0) + 1;
+    if (row.contact === 'player' || row.bodyContact) stats.foul++;
   }
   return groups;
 }
 
 function matchSummary(runs) {
-  const metrics = ['goals', 'shots', 'shotsOnTarget', 'xg', 'xgPerShot', 'savePercent', 'blocks', 'tackleSuccessPercent', 'fouls', 'yellow', 'red', 'passes', 'accuracy', 'averageDistance', 'milliseconds', 'goalXgDifference'];
+  const metrics = ['goals', 'shots', 'shotsOnTarget', 'xg', 'xgPerShot', 'savePercent', 'blocks', 'tackleSuccessPercent', 'tackleContactPercent', 'fouls', 'yellow', 'red', 'passes', 'accuracy', 'averageDistance', 'milliseconds', 'goalXgDifference'];
   const summary = Object.fromEntries(metrics.map(metric => [metric, distribution(runs.map(run => run[metric] ?? run.statistics[metric]))]));
   const totals = runs.reduce((sum, run) => ({ shots: sum.shots + run.statistics.shots, saves: sum.saves + run.statistics.saves,
     onTarget: sum.onTarget + run.statistics.shotsOnTarget, xg: sum.xg + run.statistics.xg }), { shots: 0, saves: 0, onTarget: 0, xg: 0 });

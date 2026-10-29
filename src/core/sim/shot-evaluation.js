@@ -33,7 +33,7 @@ function blockedGoalFraction(position, goal, players) {
     const fraction = (player.position.x - position.x) / depth;
     if (fraction <= 0 || fraction >= 1) continue;
     const centre = position.y + (player.position.y - position.y) / fraction;
-    const radius = MATCH_SIM_DATA.ball.controlRadius / fraction;
+    const radius = MATCH_SIM_DATA.shooting.blockRadius / fraction;
     if (centre + radius >= -half && centre - radius <= half) intervals.push([Math.max(-half, centre - radius), Math.min(half, centre + radius)]);
   }
   return mergedIntervalWidth(intervals) / (2 * half);

@@ -1,7 +1,8 @@
 const { distribution } = require('./analysis.cjs');
 
-function strengthExperiments(api, seeds, measure) {
-  return Object.fromEntries(['equal', 'all5', 'all10', 'all20', 'finishing', 'reflexes', 'defence', 'swapped10'].map(experiment => {
+function strengthExperiments(api, seeds, options) {
+  const { measure, names = ['all10', 'all20', 'all5', 'finishing', 'reflexes', 'defence', 'swapped10', 'equal'] } = options;
+  return Object.fromEntries(names.map(experiment => {
     const runs = seeds.map(seed => {
       const input = api.createLabScenario({ seed });
       // Identical starting squads isolate attribute effects from laboratory roster generation.
@@ -11,9 +12,12 @@ function strengthExperiments(api, seeds, measure) {
       const { run } = measure(api, input);
       return strengthResult(run, input.teams[strong].id);
     });
-    return [experiment, { wins: runs.filter(run => run.goalDifference > 0).length, draws: runs.filter(run => run.goalDifference === 0).length,
+    process.stderr.write(`Measured ${experiment}: ${runs.filter(run => run.goalDifference > 0).length}/${runs.length} wins\n`);
+    const result = { wins: runs.filter(run => run.goalDifference > 0).length, draws: runs.filter(run => run.goalDifference === 0).length,
       losses: runs.filter(run => run.goalDifference < 0).length, goalDifference: distribution(runs.map(run => run.goalDifference)),
-      shotDifference: distribution(runs.map(run => run.shotDifference)), xgDifference: distribution(runs.map(run => run.xgDifference)), runs }];
+      shotDifference: distribution(runs.map(run => run.shotDifference)), xgDifference: distribution(runs.map(run => run.xgDifference)), runs };
+    options.onProgress?.(experiment, result);
+    return [experiment, result];
   }));
 }
 

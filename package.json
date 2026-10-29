@@ -10,7 +10,7 @@
     "lint": "node tools/lint/lint.js",
     "test": "node tests/run.cjs",
     "test:fast": "node tests/run.cjs --fast",
-    "smoke": "node tests/smoke/smoke.mjs && node tests/smoke/lab.mjs && node tests/smoke/lab-legacy-worker.mjs && node tests/smoke/lab-passing.mjs && node tests/smoke/lab-duels.mjs && node tests/smoke/lab-shooting.mjs",
+    "smoke": "node tests/smoke/smoke.mjs && node tests/smoke/lab.mjs && node tests/smoke/lab-legacy-worker.mjs && node tests/smoke/lab-passing.mjs && node tests/smoke/lab-duels.mjs && node tests/smoke/lab-shooting.mjs && node tests/smoke/lab-balance.mjs",
     "sim:report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-report.cjs"
   },
   "devDependencies": {
