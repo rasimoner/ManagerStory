@@ -103,6 +103,12 @@
       "p10": 28.060591603053435,
       "p90": 43.2
     },
+    "tackleContactPercent": {
+      "mean": 35.0816586653463,
+      "median": 34.330231871215474,
+      "p10": 28.060591603053435,
+      "p90": 43.2
+    },
     "fouls": {
       "mean": 14.72,
       "median": 14,
@@ -140,10 +146,10 @@
       "p90": 18.903946979193435
     },
     "milliseconds": {
-      "mean": 1734.7256182999997,
-      "median": 1428.0869999999995,
-      "p10": 1270.6825983999981,
-      "p90": 2853.604024899999
+      "mean": 1654.4913842199994,
+      "median": 1279.4155384999976,
+      "p10": 1178.5628496999939,
+      "p90": 2203.7518919
     },
     "goalXgDifference": {
       "mean": 0.45243119338143467,
@@ -172,8 +178,14 @@
         "meanXg": 0.09775014684389324,
         "goalRate": 0.1600441501103753,
         "saves": 99,
+        "saveKinds": {
+          "catch": 29,
+          "parry": 68,
+          "tip": 78
+        },
         "savePercent": 40.57377049180328,
-        "reached": 534,
+        "reached": 175,
+        "evaluatedAtKeeperPlane": 534,
         "touchedButConceded": 30,
         "neverReached": 115,
         "reactionSeconds": {
@@ -183,6 +195,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 1.0703538105045285,
+          "median": 0.8782772079765223,
+          "p10": 0,
+          "p90": 2.65
+        },
+        "requiredExtension": {
           "mean": 3.3058147172617964,
           "median": 2.080692920738617,
           "p10": 0,
@@ -197,8 +215,14 @@
         "meanXg": 0.2697265867481034,
         "goalRate": 0.2948717948717949,
         "saves": 20,
+        "saveKinds": {
+          "catch": 3,
+          "parry": 15,
+          "tip": 16
+        },
         "savePercent": 30.303030303030305,
-        "reached": 91,
+        "reached": 34,
+        "evaluatedAtKeeperPlane": 91,
         "touchedButConceded": 4,
         "neverReached": 42,
         "reactionSeconds": {
@@ -208,6 +232,12 @@
           "p90": 0.40790000000000004
         },
         "extension": {
+          "mean": 0.10603091647449471,
+          "median": 0,
+          "p10": 0,
+          "p90": 0.3979086792584958
+        },
+        "requiredExtension": {
           "mean": 1.3004579759816866,
           "median": 0.6313260666575435,
           "p10": 0,
@@ -222,8 +252,14 @@
         "meanXg": 0.0634115693831991,
         "goalRate": 0.16743119266055045,
         "saves": 113,
+        "saveKinds": {
+          "catch": 35,
+          "parry": 78,
+          "tip": 70
+        },
         "savePercent": 60.752688172043015,
-        "reached": 310,
+        "reached": 183,
+        "evaluatedAtKeeperPlane": 310,
         "touchedButConceded": 34,
         "neverReached": 39,
         "reactionSeconds": {
@@ -233,6 +269,12 @@
           "p90": 0.3988
         },
         "extension": {
+          "mean": 1.9932716532870725,
+          "median": 2.5970792884316865,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 2.456566171508554,
           "median": 1.1673911800482166,
           "p10": 0,
@@ -247,8 +289,14 @@
         "meanXg": 0.44626382615487303,
         "goalRate": 0.24700239808153476,
         "saves": 79,
+        "saveKinds": {
+          "catch": 19,
+          "parry": 58,
+          "tip": 66
+        },
         "savePercent": 43.40659340659341,
-        "reached": 281,
+        "reached": 143,
+        "evaluatedAtKeeperPlane": 281,
         "touchedButConceded": 26,
         "neverReached": 77,
         "reactionSeconds": {
@@ -258,6 +306,12 @@
           "p90": 0.4066
         },
         "extension": {
+          "mean": 0.0222187406593249,
+          "median": 0,
+          "p10": 0,
+          "p90": 0
+        },
+        "requiredExtension": {
           "mean": 0.34427280448155556,
           "median": 0,
           "p10": 0,
@@ -274,8 +328,14 @@
         "meanXg": 0.07885183283258886,
         "goalRate": 0.15,
         "saves": 74,
+        "saveKinds": {
+          "catch": 27,
+          "parry": 60,
+          "tip": 43
+        },
         "savePercent": 40,
-        "reached": 443,
+        "reached": 130,
+        "evaluatedAtKeeperPlane": 443,
         "touchedButConceded": 20,
         "neverReached": 91,
         "reactionSeconds": {
@@ -285,6 +345,12 @@
           "p90": 0.3858
         },
         "extension": {
+          "mean": 1.2160490236682882,
+          "median": 0.9058816914991743,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 4.265984216524214,
           "median": 3.4032307338312724,
           "p10": 0,
@@ -299,8 +365,14 @@
         "meanXg": 0.10836099691081172,
         "goalRate": 0.18636363636363637,
         "saves": 143,
+        "saveKinds": {
+          "catch": 37,
+          "parry": 94,
+          "tip": 111
+        },
         "savePercent": 53.75939849624061,
-        "reached": 432,
+        "reached": 242,
+        "evaluatedAtKeeperPlane": 432,
         "touchedButConceded": 45,
         "neverReached": 78,
         "reactionSeconds": {
@@ -310,6 +382,12 @@
           "p90": 0.4066
         },
         "extension": {
+          "mean": 1.5024150497075326,
+          "median": 1.5613416317492255,
+          "p10": 0,
+          "p90": 2.65
+        },
+        "requiredExtension": {
           "mean": 1.576123301436017,
           "median": 1.0425454548270832,
           "p10": 0,
@@ -324,8 +402,14 @@
         "meanXg": 0.44371268806951997,
         "goalRate": 0.25229357798165136,
         "saves": 84,
+        "saveKinds": {
+          "catch": 20,
+          "parry": 61,
+          "tip": 68
+        },
         "savePercent": 43.29896907216495,
-        "reached": 300,
+        "reached": 149,
+        "evaluatedAtKeeperPlane": 300,
         "touchedButConceded": 26,
         "neverReached": 84,
         "reactionSeconds": {
@@ -335,6 +419,12 @@
           "p90": 0.4066
         },
         "extension": {
+          "mean": 0.022425048745614046,
+          "median": 0,
+          "p10": 0,
+          "p90": 0
+        },
+        "requiredExtension": {
           "mean": 0.4192294290376922,
           "median": 0,
           "p10": 0,
@@ -349,8 +439,14 @@
         "meanXg": 0.26646954525779953,
         "goalRate": 0.2911392405063291,
         "saves": 10,
+        "saveKinds": {
+          "catch": 2,
+          "parry": 4,
+          "tip": 8
+        },
         "savePercent": 30.303030303030305,
-        "reached": 41,
+        "reached": 14,
+        "evaluatedAtKeeperPlane": 41,
         "touchedButConceded": 3,
         "neverReached": 20,
         "reactionSeconds": {
@@ -360,6 +456,12 @@
           "p90": 0.40764
         },
         "extension": {
+          "mean": 0.2657291041577966,
+          "median": 0,
+          "p10": 0,
+          "p90": 0.9257559488669812
+        },
+        "requiredExtension": {
           "mean": 1.108239102614826,
           "median": 0.8066166805372509,
           "p10": 0,
@@ -376,8 +478,14 @@
         "meanXg": 0.1826776596059754,
         "goalRate": 0.22673031026252982,
         "saves": 127,
+        "saveKinds": {
+          "catch": 28,
+          "parry": 104,
+          "tip": 104
+        },
         "savePercent": 40.063091482649845,
-        "reached": 575,
+        "reached": 236,
+        "evaluatedAtKeeperPlane": 575,
         "touchedButConceded": 52,
         "neverReached": 138,
         "reactionSeconds": {
@@ -387,6 +495,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 0.8251967131549188,
+          "median": 0.15684298557033793,
+          "p10": 0,
+          "p90": 2.65
+        },
+        "requiredExtension": {
           "mean": 2.299405593723534,
           "median": 0.9516498380052796,
           "p10": 0,
@@ -401,8 +515,14 @@
         "meanXg": 0.177545971090764,
         "goalRate": 0.15436893203883495,
         "saves": 181,
+        "saveKinds": {
+          "catch": 55,
+          "parry": 115,
+          "tip": 125
+        },
         "savePercent": 53.23529411764706,
-        "reached": 619,
+        "reached": 295,
+        "evaluatedAtKeeperPlane": 619,
         "touchedButConceded": 42,
         "neverReached": 117,
         "reactionSeconds": {
@@ -412,6 +532,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 1.142831938955152,
+          "median": 0.8178463262991449,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 2.2006569418896245,
           "median": 0.9727576713276496,
           "p10": 0,
@@ -426,8 +552,14 @@
         "meanXg": 0.17919598633264192,
         "goalRate": 0.3829787234042553,
         "saves": 3,
+        "saveKinds": {
+          "catch": 3,
+          "parry": 0,
+          "tip": 1
+        },
         "savePercent": 14.285714285714285,
-        "reached": 22,
+        "reached": 4,
+        "evaluatedAtKeeperPlane": 22,
         "touchedButConceded": 0,
         "neverReached": 18,
         "reactionSeconds": {
@@ -437,6 +569,12 @@
           "p90": 0.39827999999999997
         },
         "extension": {
+          "mean": 1.0670157534337437,
+          "median": 0.37174730395026245,
+          "p10": 0,
+          "p90": 2.65
+        },
+        "requiredExtension": {
           "mean": 2.6162746653814266,
           "median": 0.8382799648404673,
           "p10": 0,
@@ -447,54 +585,78 @@
     },
     "origin": {
       "foot": {
-        "count": 1573,
-        "onTarget": 640,
-        "goals": 346,
-        "meanXg": 0.18003328039928823,
-        "goalRate": 0.2199618563254927,
+        "count": 1546,
+        "onTarget": 632,
+        "goals": 338,
+        "meanXg": 0.1812791458254001,
+        "goalRate": 0.2186287192755498,
         "saves": 294,
-        "savePercent": 45.9375,
-        "reached": 1068,
-        "touchedButConceded": 91,
-        "neverReached": 255,
+        "saveKinds": {
+          "catch": 80,
+          "parry": 208,
+          "tip": 217
+        },
+        "savePercent": 46.51898734177215,
+        "reached": 505,
+        "evaluatedAtKeeperPlane": 1051,
+        "touchedButConceded": 88,
+        "neverReached": 250,
         "reactionSeconds": {
-          "mean": 0.3131037507946616,
+          "mean": 0.3137332470892643,
           "median": 0.35719999999999996,
           "p10": 0.1824,
-          "p90": 0.404
+          "p90": 0.4053
         },
         "extension": {
-          "mean": 2.2625461337229,
-          "median": 1.0575609150530105,
+          "mean": 1.0898967321663244,
+          "median": 0.7900139468247471,
           "p10": 0,
-          "p90": 6.8313520511951245
+          "p90": 2.6500000000000004
         },
-        "contacts": 510
+        "requiredExtension": {
+          "mean": 2.2434410485003595,
+          "median": 1.0449712498879267,
+          "p10": 0,
+          "p90": 6.851935099594288
+        },
+        "contacts": 505
       },
       "rebound": {
-        "count": 342,
-        "onTarget": 38,
-        "goals": 21,
-        "meanXg": 0.17890669667499426,
-        "goalRate": 0.06140350877192982,
+        "count": 369,
+        "onTarget": 46,
+        "goals": 29,
+        "meanXg": 0.17376932489121866,
+        "goalRate": 0.07859078590785908,
         "saves": 17,
-        "savePercent": 44.73684210526316,
-        "reached": 148,
-        "touchedButConceded": 3,
-        "neverReached": 18,
+        "saveKinds": {
+          "catch": 6,
+          "parry": 11,
+          "tip": 13
+        },
+        "savePercent": 36.95652173913043,
+        "reached": 30,
+        "evaluatedAtKeeperPlane": 165,
+        "touchedButConceded": 6,
+        "neverReached": 23,
         "reactionSeconds": {
-          "mean": 0.24435964912280747,
+          "mean": 0.24675230352303532,
           "median": 0.2188,
           "p10": 0.1512,
           "p90": 0.3806
         },
         "extension": {
-          "mean": 2.1994840219124696,
-          "median": 0.3023144920177311,
+          "mean": 0.3629937051276011,
+          "median": 0,
           "p10": 0,
-          "p90": 8.551582224589206
+          "p90": 1.9764488697802733
         },
-        "contacts": 25
+        "requiredExtension": {
+          "mean": 2.3276749338498397,
+          "median": 0.3700859253031723,
+          "p10": 0,
+          "p90": 8.516450908417973
+        },
+        "contacts": 30
       }
     },
     "sequence": {
@@ -505,8 +667,14 @@
         "meanXg": 0.18003328039928823,
         "goalRate": 0.2199618563254927,
         "saves": 294,
+        "saveKinds": {
+          "catch": 81,
+          "parry": 209,
+          "tip": 220
+        },
         "savePercent": 45.9375,
-        "reached": 1068,
+        "reached": 510,
+        "evaluatedAtKeeperPlane": 1068,
         "touchedButConceded": 91,
         "neverReached": 255,
         "reactionSeconds": {
@@ -516,6 +684,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 1.0991107254141579,
+          "median": 0.8057718094361798,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 2.2625461337229,
           "median": 1.0575609150530105,
           "p10": 0,
@@ -530,8 +704,14 @@
         "meanXg": 0.17890669667499426,
         "goalRate": 0.06140350877192982,
         "saves": 17,
+        "saveKinds": {
+          "catch": 5,
+          "parry": 10,
+          "tip": 10
+        },
         "savePercent": 44.73684210526316,
-        "reached": 148,
+        "reached": 25,
+        "evaluatedAtKeeperPlane": 148,
         "touchedButConceded": 3,
         "neverReached": 18,
         "reactionSeconds": {
@@ -541,6 +721,12 @@
           "p90": 0.3806
         },
         "extension": {
+          "mean": 0.2130079196658142,
+          "median": 0,
+          "p10": 0,
+          "p90": 0.6937795753102683
+        },
+        "requiredExtension": {
           "mean": 2.1994840219124696,
           "median": 0.3023144920177311,
           "p10": 0,
@@ -557,8 +743,14 @@
         "meanXg": 0.09666202312973016,
         "goalRate": 0.19518377693282637,
         "saves": 137,
+        "saveKinds": {
+          "catch": 40,
+          "parry": 95,
+          "tip": 92
+        },
         "savePercent": 47.07903780068728,
-        "reached": 546,
+        "reached": 227,
+        "evaluatedAtKeeperPlane": 546,
         "touchedButConceded": 43,
         "neverReached": 111,
         "reactionSeconds": {
@@ -568,6 +760,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 1.3730839143442823,
+          "median": 1.4038608414427913,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 3.0557403830061047,
           "median": 1.8632545205007953,
           "p10": 0,
@@ -582,8 +780,14 @@
         "meanXg": 0.23811021676871297,
         "goalRate": 0.1891651865008881,
         "saves": 174,
+        "saveKinds": {
+          "catch": 46,
+          "parry": 124,
+          "tip": 138
+        },
         "savePercent": 44.96124031007752,
-        "reached": 670,
+        "reached": 308,
+        "evaluatedAtKeeperPlane": 670,
         "touchedButConceded": 51,
         "neverReached": 162,
         "reactionSeconds": {
@@ -593,6 +797,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 0.680106880031167,
+          "median": 0,
+          "p10": 0,
+          "p90": 2.65
+        },
+        "requiredExtension": {
           "mean": 1.602221876026519,
           "median": 0.342079242489579,
           "p10": 0,
@@ -609,8 +819,14 @@
         "meanXg": 0.0935227499431867,
         "goalRate": 0.08365019011406843,
         "saves": 91,
+        "saveKinds": {
+          "catch": 30,
+          "parry": 75,
+          "tip": 66
+        },
         "savePercent": 57.961783439490446,
-        "reached": 409,
+        "reached": 171,
+        "evaluatedAtKeeperPlane": 409,
         "touchedButConceded": 30,
         "neverReached": 36,
         "reactionSeconds": {
@@ -620,6 +836,12 @@
           "p90": 0.2318
         },
         "extension": {
+          "mean": 1.4980272149922444,
+          "median": 2.050468813932781,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 2.9079501590197947,
           "median": 1.4548955274999364,
           "p10": 0,
@@ -634,8 +856,14 @@
         "meanXg": 0.24030993838876896,
         "goalRate": 0.2673179396092362,
         "saves": 220,
+        "saveKinds": {
+          "catch": 56,
+          "parry": 144,
+          "tip": 164
+        },
         "savePercent": 42.226487523992326,
-        "reached": 807,
+        "reached": 364,
+        "evaluatedAtKeeperPlane": 807,
         "touchedButConceded": 64,
         "neverReached": 237,
         "reactionSeconds": {
@@ -645,6 +873,12 @@
           "p90": 0.4118
         },
         "extension": {
+          "mean": 0.734426636829036,
+          "median": 0,
+          "p10": 0,
+          "p90": 2.48765306012784
+        },
+        "requiredExtension": {
           "mean": 1.9238801623544053,
           "median": 0.8354331111578412,
           "p10": 0,
@@ -661,8 +895,14 @@
         "meanXg": 0.06898894218324891,
         "goalRate": 0.15513126491646778,
         "saves": 131,
+        "saveKinds": {
+          "catch": 37,
+          "parry": 99,
+          "tip": 89
+        },
         "savePercent": 50.191570881226056,
-        "reached": 559,
+        "reached": 225,
+        "evaluatedAtKeeperPlane": 559,
         "touchedButConceded": 37,
         "neverReached": 93,
         "reactionSeconds": {
@@ -672,6 +912,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 1.4238044410129067,
+          "median": 1.577481626986068,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 3.0951122784314657,
           "median": 1.8265113531535353,
           "p10": 0,
@@ -686,8 +932,14 @@
         "meanXg": 0.13420463531190682,
         "goalRate": 0.15195071868583163,
         "saves": 55,
+        "saveKinds": {
+          "catch": 12,
+          "parry": 33,
+          "tip": 42
+        },
         "savePercent": 42.63565891472868,
-        "reached": 259,
+        "reached": 87,
+        "evaluatedAtKeeperPlane": 259,
         "touchedButConceded": 17,
         "neverReached": 57,
         "reactionSeconds": {
@@ -697,6 +949,12 @@
           "p90": 0.3988
         },
         "extension": {
+          "mean": 0.8626666545091004,
+          "median": 0.5167696549365359,
+          "p10": 0,
+          "p90": 2.65
+        },
+        "requiredExtension": {
           "mean": 1.7582530962506961,
           "median": 1.002550260675695,
           "p10": 0,
@@ -711,8 +969,14 @@
         "meanXg": 0.2800209386919534,
         "goalRate": 0.27941176470588236,
         "saves": 15,
+        "saveKinds": {
+          "catch": 2,
+          "parry": 12,
+          "tip": 14
+        },
         "savePercent": 28.30188679245283,
-        "reached": 83,
+        "reached": 28,
+        "evaluatedAtKeeperPlane": 83,
         "touchedButConceded": 4,
         "neverReached": 34,
         "reactionSeconds": {
@@ -722,6 +986,12 @@
           "p90": 0.4066
         },
         "extension": {
+          "mean": 0.13900509786426588,
+          "median": 0,
+          "p10": 0,
+          "p90": 0.6321194947047662
+        },
+        "requiredExtension": {
           "mean": 1.0272903982003292,
           "median": 0.47031886393446354,
           "p10": 0,
@@ -736,8 +1006,14 @@
         "meanXg": 0.044144014628561636,
         "goalRate": 0.12,
         "saves": 27,
+        "saveKinds": {
+          "catch": 14,
+          "parry": 16,
+          "tip": 18
+        },
         "savePercent": 56.25,
-        "reached": 97,
+        "reached": 48,
+        "evaluatedAtKeeperPlane": 97,
         "touchedButConceded": 10,
         "neverReached": 11,
         "reactionSeconds": {
@@ -747,6 +1023,12 @@
           "p90": 0.39411999999999997
         },
         "extension": {
+          "mean": 1.7475544371908693,
+          "median": 2.4373820984107986,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 3.8755651270135276,
           "median": 1.480143710788326,
           "p10": 0,
@@ -761,8 +1043,14 @@
         "meanXg": 0.6286738321231659,
         "goalRate": 0.3727598566308244,
         "saves": 83,
+        "saveKinds": {
+          "catch": 21,
+          "parry": 59,
+          "tip": 67
+        },
         "savePercent": 44.38502673796791,
-        "reached": 218,
+        "reached": 147,
+        "evaluatedAtKeeperPlane": 218,
         "touchedButConceded": 26,
         "neverReached": 78,
         "reactionSeconds": {
@@ -772,6 +1060,12 @@
           "p90": 0.4118
         },
         "extension": {
+          "mean": 0.02288017100247867,
+          "median": 0,
+          "p10": 0,
+          "p90": 0
+        },
+        "requiredExtension": {
           "mean": 0.4365718812662454,
           "median": 0,
           "p10": 0,
@@ -788,8 +1082,14 @@
         "meanXg": 0.18273164898325778,
         "goalRate": 0.21837088388214904,
         "saves": 86,
+        "saveKinds": {
+          "catch": 19,
+          "parry": 64,
+          "tip": 75
+        },
         "savePercent": 40.56603773584906,
-        "reached": 385,
+        "reached": 158,
+        "evaluatedAtKeeperPlane": 385,
         "touchedButConceded": 36,
         "neverReached": 90,
         "reactionSeconds": {
@@ -799,6 +1099,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 0.8518515891600961,
+          "median": 0.23327833586707925,
+          "p10": 0,
+          "p90": 2.65
+        },
+        "requiredExtension": {
           "mean": 2.263292515235569,
           "median": 0.8956838528786671,
           "p10": 0,
@@ -813,8 +1119,14 @@
         "meanXg": 0.17465121590848226,
         "goalRate": 0.2926829268292683,
         "saves": 29,
+        "saveKinds": {
+          "catch": 4,
+          "parry": 31,
+          "tip": 25
+        },
         "savePercent": 32.58426966292135,
-        "reached": 154,
+        "reached": 60,
+        "evaluatedAtKeeperPlane": 154,
         "touchedButConceded": 17,
         "neverReached": 43,
         "reactionSeconds": {
@@ -824,6 +1136,12 @@
           "p90": 0.4066
         },
         "extension": {
+          "mean": 0.6973651686546554,
+          "median": 0.03559407501423628,
+          "p10": 0,
+          "p90": 2.4076761565023164
+        },
+        "requiredExtension": {
           "mean": 2.226943484097722,
           "median": 0.9849602800474655,
           "p10": 0,
@@ -838,8 +1156,14 @@
         "meanXg": 0.17634330018778077,
         "goalRate": 0.14651162790697675,
         "saves": 149,
+        "saveKinds": {
+          "catch": 45,
+          "parry": 92,
+          "tip": 101
+        },
         "savePercent": 54.18181818181819,
-        "reached": 515,
+        "reached": 238,
+        "evaluatedAtKeeperPlane": 515,
         "touchedButConceded": 29,
         "neverReached": 97,
         "reactionSeconds": {
@@ -849,6 +1173,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 1.1289246590604032,
+          "median": 0.8440444866544549,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 2.2858932689201303,
           "median": 1.045357529130941,
           "p10": 0,
@@ -863,8 +1193,14 @@
         "meanXg": 0.18858440089691642,
         "goalRate": 0.20146520146520147,
         "saves": 47,
+        "saveKinds": {
+          "catch": 18,
+          "parry": 32,
+          "tip": 29
+        },
         "savePercent": 46.07843137254902,
-        "reached": 162,
+        "reached": 79,
+        "evaluatedAtKeeperPlane": 162,
         "touchedButConceded": 12,
         "neverReached": 43,
         "reactionSeconds": {
@@ -874,6 +1210,12 @@
           "p90": 0.40088
         },
         "extension": {
+          "mean": 1.16433413356358,
+          "median": 0.7498225169148518,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 2.162783689188202,
           "median": 0.6486682699681344,
           "p10": 0,
@@ -890,8 +1232,14 @@
         "meanXg": 0.07328724602419212,
         "goalRate": 0.1640378548895899,
         "saves": 184,
+        "saveKinds": {
+          "catch": 58,
+          "parry": 127,
+          "tip": 126
+        },
         "savePercent": 54.11764705882353,
-        "reached": 654,
+        "reached": 311,
+        "evaluatedAtKeeperPlane": 654,
         "touchedButConceded": 56,
         "neverReached": 100,
         "reactionSeconds": {
@@ -901,6 +1249,12 @@
           "p90": 0.4014
         },
         "extension": {
+          "mean": 1.6311965014810583,
+          "median": 1.9228203658007452,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 3.018505943155751,
           "median": 1.7541098639737849,
           "p10": 0,
@@ -915,8 +1269,14 @@
         "meanXg": 0.39712247285818836,
         "goalRate": 0.25364963503649635,
         "saves": 96,
+        "saveKinds": {
+          "catch": 24,
+          "parry": 68,
+          "tip": 76
+        },
         "savePercent": 40.85106382978723,
-        "reached": 354,
+        "reached": 168,
+        "evaluatedAtKeeperPlane": 354,
         "touchedButConceded": 28,
         "neverReached": 111,
         "reactionSeconds": {
@@ -926,6 +1286,12 @@
           "p90": 0.4066
         },
         "extension": {
+          "mean": 0.024888543407268496,
+          "median": 0,
+          "p10": 0,
+          "p90": 0
+        },
+        "requiredExtension": {
           "mean": 0.5143092247409038,
           "median": 0,
           "p10": 0,
@@ -940,8 +1306,14 @@
         "meanXg": 0.14004242760737404,
         "goalRate": 0.16666666666666666,
         "saves": 26,
+        "saveKinds": {
+          "catch": 2,
+          "parry": 21,
+          "tip": 22
+        },
         "savePercent": 28.57142857142857,
-        "reached": 191,
+        "reached": 45,
+        "evaluatedAtKeeperPlane": 191,
         "touchedButConceded": 6,
         "neverReached": 59,
         "reactionSeconds": {
@@ -951,6 +1323,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 0.4939463613531344,
+          "median": 0,
+          "p10": 0,
+          "p90": 1.4209130002737056
+        },
+        "requiredExtension": {
           "mean": 2.723931652369073,
           "median": 1.671531458204099,
           "p10": 0,
@@ -965,8 +1343,14 @@
         "meanXg": 0.08326372277013265,
         "goalRate": 0.25,
         "saves": 5,
+        "saveKinds": {
+          "catch": 2,
+          "parry": 3,
+          "tip": 6
+        },
         "savePercent": 45.45454545454545,
-        "reached": 15,
+        "reached": 11,
+        "evaluatedAtKeeperPlane": 15,
         "touchedButConceded": 4,
         "neverReached": 2,
         "reactionSeconds": {
@@ -976,6 +1360,12 @@
           "p90": 0.40582
         },
         "extension": {
+          "mean": 2.3606805417720578,
+          "median": 2.65,
+          "p10": 1.658386551069513,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 1.890576474618626,
           "median": 0.46375278466111036,
           "p10": 0,
@@ -990,8 +1380,14 @@
         "meanXg": 0.2221390611376523,
         "goalRate": 0.5,
         "saves": 0,
+        "saveKinds": {
+          "catch": 0,
+          "parry": 0,
+          "tip": 0
+        },
         "savePercent": 0,
-        "reached": 2,
+        "reached": 0,
+        "evaluatedAtKeeperPlane": 2,
         "touchedButConceded": 0,
         "neverReached": 1,
         "reactionSeconds": {
@@ -1001,6 +1397,12 @@
           "p90": 0.41414
         },
         "extension": {
+          "mean": 0.004203686522341155,
+          "median": 0.004203686522341155,
+          "p10": 0.0008407373044682309,
+          "p90": 0.007566635740214079
+        },
+        "requiredExtension": {
           "mean": 18.562480477594164,
           "median": 18.562480477594164,
           "p10": 16.90877130794602,
@@ -1017,8 +1419,14 @@
         "meanXg": 0.1775468677719846,
         "goalRate": 0.16987179487179488,
         "saves": 238,
+        "saveKinds": {
+          "catch": 63,
+          "parry": 167,
+          "tip": 186
+        },
         "savePercent": 47.31610337972167,
-        "reached": 958,
+        "reached": 416,
+        "evaluatedAtKeeperPlane": 958,
         "touchedButConceded": 56,
         "neverReached": 209,
         "reactionSeconds": {
@@ -1028,6 +1436,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 1.086401439656724,
+          "median": 0.7441918542400094,
+          "p10": 0,
+          "p90": 2.6500000000000004
+        },
+        "requiredExtension": {
           "mean": 2.251754175897908,
           "median": 1.164644059661045,
           "p10": 0,
@@ -1042,8 +1456,14 @@
         "meanXg": 0.22447129168239113,
         "goalRate": 0.2903225806451613,
         "saves": 59,
+        "saveKinds": {
+          "catch": 16,
+          "parry": 42,
+          "tip": 37
+        },
         "savePercent": 45.038167938931295,
-        "reached": 181,
+        "reached": 95,
+        "evaluatedAtKeeperPlane": 181,
         "touchedButConceded": 35,
         "neverReached": 37,
         "reactionSeconds": {
@@ -1053,6 +1473,12 @@
           "p90": 0.404
         },
         "extension": {
+          "mean": 0.6296119768518958,
+          "median": 0,
+          "p10": 0,
+          "p90": 2.3513428431003236
+        },
+        "requiredExtension": {
           "mean": 1.2458386330115943,
           "median": 0,
           "p10": 0,
@@ -1067,8 +1493,14 @@
         "meanXg": 0.12389328290104035,
         "goalRate": 0.3466666666666667,
         "saves": 13,
+        "saveKinds": {
+          "catch": 6,
+          "parry": 9,
+          "tip": 6
+        },
         "savePercent": 33.33333333333333,
-        "reached": 53,
+        "reached": 21,
+        "evaluatedAtKeeperPlane": 53,
         "touchedButConceded": 3,
         "neverReached": 23,
         "reactionSeconds": {
@@ -1078,6 +1510,12 @@
           "p90": 0.40556000000000003
         },
         "extension": {
+          "mean": 0.6905750322187277,
+          "median": 0,
+          "p10": 0,
+          "p90": 2.0245014743236474
+        },
+        "requiredExtension": {
           "mean": 3.8681931653184964,
           "median": 1.5846264263354617,
           "p10": 0,
@@ -1092,8 +1530,14 @@
         "meanXg": 0.07638906411941039,
         "goalRate": 0.125,
         "saves": 1,
+        "saveKinds": {
+          "catch": 1,
+          "parry": 1,
+          "tip": 1
+        },
         "savePercent": 20,
-        "reached": 24,
+        "reached": 3,
+        "evaluatedAtKeeperPlane": 24,
         "touchedButConceded": 0,
         "neverReached": 4,
         "reactionSeconds": {
@@ -1103,6 +1547,12 @@
           "p90": 0.3624
         },
         "extension": {
+          "mean": 0.5851084643304844,
+          "median": 0,
+          "p10": 0,
+          "p90": 2.0540070924101257
+        },
+        "requiredExtension": {
           "mean": 6.426307300496958,
           "median": 6.359198315777675,
           "p10": 0.12622962994266343,
@@ -1113,11 +1563,11 @@
     },
     "sources": {
       "ballWin": {
-        "shots": 330,
-        "goals": 65
+        "shots": 486,
+        "goals": 103
       },
       "throughPass": {
-        "shots": 56,
+        "shots": 57,
         "goals": 13
       },
       "dribbleBeat": {
@@ -1125,12 +1575,12 @@
         "goals": 21
       },
       "rebound": {
-        "shots": 355,
-        "goals": 25
+        "shots": 356,
+        "goals": 132
       },
       "other": {
-        "shots": 1130,
-        "goals": 247
+        "shots": 1020,
+        "goals": 147
       }
     }
   },
@@ -1141,14 +1591,16 @@
         "won": 0,
         "loose": 1288,
         "missed": 2445,
-        "foul": 321
+        "foul": 321,
+        "legalSuccess": 1288
       },
       "standing": {
         "count": 3006,
         "won": 975,
         "loose": 90,
         "missed": 1941,
-        "foul": 415
+        "foul": 415,
+        "legalSuccess": 1065
       }
     },
     "speed": {
@@ -1157,28 +1609,32 @@
         "won": 717,
         "loose": 804,
         "missed": 2186,
-        "foul": 401
+        "foul": 401,
+        "legalSuccess": 1521
       },
       "2–4": {
         "count": 2581,
         "won": 231,
         "loose": 517,
         "missed": 1833,
-        "foul": 278
+        "foul": 278,
+        "legalSuccess": 748
       },
       "4–6": {
         "count": 435,
         "won": 26,
         "loose": 57,
         "missed": 352,
-        "foul": 56
+        "foul": 56,
+        "legalSuccess": 83
       },
       "6+": {
         "count": 16,
         "won": 1,
         "loose": 0,
         "missed": 15,
-        "foul": 1
+        "foul": 1,
+        "legalSuccess": 1
       }
     },
     "preparation": {
@@ -1187,21 +1643,24 @@
         "won": 1,
         "loose": 1285,
         "missed": 2444,
-        "foul": 321
+        "foul": 321,
+        "legalSuccess": 1286
       },
       "0.25–0.4": {
         "count": 3002,
         "won": 974,
         "loose": 90,
         "missed": 1938,
-        "foul": 414
+        "foul": 414,
+        "legalSuccess": 1064
       },
       "0.6+": {
         "count": 7,
         "won": 0,
         "loose": 3,
         "missed": 4,
-        "foul": 1
+        "foul": 1,
+        "legalSuccess": 3
       }
     },
     "distance": {
@@ -1210,35 +1669,39 @@
         "won": 0,
         "loose": 1098,
         "missed": 1950,
-        "foul": 260
+        "foul": 260,
+        "legalSuccess": 1098
       },
       "1–2": {
         "count": 2756,
         "won": 891,
         "loose": 156,
         "missed": 1709,
-        "foul": 321
+        "foul": 321,
+        "legalSuccess": 1047
       },
       "0–1": {
         "count": 553,
         "won": 84,
         "loose": 1,
         "missed": 468,
-        "foul": 114
+        "foul": 114,
+        "legalSuccess": 85
       },
       "3+": {
         "count": 382,
         "won": 0,
         "loose": 123,
         "missed": 259,
-        "foul": 41
+        "foul": 41,
+        "legalSuccess": 123
       }
     }
   },
   "runs": [
     {
       "seed": 901,
-      "milliseconds": 2269.489134,
+      "milliseconds": 2170.365746,
       "score": {
         "home": 1,
         "away": 7
@@ -1344,11 +1807,12 @@
       "xgPerShot": 0.20216911924337866,
       "savePercent": 33.33333333333333,
       "goalXgDifference": 1.530588184211883,
+      "tackleContactPercent": 37.76223776223776,
       "tackleSuccessPercent": 37.76223776223776
     },
     {
       "seed": 731,
-      "milliseconds": 3277.078722,
+      "milliseconds": 2942.854494,
       "score": {
         "home": 7,
         "away": 6
@@ -1454,11 +1918,12 @@
       "xgPerShot": 0.28596846762233213,
       "savePercent": 27.77777777777778,
       "goalXgDifference": 2.133198230351379,
+      "tackleContactPercent": 28.799999999999997,
       "tackleSuccessPercent": 28.799999999999997
     },
     {
       "seed": 42,
-      "milliseconds": 3354.9436180000002,
+      "milliseconds": 1664.0473860000002,
       "score": {
         "home": 0,
         "away": 2
@@ -1564,11 +2029,12 @@
       "xgPerShot": 0.18698531788396974,
       "savePercent": 60,
       "goalXgDifference": -2.113676993447334,
+      "tackleContactPercent": 37.3134328358209,
       "tackleSuccessPercent": 37.3134328358209
     },
     {
       "seed": 2026,
-      "milliseconds": 3016.2613569999994,
+      "milliseconds": 1743.5965779999997,
       "score": {
         "home": 2,
         "away": 2
@@ -1674,11 +2140,12 @@
       "xgPerShot": 0.20860876504730366,
       "savePercent": 71.42857142857143,
       "goalXgDifference": -5.804611957223273,
+      "tackleContactPercent": 30.215827338129497,
       "tackleSuccessPercent": 30.215827338129497
     },
     {
       "seed": 508,
-      "milliseconds": 2669.9958370000004,
+      "milliseconds": 2175.1933069999995,
       "score": {
         "home": 10,
         "away": 4
@@ -1784,11 +2251,12 @@
       "xgPerShot": 0.21146194484992897,
       "savePercent": 33.33333333333333,
       "goalXgDifference": 7.233217764802273,
+      "tackleContactPercent": 29.054054054054053,
       "tackleSuccessPercent": 29.054054054054053
     },
     {
       "seed": 1,
-      "milliseconds": 3841.715618,
+      "milliseconds": 2051.2055120000005,
       "score": {
         "home": 2,
         "away": 3
@@ -1894,11 +2362,12 @@
       "xgPerShot": 0.12500739920321582,
       "savePercent": 54.54545454545454,
       "goalXgDifference": 0.7497484270906618,
+      "tackleContactPercent": 33.63636363636363,
       "tackleSuccessPercent": 33.63636363636363
     },
     {
       "seed": 2,
-      "milliseconds": 2835.5309879999986,
+      "milliseconds": 3041.2790349999996,
       "score": {
         "home": 6,
         "away": 5
@@ -2004,11 +2473,12 @@
       "xgPerShot": 0.1794081530976828,
       "savePercent": 26.666666666666668,
       "goalXgDifference": 3.28544941679964,
+      "tackleContactPercent": 26.811594202898554,
       "tackleSuccessPercent": 26.811594202898554
     },
     {
       "seed": 3,
-      "milliseconds": 3018.6697190000014,
+      "milliseconds": 1521.8987479999996,
       "score": {
         "home": 3,
         "away": 9
@@ -2114,11 +2584,12 @@
       "xgPerShot": 0.1873715525884131,
       "savePercent": 40,
       "goalXgDifference": 3.3809085809329975,
+      "tackleContactPercent": 30.82706766917293,
       "tackleSuccessPercent": 30.82706766917293
     },
     {
       "seed": 4,
-      "milliseconds": 2673.795452999999,
+      "milliseconds": 2152.449033000001,
       "score": {
         "home": 5,
         "away": 4
@@ -2224,11 +2695,12 @@
       "xgPerShot": 0.1340789117019685,
       "savePercent": 25,
       "goalXgDifference": -0.9218394659456699,
+      "tackleContactPercent": 35.714285714285715,
       "tackleSuccessPercent": 35.714285714285715
     },
     {
       "seed": 5,
-      "milliseconds": 1936.8314759999994,
+      "milliseconds": 1917.7627300000022,
       "score": {
         "home": 2,
         "away": 2
@@ -2334,11 +2806,12 @@
       "xgPerShot": 0.16240252456555396,
       "savePercent": 55.55555555555556,
       "goalXgDifference": -0.5472706878355105,
+      "tackleContactPercent": 35.13513513513514,
       "tackleSuccessPercent": 35.13513513513514
     },
     {
       "seed": 6,
-      "milliseconds": 1912.4638109999978,
+      "milliseconds": 2460.7791560000005,
       "score": {
         "home": 2,
         "away": 8
@@ -2444,11 +2917,12 @@
       "xgPerShot": 0.17409953494682667,
       "savePercent": 37.5,
       "goalXgDifference": 1.9914213924459734,
+      "tackleContactPercent": 39.130434782608695,
       "tackleSuccessPercent": 39.130434782608695
     },
     {
       "seed": 7,
-      "milliseconds": 1604.1685939999988,
+      "milliseconds": 1439.1947849999997,
       "score": {
         "home": 2,
         "away": 2
@@ -2554,11 +3028,12 @@
       "xgPerShot": 0.15026469518400917,
       "savePercent": 66.66666666666666,
       "goalXgDifference": -5.166146406224559,
+      "tackleContactPercent": 31.57894736842105,
       "tackleSuccessPercent": 31.57894736842105
     },
     {
       "seed": 8,
-      "milliseconds": 1906.4356479999988,
+      "milliseconds": 1362.9445640000013,
       "score": {
         "home": 3,
         "away": 5
@@ -2664,11 +3139,12 @@
       "xgPerShot": 0.1962843419443916,
       "savePercent": 38.46153846153847,
       "goalXgDifference": 0.9337636900019026,
+      "tackleContactPercent": 45.52845528455284,
       "tackleSuccessPercent": 45.52845528455284
     },
     {
       "seed": 9,
-      "milliseconds": 1562.7487150000015,
+      "milliseconds": 1292.5641780000005,
       "score": {
         "home": 3,
         "away": 1
@@ -2774,11 +3250,12 @@
       "xgPerShot": 0.22519517448948767,
       "savePercent": 63.63636363636363,
       "goalXgDifference": -4.782611805090019,
+      "tackleContactPercent": 34.42622950819672,
       "tackleSuccessPercent": 34.42622950819672
     },
     {
       "seed": 10,
-      "milliseconds": 1650.3779179999983,
+      "milliseconds": 1218.4261719999995,
       "score": {
         "home": 5,
         "away": 3
@@ -2884,11 +3361,12 @@
       "xgPerShot": 0.17961327996726736,
       "savePercent": 60,
       "goalXgDifference": -2.597183518068775,
+      "tackleContactPercent": 39.83739837398374,
       "tackleSuccessPercent": 39.83739837398374
     },
     {
       "seed": 11,
-      "milliseconds": 1768.1101160000035,
+      "milliseconds": 1379.1740390000014,
       "score": {
         "home": 4,
         "away": 3
@@ -2994,11 +3472,12 @@
       "xgPerShot": 0.15091238761491618,
       "savePercent": 36.36363636363637,
       "goalXgDifference": 1.2653292706331856,
+      "tackleContactPercent": 31.16883116883117,
       "tackleSuccessPercent": 31.16883116883117
     },
     {
       "seed": 12,
-      "milliseconds": 1548.069567000006,
+      "milliseconds": 1384.8555300000007,
       "score": {
         "home": 3,
         "away": 6
@@ -3104,11 +3583,12 @@
       "xgPerShot": 0.20410090903326794,
       "savePercent": 35.714285714285715,
       "goalXgDifference": 1.2441654567358187,
+      "tackleContactPercent": 37.878787878787875,
       "tackleSuccessPercent": 37.878787878787875
     },
     {
       "seed": 13,
-      "milliseconds": 1458.6556330000021,
+      "milliseconds": 1386.3550239999968,
       "score": {
         "home": 3,
         "away": 4
@@ -3214,11 +3694,12 @@
       "xgPerShot": 0.17215301445733958,
       "savePercent": 56.25,
       "goalXgDifference": -0.574732636122941,
+      "tackleContactPercent": 39.0625,
       "tackleSuccessPercent": 39.0625
     },
     {
       "seed": 14,
-      "milliseconds": 1646.9946399999972,
+      "milliseconds": 1811.4210910000038,
       "score": {
         "home": 2,
         "away": 6
@@ -3324,11 +3805,12 @@
       "xgPerShot": 0.18086184256615695,
       "savePercent": 38.46153846153847,
       "goalXgDifference": 3.2975920932799196,
+      "tackleContactPercent": 40.15748031496063,
       "tackleSuccessPercent": 40.15748031496063
     },
     {
       "seed": 15,
-      "milliseconds": 1751.3270769999945,
+      "milliseconds": 2663.2473150000005,
       "score": {
         "home": 3,
         "away": 1
@@ -3434,11 +3916,12 @@
       "xgPerShot": 0.17116965349990176,
       "savePercent": 66.66666666666666,
       "goalXgDifference": -2.6756164864961685,
+      "tackleContactPercent": 41.358024691358025,
       "tackleSuccessPercent": 41.358024691358025
     },
     {
       "seed": 16,
-      "milliseconds": 1727.5597370000032,
+      "milliseconds": 1611.0315619999965,
       "score": {
         "home": 1,
         "away": 2
@@ -3544,11 +4027,12 @@
       "xgPerShot": 0.18805289641666534,
       "savePercent": 75,
       "goalXgDifference": -2.8296397889166256,
+      "tackleContactPercent": 33.83458646616541,
       "tackleSuccessPercent": 33.83458646616541
     },
     {
       "seed": 17,
-      "milliseconds": 1789.0856889999995,
+      "milliseconds": 9231.544478000003,
       "score": {
         "home": 5,
         "away": 2
@@ -3654,11 +4138,12 @@
       "xgPerShot": 0.18144695585723702,
       "savePercent": 46.15384615384615,
       "goalXgDifference": -6.608521689292777,
+      "tackleContactPercent": 30.708661417322837,
       "tackleSuccessPercent": 30.708661417322837
     },
     {
       "seed": 18,
-      "milliseconds": 1359.2690449999936,
+      "milliseconds": 1299.3786929999987,
       "score": {
         "home": 6,
         "away": 5
@@ -3764,11 +4249,12 @@
       "xgPerShot": 0.17785373568211443,
       "savePercent": 38.88888888888889,
       "goalXgDifference": 4.241558044079651,
+      "tackleContactPercent": 34.9112426035503,
       "tackleSuccessPercent": 34.9112426035503
     },
     {
       "seed": 19,
-      "milliseconds": 1291.1665610000055,
+      "milliseconds": 1266.2668989999947,
       "score": {
         "home": 3,
         "away": 6
@@ -3874,11 +4360,12 @@
       "xgPerShot": 0.16130746961872458,
       "savePercent": 30.76923076923077,
       "goalXgDifference": 3.35423856334464,
+      "tackleContactPercent": 32.55813953488372,
       "tackleSuccessPercent": 32.55813953488372
     },
     {
       "seed": 20,
-      "milliseconds": 1307.9944699999978,
+      "milliseconds": 1415.584587999998,
       "score": {
         "home": 3,
         "away": 5
@@ -3984,11 +4471,12 @@
       "xgPerShot": 0.2098628842536358,
       "savePercent": 20,
       "goalXgDifference": 1.2843877038836542,
+      "tackleContactPercent": 28.125,
       "tackleSuccessPercent": 28.125
     },
     {
       "seed": 21,
-      "milliseconds": 1418.3173749999987,
+      "milliseconds": 1362.2587589999966,
       "score": {
         "home": 4,
         "away": 2
@@ -4094,11 +4582,12 @@
       "xgPerShot": 0.11347116977743751,
       "savePercent": 45.45454545454545,
       "goalXgDifference": 1.6880955484573743,
+      "tackleContactPercent": 24.03846153846154,
       "tackleSuccessPercent": 24.03846153846154
     },
     {
       "seed": 22,
-      "milliseconds": 1323.6322129999971,
+      "milliseconds": 1156.829663000004,
       "score": {
         "home": 4,
         "away": 6
@@ -4204,11 +4693,12 @@
       "xgPerShot": 0.20600662029891456,
       "savePercent": 47.368421052631575,
       "goalXgDifference": 0.935708706847759,
+      "tackleContactPercent": 46.72131147540984,
       "tackleSuccessPercent": 46.72131147540984
     },
     {
       "seed": 23,
-      "milliseconds": 1264.2447209999955,
+      "milliseconds": 1203.7802389999997,
       "score": {
         "home": 2,
         "away": 3
@@ -4314,11 +4804,12 @@
       "xgPerShot": 0.17764169241247108,
       "savePercent": 28.57142857142857,
       "goalXgDifference": 0.5589576896882233,
+      "tackleContactPercent": 34.01360544217687,
       "tackleSuccessPercent": 34.01360544217687
     },
     {
       "seed": 24,
-      "milliseconds": 1298.2974130000002,
+      "milliseconds": 1210.529877999994,
       "score": {
         "home": 3,
         "away": 2
@@ -4424,11 +4915,12 @@
       "xgPerShot": 0.27501889325952744,
       "savePercent": 68.75,
       "goalXgDifference": -2.4255101180072405,
+      "tackleContactPercent": 36.11111111111111,
       "tackleSuccessPercent": 36.11111111111111
     },
     {
       "seed": 25,
-      "milliseconds": 1286.4381900000008,
+      "milliseconds": 1238.4666620000062,
       "score": {
         "home": 1,
         "away": 8
@@ -4534,11 +5026,12 @@
       "xgPerShot": 0.2045927440683181,
       "savePercent": 30.76923076923077,
       "goalXgDifference": 3.4759959101554117,
+      "tackleContactPercent": 43.2,
       "tackleSuccessPercent": 43.2
     },
     {
       "seed": 26,
-      "milliseconds": 1540.8381630000003,
+      "milliseconds": 1213.5990680000032,
       "score": {
         "home": 5,
         "away": 4
@@ -4644,11 +5137,12 @@
       "xgPerShot": 0.1915687024160333,
       "savePercent": 35.714285714285715,
       "goalXgDifference": 3.0613702251029675,
+      "tackleContactPercent": 30.158730158730158,
       "tackleSuccessPercent": 30.158730158730158
     },
     {
       "seed": 27,
-      "milliseconds": 1437.8566250000003,
+      "milliseconds": 1199.2583730000042,
       "score": {
         "home": 7,
         "away": 5
@@ -4754,11 +5248,12 @@
       "xgPerShot": 0.16461879197647622,
       "savePercent": 33.33333333333333,
       "goalXgDifference": 1.7936348974584746,
+      "tackleContactPercent": 47.78761061946903,
       "tackleSuccessPercent": 47.78761061946903
     },
     {
       "seed": 28,
-      "milliseconds": 1661.9230979999993,
+      "milliseconds": 1189.6407279999985,
       "score": {
         "home": 2,
         "away": 4
@@ -4864,11 +5359,12 @@
       "xgPerShot": 0.12282099961381991,
       "savePercent": 50,
       "goalXgDifference": 2.5610120108130423,
+      "tackleContactPercent": 34.959349593495936,
       "tackleSuccessPercent": 34.959349593495936
     },
     {
       "seed": 29,
-      "milliseconds": 1265.3641880000068,
+      "milliseconds": 1186.1331310000023,
       "score": {
         "home": 4,
         "away": 3
@@ -4974,11 +5470,12 @@
       "xgPerShot": 0.12503822402248913,
       "savePercent": 36.36363636363637,
       "goalXgDifference": 1.9984710391004352,
+      "tackleContactPercent": 40.140845070422536,
       "tackleSuccessPercent": 40.140845070422536
     },
     {
       "seed": 30,
-      "milliseconds": 1285.0899270000082,
+      "milliseconds": 1181.8982870000036,
       "score": {
         "home": 4,
         "away": 0
@@ -5084,11 +5581,12 @@
       "xgPerShot": 0.14417306762499107,
       "savePercent": 69.23076923076923,
       "goalXgDifference": -1.7669227049996428,
+      "tackleContactPercent": 27.480916030534353,
       "tackleSuccessPercent": 27.480916030534353
     },
     {
       "seed": 31,
-      "milliseconds": 1348.4416550000024,
+      "milliseconds": 1158.0795990000042,
       "score": {
         "home": 2,
         "away": 7
@@ -5194,11 +5692,12 @@
       "xgPerShot": 0.18894565759006404,
       "savePercent": 47.05882352941176,
       "goalXgDifference": 3.5205759298881425,
+      "tackleContactPercent": 28.484848484848484,
       "tackleSuccessPercent": 28.484848484848484
     },
     {
       "seed": 32,
-      "milliseconds": 1322.0275949999923,
+      "milliseconds": 1180.0107659999921,
       "score": {
         "home": 2,
         "away": 2
@@ -5304,11 +5803,12 @@
       "xgPerShot": 0.15368629570772852,
       "savePercent": 63.63636363636363,
       "goalXgDifference": -3.5306284896786977,
+      "tackleContactPercent": 32,
       "tackleSuccessPercent": 32
     },
     {
       "seed": 33,
-      "milliseconds": 1325.729284000001,
+      "milliseconds": 1226.3752209999948,
       "score": {
         "home": 4,
         "away": 3
@@ -5414,11 +5914,12 @@
       "xgPerShot": 0.1361690599063586,
       "savePercent": 53.333333333333336,
       "goalXgDifference": 2.7787591429028833,
+      "tackleContactPercent": 34.22459893048128,
       "tackleSuccessPercent": 34.22459893048128
     },
     {
       "seed": 34,
-      "milliseconds": 1294.7366780000011,
+      "milliseconds": 1165.3290029999916,
       "score": {
         "home": 4,
         "away": 5
@@ -5524,11 +6025,12 @@
       "xgPerShot": 0.22306897664005906,
       "savePercent": 50,
       "goalXgDifference": 2.307930700798228,
+      "tackleContactPercent": 37.95620437956204,
       "tackleSuccessPercent": 37.95620437956204
     },
     {
       "seed": 35,
-      "milliseconds": 1264.8025569999882,
+      "milliseconds": 1132.2905829999945,
       "score": {
         "home": 3,
         "away": 3
@@ -5634,11 +6136,12 @@
       "xgPerShot": 0.14366308765382294,
       "savePercent": 50,
       "goalXgDifference": 1.2591181074238431,
+      "tackleContactPercent": 38.53211009174312,
       "tackleSuccessPercent": 38.53211009174312
     },
     {
       "seed": 36,
-      "milliseconds": 1302.3392469999962,
+      "milliseconds": 1179.1040019999928,
       "score": {
         "home": 4,
         "away": 7
@@ -5744,11 +6247,12 @@
       "xgPerShot": 0.17172001476399587,
       "savePercent": 21.428571428571427,
       "goalXgDifference": 2.7574392913281986,
+      "tackleContactPercent": 25.157232704402517,
       "tackleSuccessPercent": 25.157232704402517
     },
     {
       "seed": 37,
-      "milliseconds": 1267.9839740000025,
+      "milliseconds": 1186.851999999999,
       "score": {
         "home": 4,
         "away": 1
@@ -5854,11 +6358,12 @@
       "xgPerShot": 0.22937101505412041,
       "savePercent": 58.333333333333336,
       "goalXgDifference": -2.7986145118400945,
+      "tackleContactPercent": 31.11111111111111,
       "tackleSuccessPercent": 31.11111111111111
     },
     {
       "seed": 38,
-      "milliseconds": 1270.7121259999985,
+      "milliseconds": 1180.3719109999947,
       "score": {
         "home": 4,
         "away": 2
@@ -5964,11 +6469,12 @@
       "xgPerShot": 0.19575820438594407,
       "savePercent": 60,
       "goalXgDifference": -1.2430535622799308,
+      "tackleContactPercent": 26.666666666666668,
       "tackleSuccessPercent": 26.666666666666668
     },
     {
       "seed": 39,
-      "milliseconds": 1366.3851500000019,
+      "milliseconds": 1201.5477799999935,
       "score": {
         "home": 4,
         "away": 2
@@ -6074,11 +6580,12 @@
       "xgPerShot": 0.20318366970487783,
       "savePercent": 57.14285714285714,
       "goalXgDifference": -1.720979448785358,
+      "tackleContactPercent": 43.2,
       "tackleSuccessPercent": 43.2
     },
     {
       "seed": 40,
-      "milliseconds": 1318.8651099999988,
+      "milliseconds": 1236.624404000002,
       "score": {
         "home": 2,
         "away": 5
@@ -6184,11 +6691,12 @@
       "xgPerShot": 0.17572717673493485,
       "savePercent": 36.36363636363637,
       "goalXgDifference": 1.0252759910122151,
+      "tackleContactPercent": 32.8125,
       "tackleSuccessPercent": 32.8125
     },
     {
       "seed": 41,
-      "milliseconds": 1344.8129520000075,
+      "milliseconds": 1195.891043999989,
       "score": {
         "home": 1,
         "away": 2
@@ -6294,11 +6802,12 @@
       "xgPerShot": 0.16358076477602557,
       "savePercent": 50,
       "goalXgDifference": -0.435196060296537,
+      "tackleContactPercent": 34.234234234234236,
       "tackleSuccessPercent": 34.234234234234236
     },
     {
       "seed": 43,
-      "milliseconds": 1308.4364190000051,
+      "milliseconds": 1188.6996309999959,
       "score": {
         "home": 3,
         "away": 5
@@ -6404,11 +6913,12 @@
       "xgPerShot": 0.1740891443305278,
       "savePercent": 52.94117647058824,
       "goalXgDifference": 0.8623450824483605,
+      "tackleContactPercent": 42.038216560509554,
       "tackleSuccessPercent": 42.038216560509554
     },
     {
       "seed": 44,
-      "milliseconds": 1394.785533999995,
+      "milliseconds": 1173.6924790000048,
       "score": {
         "home": 7,
         "away": 2
@@ -6514,11 +7024,12 @@
       "xgPerShot": 0.24466074709585992,
       "savePercent": 40,
       "goalXgDifference": 0.6815345987407628,
+      "tackleContactPercent": 43.90243902439025,
       "tackleSuccessPercent": 43.90243902439025
     },
     {
       "seed": 45,
-      "milliseconds": 1375.0647279999976,
+      "milliseconds": 1242.4433609999978,
       "score": {
         "home": 1,
         "away": 6
@@ -6624,11 +7135,12 @@
       "xgPerShot": 0.18896473441815986,
       "savePercent": 50,
       "goalXgDifference": 0.9531284986188844,
+      "tackleContactPercent": 33.793103448275865,
       "tackleSuccessPercent": 33.793103448275865
     },
     {
       "seed": 46,
-      "milliseconds": 1270.4168499999942,
+      "milliseconds": 1331.4419960000087,
       "score": {
         "home": 3,
         "away": 5
@@ -6734,7 +7246,9 @@
       "xgPerShot": 0.17174497206054834,
       "savePercent": 33.33333333333333,
       "goalXgDifference": 3.019395810244098,
+      "tackleContactPercent": 39.823008849557525,
       "tackleSuccessPercent": 39.823008849557525
     }
-  ]
+  ],
+  "status": "complete"
 }

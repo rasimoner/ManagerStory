@@ -28,3 +28,6 @@ Ham önce dosyası her ölçü için ortalama, medyan, P10/P90, skor dağılım�
 6. Topa ilk değmek, devamındaki tehlikeli bacak temasını otomatik yasal yapmaz. Aynı ayak parçasında daha sonra gerçek bacak kesişimi varsa kaymada 9, ayakta 10 m/sn üzerindeki devam teması fauldür. Sonuç kaydındaki `bodyContact` bu ikinci kesişimi gösterir. Ölçümde faullü top teması ile yasal kazanma/sekme ayrı raporlanır.
 
 Son tablo tamamlanana kadar ara adaylar nihai denge olarak değerlendirilmez. Fiziksel kontroller golün önce şutunu, faulün önce temasını, deterministik tekrarı ve eski topsuz koordinat özetini korur. `npm run sim:report -- --strength --output <dosya>` güç deneylerini her 50 maçta dosyaya checkpoint eder; `status:complete` olmayan çıktı tam deney sayılmaz.
+
+
+29 Ekim checkpoint’i: son dengeli 50 maçta 2,72 gol, %12 oranında 5+ gol, %4 golsüz maç; şut 16,38 ve faul 11,30 hedef altındadır. Yerel Node 22 lint ve hızlı paket (üç tam maç hız sınırı dahil) geçti. Güç deneylerinin tamamı bitmeden bu checkpoint nihai kapanış sayılmaz.

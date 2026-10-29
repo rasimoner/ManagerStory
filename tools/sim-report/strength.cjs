@@ -15,7 +15,9 @@ function strengthExperiments(api, seeds, options) {
     process.stderr.write(`Measured ${experiment}: ${runs.filter(run => run.goalDifference > 0).length}/${runs.length} wins\n`);
     const result = { wins: runs.filter(run => run.goalDifference > 0).length, draws: runs.filter(run => run.goalDifference === 0).length,
       losses: runs.filter(run => run.goalDifference < 0).length, goalDifference: distribution(runs.map(run => run.goalDifference)),
-      shotDifference: distribution(runs.map(run => run.shotDifference)), xgDifference: distribution(runs.map(run => run.xgDifference)), runs };
+      shotDifference: distribution(runs.map(run => run.shotDifference)), xgDifference: distribution(runs.map(run => run.xgDifference)),
+      goalsFor: distribution(runs.map(run => run.goalsFor)), goalsAgainst: distribution(runs.map(run => run.goalsAgainst)),
+      savePercent: distribution(runs.map(run => run.savePercent).filter(value => value !== null)), runs };
     options.onProgress?.(experiment, result);
     return [experiment, result];
   }));
@@ -54,7 +56,8 @@ function boostAllAttributes(attributes, amount) {
 
 function strengthResult(run, strongId) {
   const strong = run.statistics.teams.find(team => team.id === strongId), weak = run.statistics.teams.find(team => team.id !== strongId);
-  return { seed: run.seed, goalDifference: strong.goals - weak.goals, shotDifference: strong.shots - weak.shots, xgDifference: strong.xg - weak.xg };
+  return { seed: run.seed, goalsFor: strong.goals, goalsAgainst: weak.goals,
+    savePercent: weak.shotsOnTarget ? strong.saves / weak.shotsOnTarget * 100 : null, goalDifference: strong.goals - weak.goals, shotDifference: strong.shots - weak.shots, xgDifference: strong.xg - weak.xg };
 }
 
 module.exports = { strengthExperiments };

@@ -30,9 +30,10 @@ function tackleSlices(rows) {
 function tackleGroups(rows, keyOf) {
   const groups = {};
   for (const row of rows) {
-    const stats = groups[keyOf(row)] ??= { count: 0, won: 0, loose: 0, missed: 0, foul: 0 };
+    const stats = groups[keyOf(row)] ??= { count: 0, won: 0, loose: 0, missed: 0, foul: 0, legalSuccess: 0, legalWon: 0, legalLoose: 0, missedNoFoul: 0 };
     stats.count++; stats[row.result]++;
-    if (row.contact === 'ball' && !row.bodyContact) stats.legalSuccess = (stats.legalSuccess ?? 0) + 1;
+    if (row.contact === 'ball' && !row.bodyContact) { stats.legalSuccess++; stats[row.result === 'won' ? 'legalWon' : 'legalLoose']++; }
+    if (row.contact === 'none') stats.missedNoFoul++;
     if (row.contact === 'player' || row.bodyContact) stats.foul++;
   }
   return groups;
