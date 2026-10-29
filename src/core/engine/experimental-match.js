@@ -12,6 +12,8 @@ import { userSquad } from './user-team.js';
 import { prepareExperimentalSubstitute } from './experimental-input.js';
 import { consumeExperimentalEvents } from './experimental-events.js';
 import { synchronizeExperimentalPlayers, synchronizeExperimentalTeamStats } from './experimental-players.js';
+import { createSimulationPlayback, advanceSimulationPlayback, readSimulationPlayback } from '../match/highlight-playback.js';
+import { captureSimulationFrame, refreshPlaybackFrame } from '../match/playback-frames.js';
 
 export function advanceExperimentalSeconds(seconds) {
   if (!experimentalCanAdvance()) return 0;
@@ -23,42 +25,90 @@ export function advanceExperimentalSeconds(seconds) {
     stepSimulation(simulation);
     if (simulation.match.half !== half) break;
   }
-  synchronizeExperimentalMatch();
+  M.simulationPlayback = createSimulationPlayback(simulation);
+  synchronizeExperimentalMatch({ time: simulation.time, frame: captureSimulationFrame(simulation), forcePlayers: true });
   return simulation.tick - before;
 }
 
 function experimentalCanAdvance() { return M?.experimental && !M.pause && !M.finished; }
 
 export function advanceExperimentalFrame(seconds) {
-  return advanceExperimentalSeconds(seconds * CAREER_SIM_DATA.basicFastRate * M.speed);
+  return advanceExperimentalPlayback(seconds);
 }
 
-export function synchronizeExperimentalMatch() {
-  consumeExperimentalEvents();
-  M.matchElapsedSeconds = M.simulation.time;
-  M.min = Math.floor(M.simulation.time / CAREER_SIM_DATA.secondsPerMinute);
-  synchronizeExperimentalTeamStats();
-  synchronizeExperimentalPlayers();
-  synchronizeExperimentalPositions();
-  if (M.simulation.match.phase === 'ended') finalizeMatch();
+export function advanceExperimentalPlayback(seconds, options = {}) {
+  if (!experimentalCanAdvance()) return 0;
+  const view = advanceSimulationPlayback(M.simulationPlayback, M.simulation, { seconds, speed: M.speed,
+    maxSteps: options.maxSteps ?? CAREER_SIM_DATA.playback.maxSteps, skip: M.skipExperimental === true });
+  synchronizeExperimentalMatch(view);
+  releaseSkippedHalf();
+  return view.steps;
 }
 
-function synchronizeExperimentalPositions() {
-  const simulation = M.simulation;
-  M.dynamicPositions = Object.fromEntries(simulation.teams.flatMap(team => team.players.filter(player => !player.sentOff).map(player => [player.id, simulationPitchPercent(player.position)])));
-  [M.ballX, M.ballY] = simulationPitchPercent(simulation.ball.position);
-  M.ballOwner = simulation.ball.ownerId ?? simulation.ball.carry?.playerId ?? null;
-  M.ballSide = simulation.ball.teamId === 'user' ? 'user' : 'opp';
+export function synchronizeExperimentalMatch(input = {}) {
+  const view = input.frame ? input : readSimulationPlayback(M.simulationPlayback);
+  const revision = M.simulationImportantRevision;
+  consumeExperimentalEvents(view.time);
+  M.matchElapsedSeconds = view.time;
+  M.min = Math.floor(view.time / CAREER_SIM_DATA.secondsPerMinute);
+  M.simulationDisplayFrame = view.frame;
+  M.simulationPlayback.mode = view.mode ?? M.simulationPlayback.mode;
+  synchronizeExperimentalTeamStats(view);
+  projectVisiblePlayers(view, input.forcePlayers || revision !== M.simulationImportantRevision || M.pause);
+  synchronizeExperimentalPositions(view);
+  if (M.simulation.match.phase === 'ended' && view.time >= MATCH_SIM_DATA.match.fullSeconds) finalizeMatch();
 }
 
-export function pauseExperimentalMatch() { if (M?.experimental) pauseSimulation(M.simulation); }
-export function resumeExperimentalMatch() { if (M?.experimental) resumeSimulation(M.simulation); }
+function projectVisiblePlayers(view, force) {
+  const stamp = Math.floor(view.time / CAREER_SIM_DATA.playback.projectionSeconds);
+  if (!force && M.simulationPlayerProjectionStamp === stamp) return;
+  M.simulationPlayerProjectionStamp = stamp;
+  synchronizeExperimentalPlayers(view);
+}
+
+function synchronizeExperimentalPositions(view) {
+  const next = new Map((view.next?.players ?? []).map(player => [player.id, player.position]));
+  const point = (position, target) => interpolateExperimentalPoint(position, target ?? position, view.alpha ?? 0);
+  M.dynamicPositions = Object.fromEntries(view.frame.players.filter(player => !player.sentOff).map(player => [player.id, simulationPitchPercent(point(player.position, next.get(player.id)))]));
+  [M.ballX, M.ballY] = simulationPitchPercent(point(view.frame.ball.position, view.next?.ball.position));
+  M.ballOwner = view.frame.ball.ownerId;
+  M.ballSide = view.frame.ball.teamId === 'user' ? 'user' : 'opp';
+}
+
+function interpolateExperimentalPoint(from, to, fraction) { return { x: from.x + (to.x - from.x) * fraction, y: from.y + (to.y - from.y) * fraction }; }
+
+function releaseSkippedHalf() {
+  if (!M.skipExperimental || M.reason !== 'half' || M.requiredSubstitution) return;
+  M.pause = false;
+  M.reason = '';
+  M.lifecycle = 'RUNNING_SECOND_HALF';
+  resumeExperimentalMatch();
+}
+
+export function skipExperimentalMatch() {
+  if (!M?.experimental || M.finished || M.requiredSubstitution) return false;
+  M.skipExperimental = true;
+  releaseSkippedHalf();
+  return true;
+}
+
+export function pauseExperimentalMatch() {
+  if (!M?.experimental) return;
+  pauseSimulation(M.simulation);
+  synchronizeExperimentalPlayers({ time: M.matchElapsedSeconds, frame: M.simulationDisplayFrame });
+}
+export function resumeExperimentalMatch() {
+  if (!M?.experimental) return;
+  if (M.secondHalf) M.simulationPlayback.releasedHalf = M.simulation.match.half;
+  resumeSimulation(M.simulation);
+}
 
 export function queueExperimentalSubstitution(command) {
   const source = userSquad().find(player => player.id === command.inId);
   const player = prepareExperimentalSubstitute(source, 'user');
   requestSimulationSubstitution(M.simulation, { teamId: 'user', outId: command.outId, player });
   applySimulationCommands(M.simulation);
+  refreshPlaybackFrame(M.simulationPlayback, M.simulation);
   synchronizeExperimentalMatch();
   return true;
 }

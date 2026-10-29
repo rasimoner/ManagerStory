@@ -7,7 +7,7 @@ const { labFixture, loadNativeLab } = require('./support/lab.cjs');
 let measuredLab;
 function loadMeasuredLab() {
   // The application and report reuse one loaded module; separate tree-shaken imports would benchmark cold JIT variants.
-  measuredLab ??= loadNativeLab(['createSimulation', 'createLabScenario', 'createLabBallDriver', 'advanceLabBall', 'stepSimulation', 'readSimulationStatistics']);
+  measuredLab ??= loadNativeLab(['createSimulation', 'createLabScenario', 'createLabBallDriver', 'advanceLabBall', 'stepSimulation', 'readSimulationStatistics', 'resumeSimulation']);
   return measuredLab;
 }
 
@@ -49,6 +49,23 @@ test('each of three complete native shooting/keeper matches stays within the 2 s
   const median = [...milliseconds].sort((left, right) => left - right)[1];
   t.diagnostic(`Node ${process.version}: native shooting/keepers 90 minutes median ${median.toFixed(1)} ms; runs ${milliseconds.map(value => value.toFixed(1)).join(', ')} ms; ${JSON.stringify(runs[0].statistics)}`);
   assert.ok(milliseconds.every(value => value < 2000), `native shooting and keepers exceeded 2 s budget: ${milliseconds.map(value => value.toFixed(1)).join(", ")} ms`);
+});
+
+test('three complete matches with career fitness and injury processing each remain below 2 s', async t => {
+  const api = await loadMeasuredLab();
+  const times = [];
+  for (const seed of [901, 731, 16]) {
+    const simulation = api.createSimulation({ ...api.createLabScenario({ seed }), workload: true });
+    const started = performance.now();
+    while (simulation.match.phase !== 'ended') {
+      if (simulation.paused) api.resumeSimulation(simulation);
+      api.stepSimulation(simulation);
+    }
+    times.push(performance.now() - started);
+    assert.equal(simulation.time, 5400);
+  }
+  t.diagnostic(`Node ${process.version}: workload/injuries 90 minutes ${times.map(time => time.toFixed(1)).join(', ')} ms`);
+  assert.ok(times.every(time => time < 2000), `career processing exceeded 2 s: ${times.join(', ')}`);
 });
 
 function measureCompleteShootingMatch(api) {

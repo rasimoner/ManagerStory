@@ -10,6 +10,8 @@ import { attackDirection, isKeeper, playerAtMarker, startPitchRestart } from './
 import { save } from '../save.js';
 import { userOpponent, userSquad } from './user-team.js';
 import { restoreSimulation } from '../sim/simulation-checkpoint.js';
+import { createSimulationPlayback } from '../match/highlight-playback.js';
+import { unpackMatchSnapshot } from '../match/match-storage.js';
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
@@ -22,9 +24,9 @@ export function matchSeed() { return 8800 + S.fixture * 97 + (S.matchSalt || 0);
 export function kickoffSeed() { if (S.matchSalt != null) S.matchSalt = newMatchSalt(); return matchSeed(); }
 export function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
-  setMatch(structuredClone(S.activeMatchV71));
+  setMatch(unpackMatchSnapshot(S.activeMatchV71));
   M.rand = R(M.rngState ?? matchSeed());
-  if (M.experimental) { M.simulation = restoreSimulation(M.simulationCheckpoint); delete M.simulationCheckpoint; }
+  if (M.experimental) { M.simulation = restoreSimulation(M.simulationCheckpoint); delete M.simulationCheckpoint; M.simulationPlayback ??= createSimulationPlayback(M.simulation); }
   delete M.uiOverlay;
   ensureMatchState();
   ensureLiveState();

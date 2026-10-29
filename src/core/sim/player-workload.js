@@ -19,7 +19,7 @@ function consumePlayerFitness(player) {
   player.workload.distanceMetres += distance;
   player.workload.sprintMetres += sprint;
   const stamina = player.attributes.stamina ?? MATCH_SIM_DATA.ball.defaultAttribute;
-  const drain = seconds * settings.perSecond + distance * settings.perMetre + sprint * settings.sprintPerMetre;
+  const drain = seconds * (player.slot === 'GK' ? settings.keeperPerSecond : settings.perSecond) + distance * settings.perMetre + sprint * settings.sprintPerMetre;
   drainPlayerFitness(player, drain * (settings.staminaBase + (1 - stamina / MATCH_SIM_DATA.attributes.maximum) * settings.staminaRange));
 }
 

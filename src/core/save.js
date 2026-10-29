@@ -19,6 +19,7 @@ import { MATCH_TACTICS } from './engine/tactics.js';
 import { GAME_VERSION } from './version.js';
 import { numberSquadKeepingShown } from './players/shirt-numbers.js';
 import { snapshotSimulation } from './sim/simulation-checkpoint.js';
+import { packExperimentalMatch } from './match/match-storage.js';
 export const SAVE_KEY = "msv4";
 export const SAVE_SCHEMA = 4;
 export let saveWarning = false;
@@ -131,7 +132,8 @@ export function persistCareer() {
       snapshot.simulationCheckpoint = snapshotSimulation(M.simulation);
       delete snapshot.simulation;
     }
-    S.activeMatchV71 = { ...snapshot, rngState: rand.state };
+    const record = { ...snapshot, rngState: rand.state };
+    S.activeMatchV71 = M.experimental ? packExperimentalMatch(record) : record;
   } else delete S.activeMatchV71;
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); saveWarning = false; }
   catch (error) {

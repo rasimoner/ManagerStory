@@ -26,6 +26,12 @@ Geçici çizgi duruşları 52 golün 18'inin penceresinde bulunur; tek taraflı 
 
 ## İlerleme
 
+### D kapsam güncellemesi — 29 Ekim
+
+Kullanıcı mevcut A–C ve commit'lerin korunmasını; D'nin **kesintisiz değişken hızlı 2D** olarak, 6–10 dakika hedefiyle tamamlanmasını istedi. Sakin bölümde sahneyi gizleme/atlama ve 22 sn önden hesaplamadan komut gecikmesi kaldırılacak. Bütün fizik adımları korunacak; hız yalnız sunumda değişecek ve yumuşak geçecek. Önceki tampon adayı ayrı checkpoint'te korunur; nihai yaklaşım olarak yayınlanmaz.
+
+Ön aday ölçümü `match-sim-career-candidate.json` içindedir: 405,6 sn, 31 önemli an penceresi; kondisyon saha oyuncularında yaklaşık 63–68, eski örnekte yaklaşık 77–84 kaldı. Bu aday nihai sezon sonucu değildir; kondisyon oranı B'nin eski motora yakın bitirme şartı için düzeltildi. Kaleciye ayrı süre tüketimi eklendi. Sunum süre hedefi için futbol fiziği/olay sıklığı değiştirilmedi. Nihai sezon deneyi ve izleme süresi yeni kesintisiz akışla ölçülecek.
+
 - A: tamamlandı; davranış değiştirilmedi, ham tanı saklandı.
 - B: komutlar, duruşta değişiklik, tek takım taktik/diziliş, bireysel talimat günlüğü, tüketim/sakatlık ve JSON üzerinden eksiksiz deterministik devam uygulandı; testler önce kırmızı çalıştırıldı.
 - C: anahtar/göç 4, saf kariyer adaptörü, gerçek kadro/özellikler, Türkçe olaylar, gol/kart/dakika/kondisyon/reyting, mevcut sonuç/sezon akışı ve basit 2D bağlantısı uygulandı. Tam maç ve kaydet/yükle kariyer akışı testleri yeşil. Yeni ayar/biçim meta verisi dışında eski altın dosyalar değiştirilmez; eski mantık hash'leri uyumluluk görünümüyle sınanır. Laboratuvara özel eski "oyun simülasyon modülü yüklemez" varsayımı, bu işin amacı gereği "oyun laboratuvar arayüzü yüklemez" olur. Özel ES modül fonksiyonlarının global olmaması yapı testinde doğru ele alınır; ek motor karar kancası açıkça beklenir.

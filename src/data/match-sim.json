@@ -432,7 +432,7 @@
     "reboundDepth": 11,
     "reboundSideFactor": 0.18
   },
-  "workload": {"minimumFitness": 20, "perSecond": 0.0012, "perMetre": 0.0016, "sprintPerMetre": 0.0007, "perContact": 0.035, "staminaBase": 0.7, "staminaRange": 0.8},
+  "workload": {"minimumFitness": 20, "perSecond": 0.0006, "perMetre": 0.0008, "sprintPerMetre": 0.00035, "perContact": 0.0175, "staminaBase": 0.7, "staminaRange": 0.8, "keeperPerSecond": 0.0032},
   "injuries": {"checkSeconds": 60, "perPlayerSecond": 1.2e-06, "fatigueMultiplier": 3, "hardContactSpeed": 6, "hardContactRisk": 0.002, "careerWeeks": 1},
   "instructions": {"balanced": {"effective": true}, "runBehind": {"effective": false}, "holdUp": {"effective": true, "shieldBonus": 6}, "box": {"effective": false}, "shoot": {"effective": true, "shotScoreScale": 1.18}, "press": {"effective": false}, "creator": {"effective": false}, "riskPass": {"effective": false}, "free": {"effective": false}, "wide": {"effective": false}, "inside": {"effective": false}, "overlap": {"effective": false}, "stay": {"effective": false}, "step": {"effective": false}, "shortGK": {"effective": true, "distributionDistance": 12}, "longGK": {"effective": true, "distributionDistance": 45}, "sweeper": {"effective": false}}
 }

@@ -251,5 +251,35 @@
   "bigChanceXg": 0.2,
   "secondsPerMinute": 60,
   "basicFastRate": 90,
-  "epsilon": 1e-06
+  "epsilon": 1e-06,
+  "playback": {
+    "lookaheadSeconds": 22,
+    "capacity": 260,
+    "preSeconds": 8,
+    "postSeconds": 2,
+    "boundaryPreSeconds": 2,
+    "quietRate": 120,
+    "importantTypes": [
+      "goal",
+      "shot",
+      "save",
+      "post",
+      "yellow",
+      "red",
+      "injury"
+    ],
+    "dangerDepth": 12,
+    "dangerWidth": 18,
+    "dangerCooldownSeconds": 60,
+    "maxSteps": 128,
+    "maximumFrameSteps": 512,
+    "frameBudgetMs": 7,
+    "initialMsPerStep": 0.04,
+    "budgetSmoothing": 0.15,
+    "projectionSeconds": 30,
+    "eventCaptionSeconds": 3,
+    "maximumFrameSeconds": 0.15,
+    "maximumLookaheadSeconds": 25,
+    "dangerMinimumXg": 0.2
+  }
 }

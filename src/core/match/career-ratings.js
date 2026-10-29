@@ -1,18 +1,22 @@
 import CAREER_SIM_DATA from '../../data/match-sim-career.json';
 
-export function simulationPlayerRatings(simulation) {
-  const players = [...simulation.teams.flatMap(team => team.players), ...simulation.departed];
-  const rows = Object.fromEntries(players.map(player => [player.id, createPlayerRow(player)]));
-  for (const event of simulation.events) rateSimulationEvent(rows, event, players);
+export function simulationPlayerRatings(simulation, input = {}) {
+  const untilTime = input.time ?? simulation.time;
+  const players = [...simulation.teams.flatMap(team => team.players), ...simulation.departed].filter(player => (player.enteredSeconds ?? 0) <= untilTime);
+  const frames = new Map((input.frame?.players ?? []).map(player => [player.id, player]));
+  const rows = Object.fromEntries(players.map(player => [player.id, createPlayerRow(player, frames.get(player.id))]));
+  for (const event of simulation.events) {
+    if (event.time <= untilTime) rateSimulationEvent(rows, event.resolvedAt > untilTime ? { ...event, success: null } : event, players);
+  }
   for (const row of Object.values(rows)) row.rating = Math.max(CAREER_SIM_DATA.rating.minimum, Math.min(CAREER_SIM_DATA.rating.maximum, row.rating));
   return rows;
 }
 
-function createPlayerRow(player) {
+function createPlayerRow(player, frame) {
   return { rating: CAREER_SIM_DATA.rating.base, goals: 0, assists: 0, shots: 0, saves: 0,
-    minutes: Math.floor((player.workload.playedSeconds + CAREER_SIM_DATA.epsilon) / CAREER_SIM_DATA.secondsPerMinute),
+    minutes: Math.floor(((frame?.playedSeconds ?? player.workload.playedSeconds) + CAREER_SIM_DATA.epsilon) / CAREER_SIM_DATA.secondsPerMinute),
     touches: 0, passesAttempted: 0, passesCompleted: 0, keyPasses: 0, dribblesAttempted: 0, dribbles: 0,
-    tacklesAttempted: 0, tackles: 0, runs: 0, distanceKm: player.workload.distanceMetres / 1000 };
+    tacklesAttempted: 0, tackles: 0, runs: 0, distanceKm: (frame?.distanceMetres ?? player.workload.distanceMetres) / 1000 };
 }
 
 function rateSimulationEvent(rows, event, players) {

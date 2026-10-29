@@ -8,8 +8,8 @@ import { experimentalSourcePlayer, experimentalOpponentBench, prepareExperimenta
 
 const narrated = new Set(['goal', 'shot', 'save', 'post', 'wide', 'yellow', 'red', 'injury', 'half', 'kickoff', 'substitution', 'substitutionRequested', 'foul', 'ballOut', 'pass', 'interception', 'tackle']);
 
-export function consumeExperimentalEvents() {
-  while (M.simulationCursor < M.simulation.events.length) {
+export function consumeExperimentalEvents(untilTime = M.simulation.time) {
+  while (experimentalEventDue(untilTime)) {
     const event = M.simulation.events[M.simulationCursor++];
     if (event.type === 'yellow' && event.secondYellow) continue;
     M.matchElapsedSeconds = event.time;
@@ -23,13 +23,17 @@ export function consumeExperimentalEvents() {
       M.simulationPendingPasses.push({ sourceIndex: M.simulationCursor - 1, eventId: recorded.eventId });
     }
   }
-  settleExperimentalPassEvents();
+  settleExperimentalPassEvents(untilTime);
 }
 
-function settleExperimentalPassEvents() {
+function experimentalEventDue(untilTime) {
+  return M.simulationCursor < M.simulation.events.length && M.simulation.events[M.simulationCursor].time <= untilTime;
+}
+
+function settleExperimentalPassEvents(untilTime) {
   M.simulationPendingPasses = (M.simulationPendingPasses ?? []).filter(pending => {
     const source = M.simulation.events[pending.sourceIndex];
-    if (source.resolvedAt == null) return true;
+    if (source.resolvedAt == null || source.resolvedAt > untilTime) return true;
     const event = M.events.find(candidate => candidate.eventId === pending.eventId);
     Object.assign(event, { success: source.success, resolvedAt: source.resolvedAt, actualToId: source.actualToId });
     return false;
@@ -37,6 +41,8 @@ function settleExperimentalPassEvents() {
 }
 
 function applyExperimentalEventState(event) {
+  if (['goal', 'shot', 'save', 'red', 'yellow', 'substitution', 'injury', 'half'].includes(event.type)) M.simulationImportantRevision = (M.simulationImportantRevision ?? 0) + 1;
+  if (['red', 'substitution', 'injury'].includes(event.type)) M.simulationRosterRevision = (M.simulationRosterRevision ?? 0) + 1;
   const handlers = { yellow: recordExperimentalCard, red: recordExperimentalCard, injury: recordExperimentalInjury,
     substitution: recordExperimentalSubstitution, half: recordExperimentalHalf };
   handlers[event.type]?.(event);
@@ -44,7 +50,7 @@ function applyExperimentalEventState(event) {
 
 function recordExperimentalCard(event) {
   const player = M.simulation.teams.flatMap(team => team.players).find(candidate => candidate.id === event.fromId);
-  M.yellowByPlayer[event.fromId] = player.yellowCards;
+  M.yellowByPlayer[event.fromId] = event.type === 'yellow' ? (M.yellowByPlayer[event.fromId] ?? 0) + 1 : event.secondYellow ? 2 : M.yellowByPlayer[event.fromId] ?? 0;
   if (event.type !== 'red') return;
   player.leftSeconds = event.time;
   if (player.teamId === 'user') { M.active = M.active.filter(id => id !== player.id); M.sentOff.push(player.id); }
