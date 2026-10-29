@@ -1,4 +1,7 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
+import BALANCE from '../../data/balance.json';
+import { usesNaturalMatchClock } from './simulation-clock.js';
+import { simulationGoalProgress } from './attacking-space.js';
 import { clampSimValue, planningDistance } from './geometry.js';
 import { simulationOpponentArrival } from './player-arrival.js';
 import { simulationPlayerAvailable } from './duel-state.js';
@@ -7,15 +10,16 @@ export function evaluateSimulationDribble(simulation, owner) {
   const team = simulation.teams.find(candidate => candidate.id === owner.teamId);
   const opponents = simulation.teams.find(candidate => candidate.id !== team.id).players.filter(simulationPlayerAvailable);
   const carrier = { position: owner.position, velocity: owner.velocity, limits: { maxSpeed: owner.limits.maxSpeed * owner.carrySpeedRatio, acceleration: owner.limits.acceleration } };
+  const flow = usesNaturalMatchClock(simulation) ? BALANCE.shortMatchFlow : null;
   let best = null;
   for (const angle of MATCH_SIM_DATA.dribbling.angles) {
-    const option = evaluateCarryDirection({ owner, carrier, team, opponents }, angle);
+    const option = evaluateCarryDirection({ owner, carrier, team, opponents, flow }, angle);
     if (!best || option.score > best.score) best = option;
   }
   return best;
 }
 
-function evaluateCarryDirection({ owner, carrier, team, opponents }, angle) {
+function evaluateCarryDirection({ owner, carrier, team, opponents, flow }, angle) {
   const settings = MATCH_SIM_DATA.dribbling, weights = MATCH_SIM_DATA.ownerDecision;
   const heading = (team.direction > 0 ? 0 : Math.PI) + angle;
   const distance = Math.max(settings.minimumLookAhead, owner.limits.maxSpeed * owner.carrySpeedRatio * settings.lookAheadSeconds);
@@ -23,8 +27,10 @@ function evaluateCarryDirection({ owner, carrier, team, opponents }, angle) {
   if (planningDistance(owner.position, target) < settings.minimumLookAhead) return { target, safeSeconds: 0, progress: 0, score: -Infinity };
   const safeSeconds = carrySafeSeconds({ owner, carrier, opponents, target });
   const turn = Math.abs(Math.atan2(Math.sin(heading - owner.heading), Math.cos(heading - owner.heading)));
-  const progress = (target.x - owner.position.x) * team.direction;
-  return { target, safeSeconds, progress, score: weights.dribbleBase + safeSeconds * weights.dribbleSafetyWeight + progress * weights.dribbleProgressWeight - turn * weights.turnCost };
+  const progress = flow ? simulationGoalProgress(team, owner.position, target) : (target.x - owner.position.x) * team.direction;
+  // Extra safety beyond a usable lane must not reward retreat more than approaching goal.
+  const safetyBonus = flow ? Math.min(safeSeconds, flow.carrySafetyBonusCapSeconds) : safeSeconds;
+  return { target, safeSeconds, progress, score: weights.dribbleBase + safetyBonus * weights.dribbleSafetyWeight + progress * (flow?.carryProgressWeight ?? weights.dribbleProgressWeight) - turn * weights.turnCost };
 }
 
 function carrySafeSeconds({ owner, carrier, opponents, target }) {

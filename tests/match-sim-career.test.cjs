@@ -92,7 +92,11 @@ test('existing tactic controls affect only our team and an injury uses the requi
 
 test('repeating a pending substitution through the match screen keeps one request and explains the wait', () => {
   const game = career();
-  game.run('setExperimentalMatchEngine(true);startMatch();advanceExperimentalSeconds(120);pauseLive();setSubOut(M.active.at(-1))');
+  game.run('setExperimentalMatchEngine(true);startMatch();advanceExperimentalSeconds(120)');
+  // Attack decisions change when stoppages occur; this scenario requires actual live football.
+  for (let tick = 0; tick < 200 && game.api.simulationFootballStopped(game.api.M.simulation); tick++) game.api.advanceExperimentalSeconds(.1);
+  assert.equal(game.api.simulationFootballStopped(game.api.M.simulation), false);
+  game.run('pauseLive();setSubOut(M.active.at(-1))');
   const incoming = game.run('eligibleSubstitutes()[0].id');
   assert.equal(game.api.doSub(incoming), true);
   game.run('setSubOut(M.active.at(-1))');

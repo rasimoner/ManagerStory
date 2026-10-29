@@ -1,9 +1,9 @@
-# ManagerStory V7.16.0
+# ManagerStory V7.17.0
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
 
-V7.15.0: opt in through Ayarlar → **Deneysel maç motoru (yeni, 2D)**. Career matches use continuous variable-speed 2D; the switch defaults off and 3D remains on the legacy engine. [Release notes](docs/v7.15.0-release.md) · [Measurements and phone checklist](docs/match-sim-career-report.md).
+V7.17.0: opt in through Ayarlar → **Deneysel maç motoru (yeni, 2D)**. Natural 3/5/7/10-minute matches now value forward space and provide forward support runs. The switch defaults off and 3D remains on the legacy engine. [Release notes](docs/v7.17.0-release.md) · [Matched-seed results and phone checklist](docs/match-sim-short-attacks-report.md).
 
 Katkı kuralları: [AGENTS.md](AGENTS.md)
 

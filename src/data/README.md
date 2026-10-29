@@ -88,3 +88,5 @@ Denge 1 ekleri:
 `reporting.controlledShots`: aynı atış konumları, set kaleci derinliği, +10 özellik artışı ve kısa uçuş süresi; finishing ve reflexes etkisini maçın sonraki RNG akışından ayıran eşlenmiş deney içindir. Normal/set kaleci ön erişimi 1,15/1,25 m, set olmama ek tepki payı 0,04 sn olarak kalibre edildi; plonjon sınırı değişmez.
 
 Raporun `milliseconds` alanı performans ölçümüdür, deterministik sonuç değildir. CI kaydedilen maç/güç/kontrollü şut sayaçlarını yeniden üretip `tools/sim-report/compare.cjs` ile karşılaştırır; yüzdelik ve istisnalar tarihli raporda açıklanır.
+
+`balance.json.shortMatchFlow`: yalnız doğal süreli maçta taşımanın olumlu varış güvenliği puanı tavanı (saniye), pas/taşımada kale mesafesi kazancı puanı (metre başına) ve ileri destek uzaklığı. Referans laboratuvar bu ayarı kullanmaz; top/oyuncu hızı, şut veya kaleci sonucu katsayısı değildir.

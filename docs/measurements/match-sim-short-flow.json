@@ -215,5 +215,226 @@
       "scoreless": 16,
       "consistentMatches": 20
     }
-  }
+  },
+  "after": {
+    "runs": [
+      {
+        "seed": 901,
+        "shots": 10,
+        "goals": 0,
+        "xg": 0.5812773539377172,
+        "passes": 67,
+        "completedPasses": 51,
+        "resolvedPasses": 67
+      },
+      {
+        "seed": 731,
+        "shots": 5,
+        "goals": 0,
+        "xg": 0.429863078646038,
+        "passes": 37,
+        "completedPasses": 28,
+        "resolvedPasses": 37
+      },
+      {
+        "seed": 42,
+        "shots": 5,
+        "goals": 0,
+        "xg": 0.9884477661232365,
+        "passes": 71,
+        "completedPasses": 52,
+        "resolvedPasses": 71
+      },
+      {
+        "seed": 2026,
+        "shots": 5,
+        "goals": 1,
+        "xg": 0.23217751975880038,
+        "passes": 65,
+        "completedPasses": 52,
+        "resolvedPasses": 65
+      },
+      {
+        "seed": 508,
+        "shots": 23,
+        "goals": 1,
+        "xg": 1.9420001618039473,
+        "passes": 63,
+        "completedPasses": 47,
+        "resolvedPasses": 63
+      },
+      {
+        "seed": 1,
+        "shots": 4,
+        "goals": 0,
+        "xg": 0.5123731057590662,
+        "passes": 52,
+        "completedPasses": 31,
+        "resolvedPasses": 52
+      },
+      {
+        "seed": 2,
+        "shots": 4,
+        "goals": 1,
+        "xg": 0.6795132645481251,
+        "passes": 67,
+        "completedPasses": 44,
+        "resolvedPasses": 67
+      },
+      {
+        "seed": 3,
+        "shots": 6,
+        "goals": 1,
+        "xg": 0.2604173477164286,
+        "passes": 73,
+        "completedPasses": 64,
+        "resolvedPasses": 73
+      },
+      {
+        "seed": 4,
+        "shots": 7,
+        "goals": 2,
+        "xg": 0.9222103666429303,
+        "passes": 71,
+        "completedPasses": 49,
+        "resolvedPasses": 71
+      },
+      {
+        "seed": 5,
+        "shots": 6,
+        "goals": 0,
+        "xg": 1.0034129239792087,
+        "passes": 70,
+        "completedPasses": 42,
+        "resolvedPasses": 70
+      },
+      {
+        "seed": 6,
+        "shots": 10,
+        "goals": 3,
+        "xg": 1.1963378842762578,
+        "passes": 69,
+        "completedPasses": 45,
+        "resolvedPasses": 69
+      },
+      {
+        "seed": 7,
+        "shots": 10,
+        "goals": 1,
+        "xg": 0.6652470507011361,
+        "passes": 58,
+        "completedPasses": 46,
+        "resolvedPasses": 58
+      },
+      {
+        "seed": 8,
+        "shots": 15,
+        "goals": 0,
+        "xg": 1.1414282746230204,
+        "passes": 62,
+        "completedPasses": 45,
+        "resolvedPasses": 62
+      },
+      {
+        "seed": 9,
+        "shots": 4,
+        "goals": 0,
+        "xg": 0.23578075081979893,
+        "passes": 60,
+        "completedPasses": 45,
+        "resolvedPasses": 60
+      },
+      {
+        "seed": 10,
+        "shots": 3,
+        "goals": 0,
+        "xg": 0.12572529212964215,
+        "passes": 73,
+        "completedPasses": 54,
+        "resolvedPasses": 73
+      },
+      {
+        "seed": 11,
+        "shots": 8,
+        "goals": 0,
+        "xg": 0.44343286589571557,
+        "passes": 72,
+        "completedPasses": 54,
+        "resolvedPasses": 72
+      },
+      {
+        "seed": 12,
+        "shots": 8,
+        "goals": 2,
+        "xg": 0.7712404422610353,
+        "passes": 63,
+        "completedPasses": 39,
+        "resolvedPasses": 63
+      },
+      {
+        "seed": 13,
+        "shots": 6,
+        "goals": 1,
+        "xg": 0.28189928341279435,
+        "passes": 62,
+        "completedPasses": 43,
+        "resolvedPasses": 62
+      },
+      {
+        "seed": 14,
+        "shots": 4,
+        "goals": 0,
+        "xg": 0.21099349792228228,
+        "passes": 67,
+        "completedPasses": 48,
+        "resolvedPasses": 67
+      },
+      {
+        "seed": 15,
+        "shots": 8,
+        "goals": 1,
+        "xg": 1.540039421017903,
+        "passes": 44,
+        "completedPasses": 32,
+        "resolvedPasses": 44
+      }
+    ],
+    "summary": {
+      "shots": 7.55,
+      "goals": 0.7,
+      "xg": 0.7081908825987543,
+      "passAccuracy": 71.95892575039494,
+      "scoreless": 10,
+      "consistentMatches": 20
+    }
+  },
+  "durationChecks": [
+    {
+      "durationSeconds": 180,
+      "ticks": 1800,
+      "physicsSeconds": 180,
+      "matchSeconds": 5400,
+      "shots": 3,
+      "goals": 1,
+      "consistency": true
+    },
+    {
+      "durationSeconds": 300,
+      "ticks": 3000,
+      "physicsSeconds": 300,
+      "matchSeconds": 5400,
+      "shots": 7,
+      "goals": 2,
+      "consistency": true
+    },
+    {
+      "durationSeconds": 600,
+      "ticks": 6000,
+      "physicsSeconds": 600,
+      "matchSeconds": 5400,
+      "shots": 13,
+      "goals": 1,
+      "consistency": true
+    }
+  ]
 }

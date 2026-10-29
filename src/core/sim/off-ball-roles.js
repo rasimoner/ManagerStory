@@ -1,6 +1,8 @@
 import { planSimulationBoxDefence } from './box-defending.js';
 import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
+import BALANCE from '../../data/balance.json';
+import { usesNaturalMatchClock } from './simulation-clock.js';
 import { pointDistance, pointSquaredDistance } from './geometry.js';
 import { movementGait } from './player-movement.js';
 import { fitTeamTarget, simAnchorPosition, simKeeperTarget, simTeamShape, teamOwnsSimBall } from './team-shape.js';
@@ -52,6 +54,8 @@ function assignSimRole(context, player, instruction) {
 
 function planAttackingRoles(context) {
   const { simulation, team } = context;
+  const flow = usesNaturalMatchClock(simulation) ? BALANCE.shortMatchFlow : null;
+  if (flow) context.available = context.available.filter(player => player.id !== (simulation.ball.ownerId ?? simulation.ball.carry?.playerId));
   const runner = [...context.available].filter(player => player.line === 'attack').sort((left, right) => right.anchor.x - left.anchor.x)[0];
   if (runner) {
     const target = simAnchorPosition(team, runner, context.shape);
@@ -61,6 +65,7 @@ function planAttackingRoles(context) {
   for (let index = 0; index < MATCH_SIM_DATA.roles.supportCount; index++) {
     const side = index % 2 ? 1 : -1;
     const target = simSupportTarget(simulation.ball.position, team.direction, side);
+    if (flow && index === 0) target.x = simulation.ball.position.x + team.direction * flow.supportForwardDistance;
     assignSimRole(context, nearestPlayer(context.available, target), { role: 'support', target });
   }
 }
