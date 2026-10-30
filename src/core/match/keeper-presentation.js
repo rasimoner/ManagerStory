@@ -11,10 +11,13 @@ export function captureKeeperPresentation(simulation, player) {
   const stopped = recent.findLast(event => event.time < player.keeper.reactionAt
     && shot && event.time >= shot.time
     && ['save', 'block', 'goal', 'wide', 'ballOut'].includes(event.type));
-  return { previousSave: previous ? copyKeeperSave(previous) : null, stoppedAt: stopped?.time ?? null };
+  return { previousSave: previous ? copyKeeperSave(previous, recent) : null, stoppedAt: stopped?.time ?? null };
 }
 
-function copyKeeperSave(event) {
+function copyKeeperSave(event, recent) {
+  const shot = recent.findLast(candidate => candidate.type === 'shot' && candidate.keeper
+    && candidate.time + candidate.keeper.reactionSeconds === event.reactionAt);
   return { time: event.time, reactionAt: event.reactionAt, height: event.height,
+    launchLateralDistance: shot?.keeper.lateralDistance,
     fromPos: { ...event.fromPos }, toPos: { ...event.toPos } };
 }

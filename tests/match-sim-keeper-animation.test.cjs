@@ -4,7 +4,7 @@ const { keeperScene } = require('./support/keeper-scene.cjs');
 
 test('the real keeper extends his whole body to either side at either goal and in either half', async () => {
   for (const heading of [Math.PI / 2, -Math.PI / 2]) for (const side of [-1, 1]) {
-    const scene = await keeperScene({ heading, keeper: { target: { x: 52.61, y: 2.6 * side, height: .4 } } });
+    const scene = await keeperScene({ heading, direction: heading > 0 ? 1 : -1, keeper: { target: { x: 52.61, y: 2.6 * side, height: .4 } } });
     scene.frame.half = heading > 0 ? 1 : 2;
     const actor = scene.draw(1.4), axis = scene.bone('Head').sub(scene.bone('Hips')).normalize();
     assert.ok(axis.z * side > .65, `head and torso extend towards pitch-y ${side}: ${axis.z}`);
@@ -126,4 +126,14 @@ test('a second reaction starts from the visible grounded pose, including a cold 
   rebuilt.sample.keeperPresentation = scene.sample.keeperPresentation;
   rebuilt.draw(2.08); scene.draw(2.08);
   for (const name of Object.keys(rebuilt.points())) assert.ok(scene.bone(name).distanceTo(rebuilt.bone(name)) < 1e-6);
+});
+
+test('physical heading changes do not swing a launched body away from the observed lateral target', async () => {
+  const scene = await keeperScene({ direction: 1 });
+  for (let index = 0; index <= 30; index++) {
+    scene.sample.heading = Math.PI / 2 - index / 30;
+    scene.draw(1.42 + index / 120);
+    const axis = scene.bone('Head').sub(scene.bone('Hips')).normalize();
+    assert.ok(axis.z > .6, `the airborne torso continues towards +pitch-y (${axis.z})`);
+  }
 });

@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { keeperScenario, KEEPER_SCENARIOS, ordinaryKeeperCareer } = require('./support/keeper-recordings.cjs');
+const { keeperScenario, recordKeeperScenario, KEEPER_SCENARIOS, ordinaryKeeperCareer } = require('./support/keeper-recordings.cjs');
 const { sceneFixture } = require('./support/simulation-scene.cjs');
 const { keeperScene } = require('./support/keeper-scene.cjs');
 const { loadGame } = require('./support/game.cjs');
@@ -58,6 +58,21 @@ test('a shot already stopped before reaction does not create a late phantom dive
   assert.ok(axis.y > .8);
 });
 
+test('a keeper who stepped towards the first save is still grounded when a rebound shot is armed', async () => {
+  const fixture = keeperScenario({ ...KEEPER_SCENARIOS[1], power: 18 }), scene = await sceneFixture();
+  for (let tick = 0; tick < 10; tick++) fixture.api.stepSimulation(fixture.simulation);
+  const draw = () => scene.actors.apply(fixture.api.sampleSimulationScene({ frame: fixture.api.captureSimulationFrame(fixture.simulation) }, { immediate: true }));
+  draw();
+  const actor = scene.runtime.players.find(player => player.id === fixture.keeperId);
+  const before = Object.fromEntries(Object.entries(actor.bones).map(([name, bone]) => [name, bone.getWorldPosition(new scene.THREE.Vector3())]));
+  const shooter = fixture.simulation.teams[0].players.at(-1);
+  const option = fixture.api.evaluateSimulationShot(fixture.simulation, shooter);
+  fixture.api.releaseSimulationShot(fixture.simulation, shooter, { ...option, target: { x: 52.5, y: 2.7, height: .4 } });
+  draw();
+  const largest = Math.max(...Object.entries(actor.bones).map(([name, bone]) => bone.getWorldPosition(new scene.THREE.Vector3()).distanceTo(before[name])));
+  assert.ok(largest < .13, `a close contact does not erase the earlier full-body dive (${largest})`);
+});
+
 test('landing and support remain continuous and above the turf for both sides and high balls', async () => {
   for (const [side, height] of [[-1, .3], [-1, 2.3], [1, .3], [1, 2.3]]) await verifyGroundedChain(side, height);
 });
@@ -77,4 +92,27 @@ async function verifyGroundedChain(side, height) {
   }
   assert.ok(minimum > -.025);
   assert.ok(maximum < .13, `continuous side ${side} / height ${height}: ${maximum}`);
+}
+
+test('real observed flight and recovery stay continuous while heading, velocity and keeper mode change', async () => {
+  for (const options of KEEPER_SCENARIOS.slice(0, 4)) await verifyRecordedChain(options);
+});
+
+async function verifyRecordedChain(options) {
+  const recording = recordKeeperScenario(options), scene = await sceneFixture();
+  const api = loadGame({ skip: ['main.js'], quiet: true }).api;
+  let previous, largest = 0;
+  for (let index = 0; index <= 360; index++) {
+    const time = index / 120, current = Math.min(recording.frames.length - 1, Math.ceil(time * 10));
+    const before = recording.frames[Math.max(0, current - 1)];
+    const frame = api.sampleSimulationScene({ frame: recording.frames[current], previousFrame: before, accumulatorSeconds: time - before.physicsTime });
+    frame.players = frame.players.filter(player => player.id === recording.keeperId);
+    scene.actors.apply(frame);
+    const root = new scene.THREE.Vector3().copy(frame.players[0].position);
+    const actor = scene.runtime.players[0], points = Object.fromEntries(Object.entries(actor.bones)
+      .map(([name, bone]) => [name, bone.getWorldPosition(new scene.THREE.Vector3()).sub(root)]));
+    if (previous) for (const name of Object.keys(points)) largest = Math.max(largest, points[name].distanceTo(previous[name]));
+    previous = points;
+  }
+  assert.ok(largest < .13, `${options.label}: world-space body discontinuity excluding the actual engine translation ${largest}`);
 }

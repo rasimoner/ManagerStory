@@ -84,9 +84,9 @@ async function ordinaryCareerVideo(career, viewport) {
   await page.goto(server.url);
   await page.waitForFunction(() => document.querySelector('[data-scene-loading]')?.hidden);
   if (viewport.width > viewport.height) await page.locator('[data-scene-full]').click();
-  await page.locator('[data-scene-pause]').click();
+  await page.locator(viewport.width > viewport.height ? '[data-scene-pause]' : '[data-action="resumeLive"]').click();
   await page.waitForFunction(() => Number(document.querySelector('[data-sim-scene]')?.dataset.simPhysicsTime) >= 73.3);
-  await page.locator('[data-scene-pause]').click();
+  await page.locator(viewport.width > viewport.height ? '[data-scene-pause]' : '[data-action="pauseLive"]').click();
   await page.screenshot({ path: `${evidence}/${label}.png`, fullPage: true });
   const video = page.video();
   await context.close();

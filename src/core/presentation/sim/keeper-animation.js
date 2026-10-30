@@ -36,19 +36,34 @@ function previousKeeperAttempt(sample, time) {
   const save = sample.keeperPresentation?.previousSave;
   if (!save || save.time > time) return null;
   return keeperAttempt({ ...sample, keeperPresentation: null, keeper: { reactionAt: save.reactionAt, launchPosition: save.fromPos,
+    launchLateralDistance: save.launchLateralDistance,
     target: { ...save.toPos, height: save.height } } }, time);
 }
 
 function keeperBasePose(actor, sample, frame) {
-  const time = frame.physicsTime, speed = Math.hypot(sample.velocity.x, sample.velocity.z);
-  const moving = speed > settings.movingSpeed, name = moving ? speed > settings.runSpeed ? 'run' : 'walk' : 'idle';
-  const phase = moving ? sample.distanceMetres / settings.strideMetres : time;
-  let pose = sampleKeeperClip(actor, name, phase % actor.A[name].getClip().duration);
-  const ready = ['set', 'reacting', 'step', 'dive'].includes(sample.keeper.mode);
-  if (ready) pose = blendKeeperPoses(pose, sampleKeeperClip(actor, 'gkReady', time % actor.A.gkReady.getClip().duration), settings.readyWeight);
-  if (ready) applyAction(pose, 'keeperHands', 0, settings.readyWeight);
+  const time = frame.physicsTime;
+  let pose = keeperLocomotionPose(actor, sample, time);
+  const ready = keeperReadyWeight(sample.keeper);
+  if (ready) pose = blendKeeperPoses(pose, sampleKeeperClip(actor, 'gkReady', time % actor.A.gkReady.getClip().duration), ready);
+  if (ready) applyAction(pose, 'keeperHands', 0, ready);
   if (frame.ball.heldBy === sample.id && sample.keeper.mode === 'holding') applyAction(pose, 'throwHold', 0, 1);
   return keeperContactPose(actor, pose, time);
+}
+
+function keeperReadyWeight(state) {
+  if (['reacting', 'step', 'dive'].includes(state.mode)) return settings.readyWeight;
+  if (!['set', 'positioning'].includes(state.mode)) return 0;
+  return settings.readyWeight * clamp((state.setSeconds ?? 0) / MATCH_SIM_DATA.goalkeeper.setSeconds, 0, 1);
+}
+
+function keeperLocomotionPose(actor, sample, time) {
+  const speed = Math.hypot(sample.velocity.x, sample.velocity.z), phase = sample.distanceMetres / settings.strideMetres;
+  const idle = sampleKeeperClip(actor, 'idle', time % actor.A.idle.getClip().duration);
+  const walk = sampleKeeperClip(actor, 'walk', (phase % 1) * actor.A.walk.getClip().duration);
+  const run = sampleKeeperClip(actor, 'run', (phase % 1) * actor.A.run.getClip().duration);
+  const walking = THREE.MathUtils.smoothstep(speed, ...settings.walkBlendRange);
+  const running = THREE.MathUtils.smoothstep(speed, ...settings.runBlendRange);
+  return blendKeeperPoses(blendKeeperPoses(idle, walk, walking), run, running);
 }
 
 function keeperContactPose(actor, pose, time) {
@@ -69,9 +84,11 @@ function keeperAttempt(sample, time) {
   const state = sample.keeper, elapsed = time - state.reactionAt;
   if (!keeperAttemptActive(sample, time)) return null;
   const launch = state.launchPosition ?? { x: sample.position.x, y: sample.position.z };
-  const lateral = -(state.target.x - launch.x || 0) * Math.cos(sample.heading) + (state.target.y - launch.y) * Math.sin(sample.heading);
+  const heading = sample.direction * Math.PI / 2, lateral = (state.target.y - launch.y) * Math.sin(heading);
   const height = clamp(((state.target.height ?? settings.lowHeight) - settings.lowHeight) / (settings.highHeight - settings.lowHeight), 0, 1);
-  return { elapsed, side: lateral >= 0 ? 1 : -1, height, full: Math.abs(state.target.y - launch.y) > MATCH_SIM_DATA.goalkeeper.stepReach };
+  const distance = state.launchLateralDistance ?? Math.abs(state.target.y - launch.y);
+  const localYaw = Math.atan2(Math.sin(heading - sample.heading), Math.cos(heading - sample.heading));
+  return { elapsed, side: lateral >= 0 ? 1 : -1, height, localYaw, full: distance > MATCH_SIM_DATA.goalkeeper.stepReach };
 }
 
 function keeperAttemptActive(sample, time) {
@@ -81,6 +98,20 @@ function keeperAttemptActive(sample, time) {
 }
 
 function keeperAttemptPose(actor, base, attempt) {
+  const animated = keeperTimelinePose(actor, base, attempt);
+  if (attempt.full) orientKeeperBody(animated.pose, attempt);
+  return animated;
+}
+
+function orientKeeperBody(pose, attempt) {
+  // The moving engine heading can turn after contact; an airborne body keeps its actual goal-side axis.
+  const lock = ease(attempt.elapsed / timing.transfer) * (1 - ease((attempt.elapsed - end.tuck) / (timing.push + timing.stand)));
+  const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), attempt.localYaw * lock);
+  pose.Hips.quaternion.premultiply(yaw);
+  pose.Hips.position.applyQuaternion(yaw);
+}
+
+function keeperTimelinePose(actor, base, attempt) {
   if (!attempt.full) return { pose: keeperShortReach(base, attempt), lift: 0 };
   const flight = keeperFlightPose(actor, attempt, base);
   if (attempt.elapsed <= end.settle) return flight;
@@ -127,7 +158,7 @@ function keeperCrouchPose(actor, attempt) {
 function keeperShortReach(base, attempt) {
   const pose = blendKeeperPoses(base, base, 0);
   const progress = ACTIONS.diveRight.contact * ease(attempt.elapsed / end.extend);
-  const weight = 1 - ease((attempt.elapsed - end.extend) / (timing.land + timing.settle));
+  const weight = ease(attempt.elapsed / timing.transfer) * (1 - ease((attempt.elapsed - end.extend) / (timing.land + timing.settle)));
   applyAction(pose, attempt.side > 0 ? 'diveRight' : 'diveLeft', progress, weight);
   pose.Hips.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), settings.nearRoll * attempt.side * weight));
   return pose;

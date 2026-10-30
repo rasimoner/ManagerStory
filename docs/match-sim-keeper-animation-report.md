@@ -8,6 +8,8 @@ V7.18 `scene-actors.js/poseKeeperReach`, gerçek `dive` ve `reactionAt` sınır�
 
 Yeni `keeper-animation.js`, mevcut `diveRight/diveLeft` kemik pozlarını, yan iniş/destek pozlarını ve mevcut `gkGetUp` klibinin çömelmeden ayağa kalkış bölümünü kullanır. Kalça, omurga, omuz/kol, dirsek, diz ve ayak aynı eğride çalışır. Modelin kökü motorun gerçek metre konumunda kalır; yalnız kemikler pozlanır. Çim payı kemik hacimleriyle ve gerçek deforme krampon/ayakkabı yüzeyiyle ölçülür. Yeni model veya özel kurtarış yoktur.
 
+İlk WebGL dizisi iki ek düzeltmeyi ortaya çıkardı: top geçince motorun değişen bakışı havadaki gövdeyi ters tarafa çevirmemeli; dar test kadrajı da yerdeki toparlanmayı kesmemeli. Gövdenin dalış ekseni gerçek takım/kaleci-hedef yönünde tutulur, kalkışta güncel bakışa yumuşak döner. Açısal fark en kısa yaydan alınır. Test kamerası gerçek kökü izler; ürün kamerasına bu yakın çekim ayarı taşınmaz.
+
 İtiş 0,12 sn, uzanma 0,30 sn, iniş 0,30 sn, yerde sönüm 0,14 sn; el/diz desteğine geçiş 0,36 sn, ağırlık aktarımı 0,42 sn, kayıtlı ayağa kalkış 0,68 sn, normal duruşa karışım 0,20 sn. Toplam 2,52 fizik saniyesi. Bu süreler ve bütün ayarlanabilir poz/zemin değerleri `data/match-sim-keeper-animation.json` içindedir. Yakın topun erişim eşiği mevcut motorun `stepReach` değeridir; yeni fizik eşiği eklenmez.
 
 ## Salt okuma ve zaman sınırı
@@ -16,11 +18,15 @@ Yeni `keeper-animation.js`, mevcut `diveRight/diveLeft` kemik pozlarını, yan i
 
 Her poz mutlak fizik zamanında örneklenir. Çizim fazı, kare sayacı veya ayrı duvar saati yoktur; önbellek yalnız kayıtlı klip örnekleyicileridir. İkinci şutta yerdeki önceki tepki yeni uzanmaya karışır; gerçek dağıtım kendi klibine geçer. Duraklatma, hız değişimi, 2D/3D, kaydet/devam, geriye/ileri atlayan çizim ve uzun hızlı geçiş eski dalış fazı biriktiremez. Kayıt biçimi 5 kalır; çizim örnekleri checkpoint'ten yeniden kurulur.
 
+İlk topa atılan gerçek adım, kurtarış anındaki enine mesafeyi kısaltabilir. İkinci şutta eski plonjonun kısa uzanmaya dönüşmemesi için bağımsız kopya, ilk şutun zaten kaydedilmiş `keeper.lateralDistance` değerini de taşır. Çizim yeni erişim hesabı veya geçmiş sonuca yazma yapmaz. Temel yürüyüş/set geçişleri fiziksel hız ve `setSeconds` ile karışır; mutlak klip fazı gerçek mesafeden gelir.
+
 ## Testler
 
 Önce yedi odaklı test çalıştı: altısı eski V7.18 davranışında kırmızıydı. İkinci şutta yere yatmış modelin bir karede ayağa dönmesini yakalayan ek test de önce kırmızı çalıştı. Gerçek rig kemiklerinin dünya konumları, bütün deforme model yüzeyinin zemini kesmemesi ve ardışık örnekler arasındaki mesafe sınırları denetlenir; yalnız faz adı veya kaynak metni aranmaz.
 
 İki yön/iki kale/iki devre, alçak/yüksek/çok yakın top, tepki sınırı, başarısız dalışın inişi/kalkışı, ikinci şut ve gerçek dağıtım; 0,5×/1×/2× eşdeğeri kare aralıklarında, aynı fizik anında ve sıfırdan kurulmuş sahnede aynı kemikler korunur. Gerçek çekirdeğin tutma/çelme/boşa dalış senaryolarında çizim öncesi/sonrası tam checkpoint/olay/RNG eşitliği ayrıca test edilir. Eski kaleci, genel 3D, iki görünümün aynı komutlarla aynı sonuca ulaşması ve bütün zorunlu kapılar korunur.
+
+Ek kırmızı testler gerçek bakış değişiminde ters yöne dönen dalışı ve ilk temasa adım atmış kalecinin ikinci şutta ayağa sıçramasını yakaladı. Gerçek dört kaydın 120 Hz ara çiziminde kemiklerin dünya konumları da karşılaştırılır; motorun meşru kök yer değiştirmesi çıkarıldıktan sonraki beden farkı sınırlıdır. Böylece motorun hızını değiştirmek yerine sunumdaki kopma ölçülür.
 
 İlk uygulama commit'i `12706ed`: Node 22.23.4, lint, 414 hızlı test / 1 mevcut atlama, ayrı 5/5 performans kapısı geçti. Son adayın tam test/build/duman/WebGL durumu aşağıya eklenecek. Yeni sezon, geniş denge veya süre taraması başlatılmadı; mevcut performans kapıları aynen korunur.
 

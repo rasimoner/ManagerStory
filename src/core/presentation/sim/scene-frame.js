@@ -23,7 +23,7 @@ function scenePlayer(player, previous = player, alpha) {
   const observed = alpha < 1 ? previous : player;
   return { ...player, keeper: observed.keeper, keeperPresentation: observed.keeperPresentation,
     position: simulationWorldPoint(interpolateScenePoint(previous.position, player.position, alpha)),
-    velocity: simulationWorldPoint(player.velocity), heading: simulationWorldHeading(previous.heading + turn * alpha) };
+    velocity: simulationWorldPoint(interpolateScenePoint(previous.velocity, player.velocity, alpha)), heading: simulationWorldHeading(previous.heading + turn * alpha) };
 }
 
 function sceneBall(previous, current, alpha) {

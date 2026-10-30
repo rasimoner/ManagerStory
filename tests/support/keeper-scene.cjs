@@ -2,7 +2,7 @@ const { sceneFixture } = require('./simulation-scene.cjs');
 
 async function keeperScene(options = {}) {
   const fixture = await sceneFixture();
-  const sample = { id: 91, number: 1, slot: 'GK', teamId: 'opponent', direction: -1, heading: Math.PI / 2,
+  const sample = { id: 91, number: 1, slot: 'GK', teamId: 'opponent', direction: 1, heading: Math.PI / 2,
     position: { x: 48, y: 0, z: 0 }, velocity: { x: 0, y: 0, z: 0 }, distanceMetres: 0,
     motionMode: 'running', duel: {}, ...options };
   sample.keeper = { mode: 'dive', reactionAt: 1, shotIndex: 0, launchPosition: { x: 48, y: 0 },

@@ -15,6 +15,7 @@ const club = { primaryColor: '#e2bc12', secondaryColor: '#d72231' };
 const actors = createSimulationActors(stage.runtime, player => ({ key: String(player.id), id: player.id, no: player.number,
   keeper: player.slot === 'GK', role: player.slot, kit: simulationSceneKit(club, player) }));
 let recording;
+let cameraOffset;
 
 function install(value) {
   recording = value;
@@ -23,8 +24,7 @@ function install(value) {
   stage.renderer.setSize(innerWidth, innerHeight, false);
   stage.camera.aspect = innerWidth / innerHeight;
   stage.camera.fov = 42;
-  stage.camera.position.set(keeper.position.x - direction * distance, 3, 3);
-  stage.camera.lookAt(keeper.position.x, .8, 0);
+  cameraOffset = new THREE.Vector3(-direction * distance, 3, 3);
   stage.camera.updateProjectionMatrix();
   drawAt(0);
 }
@@ -35,6 +35,9 @@ function drawAt(time) {
   const frame = sampleSimulationScene({ frame: current, previousFrame: previous, accumulatorSeconds: time - previous.physicsTime });
   actors.apply(frame);
   stage.ball.position.copy(frame.ball.position);
+  const keeper = frame.players.find(player => player.id === recording.keeperId);
+  stage.camera.position.copy(keeper.position).add(cameraOffset);
+  stage.camera.lookAt(keeper.position.x, .8, keeper.position.z);
   stage.outline.render(stage.scene, stage.camera);
   const event = frame.contacts.findLast(contact => contact.time <= frame.physicsTime && ['save', 'goal', 'keeperDistribution'].includes(contact.type));
   document.querySelector('output').textContent = `Yalıtılmış motor senaryosu · ${recording.label}\nFizik ${frame.physicsTime.toFixed(3)} sn · ${event ? `${event.type} ${event.kind ?? ''}` : 'tepki / uçuş'}`;
