@@ -102,6 +102,8 @@ async function verifyHalfAndEnd() {
   const final = await savedMatch();
   assert.equal(final.matchElapsedSeconds, 5400);
   assert.equal(final.simulationCheckpoint.state.match.phase, 'ended');
+  assert.ok(Number(await page.locator('[data-sim-scene]').getAttribute('data-sim-camera-fov')) < 115,
+    'finishing an explicit fast-forward must not leave the camera at its old focus');
   await page.screenshot({ path: `${evidence}/full-time.png`, fullPage: true });
 }
 

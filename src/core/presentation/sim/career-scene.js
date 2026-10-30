@@ -25,6 +25,7 @@ surface.innerHTML = `<canvas class=career3d-scene aria-label="Yeni motorun canlÄ
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 let stage, actors, broadcast, match, loading, clubs, lastPaint = null, fullscreen = false, failed = false;
 let crowd = [];
+let sceneWasSkipped = false;
 
 function mount() {
   if (!M?.experimental || M.fieldView !== '3d') { leaveFullscreen(); return; }
@@ -54,6 +55,7 @@ function startSceneMatch() {
   actors = createSimulationActors(stage.runtime, describePlayer);
   broadcast = createSimulationCamera(stage.camera);
   lastPaint = null;
+  sceneWasSkipped = false;
 }
 
 function buildSceneCrowd() {
@@ -72,7 +74,8 @@ function paint(frame) {
   try {
     if (match !== M) startSceneMatch();
     if (M.reason === 'half' || M.finished || M.requiredSubstitution) leaveFullscreen();
-    if (M.skipExperimental && !M.pause && !M.finished) { paintSceneLabels(frame); return; }
+    if (skipSceneDrawing(frame)) return;
+    refocusAfterSkippedScene();
     actors.apply(frame);
     stage.ball.position.copy(frame.ball.position);
     paintSceneGeometry(frame);
@@ -83,6 +86,20 @@ function paint(frame) {
 
 function sceneActive() { return !!stage && !failed && surface.isConnected && M?.experimental && M.fieldView === '3d'; }
 
+function skipSceneDrawing(frame) {
+  if (!M.skipExperimental || M.pause || M.finished) return false;
+  sceneWasSkipped = true;
+  paintSceneLabels(frame);
+  return true;
+}
+
+function refocusAfterSkippedScene() {
+  if (!sceneWasSkipped) return;
+  broadcast = createSimulationCamera(stage.camera);
+  lastPaint = null;
+  sceneWasSkipped = false;
+}
+
 function paintSceneGeometry(frame) {
   const width = canvas.clientWidth, height = canvas.clientHeight;
   if (!width || !height) return;
@@ -90,6 +107,7 @@ function paintSceneGeometry(frame) {
   lastPaint = now;
   resizeScene(width, height);
   const look = broadcast.update(frame, seconds, width / height);
+  surface.dataset.simCameraFov = stage.camera.fov.toFixed(3);
   stage.stadium.sun.target.position.copy(look);
   stage.stadium.sun.position.copy(look).add({ x: -30, y: 60, z: 40 });
   stage.runtime.scaleOutlines(stage.camera, stage.renderer.domElement.width, stage.renderer.domElement.height);
