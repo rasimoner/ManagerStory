@@ -10,7 +10,7 @@
 .sim-scene-caption{position:absolute;left:12px;right:12px;top:60px;text-align:center;color:#fff;font-weight:700;text-shadow:0 2px 4px #000}
 .sim-scene-goal{color:#ffe23f;font-size:24px}
 .sim-scene-controls{display:none}
-.sim-scene-full{position:fixed;inset:0;width:100%;height:100dvh;z-index:1000;border-radius:0}
+.career3d.sim-scene-full{position:fixed;inset:0;width:100%;height:100dvh;z-index:1000;border-radius:0}
 .sim-scene-full .sim-scene-tools{top:calc(env(safe-area-inset-top,0px) + 8px)}
 .sim-scene-full .sim-scene-controls{position:absolute;left:max(8px,env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 8px);display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .sim-scene-full .career3d-radar{bottom:80px;width:110px;height:72px}

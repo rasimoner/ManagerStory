@@ -65,6 +65,8 @@ async function verifyFullscreenSpeeds() {
   await page.locator('[data-scene-full]').click();
   assert.equal(await page.locator('.sim-scene-full').count(), 1);
   await page.setViewportSize({ width: 844, height: 390 });
+  const full = await page.locator('.sim-scene-full').boundingBox();
+  assert.deepEqual(full, { x: 0, y: 0, width: 844, height: 390 }, 'fullscreen must cover the actual viewport');
   await page.screenshot({ path: `${evidence}/landscape-fullscreen.png` });
   await page.locator('[data-scene-speed="0.5"]').click();
   assert.equal((await savedMatch()).speed, .5);
