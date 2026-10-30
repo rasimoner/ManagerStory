@@ -72,6 +72,7 @@ function paint(frame) {
   try {
     if (match !== M) startSceneMatch();
     if (M.reason === 'half' || M.finished || M.requiredSubstitution) leaveFullscreen();
+    if (M.skipExperimental && !M.pause && !M.finished) { paintSceneLabels(frame); return; }
     actors.apply(frame);
     stage.ball.position.copy(frame.ball.position);
     paintSceneGeometry(frame);
@@ -111,7 +112,8 @@ function paintSceneLabels(frame) {
   surface.querySelector('.sim-scene-score').textContent = `${M.hg}–${M.ag} · ${clockFromSeconds(frame.matchTime)}`;
   const event = frame.contacts.findLast(contact => ['goal', 'save', 'shot', 'tackle', 'block'].includes(contact.type) && contact.time <= frame.physicsTime);
   const caption = surface.querySelector('.sim-scene-caption');
-  caption.textContent = event ? { goal: 'GOOOL!', save: 'Kurtarış', shot: 'Şut', tackle: 'Müdahale', block: 'Blok' }[event.type] : '';
+  caption.textContent = M.skipExperimental && !M.pause && !M.finished ? 'Maç hesaplanıyor…'
+    : event ? { goal: 'GOOOL!', save: 'Kurtarış', shot: 'Şut', tackle: 'Müdahale', block: 'Blok' }[event.type] : '';
   caption.classList.toggle('sim-scene-goal', event?.type === 'goal');
   surface.querySelector('[data-scene-pause]').textContent = M.pause ? 'Devam et' : 'Duraklat';
 }

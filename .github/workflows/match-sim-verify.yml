@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
+    needs: simulation-3d-mobile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

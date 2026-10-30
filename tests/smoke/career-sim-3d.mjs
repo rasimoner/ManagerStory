@@ -41,6 +41,7 @@ async function loadScene(label) {
   assert.ok(Math.abs(layout.height - layout.canvasHeight) < 2, 'the 3D canvas fills the phone pitch');
   await page.screenshot({ path: `${evidence}/${label}.png`, fullPage: true });
   captures.push({ label, tick: Number(await root.getAttribute('data-sim-tick')), physicsTime: Number(await root.getAttribute('data-sim-physics-time')) });
+  console.log(`ok   simulation 3D scene: ${label}, tick ${expected.tick}`);
 }
 
 async function savedMatch() {
@@ -127,6 +128,14 @@ try {
     controls: ['view switch without a step', 'half/double speed', 'pause', 'reload', 'fullscreen', 'landscape', 'second half', '90:00', 'skip', 'WebGL fallback'],
     goalFixture: 'isolated core acceptance geometry; no production result override', physicalIphoneSafari: false }, null, 2));
   console.log('ok   experimental career 3D: real rig, physical ball, goal, controls, halftime, finish, reload and WebGL fallback');
+} catch (error) {
+  await page.screenshot({ path: `${evidence}/failure.png`, fullPage: true });
+  const state = await page.evaluate(() => ({ clock: document.querySelector('#live-clock')?.textContent,
+    scene: { ...document.querySelector('[data-sim-scene]')?.dataset },
+    visible: document.querySelector('#app')?.textContent, hidden: document.hidden }));
+  writeFileSync(`${evidence}/failure.json`, JSON.stringify({ error: error.message, state, problems }, null, 2));
+  console.error('3D browser stopped:', { clock: state.clock, scene: state.scene, hidden: state.hidden });
+  throw error;
 } finally {
   await browser.close();
   await server.close();
