@@ -108,27 +108,44 @@ async function verifyHalfAndEnd() {
   await page.screenshot({ path: `${evidence}/full-time.png`, fullPage: true });
 }
 
-async function verifyRestoredPresentation() {
-  const root = page.locator('[data-sim-scene]');
+// Freeze through the real pause control before a slow software-WebGL screenshot can miss the next stage.
+async function pauseAtGoalFrame(condition) {
+  await page.waitForFunction(({ after, photo }) => {
+    const scene = document.querySelector('[data-sim-scene]');
+    const ready = after != null ? Number(scene?.dataset.simPhysicsTime) >= after
+      : document.querySelector('.sim-goal-overlay')?.hidden === !photo;
+    if (!ready) return false;
+    document.querySelector('[data-action="pauseLive"]').click();
+    return true;
+  }, condition);
+}
+
+async function captureCameraChoices(root) {
   for (const mode of ['tv', 'close', 'stand', 'auto']) {
     await page.locator(`[data-scene-camera="${mode}"]`).click();
     assert.equal(await root.getAttribute('data-sim-camera-mode'), mode);
     await page.screenshot({ path: `${evidence}/camera-${mode}.png` });
   }
+}
+
+async function verifyRestoredPresentation() {
+  const root = page.locator('[data-sim-scene]');
+  await captureCameraChoices(root);
   const start = Number(await root.getAttribute('data-sim-physics-time'));
   await page.locator('[data-action="resumeLive"]').click();
-  await page.waitForFunction(time => Number(document.querySelector('[data-sim-scene]')?.dataset.simPhysicsTime) > time + .6, start);
+  await pauseAtGoalFrame({ after: start + .6 });
   await page.screenshot({ path: `${evidence}/goal-celebration.png` });
-  await page.waitForSelector('.sim-goal-overlay:not([hidden])');
+  await page.locator('[data-action="resumeLive"]').click();
+  await pauseAtGoalFrame({ photo: true });
   const photo = page.locator('.sim-goal-overlay img');
   await photo.evaluate(image => image.decode());
   assert.match(await photo.getAttribute('src'), /goal-club-/);
   await page.screenshot({ path: `${evidence}/goal-fan-photo.png` });
   const time = Number(await root.getAttribute('data-sim-physics-time'));
   assert.equal(Number(await root.getAttribute('data-sim-crowd-time')), time);
-  await page.waitForSelector('.sim-goal-overlay[hidden]', { state: 'attached' });
+  await page.locator('[data-action="resumeLive"]').click();
+  await pauseAtGoalFrame({ photo: false });
   await page.screenshot({ path: `${evidence}/goal-return-to-play.png` });
-  await page.locator('[data-action="pauseLive"]').click();
   console.log('ok   restored cameras, observed goal celebration, team fan photo and moving shader clock');
 }
 
