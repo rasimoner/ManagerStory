@@ -31,7 +31,7 @@ function mount() {
   if (!M?.experimental || M.fieldView !== '3d') { leaveFullscreen(); return; }
   if (failed) { fallbackSimulationView(new Error('3D rendering unavailable')); return; }
   const host = document.querySelector('#sim-3d-host');
-  if (!host && !fullscreen) return;
+  if (!host && !fullscreen) { sceneWasSkipped = true; return; }
   if (!fullscreen) host.replaceChildren(surface);
   if (!stage) {
     loading ??= loadSimulationSceneAssets().then(loaded => { stage = createSimulationStage(canvas, loaded); paintCurrentFrame(); }).catch(fail);
@@ -166,5 +166,10 @@ surface.addEventListener('click', sceneControl);
 canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); fail(new Error('WebGL context lost')); });
 document.addEventListener('keydown', event => { if (event.key === 'Escape') leaveFullscreen(); });
 globalThis.addEventListener('resize', paintCurrentFrame);
-presentation.simulation3d = { mount, paint, detach() { if (!fullscreen) surface.remove(); }, get fullscreen() { return fullscreen; } };
+function detach() {
+  if (M?.experimental && (M.fieldView !== '3d' || M.activeTab !== 'pitch')) sceneWasSkipped = true;
+  if (!fullscreen) surface.remove();
+}
+
+presentation.simulation3d = { mount, paint, detach, get fullscreen() { return fullscreen; } };
 mount();
