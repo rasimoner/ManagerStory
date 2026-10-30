@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { chromium } from 'playwright';
 import { pagesServer } from './pages-server.mjs';
@@ -107,6 +108,30 @@ async function verifyHalfAndEnd() {
   await page.screenshot({ path: `${evidence}/full-time.png`, fullPage: true });
 }
 
+async function verifyRestoredPresentation() {
+  const root = page.locator('[data-sim-scene]');
+  for (const mode of ['tv', 'close', 'stand', 'auto']) {
+    await page.locator(`[data-scene-camera="${mode}"]`).click();
+    assert.equal(await root.getAttribute('data-sim-camera-mode'), mode);
+    await page.screenshot({ path: `${evidence}/camera-${mode}.png` });
+  }
+  const start = Number(await root.getAttribute('data-sim-physics-time'));
+  await page.locator('[data-action="resumeLive"]').click();
+  await page.waitForFunction(time => Number(document.querySelector('[data-sim-scene]')?.dataset.simPhysicsTime) > time + .6, start);
+  await page.screenshot({ path: `${evidence}/goal-celebration.png` });
+  await page.waitForSelector('.sim-goal-overlay:not([hidden])');
+  const photo = page.locator('.sim-goal-overlay img');
+  await photo.evaluate(image => image.decode());
+  assert.match(await photo.getAttribute('src'), /goal-club-/);
+  await page.screenshot({ path: `${evidence}/goal-fan-photo.png` });
+  const time = Number(await root.getAttribute('data-sim-physics-time'));
+  assert.equal(Number(await root.getAttribute('data-sim-crowd-time')), time);
+  await page.waitForSelector('.sim-goal-overlay[hidden]', { state: 'attached' });
+  await page.screenshot({ path: `${evidence}/goal-return-to-play.png` });
+  await page.locator('[data-action="pauseLive"]').click();
+  console.log('ok   restored cameras, observed goal celebration, team fan photo and moving shader clock');
+}
+
 async function verifyFallback() {
   await loadScene('passing');
   const before = await savedMatch();
@@ -123,12 +148,13 @@ async function verifyFallback() {
 try {
   for (const label of ['kickoff', 'passing', 'shot', 'save', 'goal']) await loadScene(label);
   assert.match(await page.locator('.sim-scene-caption').textContent(), /GOOOL/);
+  await verifyRestoredPresentation();
   await loadScene('passing');
   await verifySwitchAndControls();
   await verifyHalfAndEnd();
   await verifyFallback();
   assert.deepEqual(problems, []);
-  writeFileSync(`${evidence}/verification.json`, JSON.stringify({ node: process.version, viewport: '390×844', captures,
+  writeFileSync(`${evidence}/verification.json`, JSON.stringify({ commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), node: process.version, viewport: '390×844', captures,
     controls: ['view switch without a step', 'half/double speed', 'pause', 'reload', 'fullscreen', 'landscape', 'second half', '90:00', 'skip', 'WebGL fallback'],
     goalFixture: 'isolated core acceptance geometry; no production result override', physicalIphoneSafari: false }, null, 2));
   console.log('ok   experimental career 3D: real rig, physical ball, goal, controls, halftime, finish, reload and WebGL fallback');

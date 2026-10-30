@@ -1,26 +1,37 @@
 import * as THREE from 'three';
 import { createBroadcastCamera } from '../match3d/newview/camera.js';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
+import { observedSimulationGoal } from './scene-atmosphere.js';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 
 export function createSimulationCamera(camera) {
-  const broadcast = createBroadcastCamera(camera), focus = new THREE.Vector3();
-  let initialized = false;
+  const broadcast = createBroadcastCamera(camera);
   return {
-    update(frame, seconds, aspect) {
-      const points = simulationCameraPoints(frame), settings = SIM_VIEW_DATA.camera;
-      const target = new THREE.Vector3().copy(points[0]);
-      if (points.length > 1) target.lerp(points[1], 0.5);
-      if (!initialized) { focus.copy(target); initialized = true; }
-      else focus.lerp(target, 1 - Math.exp(-seconds / settings.followSeconds));
-      broadcast.update({ ball: { p: focus } }, { mode: 'tv' }, seconds, aspect);
-      // A narrow phone frame needs a higher TV gantry, rather than an extreme wide-angle lens.
-      camera.position.y *= Math.max(1, settings.portraitReferenceAspect / aspect);
-      camera.lookAt(broadcast.look);
-      fitSimulationCamera(camera, points);
+    update(frame, seconds, view) {
+      const { aspect, mode = 'auto' } = typeof view === 'number' ? { aspect: view } : view;
+      const shot = simulationCameraShot(frame, mode);
+      broadcast.update({ ball: { p: new THREE.Vector3().copy(frame.ball.position) } }, shot, seconds, aspect);
+      if (mode === 'auto' && ['shot', 'side'].includes(shot.mode)) fitSimulationCamera(camera, simulationCameraPoints(frame), broadcast.look);
       return broadcast.look;
     },
   };
+}
+
+export function simulationCameraShot(frame, mode) {
+  const actor = player => player ? { pos: new THREE.Vector3().copy(player.position) } : null;
+  const owner = frame.players.find(player => player.id === frame.ball.ownerId)
+    ?? frame.players.reduce((nearest, player) => !nearest || new THREE.Vector3().copy(player.position).distanceTo(frame.ball.position)
+      < new THREE.Vector3().copy(nearest.position).distanceTo(frame.ball.position) ? player : nearest, null);
+  if (mode !== 'auto') return { mode, a: actor(owner) };
+  const goal = observedSimulationGoal(frame);
+  if (goal) return { mode: 'close', a: actor(frame.players.find(player => player.id === goal.fromId)) };
+  const shot = frame.ball.shot;
+  if (!shot) return { mode: 'tv' };
+  const shooter = frame.players.find(player => player.id === shot.fromId) ?? owner;
+  const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== shot.teamId);
+  if (!shooter || !keeper) return { mode: 'tv' };
+  const near = new THREE.Vector3().copy(shooter.position).distanceTo(keeper.position) < SIM_VIEW_DATA.camera.shotMinimumSeparationMetres;
+  return { mode: near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
 }
 
 export function simulationCameraPoints(frame) {
@@ -36,14 +47,17 @@ export function simulationCameraPoints(frame) {
   return points;
 }
 
-function fitSimulationCamera(camera, points) {
+function fitSimulationCamera(camera, points, look) {
   camera.updateMatrixWorld(true);
-  let tangent = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  let scale = 1;
+  const tangent = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), distance = camera.position.distanceTo(look);
   for (const point of points) {
-    const local = point.clone().applyMatrix4(camera.matrixWorldInverse), depth = Math.max(camera.near, -local.z);
-    tangent = Math.max(tangent, Math.abs(local.x) / (depth * camera.aspect * SIM_VIEW_DATA.camera.margin),
-      Math.abs(local.y) / (depth * SIM_VIEW_DATA.camera.margin));
+    const local = point.clone().applyMatrix4(camera.matrixWorldInverse);
+    const needed = Math.max(Math.abs(local.x) / (tangent * camera.aspect * SIM_VIEW_DATA.camera.margin),
+      Math.abs(local.y) / (tangent * SIM_VIEW_DATA.camera.margin));
+    scale = Math.max(scale, 1 + (needed + local.z) / distance);
   }
-  camera.fov = THREE.MathUtils.radToDeg(Math.atan(tangent)) * 2;
-  camera.updateProjectionMatrix();
+  camera.position.sub(look).multiplyScalar(scale).add(look);
+  camera.lookAt(look);
+  camera.updateMatrixWorld(true);
 }
