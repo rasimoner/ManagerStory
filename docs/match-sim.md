@@ -1,6 +1,6 @@
 # Saniyelik maç simülasyonu — şartname
 
-Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D bağlantısı, ortak süre modeli ve yeni maçlarda doğal 2D uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
+Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D/3D bağlantısı, ortak süre modeli ve yeni maçlarda doğal 2D uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
 
 Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. V7.16.0 ile yeni maç 3/5/7/10 dakika ve doğal 2D ile izlenir; önceki yarım maç kendi referans modeliyle kalır. V7.18.0 ile aynı aktif maç 2D veya 3D izlenebilir; [3D raporu](match-sim-3d-report.md). Diğer lig maçları yine `simAIGame` ile kalır. Kapalıyken eski dakika/3D yolu korunur.
 
