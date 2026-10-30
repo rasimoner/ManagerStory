@@ -1,0 +1,17 @@
+{
+  "historySeconds": 3,
+  "timing": { "transfer": 0.12, "extend": 0.30, "land": 0.30, "settle": 0.14, "tuck": 0.36, "push": 0.42, "stand": 0.68, "release": 0.20, "interrupt": 0.18 },
+  "pose": { "readyWeight": 0.55, "nearRoll": 0.13, "lowRoll": 1.45, "highRoll": 1.12, "landRoll": 1.45, "forwardPitch": 0.10,
+    "lowHeight": 0.3, "highHeight": 2.3, "lowLift": 0.04, "highLift": 0.38, "transferMetres": 0.07, "tuckPitch": 1.25, "crouchTime": 0.86,
+    "groundClearance": 0.008, "walkBlendRange": [0.1, 0.65], "runBlendRange": [1.4, 3.4], "strideMetres": 2.5 },
+  "landingAngles": { "LeftArm": [-70, 0, -60], "RightArm": [-65, 0, 65], "LeftForeArm": [0, -85, 0], "RightForeArm": [0, 85, 0],
+    "LeftUpLeg": [-35, 0, 10], "RightUpLeg": [-55, 0, -6], "LeftLeg": [65, 0, 0], "RightLeg": [90, 0, 0] },
+  "supportAngles": { "Spine": [18, 0, 0], "Spine1": [0, 0, 0], "Spine2": [0, 0, 0],
+    "LeftArm": [-75, 0, -80], "RightArm": [-75, 0, 80], "LeftForeArm": [0, -15, 0], "RightForeArm": [0, 15, 0],
+    "LeftUpLeg": [-30, 0, 6], "RightUpLeg": [-30, 0, -6], "LeftLeg": [100, 0, 0], "RightLeg": [100, 0, 0] },
+  "meshClearanceParts": [6, 7],
+  "clearance": { "Hips": 0.15, "Spine": 0.16, "Spine1": 0.17, "Spine2": 0.18, "Neck": 0.08, "Head": 0.14,
+    "LeftShoulder": 0.11, "RightShoulder": 0.11, "LeftArm": 0.085, "RightArm": 0.085,
+    "LeftForeArm": 0.075, "RightForeArm": 0.075, "LeftHand": 0.085, "RightHand": 0.085,
+    "LeftUpLeg": 0.12, "RightUpLeg": 0.12, "LeftLeg": 0.09, "RightLeg": 0.09 }
+}

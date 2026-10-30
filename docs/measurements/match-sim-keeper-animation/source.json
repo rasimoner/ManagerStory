@@ -1,0 +1,44 @@
+{
+  "gameCommit": "a644bfaae896cfed0c060045cf173bdd98911155",
+  "visualRun": 41090848302,
+  "visualJob": 124184016969,
+  "archiveId": 12994691790,
+  "archiveSha256": "a045a4b1d73ccf29ba9a84ab5b6b2fd5a555cb5d2f572ab550e97e0a738da3ee",
+  "physicalIphoneSafari": false,
+  "composition": "Unaltered WebGL PNG crops in chronological order; ordinary career frames extracted from the original WebM; no generated or retouched player imagery",
+  "files": {
+    "ordinary-landscape.jpg": "54aec6f528446458b37ca8bf9ca391e72529f6d510077e04405ce4b90476aefc",
+    "ordinary-portrait.jpg": "76f864bc908fe2bb68d9809918bbe70f338874b9b7fa206bbad937b925f779db",
+    "verification.json": "336c32bcc3992d770a2096714fa2703d3424dcd63bb404defece75853988a222",
+    "catch-low-right.jpg": "248500c29a22bebdcce20d025b4db74f45b42b0694e29963ff022bf8af466af8",
+    "miss-low-left.jpg": "8bdc23c45755cca4be1fb847b11fd7b9227d68b62e7a4b0afa749bb341cfaac1",
+    "parry-high-other-goal.jpg": "b8f8c4ffb2ad94933103caa0c17b71cdee8c0ad6d3aa4b3d092c7e4691409b2c",
+    "near-step.jpg": "f4be9c64e78e4de775a6d44c162083de6dc7297aaf10ec353a4fdb3ab0be7c28",
+    "parry-low-left.jpg": "2a8f75d22e943a6217c7324e9a8c4a038d25b9142c2aaca36a692e8a1ca9723d"
+  },
+  "srcTreeSha": "f719b92991efca3ce6912118c17bd5747590fcf2",
+  "sameSrcTreeAtValidationHead": true,
+  "repeatedWebgl": {
+    "run": 41093423205,
+    "job": 124193494481,
+    "head": "ecf6bd5423531576feb5d4cf59f5ef81062c405d",
+    "archiveId": 12995711326,
+    "archiveSha256": "541d79658cbde7c96af5718e337950788e8199956fcd807785103aef7839dc09",
+    "identicalWorldSpacePoseSamples": 80,
+    "physicalIphoneSafari": false
+  },
+  "validation": {
+    "run": 41093423205,
+    "head": "ecf6bd5423531576feb5d4cf59f5ef81062c405d",
+    "node": "22.23.4",
+    "lint": "passed",
+    "fastPassed": 421,
+    "fullPassed": 511,
+    "existingSkippedPerSuite": 1,
+    "performancePassedPerSuite": 5,
+    "build": "passed",
+    "smoke": "passed",
+    "smokeSim3d": "passed",
+    "keeperRecordings": 12
+  }
+}

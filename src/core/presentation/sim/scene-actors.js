@@ -1,7 +1,8 @@
-import { ACTIONS, applyAction } from '../match3d/newview/actions.js';
+import { ACTIONS } from '../match3d/newview/actions.js';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { MOTIONS } from '../match3d/newview/runtime.js';
+import { poseSimulationKeeper } from './keeper-animation.js';
 
 // Only the detached scene sample reaches here. Runtime locomotion/ball solvers are never called.
 export function createSimulationActors(runtime, describe) {
@@ -47,7 +48,7 @@ function poseSimulationActor(runtime, actor, { sample, frame, seconds }) {
   actor.loopsWant.throwHold = Number(frame.ball.heldBy === sample.id);
   if (firstSample) Object.assign(actor.loops, actor.loopsWant);
   runtime.pose(actor, seconds);
-  poseKeeperReach(actor, sample, frame.physicsTime);
+  poseSimulationKeeper(actor, sample, frame);
   // The rig may lift a foot or lean, but its root never chases a contact marker.
   actor.model.position.x = sample.position.x;
   actor.model.position.z = sample.position.z;
@@ -77,13 +78,4 @@ function contactAction(sample, frame) {
   const name = ['tackle', 'block'].includes(contact.type) ? 'lunge' : contact.type;
   const action = ACTIONS[name], start = contact.time - action.dur * (action.contact ?? 0);
   return frame.physicsTime - start <= action.dur ? { name, t0: start } : null;
-}
-
-function poseKeeperReach(actor, sample, time) {
-  if (sample.slot !== 'GK' || sample.keeper.mode !== 'dive' || time < sample.keeper.reactionAt) return;
-  const target = sample.keeper.target;
-  const lateral = -(target.x - sample.position.x) * Math.cos(sample.heading) + (target.y - sample.position.z) * Math.sin(sample.heading);
-  const mode = lateral >= 0 ? 'diveRight' : 'diveLeft';
-  const action = ACTIONS[mode], progress = Math.min(action.contact, (time - sample.keeper.reactionAt) / SIM_VIEW_DATA.pose.diveBlendSeconds * action.contact);
-  applyAction(actor.bones, mode, progress, 1);
 }

@@ -1,5 +1,7 @@
 # V7.18.0 — yeni motorla kariyerde gerçek konumlu 3D
 
+V7.19.0 notu: bu tarihli raporda açık bırakılan tam gövde kaleci uzanması/inişi/kalkışı görsel katmanda uygulanmıştır; [kaleci animasyon raporu](match-sim-keeper-animation-report.md). Çekirdeğin fiziksel erişim ve kök/top sözleşmesi aynen korunur. Aşağıdaki V7.18.0 ölçümleri tarihidir.
+
 Kariyerde **Saha → 3D**, deneysel motorun aynı aktif maçını gösterir. 2D/3D seçimi yeni maç başlatmaz; saat, skor, kadro ve RNG korunur. Deneysel anahtar varsayılan kapalıdır. Başlangıç main `75eb294`; oyun kodu `d1ad835085a242ae5285069934a9bb5e465b54c0`, dal `feat/match-sim-3d`. Fiziksel iPhone/Safari onayı verilmemiştir.
 
 ## Bağlantı ve salt okuma sınırı

@@ -1,9 +1,9 @@
-# ManagerStory V7.18.0
+# ManagerStory V7.19.0
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
 
-V7.17.0: opt in through Ayarlar → **Deneysel maç motoru (yeni, 2D)**. Natural 3/5/7/10-minute matches now value forward space and provide forward support runs. The switch defaults off and 3D remains on the legacy engine. [Release notes](docs/v7.18.0-release.md) · [Matched-seed results and phone checklist](docs/match-sim-short-attacks-report.md).
+V7.19.0: the experimental career 3D view now animates goalkeeper push-off, full-body extension, landing, hand/knee support and standing. Both views share the same match, physical clock and unchanged football. Opt in through Ayarlar → **Deneysel maç motoru**, then Saha → **3D**. The switch defaults off. [Release notes](docs/v7.19.0-release.md) · [Keeper animation report and phone checklist](docs/match-sim-keeper-animation-report.md).
 
 Katkı kuralları: [AGENTS.md](AGENTS.md)
 
@@ -13,6 +13,7 @@ Node.js 22. `npm ci` once (Vite, three.js, Playwright for the smoke test).
 
 | Command | What it does |
 |---|---|
+| `npm run smoke:keeper-animation` | Real WebGL goalkeeper videos and frame sequences in both phone orientations; isolated engine scenarios and ordinary career evidence |
 | `npm run dev` | Play the sources through Vite's dev server (no service worker there). |
 | `npm run build` | Build `dist/` (what GitHub Pages serves): content-hashed files under `dist/app/`, the service worker with this build's file list. `dist/` is not in the repository. |
 | `npm run preview` | Serve the build at `/ManagerStory/`, as GitHub Pages does. |

@@ -157,3 +157,5 @@ Aynı an bir kez tutulur: bir hareket bir maçta (aynı hafta) bir kez; yeni har
 ## V7.18.0: çizim önbelleklerini yenileme
 
 Kariyer ve simülasyon checkpoint'inin kalıcı alanları, komutlar/RNG ve biçim 5 değişmez; yeni kayıt göçü yoktur. `fieldView` zaten kayıttadır ve deneysel maçta artık `3d` de olabilir. Eski `simulationPlayback.frame` / `simulationDisplayFrame` çizim önbelleklerinde yeni velocity/keeper/temas kopyaları bulunmayabilir. Yüklemede yalnız bu türetilmiş önbellekler mevcut fizik checkpoint'inden yeniden kurulur; kesirli birikim, cursor, fizik/maç saati, skor ve RNG korunur. 3D hata açıklaması WeakMap'tedir, kayda eklenmez. Eski motorun kayıt yolu değişmez.
+
+V7.19.0: `keeperPresentation`, aynı türetilmiş çizim karesindeki gözlenmiş önceki kurtarış/tepki kopyasıdır. Kalıcı checkpoint'e yeni alan veya dalış fazı eklenmez; eski önbellek bu alanı içermese de yüklemede mevcut motor/olay durumundan yeniden kurulur. Bu nedenle kayıt biçimi 5 ve göç zinciri değişmez. Kaydet/devam kalecinin mutlak fizik zamanındaki pozunu yeniden örnekler.

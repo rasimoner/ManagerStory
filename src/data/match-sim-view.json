@@ -2,7 +2,7 @@
   "contacts": { "maximum": 32, "seconds": 1.5 },
   "renderer": { "maximumPixelRatio": 1.5, "outlineThickness": 0.002, "background": "#9fb8cf", "fogNear": 90, "fogFar": 220 },
   "camera": { "followSeconds": 0.18, "maximumFrameSeconds": 0.1, "margin": 0.8, "goalApproachMetres": 34, "portraitReferenceAspect": 1.25 },
-  "pose": { "diveBlendSeconds": 0.35, "minimumStepSeconds": 0.000001 },
+  "pose": { "minimumStepSeconds": 0.000001 },
   "radar": { "width": 200, "height": 130, "padding": 5, "playerRadius": 2.5, "ballRadius": 2 },
   "kits": {
     "boot": "#15171c", "sole": "#f2f2f2", "number": "#ffffff", "numberEdge": "#111111",
