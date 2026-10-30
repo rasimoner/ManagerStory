@@ -1,4 +1,5 @@
 import SIM_VIEW_DATA from '../../data/match-sim-view.json';
+import { captureKeeperPresentation } from './keeper-presentation.js';
 
 export function captureSimulationFrame(simulation) {
   return { tick: simulation.tick, time: simulation.time, physicsTime: simulation.physicsTime, matchTime: simulation.matchTime, half: simulation.match.half,
@@ -6,6 +7,7 @@ export function captureSimulationFrame(simulation) {
     players: simulation.teams.flatMap(team => team.players.map(player => ({ id: player.id, teamId: team.id, number: player.number,
       direction: team.direction, slot: player.slot, velocity: { ...player.velocity }, heading: player.heading,
       role: player.role, gait: player.gait, motionMode: player.motionMode, keeper: structuredClone(player.keeper), duel: structuredClone(player.duel),
+      keeperPresentation: captureKeeperPresentation(simulation, player),
       position: { ...player.position }, fitness: player.attributes.fitness, playedSeconds: player.workload.playedSeconds,
       distanceMetres: player.workload.distanceMetres, sentOff: player.sentOff }))),
     ball: { position: { ...simulation.ball.position }, height: simulation.ball.height, velocity: { ...simulation.ball.velocity },

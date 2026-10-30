@@ -91,5 +91,9 @@ Raporun `milliseconds` alanı performans ölçümüdür, deterministik sonuç de
 
 `balance.json.shortMatchFlow`: yalnız doğal süreli maçta taşımanın olumlu varış güvenliği puanı tavanı (saniye), pas/taşımada kale mesafesi kazancı puanı (metre başına) ve ileri destek uzaklığı. Referans laboratuvar bu ayarı kullanmaz; top/oyuncu hızı, şut veya kaleci sonucu katsayısı değildir.
 
+## match-sim-keeper-animation.json (`KEEPER_ANIMATION_DATA`)
+
+Yeni kariyer 3D kalecisinin yalnız görsel hareket süreleri, dalış/iniş/destek kemik pozları ve zemin payları. Kayıtlı kalkış klibinin çömelme zamanı; gözlenmiş önceki kurtarış için kısa çizim ufku. Fiziksel erişimi, topu, gol dengesini veya maç süresini değiştirmez.
+
 ## match-sim-view.json
 Yeni motorun salt okuyan 3D görünümünün temas penceresi, çizim/kamera/radar ölçüleri ve mevcut forma renkleri. Futbol, fizik, RNG ve eski 3D hız ayarlarını değiştirmez.

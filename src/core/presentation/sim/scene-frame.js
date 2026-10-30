@@ -20,7 +20,9 @@ export function sampleSimulationScene(playback, options = {}) {
 
 function scenePlayer(player, previous = player, alpha) {
   const turn = Math.atan2(Math.sin(player.heading - previous.heading), Math.cos(player.heading - previous.heading));
-  return { ...player, position: simulationWorldPoint(interpolateScenePoint(previous.position, player.position, alpha)),
+  const observed = alpha < 1 ? previous : player;
+  return { ...player, keeper: observed.keeper, keeperPresentation: observed.keeperPresentation,
+    position: simulationWorldPoint(interpolateScenePoint(previous.position, player.position, alpha)),
     velocity: simulationWorldPoint(player.velocity), heading: simulationWorldHeading(previous.heading + turn * alpha) };
 }
 
