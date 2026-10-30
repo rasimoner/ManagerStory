@@ -1,11 +1,57 @@
 {
-  "contacts": { "maximum": 32, "seconds": 1.5 },
-  "renderer": { "maximumPixelRatio": 1.5, "outlineThickness": 0.002, "background": "#9fb8cf", "fogNear": 90, "fogFar": 220 },
-  "camera": { "followSeconds": 0.18, "maximumFrameSeconds": 0.1, "margin": 0.8, "goalApproachMetres": 34, "portraitReferenceAspect": 1.25 },
-  "pose": { "minimumStepSeconds": 0.000001 },
-  "radar": { "width": 200, "height": 130, "padding": 5, "playerRadius": 2.5, "ballRadius": 2 },
+  "contacts": {
+    "maximum": 32,
+    "seconds": 1.5
+  },
+  "renderer": {
+    "maximumPixelRatio": 1.5,
+    "outlineThickness": 0.002,
+    "background": "#9fb8cf",
+    "fogNear": 90,
+    "fogFar": 220
+  },
+  "camera": {
+    "maximumFrameSeconds": 0.1,
+    "margin": 0.8,
+    "goalApproachMetres": 34,
+    "shotMinimumSeparationMetres": 14
+  },
+  "pose": {
+    "minimumStepSeconds": 1e-06,
+    "stride": 1,
+    "plantHeight": 0.07,
+    "releaseHeight": 0.14,
+    "maximumPlantDrift": 0.4,
+    "minimumPlantSpeed": 0.4
+  },
+  "radar": {
+    "width": 200,
+    "height": 130,
+    "padding": 5,
+    "playerRadius": 2.5,
+    "ballRadius": 2
+  },
   "kits": {
-    "boot": "#15171c", "sole": "#f2f2f2", "number": "#ffffff", "numberEdge": "#111111",
-    "keeperShirts": ["#ff7a1a", "#7c4dff"], "keeperGloves": ["#f2f2f2", "#2a7de1"]
+    "boot": "#15171c",
+    "sole": "#f2f2f2",
+    "number": "#ffffff",
+    "numberEdge": "#111111",
+    "keeperShirts": [
+      "#ff7a1a",
+      "#7c4dff"
+    ],
+    "keeperGloves": [
+      "#f2f2f2",
+      "#2a7de1"
+    ]
+  },
+  "atmosphere": {
+    "idleExcitement": 0.2,
+    "goalExcitement": 1,
+    "quietExcitement": 0.04,
+    "goalSeconds": 4,
+    "photoDelaySeconds": 1.6,
+    "photoSeconds": 2,
+    "celebrationSeconds": 1.6
   }
 }

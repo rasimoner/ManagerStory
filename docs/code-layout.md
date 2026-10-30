@@ -255,3 +255,5 @@ Doğal süreli maçın hücum alanı değeri: `core/sim/attacking-space.js` hüc
 - `data/match-sim-keeper-animation.json`: yalnız görsel süre ve poz değerleri.
 - `tests/match-sim-keeper-{animation,boundary}.test.cjs`: gerçek rig, yüzey/zemin, süreklilik, aynı fizik anında eşit poz, çekirdeğin değişmemesi.
 - `tests/smoke/keeper-animation.mjs`, `keeper-fixture.mjs`: ürüne bağlanmayan test sahnesi; iki telefon yönünde hareket videoları ve ayrı olağan kariyer UI kanıtı.
+
+V7.19.1: `core/presentation/sim/scene-atmosphere.js` gözlenmiş gol ve tribün zamanını, `scene-goal-overlay.js` mevcut kulüp fotoğrafını, `scene-footwork.js` yalnız görsel ayak desteğini yönetir. `scene-camera.js` ortak eski yayın açılarını güncel salt okuma kareden seçer. Ayrıntı: [sunum raporu](match-sim-presentation-report.md).

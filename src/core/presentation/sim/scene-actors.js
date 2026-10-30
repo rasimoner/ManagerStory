@@ -1,3 +1,5 @@
+import { plantSimulationFeet } from './scene-footwork.js';
+import { simulationCelebration } from './scene-atmosphere.js';
 import { ACTIONS } from '../match3d/newview/actions.js';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
@@ -41,7 +43,7 @@ function poseSimulationActor(runtime, actor, { sample, frame, seconds }) {
   actor.pos.copy(sample.position);
   actor.sceneSampled = true;
   actor.heading = sample.heading;
-  actor.act = contactAction(sample, frame);
+  actor.act = simulationCelebration(sample, frame) ?? contactAction(sample, frame);
   actor.motion = contactMotion(actor, sample, frame);
   actor.loopsWant.jockey = Number(sample.motionMode === 'jockey');
   actor.loopsWant.keeperReady = Number(sample.slot === 'GK' && ['set', 'reacting', 'step', 'dive'].includes(sample.keeper.mode));
@@ -49,6 +51,7 @@ function poseSimulationActor(runtime, actor, { sample, frame, seconds }) {
   if (firstSample) Object.assign(actor.loops, actor.loopsWant);
   runtime.pose(actor, seconds);
   poseSimulationKeeper(actor, sample, frame);
+  plantSimulationFeet(runtime, actor, seconds);
   // The rig may lift a foot or lean, but its root never chases a contact marker.
   actor.model.position.x = sample.position.x;
   actor.model.position.z = sample.position.z;

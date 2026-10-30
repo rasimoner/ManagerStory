@@ -1,3 +1,5 @@
+import { animateSimulationCrowd } from './scene-atmosphere.js';
+import { createSimulationGoalOverlay } from './scene-goal-overlay.js';
 import { M } from '../../state.js';
 import { presentation } from '../registry.js';
 import { changed } from '../../hooks.js';
@@ -20,11 +22,13 @@ surface.dataset.simScene = '';
 surface.innerHTML = `<canvas class=career3d-scene aria-label="Yeni motorun canlı 3D sahası"></canvas>
   <canvas class=career3d-radar width=200 height=130 aria-label="Gerçek konumların radarı"></canvas>
   <div class=sim-scene-tools><span class=sim-scene-score></span><button type=button data-scene-full aria-label="Tam ekran">⤢</button></div>
+  <div class=sim-scene-cameras role=group aria-label="Kamera"><button type=button data-scene-camera=auto aria-pressed=true>Otomatik</button><button type=button data-scene-camera=tv aria-pressed=false>Yayın</button><button type=button data-scene-camera=close aria-pressed=false>Yakın</button><button type=button data-scene-camera=stand aria-pressed=false>Tribün</button></div>
   <div class=sim-scene-caption aria-live=polite></div><span data-scene-loading>3D saha hazırlanıyor…</span>
   <div class=sim-scene-controls><button type=button data-scene-speed=0.5>0,5×</button><button type=button data-scene-speed=1>1×</button><button type=button data-scene-speed=2>2×</button><button type=button data-scene-pause>Duraklat</button><button type=button data-scene-intervene>Müdahale</button><button type=button data-scene-flat>2D</button></div>`;
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 let stage, actors, broadcast, match, loading, clubs, lastPaint = null, fullscreen = false, failed = false;
-let crowd = [];
+let crowd = [], cameraMode = 'auto';
+const goalOverlay = createSimulationGoalOverlay(surface);
 let sceneWasSkipped = false;
 
 function mount() {
@@ -78,6 +82,8 @@ function paint(frame) {
     refocusAfterSkippedScene();
     actors.apply(frame);
     stage.ball.position.copy(frame.ball.position);
+    animateSimulationCrowd(stage.stadium, frame, M.userHome);
+    goalOverlay.paint(frame, clubs);
     paintSceneGeometry(frame);
     paintSimulationRadar(radar, frame, clubs);
     paintSceneLabels(frame);
@@ -89,6 +95,7 @@ function sceneActive() { return !!stage && !failed && surface.isConnected && M?.
 function skipSceneDrawing(frame) {
   if (!M.skipExperimental || M.pause || M.finished) return false;
   sceneWasSkipped = true;
+  goalOverlay.hide();
   paintSceneLabels(frame);
   return true;
 }
@@ -106,7 +113,9 @@ function paintSceneGeometry(frame) {
   const now = performance.now(), seconds = lastPaint == null ? 0 : Math.min(SIM_VIEW_DATA.camera.maximumFrameSeconds, (now - lastPaint) / 1000);
   lastPaint = now;
   resizeScene(width, height);
-  const look = broadcast.update(frame, seconds, width / height);
+  const look = broadcast.update(frame, seconds, { aspect: width / height, mode: cameraMode });
+  surface.dataset.simCameraMode = cameraMode;
+  surface.dataset.simCrowdTime = String(stage.stadium.flagMat.uniforms.uTime.value);
   surface.dataset.simCameraFov = stage.camera.fov.toFixed(3);
   stage.stadium.sun.target.position.copy(look);
   stage.stadium.sun.position.copy(look).add({ x: -30, y: 60, z: 40 });
@@ -151,7 +160,13 @@ function fail(error) { failed = true; leaveFullscreen(); fallbackSimulationView(
 function sceneControl(event) {
   const button = event.target.closest('button');
   if (!button || !M?.experimental) return;
-  if (button.hasAttribute('data-scene-full')) setFullscreen(!fullscreen);
+  if (button.dataset.sceneCamera) {
+    cameraMode = button.dataset.sceneCamera;
+    broadcast = createSimulationCamera(stage.camera);
+    for (const control of surface.querySelectorAll('[data-scene-camera]')) control.setAttribute('aria-pressed', String(control.dataset.sceneCamera === cameraMode));
+    paintCurrentFrame();
+  }
+  else if (button.hasAttribute('data-scene-full')) setFullscreen(!fullscreen);
   else if (button.dataset.sceneSpeed) setMatchSpeed(Number(button.dataset.sceneSpeed));
   else handleSceneControl(button);
 }

@@ -30,7 +30,7 @@ export function createSimulationStage(canvas, loaded) {
   scene.fog = new THREE.Fog(settings.background, settings.fogNear, settings.fogFar);
   camera.layers.enable(1);
   const stadium = buildStadium({ scene, renderer });
-  const runtime = createRuntime({ scene, ...loaded, ramp: stadium.toonRamp, numberTexture: simulationNumberTexture, stride: 0.75 });
+  const runtime = createRuntime({ scene, ...loaded, ramp: stadium.toonRamp, numberTexture: simulationNumberTexture, stride: SIM_VIEW_DATA.pose.stride });
   const ball = createSceneBall(stadium.toonRamp);
   scene.add(ball);
   const outline = new OutlineEffect(renderer, { defaultThickness: settings.outlineThickness, defaultColor: [0.05, 0.06, 0.08] });

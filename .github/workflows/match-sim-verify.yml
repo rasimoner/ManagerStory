@@ -41,12 +41,12 @@ jobs:
           CAREER_CONTROLS_ONLY: '1'
       - name: Measure fifty matches and attribute-strength experiments
         # Animation/short-flow/3D work excludes new balance sweeps; every existing test and smoke gate remains.
-        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation'
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity'
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
           node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
       - name: Measure all five durations with the same fifty equal-squad seeds
-        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation'
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity'
         run: npm run sim:duration-report -- duration-measurements.json
       - uses: actions/upload-artifact@v4
         if: always()
@@ -61,7 +61,7 @@ jobs:
           if-no-files-found: ignore
   continuous-mobile:
     # The 3D task uses the bounded real-WebGL smoke scenarios instead of another seven-minute watch.
-    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation'
+    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

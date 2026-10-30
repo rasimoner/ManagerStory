@@ -14,8 +14,8 @@ export function captureSimulationFrame(simulation) {
       verticalVelocity: simulation.ball.verticalVelocity, heldBy: simulation.ball.heldBy,
       lastTouchId: simulation.ball.lastTouchId, shot: structuredClone(simulation.ball.shot),
       ownerId: simulation.ball.ownerId ?? simulation.ball.carry?.playerId ?? null, teamId: simulation.ball.teamId },
-    contacts: simulation.events.slice(-SIM_VIEW_DATA.contacts.maximum).filter(event => simulation.time - event.time <= SIM_VIEW_DATA.contacts.seconds)
-      .map(event => ({ type: event.type, fromId: event.fromId, time: event.physicsTime ?? event.time, kind: event.kind })),
+    contacts: simulation.events.slice(-SIM_VIEW_DATA.contacts.maximum).filter(event => simulation.time - event.time <= (event.type === 'goal' ? SIM_VIEW_DATA.atmosphere.goalSeconds : SIM_VIEW_DATA.contacts.seconds))
+      .map(event => ({ type: event.type, fromId: event.fromId, teamId: event.teamId, time: event.physicsTime ?? event.time, kind: event.kind })),
     statistics: Object.fromEntries(Object.entries(simulation.statistics.teams).map(([id, stats]) => [id, { ...stats }])) };
 }
 

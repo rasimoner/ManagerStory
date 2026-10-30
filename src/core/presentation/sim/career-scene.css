@@ -16,3 +16,17 @@
 .sim-scene-full .career3d-radar{bottom:80px;width:110px;height:72px}
 html.sim-scene-lock,html.sim-scene-lock body{overflow:hidden!important;overscroll-behavior:none}
 @media(orientation:landscape){.sim-scene-full .career3d-radar{left:auto;right:12px;bottom:65px;transform:none}}
+
+.sim-scene-cameras{position:absolute;left:8px;right:8px;bottom:8px;display:flex;justify-content:center;gap:4px;z-index:2}
+.sim-scene-cameras button{width:auto;min-height:36px;margin:0;padding:4px 9px;background:#10251ae6;border:1px solid #ffffff66;color:#fff;font-size:12px}
+.sim-scene-cameras button[aria-pressed=true]{background:#f3d35c;color:#10251a}
+.sim-scene-full .sim-scene-cameras{bottom:calc(env(safe-area-inset-bottom,0px) + 58px)}
+.sim-goal-overlay{pointer-events:none}
+.sim-goal-overlay[hidden]{display:none!important}
+.sim-scene .career3d-radar{bottom:52px}
+.sim-scene-full .career3d-radar{bottom:104px}
+.sim-goal-overlay{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;text-align:center;background:#061a13dd;color:#fff}
+.sim-goal-overlay img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.78}
+.sim-goal-overlay strong,.sim-goal-overlay small{position:relative;text-shadow:0 2px 9px #000}
+.sim-goal-overlay strong{font-size:clamp(25px,9vw,48px)}
+.sim-goal-overlay small{font-size:15px;font-weight:800}
