@@ -63,7 +63,7 @@ function startSceneMatch() {
     opponent: resolveClubIdentity('goal', { teamId: M.userHome ? M.away : M.home }) };
   crowd = buildSceneCrowd();
   actors = createSimulationActors(stage.runtime, describePlayer);
-  ballView = createSimulationBallView(stage.ball, stage.shadow);
+  ballView = createSimulationBallView(stage.ball, stage.shadow, { runtime: stage.runtime });
   broadcast = createSimulationCamera(stage.camera);
   lastPaint = null;
   sceneWasSkipped = false;

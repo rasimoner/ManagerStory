@@ -265,7 +265,7 @@ V7.19.1: `core/presentation/sim/scene-atmosphere.js` gözlenmiş gol ve tribün 
 | `core/match/presentation-contacts.js` | Gerçek olaylardan bağımsız çizim verisi; eski final üçüncü bölge/her ikinci mücadele kamera işareti. Motor günlüğüne yazmaz. |
 | `core/presentation/match3d/newview/ball.js` | İki görünümün ortak eski top geometrisi, kaplaması ve temas gölgesi. |
 | `core/presentation/match3d/newview/pose-base.js` | Klip örneğini IK'den önce geri kurma ve yeni sahnede sürekli dirsek bükülme yönü. |
-| `core/presentation/sim/ball-sample.js`, `scene-ball.js` | Gözlenmiş ilk temastan ara konum, mesafeden dönüş; ikinci top fiziği yok. |
+| `core/presentation/sim/ball-sample.js`, `scene-ball.js`, `scene-grip.js` | Gözlenmiş ilk temastan ara konum, mesafeden dönüş; ikinci top fiziği yok. |
 | `core/presentation/sim/scene-actions.js`, `scene-contact-feet.js`, `scene-hands.js`, `scene-gait.js` | Gerçek eyleme eski poz/klip ve görsel temas; motor kökü/topu değişmez. |
 | `core/presentation/sim/scene-hud.js`, `scene-status.js` | Kulüp/oyuncu bilgisi ve devre hazırlığının ortak görünür durumu. |
 

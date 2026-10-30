@@ -432,3 +432,5 @@ Ortak süre ve manuel hız aynıdır; eski cihazın bağımsız oyuncu/top, şut
 ## 3D sunum eşitliği inceleme adayı
 
 Eski kamera/top varlıkları ve pozları yeni motorun gerçek olay kopyasına uyarlanır; `core/sim/` ve karar/fizik kuralları değişmez. İlk temas yüksekliği/alıcı, carry dokunuşu ve yeniden başlama türü çizim kopyasına eklenir. Yakın plan yalnız eski uygun mücadele/kart/şut/gol tetiklerine bağlanır. Özel çalım kimliği olmayan genel olay özel hareket diye gösterilmez. Devre hazırlığı görünür alanda maskelenir, ama motorun hazırlık zamanı hâlâ gerçek maç bütçesindedir. [Özellik envanteri, testler ve açık kalanlar](3d-restoration-report.md).
+
+Bu işteki açık el bağlantısı isteğiyle, `heldBy` sırasında görünür top iki el kemiklerinin ortasını izler; motorun metrik top çapası ve 2D değişmez. Serbest top yine doğrudan fizik karesinden çizilir. Bırakma anında 0,12 fizik saniyelik görsel geçiş yapılır; ikinci top fiziği, yeni kurtarış/dağıtım kararı veya sonuç yoktur. Eski V7.18 mesh kısıtının bu dar sunum uyarlaması ve gerekçesi restorasyon raporunda kayıtlıdır.

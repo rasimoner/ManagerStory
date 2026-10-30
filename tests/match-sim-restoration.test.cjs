@@ -95,7 +95,7 @@ test('first touch follows the observed airborne contact before descending to the
   assert.equal(game.api.sampleSimulationScene(view).ball.position.y, .11);
 });
 
-test('keeper gloves meet the actual held ball in both directions and release on a real distribution', async () => {
+test('keeper gloves enclose the held mesh in both directions and release on a real distribution', async () => {
   for (const direction of [-1, 1]) {
     const fixture = await sceneFixture(), frame = scene(), keeper = frame.players[0];
     keeper.slot = 'GK'; keeper.direction = direction; keeper.heading = direction * Math.PI / 2;
@@ -104,8 +104,10 @@ test('keeper gloves meet the actual held ball in both directions and release on 
     frame.ball.position = { x: keeper.position.x, y: 1.11, z: 0 };
     fixture.actors.apply(frame);
     const actor = fixture.runtime.players[0];
-    const hands = ['Left', 'Right'].map(side => actor.bones[`${side}Hand`].getWorldPosition(new fixture.THREE.Vector3()));
-    for (const hand of hands) assert.ok(hand.distanceTo(fixture.runtime.ball.p) < .18, 'each glove stays around the engine ball');
+    const hands = ['Left', 'Right'].map(side => actor.bones[`${side}Hand`].getWorldPosition(new fixture.THREE.Vector3())),
+      grip = hands[0].clone().add(hands[1]).multiplyScalar(.5);
+    for (const hand of hands) assert.ok(hand.distanceTo(grip) < .18, 'each glove stays around the held mesh');
+    assert.equal(fixture.runtime.ball.p.y, frame.ball.position.y);
     frame.physicsTime = .2; frame.ball.heldBy = null;
     frame.contacts = [{ type: 'keeperDistribution', time: .1, fromId: keeper.id, kind: 'punt' }];
     fixture.actors.apply(frame);
@@ -207,3 +209,31 @@ test('a real shoulder duel uses the existing contact pose for both actual partic
   fixture.actors.apply(frame);
   for (const actor of fixture.runtime.players) assert.equal(actor.act?.name, 'shoulder');
 });
+
+test('a caught ball is visibly gripped during grounded recovery and leaves the hands continuously', async () => {
+  const fixture = await sceneFixture(), frame = scene();
+  const { actor, mesh, view } = heldSceneFixture(fixture, frame);
+  actor.bones.Hips.position.y -= .6; actor.model.updateMatrixWorld(true);
+  const grip = actor.bones.LeftHand.getWorldPosition(new fixture.THREE.Vector3())
+    .add(actor.bones.RightHand.getWorldPosition(new fixture.THREE.Vector3())).multiplyScalar(.5);
+  view.apply(frame);
+  assert.ok(mesh.position.distanceTo(grip) < .02, 'the visible held ball must meet the actual gloves even while the body is low');
+  assert.equal(fixture.runtime.ball.p.y, 1.21, 'the detached metric source remains untouched');
+  frame.ball.heldBy = null; frame.physicsTime = .1; frame.ball.position.x += .5;
+  view.apply(frame);
+  assert.ok(mesh.position.distanceTo(grip) < .02, 'release begins at the visible grip');
+  frame.physicsTime = .4; frame.ball.position.x++;
+  view.apply(frame);
+  assert.ok(mesh.position.distanceTo(new fixture.THREE.Vector3().copy(frame.ball.position)) < 1e-8);
+});
+
+function heldSceneFixture(fixture, frame) {
+  const keeper = frame.players[0];
+  Object.assign(keeper, { slot: 'GK', keeper: { mode: 'holding' }, velocity: { x: 0, y: 0, z: 0 } });
+  Object.assign(frame.ball, { heldBy: keeper.id, position: { x: 30, y: 1.21, z: 0 } });
+  fixture.actors.apply(frame);
+  const mesh = new fixture.THREE.Object3D();
+  const shadow = new fixture.THREE.Mesh(new fixture.THREE.CircleGeometry(), new fixture.THREE.MeshBasicMaterial());
+  const view = fixture.api.createSimulationBallView(mesh, shadow, { runtime: fixture.runtime });
+  return { actor: fixture.runtime.players[0], mesh, view };
+}

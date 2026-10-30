@@ -47,7 +47,11 @@
     ],
     "handGripSeconds": 0.18,
     "handHistorySeconds": 4,
-    "armPoleBlendSeconds": 0.12
+    "armPoleBlendSeconds": 0.12,
+    "gripReleaseSeconds": 0.12,
+    "gripForwardMetres": 0.22,
+    "gripDownMetres": 0.12,
+    "gripGroundClearance": 0.02
   },
   "radar": {
     "width": 200,
