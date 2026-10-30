@@ -6,6 +6,8 @@ Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da labor
 
 ## Kariyer adaptörü (C)
 
+V7.19.0, aynı salt okuma 3D sözleşmesinde kalecinin tam gövde uzanma, iniş, el/diz desteği ve kalkış zincirini ekler; [animasyon raporu](match-sim-keeper-animation-report.md). Bu yalnız görsel katmandır: fiziksel erişim, top, sonuç, RNG ve süre kuralları değişmez.
+
 Saf `core/match/` kariyer modunu import etmez. Girdi kullanıcının mevcut ilk on biri, `M.matchPositions`/`M.matchRoles`, rakibin `opponentPlayer` kayıtları ve `oppRadarPos` düzenidir. `match-sim-career.json` serbest yerleşimi 4-2-3-1 yuvalarına, 4-4-2'yi kendi yuvalarına eşler; uyumlu roller ve en yakın başlangıç yuvası seçilir. Kullanıcının serbestçe taşıdığı oyuncunun çapa farkı korunur. Özellikler aynı JSON'daki alan okuma sırasıyla gelir; verilmemiş teknik alanın varsayılanı 65, değer sınırı 0–100; `gk.reflexes/handling/oneOnOne` doğrudan okunur. Tohum `matchSeed()`; deneysel maç başlangıcı kariyer salt'ını değiştirmez. Aynı kayıt/fikstür aynı maçı üretir.
 
 | Kariyer seçeneği | Motor karşılığı |

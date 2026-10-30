@@ -1,6 +1,6 @@
 # Yeni motorun 3D kaleci animasyonu — V7.19.0
 
-Başlangıç main `214f7e9ed4ed76e91d298a79c50e16fbf6180e16` (V7.18.0); dal `feat/match-sim-keeper-animation`. Bu belge uygulama ve son doğrulama ilerledikçe güncellenir. Fiziksel iPhone/Safari testi yapılmadı.
+Başlangıç main `214f7e9ed4ed76e91d298a79c50e16fbf6180e16` (V7.18.0); dal `feat/match-sim-keeper-animation`. Son oyun kodu `a644bfaae896cfed0c060045cf173bdd98911155`; doğrulama adayı `ecf6bd5423531576feb5d4cf59f5ef81062c405d`. Sonraki fark yalnız test betiğidir; `src`, `package.json` ve kilit dosyası birebir aynıdır. Fiziksel iPhone/Safari testi yapılmadı.
 
 ## Teşhis ve uygulama
 
@@ -28,13 +28,36 @@ Her poz mutlak fizik zamanında örneklenir. Çizim fazı, kare sayacı veya ayr
 
 Ek kırmızı testler gerçek bakış değişiminde ters yöne dönen dalışı ve ilk temasa adım atmış kalecinin ikinci şutta ayağa sıçramasını yakaladı. Gerçek dört kaydın 120 Hz ara çiziminde kemiklerin dünya konumları da karşılaştırılır; motorun meşru kök yer değiştirmesi çıkarıldıktan sonraki beden farkı sınırlıdır. Böylece motorun hızını değiştirmek yerine sunumdaki kopma ölçülür.
 
-İlk uygulama commit'i `12706ed`: Node 22.23.4, lint, 414 hızlı test / 1 mevcut atlama, ayrı 5/5 performans kapısı geçti. Son adayın tam test/build/duman/WebGL durumu aşağıya eklenecek. Yeni sezon, geniş denge veya süre taraması başlatılmadı; mevcut performans kapıları aynen korunur.
+İlk uygulama commit'i `12706ed`: Node 22.23.4, lint, 414 hızlı test / 1 mevcut atlama, ayrı 5/5 performans kapısı geçti. Son adayın yerel Node 22.23.4 kontrolünde lint, **421 hızlı / 511 tam test**, her pakette **1 mevcut atlama**, ayrı performans kapıları **5/5** ve build geçti. Tam işlev paketi 261,7 sn, ardından beş performans kapısı 11,4 sn sürdü. Yeni sezon, geniş denge veya süre taraması başlatılmadı; mevcut performans kapıları aynen korunur.
 
 ## Görsel kanıt yöntemi
 
 Yerel Chromium kurulu değil; gerçek WebGL incelemesi mevcut Actions yoluna eklenen sınırlı `smoke:keeper-animation` ile yapılır. 390×844 dikey ve 844×390 yatay görünümde beş sabit izole çekirdek geometrisi: alçak sağ tutma, alçak sol çelme, karşı kalede yüksek çelme, boşa dalış ve yakın topa adım. Her sonucun sahibi değiştirilmemiş çekirdektir. Normal kariyere bu geometriler veya sonuç zorlayan seçenekler eklenmez.
 
-Olağan kariyer kanıtı ayrı sınıftır: mevcut sabit kariyer salt'ı 73, gerçek 69–73,5 fizik saniyesi. Model/kök/top veya olay değiştirilmez; gerçek kariyer UI'si kullanılır. Tam hareket videoları, sekiz ardışık kare, WebGL sürümü, dünya kemik konumları, kaynak commit'i ve gerçek olay zamanları arşivlenir. Tek kurtarış fotoğrafıyla görsel kabul verilmez. Nihai koşu ve kanıt bağlantıları doğrulama sonrası eklenecek.
+Olağan kariyer kanıtı ayrı sınıftır: mevcut sabit kariyer salt'ı 73, gerçek 69–73,5 fizik saniyesi. Model/kök/top veya olay değiştirilmez; gerçek kariyer UI'si kullanılır. Tam hareket videoları, sekiz ardışık kare, WebGL sürümü, dünya kemik konumları, kaynak commit'i ve gerçek olay zamanları arşivlenir. Tek kurtarış fotoğrafıyla görsel kabul verilmez.
+
+[Oyun kodu a644bfa için başarılı WebGL işi](https://github.com/rasimoner/ManagerStory/actions/runs/41090848302/job/124184016969), 390×844 ve 844×390 olarak **12/12 kayıt** üretti. [Ham videolar ve tam PNG kareleri](https://github.com/rasimoner/ManagerStory/actions/runs/41090848302/artifacts/12994691790), [ham kemik/olay verisi](measurements/match-sim-keeper-animation/verification.json) ve [kaynak/hash manifesti](measurements/match-sim-keeper-animation/source.json). Arşiv SHA-256 `a045a4b1d73ccf29ba9a84ab5b6b2fd5a555cb5d2f572ab550e97e0a738da3ee`.
+
+Son doğrulama adayının [WebGL işi de geçti](https://github.com/rasimoner/ManagerStory/actions/runs/41093423205/job/124193494481): **12/12**. İki bağımsız gerçek WebGL koşusunun aynı fizik zamanındaki **80 izole örneğinde bütün dünya kemik konumları birebir aynı**. Bu, farklı çizim yükünde pozu tekrar üretmenin ek kanıtıdır; telefonda kare hızı ölçümü değildir. Son arşiv SHA-256 `541d79658cbde7c96af5718e337950788e8199956fcd807785103aef7839dc09`; [son videolar](https://github.com/rasimoner/ManagerStory/actions/runs/41093423205/artifacts/12995711326).
+
+| Kanıt türü | Sonuç | Ardışık kareler |
+|---|---|---|
+| İzole, alçak sağ | Çekirdeğin gerçek tutması; iniş/destek/kalkış | [8 kare](measurements/match-sim-keeper-animation/catch-low-right.jpg) |
+| İzole, alçak sol | Çekirdeğin gerçek çelmesi | [8 kare](measurements/match-sim-keeper-animation/parry-low-left.jpg) |
+| İzole, karşı kale/yüksek | Yüksek uzanma ve çelme | [8 kare](measurements/match-sim-keeper-animation/parry-high-other-goal.jpg) |
+| İzole, boşa dalış | Gerçek gol; başarısız dalıştan toparlanma | [8 kare](measurements/match-sim-keeper-animation/miss-low-left.jpg) |
+| İzole, yakın top | Ayakta kısa uzanma; tam plonjon yok | [8 kare](measurements/match-sim-keeper-animation/near-step.jpg) |
+| Olağan kariyer | Gerçek UI, gerçek şut/kurtarış ve devamı | [Dikey](measurements/match-sim-keeper-animation/ordinary-portrait.jpg) · [Yatay](measurements/match-sim-keeper-animation/ordinary-landscape.jpg) |
+
+![Sağ dalıştan ayağa kalkışa sekiz gerçek WebGL karesi](measurements/match-sim-keeper-animation/catch-low-right.jpg)
+
+Kare dizileri özgün PNG'lerin sıralı kırpılmış JPEG bileşimidir; oyuncu görüntüsü üretilmedi veya rötuşlanmadı. Olağan kariyer dizileri özgün WebM'den alınır. Kaynak görüntüler ve bütün video arşivdedir. Yazılımsal SwiftShader çizimi yavaştır: videonun duvar süresi, gösterdiği 3,5–5 fizik saniyesinden uzundur. Bu kayıtlar gerçek cihazda 1× süre/FPS garantisi veya fiziksel iPhone/Safari görsel onayı değildir. Test bekçisi toplam videoya süre kotası koymaz; fizik saatinin ilerlemesini denetler.
+
+## Son doğrulama ve yayın
+
+[Son Node 22 koşusu](https://github.com/rasimoner/ManagerStory/actions/runs/41093423205) bütünüyle başarılıdır: lint; **421 hızlı / 511 tam test**, her pakette **1 mevcut atlama**, her iki paketin ayrı performans kapıları **5/5**; build; eski 3D/offline/arşiv kontrolleri, laboratuvarlar ve kariyer dahil bütün mevcut `smoke`; ayrıca `smoke:sim-3d` ve iki telefon yönünde **12/12** kaleci kaydı geçti. Test eşiği veya zorunlu kontrol kaldırılmadı; yalnız bu işin kapsamı dışındaki ek geniş denge/süre taramaları ve ikinci yedi dakikalık izleme başlatılmadı. Altın dosyalar değişmedi, lint tabanı büyümedi.
+
+Yayın kapısı [Pages iş akışıdır](https://github.com/rasimoner/ManagerStory/actions/workflows/pages.yml); main'de tam test/build/mevcut smoke ve 3D kontrolünü yeniden uygular. Birleşme SHA'sı ve başarılı yayın koşusu teslim mesajında ayrıca verilir. Dal korunur; birleşme sonrası `feat/match-sim-keeper-animation` silinebilecek adaydır.
 
 ## Telefonda deneme
 
