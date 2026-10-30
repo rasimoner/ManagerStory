@@ -14,7 +14,11 @@
     "maximumFrameSeconds": 0.1,
     "margin": 0.8,
     "goalApproachMetres": 34,
-    "shotMinimumSeparationMetres": 14
+    "shotMinimumSeparationMetres": 14,
+    "challengeZoneMetres": 26,
+    "challengeCloseSeconds": 1.1,
+    "cardCloseSeconds": 1.5,
+    "modeTransitionSeconds": 2
   },
   "pose": {
     "minimumStepSeconds": 1e-06,
@@ -22,7 +26,28 @@
     "plantHeight": 0.07,
     "releaseHeight": 0.14,
     "maximumPlantDrift": 0.4,
-    "minimumPlantSpeed": 0.4
+    "minimumPlantSpeed": 0.4,
+    "maximumAnimationGapSeconds": 0.5,
+    "chestControlHeight": 0.9,
+    "gloveOffsetMetres": 0.09,
+    "ballContactSeconds": 0.18,
+    "maximumFootReachMetres": 1.05,
+    "plantFadeSeconds": 0.08,
+    "plantTurnLimitRadians": 0.35,
+    "gaitBlendSeconds": 0.035,
+    "gaitBones": [
+      "LeftUpLeg",
+      "LeftLeg",
+      "LeftFoot",
+      "LeftToeBase",
+      "RightUpLeg",
+      "RightLeg",
+      "RightFoot",
+      "RightToeBase"
+    ],
+    "handGripSeconds": 0.18,
+    "handHistorySeconds": 4,
+    "armPoleBlendSeconds": 0.12
   },
   "radar": {
     "width": 200,

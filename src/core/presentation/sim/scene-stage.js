@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
 import { buildStadium } from '../match3d/newview/stadium.js';
 import { loadRig } from '../match3d/newview/rig.js';
-import { createRuntime, analyseGait, BALL_R } from '../match3d/newview/runtime.js';
+import { createRuntime, analyseGait } from '../match3d/newview/runtime.js';
+import { createMatchBall } from '../match3d/newview/ball.js';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 
 let assets;
@@ -30,11 +31,12 @@ export function createSimulationStage(canvas, loaded) {
   scene.fog = new THREE.Fog(settings.background, settings.fogNear, settings.fogFar);
   camera.layers.enable(1);
   const stadium = buildStadium({ scene, renderer });
-  const runtime = createRuntime({ scene, ...loaded, ramp: stadium.toonRamp, numberTexture: simulationNumberTexture, stride: SIM_VIEW_DATA.pose.stride });
-  const ball = createSceneBall(stadium.toonRamp);
-  scene.add(ball);
+  const runtime = createRuntime({ scene, ...loaded, ramp: stadium.toonRamp, numberTexture: simulationNumberTexture,
+    stride: SIM_VIEW_DATA.pose.stride, retainPoseBase: true });
+  const { ball, shadow } = createMatchBall({ ramp: stadium.toonRamp, noOutline: stadium.noOutline });
+  scene.add(ball, shadow);
   const outline = new OutlineEffect(renderer, { defaultThickness: settings.outlineThickness, defaultColor: [0.05, 0.06, 0.08] });
-  return { scene, camera, renderer, stadium, runtime, ball, outline };
+  return { scene, camera, renderer, stadium, runtime, ball, shadow, outline };
 }
 
 function simulationNumberTexture(number, kit) {
@@ -46,22 +48,4 @@ function simulationNumberTexture(number, kit) {
   paint.strokeStyle = kit.numberEdge; paint.strokeText(String(number), 64, 70);
   paint.fillStyle = kit.number; paint.fillText(String(number), 64, 70);
   return new THREE.CanvasTexture(canvas);
-}
-
-function createSceneBall(ramp) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 256; canvas.height = 128;
-  const paint = canvas.getContext('2d');
-  paint.fillStyle = '#fafafa'; paint.fillRect(0, 0, 256, 128);
-  paint.fillStyle = '#15171c';
-  for (const [x, y] of [[32, 30], [96, 30], [160, 30], [224, 30], [0, 76], [64, 76], [128, 76], [192, 76], [256, 76], [32, 118], [160, 118]]) {
-    paint.beginPath();
-    for (let corner = 0; corner < 5; corner++) { const angle = corner / 5 * Math.PI * 2 - Math.PI / 2; paint.lineTo(x + Math.cos(angle) * 13, y + Math.sin(angle) * 11); }
-    paint.fill();
-  }
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  const ball = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 24, 16), new THREE.MeshToonMaterial({ map: texture, gradientMap: ramp }));
-  ball.castShadow = true; ball.layers.enable(1);
-  return ball;
 }

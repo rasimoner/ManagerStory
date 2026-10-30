@@ -428,3 +428,7 @@ Kalecinin normal/set gövde ve açılmış kol zarfı 1,15/1,25 m; tepki 0,16+0,
 Ara konum geçmiş ve güncel fizik kareleri arasındadır; geleceğe kestirim yoktur. Yürüme/koşma çevrimi gerçek görsel mesafe ve fizik süresini kullanır. Şut/pas takip pozu ve müdahale/dağıtım klibi yalnız gerçek eyleme bağlanır. Kaleci hazır duruşu `keeper.mode`, uzanması gerçek tepki/target alanlarından gelir. Top el/ayağa çekilmez; oyuncu kökü vuruş temasını tamamlamak için kaydırılmaz. Yeni hareket veya uydurma yıldız tekrarı yoktur. Genel kariyer özet/arşiv akışı korunur.
 
 Ortak süre ve manuel hız aynıdır; eski cihazın bağımsız oyuncu/top, şut ağır çekimi ve tekrar ayarları okunmaz. Canlı ekran dakikası `matchTime`, animasyon `physicsTime` kullanır. Duraklamada çizim önbelleği güncel kareye oturur; devam ederken geri kaymaz. WebGL/yükleme hatasında açıklamayla aynı maça 2D'de devam edilir. Gerçek dokunmatik Chromium kanıtı ve açık animasyon sınırları [raporda](match-sim-3d-report.md).
+
+## 3D sunum eşitliği inceleme adayı
+
+Eski kamera/top varlıkları ve pozları yeni motorun gerçek olay kopyasına uyarlanır; `core/sim/` ve karar/fizik kuralları değişmez. İlk temas yüksekliği/alıcı, carry dokunuşu ve yeniden başlama türü çizim kopyasına eklenir. Yakın plan yalnız eski uygun mücadele/kart/şut/gol tetiklerine bağlanır. Özel çalım kimliği olmayan genel olay özel hareket diye gösterilmez. Devre hazırlığı görünür alanda maskelenir, ama motorun hazırlık zamanı hâlâ gerçek maç bütçesindedir. [Özellik envanteri, testler ve açık kalanlar](3d-restoration-report.md).

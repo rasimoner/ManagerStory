@@ -59,7 +59,7 @@
     "max-lines": 1,
     "max-lines-per-function": 1,
     "max-params": 1,
-    "max-statements": 5
+    "max-statements": 4
   },
   "src/core/presentation/match3d/newview/actions.js": {
     "max-params": 2

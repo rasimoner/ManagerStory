@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { buildFootballerGeometry, buildNumberGeometry } from './footballer.js';
 import { ACTIONS, applyAction, envelope, footClearance } from './actions.js';
+import { restorePoseBase, rememberPoseBase, stableArmPole, blendArmPose } from './pose-base.js';
 
 export const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 export const clamp = THREE.MathUtils.clamp, lerp = THREE.MathUtils.lerp;
@@ -76,7 +77,7 @@ const hash = s => { let h = 2166136261; for (const c of String(s)) h = Math.imul
 // cadence: step-rate multiplier while running (1 = the recorded clips' natural rate)
 // stride: how far the legs open at jogging pace (1 = the recorded jog, which opens wider than the
 // sprint; smaller is more compact). Full sprint keeps the recorded opening.
-export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence = 1, stride = 1 }) {
+export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence = 1, stride = 1, retainPoseBase = false }) {
   const clips = rig.clips;
   const template = rig.newInstance();
   // the jog cycle's average pose per limb bone: a compact stride swings less far either side of it
@@ -561,13 +562,13 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
   function handIK(p, side, target, weight) {
     const upper = p.bones[side + 'Arm'], lower = p.bones[side + 'ForeArm'], hand = p.bones[side + 'Hand'];
     if (!upper || !lower || !hand) return null;
+    const beforeUpper = upper.quaternion.clone(), beforeLower = lower.quaternion.clone();
     const current = hand.getWorldPosition(V()), wanted = current.clone().lerp(target, clamp(weight, 0, 1));
     const sh = upper.getWorldPosition(V()), el = lower.getWorldPosition(V());
     const l1 = sh.distanceTo(el), l2 = el.distanceTo(current), v = wanted.clone().sub(sh);
     const dist = clamp(v.length(), 0.05, l1 + l2 - 0.005), dir = v.normalize();
     const out = V(-Math.cos(p.heading), 0, Math.sin(p.heading)).multiplyScalar(side === 'Left' ? -1 : 1);
-    let pole = out.add(V(0, -0.6, 0)); pole.addScaledVector(dir, -pole.dot(dir));
-    if (pole.lengthSq() < 0.01) pole.set(0, -1, 0); pole.normalize();
+    const pole = handBendPole(p, side, { out, dir });
     const along = (l1 * l1 - l2 * l2 + dist * dist) / (2 * dist), high = Math.sqrt(Math.max(1e-5, l1 * l1 - along * along));
     const bend = sh.clone().addScaledVector(dir, along).addScaledVector(pole, high);
     const turn = (bone, from, to) => {
@@ -579,7 +580,15 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     turn(upper, el.clone().sub(sh), bend.clone().sub(sh));
     const e2 = lower.getWorldPosition(V());
     turn(lower, hand.getWorldPosition(V()).sub(e2), sh.clone().addScaledVector(dir, dist).sub(e2));
+    if (retainPoseBase) blendArmPose(p, { upper, lower, beforeUpper, beforeLower }, weight);
     return hand.getWorldPosition(V());
+  }
+  function handBendPole(p, side, { out, dir }) {
+    if (retainPoseBase) return stableArmPole(p, { side, direction: dir, time: S.t });
+    const pole = out.add(V(0, -0.6, 0));
+    pole.addScaledVector(dir, -pole.dot(dir));
+    if (pole.lengthSq() < 0.01) pole.set(0, -1, 0);
+    return pole.normalize();
   }
   function applyHands(p) {
     if (!p.hands) return;
@@ -685,7 +694,9 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     const lw = Math.max(0, 1 - mw - K);
     p.A.idle.setEffectiveWeight(lw * wIdle); p.A.walk.setEffectiveWeight(lw * m * (1 - r)); p.A.run.setEffectiveWeight(lw * m * r * (1 - r2)); p.A.sprint.setEffectiveWeight(lw * m * r * r2);
     if (K > 0) p.A.idle.setEffectiveWeight(p.A.idle.getEffectiveWeight() + K * p.gkMix.idle);
+    if (retainPoseBase) restorePoseBase(p);
     p.mixer.update(0);
+    if (retainPoseBase) rememberPoseBase(p);
     // compact stride at jogging pace: only the jog clip's share is reined in, the sprint stays open
     const compact = stride < 1 ? lw * m * r * (1 - r2) * (1 - stride) * (1 - smooth(sp, 5.5, 7.8)) : 0;
     if (compact > 0.005) for (const b in COMPACT) {
@@ -873,7 +884,7 @@ export function createRuntime({ scene, rig, gait, ramp, numberTexture, cadence =
     scaleOutlines,
     players, ball, S, addPlayer, calibrate, place, startAction, actionDone, actionAtContact, predictBall, kickWarp, kickNeed, toeNear, pickUp,
     startMotion, motionAtContact, slideAt, headerAt, contactPoint, contactDistance, get headHeight() { return headAt.y; }, get slideReach() { return Math.hypot(slideToe.x, slideToe.z); },
-    kickGround, kickAir, dribble, receive, planDive, updateDive, riseFromFront, updateProne, handsOf, diveHands, move, pose, contacts, stepBall, footIK,
+    kickGround, kickAir, dribble, receive, planDive, updateDive, riseFromFront, updateProne, handsOf, diveHands, move, pose, contacts, stepBall, footIK, handIK,
     get diveReach() { return diveReach; },
   };
 }

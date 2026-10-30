@@ -96,6 +96,8 @@ async function verifyHalfAndEnd() {
   await page.locator('[data-action="startSecondHalf"]').click();
   await page.waitForSelector('[data-sim-scene]');
   await page.locator('[data-action="pauseLive"]').click();
+  assert.equal(await page.locator('[data-scene-clock]').textContent(), '45:00');
+  assert.equal(await page.locator('.sim-scene.sim-preparing').count(), 1, 'changing ends is a preparation state');
   await page.screenshot({ path: `${evidence}/second-half.png`, fullPage: true });
   await page.locator('[data-action="resumeLive"]').click();
   await page.locator('[data-action="skipExperimentalMatch"]').click();
@@ -121,11 +123,14 @@ async function pauseAtGoalFrame(condition) {
 }
 
 async function captureCameraChoices(root) {
+  const before = await savedMatch();
   for (const mode of ['tv', 'close', 'stand', 'auto']) {
     await page.locator(`[data-scene-camera="${mode}"]`).click();
     assert.equal(await root.getAttribute('data-sim-camera-mode'), mode);
+    await page.waitForFunction(() => document.querySelector('[data-sim-scene]')?.dataset.simCameraSettling !== 'true');
     await page.screenshot({ path: `${evidence}/camera-${mode}.png` });
   }
+  assert.deepEqual((await savedMatch()).simulationCheckpoint, before.simulationCheckpoint, 'paused camera easing cannot advance physics');
 }
 
 async function verifyRestoredPresentation() {
