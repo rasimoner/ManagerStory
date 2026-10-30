@@ -90,3 +90,6 @@ Denge 1 ekleri:
 Raporun `milliseconds` alanı performans ölçümüdür, deterministik sonuç değildir. CI kaydedilen maç/güç/kontrollü şut sayaçlarını yeniden üretip `tools/sim-report/compare.cjs` ile karşılaştırır; yüzdelik ve istisnalar tarihli raporda açıklanır.
 
 `balance.json.shortMatchFlow`: yalnız doğal süreli maçta taşımanın olumlu varış güvenliği puanı tavanı (saniye), pas/taşımada kale mesafesi kazancı puanı (metre başına) ve ileri destek uzaklığı. Referans laboratuvar bu ayarı kullanmaz; top/oyuncu hızı, şut veya kaleci sonucu katsayısı değildir.
+
+## match-sim-view.json
+Yeni motorun salt okuyan 3D görünümünün temas penceresi, çizim/kamera/radar ölçüleri ve mevcut forma renkleri. Futbol, fizik, RNG ve eski 3D hız ayarlarını değiştirmez.

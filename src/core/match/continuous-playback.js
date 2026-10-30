@@ -57,8 +57,10 @@ function settleContinuousBacklog(playback, simulation, halfChanged) {
 }
 
 function updateContinuousFrame(playback, simulation) {
-  playback.previousFrame = playback.frame;
-  playback.frame = captureSimulationFrame(simulation);
+  if (playback.frame.tick !== simulation.tick) {
+    playback.previousFrame = playback.frame;
+    playback.frame = captureSimulationFrame(simulation);
+  }
   playback.displaySeconds = simulation.time;
   playback.displayMatchSeconds = simulation.matchTime;
 }
