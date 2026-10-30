@@ -257,3 +257,16 @@ Doğal süreli maçın hücum alanı değeri: `core/sim/attacking-space.js` hüc
 - `tests/smoke/keeper-animation.mjs`, `keeper-fixture.mjs`: ürüne bağlanmayan test sahnesi; iki telefon yönünde hareket videoları ve ayrı olağan kariyer UI kanıtı.
 
 V7.19.1: `core/presentation/sim/scene-atmosphere.js` gözlenmiş gol ve tribün zamanını, `scene-goal-overlay.js` mevcut kulüp fotoğrafını, `scene-footwork.js` yalnız görsel ayak desteğini yönetir. `scene-camera.js` ortak eski yayın açılarını güncel salt okuma kareden seçer. Ayrıntı: [sunum raporu](match-sim-presentation-report.md).
+
+## Eski/yeni 3D sunum uyarlaması
+
+| Dosya | Sorumluluk |
+|---|---|
+| `core/match/presentation-contacts.js` | Gerçek olaylardan bağımsız çizim verisi; eski final üçüncü bölge/her ikinci mücadele kamera işareti. Motor günlüğüne yazmaz. |
+| `core/presentation/match3d/newview/ball.js` | İki görünümün ortak eski top geometrisi, kaplaması ve temas gölgesi. |
+| `core/presentation/match3d/newview/pose-base.js` | Klip örneğini IK'den önce geri kurma ve yeni sahnede sürekli dirsek bükülme yönü. |
+| `core/presentation/sim/ball-sample.js`, `scene-ball.js`, `scene-grip.js` | Gözlenmiş ilk temastan ara konum, mesafeden dönüş; ikinci top fiziği yok. |
+| `core/presentation/sim/scene-actions.js`, `scene-contact-feet.js`, `scene-hands.js`, `scene-gait.js` | Gerçek eyleme eski poz/klip ve görsel temas; motor kökü/topu değişmez. |
+| `core/presentation/sim/scene-hud.js`, `scene-status.js` | Kulüp/oyuncu bilgisi ve devre hazırlığının ortak görünür durumu. |
+
+Özellik envanteri, kapsam ve açık Safari/motor sınırları: [3D restorasyon raporu](3d-restoration-report.md).

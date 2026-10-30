@@ -72,6 +72,7 @@ async function captureChain(page, recording, label) {
     assert.equal(sample.root[0], sample.expectedRoot[0]);
     assert.equal(sample.root[2], sample.expectedRoot[2]);
     assert.ok(Object.values(sample.bones).flat().every(Number.isFinite));
+    if (sample.held) assert.ok(sample.gripGap < .02, 'the held mesh follows the gloves during the actual recovery');
     await page.screenshot({ path: `${evidence}/${label}-${time.toFixed(2)}.png` });
     samples.push(sample);
   }

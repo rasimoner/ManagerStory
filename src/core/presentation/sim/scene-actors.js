@@ -1,10 +1,11 @@
 import { plantSimulationFeet } from './scene-footwork.js';
 import { simulationCelebration } from './scene-atmosphere.js';
-import { ACTIONS } from '../match3d/newview/actions.js';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
-import MATCH_SIM_DATA from '../../../data/match-sim.json';
-import { MOTIONS } from '../match3d/newview/runtime.js';
 import { poseSimulationKeeper } from './keeper-animation.js';
+import { poseSimulationHands } from './scene-hands.js';
+import { simulationContactAnimation, simulationShieldAnimation } from './scene-actions.js';
+import { blendSimulationGait } from './scene-gait.js';
+import { poseSimulationContactFoot } from './scene-contact-feet.js';
 
 // Only the detached scene sample reaches here. Runtime locomotion/ball solvers are never called.
 export function createSimulationActors(runtime, describe) {
@@ -35,50 +36,51 @@ function synchronizeSceneRoster(runtime, actors, { frame, describe }) {
 }
 
 function poseSimulationActor(runtime, actor, { sample, frame, seconds }) {
-  const firstSample = !actor.sceneSampled;
-  actor.vel.copy(sample.velocity);
-  if (actor.sceneSampled && seconds > SIM_VIEW_DATA.pose.minimumStepSeconds) {
-    actor.vel.set((sample.position.x - actor.pos.x) / seconds, 0, (sample.position.z - actor.pos.z) / seconds);
-  }
-  actor.pos.copy(sample.position);
-  actor.sceneSampled = true;
-  actor.heading = sample.heading;
-  actor.act = simulationCelebration(sample, frame) ?? contactAction(sample, frame);
-  actor.motion = contactMotion(actor, sample, frame);
-  actor.loopsWant.jockey = Number(sample.motionMode === 'jockey');
-  actor.loopsWant.keeperReady = Number(sample.slot === 'GK' && ['set', 'reacting', 'step', 'dive'].includes(sample.keeper.mode));
-  actor.loopsWant.throwHold = Number(frame.ball.heldBy === sample.id);
-  if (firstSample) Object.assign(actor.loops, actor.loopsWant);
+  if (actor.sceneSampled && sameActorPose(actor, sample, frame)) return;
+  sampleActorVelocity(actor, sample, seconds);
+  prepareActorPose(actor, sample, frame);
   runtime.pose(actor, seconds);
   poseSimulationKeeper(actor, sample, frame);
+  poseSimulationHands(runtime, actor, frame);
+  blendSimulationGait(actor, seconds);
   plantSimulationFeet(runtime, actor, seconds);
+  poseSimulationContactFoot(runtime, actor, { sample, frame });
   // The rig may lift a foot or lean, but its root never chases a contact marker.
   actor.model.position.x = sample.position.x;
   actor.model.position.z = sample.position.z;
   actor.model.updateMatrixWorld(true);
 }
 
-function contactMotion(actor, sample, frame) {
-  const contact = frame.contacts.findLast(event => event.fromId === sample.id && event.time <= frame.physicsTime
-    && (event.type === 'keeperDistribution' || event.type === 'tackle' && event.kind === 'sliding'));
-  const tackle = sample.duel.tackle;
-  const name = contactMotionName(tackle, contact);
-  if (!name || !actor.A[name]) return null;
-  const time = tackle?.kind === 'sliding' ? tackle.contactTick * MATCH_SIM_DATA.clock.stepSeconds : contact.time;
-  const start = time - MOTIONS[name].contact, duration = actor.A[name].getClip().duration;
-  return frame.physicsTime - start < duration ? { name, t0: start, dur: duration } : null;
+function prepareActorPose(actor, sample, frame) {
+  const firstSample = !actor.sceneSampled;
+  actor.poseSettings = SIM_VIEW_DATA.pose;
+  actor.pos.copy(sample.position);
+  actor.sceneSampled = true;
+  actor.scenePoseTime = frame.physicsTime;
+  actor.scenePoseKey = actorPoseKey(sample, frame);
+  actor.heading = sample.heading;
+  const animation = simulationContactAnimation(sample, frame, actor);
+  const shield = simulationShieldAnimation(actor, sample, frame);
+  actor.act = animation.act ?? simulationCelebration(sample, frame) ?? shield;
+  actor.motion = animation.motion ? { ...animation.motion, dur: actor.A[animation.motion.name].getClip().duration } : null;
+  actor.loopsWant.jockey = Number(sample.motionMode === 'jockey');
+  actor.loopsWant.keeperReady = Number(sample.slot === 'GK' && ['set', 'reacting', 'step', 'dive'].includes(sample.keeper.mode));
+  actor.loopsWant.throwHold = Number(frame.ball.heldBy === sample.id);
+  if (firstSample) Object.assign(actor.loops, actor.loopsWant);
 }
 
-function contactMotionName(tackle, contact) {
-  if (tackle?.kind === 'sliding' || contact?.type === 'tackle') return 'tackle';
-  return contact?.kind === 'throw' ? 'gkThrow' : null;
+function sameActorPose(actor, sample, frame) {
+  return actor.scenePoseTime === frame.physicsTime && actor.pos.x === sample.position.x
+    && actor.pos.z === sample.position.z && actor.heading === sample.heading && actor.scenePoseKey === actorPoseKey(sample, frame);
 }
 
-function contactAction(sample, frame) {
-  const contact = frame.contacts.findLast(event => event.fromId === sample.id && event.time <= frame.physicsTime
-    && ['pass', 'shot', 'tackle', 'block'].includes(event.type));
-  if (!contact) return null;
-  const name = ['tackle', 'block'].includes(contact.type) ? 'lunge' : contact.type;
-  const action = ACTIONS[name], start = contact.time - action.dur * (action.contact ?? 0);
-  return frame.physicsTime - start <= action.dur ? { name, t0: start } : null;
+function actorPoseKey(sample, frame) {
+  return `${sample.motionMode}:${sample.keeper.mode}:${frame.ball.heldBy}:${frame.contacts.length}:${frame.contacts.at(-1)?.time}`;
+}
+
+function sampleActorVelocity(actor, sample, seconds) {
+  if (!actor.sceneSampled) actor.vel.copy(sample.velocity);
+  else if (seconds > SIM_VIEW_DATA.pose.minimumStepSeconds) {
+    actor.vel.set((sample.position.x - actor.pos.x) / seconds, 0, (sample.position.z - actor.pos.z) / seconds);
+  }
 }

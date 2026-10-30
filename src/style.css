@@ -238,3 +238,5 @@ body.in-match .navtop{display:none}
 .sim-status{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;color:#b8e6cb;font-size:12px}.sim-status small{max-width:48%;text-align:right;color:#8cb09c;font-size:10px}
 .sim-goal .sim-event{font-size:17px;font-weight:900;text-align:center;background:#083d23ef;color:#fff1b7;padding:14px}
 .sim-career-pitch .sim-player,.sim-career-pitch .sim-ball{will-change:transform;transition:transform var(--sim-transition,.016s) linear}
+/* A half-time setup is a preparation state, never live football with both teams changing ends. */
+.sim-career-pitch.sim-preparing::after{content:'İkinci yarı hazırlanıyor…';position:absolute;inset:0;display:grid;place-items:center;background:#10251a;color:#fff;font-weight:700;z-index:3}

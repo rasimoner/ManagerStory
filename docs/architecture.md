@@ -163,3 +163,11 @@ Kariyer bağlantısı, değişiklik/komut kuyruğu, kondisyon/sakatlık ve durum
 V7.19.0 ile `keeper-animation` mevcut rig üzerinde tam gövde uzanma, iniş ve el/diz desteğiyle kalkışı fizik zamanından çizer. `keeper-rig-pose` yalnız kemiklere yazar; yeni fizik, kök veya top yörüngesi üretmez. `keeper-presentation` gözlenmiş önceki kurtarışın kısa bağımsız kopyasını taşır; checkpoint ve RNG değişmez. Görsel önbellek klip örnekleyicileridir; ilerleyen dalış fazı saklanmaz.
 
 Yeni görünümün açık borcu: vuruş/el–top hizası her temasta anatomik olarak garanti değildir; fiziksel kök plonjonu motorda henüz temsil edilmez. Kökü veya topu bunu tamamlamak için kaydırmak yasaktır. Şut kadrajı ve hareket zinciri sentetik iki yön/iki en-boy testiyle ve Chromium görüntü/video dizileriyle doğrulanır; fiziksel iPhone/Safari onayı ayrıdır.
+
+## 3D sunum eşitliği adayı
+
+Eski top geometrisi/kaplaması ve yayın kamerası ortak modüllerden gelir. Salt okuma olay kopyası ilk temas yüksekliği/alıcı, gerçek sürme dokunuşu, yeniden başlama türü ve eski seyrek mücadele yakın planı için yeterli veriyi taşır. Oyuncu kökü, top ve sonuç motorda kalır; animasyon IK'si yalnız kemikleri değiştirir. Yeni sahnede duraklamadaki kamera geçişi için sınırlı bir çizim RAF'ı vardır; fizik ilerletmez.
+
+Devre hazırlığı iki görünümde maskelenebilir; motorun `half` sırasında fizik/maç bütçesinden harcaması bu sunum işinde değiştirilmez. Motorun henüz üretmediği özel çalımlar, gerçek penaltı/frikik/korner dizilişleri ve eski yıldız tekrarı açık kalır. Tam envanter ve görsel kabul sınırları [rapordadır](3d-restoration-report.md).
+
+Elde tutuşta `scene-grip.js`, motorun `heldBy` kimliğini kullanarak yalnız görünür top mesh'ini iki el kemiklerinin ortasına bağlar. Serbest top metrik konumdan gelir; bırakma olayında kavramadan bu örneğe kısa geçiş vardır. Motordaki top çapası, sahiplik, kaleci kökü ve 2D durumu aynı kalır. Bu uyarlama yerde kurtarışta sabit ayakta tutuş yüksekliğinin topu havada bırakmasını önler; yeni fizik veya kurtarış sonucu üretmez.

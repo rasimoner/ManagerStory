@@ -1,3 +1,4 @@
+import { createMatchBall } from './newview/ball.js';
 // New 3D match view (since V7.5.0).
 // Same MatchEngine, same events, same pause/speed and the same presentation clock as the 2D view.
 // This view plays each engine event as football; the existing presentation clock follows it
@@ -218,15 +219,11 @@ function loadAssets() {
 // ---------- ball, numbers ----------
 let ballMesh, ballShadow;
 function makeBall() {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d');
-  g.fillStyle = '#fbfbfb'; g.fillRect(0, 0, 256, 128); g.fillStyle = '#16181d';
-  for (const [x, y] of [[32, 30], [96, 30], [160, 30], [224, 30], [0, 76], [64, 76], [128, 76], [192, 76], [256, 76], [32, 118], [160, 118]]) { g.beginPath(); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 - Math.PI / 2; g.lineTo(x + Math.cos(a) * 13, y + Math.sin(a) * 11); } g.fill(); }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
-  ballMesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 24, 16), new THREE.MeshToonMaterial({ map: t, gradientMap: stadium.toonRamp }));
-  ballMesh.castShadow = true; ballMesh.layers.enable(1); scene.add(ballMesh);
-  ballShadow = new THREE.Mesh(new THREE.CircleGeometry(0.16, 20), stadium.noOutline(new THREE.MeshBasicMaterial({ color: '#0b1a08', transparent: true, opacity: .45, depthWrite: false })));
-  ballShadow.rotation.x = -Math.PI / 2; scene.add(ballShadow);
+  const created = createMatchBall({ ramp: stadium.toonRamp, noOutline: stadium.noOutline });
+  ballMesh = created.ball; ballShadow = created.shadow;
+  scene.add(ballMesh, ballShadow);
 }
+
 const numberCache = new Map();
 function numberTexture(no, kit) {
   const k = no + kit.number + kit.numberEdge;

@@ -2,7 +2,7 @@
 // shot) and how it eases there. Shared by the page and the tests, so the tests watch the real camera.
 import * as THREE from 'three';
 
-export function createBroadcastCamera(camera) {
+export function createBroadcastCamera(camera, { smoothTransitions = false } = {}) {
   const pos = new THREE.Vector3(-8, 12, 26), look = new THREE.Vector3(), wantPos = new THREE.Vector3(), wantLook = new THREE.Vector3();
   let wantFov = 46, cut = true, lastMode = null, lastSide = null, lastSideS = null;
   let cornerKey = '', cornerPos = null;
@@ -91,18 +91,33 @@ export function createBroadcastCamera(camera) {
     if (wantPos.z < -38.3) wantPos.z = -38.3;
     if (Math.abs(wantPos.x) > 58.5) { const lowEnd = 2.75 + (Math.abs(wantPos.x) - 59) / 0.82 * 0.62; if (wantPos.y < lowEnd) wantPos.x = Math.sign(wantPos.x) * 58.5; }
   }
+  function fitObservedPoints(cam, aspect) {
+    const points = cam.framePoints;
+    if (!points?.length) return;
+    fit.fov = wantFov; fit.aspect = aspect; fit.updateProjectionMatrix();
+    fit.position.copy(wantPos); fit.lookAt(wantLook); fit.updateMatrixWorld(true);
+    const tangent = Math.tan(THREE.MathUtils.degToRad(wantFov / 2)), distance = wantPos.distanceTo(wantLook);
+    let scale = 1;
+    for (const point of points) {
+      const local = point.clone().applyMatrix4(fit.matrixWorldInverse);
+      const needed = Math.max(Math.abs(local.x) / (tangent * aspect * cam.frameMargin), Math.abs(local.y) / (tangent * cam.frameMargin));
+      scale = Math.max(scale, 1 + (needed + local.z) / distance);
+    }
+    wantPos.sub(wantLook).multiplyScalar(scale).add(wantLook);
+  }
   const api = {
     pos, look, cutFrame: false,
     cut() { cut = true; },
     // eases towards the shot in real time, as a TV operator would
     update(rt, cam, dtReal, aspect) {
       shot(rt, cam, aspect); keepOutOfStands();
+      fitObservedPoints(cam, aspect);
       // a new shot far from the current one is a cut, as a director would make it, not a fast swing
-      if (cam.mode !== lastMode && lastMode != null && pos.distanceTo(wantPos) > 12) cut = true;
+      if (!smoothTransitions && cam.mode !== lastMode && lastMode != null && pos.distanceTo(wantPos) > 12) cut = true;
       lastMode = cam.mode;
       const k = 1 - Math.exp(-dtReal * (cam.mode === 'stand' ? 1.8 : cam.mode === 'shot' || cam.mode === 'pen' || cam.mode === 'side' ? 2.4 : 3));
-      api.cutFrame = cut || pos.distanceTo(wantPos) > 30;
-      if (cut || pos.distanceTo(wantPos) > 30) { pos.copy(wantPos); look.copy(wantLook); camera.fov = wantFov; cut = false; }
+      api.cutFrame = cut || !smoothTransitions && pos.distanceTo(wantPos) > 30;
+      if (api.cutFrame) { pos.copy(wantPos); look.copy(wantLook); camera.fov = wantFov; cut = false; }
       else { pos.lerp(wantPos, k); look.lerp(wantLook, k); camera.fov += (wantFov - camera.fov) * k; }
       camera.aspect = aspect; camera.updateProjectionMatrix();
       camera.position.copy(pos); camera.lookAt(look);

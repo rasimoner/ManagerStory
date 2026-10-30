@@ -1,5 +1,5 @@
-import SIM_VIEW_DATA from '../../data/match-sim-view.json';
 import { captureKeeperPresentation } from './keeper-presentation.js';
+import { capturePresentationContacts } from './presentation-contacts.js';
 
 export function captureSimulationFrame(simulation) {
   return { tick: simulation.tick, time: simulation.time, physicsTime: simulation.physicsTime, matchTime: simulation.matchTime, half: simulation.match.half,
@@ -12,10 +12,10 @@ export function captureSimulationFrame(simulation) {
       distanceMetres: player.workload.distanceMetres, sentOff: player.sentOff }))),
     ball: { position: { ...simulation.ball.position }, height: simulation.ball.height, velocity: { ...simulation.ball.velocity },
       verticalVelocity: simulation.ball.verticalVelocity, heldBy: simulation.ball.heldBy,
+      controlledBy: simulation.ball.ownerId, carry: structuredClone(simulation.ball.carry), restart: structuredClone(simulation.ball.restart),
       lastTouchId: simulation.ball.lastTouchId, shot: structuredClone(simulation.ball.shot),
       ownerId: simulation.ball.ownerId ?? simulation.ball.carry?.playerId ?? null, teamId: simulation.ball.teamId },
-    contacts: simulation.events.slice(-SIM_VIEW_DATA.contacts.maximum).filter(event => simulation.time - event.time <= (event.type === 'goal' ? SIM_VIEW_DATA.atmosphere.goalSeconds : SIM_VIEW_DATA.contacts.seconds))
-      .map(event => ({ type: event.type, fromId: event.fromId, teamId: event.teamId, time: event.physicsTime ?? event.time, kind: event.kind })),
+    contacts: capturePresentationContacts(simulation),
     statistics: Object.fromEntries(Object.entries(simulation.statistics.teams).map(([id, stats]) => [id, { ...stats }])) };
 }
 

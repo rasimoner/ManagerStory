@@ -9,6 +9,7 @@ import { usesNaturalMatchClock } from '../../sim/simulation-clock.js';
 import MATCH_DURATION_DATA from '../../../data/match-duration.json';
 import { sampleSimulationScene } from './scene-frame.js';
 import { presentation } from '../registry.js';
+import { simulationSceneStatus, simulationDisplayMatchTime } from './scene-status.js';
 
 export function experimentalPitch() {
   const frame = M.simulationDisplayFrame ?? captureSimulationFrame(M.simulation);
@@ -35,6 +36,7 @@ export function paintExperimentalPitch() {
   root.dataset.simTick = String(M.simulation.tick);
   root.dataset.simPaused = String(M.pause);
   paintExperimentalTransition(root);
+  paintExperimentalPreparation(root);
   for (const element of root.querySelectorAll('[data-sim-player]')) {
     const position = M.dynamicPositions[element.dataset.simPlayer];
     element.hidden = !position;
@@ -66,8 +68,14 @@ function paintExperimentalCaption(root) {
 
 function paintExperimentalClock() {
   const clock = document.querySelector('#live-clock'), score = document.querySelector('#live-score');
-  paintExperimentalText(clock, clockFromSeconds(M.matchElapsedSeconds));
+  paintExperimentalText(clock, clockFromSeconds(simulationDisplayMatchTime(M.simulationDisplayFrame ?? M.simulationPlayback.frame)));
   paintExperimentalText(score, `${M.hg}–${M.ag}`);
+}
+
+function paintExperimentalPreparation(root) {
+  const status = simulationSceneStatus(M.simulationDisplayFrame);
+  root.classList.toggle('sim-preparing', status.preparing);
+  root.setAttribute('aria-label', status.preparing ? status.label : 'Deneysel 2D maç sahası');
 }
 
 function placeExperimentalElement(element, position, bounds) {

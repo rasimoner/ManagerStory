@@ -1,4 +1,5 @@
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
+import { sampleSceneBall } from './ball-sample.js';
 
 // The simulation uses metres with +x along the pitch; the rig faces +z at heading zero.
 export function simulationWorldPoint(position, height = null) {
@@ -15,7 +16,7 @@ export function sampleSimulationScene(playback, options = {}) {
   return { tick: current.tick, half: current.half, phase: current.phase, alpha,
     physicsTime: interpolateSceneValue(previous.physicsTime, current.physicsTime, alpha), matchTime: current.matchTime,
     players: current.players.filter(player => !player.sentOff).map(player => scenePlayer(player, before.get(player.id), alpha)),
-    ball: sceneBall(previous.ball, current.ball, alpha), contacts: current.contacts };
+    ball: sceneBall(previous, current, alpha), contacts: current.contacts };
 }
 
 function scenePlayer(player, previous = player, alpha) {
@@ -27,8 +28,11 @@ function scenePlayer(player, previous = player, alpha) {
 }
 
 function sceneBall(previous, current, alpha) {
-  return { ...current, position: simulationWorldPoint(interpolateScenePoint(previous.position, current.position, alpha),
-    interpolateSceneValue(previous.height, current.height, alpha)), velocity: simulationWorldPoint(current.velocity) };
+  const time = interpolateSceneValue(previous.physicsTime, current.physicsTime, alpha);
+  const changed = current.contacts.some(event => ['firstTouch', 'keeperClaim', 'keeperDistribution', 'pass', 'shot', 'tackle'].includes(event.type)
+    && event.time > previous.physicsTime && event.time <= time);
+  const observed = alpha < 1 && !changed ? previous.ball : current.ball;
+  return { ...observed, position: sampleSceneBall(previous, current, time), velocity: simulationWorldPoint(observed.velocity) };
 }
 
 function interpolateSceneValue(from, to, alpha) { return from + (to - from) * alpha; }

@@ -30,3 +30,18 @@ html.sim-scene-lock,html.sim-scene-lock body{overflow:hidden!important;overscrol
 .sim-goal-overlay strong,.sim-goal-overlay small{position:relative;text-shadow:0 2px 9px #000}
 .sim-goal-overlay strong{font-size:clamp(25px,9vw,48px)}
 .sim-goal-overlay small{font-size:15px;font-weight:800}
+.sim-scene.sim-preparing .career3d-scene,.sim-scene.sim-preparing .career3d-radar{visibility:hidden}
+.sim-scene.sim-preparing .sim-scene-caption{inset:0;display:grid;place-items:center;pointer-events:none}
+.sim-scene-score{display:flex;align-items:stretch;padding:0;overflow:hidden}
+.sim-scene-score b,.sim-scene-score strong,.sim-scene-score time{padding:7px 9px;font-size:15px;line-height:1.15}
+.sim-scene-score strong{background:#fff;color:#0d1117}
+.sim-scene-score time{font-style:normal;background:#0d1117;color:#f3f5f7}
+.sim-scene-player{position:absolute;left:8px;top:47px;display:flex;border-radius:5px;overflow:hidden;color:#fff;font-size:12px;font-weight:700;pointer-events:none}
+.sim-scene-player[hidden],.sim-scene-direction[hidden]{display:none}
+.sim-scene-player b,.sim-scene-player span{padding:4px 7px}
+.sim-scene-player span{background:#0d1117c8;text-transform:uppercase;letter-spacing:.04em}
+.sim-scene-direction{position:absolute;left:50%;top:9px;transform:translateX(-50%);padding:4px 9px;border-radius:999px;background:#0d1117c8;color:#fff;font-size:12px;pointer-events:none}
+.sim-scene-controls button[aria-pressed=true]{background:#fff;color:#0d1117}
+.sim-scene-full .sim-scene-player{top:calc(env(safe-area-inset-top,0px) + 47px)}
+@media(max-width:520px){.sim-scene-direction{top:82px;left:14px;transform:none}.sim-scene-caption{top:104px}}
+@media(orientation:landscape){.sim-scene-full .sim-scene-caption{top:auto;bottom:112px}.sim-scene-full .career3d-radar{top:60px;bottom:auto}}

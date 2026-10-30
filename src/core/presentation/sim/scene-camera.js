@@ -5,13 +5,14 @@ import { observedSimulationGoal } from './scene-atmosphere.js';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 
 export function createSimulationCamera(camera) {
-  const broadcast = createBroadcastCamera(camera);
+  const broadcast = createBroadcastCamera(camera, { smoothTransitions: true });
   return {
     update(frame, seconds, view) {
       const { aspect, mode = 'auto' } = typeof view === 'number' ? { aspect: view } : view;
       const shot = simulationCameraShot(frame, mode);
+      if (mode === 'auto' && ['shot', 'side'].includes(shot.mode)) shot.framePoints = simulationCameraPoints(frame);
+      shot.frameMargin = SIM_VIEW_DATA.camera.margin;
       broadcast.update({ ball: { p: new THREE.Vector3().copy(frame.ball.position) } }, shot, seconds, aspect);
-      if (mode === 'auto' && ['shot', 'side'].includes(shot.mode)) fitSimulationCamera(camera, simulationCameraPoints(frame), broadcast.look);
       return broadcast.look;
     },
   };
@@ -26,12 +27,28 @@ export function simulationCameraShot(frame, mode) {
   const goal = observedSimulationGoal(frame);
   if (goal) return { mode: 'close', a: actor(frame.players.find(player => player.id === goal.fromId)) };
   const shot = frame.ball.shot;
-  if (!shot) return { mode: 'tv' };
+  if (!shot) return observedCameraCue(frame, actor) ?? { mode: 'tv' };
   const shooter = frame.players.find(player => player.id === shot.fromId) ?? owner;
   const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== shot.teamId);
   if (!shooter || !keeper) return { mode: 'tv' };
   const near = new THREE.Vector3().copy(shooter.position).distanceTo(keeper.position) < SIM_VIEW_DATA.camera.shotMinimumSeparationMetres;
   return { mode: near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
+}
+
+function observedCameraCue(frame, actor) {
+  const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && ['tackle', 'yellow', 'red'].includes(event.type));
+  const elapsed = contact ? frame.physicsTime - contact.time : Infinity;
+  if (contact?.type === 'tackle') return challengeCameraCue(frame, { contact, elapsed, actor });
+  if (['yellow', 'red'].includes(contact?.type) && elapsed < SIM_VIEW_DATA.camera.cardCloseSeconds) {
+    return { mode: 'close', a: actor(frame.players.find(player => player.id === contact.fromId)) };
+  }
+  return frame.ball.restart?.kind === 'corner' ? { mode: 'stand' } : null;
+}
+
+function challengeCameraCue(frame, { contact, elapsed, actor }) {
+  if (!contact.closeUp || elapsed >= SIM_VIEW_DATA.camera.challengeCloseSeconds) return null;
+  const carrier = frame.players.find(player => player.id === contact.toId), defender = frame.players.find(player => player.id === contact.fromId);
+  return carrier && defender ? { mode: 'close', a: actor(carrier), b: actor(defender) } : null;
 }
 
 export function simulationCameraPoints(frame) {
@@ -45,19 +62,4 @@ export function simulationCameraPoints(frame) {
   const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== attacking.teamId);
   if (keeper) points.push(new THREE.Vector3().copy(keeper.position).setY(1));
   return points;
-}
-
-function fitSimulationCamera(camera, points, look) {
-  camera.updateMatrixWorld(true);
-  let scale = 1;
-  const tangent = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), distance = camera.position.distanceTo(look);
-  for (const point of points) {
-    const local = point.clone().applyMatrix4(camera.matrixWorldInverse);
-    const needed = Math.max(Math.abs(local.x) / (tangent * camera.aspect * SIM_VIEW_DATA.camera.margin),
-      Math.abs(local.y) / (tangent * SIM_VIEW_DATA.camera.margin));
-    scale = Math.max(scale, 1 + (needed + local.z) / distance);
-  }
-  camera.position.sub(look).multiplyScalar(scale).add(look);
-  camera.lookAt(look);
-  camera.updateMatrixWorld(true);
 }
