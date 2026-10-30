@@ -17,3 +17,7 @@ Ayak kaymasının ölçümü: düz 4 m/sn koşu senaryosunda yere yakın ayak ar
 WebGL 3D kanıt paketi `simulation-3d-mobile`: `camera-tv.png`, `camera-close.png`, `camera-stand.png`, `camera-auto.png`, `goal-celebration.png`, `goal-fan-photo.png`, `goal-return-to-play.png`; mevcut dikey/yatay kariyer kareleriyle birlikte. `verification.json` test edilen commit'i içerir. Gol dizisi açıkça izole çekirdek kabul geometrisidir; normal kariyer kanıtı santra/pas/şut/kurtarış karelerinden ayrıdır. Kaleci paketi mevcut kısa hareket kayıtlarını korur.
 
 Yerel ortamda fiziksel telefon yoktur. Chromium telefon görünümü iPhone/Safari cihaz testi sayılmaz. Yayın yalnız bütün kapılar geçince yapılır; canlı sürüm ve kesin commit son teslim mesajında verilir. Dal silinmez.
+
+## Yayın dumanında çekim yarışı
+
+Main `e0d45e5` yayınında normal duman geçti; 3D dumanı gol sevincinin ekran görüntüsü yavaş alınırken çalışan maçın iki saniyelik fotoğraf penceresini kaçırdı. Günlükte fizik zamanı 11,7 saniyeye ulaşmışken geçmiş fotoğraf bekleniyordu. Test artık sevinç, fotoğraf ve sahaya dönüş karelerinde mevcut duraklatma kontrolünü tarayıcı içinde kullanır; ekran görüntüsü sırasında fizik ilerlemez. Ürün kodu, fotoğraf süresi, eşikler ve zorunlu kontroller değişmez. Yalnız test düzeltmesi dalında da ek denge/süre taramaları başlatılmaz.
