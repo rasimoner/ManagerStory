@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
+    needs: simulation-3d-mobile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,13 +40,13 @@ jobs:
           BALANCE_SCREENSHOT: balance-mobile.png
           CAREER_CONTROLS_ONLY: '1'
       - name: Measure fifty matches and attribute-strength experiments
-        # This bounded task already records twenty matched seeds; retain every test and smoke gate.
-        if: github.head_ref != 'feat/short-match-flow'
+        # Short-flow and 3D tasks exclude new balance/duration sweeps; retain every test and smoke gate.
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d'
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
           node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
       - name: Measure all five durations with the same fifty equal-squad seeds
-        if: github.head_ref != 'feat/short-match-flow'
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d'
         run: npm run sim:duration-report -- duration-measurements.json
       - uses: actions/upload-artifact@v4
         if: always()
@@ -59,8 +60,8 @@ jobs:
             shooting-mobile.png
           if-no-files-found: ignore
   continuous-mobile:
-    # The short-flow task explicitly excludes an additional full real-time watch.
-    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow'
+    # The 3D task uses the bounded real-WebGL smoke scenarios instead of another seven-minute watch.
+    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,4 +84,24 @@ jobs:
           path: |
             career-mobile.png
             career-mobile-metrics.json
+          if-no-files-found: ignore
+
+  simulation-3d-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Inspect actual 3D frames and controls at 390 by 844
+        run: npm run smoke:sim-3d
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulation-3d-mobile
+          path: test-results/sim-3d/
           if-no-files-found: ignore

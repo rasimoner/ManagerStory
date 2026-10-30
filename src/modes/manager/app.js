@@ -40,6 +40,7 @@ import { experimentalSkipControl } from './experimental-controls.js';
 import { initializeExperimentalMatch } from '../../core/engine/experimental-input.js';
 import { queueExperimentalSubstitution, resumeExperimentalMatch } from '../../core/engine/experimental-match.js';
 import { experimentalPitch } from '../../core/presentation/sim/career-pitch.js';
+import { simulationViewNotice, simulationViewFailure, fallbackSimulationView } from '../../core/presentation/sim/view-status.js';
 import { academyWage, baseWage, wageBill, wageBudget, wageFits, wageRoom } from './wages.js';
 import { giveShirtNumber } from '../../core/players/shirt-numbers.js';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
@@ -51,7 +52,9 @@ export const $=q=>document.querySelector(q), money=n=>"₺"+(n/1e6).toFixed(1)+"
 function renderActiveMatch(root){
  ensureMatchState();ensureLiveState();
  if(!M.experimental&&presentation.live3d&&!presentation.live3d.enabled){presentation.live3d.enable();presentation.live3d.setTempo(1);}
- root.innerHTML=matchUI();save(M.experimental?{automatic:true}:undefined);if(!M.experimental)presentation.career3d?.mount();ensureLiveLoop();paintLivePitch();
+ root.innerHTML=matchUI();save(M.experimental?{automatic:true}:undefined);
+ if(M.experimental)presentation.simulation3d?.mount();else presentation.career3d?.mount();
+ ensureLiveLoop();paintLivePitch();
 }
 export function fresh(){return migrateSave({players:structuredClone(P0),currentClubId:CLUB_DATA.startingClub,week:1,day:1,fixture:0,budget:18e6,board:72,fans:68,rep:45,xi:[...STARTING_SQUAD.xi],bench:[...STARTING_SQUAD.bench],positions:structuredClone(STARTING_SQUAD.positions),plan:{...STARTING_SQUAD.plan},scheduled:[],promises:[],events:[],history:[],results:[],instructions:{},schedule:makeSchedule(CLUB_DATA.startingClub),table:allTeams(CLUB_DATA.startingClub).map(n=>({n,p:0,gf:0,ga:0,pts:0})),event:null})}
 export function init(){if(!S)return;S.players.forEach(p=>{p.managerTrust??=finite(p.relation,65);p.confidence??=clamp(finite(p.form,70)-20,35,75);p.pressure??=50;p.motivation??=clamp(finite(p.morale,70)-20,35,75)});ensureOpponentSquads();if(!S.instructions)S.instructions={};if(!S.schedule||S.schedule.length!=34)S.schedule=makeSchedule();ensureLeague();if(!S.pressUsed)S.pressUsed=[];if(!S.sundayEvents)S.sundayEvents={};if(!S.cooldowns)S.cooldowns={};if(!S.news)S.news=[];if(!S.objectives)S.objectives=[{text:"Ligi ilk 6 içinde bitir",type:"league",target:6},{text:"Genç oyunculara süre ver",type:"youth",target:900}];if(!S.transferList)S.transferList=makeTransferMarket();if(!S.clock)S.clock="09:00";if(!S.inbox)S.inbox=[];if(!S.clubMood)S.clubMood={chairman:"Beklenti dengeli",staff:"Maç planı hazırlanıyor",dressing:"Odaklanmış"};normalizeFormation();S.players.forEach(p=>{if(p.goals==null)p.goals=0;if(p.assists==null)p.assists=0;if(p.yellow==null)p.yellow=0;if(p.red==null)p.red=0;if(p.injury==null)p.injury=0;if(!p.personality)p.personality=p.age>=30?"Lider":p.age<=20?"Hırslı":p.physical>=78?"Rekabetçi":"Profesyonel"});if(!S.v6){S.v6={transferPool:[],academy:[],academyCounter:0,cup:{alive:true,round:"1. Tur",wins:0},fanPressure:50};}if(!S.v6.transferPool.length)S.v6.transferPool=makeTransferPool();S.players.forEach(p=>{if(p.happiness==null)p.happiness=Math.max(40,Math.min(95,p.morale||70));if(p.growth==null)p.growth=0;if(p.secondary==null)p.secondary=[]});ensureAcademyIdentityState();if(!S.v6.academy.length)refreshAcademy(true);if(S.v6.boardBudgetAskedWeek==null)S.v6.boardBudgetAskedWeek=-99;S.players.forEach(p=>{if(p.wage==null)p.wage=baseWage(p.overall);if(p.debutDone==null)p.debutDone=p.status!=="Altyapıdan A takım"});ensurePlayerProfiles();if(typeof ensureSeasonState==='function')ensureSeasonState();if(!S.event)nextEvent()}
@@ -268,6 +271,7 @@ export function nextEvent(){if(typeof seasonEndCheck==='function'&&seasonEndChec
 export function advance(){S.event=null;S.day++;if(S.day>5){S.day=1;S.week++}nextEvent();render()}
 export function render(){
  presentation.career3d?.detach();
+ presentation.simulation3d?.detach();
  const a=$("#app");setScreenMode();
  if(!S){a.innerHTML=`<div class=hero><div class=logo>⚽</div><h1>ManagerStory</h1><p class=muted>Kariyer senin kararlarınla akar.</p>${loadError?`<p role=alert>${escapeHTML(loadError)}</p>`:`<button data-action="newCareer">Yeni Kariyer</button>`}<label class="importlabel secondary">Kariyer Yedeği Yükle<input type=file accept="application/json,.json" data-action="importCareer"></label><p><small>V${GAME_VERSION} • Hisar Matchday</small></p></div>`;return}
  init();restoreActiveMatch();setScreenMode();
@@ -519,16 +523,15 @@ export function halfTimeUI(){
 }
 export function setMatchView(view){
  if(!M||!["2d","3d"].includes(view))return;
- if(M.experimental&&view==="3d")return;
- if(view==="3d"){presentation.live3d.enable();presentation.live3d.setTempo(1);}
+ if(M.experimental&&view==='3d'&&simulationViewFailure()){fallbackSimulationView(simulationViewFailure());return;}
+ if(!M.experimental&&view==="3d"){presentation.live3d?.enable();presentation.live3d?.setTempo(1);}
  M.fieldView=view;render();
 }
 export function matchViewOptions(){
- if(M.experimental)return '<span class="field-view-options muted">2D · Yeni motorda 3D yakında</span>';
  return `<div class="field-view-options" role="group" aria-label="Saha görünümü">${["2d","3d"].map(v=>`<button class="${(M.fieldView||"3d")===v?"active":"secondary"}" aria-pressed="${(M.fieldView||"3d")===v}" data-action="setMatchView" data-view="${v}">${v.toUpperCase()}</button>`).join("")}</div>`;
 }
 export function matchFieldView(){
- if(M.experimental)return experimentalPitch();
+ if(M.experimental)return `${simulationViewNotice()?`<p role=status>${escapeHTML(simulationViewNotice())}</p>`:''}${M.fieldView==='3d'?'<div id="sim-3d-host"><p role=status>3D saha hazırlanıyor…</p></div>':experimentalPitch()}`;
  return M.fieldView==="3d"?'<div id="career-3d-host"></div>':matchPitch();
 }
 export function matchUI(){

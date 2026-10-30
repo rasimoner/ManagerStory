@@ -7,6 +7,8 @@ import { captureSimulationFrame } from '../../match/playback-frames.js';
 import { clockFromSeconds } from '../../engine/live-match.js';
 import { usesNaturalMatchClock } from '../../sim/simulation-clock.js';
 import MATCH_DURATION_DATA from '../../../data/match-duration.json';
+import { sampleSimulationScene } from './scene-frame.js';
+import { presentation } from '../registry.js';
 
 export function experimentalPitch() {
   const frame = M.simulationDisplayFrame ?? captureSimulationFrame(M.simulation);
@@ -23,6 +25,8 @@ function experimentalPlayerDot(player) {
 }
 
 export function paintExperimentalPitch() {
+  if (M.fieldView === '3d') presentation.simulation3d?.paint(sampleSimulationScene(M.simulationPlayback, { immediate: M.pause || M.finished }));
+  paintExperimentalClock();
   const root = document.querySelector('[data-sim-pitch]');
   if (!root) return;
   const bounds = { width: root.clientWidth, height: root.clientHeight };

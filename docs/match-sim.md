@@ -1,8 +1,8 @@
 # Saniyelik maç simülasyonu — şartname
 
-Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D bağlantısı, ortak süre modeli ve yeni maçlarda doğal 2D uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
+Durum: Faz 4, laboratuvar/topsuz hareket, top fiziği/pas, sürme/müdahale/faul ve şut/kaleci/gol/skor/santra/devre ve Denge 1; deneysel kariyer/2D/3D bağlantısı, ortak süre modeli ve yeni maçlarda doğal 2D uygulanmış durumda. Bu belge yeni motorun kural kaynağıdır. Uygulanan kurallar aşağıda kesin; sonraki adımlar amaç ve açık soru olarak ayrıdır. Godot'a taşınacak sözleşme kodun dosya yapısı değil bu belge, JSON veri ve kabul testleridir.
 
-Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. V7.16.0 ile yeni maç 3/5/7/10 dakika ve doğal 2D ile izlenir; önceki yarım maç kendi referans modeliyle kalır. 3D sonraki iştir. Diğer lig maçları yine `simAIGame` ile kalır. Kapalıyken eski dakika/3D yolu korunur.
+Laboratuvar: https://rasimoner.github.io/ManagerStory/lab.html. V7.15.0'da laboratuvar karşılaştırması korunarak kariyere **varsayılan kapalı deneysel anahtarla** bağlantı eklendi. V7.16.0 ile yeni maç 3/5/7/10 dakika ve doğal 2D ile izlenir; önceki yarım maç kendi referans modeliyle kalır. V7.18.0 ile aynı aktif maç 2D veya 3D izlenebilir; [3D raporu](match-sim-3d-report.md). Diğer lig maçları yine `simAIGame` ile kalır. Kapalıyken eski dakika/3D yolu korunur.
 
 ## Kariyer adaptörü (C)
 
@@ -32,7 +32,7 @@ Eski 34 maç/ekran/kariyer altın dosyaları yenilenmez. Karşılaştırma yard�
 
 ## Ortak süre modeli ve doğal 2D (V7.16.0)
 
-Ayarlar → **Maç süresi**: 3, 5, 7 (varsayılan), 10 dakika, iki devrenin toplamıdır. Normal 1× izleme süresidir; 0,5× iki kat, 2× yarı süre verir. Duraklatma, devre arası ve taktik ekranında bekleme bu bütçeye girmez. Yeni kariyer ve eski kayıt göçü 7 dakika alır; bozuk kayıt tercihi 7'ye döner, geçersiz ayar komutu reddedilir. Her maç öncesi soru/ek onay yoktur. Süre şimdilik yalnız yeni deneysel maçlarda etkilidir. Deneysel anahtar varsayılan kapalı; açık maçta 3D seçilemez. Diğer lig maçları ve eski motor/3D değişmez.
+Ayarlar → **Maç süresi**: 3, 5, 7 (varsayılan), 10 dakika, iki devrenin toplamıdır. Normal 1× izleme süresidir; 0,5× iki kat, 2× yarı süre verir. Duraklatma, devre arası ve taktik ekranında bekleme bu bütçeye girmez. Yeni kariyer ve eski kayıt göçü 7 dakika alır; bozuk kayıt tercihi 7'ye döner, geçersiz ayar komutu reddedilir. Her maç öncesi soru/ek onay yoktur. Süre şimdilik yalnız yeni deneysel maçlarda etkilidir. Deneysel anahtar varsayılan kapalı; V7.18.0 ile açık maçta Saha → 3D seçilebilir. Diğer lig maçları ve eski motor/3D değişmez.
 
 Saf `createSimulation({…,durationSeconds})` genel bir süredir; kariyer, DOM ve görünüm bilmez. Pozitif, sonlu ve iki devreye eşit bölünebilen tam 0,1 sn adımları ister; örneğin 12 sn kabul edilir, `null`, metin, 0, negatif ve adım dışı süre reddedilir. Girdi verilmezse `clock.model:"reference"`, 5.400 fizik saniyesi ve laboratuvarın eski davranışı kalır. Girdi verilirse `clock.model:"natural"` olur. Seçenekler `data/match-duration.json`; futbol/fizik sabitleri değişmez.
 
@@ -415,3 +415,14 @@ Canlı top son üçte birdeyken 35 m tetik ve 18 m kademeyle blok daralır/derin
 Kalecinin normal/set gövde ve açılmış kol zarfı 1,15/1,25 m; tepki 0,16+0,20·(1−reflexes/100), set değilse +0,04 sn. Parmak ucu ileri/yana hız bileşenleri düzeltilmiştir; plonjon azami ek uzanması korunur. Gol ve kurtarış hâlâ gerçek temas ve çizgi geçişidir. Şut haritası olaylardan maç boyunca birikir; renk sonucu, alan xG’yi gösterir. Skorun altında xG/kurtarış oranı vardır.
 
 İlk 50’de şut sayısı hedefte, ek 100 maçta hafif altında; faul hedef altında ve 5+ gol oranı hedefin üstünde; xG’nin bazı dilimleri uyumsuz kalır. Genel gövde faulleri, orta/kafa/duran top şutları yoktur; uzak şut seçimi hâlâ tutucudur. Bu alanlar kapanmış sayılmaz. Ayrıntı, nedenler, başarısız adayların neden korunmadığı ve güç deneyleri [Denge 1 raporunda](match-sim-balance-report.md); ham önce/sonra dosyaları `docs/measurements/` içindedir.
+
+
+## V7.18.0 — aynı fizik karelerinden kariyer 3D
+
+`presentation.simulation3d` ayrı bağlantıdır. Mevcut rig, formalar, kaleci ve stadyumu kullanır; eski `createDirector` bu yolu sürmez. Tek sürücü `liveFrameStep` → `advanceExperimentalSimulation` olarak kalır. Görünüm seçimi `fieldView` değerini değiştirir; motor, seed/RNG, kadro veya saat başlatmaz. Renderer `stepSimulation`, runtime hareket/top çözücüleri, temas, pas, gol ve kariyer yazıcılarını çağırmaz.
+
+`captureSimulationFrame` bağımsız çizim kopyası artık takım yönü, slot, velocity, heading, role/gait/motionMode, keeper/duel, top hızı/elde tutan/şut ve yakın gerçek olay temaslarını taşır. Oyuncu konumu `(x,0,y)`, top merkezi `(x,height+0,11,y)`; rig heading `π/2-heading`. Devrede sahneyi yeniden aynalama yoktur, yeni yön çekirdektedir. Kayıttaki eski çizim önbellekleri checkpoint'ten yeniden türetilir.
+
+Ara konum geçmiş ve güncel fizik kareleri arasındadır; geleceğe kestirim yoktur. Yürüme/koşma çevrimi gerçek görsel mesafe ve fizik süresini kullanır. Şut/pas takip pozu ve müdahale/dağıtım klibi yalnız gerçek eyleme bağlanır. Kaleci hazır duruşu `keeper.mode`, uzanması gerçek tepki/target alanlarından gelir. Top el/ayağa çekilmez; oyuncu kökü vuruş temasını tamamlamak için kaydırılmaz. Yeni hareket veya uydurma yıldız tekrarı yoktur. Genel kariyer özet/arşiv akışı korunur.
+
+Ortak süre ve manuel hız aynıdır; eski cihazın bağımsız oyuncu/top, şut ağır çekimi ve tekrar ayarları okunmaz. Canlı ekran dakikası `matchTime`, animasyon `physicsTime` kullanır. Duraklamada çizim önbelleği güncel kareye oturur; devam ederken geri kaymaz. WebGL/yükleme hatasında açıklamayla aynı maça 2D'de devam edilir. Gerçek dokunmatik Chromium kanıtı ve açık animasyon sınırları [raporda](match-sim-3d-report.md).

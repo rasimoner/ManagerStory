@@ -1,0 +1,19 @@
+{
+  "codeCommit": "d1ad835085a242ae5285069934a9bb5e465b54c0",
+  "workflow": "https://github.com/rasimoner/ManagerStory/actions/runs/41034255883",
+  "artifactId": 12967766037,
+  "archiveSha256": "4aec3bbcd6991d7ab2cb83329f4b6ed947fcc4f3d10db208464a83a2a2548287",
+  "files": {
+    "full-time.png": "0f8b392c97825a5b29d3558269d8645f429f65b5969640fd43ab45edc664e088",
+    "goal.png": "0456102953ac870f64d2e896a154ca3c26c90de6c002772a6589d27cb6945a62",
+    "half-time.png": "5d2caba69c3b57a972d9647f22d60794caf08094034325399496fc29bb4f5334",
+    "kickoff.png": "8c52ba4b9dc77c7adf470d7df62357285709f4ec7b27bf3999244e17811c433f",
+    "landscape-fullscreen.png": "709cfe686804cc3550af0b7aa9fddc60aa028e899fa708a763cc6bd512513216",
+    "passing.png": "428d7e51d7a868c55d5a370e0a52bff2ffaff0f39775420666ae8d8873cffbc7",
+    "save.png": "07dca6d5dbd69b415dff6e308586d7cd0a90f5066ec15c8fd3b074840510bc18",
+    "second-half.png": "b645aa9bdeb011a01f4952fc28c545b3d54789339de24402f5d1a6209cf7c69b",
+    "shot.png": "95d1b2ffaa206d4b2e73299d3684095459a0284b491805fb696b7137bc901a70",
+    "verification.json": "41b93bed5106349ba033d3b5575c6e4e1465b4a1d732fe280de593c24861205a",
+    "webgl-fallback.png": "46cd7c6eb24788e296f9db760d365cda3f6746a311d1e1039082481ef6a49036"
+  }
+}

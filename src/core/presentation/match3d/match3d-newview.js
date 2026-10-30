@@ -430,7 +430,7 @@ let fastForward = 1;          // (?nvfixdt only) a recording script skips ahead 
 const TEST_SCALE = Math.min(20, Math.max(1, Number(new URLSearchParams(location.search).get('nvtest')) || 1));
 let last = 0, frameNo = 0, rafId = null;
 const paused = () => typeof livePlaybackPaused === 'function' ? livePlaybackPaused() : !!M?.pause;
-function isActive() { return !failed && !!assets && !!M && (M.fieldView === '3d' || full) && surface.isConnected && canvas.clientWidth > 0; }
+function isActive() { return !failed && !!assets && !!M && !M.experimental && (M.fieldView === '3d' || full) && surface.isConnected && canvas.clientWidth > 0; }
 function frame(now) {
   if (!manualTick) rafId = requestAnimationFrame(frame);
   if (MANUAL && !manualTick) return;          // (?nvmanual) a recording script steps the frames itself
@@ -534,6 +534,7 @@ presentation.career3d = {
   get fullscreen() { return full; },
   setFullscreen(on) { setFull(!!on); },
   mount() {
+    if (M?.experimental) return;
     if (failed && M?.fieldView === '3d') { M.fieldView = '2d'; changed(); return; }
     if (M?.fieldView === '3d' && presentation.live3d && !presentation.live3d.enabled) { presentation.live3d.enable(); presentation.live3d.setTempo(1); }
     if (full) { if (!M) setFull(false); return; }

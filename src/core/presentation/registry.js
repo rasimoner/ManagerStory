@@ -6,4 +6,4 @@
      career3d   its mount on the match screen (match3d-newview.js)
      starScene  the star transfer scene (star-transfer-scene.js)
    A part puts itself in its slot when it loads; until then the slot is null. */
-export const presentation = { live3d: null, view: null, newView: null, career3d: null, starScene: null, archivePersistence: null };
+export const presentation = { live3d: null, view: null, newView: null, career3d: null, simulation3d: null, starScene: null, archivePersistence: null };

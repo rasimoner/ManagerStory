@@ -1,0 +1,55 @@
+{
+  "node": "v22.23.4",
+  "viewport": "390×844",
+  "captures": [
+    {
+      "label": "kickoff",
+      "tick": 0,
+      "physicsTime": 0
+    },
+    {
+      "label": "passing",
+      "tick": 55,
+      "physicsTime": 5.5
+    },
+    {
+      "label": "shot",
+      "tick": 577,
+      "physicsTime": 57.7
+    },
+    {
+      "label": "save",
+      "tick": 708,
+      "physicsTime": 70.8
+    },
+    {
+      "label": "goal",
+      "tick": 2,
+      "physicsTime": 0.2
+    },
+    {
+      "label": "passing",
+      "tick": 55,
+      "physicsTime": 5.5
+    },
+    {
+      "label": "passing",
+      "tick": 55,
+      "physicsTime": 5.5
+    }
+  ],
+  "controls": [
+    "view switch without a step",
+    "half/double speed",
+    "pause",
+    "reload",
+    "fullscreen",
+    "landscape",
+    "second half",
+    "90:00",
+    "skip",
+    "WebGL fallback"
+  ],
+  "goalFixture": "isolated core acceptance geometry; no production result override",
+  "physicalIphoneSafari": false
+}

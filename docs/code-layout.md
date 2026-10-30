@@ -235,3 +235,14 @@ Build iki HTML girişini bağımsız grafiklerle paketler; laboratuvar için oyu
 Süre ölçümü: `tools/match-sim-duration-report.cjs`, `tools/duration-report/measure.cjs`, `career.cjs`, `summary.cjs`; aynı 50 tohum/eşit kadro, beş süre, gerçek kariyer gol/kart/dakika/asist yazıcıları. `tests/match-sim-duration*.test.cjs` saat/fizik/ayar/eski kayıt/rapor; `tests/support/native.cjs` adla bulunan oyun API'sini yerel ölçüme paketler. Ham veriler `docs/measurements/match-sim-duration*.json`.
 
 Doğal süreli maçın hücum alanı değeri: `core/sim/attacking-space.js` hücum kalesine mesafe kazancını hesaplar; `dribble-evaluation.js` ve `owner-options.js` aynı ölçeği okur. `off-ball-roles.js` ayrı taşıyıcı/derin koşu ve ileri/geri destek planlar. Katsayılar `data/balance.json.shortMatchFlow`; kabul testleri `tests/match-sim-short-flow.test.cjs`, küçük eşlenmiş ölçüm `docs/measurements/match-sim-short-flow.json`. Yeni rapor aracı yoktur.
+
+
+### Yeni motorun kariyer 3D bağlantısı (V7.18.0)
+
+- `presentation/sim/career-scene.js`, `career-scene.css`: sahne yaşam döngüsü, gerçek saat/skor, temel gol bildirimi, tam ekran ve 2D geri dönüşü.
+- `scene-frame.js`: metre/yükseklik/heading dönüşümü ve gözlenmiş fizik kareleri arasında salt çizim örneği.
+- `scene-stage.js`, `scene-kits.js`: mevcut stadyum/rig/formalar; `scene-actors.js`: gerçek kökler ve mevcut animasyonlar, yerel fizik yok.
+- `scene-camera.js`, `scene-radar.js`: yayın kamerası/top-kale-kaleci zarfı ve aynı konumların radarı.
+- `view-status.js`: geçici hata açıklaması; `data/match-sim-view.json`: yalnız çizim değerleri.
+- `tests/match-sim-3d*.test.cjs`, `tests/support/simulation-scene.cjs`: gerçek rig/salt okuma/kadro/kamera ve iki görünümün aynı futbolu.
+- `tests/smoke/career-sim-3d.mjs`, `tests/support/scene-careers.cjs`: 390×844 WebGL, gerçek kayıtlarla beş görüntü, kontroller/devre/bitiş ve bağlam kaybı. Test gol geometrisi ürün koduna girmez.

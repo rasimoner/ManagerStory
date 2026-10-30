@@ -1,6 +1,6 @@
 {
   "name": "managerstory",
-  "version": "7.17.0",
+  "version": "7.18.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,7 +13,8 @@
     "smoke": "node tests/smoke/smoke.mjs && node tests/smoke/lab.mjs && node tests/smoke/lab-legacy-worker.mjs && node tests/smoke/lab-passing.mjs && node tests/smoke/lab-duels.mjs && node tests/smoke/lab-shooting.mjs && node tests/smoke/lab-balance.mjs && node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/career-sim.mjs",
     "sim:report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-report.cjs",
     "sim:career-report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-career-report.cjs",
-    "sim:duration-report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-duration-report.cjs"
+    "sim:duration-report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-duration-report.cjs",
+    "smoke:sim-3d": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/career-sim-3d.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

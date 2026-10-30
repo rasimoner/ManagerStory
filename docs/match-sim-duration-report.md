@@ -140,3 +140,6 @@ Actions'ın 250 maçındaki bütün futbol/kariyer alanları depodaki ham ölç�
 Yerel Chromium kurulu değildir. Yerel Node 22'de eski değişmemiş main de bazı 2 sn soğuk performans bütçelerini aştı (şut 3.309/2.020/1.703 ms; tüketimli 2.832/4.092/2.559 ms). Son belge kontrolünde lint ve bütün hızlı işlev testleri geçti; yerel soğuk şut medyanı 2.030,9 ms ile aynı bütçeyi aştı. Eşikler değiştirilmedi; son uygulamanın bütün performans kontrolleri Actions'ta geçti. Tekrar tekrar yerel zaman denemesiyle iyi sonuç seçilmedi.
 
 Main'e birleşme sonrası [Pages yayın kapısı](https://github.com/rasimoner/ManagerStory/actions/workflows/pages.yml) lint/tam test/build/dumanı tekrar doğrular ve [canlı oyunu](https://rasimoner.github.io/ManagerStory/) yayımlar. Kesin birleşme SHA'sı ve yayın koşusu teslim mesajında verilir. Birleşen dallar silinmez; birleşme sonrasında `feat/match-sim-duration` silinebilecek adaydır.
+
+
+V7.18.0 güncellemesi: bu tarihli raporda sonraki iş olarak tarif edilen 3D sözleşmesi uygulandı. Aynı aktif maç Saha → 3D seçimiyle çizilir; yaklaşım, kanıtlar ve sınırlar [3D raporunda](match-sim-3d-report.md). Önceki sürüme ait ölçümler ve kararların tarihi korunmuştur.

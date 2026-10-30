@@ -112,6 +112,8 @@ export function skipExperimentalMatch() {
 export function pauseExperimentalMatch() {
   if (!M?.experimental) return;
   pauseSimulation(M.simulation);
+  refreshPlaybackFrame(M.simulationPlayback, M.simulation);
+  M.simulationDisplayFrame = M.simulationPlayback.frame;
   synchronizeExperimentalPlayers({ time: M.simulation.time, frame: M.simulationDisplayFrame });
 }
 export function resumeExperimentalMatch() {

@@ -60,8 +60,9 @@ test('the existing settings screen exposes the switch and an active match locks 
   assert.equal(game.run('M.experimental'), true);
   assert.equal(game.run('S.experimentalMatchEngine'), true);
   game.run('setMatchView("3d")');
-  assert.equal(game.run('M.fieldView'), '2d');
-  assert.match(game.html(), /Yeni motorda 3D yakında/);
+  assert.equal(game.run('M.fieldView'), '3d');
+  assert.match(game.html(), /id="sim-3d-host"/);
+  assert.match(game.api.matchViewOptions(), /data-view="2d"/);
 });
 
 test('the adapter reads the actual first eleven, opponent identities, fitness and goalkeeper attributes', () => {
