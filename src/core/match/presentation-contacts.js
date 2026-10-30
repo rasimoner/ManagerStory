@@ -6,23 +6,38 @@ const cameraHistory = new WeakMap();
 export function capturePresentationContacts(simulation) {
   const history = updateCameraHistory(simulation);
   const start = Math.max(0, simulation.events.length - SIM_VIEW_DATA.contacts.maximum);
-  return simulation.events.slice(start).map((event, offset) => copyPresentationContact(event, {
+  const retained = [...history.retained].filter(id => id < start).map(id => copyPresentationContact(simulation.events[id], { id }));
+  const recent = simulation.events.slice(start).map((event, offset) => copyPresentationContact(event, {
     id: start + offset, closeUp: history.closeUps.has(start + offset),
-  })).filter(event => simulation.time - event.time <= contactHistorySeconds(event));
+  }));
+  return [...retained, ...recent].filter(event => simulation.time - event.time <= contactHistorySeconds(event));
 }
 
 function updateCameraHistory(simulation) {
-  if (!cameraHistory.has(simulation)) cameraHistory.set(simulation, { cursor: 0, challenges: 0, closeUps: new Set() });
+  if (!cameraHistory.has(simulation)) cameraHistory.set(simulation, { cursor: 0, challenges: 0, closeUps: new Set(), retained: new Set() });
   const history = cameraHistory.get(simulation);
   while (history.cursor < simulation.events.length) {
     const event = simulation.events[history.cursor];
+    retainImportantContact(history, event);
     if (isCloseChallenge(event)) {
       if (history.challenges++ % 2 === 0) history.closeUps.add(history.cursor);
     }
     history.cursor++;
   }
-  for (const id of history.closeUps) if (id < simulation.events.length - SIM_VIEW_DATA.contacts.maximum) history.closeUps.delete(id);
+  trimPresentationHistory(simulation, history);
   return history;
+}
+
+function retainImportantContact(history, event) {
+  if (['goal', 'keeperClaim'].includes(event.type)) history.retained.add(history.cursor);
+}
+
+function trimPresentationHistory(simulation, history) {
+  for (const id of history.closeUps) if (id < simulation.events.length - SIM_VIEW_DATA.contacts.maximum) history.closeUps.delete(id);
+  for (const id of history.retained) {
+    const event = simulation.events[id];
+    if (simulation.time - event.time > contactHistorySeconds(event)) history.retained.delete(id);
+  }
 }
 
 function isCloseChallenge(event) {

@@ -189,3 +189,21 @@ test('shielding uses the existing body-protection pose only while the engine sel
   fixture.actors.apply(frame);
   assert.equal(fixture.runtime.players[0].act, null);
 });
+
+test('an observed goal remains visible at double speed even when many contacts follow it', async () => {
+  const game = gameMatch(), sim = game.api.M.simulation, { api } = await sceneFixture();
+  sim.events.push({ type: 'goal', time: 1, fromId: 1, teamId: 'user' });
+  for (let index = 0; index < 60; index++) sim.events.push({ type: 'duel', time: 1.1 + index / 100, fromId: 2, toId: 3, kind: 'shoulder' });
+  sim.time = sim.physicsTime = 2;
+  const frame = scene(); frame.physicsTime = 2; frame.contacts = game.api.captureSimulationFrame(sim).contacts;
+  assert.equal(api.observedSimulationGoal(frame)?.fromId, 1, 'contact volume must not truncate the goal/photo window');
+});
+
+test('a real shoulder duel uses the existing contact pose for both actual participants', async () => {
+  const fixture = await sceneFixture(), frame = scene();
+  frame.players.push({ ...structuredClone(frame.players[0]), id: 2, teamId: 'opponent' });
+  frame.contacts = [{ type: 'duel', kind: 'shoulder', fromId: 1, toId: 2, time: 0, success: true }];
+  frame.physicsTime = .2;
+  fixture.actors.apply(frame);
+  for (const actor of fixture.runtime.players) assert.equal(actor.act?.name, 'shoulder');
+});

@@ -19,11 +19,16 @@ export function simulationContactAnimation(sample, frame, actor) {
 
 function animationName(contact, sample) {
   if (contact.type === 'firstTouch') return controlAnimation(contact, sample);
+  if (contact.type === 'duel') return shoulderAnimation(contact, sample);
   if (contact.fromId !== sample.id) return null;
   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
   if (contact.type === 'block') return 'lunge';
   return ['pass', 'shot'].includes(contact.type) ? contact.type : null;
+}
+
+function shoulderAnimation(contact, sample) {
+  return contact.kind === 'shoulder' && [contact.fromId, contact.toId].includes(sample.id) ? 'shoulder' : null;
 }
 
 function motionAt(name, time) { return { name, t0: time - MOTIONS[name].contact }; }

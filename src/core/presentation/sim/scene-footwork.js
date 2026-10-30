@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
+import { ACTIONS } from '../match3d/newview/actions.js';
 
 // A support foot fades out before its swing; releasing a full-strength IK lock caused turning jitter.
 export function plantSimulationFeet(runtime, actor, seconds) {
@@ -21,6 +22,6 @@ function plantFoot(runtime, actor, { side, seconds }) {
 }
 
 function canPlantFeet(actor, seconds) {
-  if (actor.keeper || actor.motion || actor.act && actor.act.name !== 'celebrate') return false;
+  if (actor.keeper || actor.motion || actor.act && ACTIONS[actor.act.name].mask === 'all') return false;
   return actor.vel.length() >= SIM_VIEW_DATA.pose.minimumPlantSpeed && seconds <= SIM_VIEW_DATA.pose.maximumAnimationGapSeconds;
 }
