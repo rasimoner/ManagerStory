@@ -12,6 +12,7 @@ import { userOpponent, userSquad } from './user-team.js';
 import { restoreSimulation } from '../sim/simulation-checkpoint.js';
 import { createSimulationPlayback } from '../match/continuous-playback.js';
 import { unpackMatchSnapshot } from '../match/match-storage.js';
+import { refreshPlaybackFrame } from '../match/playback-frames.js';
 export const FORM_TR = { W: "G", D: "B", L: "M", G: "G", B: "B", M: "M" };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const finite = (n, fallback = 0) => Number.isFinite(n) ? n : fallback;
@@ -26,10 +27,18 @@ export function restoreActiveMatch() {
   if (M || !S?.activeMatchV71) return;
   setMatch(unpackMatchSnapshot(S.activeMatchV71));
   M.rand = R(M.rngState ?? matchSeed());
-  if (M.experimental) { M.simulation = restoreSimulation(M.simulationCheckpoint); delete M.simulationCheckpoint; M.simulationPlayback ??= createSimulationPlayback(M.simulation); }
+  if (M.experimental) restoreExperimentalCheckpoint();
   delete M.uiOverlay;
   ensureMatchState();
   ensureLiveState();
+}
+function restoreExperimentalCheckpoint() {
+  M.simulation = restoreSimulation(M.simulationCheckpoint);
+  delete M.simulationCheckpoint;
+  M.simulationPlayback ??= createSimulationPlayback(M.simulation);
+  // Drawing frames are derived caches, including those saved before the 3D contract existed.
+  refreshPlaybackFrame(M.simulationPlayback, M.simulation);
+  M.simulationDisplayFrame = M.simulationPlayback.frame;
 }
 export function ensureMatchState() {
   if (!M) return;

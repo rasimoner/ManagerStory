@@ -34,8 +34,8 @@ async function prepareCareer(beforeMatch) {
   await beforeMatch?.();
   await enterMatchThroughCareer();
   await page.waitForSelector('[data-sim-pitch]');
-  assert.equal(await page.locator('[data-action="setMatchView"][data-view="3d"]').count(), 0);
-  assert.match(await page.locator('#app').textContent(), /Yeni motorda 3D yakında/);
+  assert.equal(await page.locator('[data-action="setMatchView"][data-view="3d"]').count(), 1);
+  assert.equal(await page.locator('[data-action="setMatchView"][data-view="2d"]').getAttribute('aria-pressed'), 'true');
 }
 
 async function enterMatchThroughCareer() {

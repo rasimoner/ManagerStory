@@ -61,3 +61,75 @@ test('scene membership follows the real active roster without keeping removed pl
   assert.equal(scene.players.length, 21);
   assert.ok(scene.players.every(player => !player.sentOff));
 });
+
+test('switching views preserves the active object, exact clock, lineup, score and RNG without enabling the old director', () => {
+  const game = match(), active = game.api.M, simulation = active.simulation;
+  game.run('advanceExperimentalPlayback(1,{maxSteps:20})');
+  const checkpoint = JSON.stringify(game.api.snapshotSimulation(simulation));
+  game.run('presentation.live3d={enable(){throw new Error("Legacy driver reached")}}');
+  for (const view of ['3d', '2d', '3d']) {
+    game.api.setMatchView(view);
+    assert.equal(active.fieldView, view);
+    assert.equal(game.api.M, active);
+    assert.equal(game.api.M.simulation, simulation);
+    assert.equal(JSON.stringify(game.api.snapshotSimulation(simulation)), checkpoint);
+  }
+});
+
+test('2D and 3D execute identical physical-step commands and retain events, RNG and final state', () => {
+  const flat = match(), spatial = match();
+  spatial.api.setMatchView('3d');
+  for (const game of [flat, spatial]) game.run(`
+    for(let tick=0;tick<4200;tick++){
+      if(M.reason==='half')startSecondHalf();
+      if(M.requiredSubstitution){
+        const incoming=eligibleSubstitutes()[0];
+        if(incoming)queueExperimentalSubstitution({outId:M.requiredSubstitution.playerId,inId:incoming.id});
+      }
+      if(M.pause)resumeLive();
+      if(M.simulation.tick===30)setMatchTactic('press','Yüksek');
+      if(M.pause&&!M.requiredSubstitution)resumeLive();
+      advanceExperimentalPlayback(.1,{maxSteps:1});
+      sampleSimulationScene(M.simulationPlayback);
+    }`);
+  assert.equal(flat.api.M.matchElapsedSeconds, 5400);
+  assert.deepEqual(spatial.json('snapshotSimulation(M.simulation)'), flat.json('snapshotSimulation(M.simulation)'));
+  assert.deepEqual(spatial.json('[M.hg,M.ag,M.active]'), flat.json('[M.hg,M.ag,M.active]'));
+});
+
+test('a 3D failure explains the fallback and keeps the same match and persisted checkpoint', () => {
+  const game = match(), simulation = game.api.M.simulation;
+  game.api.setMatchView('3d');
+  game.api.fallbackSimulationView(new Error('WebGL unavailable'));
+  assert.equal(game.api.M.fieldView, '2d');
+  assert.equal(game.api.M.simulation, simulation);
+  assert.match(game.html(), /3D.*2D.*devam/s);
+  game.api.save();
+  const restored = loadGame({ storage: game.storage, quiet: true });
+  assert.equal(restored.api.M.simulation.tick, simulation.tick);
+});
+
+test('old saved drawing caches are rebuilt from the checkpoint without changing physics or RNG', () => {
+  const game = match();
+  game.run('advanceExperimentalPlayback(1,{maxSteps:20});pauseLive();save()');
+  const career = JSON.parse(game.storage.get('msv4')), saved = game.api.unpackMatchSnapshot(career.activeMatchV71);
+  for (const player of saved.simulationPlayback.frame.players) { delete player.velocity; delete player.keeper; delete player.heading; }
+  delete saved.simulationPlayback.frame.contacts;
+  saved.fieldView = '3d';
+  career.activeMatchV71 = game.api.packExperimentalMatch(saved);
+  game.storage.set('msv4', JSON.stringify(career));
+  const restored = loadGame({ storage: game.storage, quiet: true });
+  assert.equal(restored.api.M.fieldView, '3d');
+  assert.deepEqual(restored.json('snapshotSimulation(M.simulation)'), game.json('snapshotSimulation(M.simulation)'));
+  const scene = restored.api.sampleSimulationScene(restored.api.M.simulationPlayback);
+  assert.ok(scene.players.every(player => player.velocity && player.keeper));
+});
+
+test('pause/resume cannot send the interpolated drawing clock backwards', () => {
+  const game = match();
+  game.run('advanceExperimentalPlayback(.125,{maxSteps:10});pauseLive()');
+  const paused = game.api.sampleSimulationScene(game.api.M.simulationPlayback, { immediate: true });
+  game.run('resumeLive();advanceExperimentalPlayback(.01,{maxSteps:10})');
+  const resumed = game.api.sampleSimulationScene(game.api.M.simulationPlayback);
+  assert.ok(resumed.physicsTime >= paused.physicsTime);
+});

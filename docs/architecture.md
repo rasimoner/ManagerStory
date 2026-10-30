@@ -154,3 +154,10 @@ Sürme dokunuşunun kısa serbest yuvarlanması genel boş top takibi başlatmaz
 Şutun `xg` değeri yalnız seçenek puanı ve istatistiktir. Sonuç, ortak top fiziğinde oyuncu/direk/kaleci temaslarının adım içindeki sırasından ve topun tamamının kale çizgisini geçmesinden doğar. Kalecinin adım ve kol/plonjon erişimi kendi hız/ivme ve tepki sınırındadır; handling zarı yalnız temas sonrası kaliteyi belirler. Yüksek zorluk ve son an bilgisi `save` olayına yazılır; özel hareket seçilmez. Golde santraya yerleşen oyuncular aynı hareket integrasyonunu kullanır; top duran yeniden başlama noktasına alınır. `match: true` tam maç akışını etkinleştirir; mevcut sentetik/topsuz tekrar yüzeyi korunur.
 
 Kariyer bağlantısı, değişiklik/komut kuyruğu, kondisyon/sakatlık ve durumdan devam V7.15.0'da eklendi; V7.16.0 süre ve doğal gösterimi getirir. Gerçek duran toplar ve son futbol dengesi açık borçtur. Şut/kaleci dahil tam 90 dakika için üç ayrı koşunun her birinde 2 saniye bütçesi ve bütün oyuncu/top konumları, olaylar ve skorun deterministik tekrarı test edilir. Eski altınlara ve oyun girişine dokunulmaz.
+
+
+## V7.18.0: deneysel 3D çizim sınırı
+
+`core/presentation/sim/career-scene.js` ayrı mount/paint bağlantısıdır. `scene-frame.js` saf ve bağımsız çizim kopyasını örnekler; `scene-actors.js` mevcut rig'i pozlar, fizik çalıştırmaz. `scene-stage.js` mevcut stadyumu/rig'i yükler; `scene-camera.js` mevcut yayın kamerasını gerçek top/kale/kaleci zarfına sığdırır; `scene-radar.js` aynı örneği çizer. Çizim sürücüsü yine `liveFrameStep`; 3D'nin ikinci RAF simülasyon döngüsü yoktur. Eski `match3d-newview` deneysel maçta mount olmaz.
+
+Yeni görünümün açık borcu: vuruş ve kaleci uzanması mevcut genel klip/kemik pozlarıdır; her temas için anatomik ayak/el erişimi, fiziksel kök plonjonu ve kalkış motorda henüz temsil edilmez. Kökü veya topu bunu tamamlamak için kaydırmak yasaktır. Şut kadrajı sentetik iki yön/iki en-boy testiyle ve Chromium görüntüleriyle doğrulanır; fiziksel iPhone/Safari onayı ayrıdır.

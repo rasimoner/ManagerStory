@@ -123,3 +123,6 @@ Tam doğrulanmış son oyun kodu `29efc5b04e314de5315a53bdb19feb0da8e0c476`; [No
 | 50 tohum + güç deneyleri: Denge 1 skor/sayaç karşılaştırması | Son kodda geçti; 50 skor ve sayaçlar Denge 1 ile birebir aynı |
 
 Son ölçüm/belge commit’i de Node 22 lint ve hızlı testten geçti. Bu commit oyun kodunu değiştirmez; tam CI sonucu yukarıdaki oyun SHA’sına aittir. Tekrar aynı uzun izlemenin kuyruğa girmemesi için yalnız belge commit’inde `[skip ci]` kullanılır; main birleşme commit’inde bu etiket yoktur, Pages kendi tam test/build/duman kapısını yeniden çalıştırır. Main birleşmesi [PR #7](https://github.com/rasimoner/ManagerStory/pull/7) üzerinden yapılır. Dal silinmez; birleşme sonrasında `feat/match-sim-career` silinebilecek daldır. Birleşme SHA’sı ve canlı Pages sonucu teslim mesajında verilir.
+
+
+V7.18.0 güncellemesi: bu tarihli raporda sonraki iş olarak tarif edilen 3D sözleşmesi uygulandı. Aynı aktif maç Saha → 3D seçimiyle çizilir; yaklaşım, kanıtlar ve sınırlar [3D raporunda](match-sim-3d-report.md). Önceki sürüme ait ölçümler ve kararların tarihi korunmuştur.
