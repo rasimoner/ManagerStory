@@ -14,6 +14,9 @@ export function createSimulationCamera(camera) {
       if (!initialized) { focus.copy(target); initialized = true; }
       else focus.lerp(target, 1 - Math.exp(-seconds / settings.followSeconds));
       broadcast.update({ ball: { p: focus } }, { mode: 'tv' }, seconds, aspect);
+      // A narrow phone frame needs a higher TV gantry, rather than an extreme wide-angle lens.
+      camera.position.y *= Math.max(1, settings.portraitReferenceAspect / aspect);
+      camera.lookAt(broadcast.look);
       fitSimulationCamera(camera, points);
       return broadcast.look;
     },

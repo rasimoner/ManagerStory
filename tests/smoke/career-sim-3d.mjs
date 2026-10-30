@@ -13,23 +13,32 @@ mkdirSync(evidence, { recursive: true });
 const server = await pagesServer(process.argv[2] || 'dist', { port: 0 });
 const browser = await chromium.launch({ executablePath: process.env.SMOKE_CHROMIUM || undefined,
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-const page = await context.newPage(), problems = [], captures = [];
-page.on('pageerror', error => problems.push(error.message));
-page.on('dialog', dialog => dialog.accept());
+let context, page;
+const problems = [], captures = [];
+
+async function installFixture(label) {
+  await context?.close();
+  context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,
+    storageState: { cookies: [], origins: [{ origin: new URL(server.url).origin, localStorage: [
+      { name: 'msv4', value: fixtures[label] },
+      { name: 'managerstory-nv-tune-v1', value: JSON.stringify({ player: 9, ball: .1, s1: 8, slowmo: .01 }) },
+    ] }] } });
+  page = await context.newPage();
+  page.on('pageerror', error => problems.push(error.message));
+  page.on('dialog', dialog => dialog.accept());
+  await page.goto(server.url);
+}
 
 async function loadScene(label) {
-  await page.goto(server.url);
-  await page.evaluate(snapshot => {
-    localStorage.setItem('msv4', snapshot);
-    // A broken legacy device-speed preference must not change the new motor's tempo.
-    localStorage.setItem('managerstory-nv-tune-v1', JSON.stringify({ player: 9, ball: .1, s1: 8, slowmo: .01 }));
-  }, fixtures[label]);
-  await page.reload();
+  await installFixture(label);
   await page.waitForSelector('[data-sim-scene]');
   await page.waitForFunction(() => document.querySelector('[data-scene-loading]')?.hidden);
   const root = page.locator('[data-sim-scene]');
   assert.equal(Number(await root.getAttribute('data-sim-players')), 22);
+  const expected = api.unpackMatchSnapshot(JSON.parse(fixtures[label]).activeMatchV71).simulationCheckpoint.state;
+  assert.equal(Number(await root.getAttribute('data-sim-tick')), expected.tick, `${label} loaded its own checkpoint`);
+  const layout = await root.evaluate(element => ({ height: element.clientHeight, canvasHeight: element.querySelector('.career3d-scene').clientHeight }));
+  assert.ok(Math.abs(layout.height - layout.canvasHeight) < 2, 'the 3D canvas fills the phone pitch');
   await page.screenshot({ path: `${evidence}/${label}.png`, fullPage: true });
   captures.push({ label, tick: Number(await root.getAttribute('data-sim-tick')), physicsTime: Number(await root.getAttribute('data-sim-physics-time')) });
 }
@@ -78,8 +87,7 @@ async function verifyLiveAndReload() {
 }
 
 async function verifyHalfAndEnd() {
-  await page.evaluate(snapshot => localStorage.setItem('msv4', snapshot), fixtures.halftime);
-  await page.reload();
+  await installFixture('halftime');
   await page.screenshot({ path: `${evidence}/half-time.png`, fullPage: true });
   await page.locator('[data-action="startSecondHalf"]').click();
   await page.waitForSelector('[data-sim-scene]');

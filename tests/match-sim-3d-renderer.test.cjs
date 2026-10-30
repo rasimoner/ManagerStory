@@ -57,7 +57,7 @@ test('injury, substitution and red-card membership follows the current simulatio
 
 test('both attacked goals and the actual ball/keeper fit the broadcast camera in phone portrait and landscape', async () => {
   const fixture = await sceneFixture(), game = match(), THREE = fixture.THREE;
-  for (const direction of [-1, 1]) for (const aspect of [390 / 300, 844 / 390]) {
+  for (const direction of [-1, 1]) for (const aspect of [390 / 844, 390 / 500, 844 / 390]) {
     const frame = game.api.sampleSimulationScene(game.api.M.simulationPlayback, { immediate: true });
     for (const player of frame.players) player.direction = player.teamId === 'user' ? direction : -direction;
     frame.ball.position = { x: 30 * direction, y: 2, z: -12 };
@@ -92,4 +92,21 @@ test('a keeper waits naturally, prepares only for the real threat and never move
   frame.physicsTime = 1;
   fixture.actors.apply(frame);
   assert.equal(actor.loopsWant.keeperReady, 0);
+});
+
+test('keeper arms reach towards the actual threat after either team changes ends', async () => {
+  const game = match();
+  for (const heading of [Math.PI / 2, -Math.PI / 2]) {
+    const fixture = await sceneFixture();
+    const frame = game.api.sampleSimulationScene(game.api.M.simulationPlayback, { immediate: true });
+    const keeper = frame.players.find(player => player.slot === 'GK');
+    keeper.heading = heading;
+    keeper.keeper = { mode: 'dive', target: { x: keeper.position.x, y: keeper.position.z + 2 }, reactionAt: 0 };
+    frame.physicsTime = .4;
+    fixture.actors.apply(frame);
+    const actor = fixture.runtime.players.find(player => player.id === keeper.id);
+    const hands = actor.bones.LeftHand.getWorldPosition(new fixture.THREE.Vector3())
+      .add(actor.bones.RightHand.getWorldPosition(new fixture.THREE.Vector3())).multiplyScalar(.5);
+    assert.ok(hands.z > keeper.position.z, `heading ${heading}: hands must reach towards +pitch-y`);
+  }
 });

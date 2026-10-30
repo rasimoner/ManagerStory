@@ -133,3 +133,11 @@ test('pause/resume cannot send the interpolated drawing clock backwards', () => 
   const resumed = game.api.sampleSimulationScene(game.api.M.simulationPlayback);
   assert.ok(resumed.physicsTime >= paused.physicsTime);
 });
+
+test('a 3D chunk failure before a career starts is remembered when the player later selects 3D', () => {
+  const game = loadGame({ quiet: true });
+  game.api.fallbackSimulationView(new Error('Chunk download failed'));
+  game.run('S=fresh();init();setExperimentalMatchEngine(true);startMatch();setMatchView("3d")');
+  assert.equal(game.api.M.fieldView, '2d');
+  assert.match(game.html(), /3D.*2D.*devam/s);
+});

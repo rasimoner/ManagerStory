@@ -81,7 +81,9 @@ function contactAction(sample, frame) {
 
 function poseKeeperReach(actor, sample, time) {
   if (sample.slot !== 'GK' || sample.keeper.mode !== 'dive' || time < sample.keeper.reactionAt) return;
-  const mode = sample.keeper.target.y >= sample.position.z ? 'diveRight' : 'diveLeft';
+  const target = sample.keeper.target;
+  const lateral = -(target.x - sample.position.x) * Math.cos(sample.heading) + (target.y - sample.position.z) * Math.sin(sample.heading);
+  const mode = lateral >= 0 ? 'diveRight' : 'diveLeft';
   const action = ACTIONS[mode], progress = Math.min(action.contact, (time - sample.keeper.reactionAt) / SIM_VIEW_DATA.pose.diveBlendSeconds * action.contact);
   applyAction(actor.bones, mode, progress, 1);
 }

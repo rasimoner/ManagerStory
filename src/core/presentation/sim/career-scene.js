@@ -2,6 +2,7 @@ import { M } from '../../state.js';
 import { presentation } from '../registry.js';
 import { changed } from '../../hooks.js';
 import { resolveClubIdentity } from '../../clubs/clubs.js';
+import { CLUBSTYLE } from '../../clubs/club-style.js';
 import { clockFromSeconds, pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
 import { loadSimulationSceneAssets, createSimulationStage } from './scene-stage.js';
 import { createSimulationActors } from './scene-actors.js';
@@ -23,6 +24,7 @@ surface.innerHTML = `<canvas class=career3d-scene aria-label="Yeni motorun canl�
   <div class=sim-scene-controls><button type=button data-scene-speed=0.5>0,5×</button><button type=button data-scene-speed=1>1×</button><button type=button data-scene-speed=2>2×</button><button type=button data-scene-pause>Duraklat</button><button type=button data-scene-intervene>Müdahale</button><button type=button data-scene-flat>2D</button></div>`;
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 let stage, actors, broadcast, match, loading, clubs, lastPaint = null, fullscreen = false, failed = false;
+let crowd = [];
 
 function mount() {
   if (!M?.experimental || M.fieldView !== '3d') { leaveFullscreen(); return; }
@@ -43,13 +45,21 @@ function paintCurrentFrame() {
 
 function startSceneMatch() {
   for (const player of stage.runtime.players) stage.scene.remove(player.model);
+  for (const mesh of crowd) stage.scene.remove(mesh);
   stage.runtime.players.length = 0;
   match = M;
   clubs = { user: resolveClubIdentity('goal', { teamId: M.userHome ? M.home : M.away }),
     opponent: resolveClubIdentity('goal', { teamId: M.userHome ? M.away : M.home }) };
+  crowd = buildSceneCrowd();
   actors = createSimulationActors(stage.runtime, describePlayer);
   broadcast = createSimulationCamera(stage.camera);
   lastPaint = null;
+}
+
+function buildSceneCrowd() {
+  const home = M.userHome ? clubs.user : clubs.opponent, away = M.userHome ? clubs.opponent : clubs.user;
+  return stage.stadium.buildCrowd(home.primaryColor, home.secondaryColor, away.primaryColor, away.secondaryColor,
+    CLUBSTYLE[M.home]?.[2] ?? 'v', CLUBSTYLE[M.away]?.[2] ?? 'v');
 }
 
 function describePlayer(player) {
@@ -77,13 +87,20 @@ function paintSceneGeometry(frame) {
   if (!width || !height) return;
   const now = performance.now(), seconds = lastPaint == null ? 0 : Math.min(SIM_VIEW_DATA.camera.maximumFrameSeconds, (now - lastPaint) / 1000);
   lastPaint = now;
-  stage.renderer.setSize(width, height, false);
+  resizeScene(width, height);
   const look = broadcast.update(frame, seconds, width / height);
   stage.stadium.sun.target.position.copy(look);
   stage.stadium.sun.position.copy(look).add({ x: -30, y: 60, z: 40 });
   stage.runtime.scaleOutlines(stage.camera, stage.renderer.domElement.width, stage.renderer.domElement.height);
   stage.outline.render(stage.scene, stage.camera);
   surface.querySelector('[data-scene-loading]').hidden = true;
+}
+
+function resizeScene(width, height) {
+  if (stage.width === width && stage.height === height) return;
+  stage.renderer.setSize(width, height, false);
+  stage.width = width;
+  stage.height = height;
 }
 
 function paintSceneLabels(frame) {

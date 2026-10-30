@@ -57,7 +57,6 @@ jobs:
             duration-clocks.json
             balance-mobile.png
             shooting-mobile.png
-            test-results/sim-3d/
           if-no-files-found: ignore
   continuous-mobile:
     # The 3D task uses the bounded real-WebGL smoke scenarios instead of another seven-minute watch.
@@ -84,4 +83,24 @@ jobs:
           path: |
             career-mobile.png
             career-mobile-metrics.json
+          if-no-files-found: ignore
+
+  simulation-3d-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Inspect actual 3D frames and controls at 390 by 844
+        run: npm run smoke:sim-3d
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulation-3d-mobile
+          path: test-results/sim-3d/
           if-no-files-found: ignore

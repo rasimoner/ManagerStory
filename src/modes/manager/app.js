@@ -40,7 +40,7 @@ import { experimentalSkipControl } from './experimental-controls.js';
 import { initializeExperimentalMatch } from '../../core/engine/experimental-input.js';
 import { queueExperimentalSubstitution, resumeExperimentalMatch } from '../../core/engine/experimental-match.js';
 import { experimentalPitch } from '../../core/presentation/sim/career-pitch.js';
-import { simulationViewNotice } from '../../core/presentation/sim/view-status.js';
+import { simulationViewNotice, simulationViewFailure, fallbackSimulationView } from '../../core/presentation/sim/view-status.js';
 import { academyWage, baseWage, wageBill, wageBudget, wageFits, wageRoom } from './wages.js';
 import { giveShirtNumber } from '../../core/players/shirt-numbers.js';
 export const P0=STARTING_SQUAD.players.map(x=>({id:x.id,name:x.name,age:x.age,pos:x.pos,overall:x.overall,potential:x.potential,pace:x.pace,finishing:x.finishing,passing:x.passing,dribbling:x.dribbling,defending:x.defending,physical:x.physical,stamina:x.stamina,fitness:100,morale:72,form:70,relation:65,minutes:0,value:Math.round(x.overall*x.overall*1200),contract:x.contract,status:"Takımın parçası"}));
@@ -523,6 +523,7 @@ export function halfTimeUI(){
 }
 export function setMatchView(view){
  if(!M||!["2d","3d"].includes(view))return;
+ if(M.experimental&&view==='3d'&&simulationViewFailure()){fallbackSimulationView(simulationViewFailure());return;}
  if(!M.experimental&&view==="3d"){presentation.live3d?.enable();presentation.live3d?.setTempo(1);}
  M.fieldView=view;render();
 }
