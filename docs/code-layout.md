@@ -246,3 +246,12 @@ Doğal süreli maçın hücum alanı değeri: `core/sim/attacking-space.js` hüc
 - `view-status.js`: geçici hata açıklaması; `data/match-sim-view.json`: yalnız çizim değerleri.
 - `tests/match-sim-3d*.test.cjs`, `tests/support/simulation-scene.cjs`: gerçek rig/salt okuma/kadro/kamera ve iki görünümün aynı futbolu.
 - `tests/smoke/career-sim-3d.mjs`, `tests/support/scene-careers.cjs`: 390×844 WebGL, gerçek kayıtlarla beş görüntü, kontroller/devre/bitiş ve bağlam kaybı. Test gol geometrisi ürün koduna girmez.
+
+### Yeni motorun 3D kaleci zinciri (V7.19.0)
+
+- `presentation/sim/keeper-animation.js`: yalnız fizik zamanından hazır/itiş/uzanma/iniş/destek/kalkış; yeni şut ve gerçek dağıtıma geçiş.
+- `keeper-rig-pose.js`: mevcut klipleri mutlak zamanda örnekleme, yansıtma, kemik karışımı, gerçek krampon yüzeyinden zemin payı.
+- `core/match/keeper-presentation.js`: gözlenmiş önceki kurtarışın bağımsız çizim kopyası; motora ve RNG'ye yazmaz.
+- `data/match-sim-keeper-animation.json`: yalnız görsel süre ve poz değerleri.
+- `tests/match-sim-keeper-{animation,boundary}.test.cjs`: gerçek rig, yüzey/zemin, süreklilik, aynı fizik anında eşit poz, çekirdeğin değişmemesi.
+- `tests/smoke/keeper-animation.mjs`, `keeper-fixture.mjs`: ürüne bağlanmayan test sahnesi; iki telefon yönünde hareket videoları ve ayrı olağan kariyer UI kanıtı.

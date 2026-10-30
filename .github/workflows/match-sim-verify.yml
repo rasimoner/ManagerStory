@@ -40,13 +40,13 @@ jobs:
           BALANCE_SCREENSHOT: balance-mobile.png
           CAREER_CONTROLS_ONLY: '1'
       - name: Measure fifty matches and attribute-strength experiments
-        # Short-flow and 3D tasks exclude new balance/duration sweeps; retain every test and smoke gate.
-        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d'
+        # Animation/short-flow/3D work excludes new balance sweeps; every existing test and smoke gate remains.
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation'
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
           node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
       - name: Measure all five durations with the same fifty equal-squad seeds
-        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d'
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation'
         run: npm run sim:duration-report -- duration-measurements.json
       - uses: actions/upload-artifact@v4
         if: always()
@@ -61,7 +61,7 @@ jobs:
           if-no-files-found: ignore
   continuous-mobile:
     # The 3D task uses the bounded real-WebGL smoke scenarios instead of another seven-minute watch.
-    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d'
+    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,9 +99,17 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Inspect actual 3D frames and controls at 390 by 844
         run: npm run smoke:sim-3d
+      - name: Film goalkeeper motion chains in portrait and landscape WebGL
+        run: npm run smoke:keeper-animation
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: simulation-3d-mobile
           path: test-results/sim-3d/
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: keeper-animation-mobile
+          path: test-results/keeper-animation/
           if-no-files-found: ignore

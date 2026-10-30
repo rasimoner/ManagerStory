@@ -1,6 +1,6 @@
 {
   "name": "managerstory",
-  "version": "7.18.0",
+  "version": "7.19.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,7 +14,8 @@
     "sim:report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-report.cjs",
     "sim:career-report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-career-report.cjs",
     "sim:duration-report": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-duration-report.cjs",
-    "smoke:sim-3d": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/career-sim-3d.mjs"
+    "smoke:sim-3d": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/career-sim-3d.mjs",
+    "smoke:keeper-animation": "node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/keeper-animation.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
