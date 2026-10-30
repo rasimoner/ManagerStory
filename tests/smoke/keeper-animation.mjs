@@ -21,11 +21,14 @@ const server = await pagesServer(process.argv[2] || 'dist', { port: 0 });
 const browser = await chromium.launch({ executablePath: process.env.SMOKE_CHROMIUM || undefined,
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const problems = [], measurements = [];
+let activePage;
 
 async function isolatedVideo(recording, viewport) {
   const label = `${recording.label}-${viewport.width > viewport.height ? 'landscape' : 'portrait'}`;
   const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, recordVideo: { dir: evidence, size: viewport } });
   const page = await context.newPage();
+  activePage = page;
+  console.log(`start isolated WebGL recording: ${label}`);
   page.on('pageerror', error => problems.push(error.message));
   await page.route('**/__keeper-evidence', route => route.fulfill({ contentType: 'text/html', body: fixtureHtml() }));
   await page.goto(`${server.url}__keeper-evidence`);
@@ -47,12 +50,13 @@ function fixtureHtml() {
 }
 
 async function animateRecording(page, seconds) {
-  await page.evaluate(duration => new Promise(resolve => {
+  await page.evaluate(duration => new Promise((resolve, reject) => {
     let time = 0, previous;
     const draw = timestamp => {
       if (previous != null) time += Math.min(.05, (timestamp - previous) / 1000);
       previous = timestamp;
-      globalThis.keeperEvidence.drawAt(Math.min(duration, time));
+      try { globalThis.keeperEvidence.drawAt(Math.min(duration, time)); }
+      catch (error) { reject(error); return; }
       if (time >= duration) resolve();
       else requestAnimationFrame(draw);
     };
@@ -80,12 +84,14 @@ async function ordinaryCareerVideo(career, viewport) {
   const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, recordVideo: { dir: evidence, size: viewport },
     storageState: { cookies: [], origins: [{ origin: new URL(server.url).origin, localStorage: [{ name: 'msv4', value: career.storage }] }] } });
   const page = await context.newPage();
+  activePage = page;
+  console.log(`start ordinary career recording: ${label}`);
   page.on('pageerror', error => problems.push(error.message));
   await page.goto(server.url);
   await page.waitForFunction(() => document.querySelector('[data-scene-loading]')?.hidden);
   if (viewport.width > viewport.height) await page.locator('[data-scene-full]').click();
   await page.locator(viewport.width > viewport.height ? '[data-scene-pause]' : '[data-action="resumeLive"]').click();
-  await page.waitForFunction(() => Number(document.querySelector('[data-sim-scene]')?.dataset.simPhysicsTime) >= 73.3);
+  await page.waitForFunction(() => Number(document.querySelector('[data-sim-scene]')?.dataset.simPhysicsTime) >= 73.3, null, { timeout: 30000 });
   await page.locator(viewport.width > viewport.height ? '[data-scene-pause]' : '[data-action="pauseLive"]').click();
   await page.screenshot({ path: `${evidence}/${label}.png`, fullPage: true });
   const video = page.video();
@@ -104,6 +110,14 @@ try {
   }
   assert.deepEqual(problems, []);
   writeFileSync(`${evidence}/verification.json`, JSON.stringify({ sourceCommit, sourceHeadCommit, node: process.version, physicalIphoneSafari: false, measurements }, null, 2));
+} catch (error) {
+  await activePage.screenshot({ path: `${evidence}/failure.png`, fullPage: true });
+  const state = await activePage.evaluate(() => ({ scene: { ...document.querySelector('[data-sim-scene]')?.dataset },
+    flat: { ...document.querySelector('[data-sim-pitch]')?.dataset }, clock: document.querySelector('#live-clock')?.textContent,
+    visible: document.querySelector('#app')?.textContent, hidden: document.hidden }));
+  writeFileSync(`${evidence}/failure.json`, JSON.stringify({ sourceCommit, error: error.message, state, problems, measurements }, null, 2));
+  console.error('keeper recording stopped', state);
+  throw error;
 } finally {
   await browser.close();
   await server.close();
