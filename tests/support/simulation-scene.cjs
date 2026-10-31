@@ -7,7 +7,7 @@ function loadScene() { return pending ??= bundleScene(); }
 
 async function bundleScene() {
   const { build } = await import('vite');
-  const modules = ['scene-atmosphere.js', 'scene-ball.js', 'camera.js', 'scene-actors.js', 'scene-camera.js', 'scene-kits.js', 'runtime.js', 'rig.js'];
+  const modules = ['scene-atmosphere.js', 'scene-ball.js', 'camera.js', 'scene-actors.js', 'scene-camera.js', 'scene-kits.js', 'runtime.js', 'rig.js', 'stadium.js'];
   const entry = modules.map(name => `export * from ${JSON.stringify(path.join(SRC, locate(name)))};`).join('\n');
   const result = await build({ configFile: false, logLevel: 'silent',
     plugins: [{ name: 'scene-test', resolveId: id => id.endsWith('scene-test') ? '\0scene-test' : null,
