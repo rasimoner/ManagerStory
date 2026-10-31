@@ -33,7 +33,9 @@ function shoulderAnimation(contact, sample) {
 
 function motionAt(name, time) { return { name, t0: time - MOTIONS[name].contact }; }
 function controlAnimation(contact, sample) {
-  return contact.toId === sample.id && contact.height >= SIM_VIEW_DATA.pose.chestControlHeight ? 'chest' : null;
+  if (contact.toId !== sample.id) return null;
+  if (contact.kind === 'head') return 'header';
+  return contact.height >= SIM_VIEW_DATA.pose.chestControlHeight ? 'chest' : null;
 }
 
 export function simulationShieldAnimation(actor, sample, frame) {

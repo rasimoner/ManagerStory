@@ -7,6 +7,7 @@ import { beginSimTransition } from './simulation-phases.js';
 import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
 import { endSimulationCarry } from './dribbling.js';
 import { predictSimulationBall } from './ball-physics.js';
+import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
@@ -22,10 +23,17 @@ export function controlSimulationBall(simulation, contact, motion) {
   const returning = simulation.ball.carry?.playerId === contact.player.id;
   const success = returning || drawSimulationRandom(simulation) >= firstTouchRisk(contact.player, touching);
   recordSimulationTouch(simulation, contact, { touching, time, success });
-  if (success) { acquireSimulationBall(simulation, contact.player); return null; }
+  if (success) { completeSimulationControl(simulation, contact, { touching, time }); return null; }
   const remaining = (1 - contact.fraction) * seconds;
   const deflected = deflectSimulationBall(simulation, contact.player, { touching, remaining, time });
   return { before: deflected, seconds: remaining, startTime: time };
+}
+
+function completeSimulationControl(simulation, contact, result) {
+  acquireSimulationBall(simulation, contact.player);
+  if (!usesContinuousSimulationControl(simulation)) return;
+  beginSimulationControl(simulation, contact, result);
+  followSimulationBallOwner(simulation);
 }
 
 function firstTouchRisk(player, ball) {
@@ -43,7 +51,8 @@ function recordSimulationTouch(simulation, contact, result) {
   const toPos = { x: previous.x + (player.position.x - previous.x) * fraction, y: previous.y + (player.position.y - previous.y) * fraction };
   const event = { time: result.time, fromId, toId: player.id, fromPos: { ...result.touching.position }, toPos,
     success: result.success, height: result.touching.height, speed: hypot(result.touching.velocity.x, result.touching.velocity.y), passId: flight?.eventIndex ?? null };
-  emitSimulationEvent(simulation, { type: 'firstTouch', ...event });
+  emitSimulationEvent(simulation, { type: 'firstTouch', ...event,
+    ...(usesContinuousSimulationControl(simulation) ? { kind: simulationControlKind(result.touching.height) } : {}) });
   if (flight && player.teamId !== flight.teamId) {
     emitSimulationEvent(simulation, { type: 'interception', ...event });
     if (result.success) simulation.statistics.teams[player.teamId].interceptions++;
@@ -64,6 +73,7 @@ export function acquireSimulationBall(simulation, player) {
   if (ball.teamId !== player.teamId) beginSimTransition(simulation, player.teamId);
   Object.assign(ball, { ownerId: player.id, teamId: player.teamId, lastTouchId: player.id, lastTouchTeamId: player.teamId,
     ownerSinceTick, restart: null, excludedId: null, height: 0, verticalVelocity: 0 });
+  if (usesContinuousSimulationControl(simulation)) ball.control = null;
   if (!returning) {
     simulation.passing = { options: [], selected: null, requested: null, nextEvaluationTick: simulation.tick + player.limits.reactionTicks };
     simulation.ownerDecision.selected = null;
@@ -89,8 +99,10 @@ export function followSimulationBallOwner(simulation) {
   const ball = simulation.ball, owner = simulationRuntime(simulation).byId.get(ball.ownerId);
   if (!owner) return;
   const offset = MATCH_SIM_DATA.ball.footOffset, pitch = MATCH_SIM_DATA.pitch;
-  ball.position = { x: clampSimValue(owner.position.x + cos(owner.heading) * offset, -pitch.length / 2, pitch.length / 2),
+  const target = { x: clampSimValue(owner.position.x + cos(owner.heading) * offset, -pitch.length / 2, pitch.length / 2),
     y: clampSimValue(owner.position.y + sin(owner.heading) * offset, -pitch.width / 2, pitch.width / 2) };
+  if (followSimulationControl(simulation, owner, target)) return;
+  ball.position = target;
   ball.velocity = { ...owner.velocity };
   ball.height = ball.heldBy != null ? MATCH_SIM_DATA.goalkeeper.carryHeight : 0;
   ball.verticalVelocity = 0;

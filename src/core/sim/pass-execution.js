@@ -12,6 +12,7 @@ export function releaseSimulationPass(simulation, owner, option) {
   const flight = simulationPassFlight(fromPos, option.target, option.lofted);
   applyPassError(simulation, owner, flight);
   Object.assign(ball, flight, { ownerId: null, excludedId: owner.id, controlAfterTick: simulation.tick + owner.limits.reactionTicks });
+  if (ball.control) ball.control = null;
   const eventIndex = emitSimulationEvent(simulation, { type: 'pass', fromId: owner.id, toId: option.toId, fromPos,
     toPos: { ...option.target }, teamId: owner.teamId, lofted: option.lofted, leadDistance: pointDistance(option.target, simulationRuntime(simulation).byId.get(option.toId).position), distance: pointDistance(fromPos, option.target) });
   ball.backpassTeamId = owner.teamId;

@@ -34,6 +34,11 @@
     "defaultAttribute": 65,
     "contactCooldownSeconds": 0.3,
     "firstTouch": {
+      "chestHeight": 0.9,
+      "headHeight": 1.5,
+      "controlVerticalRetention": 0.2,
+      "controlFollowRate": 6,
+      "controlSettleMetres": 0.015,
       "baseRisk": 0.04,
       "speedRisk": 0.28,
       "referenceSpeed": 25,

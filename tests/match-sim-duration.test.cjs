@@ -17,7 +17,7 @@ for (const seconds of [180, 300, 420, 600]) {
     assert.equal(simulation.match.half, 2);
     assert.equal(simulation.events.find(event => event.type === 'half').matchTime, 2700);
     while (simulation.match.phase !== 'ended') api.stepSimulation(simulation);
-    assert.equal(simulation.physicsTime, seconds + simulation.clock.stoppedTicks * .1);
+    assert.equal(simulation.physicsTime, (simulation.clock.totalTicks + simulation.clock.stoppedTicks) * .1);
     assert.equal(simulation.matchTime, 5400);
     assert.equal(simulation.match.phase, 'ended');
     assert.equal(simulation.tick - simulation.clock.stoppedTicks, seconds * 10);

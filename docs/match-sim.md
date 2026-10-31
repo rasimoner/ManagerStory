@@ -438,3 +438,7 @@ Bu işteki açık el bağlantısı isteğiyle, `heldBy` sırasında görünür t
 ## 3D restorasyon Faz 2 — ortak devre saati
 
 Devre yerleşimi yalnız oyuncuların mevcut hareket sınırlarıyla hazırlanır. O sırada fizik saati ilerler, maç saati 45:00’da durur; açık top, karar, temas, fitness ve sakatlık adımları çalışmaz. Bu hazırlık seçili 3/5/7/10 dakika bütçesinden tüketilmez; izleme süresine yerleşimin fizik süresi eklenir. Takımlar bir kez yön değiştirir, rakip ikinci santrayı kendi yarısında ve yasal orta yuvarlak mesafesinde kullanır. Skor, kayıt/devam ve 2D/3D aynı durumu okur. Eski varsayılan referans model de devrede aynı duruşu kullanır; topsuz replay değişmez.
+
+### Havadan ilk kontrol
+
+Başarılı gerçek ilk temasta yükseklik sıfırlanmaz. Temas yüksekliği ayak/göğüs/kafa türünü belirler; aynı temas noktasından kontrollü düşüş başlar, yer çekimiyle zemine iner. Oyuncuya göre ilk yatay ofset zamanla ayağa yaklaşır; sahiplik anında ayak ofsetine atlama yapılmaz. Top havadayken ilk kontrolü silen pas/sürme/şut çıkışı engellenir. Kontrol başarısı zarı ve özellik ağırlıkları değişmez; geçiş ek RNG tüketmez. Eski referans checkpoint’inin özgün sonucu korunur.
