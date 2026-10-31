@@ -25,7 +25,7 @@ export function stepSimulation(simulation, replayBall) {
   if (simulationStepStopped(simulation, replayBall)) return simulation;
   if (replayBall !== undefined) applyOffBallReplay(simulation, replayBall);
   advanceSimulationClock(simulation);
-  if (prepareLiveSimulationStep(simulation, replayBall)) { consumeSimulationFitness(simulation); return simulation; }
+  if (prepareLiveSimulationStep(simulation, replayBall)) return simulation;
   for (const team of simulation.teams) {
     updateSimPhase(simulation, team);
     updateOffBallDecisions(simulation, team);
@@ -94,5 +94,8 @@ function prepareLiveSimulationStep(simulation, replayBall) {
   if (replayBall !== undefined) return false;
   applySimulationCommands(simulation);
   simulation.liveBall = true;
-  return prepareSimulationMatch(simulation);
+  const preparingHalf = simulation.match.phase === 'half';
+  const prepared = prepareSimulationMatch(simulation);
+  if (prepared && (!preparingHalf || !simulation.clock.pauseHalfPreparation)) consumeSimulationFitness(simulation);
+  return prepared;
 }

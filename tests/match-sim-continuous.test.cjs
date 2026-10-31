@@ -88,6 +88,6 @@ test('a whole continuous match has the same physical events and RNG as the headl
   assert.equal(watched.run('M.simulation.rngState'), headless.run('M.simulation.rngState'));
   assert.deepEqual(watched.json('M.simulation.events'), headless.json('M.simulation.events'));
   assert.deepEqual(watched.json('M.simulation.match.score'), headless.json('M.simulation.match.score'));
-  assert.equal(watched.run('M.simulationPlayback.metrics.steps'), 4200);
+  assert.equal(watched.run('M.simulationPlayback.metrics.steps-M.simulation.clock.stoppedTicks'), 4200);
   assert.equal(watched.run('M.fieldView'), '2d');
 });

@@ -24,7 +24,7 @@ function measureDurationMatch(api, input) {
   assertRealEvents(simulation, statistics);
   const players = [...simulation.teams.flatMap(team => team.players), ...simulation.departed];
   return { seed: input.seed, durationSeconds: simulation.clock.durationSeconds, milliseconds, score: simulation.match.score, statistics,
-    ticks: simulation.tick, physicsSeconds: simulation.physicsTime, matchSeconds: simulation.matchTime, rng: simulation.rngState,
+    ticks: simulation.tick, stoppedTicks: simulation.clock.stoppedTicks, physicsSeconds: simulation.physicsTime, matchSeconds: simulation.matchTime, rng: simulation.rngState,
     injuries: simulation.events.filter(event => event.type === 'injury').length,
     injuryTimes: simulation.events.filter(event => event.type === 'injury').map(event => ({ cause: event.cause, physicsTime: event.time, matchTime: event.matchTime })),
     movement: { distanceMetres: players.reduce((sum, player) => sum + player.workload.distanceMetres, 0),
@@ -43,7 +43,7 @@ function assertRealEvents(simulation, statistics) {
   const counts = Object.fromEntries(['goal', 'shot', 'pass', 'foul', 'yellow', 'red'].map(type => [type, simulation.events.filter(event => event.type === type).length]));
   for (const [event, field] of [['goal', 'goals'], ['shot', 'shots'], ['pass', 'passes'], ['foul', 'fouls'], ['yellow', 'yellow'], ['red', 'red']]) assert.equal(counts[event], statistics[field]);
   assert.equal(simulation.matchTime, 5400);
-  assert.equal(simulation.tick, simulation.clock.totalTicks);
+  assert.equal(simulation.tick - simulation.clock.stoppedTicks, simulation.clock.totalTicks);
   assert.equal(Object.values(simulation.clock.activityTicks).reduce((sum, value) => sum + value, 0), simulation.tick);
 }
 
