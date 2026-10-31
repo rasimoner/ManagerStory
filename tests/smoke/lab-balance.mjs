@@ -11,7 +11,7 @@ page.on('pageerror', error => problems.push(error.message));
 try {
   await page.goto(server.url + 'lab.html');
   await page.locator('[data-command="finish"]').click();
-  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.tick === '54000');
+  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.matchSeconds === '5400');
   const count = await page.locator('[data-shot-result]').count();
   const total = await page.locator('[data-stat^="shots-"]').allTextContents();
   assert.equal(count, total.reduce((sum, value) => sum + Number(value), 0));

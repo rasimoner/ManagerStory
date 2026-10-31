@@ -2,7 +2,7 @@ import { recordLabShotMapEvents } from './shot-map.js';
 import { requestSimulationShot } from '../../sim/shot-execution.js';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { createSimulation, readSimulation } from '../../sim/simulation-state.js';
-import { advanceSimulation } from '../../sim/simulation-step.js';
+import { advanceSimulation, stepSimulation } from '../../sim/simulation-step.js';
 import { placeSimulationBall } from '../../sim/ball-state.js';
 import { readSimulationStatistics } from '../../sim/ball-events.js';
 import { requestSimulationPass } from '../../sim/owner-decision.js';
@@ -38,7 +38,7 @@ function completeLabMatch(context, session) {
   session.automatic = true;
   context.simulation.automaticPasses = true;
   if (context.pendingBall) { placeSimulationBall(context.simulation, context.pendingBall); context.pendingBall = null; }
-  advanceSimulation(context.simulation, { seconds: Math.max(0, MATCH_SIM_DATA.lab.matchSeconds - context.simulation.time) });
+  while (context.simulation.match.phase !== 'ended') stepSimulation(context.simulation);
   session.lastRunSeconds = (performance.now() - started) / 1000;
   session.running = false;
 }
