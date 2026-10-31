@@ -92,7 +92,7 @@ async function ordinaryCareerVideo(career, viewport) {
   await page.waitForFunction(() => document.querySelector('[data-scene-loading]')?.hidden);
   if (viewport.width > viewport.height) await page.locator('[data-scene-full]').click();
   await page.locator(viewport.width > viewport.height ? '[data-scene-pause]' : '[data-action="resumeLive"]').click();
-  await waitForCareerWindow(page);
+  await waitForCareerWindow(page, career.frames.at(-1).physicsTime);
   await page.locator(viewport.width > viewport.height ? '[data-scene-pause]' : '[data-action="pauseLive"]').click();
   await page.screenshot({ path: `${evidence}/${label}.png`, fullPage: true });
   const video = page.video();
@@ -103,9 +103,9 @@ async function ordinaryCareerVideo(career, viewport) {
   console.log(`ok   actual career keeper sequence: ${label}`);
 }
 
-async function waitForCareerWindow(page) {
+async function waitForCareerWindow(page, untilTime) {
   let previous = 0;
-  while (previous < 73.3) {
+  while (previous < untilTime) {
     // Software WebGL may render slowly; fail on a stopped physical clock, not on total recording time.
     await page.waitForFunction(time => Number(document.querySelector('[data-sim-scene]')?.dataset.simPhysicsTime) > time,
       previous, { timeout: 30000 });
