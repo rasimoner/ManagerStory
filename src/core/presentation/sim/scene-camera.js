@@ -48,9 +48,9 @@ function penaltyRestartCameraShot(frame, actor) {
 }
 
 function observedCameraCue(frame, actor) {
-  const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && ['tackle', 'yellow', 'red'].includes(event.type));
+  const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && ['tackle', 'skill', 'yellow', 'red'].includes(event.type));
   const elapsed = contact ? frame.physicsTime - contact.time : Infinity;
-  if (contact?.type === 'tackle') return challengeCameraCue(frame, { contact, elapsed, actor });
+  if (['tackle', 'skill'].includes(contact?.type)) return challengeCameraCue(frame, { contact, elapsed, actor });
   if (['yellow', 'red'].includes(contact?.type) && elapsed < SIM_VIEW_DATA.camera.cardCloseSeconds) {
     return { mode: 'close', a: actor(frame.players.find(player => player.id === contact.fromId)) };
   }
@@ -59,7 +59,8 @@ function observedCameraCue(frame, actor) {
 
 function challengeCameraCue(frame, { contact, elapsed, actor }) {
   if (!contact.closeUp || elapsed >= SIM_VIEW_DATA.camera.challengeCloseSeconds) return null;
-  const carrier = frame.players.find(player => player.id === contact.toId), defender = frame.players.find(player => player.id === contact.fromId);
+  const carrier = frame.players.find(player => player.id === (contact.type === 'skill' ? contact.fromId : contact.toId));
+  const defender = frame.players.find(player => player.id === (contact.type === 'skill' ? contact.toId : contact.fromId));
   return carrier && defender ? { mode: 'close', a: actor(carrier), b: actor(defender) } : null;
 }
 

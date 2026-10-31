@@ -32,11 +32,23 @@ function animationName(contact, sample) {
 }
 
 function ownerAnimationName(contact) {
+  const move = movementAnimationName(contact);
+  if (move) return move;
   if (contact.type === 'pass') return contact.restartKind === 'throwIn' ? 'throwIn' : 'pass';
   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
   if (contact.type === 'block') return 'lunge';
   return contact.type === 'shot' ? 'shot' : null;
+}
+
+function movementAnimationName(contact) {
+  if (contact.type === 'beat') return 'cut';
+  return contact.type === 'skill' ? skillAnimationName(contact) : null;
+}
+
+function skillAnimationName(contact) {
+  const name = contact.kind === 'bodyFeint' ? 'feint' : 'cut';
+  return contact.turn < 0 ? name + 'Left' : name;
 }
 
 function shoulderAnimation(contact, sample) {

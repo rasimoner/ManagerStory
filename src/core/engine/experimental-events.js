@@ -7,7 +7,7 @@ import { pauseSimulation, resumeSimulation } from '../sim/simulation-checkpoint.
 import { requestSimulationSubstitution, applySimulationCommands } from '../sim/substitutions.js';
 import { experimentalSourcePlayer, experimentalOpponentBench, prepareExperimentalSubstitute } from './experimental-input.js';
 
-const narrated = new Set(['goal', 'shot', 'save', 'post', 'wide', 'yellow', 'red', 'injury', 'half', 'kickoff', 'substitution', 'substitutionRequested', 'foul', 'ballOut', 'pass', 'interception', 'tackle', 'throwIn', 'corner', 'goalKick', 'freeKick', 'penalty']);
+const narrated = new Set(['goal', 'shot', 'save', 'post', 'wide', 'yellow', 'red', 'injury', 'half', 'kickoff', 'substitution', 'substitutionRequested', 'foul', 'ballOut', 'pass', 'interception', 'tackle', 'throwIn', 'corner', 'goalKick', 'freeKick', 'penalty', 'skill', 'beat']);
 
 export function consumeExperimentalEvents(untilTime = M.simulation.time) {
   while (experimentalEventDue(untilTime)) {
@@ -16,7 +16,7 @@ export function consumeExperimentalEvents(untilTime = M.simulation.time) {
     M.matchElapsedSeconds = event.matchTime ?? event.time;
     M.min = Math.floor(M.matchElapsedSeconds / CAREER_SIM_DATA.secondsPerMinute);
     applyExperimentalEventState(event);
-    if (!narrated.has(event.type)) continue;
+    if (!shouldNarrateExperimentalEvent(event)) continue;
     const converted = careerSimulationEvent(event, { names: M.simulationNames, teams: M.simulationTeams, userSide: userSide() });
     const recorded = matchEvent(converted.type, converted.text, converted.data);
     if (event.type === 'pass') {
@@ -25,6 +25,10 @@ export function consumeExperimentalEvents(untilTime = M.simulation.time) {
     }
   }
   settleExperimentalPassEvents(untilTime);
+}
+
+function shouldNarrateExperimentalEvent(event) {
+  return narrated.has(event.type) && (event.type !== 'beat' || M.simulation.clock.pauseHalfPreparation);
 }
 
 function experimentalEventDue(untilTime) {

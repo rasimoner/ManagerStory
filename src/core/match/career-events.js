@@ -41,6 +41,11 @@ export function careerSimulationCommentary(event, names) {
     keeperDistribution: `${name} topu oyuna soktu.`, instruction: `${name}: bireysel talimat kaydedildi.`, tactics: 'Takımın taktiği güncellendi.',
     throwIn: `${name} taç atışını kullandı.`, corner: `${name} korneri kullandı.`, goalKick: `${name} aut atışını kullandı.`,
     freeKick: `${name} serbest vuruşu kullandı.`, penalty: `${name} penaltıyı kullandı.`,
+    skill: `${name} ${simulationSkillDescription(event)}.`, beat: `${name} rakibini geçti.`,
   };
   return `${minute}' ${descriptions[event.type] ?? name + ' oyuna katılıyor.'}`;
+}
+
+function simulationSkillDescription(event) {
+  return { cut: 'yön değiştirdi', bodyFeint: 'vücut çalımı yaptı', turn: 'dönerek çıktı' }[event.kind] ?? 'yön değiştirdi';
 }

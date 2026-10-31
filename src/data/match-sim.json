@@ -104,6 +104,9 @@
     "receiverMotionSeconds": 0.4
   },
   "dribbling": {
+    "observedTurnRadians": 0.65,
+    "observedTurnaroundRadians": 2.3,
+    "feintCommitSpeed": 0.4,
     "minimumSpeedRatio": 0.68,
     "skillSpeedRatio": 0.2,
     "turnRatio": 0.62,

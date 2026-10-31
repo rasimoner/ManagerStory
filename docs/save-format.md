@@ -165,3 +165,5 @@ V7.19.0: `keeperPresentation`, aynı türetilmiş çizim karesindeki gözlenmiş
 Format 6 checkpoint’inde isteğe bağlı `ball.control`, gerçek ilk temas zamanı/ofseti/yüksekliği/dikey hızını saklar; kayıt havadan kontrolün ortasında da aynı fizik anından devam eder. Serbest bırakma veya yeni sahiplenmede temizlenir; eski kayıtta bulunması gerekmez.
 
 Format 6 `ball.restart` için tür/takım/kullanan/alıcı, sabit top noktası, hazırlık başlangıcı, aşama, hazır anı, kadro ve oyuncu hedeflerini saklar. Yeniden yükleme hazırlığı baştan oynatmaz. Eski doğal checkpoint’in eksik konum/hedef bilgisi mevcut top ve kadrodan ilk fizik adımında tamamlanır.
+
+Format 6 `defending.engagements` içinde isteğe bağlı `observedHeading`/`observedTurn`, gerçekleşmiş çalım gözleminin tekrar üretilmesini önler. Bunlar hareket/karar hesabına girmez; önceki kayıtta eksikse mevcut yönle başlatılır.

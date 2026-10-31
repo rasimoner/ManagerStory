@@ -22,6 +22,7 @@ function updateCameraHistory(simulation) {
     if (isCloseChallenge(event)) {
       if (history.challenges++ % 2 === 0) history.closeUps.add(history.cursor);
     }
+    if (event.type === 'skill' && Math.abs(event.fromPos.x) > SIM_VIEW_DATA.camera.challengeZoneMetres) history.closeUps.add(history.cursor);
     history.cursor++;
   }
   trimPresentationHistory(simulation, history);
@@ -47,7 +48,7 @@ function isCloseChallenge(event) {
 
 function copyPresentationContact(event, cue) {
   return { ...cue, type: event.type, fromId: event.fromId, toId: event.toId, teamId: event.teamId,
-    time: event.physicsTime ?? event.time, kind: event.kind, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind,
+    time: event.physicsTime ?? event.time, kind: event.kind, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind, turn: event.turn,
     fromPos: event.fromPos ? { ...event.fromPos } : null, toPos: event.toPos ? { ...event.toPos } : null };
 }
 
