@@ -17,7 +17,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | `schemaVersion` | Kaydın **biçimi**. Taşıma zinciri buna bakar. | Biçim değişince (yeni taşıma adımıyla). V7.9.13 öncesi kayıtlarda yok = biçim 0. |
 | `version` | Kaydı en son yazan **oyun sürümü** (ör. `"7.9.13"`). | Her yüklemede güncel sürüme yazılır. Yedek anahtarları buna göre. |
 
-Şu anki biçim: **5** (`SAVE_SCHEMA`).
+Şu anki biçim: **7** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
 - Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
@@ -167,3 +167,5 @@ Format 6 checkpoint’inde isteğe bağlı `ball.control`, gerçek ilk temas zam
 Format 6 `ball.restart` için tür/takım/kullanan/alıcı, sabit top noktası, hazırlık başlangıcı, aşama, hazır anı, kadro ve oyuncu hedeflerini saklar. Yeniden yükleme hazırlığı baştan oynatmaz. Eski doğal checkpoint’in eksik konum/hedef bilgisi mevcut top ve kadrodan ilk fizik adımında tamamlanır.
 
 Format 6 `defending.engagements` içinde isteğe bağlı `observedHeading`/`observedTurn`, gerçekleşmiş çalım gözleminin tekrar üretilmesini önler. Bunlar hareket/karar hesabına girmez; önceki kayıtta eksikse mevcut yönle başlatılır.
+
+**6 → 7:** Eski ham/sıkıştırılmış deneysel aktif checkpoint'e isteğe bağlı `offside:null` eklenir; RNG, saat, kadro, olaylar ve sonuç yeniden hesaplanmaz. Yeni `ball.restart.delivery` karar türü ve hedefini, `stage:runup` yaklaşmayı; `duel.wallJump.start` barajın gerçek tepki zamanını saklar. Bunlar checkpoint'in normal düz nesne arşivinden kayıpsız geçer. Yeni format 7 kaydı format 6 uygulamada açılmaz. Tekrar görsel kayıtları kalıcı kariyer şemasına yazılmaz.

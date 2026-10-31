@@ -24,7 +24,7 @@ import { packSimulationHistory, restoreSimulationHistory } from './match/history
 import { presentation } from './presentation/registry.js';
 import { normalizeMatchDurationMinutes } from './match/duration-setting.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 6;
+export const SAVE_SCHEMA = 7;
 export let saveWarning = false;
 let saveSerial = 0;
 
@@ -102,6 +102,17 @@ export const SAVE_MIGRATIONS = [
       if (!stored?.experimental) return;
       const active = unpackMatchSnapshot(stored);
       if (active.simulationCheckpoint?.state.clock) active.simulationCheckpoint.state.clock.stoppedTicks ??= 0;
+      state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
+    },
+  },
+  {
+    from: 6, to: 7,
+    about: 'optional live offside snapshot, restart delivery plan and wall reaction timestamps; retain existing football and RNG',
+    run(state) {
+      const stored = state.activeMatchV71;
+      if (!stored?.experimental) return;
+      const active = unpackMatchSnapshot(stored);
+      if (active.simulationCheckpoint) active.simulationCheckpoint.state.offside ??= null;
       state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
     },
   },

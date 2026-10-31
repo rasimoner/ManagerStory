@@ -1,0 +1,23 @@
+{
+  "runup": {
+    "distance": 2,
+    "minimumSeconds": 0.5,
+    "contactDistance": 0.65
+  },
+  "freeKick": {
+    "minimumDistance": 14,
+    "maximumDistance": 34,
+    "minimumGoalAngle": 0.16,
+    "minimumSkill": 0.6,
+    "maximumBlockedFraction": 1,
+    "minimumSpeed": 18,
+    "strengthSpeed": 3
+  },
+  "wall": {
+    "radiusMargin": 1.2,
+    "reactionSeconds": 0.12,
+    "jumpSeconds": 0.65,
+    "jumpHeight": 0.35,
+    "contactSamples": 12
+  }
+}

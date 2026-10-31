@@ -19,6 +19,7 @@ const VERSION = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../packag
 const withoutVersion = state => {
   const rest = { ...state };
   delete rest.version;
+  if (rest.schemaVersion === 7 && rest.experimentalMatchEngine === false) rest.schemaVersion = 6;
   if (rest.schemaVersion === 6 && rest.experimentalMatchEngine === false) rest.schemaVersion = 5;
   if (rest.schemaVersion === 5 && rest.matchDurationMinutes === 7) {
     rest.schemaVersion = 4;

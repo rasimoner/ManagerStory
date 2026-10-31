@@ -1,0 +1,4462 @@
+{
+  "base": "5c201ea439fc0d57c0006683a07b51a07e08559c",
+  "runs": [
+    {
+      "seed": 1,
+      "statistics": {
+        "passes": 72,
+        "completedPasses": 50,
+        "accuracy": 69.44444444444444,
+        "averageDistance": 18.881591452509262,
+        "passesPerMinute": 0.8,
+        "passesPerPhysicsMinute": 9.960802397970946,
+        "shots": 6,
+        "shotsOnTarget": 1,
+        "goals": 0,
+        "xg": 0.4820793359149425,
+        "blocks": 2,
+        "saves": 1,
+        "posts": 1,
+        "dribbles": 55,
+        "dribbleDistance": 356.3552287091444,
+        "beats": 9,
+        "tackles": 18,
+        "tacklesWon": 0,
+        "tacklesLoose": 4,
+        "tacklesMissed": 14,
+        "duels": 11,
+        "fouls": 4,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 24,
+        "interceptions": 8,
+        "averageHoldSeconds": 1.4153846153846172,
+        "averagePossessionSeconds": 10.962499999999645,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 39,
+            "completedPasses": 28,
+            "resolvedPasses": 39,
+            "passDistance": 713.2638993106614,
+            "dribbles": 26,
+            "dribbleDistance": 172.03456097155495,
+            "beats": 3,
+            "tackles": 9,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 8,
+            "duels": 11,
+            "fouls": 2,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 11,
+            "shots": 3,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.319452317966686,
+            "blocks": 2,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 16,
+            "possessionSeconds": 171.39999999999455,
+            "controlSeconds": 73.4000000000001,
+            "controls": 55,
+            "possessionPercent": 48.859749144811886
+          },
+          {
+            "id": "away",
+            "passes": 33,
+            "completedPasses": 22,
+            "resolvedPasses": 33,
+            "passDistance": 646.2106852700055,
+            "dribbles": 29,
+            "dribbleDistance": 184.32066773758947,
+            "beats": 6,
+            "tackles": 9,
+            "tacklesWon": 0,
+            "tacklesLoose": 3,
+            "tacklesMissed": 6,
+            "duels": 11,
+            "fouls": 2,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 13,
+            "shots": 3,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.1626270179482565,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 1,
+            "interceptions": 4,
+            "possessions": 16,
+            "possessionSeconds": 179.3999999999941,
+            "controlSeconds": 73.80000000000008,
+            "controls": 49,
+            "possessionPercent": 51.14025085518812
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 72,
+        "firstTouch": 234,
+        "dribble": 55,
+        "beat": 9,
+        "interception": 9,
+        "looseBall": 10,
+        "tackle": 18,
+        "skill": 8,
+        "duel": 11,
+        "shot": 6,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "ballOut": 8,
+        "restartPosition": 12,
+        "goalKick": 3,
+        "foul": 4,
+        "freeKick": 4,
+        "throwIn": 5,
+        "half": 1,
+        "post": 1,
+        "save": 1,
+        "block": 2,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4337
+    },
+    {
+      "seed": 2,
+      "statistics": {
+        "passes": 78,
+        "completedPasses": 54,
+        "accuracy": 69.23076923076923,
+        "averageDistance": 16.5087391607084,
+        "passesPerMinute": 0.8666666666666667,
+        "passesPerPhysicsMinute": 10.773480662983426,
+        "shots": 6,
+        "shotsOnTarget": 2,
+        "goals": 1,
+        "xg": 0.8324004850733504,
+        "blocks": 4,
+        "saves": 1,
+        "posts": 0,
+        "dribbles": 53,
+        "dribbleDistance": 354.1590397350003,
+        "beats": 4,
+        "tackles": 13,
+        "tacklesWon": 1,
+        "tacklesLoose": 2,
+        "tacklesMissed": 10,
+        "duels": 3,
+        "fouls": 2,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 1,
+        "ballWins": 23,
+        "interceptions": 11,
+        "averageHoldSeconds": 1.4971153846153815,
+        "averagePossessionSeconds": 9.782857142856832,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 48,
+            "completedPasses": 34,
+            "resolvedPasses": 48,
+            "passDistance": 878.4381198757629,
+            "dribbles": 28,
+            "dribbleDistance": 152.578472655287,
+            "beats": 0,
+            "tackles": 8,
+            "tacklesWon": 1,
+            "tacklesLoose": 0,
+            "tacklesMissed": 7,
+            "duels": 3,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 14,
+            "shots": 3,
+            "shotsOnTarget": 2,
+            "goals": 1,
+            "xg": 0.5479983996311238,
+            "blocks": 3,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 6,
+            "possessions": 18,
+            "possessionSeconds": 201.59999999999283,
+            "controlSeconds": 92.09999999999904,
+            "controls": 61,
+            "possessionPercent": 58.878504672896966
+          },
+          {
+            "id": "away",
+            "passes": 30,
+            "completedPasses": 20,
+            "resolvedPasses": 30,
+            "passDistance": 409.2435346594923,
+            "dribbles": 25,
+            "dribbleDistance": 201.58056707971335,
+            "beats": 4,
+            "tackles": 5,
+            "tacklesWon": 0,
+            "tacklesLoose": 2,
+            "tacklesMissed": 3,
+            "duels": 3,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 1,
+            "ballWins": 9,
+            "shots": 3,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.2844020854422265,
+            "blocks": 1,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 5,
+            "possessions": 17,
+            "possessionSeconds": 140.7999999999963,
+            "controlSeconds": 63.600000000000634,
+            "controls": 43,
+            "possessionPercent": 41.12149532710303
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 3,
+        "pass": 78,
+        "firstTouch": 227,
+        "dribble": 53,
+        "looseBall": 4,
+        "shot": 6,
+        "block": 4,
+        "goal": 1,
+        "beat": 4,
+        "interception": 12,
+        "skill": 8,
+        "tackle": 13,
+        "ballOut": 10,
+        "restartPosition": 11,
+        "throwIn": 9,
+        "save": 2,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "goalKick": 1,
+        "half": 1,
+        "foul": 2,
+        "freeKick": 1,
+        "duel": 3,
+        "advantage": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 1,
+        "away": 0
+      },
+      "ticks": 4344
+    },
+    {
+      "seed": 3,
+      "statistics": {
+        "passes": 73,
+        "completedPasses": 56,
+        "accuracy": 76.71232876712328,
+        "averageDistance": 14.413944582961701,
+        "passesPerMinute": 0.8111111111111111,
+        "passesPerPhysicsMinute": 10.103806228373703,
+        "shots": 10,
+        "shotsOnTarget": 5,
+        "goals": 0,
+        "xg": 1.3065452168633203,
+        "blocks": 3,
+        "saves": 5,
+        "posts": 0,
+        "dribbles": 48,
+        "dribbleDistance": 567.9680089780908,
+        "beats": 8,
+        "tackles": 15,
+        "tacklesWon": 4,
+        "tacklesLoose": 6,
+        "tacklesMissed": 5,
+        "duels": 3,
+        "fouls": 2,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 1,
+        "ballWins": 28,
+        "interceptions": 9,
+        "averageHoldSeconds": 1.4349056603773562,
+        "averagePossessionSeconds": 9.677777777777466,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 44,
+            "completedPasses": 38,
+            "resolvedPasses": 44,
+            "passDistance": 586.4061078370205,
+            "dribbles": 27,
+            "dribbleDistance": 348.1340131753198,
+            "beats": 3,
+            "tackles": 6,
+            "tacklesWon": 1,
+            "tacklesLoose": 2,
+            "tacklesMissed": 3,
+            "duels": 3,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 13,
+            "shots": 8,
+            "shotsOnTarget": 3,
+            "goals": 0,
+            "xg": 1.218348433087571,
+            "blocks": 0,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 6,
+            "possessions": 18,
+            "possessionSeconds": 206.99999999999253,
+            "controlSeconds": 89.99999999999916,
+            "controls": 66,
+            "possessionPercent": 59.41446613088382
+          },
+          {
+            "id": "away",
+            "passes": 29,
+            "completedPasses": 18,
+            "resolvedPasses": 29,
+            "passDistance": 465.8118467191837,
+            "dribbles": 21,
+            "dribbleDistance": 219.83399580277094,
+            "beats": 5,
+            "tackles": 9,
+            "tacklesWon": 3,
+            "tacklesLoose": 4,
+            "tacklesMissed": 2,
+            "duels": 3,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 1,
+            "ballWins": 15,
+            "shots": 2,
+            "shotsOnTarget": 2,
+            "goals": 0,
+            "xg": 0.08819678377574927,
+            "blocks": 3,
+            "saves": 3,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 18,
+            "possessionSeconds": 141.39999999999625,
+            "controlSeconds": 62.10000000000061,
+            "controls": 40,
+            "possessionPercent": 40.58553386911619
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 73,
+        "firstTouch": 293,
+        "dribble": 48,
+        "beat": 8,
+        "ballOut": 10,
+        "restartPosition": 12,
+        "throwIn": 6,
+        "interception": 9,
+        "tackle": 15,
+        "shot": 10,
+        "save": 7,
+        "keeperClaim": 4,
+        "keeperDistribution": 4,
+        "foul": 2,
+        "freeKick": 2,
+        "block": 3,
+        "wide": 2,
+        "corner": 3,
+        "skill": 5,
+        "duel": 3,
+        "looseBall": 2,
+        "half": 1,
+        "goalKick": 1,
+        "advantage": 2,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4335
+    },
+    {
+      "seed": 4,
+      "statistics": {
+        "passes": 72,
+        "completedPasses": 56,
+        "accuracy": 77.77777777777779,
+        "averageDistance": 14.198110078019937,
+        "passesPerMinute": 0.8,
+        "passesPerPhysicsMinute": 9.908256880733944,
+        "shots": 8,
+        "shotsOnTarget": 6,
+        "goals": 2,
+        "xg": 0.8827930480943206,
+        "blocks": 1,
+        "saves": 4,
+        "posts": 0,
+        "dribbles": 65,
+        "dribbleDistance": 378.77148148512595,
+        "beats": 9,
+        "tackles": 13,
+        "tacklesWon": 1,
+        "tacklesLoose": 2,
+        "tacklesMissed": 10,
+        "duels": 7,
+        "fouls": 4,
+        "yellow": 3,
+        "red": 0,
+        "advantages": 3,
+        "ballWins": 20,
+        "interceptions": 9,
+        "averageHoldSeconds": 1.7591836734693722,
+        "averagePossessionSeconds": 12.378571428571032,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 39,
+            "completedPasses": 34,
+            "resolvedPasses": 39,
+            "passDistance": 553.1935200596358,
+            "dribbles": 45,
+            "dribbleDistance": 295.2387752893605,
+            "beats": 6,
+            "tackles": 6,
+            "tacklesWon": 1,
+            "tacklesLoose": 1,
+            "tacklesMissed": 4,
+            "duels": 7,
+            "fouls": 2,
+            "yellow": 2,
+            "red": 0,
+            "advantages": 2,
+            "ballWins": 9,
+            "shots": 7,
+            "shotsOnTarget": 5,
+            "goals": 1,
+            "xg": 0.8189712610957375,
+            "blocks": 0,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 5,
+            "possessions": 14,
+            "possessionSeconds": 228.4999999999913,
+            "controlSeconds": 112.39999999999789,
+            "controls": 58,
+            "possessionPercent": 65.9261396422385
+          },
+          {
+            "id": "away",
+            "passes": 33,
+            "completedPasses": 22,
+            "resolvedPasses": 33,
+            "passDistance": 469.07040555779963,
+            "dribbles": 20,
+            "dribbleDistance": 83.53270619576548,
+            "beats": 3,
+            "tackles": 7,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 6,
+            "duels": 7,
+            "fouls": 2,
+            "yellow": 1,
+            "red": 0,
+            "advantages": 1,
+            "ballWins": 11,
+            "shots": 1,
+            "shotsOnTarget": 1,
+            "goals": 1,
+            "xg": 0.06382178699858311,
+            "blocks": 1,
+            "saves": 4,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 14,
+            "possessionSeconds": 118.09999999999756,
+            "controlSeconds": 60.00000000000058,
+            "controls": 40,
+            "possessionPercent": 34.0738603577615
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 4,
+        "pass": 72,
+        "firstTouch": 243,
+        "dribble": 65,
+        "beat": 9,
+        "skill": 10,
+        "tackle": 13,
+        "shot": 8,
+        "wide": 2,
+        "ballOut": 6,
+        "restartPosition": 10,
+        "goalKick": 2,
+        "duel": 7,
+        "save": 4,
+        "throwIn": 3,
+        "foul": 4,
+        "advantage": 6,
+        "freeKick": 3,
+        "looseBall": 3,
+        "interception": 10,
+        "yellow": 3,
+        "half": 1,
+        "goal": 2,
+        "block": 1,
+        "penalty": 1,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 1,
+        "away": 1
+      },
+      "ticks": 4360
+    },
+    {
+      "seed": 5,
+      "statistics": {
+        "passes": 71,
+        "completedPasses": 50,
+        "accuracy": 70.4225352112676,
+        "averageDistance": 16.780178143298844,
+        "passesPerMinute": 0.7888888888888889,
+        "passesPerPhysicsMinute": 9.824723247232471,
+        "shots": 4,
+        "shotsOnTarget": 2,
+        "goals": 0,
+        "xg": 0.19451503070160964,
+        "blocks": 1,
+        "saves": 2,
+        "posts": 0,
+        "dribbles": 56,
+        "dribbleDistance": 386.04173474168954,
+        "beats": 6,
+        "tackles": 7,
+        "tacklesWon": 1,
+        "tacklesLoose": 1,
+        "tacklesMissed": 5,
+        "duels": 6,
+        "fouls": 2,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 20,
+        "interceptions": 8,
+        "averageHoldSeconds": 1.5559139784946205,
+        "averagePossessionSeconds": 10.259374999999686,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 30,
+            "completedPasses": 18,
+            "resolvedPasses": 30,
+            "passDistance": 506.07144854628444,
+            "dribbles": 19,
+            "dribbleDistance": 153.29681264627243,
+            "beats": 1,
+            "tackles": 3,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 2,
+            "duels": 6,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 11,
+            "shots": 2,
+            "shotsOnTarget": 2,
+            "goals": 0,
+            "xg": 0.08779579678993374,
+            "blocks": 1,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 16,
+            "possessionSeconds": 128.79999999999697,
+            "controlSeconds": 55.200000000000514,
+            "controls": 40,
+            "possessionPercent": 39.23240938166339
+          },
+          {
+            "id": "away",
+            "passes": 41,
+            "completedPasses": 32,
+            "resolvedPasses": 41,
+            "passDistance": 685.3211996279335,
+            "dribbles": 37,
+            "dribbleDistance": 232.7449220954171,
+            "beats": 5,
+            "tackles": 4,
+            "tacklesWon": 1,
+            "tacklesLoose": 0,
+            "tacklesMissed": 3,
+            "duels": 6,
+            "fouls": 2,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 9,
+            "shots": 2,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.1067192339116759,
+            "blocks": 0,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 16,
+            "possessionSeconds": 199.49999999999295,
+            "controlSeconds": 89.49999999999919,
+            "controls": 53,
+            "possessionPercent": 60.7675906183366
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 71,
+        "firstTouch": 229,
+        "dribble": 56,
+        "interception": 8,
+        "ballOut": 13,
+        "restartPosition": 15,
+        "throwIn": 11,
+        "skill": 4,
+        "tackle": 7,
+        "beat": 6,
+        "shot": 4,
+        "duel": 6,
+        "save": 3,
+        "foul": 2,
+        "freeKick": 2,
+        "half": 1,
+        "wide": 2,
+        "corner": 2,
+        "block": 1,
+        "looseBall": 2,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4336
+    },
+    {
+      "seed": 6,
+      "statistics": {
+        "passes": 72,
+        "completedPasses": 55,
+        "accuracy": 76.38888888888889,
+        "averageDistance": 15.014176154885071,
+        "passesPerMinute": 0.8,
+        "passesPerPhysicsMinute": 9.933318004138881,
+        "shots": 7,
+        "shotsOnTarget": 4,
+        "goals": 1,
+        "xg": 0.9931663235113347,
+        "blocks": 2,
+        "saves": 3,
+        "posts": 0,
+        "dribbles": 66,
+        "dribbleDistance": 352.72963230355913,
+        "beats": 3,
+        "tackles": 9,
+        "tacklesWon": 3,
+        "tacklesLoose": 1,
+        "tacklesMissed": 5,
+        "duels": 10,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 20,
+        "interceptions": 6,
+        "averageHoldSeconds": 1.2962616822429949,
+        "averagePossessionSeconds": 9.126470588235028,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 42,
+            "completedPasses": 33,
+            "resolvedPasses": 42,
+            "passDistance": 640.6256088389321,
+            "dribbles": 33,
+            "dribbleDistance": 126.39122475047267,
+            "beats": 2,
+            "tackles": 4,
+            "tacklesWon": 2,
+            "tacklesLoose": 0,
+            "tacklesMissed": 2,
+            "duels": 10,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 10,
+            "shots": 3,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.4269009302503347,
+            "blocks": 1,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 17,
+            "possessionSeconds": 169.49999999999466,
+            "controlSeconds": 77.79999999999986,
+            "controls": 55,
+            "possessionPercent": 54.624556880438156
+          },
+          {
+            "id": "away",
+            "passes": 30,
+            "completedPasses": 22,
+            "resolvedPasses": 30,
+            "passDistance": 440.39507431279304,
+            "dribbles": 33,
+            "dribbleDistance": 226.33840755308645,
+            "beats": 1,
+            "tackles": 5,
+            "tacklesWon": 1,
+            "tacklesLoose": 1,
+            "tacklesMissed": 3,
+            "duels": 10,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 10,
+            "shots": 4,
+            "shotsOnTarget": 3,
+            "goals": 1,
+            "xg": 0.566265393261,
+            "blocks": 1,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 17,
+            "possessionSeconds": 140.7999999999963,
+            "controlSeconds": 60.900000000000595,
+            "controls": 52,
+            "possessionPercent": 45.37544311956184
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 3,
+        "pass": 72,
+        "firstTouch": 227,
+        "dribble": 66,
+        "ballOut": 15,
+        "restartPosition": 16,
+        "throwIn": 10,
+        "shot": 7,
+        "block": 2,
+        "keeperClaim": 2,
+        "keeperDistribution": 2,
+        "interception": 6,
+        "save": 4,
+        "tackle": 9,
+        "skill": 7,
+        "beat": 3,
+        "goalKick": 2,
+        "duel": 10,
+        "wide": 3,
+        "corner": 3,
+        "half": 1,
+        "goal": 1,
+        "looseBall": 1,
+        "foul": 1,
+        "freeKick": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 1
+      },
+      "ticks": 4349
+    },
+    {
+      "seed": 7,
+      "statistics": {
+        "passes": 79,
+        "completedPasses": 57,
+        "accuracy": 72.15189873417721,
+        "averageDistance": 15.569997443398252,
+        "passesPerMinute": 0.8777777777777778,
+        "passesPerPhysicsMinute": 10.89655172413793,
+        "shots": 11,
+        "shotsOnTarget": 4,
+        "goals": 1,
+        "xg": 0.7603954195793315,
+        "blocks": 3,
+        "saves": 3,
+        "posts": 0,
+        "dribbles": 54,
+        "dribbleDistance": 253.17283566751348,
+        "beats": 5,
+        "tackles": 7,
+        "tacklesWon": 0,
+        "tacklesLoose": 0,
+        "tacklesMissed": 7,
+        "duels": 2,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 13,
+        "interceptions": 6,
+        "averageHoldSeconds": 1.5469999999999977,
+        "averagePossessionSeconds": 12.070370370370004,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 39,
+            "completedPasses": 27,
+            "resolvedPasses": 39,
+            "passDistance": 628.8244907124217,
+            "dribbles": 27,
+            "dribbleDistance": 128.43902719850777,
+            "beats": 2,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 4,
+            "duels": 2,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 5,
+            "shots": 5,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.28973601762520396,
+            "blocks": 2,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 14,
+            "possessionSeconds": 163.09999999999502,
+            "controlSeconds": 73.5000000000001,
+            "controls": 49,
+            "possessionPercent": 50.046026388462714
+          },
+          {
+            "id": "away",
+            "passes": 40,
+            "completedPasses": 30,
+            "resolvedPasses": 40,
+            "passDistance": 601.2053073160403,
+            "dribbles": 27,
+            "dribbleDistance": 124.73380846900572,
+            "beats": 3,
+            "tackles": 3,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 3,
+            "duels": 2,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 8,
+            "shots": 6,
+            "shotsOnTarget": 3,
+            "goals": 1,
+            "xg": 0.4706594019541276,
+            "blocks": 1,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 13,
+            "possessionSeconds": 162.79999999999504,
+            "controlSeconds": 81.19999999999966,
+            "controls": 51,
+            "possessionPercent": 49.95397361153728
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 3,
+        "pass": 79,
+        "firstTouch": 195,
+        "dribble": 54,
+        "beat": 5,
+        "ballOut": 12,
+        "restartPosition": 13,
+        "throwIn": 11,
+        "interception": 6,
+        "skill": 5,
+        "tackle": 7,
+        "looseBall": 6,
+        "shot": 11,
+        "block": 3,
+        "duel": 2,
+        "goalKick": 1,
+        "half": 1,
+        "save": 3,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "foul": 1,
+        "freeKick": 1,
+        "goal": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 1
+      },
+      "ticks": 4350
+    },
+    {
+      "seed": 8,
+      "statistics": {
+        "passes": 53,
+        "completedPasses": 40,
+        "accuracy": 75.47169811320755,
+        "averageDistance": 12.153237141840236,
+        "passesPerMinute": 0.5888888888888889,
+        "passesPerPhysicsMinute": 7.317073170731707,
+        "shots": 3,
+        "shotsOnTarget": 2,
+        "goals": 0,
+        "xg": 0.5775669915974424,
+        "blocks": 1,
+        "saves": 2,
+        "posts": 0,
+        "dribbles": 78,
+        "dribbleDistance": 262.8912155822756,
+        "beats": 3,
+        "tackles": 7,
+        "tacklesWon": 0,
+        "tacklesLoose": 0,
+        "tacklesMissed": 7,
+        "duels": 2,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 13,
+        "interceptions": 7,
+        "averageHoldSeconds": 2.594339622641435,
+        "averagePossessionSeconds": 22.7999999999997,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 31,
+            "completedPasses": 23,
+            "resolvedPasses": 31,
+            "passDistance": 351.6394386012745,
+            "dribbles": 58,
+            "dribbleDistance": 124.23811712322573,
+            "beats": 2,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 4,
+            "duels": 2,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 7,
+            "shots": 2,
+            "shotsOnTarget": 2,
+            "goals": 0,
+            "xg": 0.5394898607141733,
+            "blocks": 1,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 9,
+            "possessionSeconds": 285.2999999999964,
+            "controlSeconds": 222.69999999999163,
+            "controls": 78,
+            "possessionPercent": 73.60681114551087
+          },
+          {
+            "id": "away",
+            "passes": 22,
+            "completedPasses": 17,
+            "resolvedPasses": 22,
+            "passDistance": 292.482129916258,
+            "dribbles": 20,
+            "dribbleDistance": 138.65309845904986,
+            "beats": 1,
+            "tackles": 3,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 3,
+            "duels": 2,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 6,
+            "shots": 1,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.03807713088326913,
+            "blocks": 0,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 8,
+            "possessionSeconds": 102.29999999999846,
+            "controlSeconds": 52.30000000000047,
+            "controls": 28,
+            "possessionPercent": 26.393188854489118
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 53,
+        "firstTouch": 214,
+        "dribble": 78,
+        "beat": 3,
+        "interception": 7,
+        "skill": 5,
+        "shot": 3,
+        "block": 1,
+        "tackle": 7,
+        "save": 2,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "ballOut": 4,
+        "restartPosition": 5,
+        "throwIn": 4,
+        "looseBall": 7,
+        "duel": 2,
+        "half": 1,
+        "foul": 1,
+        "freeKick": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4346
+    },
+    {
+      "seed": 9,
+      "statistics": {
+        "passes": 69,
+        "completedPasses": 51,
+        "accuracy": 73.91304347826086,
+        "averageDistance": 16.66225064339858,
+        "passesPerMinute": 0.7666666666666667,
+        "passesPerPhysicsMinute": 9.541368979027425,
+        "shots": 8,
+        "shotsOnTarget": 2,
+        "goals": 0,
+        "xg": 1.0222848815881678,
+        "blocks": 5,
+        "saves": 2,
+        "posts": 0,
+        "dribbles": 53,
+        "dribbleDistance": 296.6559979292109,
+        "beats": 10,
+        "tackles": 8,
+        "tacklesWon": 0,
+        "tacklesLoose": 2,
+        "tacklesMissed": 6,
+        "duels": 8,
+        "fouls": 3,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 10,
+        "interceptions": 5,
+        "averageHoldSeconds": 2.0202247191011047,
+        "averagePossessionSeconds": 18.142105263157315,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 42,
+            "completedPasses": 34,
+            "resolvedPasses": 42,
+            "passDistance": 787.9342031046983,
+            "dribbles": 36,
+            "dribbleDistance": 222.8955341234988,
+            "beats": 7,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 3,
+            "duels": 8,
+            "fouls": 2,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 6,
+            "shots": 8,
+            "shotsOnTarget": 2,
+            "goals": 0,
+            "xg": 1.0222848815881678,
+            "blocks": 0,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 10,
+            "possessionSeconds": 234.49999999999096,
+            "controlSeconds": 115.99999999999768,
+            "controls": 57,
+            "possessionPercent": 68.03017116332998
+          },
+          {
+            "id": "away",
+            "passes": 27,
+            "completedPasses": 17,
+            "resolvedPasses": 27,
+            "passDistance": 361.7610912898035,
+            "dribbles": 17,
+            "dribbleDistance": 73.76046380571208,
+            "beats": 3,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 3,
+            "duels": 8,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 4,
+            "shots": 0,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0,
+            "blocks": 5,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 1,
+            "possessions": 9,
+            "possessionSeconds": 110.19999999999801,
+            "controlSeconds": 63.80000000000064,
+            "controls": 32,
+            "possessionPercent": 31.96982883667002
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 69,
+        "firstTouch": 209,
+        "dribble": 53,
+        "ballOut": 11,
+        "restartPosition": 14,
+        "throwIn": 7,
+        "interception": 6,
+        "skill": 10,
+        "beat": 10,
+        "shot": 8,
+        "save": 3,
+        "duel": 8,
+        "tackle": 8,
+        "looseBall": 3,
+        "foul": 3,
+        "freeKick": 3,
+        "block": 5,
+        "half": 1,
+        "corner": 2,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "goalKick": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4339
+    },
+    {
+      "seed": 10,
+      "statistics": {
+        "passes": 75,
+        "completedPasses": 52,
+        "accuracy": 69.33333333333334,
+        "averageDistance": 18.27756830423986,
+        "passesPerMinute": 0.8333333333333334,
+        "passesPerPhysicsMinute": 10.366275051831375,
+        "shots": 4,
+        "shotsOnTarget": 3,
+        "goals": 0,
+        "xg": 0.2364201105577731,
+        "blocks": 0,
+        "saves": 3,
+        "posts": 0,
+        "dribbles": 51,
+        "dribbleDistance": 223.4712204501401,
+        "beats": 3,
+        "tackles": 12,
+        "tacklesWon": 0,
+        "tacklesLoose": 3,
+        "tacklesMissed": 9,
+        "duels": 5,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 15,
+        "interceptions": 4,
+        "averageHoldSeconds": 1.3701030927835116,
+        "averagePossessionSeconds": 10.8862068965514,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 43,
+            "completedPasses": 31,
+            "resolvedPasses": 43,
+            "passDistance": 697.4783000197851,
+            "dribbles": 29,
+            "dribbleDistance": 134.15675708228076,
+            "beats": 1,
+            "tackles": 8,
+            "tacklesWon": 0,
+            "tacklesLoose": 2,
+            "tacklesMissed": 6,
+            "duels": 5,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 7,
+            "shots": 3,
+            "shotsOnTarget": 2,
+            "goals": 0,
+            "xg": 0.18005270625506214,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 1,
+            "possessions": 15,
+            "possessionSeconds": 171.89999999999452,
+            "controlSeconds": 74.10000000000007,
+            "controls": 54,
+            "possessionPercent": 54.450427621159214
+          },
+          {
+            "id": "away",
+            "passes": 32,
+            "completedPasses": 21,
+            "resolvedPasses": 32,
+            "passDistance": 673.3393227982043,
+            "dribbles": 22,
+            "dribbleDistance": 89.31446336785933,
+            "beats": 2,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 3,
+            "duels": 5,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 8,
+            "shots": 1,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.05636740430271094,
+            "blocks": 0,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 14,
+            "possessionSeconds": 143.79999999999612,
+            "controlSeconds": 58.800000000000566,
+            "controls": 43,
+            "possessionPercent": 45.5495723788408
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 75,
+        "firstTouch": 177,
+        "dribble": 51,
+        "interception": 4,
+        "skill": 9,
+        "tackle": 12,
+        "ballOut": 16,
+        "restartPosition": 17,
+        "throwIn": 10,
+        "goalKick": 3,
+        "looseBall": 7,
+        "duel": 5,
+        "beat": 3,
+        "shot": 4,
+        "save": 4,
+        "half": 1,
+        "foul": 1,
+        "freeKick": 1,
+        "wide": 2,
+        "corner": 2,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4341
+    },
+    {
+      "seed": 42,
+      "statistics": {
+        "passes": 76,
+        "completedPasses": 60,
+        "accuracy": 78.94736842105263,
+        "averageDistance": 16.79534702573766,
+        "passesPerMinute": 0.8444444444444444,
+        "passesPerPhysicsMinute": 10.521458237194278,
+        "shots": 3,
+        "shotsOnTarget": 0,
+        "goals": 0,
+        "xg": 0.12199488993373178,
+        "blocks": 1,
+        "saves": 0,
+        "posts": 0,
+        "dribbles": 60,
+        "dribbleDistance": 374.6363736864476,
+        "beats": 6,
+        "tackles": 10,
+        "tacklesWon": 1,
+        "tacklesLoose": 0,
+        "tacklesMissed": 9,
+        "duels": 11,
+        "fouls": 3,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 19,
+        "interceptions": 6,
+        "averageHoldSeconds": 1.702020202020186,
+        "averagePossessionSeconds": 12.589285714285305,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 28,
+            "completedPasses": 20,
+            "resolvedPasses": 28,
+            "passDistance": 525.3659179225356,
+            "dribbles": 22,
+            "dribbleDistance": 172.8376932317204,
+            "beats": 2,
+            "tackles": 6,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 6,
+            "duels": 11,
+            "fouls": 2,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 9,
+            "shots": 0,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0,
+            "blocks": 1,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 14,
+            "possessionSeconds": 130.59999999999687,
+            "controlSeconds": 56.10000000000053,
+            "controls": 38,
+            "possessionPercent": 37.04964539007124
+          },
+          {
+            "id": "away",
+            "passes": 48,
+            "completedPasses": 40,
+            "resolvedPasses": 48,
+            "passDistance": 751.0804560335265,
+            "dribbles": 38,
+            "dribbleDistance": 201.7986804547272,
+            "beats": 4,
+            "tackles": 4,
+            "tacklesWon": 1,
+            "tacklesLoose": 0,
+            "tacklesMissed": 3,
+            "duels": 11,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 10,
+            "shots": 3,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.12199488993373178,
+            "blocks": 0,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 3,
+            "possessions": 14,
+            "possessionSeconds": 221.89999999999168,
+            "controlSeconds": 112.39999999999789,
+            "controls": 61,
+            "possessionPercent": 62.95035460992877
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 76,
+        "firstTouch": 231,
+        "dribble": 60,
+        "beat": 6,
+        "interception": 6,
+        "ballOut": 8,
+        "restartPosition": 11,
+        "throwIn": 5,
+        "skill": 6,
+        "tackle": 10,
+        "duel": 11,
+        "foul": 3,
+        "freeKick": 3,
+        "looseBall": 3,
+        "shot": 3,
+        "save": 1,
+        "wide": 2,
+        "corner": 1,
+        "half": 1,
+        "goalKick": 2,
+        "block": 1,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4334
+    },
+    {
+      "seed": 73,
+      "statistics": {
+        "passes": 74,
+        "completedPasses": 60,
+        "accuracy": 81.08108108108108,
+        "averageDistance": 18.344530710234974,
+        "passesPerMinute": 0.8222222222222222,
+        "passesPerPhysicsMinute": 10.235131396957122,
+        "shots": 13,
+        "shotsOnTarget": 5,
+        "goals": 2,
+        "xg": 1.0672465305611154,
+        "blocks": 4,
+        "saves": 3,
+        "posts": 1,
+        "dribbles": 51,
+        "dribbleDistance": 327.8335408610883,
+        "beats": 6,
+        "tackles": 10,
+        "tacklesWon": 0,
+        "tacklesLoose": 1,
+        "tacklesMissed": 9,
+        "duels": 6,
+        "fouls": 2,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 12,
+        "interceptions": 4,
+        "averageHoldSeconds": 1.563440860215057,
+        "averagePossessionSeconds": 15.036363636363172,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 37,
+            "completedPasses": 33,
+            "resolvedPasses": 37,
+            "passDistance": 608.0431516377945,
+            "dribbles": 27,
+            "dribbleDistance": 199.48148198053164,
+            "beats": 5,
+            "tackles": 5,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 4,
+            "duels": 6,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 5,
+            "shots": 9,
+            "shotsOnTarget": 3,
+            "goals": 1,
+            "xg": 0.891939948050092,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 1,
+            "interceptions": 3,
+            "possessions": 11,
+            "possessionSeconds": 175.09999999999434,
+            "controlSeconds": 79.69999999999975,
+            "controls": 49,
+            "possessionPercent": 52.93228536880282
+          },
+          {
+            "id": "away",
+            "passes": 37,
+            "completedPasses": 27,
+            "resolvedPasses": 37,
+            "passDistance": 749.4521209195937,
+            "dribbles": 24,
+            "dribbleDistance": 128.35205888055665,
+            "beats": 1,
+            "tackles": 5,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 5,
+            "duels": 6,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 7,
+            "shots": 4,
+            "shotsOnTarget": 2,
+            "goals": 1,
+            "xg": 0.17530658251102327,
+            "blocks": 4,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 1,
+            "possessions": 11,
+            "possessionSeconds": 155.69999999999544,
+            "controlSeconds": 65.70000000000054,
+            "controls": 44,
+            "possessionPercent": 47.06771463119717
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 4,
+        "pass": 74,
+        "firstTouch": 214,
+        "dribble": 51,
+        "beat": 6,
+        "interception": 4,
+        "skill": 4,
+        "tackle": 10,
+        "ballOut": 9,
+        "restartPosition": 11,
+        "goalKick": 2,
+        "throwIn": 5,
+        "duel": 6,
+        "shot": 13,
+        "block": 4,
+        "keeperClaim": 1,
+        "keeperDistribution": 1,
+        "save": 5,
+        "foul": 2,
+        "half": 1,
+        "freeKick": 1,
+        "post": 1,
+        "looseBall": 2,
+        "goal": 2,
+        "wide": 2,
+        "corner": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 1,
+        "away": 1
+      },
+      "ticks": 4338
+    },
+    {
+      "seed": 101,
+      "statistics": {
+        "passes": 76,
+        "completedPasses": 52,
+        "accuracy": 68.42105263157895,
+        "averageDistance": 16.110960889997997,
+        "passesPerMinute": 0.8444444444444444,
+        "passesPerPhysicsMinute": 10.494821634062141,
+        "shots": 4,
+        "shotsOnTarget": 3,
+        "goals": 0,
+        "xg": 0.15656539827393226,
+        "blocks": 0,
+        "saves": 3,
+        "posts": 0,
+        "dribbles": 53,
+        "dribbleDistance": 343.51450174262953,
+        "beats": 4,
+        "tackles": 23,
+        "tacklesWon": 6,
+        "tacklesLoose": 5,
+        "tacklesMissed": 12,
+        "duels": 9,
+        "fouls": 2,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 27,
+        "interceptions": 12,
+        "averageHoldSeconds": 1.6368932038834851,
+        "averagePossessionSeconds": 9.90833333333301,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 37,
+            "completedPasses": 25,
+            "resolvedPasses": 37,
+            "passDistance": 570.6296453229069,
+            "dribbles": 24,
+            "dribbleDistance": 214.82912510420843,
+            "beats": 1,
+            "tackles": 13,
+            "tacklesWon": 3,
+            "tacklesLoose": 4,
+            "tacklesMissed": 6,
+            "duels": 9,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 14,
+            "shots": 3,
+            "shotsOnTarget": 2,
+            "goals": 0,
+            "xg": 0.12027910965749614,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 6,
+            "possessions": 18,
+            "possessionSeconds": 183.99999999999383,
+            "controlSeconds": 87.5999999999993,
+            "controls": 51,
+            "possessionPercent": 51.58396411550318
+          },
+          {
+            "id": "away",
+            "passes": 39,
+            "completedPasses": 27,
+            "resolvedPasses": 39,
+            "passDistance": 653.8033823169409,
+            "dribbles": 29,
+            "dribbleDistance": 128.6853766384211,
+            "beats": 3,
+            "tackles": 10,
+            "tacklesWon": 3,
+            "tacklesLoose": 1,
+            "tacklesMissed": 6,
+            "duels": 9,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 13,
+            "shots": 1,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.03628628861643612,
+            "blocks": 0,
+            "saves": 2,
+            "posts": 0,
+            "interceptions": 6,
+            "possessions": 18,
+            "possessionSeconds": 172.69999999999447,
+            "controlSeconds": 80.99999999999967,
+            "controls": 52,
+            "possessionPercent": 48.41603588449681
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 76,
+        "firstTouch": 221,
+        "dribble": 53,
+        "beat": 4,
+        "tackle": 23,
+        "interception": 13,
+        "looseBall": 6,
+        "ballOut": 9,
+        "restartPosition": 11,
+        "throwIn": 7,
+        "duel": 9,
+        "skill": 14,
+        "goalKick": 1,
+        "shot": 4,
+        "save": 4,
+        "wide": 1,
+        "corner": 1,
+        "foul": 2,
+        "freeKick": 2,
+        "half": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4345
+    },
+    {
+      "seed": 202,
+      "statistics": {
+        "passes": 79,
+        "completedPasses": 56,
+        "accuracy": 70.88607594936708,
+        "averageDistance": 18.388323268969444,
+        "passesPerMinute": 0.8777777777777778,
+        "passesPerPhysicsMinute": 10.90909090909091,
+        "shots": 2,
+        "shotsOnTarget": 0,
+        "goals": 0,
+        "xg": 0.10916384069162728,
+        "blocks": 1,
+        "saves": 0,
+        "posts": 0,
+        "dribbles": 61,
+        "dribbleDistance": 368.70912784275845,
+        "beats": 1,
+        "tackles": 10,
+        "tacklesWon": 1,
+        "tacklesLoose": 6,
+        "tacklesMissed": 3,
+        "duels": 3,
+        "fouls": 0,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 23,
+        "interceptions": 10,
+        "averageHoldSeconds": 1.542718446601937,
+        "averagePossessionSeconds": 11.01515151515115,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 36,
+            "completedPasses": 24,
+            "resolvedPasses": 36,
+            "passDistance": 620.1391082929649,
+            "dribbles": 28,
+            "dribbleDistance": 210.05527021524654,
+            "beats": 1,
+            "tackles": 6,
+            "tacklesWon": 1,
+            "tacklesLoose": 3,
+            "tacklesMissed": 2,
+            "duels": 3,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 11,
+            "shots": 0,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0,
+            "blocks": 1,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 17,
+            "possessionSeconds": 172.3999999999945,
+            "controlSeconds": 75.2,
+            "controls": 46,
+            "possessionPercent": 47.427785419532384
+          },
+          {
+            "id": "away",
+            "passes": 43,
+            "completedPasses": 32,
+            "resolvedPasses": 43,
+            "passDistance": 832.538429955621,
+            "dribbles": 33,
+            "dribbleDistance": 158.6538576275119,
+            "beats": 0,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 3,
+            "tacklesMissed": 1,
+            "duels": 3,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 12,
+            "shots": 2,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.10916384069162728,
+            "blocks": 0,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 6,
+            "possessions": 16,
+            "possessionSeconds": 191.09999999999343,
+            "controlSeconds": 83.69999999999952,
+            "controls": 57,
+            "possessionPercent": 52.572214580467616
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 79,
+        "firstTouch": 244,
+        "dribble": 61,
+        "interception": 10,
+        "ballOut": 9,
+        "restartPosition": 9,
+        "throwIn": 6,
+        "skill": 7,
+        "tackle": 10,
+        "duel": 3,
+        "looseBall": 4,
+        "shot": 2,
+        "block": 1,
+        "half": 1,
+        "goalKick": 2,
+        "save": 1,
+        "beat": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4345
+    },
+    {
+      "seed": 303,
+      "statistics": {
+        "passes": 63,
+        "completedPasses": 47,
+        "accuracy": 74.60317460317461,
+        "averageDistance": 17.542355884183586,
+        "passesPerMinute": 0.7,
+        "passesPerPhysicsMinute": 8.69165325362152,
+        "shots": 4,
+        "shotsOnTarget": 1,
+        "goals": 0,
+        "xg": 0.171568741535915,
+        "blocks": 1,
+        "saves": 1,
+        "posts": 0,
+        "dribbles": 56,
+        "dribbleDistance": 420.1485491267223,
+        "beats": 6,
+        "tackles": 11,
+        "tacklesWon": 2,
+        "tacklesLoose": 2,
+        "tacklesMissed": 7,
+        "duels": 6,
+        "fouls": 3,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 1,
+        "ballWins": 16,
+        "interceptions": 6,
+        "averageHoldSeconds": 1.7009900990098807,
+        "averagePossessionSeconds": 14.395833333332872,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 25,
+            "completedPasses": 18,
+            "resolvedPasses": 25,
+            "passDistance": 440.40819838437403,
+            "dribbles": 22,
+            "dribbleDistance": 230.88165745467953,
+            "beats": 3,
+            "tackles": 7,
+            "tacklesWon": 1,
+            "tacklesLoose": 1,
+            "tacklesMissed": 5,
+            "duels": 6,
+            "fouls": 3,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 7,
+            "shots": 2,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.08846215544248207,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 2,
+            "possessions": 12,
+            "possessionSeconds": 127.19999999999705,
+            "controlSeconds": 52.500000000000476,
+            "controls": 35,
+            "possessionPercent": 36.81620839363274
+          },
+          {
+            "id": "away",
+            "passes": 38,
+            "completedPasses": 29,
+            "resolvedPasses": 38,
+            "passDistance": 664.760222319192,
+            "dribbles": 34,
+            "dribbleDistance": 189.26689167204273,
+            "beats": 3,
+            "tackles": 4,
+            "tacklesWon": 1,
+            "tacklesLoose": 1,
+            "tacklesMissed": 2,
+            "duels": 6,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 1,
+            "ballWins": 9,
+            "shots": 2,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.08310658609343295,
+            "blocks": 1,
+            "saves": 0,
+            "posts": 0,
+            "interceptions": 4,
+            "possessions": 12,
+            "possessionSeconds": 218.29999999999188,
+            "controlSeconds": 119.2999999999975,
+            "controls": 66,
+            "possessionPercent": 63.18379160636726
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 63,
+        "firstTouch": 246,
+        "dribble": 56,
+        "skill": 9,
+        "interception": 6,
+        "tackle": 11,
+        "foul": 3,
+        "restartPosition": 12,
+        "freeKick": 2,
+        "looseBall": 5,
+        "ballOut": 10,
+        "throwIn": 8,
+        "duel": 6,
+        "beat": 6,
+        "shot": 4,
+        "block": 1,
+        "wide": 2,
+        "corner": 1,
+        "half": 1,
+        "save": 2,
+        "goalKick": 1,
+        "advantage": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4349
+    },
+    {
+      "seed": 404,
+      "statistics": {
+        "passes": 68,
+        "completedPasses": 47,
+        "accuracy": 69.11764705882352,
+        "averageDistance": 14.168776589952401,
+        "passesPerMinute": 0.7555555555555555,
+        "passesPerPhysicsMinute": 9.400921658986174,
+        "shots": 17,
+        "shotsOnTarget": 10,
+        "goals": 4,
+        "xg": 1.9580795585373003,
+        "blocks": 1,
+        "saves": 6,
+        "posts": 2,
+        "dribbles": 56,
+        "dribbleDistance": 388.02048948378945,
+        "beats": 10,
+        "tackles": 8,
+        "tacklesWon": 0,
+        "tacklesLoose": 3,
+        "tacklesMissed": 5,
+        "duels": 4,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 24,
+        "interceptions": 12,
+        "averageHoldSeconds": 1.5680412371134012,
+        "averagePossessionSeconds": 9.609090909090623,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 36,
+            "completedPasses": 25,
+            "resolvedPasses": 36,
+            "passDistance": 457.7519030141159,
+            "dribbles": 27,
+            "dribbleDistance": 200.36108105356377,
+            "beats": 4,
+            "tackles": 5,
+            "tacklesWon": 0,
+            "tacklesLoose": 2,
+            "tacklesMissed": 3,
+            "duels": 4,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 12,
+            "shots": 7,
+            "shotsOnTarget": 4,
+            "goals": 1,
+            "xg": 0.8061591179129144,
+            "blocks": 1,
+            "saves": 3,
+            "posts": 0,
+            "interceptions": 7,
+            "possessions": 17,
+            "possessionSeconds": 156.99999999999537,
+            "controlSeconds": 73.10000000000012,
+            "controls": 50,
+            "possessionPercent": 49.51119520655946
+          },
+          {
+            "id": "away",
+            "passes": 32,
+            "completedPasses": 22,
+            "resolvedPasses": 32,
+            "passDistance": 505.72490510264737,
+            "dribbles": 29,
+            "dribbleDistance": 187.6594084302257,
+            "beats": 6,
+            "tackles": 3,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 2,
+            "duels": 4,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 12,
+            "shots": 10,
+            "shotsOnTarget": 6,
+            "goals": 3,
+            "xg": 1.151920440624386,
+            "blocks": 0,
+            "saves": 3,
+            "posts": 2,
+            "interceptions": 5,
+            "possessions": 16,
+            "possessionSeconds": 160.0999999999952,
+            "controlSeconds": 78.99999999999979,
+            "controls": 47,
+            "possessionPercent": 50.488804793440536
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 6,
+        "pass": 68,
+        "firstTouch": 239,
+        "dribble": 56,
+        "shot": 17,
+        "save": 9,
+        "interception": 12,
+        "ballOut": 8,
+        "restartPosition": 9,
+        "throwIn": 4,
+        "tackle": 8,
+        "looseBall": 6,
+        "skill": 7,
+        "beat": 10,
+        "duel": 4,
+        "goal": 4,
+        "keeperClaim": 2,
+        "keeperDistribution": 2,
+        "post": 2,
+        "half": 1,
+        "block": 1,
+        "foul": 1,
+        "penalty": 1,
+        "wide": 4,
+        "corner": 4,
+        "end": 1
+      },
+      "score": {
+        "home": 1,
+        "away": 3
+      },
+      "ticks": 4340
+    },
+    {
+      "seed": 505,
+      "statistics": {
+        "passes": 74,
+        "completedPasses": 57,
+        "accuracy": 77.02702702702703,
+        "averageDistance": 17.468800214290646,
+        "passesPerMinute": 0.8222222222222222,
+        "passesPerPhysicsMinute": 10.223347916186968,
+        "shots": 7,
+        "shotsOnTarget": 1,
+        "goals": 0,
+        "xg": 0.9441591658149187,
+        "blocks": 3,
+        "saves": 1,
+        "posts": 1,
+        "dribbles": 51,
+        "dribbleDistance": 359.50069165078264,
+        "beats": 9,
+        "tackles": 8,
+        "tacklesWon": 0,
+        "tacklesLoose": 2,
+        "tacklesMissed": 6,
+        "duels": 5,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 14,
+        "interceptions": 3,
+        "averageHoldSeconds": 1.5978494623655821,
+        "averagePossessionSeconds": 12.888461538461135,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 31,
+            "completedPasses": 21,
+            "resolvedPasses": 31,
+            "passDistance": 622.4245902640491,
+            "dribbles": 13,
+            "dribbleDistance": 80.19771472694948,
+            "beats": 1,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 2,
+            "tacklesMissed": 2,
+            "duels": 5,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 9,
+            "shots": 2,
+            "shotsOnTarget": 0,
+            "goals": 0,
+            "xg": 0.1644580761175039,
+            "blocks": 1,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 1,
+            "possessions": 13,
+            "possessionSeconds": 123.19999999999727,
+            "controlSeconds": 50.300000000000445,
+            "controls": 37,
+            "possessionPercent": 36.765144732915886
+          },
+          {
+            "id": "away",
+            "passes": 43,
+            "completedPasses": 36,
+            "resolvedPasses": 43,
+            "passDistance": 670.2666255934588,
+            "dribbles": 38,
+            "dribbleDistance": 279.30297692383317,
+            "beats": 8,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 4,
+            "duels": 5,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 5,
+            "shots": 5,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.7797010896974147,
+            "blocks": 2,
+            "saves": 0,
+            "posts": 1,
+            "interceptions": 2,
+            "possessions": 13,
+            "possessionSeconds": 211.89999999999225,
+            "controlSeconds": 98.29999999999869,
+            "controls": 56,
+            "possessionPercent": 63.23485526708412
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 74,
+        "firstTouch": 230,
+        "dribble": 51,
+        "beat": 9,
+        "ballOut": 12,
+        "restartPosition": 13,
+        "throwIn": 9,
+        "looseBall": 4,
+        "tackle": 8,
+        "shot": 7,
+        "block": 3,
+        "duel": 5,
+        "save": 1,
+        "interception": 4,
+        "skill": 6,
+        "half": 1,
+        "wide": 2,
+        "corner": 2,
+        "foul": 1,
+        "freeKick": 1,
+        "goalKick": 1,
+        "post": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4343
+    },
+    {
+      "seed": 606,
+      "statistics": {
+        "passes": 75,
+        "completedPasses": 61,
+        "accuracy": 81.33333333333333,
+        "averageDistance": 17.021992649018383,
+        "passesPerMinute": 0.8333333333333334,
+        "passesPerPhysicsMinute": 10.359116022099448,
+        "shots": 3,
+        "shotsOnTarget": 3,
+        "goals": 1,
+        "xg": 0.282849126662885,
+        "blocks": 0,
+        "saves": 2,
+        "posts": 0,
+        "dribbles": 63,
+        "dribbleDistance": 369.0531937306198,
+        "beats": 11,
+        "tackles": 16,
+        "tacklesWon": 1,
+        "tacklesLoose": 2,
+        "tacklesMissed": 13,
+        "duels": 9,
+        "fouls": 6,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 1,
+        "ballWins": 17,
+        "interceptions": 4,
+        "averageHoldSeconds": 1.3905660377358446,
+        "averagePossessionSeconds": 12.071428571428191,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 31,
+            "completedPasses": 23,
+            "resolvedPasses": 31,
+            "passDistance": 508.82406154327396,
+            "dribbles": 18,
+            "dribbleDistance": 173.01667900185726,
+            "beats": 5,
+            "tackles": 9,
+            "tacklesWon": 1,
+            "tacklesLoose": 1,
+            "tacklesMissed": 7,
+            "duels": 9,
+            "fouls": 3,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 1,
+            "ballWins": 8,
+            "shots": 1,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.036063247553423834,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 2,
+            "possessions": 14,
+            "possessionSeconds": 133.3999999999967,
+            "controlSeconds": 54.600000000000506,
+            "controls": 42,
+            "possessionPercent": 39.467455621302044
+          },
+          {
+            "id": "away",
+            "passes": 44,
+            "completedPasses": 38,
+            "resolvedPasses": 44,
+            "passDistance": 767.8253871331046,
+            "dribbles": 45,
+            "dribbleDistance": 196.03651472876257,
+            "beats": 6,
+            "tackles": 7,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 6,
+            "duels": 9,
+            "fouls": 3,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 9,
+            "shots": 2,
+            "shotsOnTarget": 2,
+            "goals": 1,
+            "xg": 0.24678587910946112,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 2,
+            "possessions": 14,
+            "possessionSeconds": 204.59999999999266,
+            "controlSeconds": 92.799999999999,
+            "controls": 64,
+            "possessionPercent": 60.53254437869796
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 3,
+        "pass": 75,
+        "firstTouch": 237,
+        "dribble": 63,
+        "beat": 11,
+        "duel": 9,
+        "tackle": 16,
+        "foul": 6,
+        "advantage": 2,
+        "restartPosition": 14,
+        "freeKick": 5,
+        "interception": 5,
+        "shot": 3,
+        "save": 2,
+        "ballOut": 8,
+        "goalKick": 2,
+        "throwIn": 6,
+        "looseBall": 2,
+        "half": 1,
+        "skill": 5,
+        "penalty": 1,
+        "goal": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 1
+      },
+      "ticks": 4344
+    },
+    {
+      "seed": 707,
+      "statistics": {
+        "passes": 67,
+        "completedPasses": 49,
+        "accuracy": 73.13432835820896,
+        "averageDistance": 19.01176343569303,
+        "passesPerMinute": 0.7444444444444445,
+        "passesPerPhysicsMinute": 9.266943291839556,
+        "shots": 9,
+        "shotsOnTarget": 5,
+        "goals": 0,
+        "xg": 0.8545665117630412,
+        "blocks": 2,
+        "saves": 5,
+        "posts": 0,
+        "dribbles": 58,
+        "dribbleDistance": 577.5103033889021,
+        "beats": 12,
+        "tackles": 6,
+        "tacklesWon": 1,
+        "tacklesLoose": 0,
+        "tacklesMissed": 5,
+        "duels": 8,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 14,
+        "interceptions": 3,
+        "averageHoldSeconds": 1.7702380952380896,
+        "averagePossessionSeconds": 14.77083333333285,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 28,
+            "completedPasses": 19,
+            "resolvedPasses": 28,
+            "passDistance": 655.7861147662488,
+            "dribbles": 17,
+            "dribbleDistance": 239.468383946817,
+            "beats": 2,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 0,
+            "tacklesMissed": 4,
+            "duels": 8,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 9,
+            "shots": 2,
+            "shotsOnTarget": 1,
+            "goals": 0,
+            "xg": 0.5328849702508367,
+            "blocks": 2,
+            "saves": 4,
+            "posts": 0,
+            "interceptions": 2,
+            "possessions": 12,
+            "possessionSeconds": 141.89999999999623,
+            "controlSeconds": 56.000000000000526,
+            "controls": 32,
+            "possessionPercent": 40.0282087447111
+          },
+          {
+            "id": "away",
+            "passes": 39,
+            "completedPasses": 30,
+            "resolvedPasses": 39,
+            "passDistance": 618.0020354251843,
+            "dribbles": 41,
+            "dribbleDistance": 338.0419194420851,
+            "beats": 10,
+            "tackles": 2,
+            "tacklesWon": 1,
+            "tacklesLoose": 0,
+            "tacklesMissed": 1,
+            "duels": 8,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 5,
+            "shots": 7,
+            "shotsOnTarget": 4,
+            "goals": 0,
+            "xg": 0.32168154151220446,
+            "blocks": 0,
+            "saves": 1,
+            "posts": 0,
+            "interceptions": 1,
+            "possessions": 12,
+            "possessionSeconds": 212.5999999999922,
+            "controlSeconds": 92.69999999999901,
+            "controls": 52,
+            "possessionPercent": 59.9717912552889
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 2,
+        "pass": 67,
+        "firstTouch": 306,
+        "dribble": 58,
+        "ballOut": 9,
+        "restartPosition": 10,
+        "throwIn": 7,
+        "tackle": 6,
+        "foul": 1,
+        "freeKick": 1,
+        "interception": 3,
+        "duel": 8,
+        "looseBall": 5,
+        "shot": 9,
+        "save": 7,
+        "keeperClaim": 3,
+        "keeperDistribution": 3,
+        "skill": 9,
+        "block": 2,
+        "beat": 12,
+        "goalKick": 1,
+        "half": 1,
+        "wide": 1,
+        "corner": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "ticks": 4338
+    },
+    {
+      "seed": 731,
+      "statistics": {
+        "passes": 57,
+        "completedPasses": 41,
+        "accuracy": 71.9298245614035,
+        "averageDistance": 22.06794268656372,
+        "passesPerMinute": 0.6333333333333333,
+        "passesPerPhysicsMinute": 7.892914839603046,
+        "shots": 15,
+        "shotsOnTarget": 6,
+        "goals": 1,
+        "xg": 1.4352428990899133,
+        "blocks": 3,
+        "saves": 5,
+        "posts": 2,
+        "dribbles": 45,
+        "dribbleDistance": 460.811649904516,
+        "beats": 7,
+        "tackles": 8,
+        "tacklesWon": 1,
+        "tacklesLoose": 1,
+        "tacklesMissed": 6,
+        "duels": 12,
+        "fouls": 1,
+        "yellow": 0,
+        "red": 0,
+        "advantages": 0,
+        "ballWins": 18,
+        "interceptions": 5,
+        "averageHoldSeconds": 1.3896551724138022,
+        "averagePossessionSeconds": 11.055172413792771,
+        "teams": [
+          {
+            "id": "home",
+            "passes": 31,
+            "completedPasses": 24,
+            "resolvedPasses": 31,
+            "passDistance": 630.1453803848594,
+            "dribbles": 28,
+            "dribbleDistance": 256.4793480040597,
+            "beats": 4,
+            "tackles": 4,
+            "tacklesWon": 1,
+            "tacklesLoose": 0,
+            "tacklesMissed": 3,
+            "duels": 12,
+            "fouls": 1,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 9,
+            "shots": 6,
+            "shotsOnTarget": 2,
+            "goals": 0,
+            "xg": 0.5316443692165912,
+            "blocks": 2,
+            "saves": 3,
+            "posts": 1,
+            "interceptions": 3,
+            "possessions": 15,
+            "possessionSeconds": 173.49999999999443,
+            "controlSeconds": 69.40000000000033,
+            "controls": 47,
+            "possessionPercent": 54.11728009981274
+          },
+          {
+            "id": "away",
+            "passes": 26,
+            "completedPasses": 17,
+            "resolvedPasses": 26,
+            "passDistance": 627.7273527492725,
+            "dribbles": 17,
+            "dribbleDistance": 204.3323019004563,
+            "beats": 3,
+            "tackles": 4,
+            "tacklesWon": 0,
+            "tacklesLoose": 1,
+            "tacklesMissed": 3,
+            "duels": 12,
+            "fouls": 0,
+            "yellow": 0,
+            "red": 0,
+            "advantages": 0,
+            "ballWins": 9,
+            "shots": 9,
+            "shotsOnTarget": 4,
+            "goals": 1,
+            "xg": 0.9035985298733222,
+            "blocks": 1,
+            "saves": 2,
+            "posts": 1,
+            "interceptions": 2,
+            "possessions": 14,
+            "possessionSeconds": 147.09999999999593,
+            "controlSeconds": 51.50000000000046,
+            "controls": 40,
+            "possessionPercent": 45.882719900187254
+          }
+        ]
+      },
+      "counts": {
+        "kickoff": 3,
+        "pass": 57,
+        "firstTouch": 244,
+        "dribble": 45,
+        "ballOut": 13,
+        "restartPosition": 14,
+        "throwIn": 11,
+        "interception": 6,
+        "shot": 15,
+        "block": 3,
+        "keeperClaim": 4,
+        "keeperDistribution": 4,
+        "duel": 12,
+        "tackle": 8,
+        "post": 2,
+        "beat": 7,
+        "looseBall": 4,
+        "save": 6,
+        "skill": 5,
+        "foul": 1,
+        "penalty": 1,
+        "wide": 1,
+        "half": 1,
+        "goal": 1,
+        "end": 1
+      },
+      "score": {
+        "home": 0,
+        "away": 1
+      },
+      "ticks": 4333
+    }
+  ],
+  "stalls": [
+    {
+      "seed": 9,
+      "id": "home-LW",
+      "seconds": 185.20000000000002,
+      "trace": [
+        {
+          "tick": 1772,
+          "selected": null,
+          "heading": -1.7346555325631476,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": -0.00941106757197358,
+            "y": -0.05691891293366096
+          },
+          "dribble": {
+            "x": 31.09609271710792,
+            "y": 14.050986673623765
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.518455692497696,
+            "y": -25.02922081744622
+          }
+        },
+        {
+          "tick": 1773,
+          "selected": null,
+          "heading": -1.7346555325631476,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 31.09609271710792,
+            "y": 14.050986673623765
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.66147610575416,
+            "y": -25.454665032179136
+          }
+        },
+        {
+          "tick": 1774,
+          "selected": null,
+          "heading": -1.7346555325631476,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 31.09609271710792,
+            "y": 14.050986673623765
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.73996737274829,
+            "y": -25.688153767733457
+          }
+        },
+        {
+          "tick": 1775,
+          "selected": null,
+          "heading": -1.7346555325631476,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 31.09609271710792,
+            "y": 14.050986673623765
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.783044293406434,
+            "y": -25.81629510270255
+          }
+        },
+        {
+          "tick": 1776,
+          "selected": null,
+          "heading": -1.7346555325631476,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 31.09609271710792,
+            "y": 14.050986673623765
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.80668540871072,
+            "y": -25.88662055839823
+          }
+        },
+        {
+          "tick": 1777,
+          "selected": "dribble",
+          "heading": -1.3626555325631475,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": null,
+          "ball": {
+            "x": 39.9447992145552,
+            "y": -25.92244485076897
+          }
+        },
+        {
+          "tick": 1778,
+          "selected": "dribble",
+          "heading": -0.9906555325631475,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": null,
+          "ball": {
+            "x": 39.975664362450836,
+            "y": -26.056432646666924
+          }
+        },
+        {
+          "tick": 1779,
+          "selected": "dribble",
+          "heading": -0.6186555325631475,
+          "position": {
+            "x": 39.89253615697359,
+            "y": -25.626850495706286
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": null,
+          "ball": {
+            "x": 40.00372352375382,
+            "y": -26.178239455772264
+          }
+        },
+        {
+          "tick": 1780,
+          "selected": "dribble",
+          "heading": -0.24665553256314757,
+          "position": {
+            "x": 39.90789898645007,
+            "y": -25.63071858613093
+          },
+          "velocity": {
+            "x": 0.1536282947648126,
+            "y": -0.03868090424642788
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": null,
+          "ball": {
+            "x": 40.02897669846415,
+            "y": -26.28786527808499
+          }
+        },
+        {
+          "tick": 1781,
+          "selected": "dribble",
+          "heading": 0.12534446743685243,
+          "position": {
+            "x": 39.96884706540122,
+            "y": -25.62771681263171
+          },
+          "velocity": {
+            "x": 0.6094807895114858,
+            "y": 0.030017734992165104
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": null,
+          "ball": {
+            "x": 40.05142388658182,
+            "y": -26.3853101136051
+          }
+        },
+        {
+          "tick": 1782,
+          "selected": "dribble",
+          "heading": 0.4973444674368524,
+          "position": {
+            "x": 40.06876192377047,
+            "y": -25.600081726286245
+          },
+          "velocity": {
+            "x": 0.9991485836924683,
+            "y": 0.27635086345467497
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": null,
+          "ball": {
+            "x": 40.07106508810684,
+            "y": -26.470573962332598
+          }
+        },
+        {
+          "tick": 1783,
+          "selected": "dribble",
+          "heading": 0.8693444674368525,
+          "position": {
+            "x": 40.194189545557045,
+            "y": -25.534049909574623
+          },
+          "velocity": {
+            "x": 1.254276217865812,
+            "y": 0.6603181671162139
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": null,
+          "ball": {
+            "x": 40.08790030303921,
+            "y": -26.54365682426748
+          }
+        },
+        {
+          "tick": 1784,
+          "selected": "dribble",
+          "heading": 1.2413444674368526,
+          "position": {
+            "x": 40.3267161279924,
+            "y": -25.422467958310982
+          },
+          "velocity": {
+            "x": 1.3252658243535143,
+            "y": 1.1158195126364232
+          },
+          "dribble": {
+            "x": 42.701530656407236,
+            "y": -15.508564532967757
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.31947301300383,
+            "y": -25.827128800204324
+          }
+        },
+        {
+          "tick": 1785,
+          "selected": "shield",
+          "heading": 1.8413444674368529,
+          "position": {
+            "x": 40.423977763281535,
+            "y": -25.34057764733168
+          },
+          "velocity": {
+            "x": 0.972616352891381,
+            "y": 0.8189031097929997
+          },
+          "dribble": {
+            "x": 43.13571062742604,
+            "y": -15.304181995572453
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.32659714503437,
+            "y": -25.408980162927286
+          }
+        },
+        {
+          "tick": 1786,
+          "selected": "shield",
+          "heading": 2.4413444674368527,
+          "position": {
+            "x": 40.479401293159796,
+            "y": -25.278046647694172
+          },
+          "velocity": {
+            "x": 0.5542352987826153,
+            "y": 0.6253099963750943
+          },
+          "dribble": {
+            "x": 43.13571062742604,
+            "y": -15.304181995572453
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.23843339793265,
+            "y": -25.25667287112871
+          }
+        },
+        {
+          "tick": 1787,
+          "selected": "shield",
+          "heading": 3.041344467436853,
+          "position": {
+            "x": 40.49332463675969,
+            "y": -25.235589126550956
+          },
+          "velocity": {
+            "x": 0.13923343599893978,
+            "y": 0.42457521143217675
+          },
+          "dribble": {
+            "x": 43.13571062742604,
+            "y": -15.304181995572453
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.16703139094776,
+            "y": -25.295328153432532
+          }
+        },
+        {
+          "tick": 1788,
+          "selected": "shield",
+          "heading": 2.8283804393565934,
+          "position": {
+            "x": 40.46338627076075,
+            "y": -25.207321758016775
+          },
+          "velocity": {
+            "x": -0.2993836599893709,
+            "y": 0.28267368534178905
+          },
+          "dribble": {
+            "x": 43.13571062742604,
+            "y": -15.304181995572453
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.14170008309969,
+            "y": -25.155115541685394
+          }
+        },
+        {
+          "tick": 1789,
+          "selected": "shield",
+          "heading": 2.575367702699984,
+          "position": {
+            "x": 40.41138114877619,
+            "y": -25.17426442193035
+          },
+          "velocity": {
+            "x": -0.5200512198456071,
+            "y": 0.33057336086426586
+          },
+          "dribble": {
+            "x": 43.13571062742604,
+            "y": -15.304181995572453
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.1211714712634,
+            "y": -25.019223377040003
+          }
+        },
+        {
+          "tick": 1790,
+          "selected": "shield",
+          "heading": 2.379143532607292,
+          "position": {
+            "x": 40.36681912055754,
+            "y": -25.13170216373367
+          },
+          "velocity": {
+            "x": -0.4456202821864609,
+            "y": 0.42562258196676905
+          },
+          "dribble": {
+            "x": 43.22037564820983,
+            "y": -15.05597845919182
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.11591934681025,
+            "y": -24.90872377319958
+          }
+        },
+        {
+          "tick": 1791,
+          "selected": "shield",
+          "heading": 2.2262410236809163,
+          "position": {
+            "x": 40.329259537591895,
+            "y": -25.082849344887602
+          },
+          "velocity": {
+            "x": -0.37559582965644256,
+            "y": 0.48852818846069535
+          },
+          "dribble": {
+            "x": 43.22037564820983,
+            "y": -15.05597845919182
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.11681130177088,
+            "y": -24.815969742789516
+          }
+        },
+        {
+          "tick": 1792,
+          "selected": "shield",
+          "heading": 2.1168498511337575,
+          "position": {
+            "x": 40.29725787292981,
+            "y": -25.03018803422583
+          },
+          "velocity": {
+            "x": -0.32001664662079743,
+            "y": 0.526613106617733
+          },
+          "dribble": {
+            "x": 43.22037564820983,
+            "y": -15.05597845919182
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.115496327911636,
+            "y": -24.731084806639423
+          }
+        },
+        {
+          "tick": 1793,
+          "selected": "shield",
+          "heading": 2.042305620948441,
+          "position": {
+            "x": 40.26926704342316,
+            "y": -24.975289640394227
+          },
+          "velocity": {
+            "x": -0.2799082950664688,
+            "y": 0.5489839383160338
+          },
+          "dribble": {
+            "x": 43.22037564820983,
+            "y": -15.05597845919182
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.11028605067821,
+            "y": -24.663480333371762
+          }
+        },
+        {
+          "tick": 1794,
+          "selected": "shield",
+          "heading": 1.9857986332614088,
+          "position": {
+            "x": 40.24442138219155,
+            "y": -24.918898033751713
+          },
+          "velocity": {
+            "x": -0.2484566123161362,
+            "y": 0.563916066425128
+          },
+          "dribble": {
+            "x": 43.22037564820983,
+            "y": -15.05597845919182
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.10330416781715,
+            "y": -24.59860764705987
+          }
+        },
+        {
+          "tick": 1795,
+          "selected": "shield",
+          "heading": 1.9422864360539207,
+          "position": {
+            "x": 40.222052186040436,
+            "y": -24.861479053916533
+          },
+          "velocity": {
+            "x": -0.22369196151113668,
+            "y": 0.574189798351817
+          },
+          "dribble": {
+            "x": 43.05341588162519,
+            "y": -14.800612071013184
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.0950006811836,
+            "y": -24.535353441439355
+          }
+        },
+        {
+          "tick": 1796,
+          "selected": "shield",
+          "heading": 1.9082577043608262,
+          "position": {
+            "x": 40.20164945788998,
+            "y": -24.80333226668131
+          },
+          "velocity": {
+            "x": -0.20402728150459568,
+            "y": 0.5814678723522432
+          },
+          "dribble": {
+            "x": 43.05341588162519,
+            "y": -14.800612071013184
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.085767005199706,
+            "y": -24.473072888073393
+          }
+        },
+        {
+          "tick": 1797,
+          "selected": "shield",
+          "heading": 1.8832746518708898,
+          "position": {
+            "x": 40.18270562974559,
+            "y": -24.744693955339695
+          },
+          "velocity": {
+            "x": -0.18943828144385874,
+            "y": 0.586383113416133
+          },
+          "dribble": {
+            "x": 43.05341588162519,
+            "y": -14.800612071013184
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.07510936847477,
+            "y": -24.411642841303813
+          }
+        },
+        {
+          "tick": 1798,
+          "selected": "shield",
+          "heading": 1.8647931482471034,
+          "position": {
+            "x": 40.164848699263416,
+            "y": -24.685715567641193
+          },
+          "velocity": {
+            "x": -0.17856930482174158,
+            "y": 0.589783876985019
+          },
+          "dribble": {
+            "x": 43.05341588162519,
+            "y": -14.800612071013184
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.0634257480515,
+            "y": -24.350732903959226
+          }
+        },
+        {
+          "tick": 1799,
+          "selected": "shield",
+          "heading": 1.852259173061784,
+          "position": {
+            "x": 40.1477323857219,
+            "y": -24.626518000186874
+          },
+          "velocity": {
+            "x": -0.1711631354151226,
+            "y": 0.5919756745431898
+          },
+          "dribble": {
+            "x": 43.05341588162519,
+            "y": -14.800612071013184
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.05051595566515,
+            "y": -24.29029044966934
+          }
+        },
+        {
+          "tick": 1800,
+          "selected": "shield",
+          "heading": 1.8439148084269037,
+          "position": {
+            "x": 40.13111062842388,
+            "y": -24.567179670533218
+          },
+          "velocity": {
+            "x": -0.16621757298015608,
+            "y": 0.5933832965365529
+          },
+          "dribble": {
+            "x": 42.95672688515555,
+            "y": -14.508232037448344
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.03670315558437,
+            "y": -24.230152625517455
+          }
+        },
+        {
+          "tick": 1801,
+          "selected": "shield",
+          "heading": 1.845530765014147,
+          "position": {
+            "x": 40.11439300470524,
+            "y": -24.507868278381608
+          },
+          "velocity": {
+            "x": -0.16717623718639968,
+            "y": 0.5931139215160919
+          },
+          "dribble": {
+            "x": 42.95672688515555,
+            "y": -14.508232037448344
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 40.019441034293116,
+            "y": -24.17099423171898
+          }
+        },
+        {
+          "tick": 1802,
+          "selected": "shield",
+          "heading": 1.8547540443703554,
+          "position": {
+            "x": 40.09712905427358,
+            "y": -24.44871359811662
+          },
+          "velocity": {
+            "x": -0.17263950431661235,
+            "y": 0.5915468026498956
+          },
+          "dribble": {
+            "x": 42.95672688515555,
+            "y": -14.508232037448344
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.99907408317409,
+            "y": -24.1127296362335
+          }
+        },
+        {
+          "tick": 1803,
+          "selected": "shield",
+          "heading": 1.87424323385368,
+          "position": {
+            "x": 40.07871557861708,
+            "y": -24.389906590915032
+          },
+          "velocity": {
+            "x": -0.18413475656500122,
+            "y": 0.5880700720158677
+          },
+          "dribble": {
+            "x": 42.95672688515555,
+            "y": -14.508232037448344
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.974131588383415,
+            "y": -24.055897326093223
+          }
+        },
+        {
+          "tick": 1804,
+          "selected": "shield",
+          "heading": 1.8935172399604312,
+          "position": {
+            "x": 40.059172146600595,
+            "y": -24.331465385872896
+          },
+          "velocity": {
+            "x": -0.19543432016483142,
+            "y": 0.5844120504213703
+          },
+          "dribble": {
+            "x": 42.95672688515555,
+            "y": -14.508232037448344
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.94817028354805,
+            "y": -23.999533786896745
+          }
+        },
+        {
+          "tick": 1805,
+          "selected": "shield",
+          "heading": 1.9107932931756644,
+          "position": {
+            "x": 40.03862204785147,
+            "y": -24.2733705184304
+          },
+          "velocity": {
+            "x": -0.20550098749125517,
+            "y": 0.5809486744249608
+          },
+          "dribble": {
+            "x": 42.86816664603424,
+            "y": -14.213179423134367
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.92190256658826,
+            "y": -23.9434060314115
+          }
+        },
+        {
+          "tick": 1806,
+          "selected": "shield",
+          "heading": 1.9415006688123462,
+          "position": {
+            "x": 40.01629797655482,
+            "y": -24.215933979341575
+          },
+          "velocity": {
+            "x": -0.2232407129664962,
+            "y": 0.5743653908882487
+          },
+          "dribble": {
+            "x": 42.86816664603424,
+            "y": -14.213179423134367
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.88950276971725,
+            "y": -23.88970863464405
+          }
+        },
+        {
+          "tick": 1807,
+          "selected": "shield",
+          "heading": 1.992382393705247,
+          "position": {
+            "x": 39.991081587653035,
+            "y": -24.159707171567046
+          },
+          "velocity": {
+            "x": -0.25216388901785025,
+            "y": 0.5622680777452989
+          },
+          "dribble": {
+            "x": 42.86816664603424,
+            "y": -14.213179423134367
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.84785873174958,
+            "y": -23.84035280170989
+          }
+        },
+        {
+          "tick": 1808,
+          "selected": "shield",
+          "heading": 2.0495538142451606,
+          "position": {
+            "x": 39.96269358272454,
+            "y": -24.10501310097489
+          },
+          "velocity": {
+            "x": -0.2838800492849617,
+            "y": 0.546940705921554
+          },
+          "dribble": {
+            "x": 42.86816664603424,
+            "y": -14.213179423134367
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.801456731758435,
+            "y": -23.79436429944729
+          }
+        },
+        {
+          "tick": 1809,
+          "selected": "shield",
+          "heading": 2.107940861375628,
+          "position": {
+            "x": 39.931162340912856,
+            "y": -24.052068781434706
+          },
+          "velocity": {
+            "x": -0.3153124181168159,
+            "y": 0.5294431954018546
+          },
+          "dribble": {
+            "x": 42.86816664603424,
+            "y": -14.213179423134367
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.752072681404485,
+            "y": -23.751358133373856
+          }
+        },
+        {
+          "tick": 1810,
+          "selected": "shield",
+          "heading": 2.1960853082091107,
+          "position": {
+            "x": 39.895092802815604,
+            "y": -24.00210570903908
+          },
+          "velocity": {
+            "x": -0.3606953809725295,
+            "y": 0.49963072395628544
+          },
+          "dribble": {
+            "x": 42.7401568403465,
+            "y": -13.933782818696177
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.69022674219416,
+            "y": -23.71832780784617
+          }
+        },
+        {
+          "tick": 1811,
+          "selected": "shield",
+          "heading": 2.331928892208398,
+          "position": {
+            "x": 39.852589249875365,
+            "y": -23.957487683878654
+          },
+          "velocity": {
+            "x": -0.42503552940237366,
+            "y": 0.4461802516042637
+          },
+          "dribble": {
+            "x": 42.7401568403465,
+            "y": -13.933782818696177
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.61117957532385,
+            "y": -23.704068329777723
+          }
+        },
+        {
+          "tick": 1812,
+          "selected": "shield",
+          "heading": 2.4865111474930797,
+          "position": {
+            "x": 39.80372279295704,
+            "y": -23.919945846283653
+          },
+          "velocity": {
+            "x": -0.4886645691832517,
+            "y": 0.37541837595001554
+          },
+          "dribble": {
+            "x": 42.7401568403465,
+            "y": -13.933782818696177
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.52617339661068,
+            "y": -23.706717488442177
+          }
+        },
+        {
+          "tick": 1813,
+          "selected": "shield",
+          "heading": 2.6368241330478512,
+          "position": {
+            "x": 39.74978554168506,
+            "y": -23.89014495524021
+          },
+          "velocity": {
+            "x": -0.5393725127198077,
+            "y": 0.29800891043443817
+          },
+          "dribble": {
+            "x": 42.7401568403465,
+            "y": -13.933782818696177
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.443435286823295,
+            "y": -23.720883260382408
+          }
+        },
+        {
+          "tick": 1814,
+          "selected": "shield",
+          "heading": 2.8278471737923185,
+          "position": {
+            "x": 39.6911712821755,
+            "y": -23.871126838511504
+          },
+          "velocity": {
+            "x": -0.5861425950955372,
+            "y": 0.19018116728706141
+          },
+          "dribble": {
+            "x": 42.7401568403465,
+            "y": -13.933782818696177
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.35825677660052,
+            "y": -23.763108636444606
+          }
+        },
+        {
+          "tick": 1815,
+          "selected": "pass",
+          "heading": 2.2278471737923184,
+          "position": {
+            "x": 39.67640661897168,
+            "y": -23.86633626211218
+          },
+          "velocity": {
+            "x": -0.14764663203820322,
+            "y": 0.047905763993234346
+          },
+          "dribble": {
+            "x": 42.50016578160915,
+            "y": -13.752840875772975
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.46263208558734,
+            "y": -23.58920732303092
+          },
+          "pass": "home-RW"
+        },
+        {
+          "tick": 1816,
+          "selected": "pass",
+          "heading": 1.6278471737923184,
+          "position": {
+            "x": 39.67640661897168,
+            "y": -23.86633626211218
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "dribble": {
+            "x": 42.50016578160915,
+            "y": -13.752840875772975
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.65644965262108,
+            "y": -23.516905697487275
+          }
+        },
+        {
+          "tick": 1817,
+          "selected": "shield",
+          "heading": 2.2278471737923184,
+          "position": {
+            "x": 39.662579555394224,
+            "y": -23.848411398008086
+          },
+          "velocity": {
+            "x": -0.13827063577460807,
+            "y": 0.17924864104096128
+          },
+          "dribble": {
+            "x": 42.48540111840533,
+            "y": -13.748050299373652
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.44880502200988,
+            "y": -23.571282458926824
+          }
+        },
+        {
+          "tick": 1818,
+          "selected": "shield",
+          "heading": 2.8278471737923185,
+          "position": {
+            "x": 39.61915353563461,
+            "y": -23.834321292293847
+          },
+          "velocity": {
+            "x": -0.4342601975961429,
+            "y": 0.14090105714238887
+          },
+          "dribble": {
+            "x": 42.48540111840533,
+            "y": -13.748050299373652
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.286239030059626,
+            "y": -23.72630309022695
+          }
+        },
+        {
+          "tick": 1819,
+          "selected": "shield",
+          "heading": -2.855338133387268,
+          "position": {
+            "x": 39.56222409862031,
+            "y": -23.851077806350144
+          },
+          "velocity": {
+            "x": -0.5692943701429792,
+            "y": -0.16756514056296368
+          },
+          "dribble": {
+            "x": 42.48540111840533,
+            "y": -13.748050299373652
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.22646623566249,
+            "y": -23.94990420698277
+          }
+        },
+        {
+          "tick": 1820,
+          "selected": "shield",
+          "heading": -2.486130075651397,
+          "position": {
+            "x": 39.51337195138692,
+            "y": -23.888638262849597
+          },
+          "velocity": {
+            "x": -0.48852147233389415,
+            "y": -0.37560456499452244
+          },
+          "dribble": {
+            "x": 42.48540111840533,
+            "y": -13.748050299373652
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.23590383051389,
+            "y": -24.10197237146608
+          }
+        },
+        {
+          "tick": 1821,
+          "selected": "shield",
+          "heading": -2.424097369102239,
+          "position": {
+            "x": 39.466942249681935,
+            "y": -23.929154962879903
+          },
+          "velocity": {
+            "x": -0.4642970170498802,
+            "y": -0.4051670003030644
+          },
+          "dribble": {
+            "x": 42.48540111840533,
+            "y": -13.748050299373652
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.20323302062325,
+            "y": -24.159279804018958
+          }
+        },
+        {
+          "tick": 1822,
+          "selected": "shield",
+          "heading": -2.366437355070321,
+          "position": {
+            "x": 39.4229246076739,
+            "y": -23.972279983155985
+          },
+          "velocity": {
+            "x": -0.4401764200803467,
+            "y": -0.43125020276082215
+          },
+          "dribble": {
+            "x": 42.27593674911558,
+            "y": -13.810869000141373
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.17291528147414,
+            "y": -24.217219438559034
+          }
+        },
+        {
+          "tick": 1823,
+          "selected": "shield",
+          "heading": -2.3119449442275815,
+          "position": {
+            "x": 39.381321126469345,
+            "y": -24.017738431583343
+          },
+          "velocity": {
+            "x": -0.4160348120455056,
+            "y": -0.4545844842735627
+          },
+          "dribble": {
+            "x": 42.27593674911558,
+            "y": -13.810869000141373
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.145023636894244,
+            "y": -24.275931182102223
+          }
+        },
+        {
+          "tick": 1824,
+          "selected": "shield",
+          "heading": -2.2785623047203694,
+          "position": {
+            "x": 39.341258065742075,
+            "y": -24.064560128978062
+          },
+          "velocity": {
+            "x": -0.40063060727273175,
+            "y": -0.46821697394720996
+          },
+          "dribble": {
+            "x": 42.27593674911558,
+            "y": -13.810869000141373
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.113709783712395,
+            "y": -24.330495796659818
+          }
+        },
+        {
+          "tick": 1825,
+          "selected": "shield",
+          "heading": -2.261722403823767,
+          "position": {
+            "x": 39.30198912094558,
+            "y": -24.112049813714112
+          },
+          "velocity": {
+            "x": -0.39268944796499916,
+            "y": -0.47489684736050247
+          },
+          "dribble": {
+            "x": 42.27593674911558,
+            "y": -13.810869000141373
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.078951221110856,
+            "y": -24.38177948437961
+          }
+        },
+        {
+          "tick": 1826,
+          "selected": "shield",
+          "heading": -2.242095751566633,
+          "position": {
+            "x": 39.263659742902576,
+            "y": -24.16030102054458
+          },
+          "velocity": {
+            "x": -0.38329378043002493,
+            "y": -0.4825120683046798
+          },
+          "dribble": {
+            "x": 42.27593674911558,
+            "y": -13.810869000141373
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.04595834998294,
+            "y": -24.434355948471175
+          }
+        },
+        {
+          "tick": 1827,
+          "selected": "shield",
+          "heading": -2.2195620354059047,
+          "position": {
+            "x": 39.22642728265776,
+            "y": -24.209403607908975
+          },
+          "velocity": {
+            "x": -0.3723246024481821,
+            "y": -0.49102587364394895
+          },
+          "dribble": {
+            "x": 42.07265424233622,
+            "y": -14.04201505780605
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 39.014956111692555,
+            "y": -24.488294166821614
+          }
+        },
+        {
+          "tick": 1828,
+          "selected": "shield",
+          "heading": -2.208049336463235,
+          "position": {
+            "x": 39.189762580640426,
+            "y": -24.258931577862732
+          },
+          "velocity": {
+            "x": -0.36664702017333095,
+            "y": -0.49527969953756146
+          },
+          "dribble": {
+            "x": 42.07265424233622,
+            "y": -14.04201505780605
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.98151613606724,
+            "y": -24.540238204735665
+          }
+        },
+        {
+          "tick": 1829,
+          "selected": "shield",
+          "heading": -2.2124184379347196,
+          "position": {
+            "x": 39.15288183653171,
+            "y": -24.308298883802465
+          },
+          "velocity": {
+            "x": -0.3688074410871758,
+            "y": -0.4936730593973399
+          },
+          "dribble": {
+            "x": 42.07265424233622,
+            "y": -14.04201505780605
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.943408326281364,
+            "y": -24.58869297878914
+          }
+        },
+        {
+          "tick": 1830,
+          "selected": "shield",
+          "heading": -2.2089314377131997,
+          "position": {
+            "x": 39.11617346010029,
+            "y": -24.357794492512017
+          },
+          "velocity": {
+            "x": -0.3670837643142246,
+            "y": -0.4949560870955108
+          },
+          "dribble": {
+            "x": 42.07265424233622,
+            "y": -14.04201505780605
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.907678955650645,
+            "y": -24.63891731551701
+          }
+        },
+        {
+          "tick": 1831,
+          "selected": "shield",
+          "heading": -2.194708400958655,
+          "position": {
+            "x": 39.08017275068958,
+            "y": -24.40780718193865
+          },
+          "velocity": {
+            "x": -0.36000709410717296,
+            "y": -0.5001268942663544
+          },
+          "dribble": {
+            "x": 42.07265424233622,
+            "y": -14.04201505780605
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.87569761999439,
+            "y": -24.6918668956032
+          }
+        },
+        {
+          "tick": 1832,
+          "selected": "shield",
+          "heading": -2.1830101745258856,
+          "position": {
+            "x": 39.04475955099376,
+            "y": -24.4582375841685
+          },
+          "velocity": {
+            "x": -0.3541319969581418,
+            "y": -0.5043040222984929
+          },
+          "dribble": {
+            "x": 41.88916725012322,
+            "y": -14.289521219200122
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.8436213302569,
+            "y": -24.744669803303868
+          }
+        },
+        {
+          "tick": 1833,
+          "selected": "shield",
+          "heading": -2.1749084214662737,
+          "position": {
+            "x": 39.0097560837204,
+            "y": -24.50895323718217
+          },
+          "velocity": {
+            "x": -0.350034672733615,
+            "y": -0.507156530136674
+          },
+          "dribble": {
+            "x": 41.88916725012322,
+            "y": -14.289521219200122
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.810945041864244,
+            "y": -24.797005610260523
+          }
+        },
+        {
+          "tick": 1834,
+          "selected": "shield",
+          "heading": -2.1598291914549286,
+          "position": {
+            "x": 38.97552131998674,
+            "y": -24.560190929693256
+          },
+          "velocity": {
+            "x": -0.3423476373365486,
+            "y": -0.5123769251108827
+          },
+          "dribble": {
+            "x": 41.88916725012322,
+            "y": -14.289521219200122
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.78107632422579,
+            "y": -24.851208358077756
+          }
+        },
+        {
+          "tick": 1835,
+          "selected": "shield",
+          "heading": -2.1352410982490335,
+          "position": {
+            "x": 38.9425566146801,
+            "y": -24.61225481723353
+          },
+          "velocity": {
+            "x": -0.32964705306640585,
+            "y": -0.5206388754027443
+          },
+          "dribble": {
+            "x": 41.88916725012322,
+            "y": -14.289521219200122
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.755325236847945,
+            "y": -24.90796482916257
+          }
+        },
+        {
+          "tick": 1836,
+          "selected": "shield",
+          "heading": -2.112764392362731,
+          "position": {
+            "x": 38.910770362102156,
+            "y": -24.66504642952953
+          },
+          "velocity": {
+            "x": -0.3178625257794578,
+            "y": -0.5279161229599866
+          },
+          "dribble": {
+            "x": 41.88916725012322,
+            "y": -14.289521219200122
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.73023230447569,
+            "y": -24.964889738190006
+          }
+        },
+        {
+          "tick": 1837,
+          "selected": "shield",
+          "heading": -2.0948790386536897,
+          "position": {
+            "x": 38.879933339695725,
+            "y": -24.718398076466293
+          },
+          "velocity": {
+            "x": -0.30837022406429454,
+            "y": -0.5335164693676634
+          },
+          "dribble": {
+            "x": 41.7197648615358,
+            "y": -14.546760466791
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.70478667481006,
+            "y": -25.02142224345538
+          }
+        },
+        {
+          "tick": 1838,
+          "selected": "shield",
+          "heading": -2.081278808733156,
+          "position": {
+            "x": 38.84982474144636,
+            "y": -24.772164167018037
+          },
+          "velocity": {
+            "x": -0.3010859824936533,
+            "y": -0.5376609055174382
+          },
+          "dribble": {
+            "x": 41.7197648615358,
+            "y": -14.546760466791
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.67881534571887,
+            "y": -25.077542271296842
+          }
+        },
+        {
+          "tick": 1839,
+          "selected": "shield",
+          "heading": -2.076621311225596,
+          "position": {
+            "x": 38.81996688428591,
+            "y": -24.826069904630522
+          },
+          "velocity": {
+            "x": -0.2985785716044826,
+            "y": -0.5390573761248676
+          },
+          "dribble": {
+            "x": 41.7197648615358,
+            "y": -14.546760466791
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.65038163596457,
+            "y": -25.13224116969599
+          }
+        },
+        {
+          "tick": 1840,
+          "selected": "shield",
+          "heading": -2.0724575212494263,
+          "position": {
+            "x": 38.790333737471485,
+            "y": -24.88009949644496
+          },
+          "velocity": {
+            "x": -0.2963314681442395,
+            "y": -0.540295918144381
+          },
+          "dribble": {
+            "x": 41.7197648615358,
+            "y": -14.546760466791
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.62202478837102,
+            "y": -25.186974222762878
+          }
+        },
+        {
+          "tick": 1841,
+          "selected": "shield",
+          "heading": -2.0693612623837745,
+          "position": {
+            "x": 38.76086802203612,
+            "y": -24.934220581020586
+          },
+          "velocity": {
+            "x": -0.29465715435363243,
+            "y": -0.5412108457562725
+          },
+          "dribble": {
+            "x": 41.7197648615358,
+            "y": -14.546760466791
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.59351004178256,
+            "y": -25.24161496360662
+          }
+        },
+        {
+          "tick": 1842,
+          "selected": "shield",
+          "heading": -2.0684694121040685,
+          "position": {
+            "x": 38.73145058621724,
+            "y": -24.988367923075412
+          },
+          "velocity": {
+            "x": -0.2941743581887628,
+            "y": -0.541473420548257
+          },
+          "dribble": {
+            "x": 41.569862521469766,
+            "y": -14.815934618282057
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.564366822251436,
+            "y": -25.295911441652894
+          }
+        },
+        {
+          "tick": 1843,
+          "selected": "shield",
+          "heading": -2.070789074749138,
+          "position": {
+            "x": 38.70190762608946,
+            "y": -25.042446880985565
+          },
+          "velocity": {
+            "x": -0.2954296012778317,
+            "y": -0.5407895791015407
+          },
+          "dribble": {
+            "x": 41.569862521469766,
+            "y": -14.815934618282057
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.53411091507651,
+            "y": -25.3496019945247
+          }
+        },
+        {
+          "tick": 1844,
+          "selected": "shield",
+          "heading": -2.072800159306416,
+          "position": {
+            "x": 38.672255968420515,
+            "y": -25.096466316184795
+          },
+          "velocity": {
+            "x": -0.29651657668942843,
+            "y": -0.5401943519923014
+          },
+          "dribble": {
+            "x": 41.569862521469766,
+            "y": -14.815934618282057
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.50384188224195,
+            "y": -25.403283355438873
+          }
+        },
+        {
+          "tick": 1845,
+          "selected": "shield",
+          "heading": -2.074217886586421,
+          "position": {
+            "x": 38.64252775574948,
+            "y": -25.150443659145942
+          },
+          "velocity": {
+            "x": -0.2972821267104081,
+            "y": -0.5397734296114778
+          },
+          "dribble": {
+            "x": 41.569862521469766,
+            "y": -14.815934618282057
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.47367885608208,
+            "y": -25.457021624892192
+          }
+        },
+        {
+          "tick": 1846,
+          "selected": "shield",
+          "heading": -2.0751743964521276,
+          "position": {
+            "x": 38.612747926824575,
+            "y": -25.20439254209048
+          },
+          "velocity": {
+            "x": -0.2977982892489979,
+            "y": -0.5394888294454022
+          },
+          "dribble": {
+            "x": 41.569862521469766,
+            "y": -14.815934618282057
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.44360585959391,
+            "y": -25.510808861977228
+          }
+        },
+        {
+          "tick": 1847,
+          "selected": "shield",
+          "heading": -2.0752471207847956,
+          "position": {
+            "x": 38.58296417458192,
+            "y": -25.258339259174175
+          },
+          "velocity": {
+            "x": -0.2978375224265645,
+            "y": -0.5394671708369341
+          },
+          "dribble": {
+            "x": 41.42174242625822,
+            "y": -15.086106579351952
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.41379982387617,
+            "y": -25.564743277506675
+          }
+        },
+        {
+          "tick": 1848,
+          "selected": "shield",
+          "heading": -2.075309635211479,
+          "position": {
+            "x": 38.55317704994937,
+            "y": -25.31228411423826
+          },
+          "velocity": {
+            "x": -0.29787124632545936,
+            "y": -0.5394485506408536
+          },
+          "dribble": {
+            "x": 41.42174242625822,
+            "y": -15.086106579351952
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.383993544902644,
+            "y": -25.618677556759646
+          }
+        },
+        {
+          "tick": 1849,
+          "selected": "shield",
+          "heading": -2.0753530024767395,
+          "position": {
+            "x": 38.523387585904,
+            "y": -25.36622767746548
+          },
+          "velocity": {
+            "x": -0.297894640453736,
+            "y": -0.539435632272229
+          },
+          "dribble": {
+            "x": 41.42174242625822,
+            "y": -15.086106579351952
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.35419079357068,
+            "y": -25.67261378267281
+          }
+        },
+        {
+          "tick": 1850,
+          "selected": "shield",
+          "heading": -2.0752573327862507,
+          "position": {
+            "x": 38.49360328275894,
+            "y": -25.420174090394642
+          },
+          "velocity": {
+            "x": -0.297843031450568,
+            "y": -0.5394641292915926
+          },
+          "dribble": {
+            "x": 41.42174242625822,
+            "y": -15.086106579351952
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.324435803063736,
+            "y": -25.72657638120457
+          }
+        },
+        {
+          "tick": 1851,
+          "selected": "shield",
+          "heading": -2.0749931835273667,
+          "position": {
+            "x": 38.46383323055781,
+            "y": -25.474128368943262
+          },
+          "velocity": {
+            "x": -0.29770052201130476,
+            "y": -0.53954278548619
+          },
+          "dribble": {
+            "x": 41.42174242625822,
+            "y": -15.086106579351952
+          },
+          "owner": "home-LW",
+          "ball": {
+            "x": 38.294746692701516,
+            "y": -25.780575334527477
+          }
+        },
+        {
+          "tick": 1852,
+          "selected": "dribble",
+          "heading": -2.4469931835273666,
+          "position": {
+            "x": 38.45633429091432,
+            "y": -25.487719204310647
+          },
+          "velocity": {
+            "x": -0.0749893964348724,
+            "y": -0.13590835367384002
+          },
+          "dribble": {
+            "x": 41.272827729991455,
+            "y": -15.355842406204733
+          },
+          "owner": null,
+          "ball": {
+            "x": 38.18742574411298,
+            "y": -25.711746420195663
+          }
+        }
+      ]
+    }
+  ]
+}

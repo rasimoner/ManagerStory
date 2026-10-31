@@ -21,9 +21,13 @@ export function poseSimulationContactFoot(runtime, actor, { sample, frame }) {
 function observedFootContact(sample, frame) {
   const carry = frame.ball.carry;
   if (carry?.playerId === sample.id) return carry.touchTick * MATCH_SIM_DATA.clock.stepSeconds;
-  const contact = frame.contacts.findLast(event => event.type === 'firstTouch' && event.toId === sample.id
-    && event.time <= frame.physicsTime && event.height < SIM_VIEW_DATA.pose.chestControlHeight);
+  const contact = frame.contacts.findLast(event => isFootContact(event, sample.id) && event.time <= frame.physicsTime);
   return contact?.time ?? -Infinity;
+}
+
+function isFootContact(event, playerId) {
+  if (['pass', 'shot'].includes(event.type)) return event.fromId === playerId;
+  return event.type === 'firstTouch' && event.toId === playerId && event.height < SIM_VIEW_DATA.pose.chestControlHeight;
 }
 
 function nearestBoot(actor, target) {
