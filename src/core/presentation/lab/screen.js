@@ -54,8 +54,9 @@ export function showLaboratoryControls(view, snapshot) {
   for (const button of root.querySelectorAll('[data-team]')) button.setAttribute('aria-pressed', String(button.dataset.team === snapshot.simulation.ball.teamId));
   root.querySelector('#lab-benchmark').textContent = snapshot.lastRunSeconds === undefined ? '' : `90 dk · ${snapshot.lastRunSeconds.toFixed(2)} sn`;
   const clock = root.querySelector('#lab-clock');
-  clock.textContent = formatLabClock(snapshot.simulation.time);
+  clock.textContent = formatLabClock(snapshot.simulation.matchTime);
   clock.dataset.tick = String(snapshot.simulation.tick);
+  clock.dataset.matchSeconds = String(snapshot.simulation.matchTime);
 }
 
 function formatLabClock(seconds) {

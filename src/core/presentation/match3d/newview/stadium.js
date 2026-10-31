@@ -104,7 +104,8 @@ export function buildStadium({ scene, renderer, boardName = 'ANADOLU HİSARI' })
   board(74, 56.5, 0, -Math.PI / 2);      // behind the goals
   board(74, -56.5, 0, Math.PI / 2);
 
-  const standMat = noOutline(new THREE.MeshBasicMaterial({ color: '#232a36', side: THREE.DoubleSide }));
+  // Low portrait framing can see beneath a stand; only the crowd-facing surface should occlude the grass.
+  const standMat = noOutline(new THREE.MeshBasicMaterial({ color: '#232a36', side: THREE.FrontSide }));
   function slope(w, d, rise, pos, rotY) {
     const geo = new THREE.PlaneGeometry(w, Math.hypot(d, rise));
     const m = new THREE.Mesh(geo, standMat);

@@ -32,7 +32,7 @@ try {
   await testManualPass();
   await page.locator('#lab-passing-style').selectOption('Kısa');
   await page.locator('[data-command="finish"]').click();
-  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.tick === '54000');
+  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.matchSeconds === '5400');
   assert.match(await page.locator('#lab-benchmark').textContent(), /90 dk/);
   assert.ok(Number(await page.locator('[data-stat="passes"]').textContent()) > 1);
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));

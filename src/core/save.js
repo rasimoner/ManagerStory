@@ -19,12 +19,12 @@ import { MATCH_TACTICS } from './engine/tactics.js';
 import { GAME_VERSION } from './version.js';
 import { numberSquadKeepingShown } from './players/shirt-numbers.js';
 import { snapshotSimulation } from './sim/simulation-checkpoint.js';
-import { packExperimentalMatch, prepareExperimentalMatchArchive, completeExperimentalMatchArchive } from './match/match-storage.js';
+import { packExperimentalMatch, prepareExperimentalMatchArchive, completeExperimentalMatchArchive, unpackMatchSnapshot } from './match/match-storage.js';
 import { packSimulationHistory, restoreSimulationHistory } from './match/history-storage.js';
 import { presentation } from './presentation/registry.js';
 import { normalizeMatchDurationMinutes } from './match/duration-setting.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 5;
+export const SAVE_SCHEMA = 6;
 export let saveWarning = false;
 let saveSerial = 0;
 
@@ -93,6 +93,17 @@ export const SAVE_MIGRATIONS = [
     from: 4, to: 5,
     about: 'persistent total match duration; active matches retain their checkpoint clock or legacy reference model',
     run(state) { state.matchDurationMinutes = normalizeMatchDurationMinutes(state.matchDurationMinutes); },
+  },
+  {
+    from: 5, to: 6,
+    about: 'halftime preparation no longer consumes the match clock; existing checkpoints retain their elapsed football',
+    run(state) {
+      const stored = state.activeMatchV71;
+      if (!stored?.experimental) return;
+      const active = unpackMatchSnapshot(stored);
+      if (active.simulationCheckpoint?.state.clock) active.simulationCheckpoint.state.clock.stoppedTicks ??= 0;
+      state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
+    },
   },
 ];
 

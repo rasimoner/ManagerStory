@@ -24,10 +24,10 @@ function finish(game, skip = false) {
   }if(!M.finished)throw new Error('Duration match did not finish');})()`);
 }
 
-test('format five defaults to seven minutes, persists four options and rejects invalid setting changes', () => {
+test('the current format defaults to seven minutes, persists four options and rejects invalid setting changes', () => {
   const game = loadGame();
   game.run('S=fresh();init();showSettings()');
-  assert.equal(game.run('SAVE_SCHEMA'), 5);
+  assert.equal(game.run('S.schemaVersion'), game.run('SAVE_SCHEMA'));
   assert.equal(game.run('S.matchDurationMinutes'), 7);
   assert.equal(game.run('S.experimentalMatchEngine'), false);
   for (const minutes of [3, 5, 7, 10]) {
@@ -69,14 +69,14 @@ test('invalid loaded settings recover to seven minutes without changing an activ
 
 test('full-time players receive 90 career minutes; a player entering at 60 minutes receives 30', () => {
   const game = career(3);
-  game.run('advanceExperimentalSeconds(90);startSecondHalf();advanceExperimentalSeconds(30)');
+  game.run('advanceExperimentalSeconds(90);startSecondHalf();while(M.simulation.match.phase==="half")advanceExperimentalSeconds(.1);advanceExperimentalSeconds(30)');
   assert.equal(game.run('M.matchElapsedSeconds'), 3600);
   game.run('M.simulation.referee.stoppage={kind:"test"};queueExperimentalSubstitution({outId:M.active.at(-1),inId:eligibleSubstitutes()[0].id});M.simulation.referee.stoppage=null');
   const incoming = game.run('M.active.at(-1)');
   finish(game);
   assert.equal(game.api.M.playerStats[incoming].minutes, 30);
   assert.ok(game.run('Object.values(M.playerStats).some(row=>row.minutes===90)'));
-  assert.equal(game.run('M.simulation.time'), 180);
+  assert.equal(game.run('M.simulation.tick-M.simulation.clock.stoppedTicks'), 1800);
   assert.ok(game.run('S.players.some(p=>p.minutes===90&&p.fitness<95)'));
 });
 
@@ -99,7 +99,8 @@ test('save/reload and skip preserve the same short match, actual events and care
   assert.deepEqual(restored.json('M.playerStats'), game.json('M.playerStats'));
   assert.equal(restored.run('M.simulation.rngState'), game.run('M.simulation.rngState'));
   assert.deepEqual(restored.json('S.players.map(p=>[p.id,p.minutes,p.goals,p.assists,p.yellow,p.red,p.fitness])'), game.json('S.players.map(p=>[p.id,p.minutes,p.goals,p.assists,p.yellow,p.red,p.fitness])'));
-  assert.ok(game.run('M.simulation.events.every(e=>Math.abs(e.matchTime-e.time*5400/420)<1e-8)'));
+  assert.ok(game.run('M.simulation.events.every(e=>e.matchTime>=0&&e.matchTime<=5400)'));
+  assert.equal(game.run('M.simulation.events.find(e=>e.type==="kickoff"&&e.half===2).matchTime'), 2700);
 });
 
 test('a genuine V7.15.0 active experimental match retains its original duration and football result', () => {

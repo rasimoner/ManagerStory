@@ -80,7 +80,7 @@ test('2D and 3D execute identical physical-step commands and retain events, RNG 
   const flat = match(), spatial = match();
   spatial.api.setMatchView('3d');
   for (const game of [flat, spatial]) game.run(`
-    for(let tick=0;tick<4200;tick++){
+    for(let tick=0;!M.finished&&tick<6000;tick++){
       if(M.reason==='half')startSecondHalf();
       if(M.requiredSubstitution){
         const incoming=eligibleSubstitutes()[0];

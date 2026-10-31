@@ -4,7 +4,7 @@ import { simulationKeeperGrip } from './scene-grip.js';
 
 // Observed possession closes the gloves around a reachable chest grip, through the existing recovery pose.
 export function poseSimulationHands(runtime, actor, frame) {
-  if (!actor.keeper) return;
+  if (!actor.keeper && frame.ball.heldBy !== actor.id) return;
   const grip = observedGrip(actor, frame);
   if (!grip || grip.weight <= 0) return;
   const right = actor.bones.RightArm.getWorldPosition(new THREE.Vector3())
@@ -17,6 +17,7 @@ export function poseSimulationHands(runtime, actor, frame) {
 
 function observedGrip(actor, frame) {
   const holding = frame.ball.heldBy === actor.id;
+  if (!actor.keeper) return holding ? { target: new THREE.Vector3().copy(frame.ball.position), weight: 1 } : null;
   const claim = frame.contacts.findLast(event => event.type === 'keeperClaim' && event.fromId === actor.id && event.time <= frame.physicsTime);
   if (!claim) return holding ? { target: simulationKeeperGrip(actor), weight: 1 } : null;
   const release = frame.contacts.findLast(event => ['keeperDistribution', 'pass', 'shot'].includes(event.type)

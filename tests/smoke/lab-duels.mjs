@@ -29,7 +29,7 @@ async function holdPlayerOnPhone() {
 
 async function verifyDuelsAndLog() {
   await page.locator('[data-command="finish"]').click();
-  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.tick === '54000');
+  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.matchSeconds === '5400');
   const tackles = await page.locator('[data-stat="tackles"]').textContent();
   assert.ok(tackles.split('/').map(Number).reduce((sum, count) => sum + count, 0) > 0);
   assert.ok(await page.locator('#lab-events li').count() <= 10);

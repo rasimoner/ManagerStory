@@ -3,6 +3,7 @@ import { advanceSimulationClock } from './simulation-clock.js';
 import { applySimulationCommands } from './substitutions.js';
 import { consumeSimulationFitness } from './player-workload.js';
 import { prepareSimulationMatch } from './match-lifecycle.js';
+import { preparePositionedSimulationRestart } from './restart-step.js';
 import { prepareSimulationKeepers } from './keeper-positioning.js';
 import { advanceSimulationKeeperPossession } from './keeper-possession.js';
 import { prepareSimulationDefenders, finishSimulationTackles } from './defending.js';
@@ -25,7 +26,7 @@ export function stepSimulation(simulation, replayBall) {
   if (simulationStepStopped(simulation, replayBall)) return simulation;
   if (replayBall !== undefined) applyOffBallReplay(simulation, replayBall);
   advanceSimulationClock(simulation);
-  if (prepareLiveSimulationStep(simulation, replayBall)) { consumeSimulationFitness(simulation); return simulation; }
+  if (prepareLiveSimulationStep(simulation, replayBall)) return simulation;
   for (const team of simulation.teams) {
     updateSimPhase(simulation, team);
     updateOffBallDecisions(simulation, team);
@@ -94,5 +95,8 @@ function prepareLiveSimulationStep(simulation, replayBall) {
   if (replayBall !== undefined) return false;
   applySimulationCommands(simulation);
   simulation.liveBall = true;
-  return prepareSimulationMatch(simulation);
+  const preparingHalf = simulation.match.phase === 'half';
+  const prepared = prepareSimulationMatch(simulation) || preparePositionedSimulationRestart(simulation);
+  if (prepared && (!preparingHalf || !simulation.clock.pauseHalfPreparation)) consumeSimulationFitness(simulation);
+  return prepared;
 }

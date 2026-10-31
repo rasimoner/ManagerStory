@@ -28,7 +28,8 @@ export function advanceSimulationPlayback(playback, simulation, input) {
 }
 
 function simulationPlaybackSeconds(playback, simulation, input) {
-  if (input.skip) return simulationDurationSeconds(simulation) - simulation.time;
+  if (input.skip) return Math.max(MATCH_SIM_DATA.clock.stepSeconds,
+    simulationDurationSeconds(simulation) + simulation.clock.stoppedTicks * MATCH_SIM_DATA.clock.stepSeconds - simulation.time);
   if (usesNaturalMatchClock(simulation)) {
     playback.currentRate = input.speed;
     return input.seconds * input.speed;

@@ -4,15 +4,17 @@ import { evaluateSimulationFoul } from './foul-severity.js';
 import { simulationFoulRestartPosition, stopSimulationForFoul } from './foul-restart.js';
 import { simulationDurationTicks } from './duel-state.js';
 import { simulationRuntime } from './simulation-runtime.js';
+import { usesPositionedSimulationRestarts } from './restart-state.js';
 
 export function recordSimulationFoul(simulation, defender, incident) {
   const { victim } = incident;
   const defending = simulation.teams.find(team => team.id === defender.teamId);
-  const restart = simulationFoulRestartPosition(victim.position, defending.direction);
+  const restart = simulationFoulRestartPosition(victim.position, defending.direction, !usesPositionedSimulationRestarts(simulation));
   const assessment = evaluateSimulationFoul(simulation, defender, incident);
   const foul = { type: 'foul', fromId: defender.id, toId: victim.id, fromPos: { ...defender.position }, toPos: { ...victim.position },
     teamId: victim.teamId, contact: 'player', kind: incident.kind, speed: incident.speed, ...assessment,
-    penaltyPending: restart.penaltyPending, restartPosition: restart.position, success: true };
+    penaltyPending: restart.penaltyPending, restartPosition: restart.position, success: true,
+    ...(usesPositionedSimulationRestarts(simulation) ? { positionedRestart: true } : {}) };
   const eventIndex = emitSimulationEvent(simulation, foul);
   simulation.statistics.teams[defender.teamId].fouls++;
   applySimulationCard(simulation, defender, foul);

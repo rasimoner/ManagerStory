@@ -26,6 +26,7 @@ export function kickSimulationDribble(simulation, owner) {
   const speed = distance / duration + MATCH_SIM_DATA.ball.rollingDeceleration * duration / 2 + (drawSimulationRandom(simulation) * 2 - 1) * settings.touchErrorDistance * error;
   Object.assign(ball, { ownerId: null, velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
     excludedId: owner.id, controlAfterTick: simulation.tick + simulationDurationTicks(duration), height: 0, verticalVelocity: 0 });
+  if (ball.control) ball.control = null;
   ball.carry.touchTick = simulation.tick;
   simulation.events[ball.carry.eventIndex].touches++;
 }

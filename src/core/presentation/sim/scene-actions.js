@@ -4,6 +4,8 @@ import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 
 export function simulationContactAnimation(sample, frame, actor) {
+  const pending = pendingRestartAnimation(sample, frame.ball.restart);
+  if (pending) return pending;
   const tackle = sample.duel.tackle;
   if (tackle?.kind === 'sliding') return { motion: motionAt('tackle', tackle.contactTick * MATCH_SIM_DATA.clock.stepSeconds) };
   const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && animationName(event, sample));
@@ -17,14 +19,36 @@ export function simulationContactAnimation(sample, frame, actor) {
   return frame.physicsTime - start <= action.dur ? { act: { name, t0: start } } : {};
 }
 
+function pendingRestartAnimation(sample, restart) {
+  return restart?.kind === 'throwIn' && restart.stage === 'ready' && restart.takerId === sample.id
+    ? { act: { name: 'throwIn', t0: restart.readyTime } } : null;
+}
+
 function animationName(contact, sample) {
   if (contact.type === 'firstTouch') return controlAnimation(contact, sample);
   if (contact.type === 'duel') return shoulderAnimation(contact, sample);
   if (contact.fromId !== sample.id) return null;
+  return ownerAnimationName(contact);
+}
+
+function ownerAnimationName(contact) {
+  const move = movementAnimationName(contact);
+  if (move) return move;
+  if (contact.type === 'pass') return contact.restartKind === 'throwIn' ? 'throwIn' : 'pass';
   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
   if (contact.type === 'block') return 'lunge';
-  return ['pass', 'shot'].includes(contact.type) ? contact.type : null;
+  return contact.type === 'shot' ? 'shot' : null;
+}
+
+function movementAnimationName(contact) {
+  if (contact.type === 'beat') return 'cut';
+  return contact.type === 'skill' ? skillAnimationName(contact) : null;
+}
+
+function skillAnimationName(contact) {
+  const name = contact.kind === 'bodyFeint' ? 'feint' : 'cut';
+  return contact.turn < 0 ? name + 'Left' : name;
 }
 
 function shoulderAnimation(contact, sample) {
@@ -33,7 +57,9 @@ function shoulderAnimation(contact, sample) {
 
 function motionAt(name, time) { return { name, t0: time - MOTIONS[name].contact }; }
 function controlAnimation(contact, sample) {
-  return contact.toId === sample.id && contact.height >= SIM_VIEW_DATA.pose.chestControlHeight ? 'chest' : null;
+  if (contact.toId !== sample.id) return null;
+  if (contact.kind === 'head') return 'header';
+  return contact.height >= SIM_VIEW_DATA.pose.chestControlHeight ? 'chest' : null;
 }
 
 export function simulationShieldAnimation(actor, sample, frame) {

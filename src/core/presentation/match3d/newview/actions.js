@@ -235,6 +235,8 @@ function mirror(src) {
 ACTIONS.diveLeft = mirror(ACTIONS.diveRight);
 ACTIONS.passLeft = mirror(ACTIONS.pass);
 ACTIONS.lungeL = mirror(ACTIONS.lunge);
+ACTIONS.cutLeft = mirror(ACTIONS.cut);
+ACTIONS.feintLeft = mirror(ACTIONS.feint);
 
 // the keeper's hands in his set position (the legs come from the recorded crouch): up in front, palms out
 ACTIONS.keeperHands = { loop: true, mask: 'arms', keys: [{ t: 0, p: { LeftArm: [-62, 0, -60], RightArm: [-62, 0, 60], LeftForeArm: [0, -62, 0], RightForeArm: [0, 62, 0], Head: [-14, 0, 0] } }] };

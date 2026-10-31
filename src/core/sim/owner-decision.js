@@ -27,6 +27,9 @@ export function requestSimulationPass(simulation, request) {
 export function prepareSimulationOwner(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId ?? simulation.ball.carry?.playerId);
   if (!owner) return;
+  if (simulation.ball.control && simulation.ball.height > 0) {
+    owner.target = { ...owner.position }; owner.gait = 'walk'; owner.role = 'holder'; owner.motionMode = 'control'; return;
+  }
   if (simulation.ball.ownerId != null && simulation.tick >= simulation.passing.nextEvaluationTick) refreshSimulationOwnerPlan(simulation, owner);
   const decision = simulation.ownerDecision;
   owner.role = 'holder';
@@ -61,6 +64,7 @@ function refreshSimulationOwnerPlan(simulation, owner) {
 export function finishSimulationOwnerStep(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
   if (!owner) return;
+  if (simulation.ball.control && simulation.ball.height > 0) { followSimulationBallOwner(simulation); return; }
   if (simulation.ownerDecision.selected === 'shot') { finishOwnerShot(simulation, owner); return; }
   const option = simulation.passing.selected;
   if (option && simulation.ownerDecision.selected === 'pass') faceSimulationPlayer(owner, option.target);

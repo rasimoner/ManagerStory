@@ -29,7 +29,7 @@ async function doubleTapOwner() {
 
 async function finishPhysicalMatch() {
   await page.locator('[data-command="finish"]').click();
-  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.tick === '54000');
+  await page.waitForFunction(() => document.querySelector('#lab-clock').dataset.matchSeconds === '5400');
   assert.equal(await page.locator('#lab-status').textContent(), 'MAÇ BİTTİ');
   assert.match(await page.locator('#lab-directions').textContent(), /2. devre.*Sarı ↓.*Mavi ↑/);
   assert.match(await page.locator('#lab-score').textContent(), /Sarı \d+ – \d+ Mavi/);

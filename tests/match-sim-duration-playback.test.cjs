@@ -33,8 +33,8 @@ async function watch(options) {
 for (const seconds of [180, 300, 420, 600]) {
   test(`automatic clock: ${seconds}s at 1x with no danger-dependent playback rate`, async () => {
     const result = await watch({ seconds, fps: 60, speed: 1 });
-    assert.ok(Math.abs(result.elapsed - seconds) < .05);
-    assert.equal(result.simulation.tick, seconds * 10);
+    assert.ok(Math.abs(result.elapsed - seconds - result.simulation.clock.stoppedTicks * .1) < .05);
+    assert.equal(result.simulation.tick - result.simulation.clock.stoppedTicks, seconds * 10);
     assert.equal(result.simulation.matchTime, 5400);
     assert.equal(result.playback.metrics.budgetLimitedFrames, 0);
     measurements.push({ durationSeconds: seconds, speed: 1, virtualSeconds: result.elapsed, half: result.half,
@@ -46,8 +46,9 @@ test('manual half/double rates affect wall time uniformly and keep the same foot
   const normal = await watch({ seconds: 180, fps: 60, speed: 1 });
   const slow = await watch({ seconds: 180, fps: 60, speed: .5 });
   const fast = await watch({ seconds: 180, fps: 30, speed: 2 });
-  assert.ok(Math.abs(slow.elapsed - 360) < .1);
-  assert.ok(Math.abs(fast.elapsed - 90) < .1);
+  const duration = 180 + normal.simulation.clock.stoppedTicks * .1;
+  assert.ok(Math.abs(slow.elapsed - duration * 2) < .1);
+  assert.ok(Math.abs(fast.elapsed - duration / 2) < .1);
   for (const result of [slow, fast]) {
     assert.deepEqual(result.simulation.events, normal.simulation.events);
     assert.equal(result.simulation.rngState, normal.simulation.rngState);

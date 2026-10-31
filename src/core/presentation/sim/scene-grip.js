@@ -21,7 +21,7 @@ export function createSimulationBallAnchor(runtime) {
 export function simulationGripPoint(runtime, heldBy) {
   if (heldBy == null) return null;
   const actor = runtime?.players.find(player => player.id === heldBy && !player.offPitch);
-  if (!actor?.keeper) return null;
+  if (!actor) return null;
   return actor.bones.LeftHand.getWorldPosition(new THREE.Vector3())
     .add(actor.bones.RightHand.getWorldPosition(new THREE.Vector3())).multiplyScalar(.5);
 }

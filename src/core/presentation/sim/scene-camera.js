@@ -24,21 +24,33 @@ export function simulationCameraShot(frame, mode) {
     ?? frame.players.reduce((nearest, player) => !nearest || new THREE.Vector3().copy(player.position).distanceTo(frame.ball.position)
       < new THREE.Vector3().copy(nearest.position).distanceTo(frame.ball.position) ? player : nearest, null);
   if (mode !== 'auto') return { mode, a: actor(owner) };
+  return automaticSimulationCameraShot(frame, { actor, owner });
+}
+
+function automaticSimulationCameraShot(frame, { actor, owner }) {
   const goal = observedSimulationGoal(frame);
   if (goal) return { mode: 'close', a: actor(frame.players.find(player => player.id === goal.fromId)) };
   const shot = frame.ball.shot;
+  const restartShot = penaltyRestartCameraShot(frame, actor);
+  if (restartShot) return restartShot;
   if (!shot) return observedCameraCue(frame, actor) ?? { mode: 'tv' };
   const shooter = frame.players.find(player => player.id === shot.fromId) ?? owner;
   const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== shot.teamId);
   if (!shooter || !keeper) return { mode: 'tv' };
   const near = new THREE.Vector3().copy(shooter.position).distanceTo(keeper.position) < SIM_VIEW_DATA.camera.shotMinimumSeparationMetres;
-  return { mode: near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
+  return { mode: shot.penalty ? 'pen' : near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
+}
+
+function penaltyRestartCameraShot(frame, actor) {
+  const restart = frame.ball.restart;
+  return restart?.kind === 'penalty' ? { mode: 'pen', a: actor(frame.players.find(player => player.id === restart.takerId)),
+    b: actor(frame.players.find(player => player.slot === 'GK' && player.teamId !== restart.teamId)) } : null;
 }
 
 function observedCameraCue(frame, actor) {
-  const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && ['tackle', 'yellow', 'red'].includes(event.type));
+  const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && ['tackle', 'skill', 'yellow', 'red'].includes(event.type));
   const elapsed = contact ? frame.physicsTime - contact.time : Infinity;
-  if (contact?.type === 'tackle') return challengeCameraCue(frame, { contact, elapsed, actor });
+  if (['tackle', 'skill'].includes(contact?.type)) return challengeCameraCue(frame, { contact, elapsed, actor });
   if (['yellow', 'red'].includes(contact?.type) && elapsed < SIM_VIEW_DATA.camera.cardCloseSeconds) {
     return { mode: 'close', a: actor(frame.players.find(player => player.id === contact.fromId)) };
   }
@@ -47,7 +59,8 @@ function observedCameraCue(frame, actor) {
 
 function challengeCameraCue(frame, { contact, elapsed, actor }) {
   if (!contact.closeUp || elapsed >= SIM_VIEW_DATA.camera.challengeCloseSeconds) return null;
-  const carrier = frame.players.find(player => player.id === contact.toId), defender = frame.players.find(player => player.id === contact.fromId);
+  const carrier = frame.players.find(player => player.id === (contact.type === 'skill' ? contact.fromId : contact.toId));
+  const defender = frame.players.find(player => player.id === (contact.type === 'skill' ? contact.toId : contact.fromId));
   return carrier && defender ? { mode: 'close', a: actor(carrier), b: actor(defender) } : null;
 }
 

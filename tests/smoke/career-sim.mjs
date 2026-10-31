@@ -26,7 +26,7 @@ async function prepareCareer(beforeMatch) {
   await page.locator('[data-action="newCareer"]').click();
   await page.locator('[data-action="showSettings"]').click();
   await page.locator('[data-action="setExperimentalMatchEngine"]').check();
-  assert.equal((await savedCareer()).schemaVersion, 5);
+  assert.equal((await savedCareer()).schemaVersion, api.SAVE_SCHEMA);
   assert.equal((await savedCareer()).matchDurationMinutes, 7);
   assert.equal(await page.locator('[data-action="setMatchDurationMinutes"] option').count(), 4);
   await page.evaluate(() => { const career = JSON.parse(localStorage.getItem('msv4')); career.matchSalt = 73; localStorage.setItem('msv4', JSON.stringify(career)); });
@@ -196,14 +196,15 @@ async function measureContinuousMatch() {
   const report = { milliseconds: measurement.activeMilliseconds, seconds: measurement.activeMilliseconds / 1000,
     overallMilliseconds: milliseconds, node: process.version, cpuThrottle: 4, viewport: [390, 844], ...measurement,
     seed: match.simulationCheckpoint.state.seed, physicsSeconds: match.simulationCheckpoint.state.physicsTime, matchSeconds: match.matchElapsedSeconds, ticks: match.simulationCheckpoint.state.tick,
+    stoppedTicks: match.simulationCheckpoint.state.clock.stoppedTicks,
     score: [match.hg, match.ag], savedUtf16Bytes: JSON.stringify(career).length * 2, simulationMetrics: match.simulationPlayback.metrics };
   writeFileSync(process.env.CAREER_METRICS || 'career-mobile-metrics.json', JSON.stringify(report, null, 2) + '\n');
   if (process.env.CAREER_SCREENSHOT) await page.screenshot({ path: process.env.CAREER_SCREENSHOT, fullPage: true });
   assert.equal(measurement.backwards, false);
   assert.ok(report.savedUtf16Bytes < 5 * 1024 * 1024, 'the match fits the mobile storage budget');
-  assert.equal(report.physicsSeconds, 420);
+  assert.equal(report.physicsSeconds, report.ticks * .1);
   assert.equal(report.matchSeconds, 5400);
-  assert.equal(report.ticks, 4200);
+  assert.equal(report.ticks - report.stoppedTicks, 4200);
   assert.ok(report.seconds >= 419 && report.seconds <= 525, `actual natural viewing took ${report.seconds.toFixed(1)} s; nominal 420 s, maximum extension 25%`);
   await session.send('Emulation.setCPUThrottlingRate', { rate: 1 });
   await verifyCareerResult();

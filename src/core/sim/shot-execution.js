@@ -7,7 +7,7 @@ import { armSimulationKeepers } from './keeper-reaction.js';
 
 export function requestSimulationShot(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
-  if (!owner || simulation.ball.heldBy != null || simulation.match.phase === 'ended') throw new TypeError('A controlled foot ball is required for a shot.');
+  if (!owner || simulation.ball.heldBy != null || simulation.match.phase === 'ended' || (simulation.ball.control && simulation.ball.height > 0)) throw new TypeError('A controlled foot ball is required for a shot.');
   releaseSimulationShot(simulation, owner, evaluateSimulationShot(simulation, owner));
 }
 
@@ -15,6 +15,7 @@ export function releaseSimulationShot(simulation, owner, option) {
   endSimulationCarry(simulation);
   const ball = simulation.ball, fromPos = { ...ball.position };
   const flight = createShotFlight(simulation, owner, option);
+  if (ball.control) ball.control = null;
   const assistId = ball.assist?.teamId === owner.teamId && ball.assist.toId === owner.id ? ball.assist.fromId : null;
   const eventIndex = emitSimulationEvent(simulation, { type: 'shot', fromId: owner.id, fromPos, toPos: { ...option.target },
     teamId: owner.teamId, xg: option.xg, distance: option.distance, angle: option.angle, blocked: option.blocked, pressure: option.pressure,

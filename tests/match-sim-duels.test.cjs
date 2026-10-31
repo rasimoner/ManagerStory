@@ -100,7 +100,7 @@ test('continuing control and forward attack receives advantage, loss recalls the
   assert.deepEqual(plain(fixture.simulation.referee.stoppage.foulPosition), { x: 0, y: 0 });
 });
 
-test('temporary penalty restarts move only the ball outside the box and keep opponents 9.15 m away', () => {
+test('penalty restarts place the ball on the spot and physically arrange players before the shot', () => {
   const fixture = duelScene();
   fixture.owner.position = { x: 43, y: 2 };
   fixture.defender.position = { x: 42, y: 2 };
@@ -109,10 +109,10 @@ test('temporary penalty restarts move only the ball outside the box and keep opp
   strike(fixture, { x: 42, y: 2 }, { to: { x: 43.4, y: 2 } });
   assert.equal(fixture.simulation.events.find(event => event.type === 'foul').penaltyPending, true);
   assert.deepEqual(plain(fixture.simulation.teams.map(team => team.players.map(player => player.position))), before);
-  assert.ok(fixture.simulation.referee.stoppage.position.x < 36);
-  for (let tick = 0; tick < 500 && !fixture.simulation.events.some(event => event.type === 'pass'); tick++) fixture.api.stepSimulation(fixture.simulation);
-  const restart = fixture.simulation.events.find(event => event.type === 'pass');
-  assert.ok(restart?.temporaryRestart);
+  assert.equal(fixture.simulation.referee.stoppage.position.x, 41.5);
+  for (let tick = 0; tick < 500 && !fixture.simulation.events.some(event => event.type === 'penalty'); tick++) fixture.api.stepSimulation(fixture.simulation);
+  const restart = fixture.simulation.events.find(event => event.type === 'penalty');
+  assert.equal(restart?.temporaryRestart, false);
   assert.ok(restart.nearestOpponentDistance >= 9.15 - 1e-6);
 });
 
@@ -215,8 +215,8 @@ test('a corner-side free-kick retreat stays on the pitch and cannot deadlock the
   fixture.defender.position = { x: 49, y: 30 };
   fixture.simulation.ball.position = { x: 50.35, y: 30 };
   strike(fixture, { x: 49, y: 30 }, { to: { x: 50.4, y: 30 } });
-  for (let tick = 0; tick < 600 && !fixture.simulation.events.some(event => event.temporaryRestart); tick++) fixture.api.stepSimulation(fixture.simulation);
-  assert.ok(fixture.simulation.events.some(event => event.type === 'pass' && event.temporaryRestart));
+  for (let tick = 0; tick < 600 && !fixture.simulation.events.some(event => event.type === 'freeKick'); tick++) fixture.api.stepSimulation(fixture.simulation);
+  assert.ok(fixture.simulation.events.some(event => event.type === 'pass' && event.restartKind === 'freeKick'));
 });
 
 test('a pass cannot be rated safe when an opponent already reaches the ball at launch', () => {
