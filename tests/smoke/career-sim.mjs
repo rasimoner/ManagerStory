@@ -26,7 +26,7 @@ async function prepareCareer(beforeMatch) {
   await page.locator('[data-action="newCareer"]').click();
   await page.locator('[data-action="showSettings"]').click();
   await page.locator('[data-action="setExperimentalMatchEngine"]').check();
-  assert.equal((await savedCareer()).schemaVersion, 5);
+  assert.equal((await savedCareer()).schemaVersion, api.SAVE_SCHEMA);
   assert.equal((await savedCareer()).matchDurationMinutes, 7);
   assert.equal(await page.locator('[data-action="setMatchDurationMinutes"] option').count(), 4);
   await page.evaluate(() => { const career = JSON.parse(localStorage.getItem('msv4')); career.matchSalt = 73; localStorage.setItem('msv4', JSON.stringify(career)); });
