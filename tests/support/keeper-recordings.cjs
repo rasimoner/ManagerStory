@@ -43,20 +43,36 @@ function recordKeeperScenario(options) {
 function ordinaryKeeperCareer() {
   const game = loadGame({ quiet: true });
   game.run('S=fresh();init();S.matchSalt=73;setExperimentalMatchEngine(true);startMatch();setMatchView("3d")');
-  game.run('for(let tick=0;tick<690;tick++)advanceExperimentalPlayback(.1,{maxSteps:1});pauseLive();save()');
-  const storage = game.storage.get('msv4'), frames = [];
-  let duringSaveStorage;
-  game.api.resumeLive();
+  const observed = observeOrdinarySave(game), frames = observed.frames;
   for (let tick = 0; tick < 45; tick++) {
     game.api.advanceExperimentalPlayback(.1, { maxSteps: 1 });
     frames.push(plain(game.api.captureSimulationFrame(game.api.M.simulation)));
-    if (!duringSaveStorage && game.api.M.simulation.events.some(event => event.type === 'save' && event.time >= 69)) {
-      game.api.pauseLive(); game.api.save(); duringSaveStorage = game.storage.get('msv4'); game.api.resumeLive();
-    }
   }
-  const save = game.api.M.simulation.events.find(event => event.type === 'save' && event.time >= 69);
-  assert.ok(save, 'the unchanged ordinary career produces a real save in the recorded window');
-  return { storage, duringSaveStorage, frames, save: plain(save), source: 'ordinary career; seed salt 73; no geometry or results overridden' };
+  return { ...observed, frames, source: 'ordinary career; seed salt 73; no geometry or results overridden' };
+}
+
+function observeOrdinarySave(game) {
+  let storage, shotId, frames = [];
+  for (let tick = 0; tick < 2000; tick++) {
+    game.api.advanceExperimentalPlayback(.1, { maxSteps: 1 });
+    const shot = game.api.M.simulation.ball.shot;
+    if (shot && shot.eventIndex !== shotId) {
+      shotId = shot.eventIndex;
+      storage = pausedCareerStorage(game);
+      frames = [];
+    }
+    frames.push(plain(game.api.captureSimulationFrame(game.api.M.simulation)));
+    const save = game.api.M.simulation.events.findLast(event => event.type === 'save' && event.time >= game.api.M.simulation.events[shotId]?.time);
+    if (save) return { storage, duringSaveStorage: pausedCareerStorage(game), frames, save: plain(save) };
+  }
+  assert.fail('the ordinary fixed-seed career must produce a real save before halftime');
+}
+
+function pausedCareerStorage(game) {
+  game.api.pauseLive(); game.api.save();
+  const storage = game.storage.get('msv4');
+  game.api.resumeLive();
+  return storage;
 }
 
 module.exports = { KEEPER_SCENARIOS, keeperScenario, recordKeeperScenario, ordinaryKeeperCareer };

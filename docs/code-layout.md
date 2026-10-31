@@ -270,3 +270,5 @@ V7.19.1: `core/presentation/sim/scene-atmosphere.js` gözlenmiş gol ve tribün 
 | `core/presentation/sim/scene-hud.js`, `scene-status.js` | Kulüp/oyuncu bilgisi ve devre hazırlığının ortak görünür durumu. |
 
 Özellik envanteri, kapsam ve açık Safari/motor sınırları: [3D restorasyon raporu](3d-restoration-report.md).
+
+Faz 2 duran top modülleri: `core/sim/restart-state.js` yalnız hazırlık durumu/katılımcıları; `restart-layout.js` yasal hedefler/baraj/penaltı düzeni; `restart-step.js` mevcut hareketle yerleşme ve hazır kontrolü; `restart-release.js` gerçek olay ve mevcut pas/şut çıkışı. `first-control.js` gerçek temasın sürekliliğini taşır. Sunum bunları salt okur; ikinci top veya oyuncu fiziği kurmaz.

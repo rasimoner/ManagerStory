@@ -59,6 +59,7 @@ function stopSimulationAttack(simulation) {
   settleSimulationPass(simulation, { position: simulation.ball.position, controlled: false });
   endSimulationCarry(simulation);
   Object.assign(simulation.ball, { ownerId: null, heldBy: null, flight: null, shot: null, assist: null, carry: null, restart: null, velocity: { x: 0, y: 0 }, height: 0, verticalVelocity: 0 });
+  if (simulation.ball.control) simulation.ball.control = null;
   simulation.referee.advantage = null;
   simulation.referee.stoppage = null;
   simulation.ownerDecision.selected = null;

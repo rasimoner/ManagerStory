@@ -173,8 +173,9 @@ test('goals restart by the conceding side at centre; half switches ends and end 
   run(fixture, 0.1);
   assert.equal(fixture.simulation.teams[0].direction, -1);
   assert.equal(events(fixture, 'half').length, 1);
-  fixture.simulation.tick = 53999;
-  fixture.simulation.time = 5399.9;
+  while (fixture.simulation.match.phase === 'half') run(fixture, .1);
+  fixture.simulation.tick = 53999 + fixture.simulation.clock.stoppedTicks;
+  fixture.simulation.time = fixture.simulation.tick * .1;
   run(fixture, 0.1);
   assert.equal(events(fixture, 'end').length, 1);
   const snapshot = plain(fixture.api.readSimulation(fixture.simulation));
@@ -312,7 +313,7 @@ test('the first crossed boundary wins at a corner and keeps the event log chrono
   Object.assign(fixture.simulation.ball, { position: { x: 52.5, y: 33.9 }, velocity: { x: 2, y: 10 }, height: 3, verticalVelocity: 0 });
   run(fixture, 0.1);
   assert.equal(events(fixture, 'wide').length, 0, 'the ball left through the touchline before the goal line');
-  assert.equal(fixture.simulation.ball.restart.kind, 'touchline');
+  assert.equal(fixture.simulation.ball.restart.kind, 'throwIn');
   let previous = 0;
   for (const event of fixture.simulation.events) { assert.ok(event.time >= previous); previous = event.time; }
 });

@@ -5,6 +5,7 @@ import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
 import { endSimulationCarry } from './dribbling.js';
 import { simulationPlayerAvailable } from './duel-state.js';
 import { beginSimTransition } from './simulation-phases.js';
+import { beginSimulationRestart, usesPositionedSimulationRestarts } from './restart-state.js';
 
 const { min } = Math;
 
@@ -19,8 +20,15 @@ export function resolveSimulationBallOut(simulation, before, timing) {
   settleSimulationPass(simulation, { position: crossing.position, controlled: false, time });
   // TEMPORARY until task 7: touchlines use an opponent short restart; goal lines distinguish keeper and corner.
   emitSimulationEvent(simulation, { type: 'ballOut', time, fromId: ball.lastTouchId, fromPos: { ...before.position }, toPos: crossing.position,
-    success: false, temporaryRestart: true, restartTeamId: team.id });
-  placeTemporaryRestart(simulation, { team, goalLine, crossing });
+    success: false, temporaryRestart: !usesPositionedSimulationRestarts(simulation), restartTeamId: team.id });
+  placeSimulationRestart(simulation, { team, goalLine, crossing });
+}
+
+function placeSimulationRestart(simulation, input) {
+  if (!usesPositionedSimulationRestarts(simulation)) { placeTemporaryRestart(simulation, input); return; }
+  const { team, goalLine, crossing } = input;
+  beginSimulationRestart(simulation, { teamId: team.id, position: goalLine?.position ?? crossing.position,
+    taker: goalLine?.taker ?? nearestRestartTaker(team, crossing.position), kind: goalLine?.kind ?? 'throwIn' });
 }
 
 function placeTemporaryRestart(simulation, { team, goalLine, crossing }) {

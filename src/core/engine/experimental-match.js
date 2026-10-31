@@ -14,13 +14,13 @@ import { consumeExperimentalEvents } from './experimental-events.js';
 import { synchronizeExperimentalPlayers, synchronizeExperimentalTeamStats } from './experimental-players.js';
 import { createSimulationPlayback, advanceSimulationPlayback, readSimulationPlayback } from '../match/continuous-playback.js';
 import { captureSimulationFrame, refreshPlaybackFrame } from '../match/playback-frames.js';
-import { simulationDurationSeconds, simulationMatchSeconds } from '../sim/simulation-clock.js';
+import { simulationMatchSeconds } from '../sim/simulation-clock.js';
 
 export function advanceExperimentalSeconds(seconds) {
   if (!experimentalCanAdvance()) return 0;
   if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid simulation elapsed time.');
   const simulation = M.simulation, half = simulation.match.half;
-  const target = Math.min(simulationDurationSeconds(simulation), simulation.time + seconds);
+  const target = simulation.time + seconds;
   const before = simulation.tick;
   while (simulation.time + CAREER_SIM_DATA.epsilon < target && !simulation.paused && simulation.match.phase !== 'ended') {
     stepSimulation(simulation);

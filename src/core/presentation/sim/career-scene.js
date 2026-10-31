@@ -17,6 +17,7 @@ import { fallbackSimulationView } from './view-status.js';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import { simulationSceneStatus } from './scene-status.js';
 import { paintSimulationHud } from './scene-hud.js';
+import { simulationSceneCaption } from './scene-event-label.js';
 import './career-scene.css';
 
 const surface = document.createElement('div');
@@ -147,10 +148,10 @@ function paintSceneLabels(frame) {
   surface.dataset.simMatchTime = String(frame.matchTime);
   surface.dataset.simPlayers = String(frame.players.length);
   paintSimulationHud(surface, frame, { match: M, clubs });
-  const event = frame.contacts.findLast(contact => ['goal', 'save', 'shot', 'tackle', 'block'].includes(contact.type) && contact.time <= frame.physicsTime);
+  const notice = simulationSceneCaption(frame), event = notice.event;
   const caption = surface.querySelector('.sim-scene-caption');
   caption.textContent = status.preparing ? status.label : M.skipExperimental && !M.pause && !M.finished ? 'Maç hesaplanıyor…'
-    : event ? { goal: 'GOOOL!', save: 'Kurtarış', shot: 'Şut', tackle: 'Müdahale', block: 'Blok' }[event.type] : '';
+    : notice.text;
   caption.classList.toggle('sim-scene-goal', event?.type === 'goal');
   surface.querySelector('[data-scene-pause]').textContent = M.pause ? 'Devam et' : 'Duraklat';
 }

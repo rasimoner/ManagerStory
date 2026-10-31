@@ -116,12 +116,12 @@ test('a first-touch error deflects the real ball and leaves it free', () => {
   assert.ok(Math.hypot(fixture.simulation.ball.velocity.x, fixture.simulation.ball.velocity.y) > 0);
 });
 
-test('an out-of-play ball gives the opponent a temporary restart at the actual crossing', () => {
+test('an out-of-play ball gives the opponent a positioned restart at the actual crossing', () => {
   const fixture = scene();
   const before = plain(fixture.simulation.teams.map(team => team.players.map(player => player.position)));
   fixture.api.placeSimulationBall(fixture.simulation, { position: { x: 52, y: 3 }, teamId: 'home', velocity: { x: 20, y: 0 } });
   const out = waitForEvent(fixture, 'ballOut');
-  assert.equal(out.temporaryRestart, true);
+  assert.equal(out.temporaryRestart, false);
   assert.equal(out.restartTeamId, 'away');
   assert.equal(out.toPos.x, 52.5);
   assert.equal(fixture.simulation.ball.ownerId, null, 'restart taker must physically reach the line');

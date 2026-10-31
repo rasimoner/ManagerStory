@@ -11,7 +11,6 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
-    needs: simulation-3d-mobile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,13 +39,14 @@ jobs:
           BALANCE_SCREENSHOT: balance-mobile.png
           CAREER_CONTROLS_ONLY: '1'
       - name: Measure fifty matches and attribute-strength experiments
-        # Animation/short-flow/3D work excludes new balance sweeps; every existing test and smoke gate remains.
-        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation'
+        # Phase 2 replaces temporary restarts/control rules: old aggregate snapshots are not comparable.
+        # Keep every unit, performance, legacy, laboratory, career and real-WebGL smoke gate.
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation' && github.head_ref != 'fix/3d-restoration-phase2'
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
           node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
       - name: Measure all five durations with the same fifty equal-squad seeds
-        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation'
+        if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation' && github.head_ref != 'fix/3d-restoration-phase2'
         run: npm run sim:duration-report -- duration-measurements.json
       - uses: actions/upload-artifact@v4
         if: always()
@@ -61,7 +61,7 @@ jobs:
           if-no-files-found: ignore
   continuous-mobile:
     # The 3D task uses the bounded real-WebGL smoke scenarios instead of another seven-minute watch.
-    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation'
+    if: github.event.pull_request.draft == false && github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation' && github.head_ref != 'fix/3d-restoration-phase2'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,6 +101,8 @@ jobs:
         run: npm run smoke:sim-3d
       - name: Film goalkeeper motion chains in portrait and landscape WebGL
         run: npm run smoke:keeper-animation
+      - name: Inspect phase 2 controls and physical restart releases in WebGL
+        run: node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/restoration-phase2.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -112,4 +114,11 @@ jobs:
         with:
           name: keeper-animation-mobile
           path: test-results/keeper-animation/
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: restoration-phase2-mobile
+          path: test-results/restoration-phase2/
           if-no-files-found: ignore

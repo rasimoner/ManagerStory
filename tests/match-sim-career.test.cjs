@@ -35,10 +35,10 @@ function assertCareerStorageBudget(game, completed) {
   assert.ok(game.storage.get('msv4').length * 2 < 5 * 1024 * 1024, '33 archived matches plus a complete active match fit the mobile UTF-16 quota');
 }
 
-test('format 3 migrates to format 5 with the experiment disabled, and the setting survives reopening', () => {
+test('format 3 migrates to the current format with the experiment disabled, and the setting survives reopening', () => {
   const game = career();
   game.run('S.schemaVersion=3;delete S.experimentalMatchEngine;migrateSave(S)');
-  assert.equal(game.run('S.schemaVersion'), 5);
+  assert.equal(game.run('S.schemaVersion'), game.run('SAVE_SCHEMA'));
   assert.equal(game.run('S.experimentalMatchEngine'), false);
   game.run('setExperimentalMatchEngine(true);save()');
   const reopened = loadGame({ storage: game.storage });

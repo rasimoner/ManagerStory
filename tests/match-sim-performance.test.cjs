@@ -62,7 +62,7 @@ test('three complete matches with career fitness and injury processing each rema
       api.stepSimulation(simulation);
     }
     times.push(performance.now() - started);
-    assert.equal(simulation.time, 5400);
+    assert.equal(simulation.tick - simulation.clock.stoppedTicks, 54000);
   }
   t.diagnostic(`Node ${process.version}: workload/injuries 90 minutes ${times.map(time => time.toFixed(1)).join(', ')} ms`);
   assert.ok(times.every(time => time < 2000), `career processing exceeded 2 s: ${times.join(', ')}`);
@@ -71,10 +71,10 @@ test('three complete matches with career fitness and injury processing each rema
 function measureCompleteShootingMatch(api) {
   const simulation = api.createSimulation(api.createLabScenario({ seed: 901 }));
   const started = performance.now();
-  for (let tick = 0; tick < 54000; tick++) api.stepSimulation(simulation);
+  while (simulation.match.phase !== 'ended') api.stepSimulation(simulation);
   const milliseconds = performance.now() - started;
   const statistics = api.readSimulationStatistics(simulation);
-  assert.equal(simulation.time, 5400);
+  assert.equal(simulation.tick - simulation.clock.stoppedTicks, 54000);
   // Football ranges are reported across five seeds; this test guards completed physical work and wall time.
   assert.equal(simulation.match.phase, 'ended');
   assert.ok(statistics.shots > 0 && statistics.shotsOnTarget > 0 && statistics.saves > 0 && statistics.goals > 0);
@@ -82,7 +82,7 @@ function measureCompleteShootingMatch(api) {
   return { milliseconds, statistics };
 }
 
-test('all 54,000 match steps, ball flights, events and scores repeat with the same seed and input', async () => {
+test('all active and halftime steps, ball flights, events and scores repeat with the same seed and input', async () => {
   const api = await loadMeasuredLab();
   const first = completeShootingDigest(api), second = completeShootingDigest(api);
   assert.deepEqual(first, second);
@@ -91,7 +91,7 @@ test('all 54,000 match steps, ball flights, events and scores repeat with the sa
 function completeShootingDigest(api) {
   const simulation = api.createSimulation(api.createLabScenario({ seed: 901 }));
   const hash = createHash('sha256'), positions = Buffer.alloc((22 * 2 + 6) * 8);
-  for (let tick = 0; tick < 54000; tick++) {
+  while (simulation.match.phase !== 'ended') {
     api.stepSimulation(simulation);
     let offset = 0;
     for (const team of simulation.teams) for (const player of team.players) {

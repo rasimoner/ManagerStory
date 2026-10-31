@@ -434,3 +434,21 @@ Ortak süre ve manuel hız aynıdır; eski cihazın bağımsız oyuncu/top, şut
 Eski kamera/top varlıkları ve pozları yeni motorun gerçek olay kopyasına uyarlanır; `core/sim/` ve karar/fizik kuralları değişmez. İlk temas yüksekliği/alıcı, carry dokunuşu ve yeniden başlama türü çizim kopyasına eklenir. Yakın plan yalnız eski uygun mücadele/kart/şut/gol tetiklerine bağlanır. Özel çalım kimliği olmayan genel olay özel hareket diye gösterilmez. Devre hazırlığı görünür alanda maskelenir, ama motorun hazırlık zamanı hâlâ gerçek maç bütçesindedir. [Özellik envanteri, testler ve açık kalanlar](3d-restoration-report.md).
 
 Bu işteki açık el bağlantısı isteğiyle, `heldBy` sırasında görünür top iki el kemiklerinin ortasını izler; motorun metrik top çapası ve 2D değişmez. Serbest top yine doğrudan fizik karesinden çizilir. Bırakma anında 0,12 fizik saniyelik görsel geçiş yapılır; ikinci top fiziği, yeni kurtarış/dağıtım kararı veya sonuç yoktur. Eski V7.18 mesh kısıtının bu dar sunum uyarlaması ve gerekçesi restorasyon raporunda kayıtlıdır.
+
+## 3D restorasyon Faz 2 — ortak devre saati
+
+Devre yerleşimi yalnız oyuncuların mevcut hareket sınırlarıyla hazırlanır. O sırada fizik saati ilerler, maç saati 45:00’da durur; açık top, karar, temas, fitness ve sakatlık adımları çalışmaz. Bu hazırlık seçili 3/5/7/10 dakika bütçesinden tüketilmez; izleme süresine yerleşimin fizik süresi eklenir. Takımlar bir kez yön değiştirir, rakip ikinci santrayı kendi yarısında ve yasal orta yuvarlak mesafesinde kullanır. Skor, kayıt/devam ve 2D/3D aynı durumu okur. Eski varsayılan referans model de devrede aynı duruşu kullanır; topsuz replay değişmez.
+
+### Havadan ilk kontrol
+
+Başarılı gerçek ilk temasta yükseklik sıfırlanmaz. Temas yüksekliği ayak/göğüs/kafa türünü belirler; aynı temas noktasından kontrollü düşüş başlar, yer çekimiyle zemine iner. Oyuncuya göre ilk yatay ofset zamanla ayağa yaklaşır; sahiplik anında ayak ofsetine atlama yapılmaz. Top havadayken ilk kontrolü silen pas/sürme/şut çıkışı engellenir. Kontrol başarısı zarı ve özellik ağırlıkları değişmez; geçiş ek RNG tüketmez. Eski referans checkpoint’inin özgün sonucu korunur.
+
+### Konumlanmış duran toplar
+
+Yeni doğal maçlar ve yeni laboratuvar maçlarında eski geçici taç/aut/ceza alanı düzeni yerine ortak `ball.restart` hazırlığı kullanılır. Önce top durur; oyuncular mevcut ivme/hız/dönüş sınırlarıyla hedefe gelir ve yüzlerini oyuna döner. Top oyunu/kararlar hazırlıkta ilerlemez; duran top saati normal maç saati içindedir. Yerleşimde toplu oyuncu konumu ataması yoktur. Taçta rakip 2 m, korner/frikikte 9,15 m uzak kalır. Yakın frikikte üç kişiye kadar baraj vardır. Aut ayakla, rakipler ceza alanının dışında kullanılır. Taç hazır olduktan sonra elde tutma/baş üstü bırakma vardır. Korner ve serbest vuruş mevcut kısa pas uçuşunu kullanır; yeni bir orta/frikik şut tercihi dengesi eklenmez.
+
+Ceza alanındaki durdurulmuş faul artık topu dışarı taşımaz: 11 m noktasında gerçek şut, kaleci çizgide, diğer oyuncular ceza alanı/yay dışında ve noktanın gerisindedir. `throwIn`, `corner`, `freeKick`, `penalty`, `goalKick` yalnız gerçek bırakmada üretilir; ardından mevcut pas veya şut fiziği sonucu belirler. Santra ve kalecinin gerçek elle/degaj dağıtımı önceki zinciri kullanır. Oyuncu değişikliğinde hazırlık hedefleri yeni kadroya göre yeniden kurulur. Eski referans checkpoint'inin önceki fizik sonucu için geçici yol korunur; önceki paragraflardaki geçici davranışlar bu uyumluluk yolunu tarif eder.
+
+### Gerçek çalım gözlemleri
+
+Mevcut sürme, yön kararı ve gerçek birebirden çıkış korunur. `dribble-observation.js`, yakındaki gerçek savunmacıyla karşılaşmada gerçekleşmiş yön değişimini `skill/cut`, aynı dönüşün devamını `skill/turn`, savunmacı önceki yöne gerçekten hareket ederken yapılan ters dönüşü `skill/bodyFeint` olarak bildirir. Başarı veya rakibi geçme sonucu bu olaydan verilmez; mevcut `beat` geometrisi tek kaynaktır. Gözlem ek RNG tüketmez; top/oyuncu/karar/istatistiğe yazmaz. Gözlem geçmişi karşılaşmada saklanır; eski checkpoint’in eksik yönü ilk gözlemde tamamlanır. Sunum eski sağ/sol cut ve feint pozlarını kullanır, gerçek hareket sonrasında koşuya döner. Rakibe gözlenmemiş düşüş eklenmez. İsimli stepover/roulette/rainbow gibi farklı top yolları, genel sürmeden türetilmiş gibi etiketlenmez.

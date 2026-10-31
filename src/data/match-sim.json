@@ -24,6 +24,7 @@
     ]
   },
   "lab": {"defaultSeed":731,"defaultFormation":"4-2-3-1","defaultPress":"Normal","defaultLine":"Normal","defaultBall":{"x":0,"y":0},"teams":[{"id":"home","direction":1,"label":"Sarı","color":"#ffd45c"},{"id":"away","direction":-1,"label":"Mavi","color":"#65beff"}],"attributeBase":55,"attributeRange":35,"fitness":100,"ballSpeed":13,"holdMinimumSeconds":1.5,"holdRangeSeconds":1.8,"turnoverProbability":0.22,"speeds":[0.25,0.5,1,2],"keyboardBallStep":2,"vectorSeconds":0.8,"roleLabels":{"press":"B","cover":"Ö","mark":"M","block":"H","support":"D","depth":"K","keeper":"KL","holder":"T","receive":"A","intercept":"P","recover":"S","restart":"Ç","grounded":"Y","sentOff":"KIR","rebound":"DT"},"pathSeconds":3,"pathStepSeconds":0.2,"ballHeightScale":0.1,"matchSeconds":5400,"passLabelPadding":19,"longPressMilliseconds":550,"recentEventCount":10,"incidentSeconds":2.2,"duelLabels":{"idle":"","jockey":"Jokey","ready":"Hazır","tackling":"Müdahale","grounded":"Yerde","sentOff":"Kırmızı"},"longPressMovePixels":12,"doubleTapMilliseconds":350,"shotMap":{"minimumRadius":0.45,"xgAreaScale":6,"colors":{"goal":"#82ef91","save":"#6cc8ff","block":"#ffa94f","wide":"#bdc7ca","pending":"#f4e3a0"}}},
+  "deadBalls": {"throwOpponentDistance":2,"throwHeight":1.8,"throwVerticalSpeed":3,"throwSpeed":10,"throwWindupSeconds":0.55,"receiverDistance":8,"goalKickDistance":22,"areaMargin":0.5,"penaltyDistance":11,"penaltyBehindMargin":0.5,"wallPlayers":3,"wallSpacing":0.8,"wallGoalDistance":32},
   "ball": {
     "radius": 0.11,
     "controlRadius": 1.2,
@@ -34,6 +35,11 @@
     "defaultAttribute": 65,
     "contactCooldownSeconds": 0.3,
     "firstTouch": {
+      "chestHeight": 0.9,
+      "headHeight": 1.5,
+      "controlVerticalRetention": 0.2,
+      "controlFollowRate": 6,
+      "controlSettleMetres": 0.015,
       "baseRisk": 0.04,
       "speedRisk": 0.28,
       "referenceSpeed": 25,
@@ -98,6 +104,9 @@
     "receiverMotionSeconds": 0.4
   },
   "dribbling": {
+    "observedTurnRadians": 0.65,
+    "observedTurnaroundRadians": 2.3,
+    "feintCommitSpeed": 0.4,
     "minimumSpeedRatio": 0.68,
     "skillSpeedRatio": 0.2,
     "turnRatio": 0.62,
