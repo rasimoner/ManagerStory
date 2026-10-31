@@ -1,7 +1,9 @@
-# ManagerStory V7.19.1
+# ManagerStory V7.19.2
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
+
+V7.19.2: second-half preparation pauses the match clock; aerial first controls preserve ball height, physical restarts wait for placement, and observed dribble moves use the restored 3D actions. [Release notes](docs/v7.19.2-release.md).
 
 V7.19.0: the experimental career 3D view now animates goalkeeper push-off, full-body extension, landing, hand/knee support and standing. Both views share the same match, physical clock and unchanged football. Opt in through Ayarlar → **Deneysel maç motoru**, then Saha → **3D**. The switch defaults off. [Release notes](docs/v7.19.0-release.md) · [Keeper animation report and phone checklist](docs/match-sim-keeper-animation-report.md).
 
