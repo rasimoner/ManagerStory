@@ -7,7 +7,7 @@ import { pauseSimulation, resumeSimulation } from '../sim/simulation-checkpoint.
 import { requestSimulationSubstitution, applySimulationCommands } from '../sim/substitutions.js';
 import { experimentalSourcePlayer, experimentalOpponentBench, prepareExperimentalSubstitute } from './experimental-input.js';
 
-const narrated = new Set(['goal', 'shot', 'save', 'post', 'wide', 'yellow', 'red', 'injury', 'half', 'kickoff', 'substitution', 'substitutionRequested', 'foul', 'ballOut', 'pass', 'interception', 'tackle']);
+const narrated = new Set(['goal', 'shot', 'save', 'post', 'wide', 'yellow', 'red', 'injury', 'half', 'kickoff', 'substitution', 'substitutionRequested', 'foul', 'ballOut', 'pass', 'interception', 'tackle', 'throwIn', 'corner', 'goalKick', 'freeKick', 'penalty']);
 
 export function consumeExperimentalEvents(untilTime = M.simulation.time) {
   while (experimentalEventDue(untilTime)) {

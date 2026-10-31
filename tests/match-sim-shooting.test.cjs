@@ -313,7 +313,7 @@ test('the first crossed boundary wins at a corner and keeps the event log chrono
   Object.assign(fixture.simulation.ball, { position: { x: 52.5, y: 33.9 }, velocity: { x: 2, y: 10 }, height: 3, verticalVelocity: 0 });
   run(fixture, 0.1);
   assert.equal(events(fixture, 'wide').length, 0, 'the ball left through the touchline before the goal line');
-  assert.equal(fixture.simulation.ball.restart.kind, 'touchline');
+  assert.equal(fixture.simulation.ball.restart.kind, 'throwIn');
   let previous = 0;
   for (const event of fixture.simulation.events) { assert.ok(event.time >= previous); previous = event.time; }
 });

@@ -6,12 +6,14 @@ import { acquireSimulationBall } from './ball-possession.js';
 import { releaseSimulationPass } from './pass-execution.js';
 import { beginSimTransition } from './simulation-phases.js';
 import { endSimulationCarry } from './dribbling.js';
+import { beginSimulationRestart, usesPositionedSimulationRestarts } from './restart-state.js';
 
-export function simulationFoulRestartPosition(position, defendingDirection) {
+export function simulationFoulRestartPosition(position, defendingDirection, historical = false) {
   const pitch = MATCH_SIM_DATA.pitch;
   const front = pitch.length / 2 - pitch.penaltyDepth;
   const inside = -defendingDirection * position.x > front && Math.abs(position.y) < pitch.penaltyWidth / 2;
   if (!inside) return { position: { ...position }, penaltyPending: false };
+  if (!historical) return { position: { x: -defendingDirection * (pitch.length / 2 - MATCH_SIM_DATA.deadBalls.penaltyDistance), y: 0 }, penaltyPending: true };
   // TEMPORARY until task 7: no penalty kick; restart just outside the nearest penalty-area edge.
   const clearance = MATCH_SIM_DATA.refereeing.restartClearance;
   const frontDistance = -defendingDirection * position.x - front;
@@ -22,6 +24,7 @@ export function simulationFoulRestartPosition(position, defendingDirection) {
 }
 
 export function stopSimulationForFoul(simulation, foul) {
+  if (usesPositionedSimulationRestarts(simulation)) { beginPositionedFoulRestart(simulation, foul); return; }
   const team = simulation.teams.find(candidate => candidate.id === foul.teamId);
   const taker = nearestAvailablePlayer(team.players, foul.restartPosition);
   endSimulationCarry(simulation);
@@ -36,6 +39,13 @@ export function stopSimulationForFoul(simulation, foul) {
     heldBy: null, shot: null, assist: null, backpassTeamId: null, flight: null, restart: { teamId: team.id, takerId: taker.id }, excludedId: null });
   simulation.passing.selected = null;
   simulation.passing.options = [];
+}
+
+function beginPositionedFoulRestart(simulation, foul) {
+  beginSimulationRestart(simulation, { teamId: foul.teamId, position: foul.restartPosition, kind: foul.penaltyPending ? 'penalty' : 'freeKick' });
+  const restart = simulation.ball.restart;
+  simulation.referee.stoppage = { position: { ...restart.position }, foulPosition: { ...foul.toPos }, teamId: foul.teamId,
+    takerId: restart.takerId, readyTick: simulation.tick + simulationDurationTicks(MATCH_SIM_DATA.refereeing.restartMinimumSeconds), penaltyPending: foul.penaltyPending };
 }
 
 function nearestAvailablePlayer(players, point) {
@@ -63,6 +73,7 @@ function placeRestartTarget(player, stoppage) {
 }
 
 export function finishSimulationFoulRestart(simulation) {
+  if (usesPositionedSimulationRestarts(simulation)) return;
   const stoppage = simulation.referee.stoppage;
   if (!stoppage || simulation.tick < stoppage.readyTick) return;
   const taker = simulationRuntime(simulation).byId.get(stoppage.takerId);

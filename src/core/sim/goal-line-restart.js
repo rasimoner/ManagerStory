@@ -1,6 +1,7 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue, pointDistance } from './geometry.js';
 import { simulationPlayerAvailable } from './duel-state.js';
+import { usesPositionedSimulationRestarts } from './restart-state.js';
 
 export function temporaryGoalLineRestart(simulation, crossing) {
   const ball = simulation.ball, pitch = MATCH_SIM_DATA.pitch;
@@ -12,7 +13,7 @@ export function temporaryGoalLineRestart(simulation, crossing) {
   if (ball.lastTouchTeamId !== defending.id) {
     const keeper = defending.players.find(player => player.slot === 'GK' && simulationPlayerAvailable(player));
     const position = { x: direction * (pitch.length / 2 - pitch.goalAreaDepth), y: clampSimValue(crossing.position.y, -pitch.goalAreaWidth / 2, pitch.goalAreaWidth / 2) };
-    return { team: defending, position, taker: keeper ?? nearestGoalLineTaker(defending, position), kind: 'keeper' };
+    return { team: defending, position, taker: keeper ?? nearestGoalLineTaker(defending, position), kind: usesPositionedSimulationRestarts(simulation) ? 'goalKick' : 'keeper' };
   }
   const position = { x: direction * pitch.length / 2, y: Math.sign(crossing.position.y || 1) * pitch.width / 2 };
   return { team: attacking, position, taker: nearestGoalLineTaker(attacking, position), kind: 'corner' };

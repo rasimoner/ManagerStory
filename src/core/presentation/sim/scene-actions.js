@@ -4,6 +4,8 @@ import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
 
 export function simulationContactAnimation(sample, frame, actor) {
+  const pending = pendingRestartAnimation(sample, frame.ball.restart);
+  if (pending) return pending;
   const tackle = sample.duel.tackle;
   if (tackle?.kind === 'sliding') return { motion: motionAt('tackle', tackle.contactTick * MATCH_SIM_DATA.clock.stepSeconds) };
   const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && animationName(event, sample));
@@ -17,14 +19,24 @@ export function simulationContactAnimation(sample, frame, actor) {
   return frame.physicsTime - start <= action.dur ? { act: { name, t0: start } } : {};
 }
 
+function pendingRestartAnimation(sample, restart) {
+  return restart?.kind === 'throwIn' && restart.stage === 'ready' && restart.takerId === sample.id
+    ? { act: { name: 'throwIn', t0: restart.readyTime } } : null;
+}
+
 function animationName(contact, sample) {
   if (contact.type === 'firstTouch') return controlAnimation(contact, sample);
   if (contact.type === 'duel') return shoulderAnimation(contact, sample);
   if (contact.fromId !== sample.id) return null;
+  return ownerAnimationName(contact);
+}
+
+function ownerAnimationName(contact) {
+  if (contact.type === 'pass') return contact.restartKind === 'throwIn' ? 'throwIn' : 'pass';
   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
   if (contact.type === 'block') return 'lunge';
-  return ['pass', 'shot'].includes(contact.type) ? contact.type : null;
+  return contact.type === 'shot' ? 'shot' : null;
 }
 
 function shoulderAnimation(contact, sample) {

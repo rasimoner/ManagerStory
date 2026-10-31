@@ -24,15 +24,27 @@ export function simulationCameraShot(frame, mode) {
     ?? frame.players.reduce((nearest, player) => !nearest || new THREE.Vector3().copy(player.position).distanceTo(frame.ball.position)
       < new THREE.Vector3().copy(nearest.position).distanceTo(frame.ball.position) ? player : nearest, null);
   if (mode !== 'auto') return { mode, a: actor(owner) };
+  return automaticSimulationCameraShot(frame, { actor, owner });
+}
+
+function automaticSimulationCameraShot(frame, { actor, owner }) {
   const goal = observedSimulationGoal(frame);
   if (goal) return { mode: 'close', a: actor(frame.players.find(player => player.id === goal.fromId)) };
   const shot = frame.ball.shot;
+  const restartShot = penaltyRestartCameraShot(frame, actor);
+  if (restartShot) return restartShot;
   if (!shot) return observedCameraCue(frame, actor) ?? { mode: 'tv' };
   const shooter = frame.players.find(player => player.id === shot.fromId) ?? owner;
   const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== shot.teamId);
   if (!shooter || !keeper) return { mode: 'tv' };
   const near = new THREE.Vector3().copy(shooter.position).distanceTo(keeper.position) < SIM_VIEW_DATA.camera.shotMinimumSeparationMetres;
-  return { mode: near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
+  return { mode: shot.penalty ? 'pen' : near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
+}
+
+function penaltyRestartCameraShot(frame, actor) {
+  const restart = frame.ball.restart;
+  return restart?.kind === 'penalty' ? { mode: 'pen', a: actor(frame.players.find(player => player.id === restart.takerId)),
+    b: actor(frame.players.find(player => player.slot === 'GK' && player.teamId !== restart.teamId)) } : null;
 }
 
 function observedCameraCue(frame, actor) {

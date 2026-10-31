@@ -3,6 +3,7 @@ import { advanceSimulationClock } from './simulation-clock.js';
 import { applySimulationCommands } from './substitutions.js';
 import { consumeSimulationFitness } from './player-workload.js';
 import { prepareSimulationMatch } from './match-lifecycle.js';
+import { preparePositionedSimulationRestart } from './restart-step.js';
 import { prepareSimulationKeepers } from './keeper-positioning.js';
 import { advanceSimulationKeeperPossession } from './keeper-possession.js';
 import { prepareSimulationDefenders, finishSimulationTackles } from './defending.js';
@@ -95,7 +96,7 @@ function prepareLiveSimulationStep(simulation, replayBall) {
   applySimulationCommands(simulation);
   simulation.liveBall = true;
   const preparingHalf = simulation.match.phase === 'half';
-  const prepared = prepareSimulationMatch(simulation);
+  const prepared = prepareSimulationMatch(simulation) || preparePositionedSimulationRestart(simulation);
   if (prepared && (!preparingHalf || !simulation.clock.pauseHalfPreparation)) consumeSimulationFitness(simulation);
   return prepared;
 }

@@ -35,9 +35,12 @@ export function careerSimulationCommentary(event, names) {
     yellow: `${name} sarı kart gördü.`, red: `${name} ${event.secondYellow ? 'ikinci sarıdan' : 'doğrudan'} kırmızı kart gördü.`,
     injury: `${name} sakatlandı. Oyuncu değişikliği gerekiyor.`, half: 'Devre sona erdi.', kickoff: 'Santra pası verildi.',
     substitution: `${name} çıktı, ${names[event.toId] ?? 'yedek oyuncu'} oyuna girdi.`, substitutionRequested: `${name} için değişiklik bir sonraki duruşta uygulanacak.`,
-    foul: `${name} faul yaptı.${event.penaltyPending ? ' Geçici ceza alanı duruşu.' : ''}`, ballOut: 'Top dışarı çıktı; geçici yeniden başlama.',
+    foul: `${name} faul yaptı.${event.penaltyPending ? event.positionedRestart ? ' Penaltı.' : ' Geçici ceza alanı duruşu.' : ''}`,
+    ballOut: event.temporaryRestart ? 'Top dışarı çıktı; geçici yeniden başlama.' : 'Top dışarı çıktı.',
     pass: `${name} pas verdi.`, interception: `${names[event.toId] ?? 'Rakip'} pası kesti.`, tackle: `${name} müdahale yaptı.`,
     keeperDistribution: `${name} topu oyuna soktu.`, instruction: `${name}: bireysel talimat kaydedildi.`, tactics: 'Takımın taktiği güncellendi.',
+    throwIn: `${name} taç atışını kullandı.`, corner: `${name} korneri kullandı.`, goalKick: `${name} aut atışını kullandı.`,
+    freeKick: `${name} serbest vuruşu kullandı.`, penalty: `${name} penaltıyı kullandı.`,
   };
   return `${minute}' ${descriptions[event.type] ?? name + ' oyuna katılıyor.'}`;
 }

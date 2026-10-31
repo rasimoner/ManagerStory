@@ -442,3 +442,9 @@ Devre yerleşimi yalnız oyuncuların mevcut hareket sınırlarıyla hazırlanı
 ### Havadan ilk kontrol
 
 Başarılı gerçek ilk temasta yükseklik sıfırlanmaz. Temas yüksekliği ayak/göğüs/kafa türünü belirler; aynı temas noktasından kontrollü düşüş başlar, yer çekimiyle zemine iner. Oyuncuya göre ilk yatay ofset zamanla ayağa yaklaşır; sahiplik anında ayak ofsetine atlama yapılmaz. Top havadayken ilk kontrolü silen pas/sürme/şut çıkışı engellenir. Kontrol başarısı zarı ve özellik ağırlıkları değişmez; geçiş ek RNG tüketmez. Eski referans checkpoint’inin özgün sonucu korunur.
+
+### Konumlanmış duran toplar
+
+Yeni doğal maçlar ve yeni laboratuvar maçlarında eski geçici taç/aut/ceza alanı düzeni yerine ortak `ball.restart` hazırlığı kullanılır. Önce top durur; oyuncular mevcut ivme/hız/dönüş sınırlarıyla hedefe gelir ve yüzlerini oyuna döner. Top oyunu/kararlar hazırlıkta ilerlemez; duran top saati normal maç saati içindedir. Yerleşimde toplu oyuncu konumu ataması yoktur. Taçta rakip 2 m, korner/frikikte 9,15 m uzak kalır. Yakın frikikte üç kişiye kadar baraj vardır. Aut ayakla, rakipler ceza alanının dışında kullanılır. Taç hazır olduktan sonra elde tutma/baş üstü bırakma vardır. Korner ve serbest vuruş mevcut kısa pas uçuşunu kullanır; yeni bir orta/frikik şut tercihi dengesi eklenmez.
+
+Ceza alanındaki durdurulmuş faul artık topu dışarı taşımaz: 11 m noktasında gerçek şut, kaleci çizgide, diğer oyuncular ceza alanı/yay dışında ve noktanın gerisindedir. `throwIn`, `corner`, `freeKick`, `penalty`, `goalKick` yalnız gerçek bırakmada üretilir; ardından mevcut pas veya şut fiziği sonucu belirler. Santra ve kalecinin gerçek elle/degaj dağıtımı önceki zinciri kullanır. Oyuncu değişikliğinde hazırlık hedefleri yeni kadroya göre yeniden kurulur. Eski referans checkpoint'inin önceki fizik sonucu için geçici yol korunur; önceki paragraflardaki geçici davranışlar bu uyumluluk yolunu tarif eder.
