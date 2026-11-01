@@ -11,7 +11,7 @@ export function predictSimulationBall(ball, seconds) {
 
 function advanceAirborneBall(ball, seconds) {
   const gravity = MATCH_SIM_DATA.ball.gravity;
-  const landing = (ball.verticalVelocity + sqrt(ball.verticalVelocity ** 2 + 2 * gravity * ball.height)) / gravity;
+  const landing = simulationBallLandingSeconds(ball);
   const airborne = min(seconds, landing);
   ball.position.x += ball.velocity.x * airborne;
   ball.position.y += ball.velocity.y * airborne;
@@ -22,6 +22,11 @@ function advanceAirborneBall(ball, seconds) {
     ball.verticalVelocity = 0;
     advanceRollingBall(ball, seconds - landing);
   }
+}
+
+export function simulationBallLandingSeconds(ball) {
+  const gravity = MATCH_SIM_DATA.ball.gravity;
+  return (ball.verticalVelocity + sqrt(ball.verticalVelocity ** 2 + 2 * gravity * ball.height)) / gravity;
 }
 
 function advanceRollingBall(ball, seconds) {

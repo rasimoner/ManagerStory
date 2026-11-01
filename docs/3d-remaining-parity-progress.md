@@ -23,9 +23,9 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R13 | Roulette | R1, çoklu temas | 2/2 | İkinci yaklaşım: tam tur hareket sınırında tamamlanır; 5,7 rad kapısı geçti |
 | R14 | Flair nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
 | R15 | Drag-back | R1 | 1/2 | Gerçek geriye serbest dokunuş ve eski dragBack pozu geçti |
-| R16 | Rainbow | R1 + R2 hava teması | 0/2 | Bekliyor |
-| R17 | Sombrero | R1 + R2 hava teması | 0/2 | Bekliyor |
-| R18 | Juggling | R1 + R2 hava teması | 0/2 | Bekliyor |
+| R16 | Rainbow | R1 + R2 hava teması | 2/2 | Başarısız; ürün farkı geri alındı, gerçek temas izi saklandı |
+| R17 | Sombrero | R1 + R2 hava teması | 1/2 | Gerçek savunmacı üzerinden uçuş, iki yön, rig/kayıt geçti |
+| R18 | Juggling | R1 + R2 hava teması | 2/2 | Başarısız; ürün farkı geri alındı, gerçek temas izi saklandı |
 | R19 | Backheel | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | İki yön, gerçek topuk teması, fiziksel hazırlık ve kayıt/devam geçti |
 | R20 | Rabona | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | Gerçek destek arkası krampon yolu, iki yön ve saha dışı alternatif geçti |
 | R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 1/2 | Gerçek alternatif oyuncuya baş bakışı ve eski nolook pozu; 21 ilgili / 555 hızlı test geçti |
@@ -92,3 +92,11 @@ Eski director pass/nolook ve ACTIONS.nolook yolu doğrulandı. Gerçek farklı/g
 Eski flair-passes backheelKick/backheelFeet ve rabonaKick/rabonaFeet çağrıları doğrulandı. R19 ilk yaklaşımında stance varış yarıçapı içindeki durağan oyuncu yüzünü çevirmediği için topuk pası çıkmadı. İkinci yaklaşım duruşta tek fiziksel dönüşü tamamlar; hız/dönüş sınırı korunur. R20 ilk yaklaşımı gerçek pas/ayak yolu ve JSON devamı geçti ama saha kenarında hazırlık hedefi dışarı taşabiliyordu. İkinci yaklaşım yasal duruş sığmıyorsa normal pasa döner; hedefi erişilemez yere zorlamaz.
 
 24 ortak kabul: iki yön; zayıf teknikte normal alternatif; gerçek RightFoot topuk teması; rabona kramponunun destek ayağı arkasından ve öbür yana geçtiği gerçek rig yolu; hazırlığın ortasında kayıt/devam ve normal pas/RNG korumaları. Eski saf ayak eğrileri kullanılır; jeneratör ve director fiziği çağrılmaz. Şema 10, isteğe bağlı passing.technique duruş/readyAt bilgisini saklar; ham/sıkıştırılmış göç kırmızıdan yeşile döndü. Lint yeni ihlal yok; son hızlı 566 başarılı / 1 mevcut atlama, ayrı 5/5 performans.
+
+## R16–R18 — ortak fizik ve iki durdurulan hareket
+
+Sombrero ilk yaklaşımda gerçek tek ayak kaldırışıyla savunmacının üzerinden geçer; motor normal ivme ile gerçek iniş noktasını takip eder. Eski salt okunur scoop ayağı gerçek topa <0,30 m erişir; iki yön, kaydet/devam ve kökün değişmemesi dahil 34/34 ortak test geçti. Yeni kalıcı alan gerekmedi: mevcut carry.skill ve gerçek hava topu kullanılır.
+
+Rainbow 1: ikinci temas genel ilk kontrolde öne taşındı, vücudun arkasından flick kabulü geçmedi. Rainbow 2: geçici kontrol offset'ini korumak denendi; yere oturduğunda followSimulationControl bunu temizliyor, 0,5 sn'deki ikinci temas gerçek gövdenin önünden çıkıyor. Juggling 1: ikinci dokunuş yerdeydi. Juggling 2: 0,8 sn'de 0,703 m'den ikinci gerçek temas oluştu, fakat 0,9 sn'de 0,962 m'de savunmacı aldı; sabit vücut üstü çıkış kabulü geçmedi. Eski juggle'ın lunge bacağı üzerinden tasarlanmış olması bu görevde test eşiğini değiştirmek için kullanılmadı.
+
+İki başarısız hareketin seçim, veri ve özel kontrol farkları geri alındı. Sombrero ve genel fiziksel iniş tahmini korunur. air-skills.cjs, attempt2.patch ve gerçek tick/pozisyon/yükseklik/RNG trace JSON'u ayrı yeniden üretmedir; patch hazır çözüm değildir. Üçüncü ürün yaklaşımı uygulanmadı. Lint karmaşıklığı yalnız geometri/nişan sorumluluğu ayrılarak temizlendi; futbol eşikleri değişmedi.

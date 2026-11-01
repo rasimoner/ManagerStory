@@ -183,5 +183,28 @@
       "plantSide": 0.2,
       "plantForward": -0.03
     }
+  },
+  "airAbility": 92,
+  "airMaximumSpeed": 1,
+  "air": {
+    "sombrero": {
+      "air": true,
+      "duration": 2.2,
+      "exitAngle": 0,
+      "action": "pass",
+      "feet": [
+        "Right"
+      ],
+      "contacts": [
+        {
+          "at": 0.2,
+          "angle": 0,
+          "distance": 4.5,
+          "seconds": 0.4,
+          "speed": 3,
+          "verticalVelocity": 7.5
+        }
+      ]
+    }
   }
 }

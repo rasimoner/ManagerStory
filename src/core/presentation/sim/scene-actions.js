@@ -2,7 +2,7 @@ import { ACTIONS } from '../match3d/newview/actions.js';
 import { MOTIONS } from '../match3d/newview/runtime.js';
 import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
-import SKILL_DATA from '../../../data/match-sim-skills.json';
+import { simulationCarrySkillData } from '../../sim/carry-skill-data.js';
 
 export function simulationContactAnimation(sample, frame, actor) {
   const pending = pendingRestartAnimation(sample, frame.ball.restart);
@@ -24,7 +24,7 @@ export function simulationContactAnimation(sample, frame, actor) {
 
 function pendingSkillAnimation(sample, frame) {
   const skill = frame.ball.carry?.playerId === sample.id ? frame.ball.carry.skill : null;
-  return skill ? { act: { name: SKILL_DATA.ground[skill.kind].action, t0: skill.startedAt } } : null;
+  return skill ? { act: { name: simulationCarrySkillData(skill.kind).action, t0: skill.startedAt } } : null;
 }
 
 function pendingRestartAnimation(sample, restart) {
@@ -67,7 +67,7 @@ function movementAnimationName(contact) {
 }
 
 function skillAnimationName(contact) {
-  if (SKILL_DATA.ground[contact.kind]) return SKILL_DATA.ground[contact.kind].action;
+  if (simulationCarrySkillData(contact.kind)) return simulationCarrySkillData(contact.kind).action;
   const name = contact.kind === 'bodyFeint' ? 'feint' : 'cut';
   return contact.turn < 0 ? name + 'Left' : name;
 }

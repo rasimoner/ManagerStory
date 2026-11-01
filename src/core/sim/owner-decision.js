@@ -11,7 +11,7 @@ import { releaseSimulationPass } from './pass-execution.js';
 import { faceSimulationPlayer } from './player-movement.js';
 import { simulationShieldTarget } from './dribble-evaluation.js';
 import { kickSimulationDribble, endSimulationCarry } from './dribbling.js';
-import { prepareSimulationGroundSkill } from './ground-skills.js';
+import { prepareSimulationCarrySkill } from './ground-skills.js';
 import { prepareSimulationPassTechnique, simulationPassFacingTarget, simulationPassTechniqueReady } from './pass-technique.js';
 
 const { abs, atan2, sin, cos, max, hypot } = Math;
@@ -28,7 +28,7 @@ export function requestSimulationPass(simulation, request) {
 
 export function prepareSimulationOwner(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId ?? simulation.ball.carry?.playerId);
-  if (!owner || prepareSimulationGroundSkill(simulation, owner)) return;
+  if (!owner || prepareSimulationCarrySkill(simulation, owner)) return;
   if (prepareOwnerFirstControl(simulation, owner)) return;
   if (simulation.ball.ownerId != null && simulation.tick >= simulation.passing.nextEvaluationTick) refreshSimulationOwnerPlan(simulation, owner);
   const decision = simulation.ownerDecision;
@@ -71,7 +71,7 @@ function refreshSimulationOwnerPlan(simulation, owner) {
 export function finishSimulationOwnerStep(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
   if (!owner) return;
-  if (simulation.ball.control && simulation.ball.height > 0) { followSimulationBallOwner(simulation); return; }
+  if (ownerAwaitsAirControl(simulation)) { followSimulationBallOwner(simulation); return; }
   if (simulation.ownerDecision.selected === 'shot') { finishOwnerShot(simulation, owner); return; }
   const option = simulation.passing.selected;
   if (option && simulation.ownerDecision.selected === 'pass') faceCurrentPass(simulation, owner, option);
@@ -79,6 +79,10 @@ export function finishSimulationOwnerStep(simulation) {
   if (simulation.ownerDecision.selected === 'dribble') { kickSimulationDribble(simulation, owner); return; }
   endSimulationCarry(simulation);
   if (option && ownerCanRelease(simulation, owner, option)) releaseCurrentOwnerPass(simulation, owner, option);
+}
+
+function ownerAwaitsAirControl(simulation) {
+  return simulation.ball.control && simulation.ball.height > 0;
 }
 
 function faceCurrentPass(simulation, owner, option) {
