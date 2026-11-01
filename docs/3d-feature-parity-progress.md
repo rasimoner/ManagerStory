@@ -8,14 +8,14 @@ Bir deneme, bir çözüm yaklaşımının uygulanması + ilgili kabul doğrulama
 | Kimlik | Sabit kabul kapsamı | Durum | Deneme | Kanıt / bağımlılık |
 |---|---|---|---:|---|
 | P1 | Dar alanda tekrarlı dönüş; iki yön/süre/kayıt | ikinci deneme başarısız | 2/2 | Ürün geri alındı; tests/reproductions/turn-release.cjs |
-| P2 | Doğrudan frikik kararı, fizik, hazırlık, baraj, kamera | doğrulama bekliyor | 0/2 | Mevcut `restart-release` yalnız kısa pas |
+| P2 | Doğrudan frikik kararı, fizik, hazırlık, baraj, kamera | tamamlandı | 2/2 | Motor/rig/iki yön/iki oran geçti; servis P3 nedeniyle engelli |
 | P3 | Korner/açık oyun ortası ve gerçek kafa/vole/röveşata | ikinci deneme başarısız | 2/2 | Ürün geri alındı; yeniden üretme ve patch saklandı |
 | P4 | İsimli özel çalımlar; gerçek temas ve savunma | engellendi | 0/2 | P1 taşıma/çıkış ve havadakilerde P3 başarısız; isim etiketiyle gizlenmedi |
-| P5 | Özel pas/ilk kontrol/aşırtma/Panenka | doğrulama bekliyor | 0/2 | Eski sekanslar koddan karşılaştırılacak |
+| P5 | Özel pas/ilk kontrol/aşırtma/Panenka | engellendi | 2/2 | Aşırtma ve Panenka tamamlandı; diğer pas/kontroller açık, yeni deneme yok |
 | P6 | Scorpion ve eski özel kaleci hareketleri | engellendi | 0/2 | P3 gerçek hava/topuk teması teslim edilmedi; normal zincir korunuyor |
-| P7 | Ofsayt konumu/katılım/istisnalar/düdük/yeniden başlama | doğrulama bekliyor | 0/2 | Yeni motorda kural bulunmuyor |
-| P8 | Diğer duran toplar, devre, 90:00, kamera/sunum koruması | doğrulama bekliyor | 0/2 | Önceki çalışmayı yeniden uygulamadan regresyon doğrulaması |
-| P9 | Eski gerçek yıldız tekrarı ve sınırlı salt okuma kayıt | doğrulama bekliyor | 0/2 | `newview/replay.js` gerçek kariyer kaydı; prototip ayrı |
+| P7 | Ofsayt konumu/katılım/istisnalar/düdük/yeniden başlama | tamamlandı | 2/2 | Noktasal motor modeli; kayıt ve eski çizgi/kamera testli |
+| P8 | Diğer duran toplar, devre, 90:00, kamera/sunum koruması | tamamlandı | 1/2 | Tam/hızlı paket ve 441,3 sn gerçek 1× smoke geçti |
+| P9 | Eski gerçek yıldız tekrarı ve sınırlı salt okuma kayıt | doğrulama bekliyor | 2/2 | Manuel gerçek tekrar tamam; otomatik/arşiv açık |
 | P10 | Denge, performans, WebGL ve zorunlu teslim kapıları | doğrulama bekliyor | 0/2 | Aynı tohumlu önce/sonra ölçümü; fiziksel Safari mevcut değil |
 
 ## Altyapı
