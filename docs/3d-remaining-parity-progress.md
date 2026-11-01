@@ -28,7 +28,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R18 | Juggling | R1 + R2 hava teması | 0/2 | Bekliyor |
 | R19 | Backheel | Pas temasının yön/ayak gereksinimi; R1 ilişkisi doğrulanacak | 0/2 | Bekliyor |
 | R20 | Rabona | Pas temasının yön/ayak gereksinimi; R1 ilişkisi doğrulanacak | 0/2 | Bekliyor |
-| R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 0/2 | Bekliyor |
+| R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 1/2 | Gerçek alternatif oyuncuya baş bakışı ve eski nolook pozu; 21 ilgili / 555 hızlı test geçti |
 | R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
 | R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 0/2 | Bekliyor |
 | R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 0/2 | Bekliyor |
@@ -82,3 +82,7 @@ Eski director DUEL_MOVES/dragBack ve feints/turns gerçek çağrıları doğrula
 İlk 49 fizik kabulü geçti. Çizim incelemesindeki tek-dışa-aktarım yükleyici çakışması ortak movesFor tanımının tek modülde kalmasıyla temizlendi; eski motor aynı saf kuralı import eder. İleri kabulde croqueta her iki vuruşu aynı ayağa yakın gösterdi; roulette toplam dönüşü 5,584874765 rad oldu (istenen >5,7). R12 ikinci yaklaşımı gerçek geçişte destek ayağını topun dışına basar ve eski ayak eğrisinin temas fazını günceller. R13 ikinci yaklaşımı tam dönüş zamanını toparlanmadan ayırır; 2,0 saniyede tur, 2,2 saniyede normal oyuna dönüş. Eşikler gevşetilmedi. 44/44 fizik/rig/mücadele kabulü; son hızlı paket 551 başarılı, 1 mevcut atlama, ayrı 5/5 performans. Lint yeni ihlal yok.
 
 Savunmacı gerçek ayak/gövde sinyalini konumlanma/tepki becerisine göre hatalı okuyabilir; yalnız hedefi değişir, mevcut hız/ivme ve temas düelloyu çözer. Hareket sırasında rakip kazanabilir; skill başarı zarı/sonuç yazmaz. Beceri, hız, gerçek yakın savunmacı, hücum alanı ve boşluk kısıtlarıyla otomatik seçim; seyrekliğe 12 fizik saniyelik sunulan hareket aralığı. Kayıtta carry.skill isteğe bağlıdır, şema 9 ve ham/sıkıştırılmış göç testi vardır.
+
+## R21 — bakmadan pas
+
+Eski director pass/nolook ve ACTIONS.nolook yolu doğrulandı. Gerçek farklı/görünür bir takım arkadaşı baş hedefidir; beceri, mesafe, düşük gerçek hız ve orta baskı şartları vardır. İlk iki yeni kabul kırmızıydı. Gerçek rig'de başın dünya bakış vektörü hedef oyuncuyla >0,98 doğrultuda; top normal fiziksel pasa gider. Aynı durumda normal pasla hız/düşey hız/RNG birebir eşit; başarı önceden verilmez. 21 ilgili test, lint ve 555 başarılı hızlı / 1 mevcut atlama, 5/5 performans geçti. Kodun karmaşıklığı aynı koşullar ayrı saf yüklemlere ayrılarak düşürüldü; eşikler/baseline büyümedi.

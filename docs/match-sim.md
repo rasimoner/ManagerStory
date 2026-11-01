@@ -476,3 +476,5 @@ Ortalarda saha oyuncusunun yatay temas zarfı 0,45 m; kafa 1,45–1,80 m, vole 0
 ### Fiziksel isimli yer hareketleri
 
 Yeni motor makas, elastico, Cruyff, croqueta, roulette ve drag-back niyetlerini gerçek beceri, yakın baskı, hız, hücum alanı ve taşıma yönünden seçer. Aynı top ve ivme/dönüş integratörüyle farklı serbest dokunuş dizileri yürür; her sonraki vuruş için oyuncu yeniden gerçekten yetişir. Makas sırasında topa değmeden ayak dolaşır; elastico aynı, croqueta iki ayrı ayaktan oynanır; roulette turu normal açısal sınırda tamamlanır. Savunmacı sinyali gerçek tepki/konumlanma becerisiyle okuyup fiziksel hedefe hareket eder; topu kazanabilir. Başarı, beat veya top kaybı hareket adıyla verilmez. Eski salt ayak eğrileri çizilir; yönetmenin ikinci fizik çözücüsü çalıştırılmaz.
+
+Bakmadan pasta eski nolook pozu gerçek farklı takım arkadaşına bakışla birleşir. Vision/technique, mesafe, hız, gerçek baskı ve görülebilir baş dönüşü seçim şartıdır; normal top uçuşu/RNG aynen korunur. Gerçek pas olayı style:nolook ve gazeTargetId/gazeTarget taşır; başarılı sonuç yazılmaz.

@@ -42,11 +42,16 @@ function animationName(contact, sample) {
 function ownerAnimationName(contact) {
   const move = movementAnimationName(contact);
   if (move) return move;
-  if (contact.type === 'pass') return contact.style === 'header' ? 'header' : contact.restartKind === 'throwIn' ? 'throwIn' : 'pass';
+  if (contact.type === 'pass') return passAnimationName(contact);
   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
   if (contact.type === 'block') return 'lunge';
   return shotAnimationName(contact);
+}
+
+function passAnimationName(contact) {
+  if (contact.style === 'nolook') return 'nolook';
+  return contact.style === 'header' ? 'header' : contact.restartKind === 'throwIn' ? 'throwIn' : 'pass';
 }
 
 function shotAnimationName(contact) {

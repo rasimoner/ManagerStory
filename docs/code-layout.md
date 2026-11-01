@@ -288,3 +288,5 @@ Faz 2 duran top modülleri: `core/sim/restart-state.js` yalnız hazırlık durum
 `core/sim/aerial-choice.js` gerçek temas yüksekliği, mesafe/yön ve güvenli çıkışla kafa/vole/uzaklaştırma niyetini seçer. `aerial-contact.js` aynı topun gerçek temasını ve kalan fizik adımını yürütür. Motor sonucu animasyondan okunmaz. Kabul `match-sim-aerial-finishes.test.cjs`; başarısız röveşata ayrı `tests/reproductions/remaining-bicycle.cjs`.
 
 `core/players/move-eligibility.js` eski movesFor kurallarının saf tek kaynağıdır; eski motor ve yeni fizik aynı yetenek listesini okur. `sim/ground-skill-choice.js` gerçek alan/baskı/hız ve beceriden seçim; `ground-skills.js` aynı taşıma içindeki fiziksel temas dizileri; `presentation/sim/scene-skill-feet.js` eski salt ayak eğrileriyle çizimdir. Eski beat jeneratörleri veya hareket/top çözücüleri çalışmaz.
+
+`sim/no-look-pass.js` gerçek alternatif bakış hedefini saf olarak seçer; `presentation/sim/scene-pass-gaze.js` eski nolook pozunda yalnız baş kemiğini o oyuncuya çevirir.

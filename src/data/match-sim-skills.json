@@ -149,5 +149,15 @@
     "supportSideOffset": 0.3
   },
   "feintStartSeconds": 0.2,
-  "feintReadDistance": 1.5
+  "feintReadDistance": 1.5,
+  "noLook": {
+    "minimumDistance": 8,
+    "maximumDistance": 30,
+    "minimumAttackX": 0,
+    "minimumPressure": 0.1,
+    "maximumPressure": 0.75,
+    "maximumSpeed": 2,
+    "minimumGazeTurn": 0.6,
+    "maximumGazeTurn": 1.4
+  }
 }

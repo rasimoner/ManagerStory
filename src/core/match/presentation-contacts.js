@@ -48,6 +48,7 @@ function isCloseChallenge(event) {
 
 function copyPresentationContact(event, cue) {
   return { ...cue, type: event.type, fromId: event.fromId, toId: event.toId, teamId: event.teamId,
+    ...(event.gazeTarget ? { gazeTargetId: event.gazeTargetId, gazeTarget: { ...event.gazeTarget } } : {}),
     time: event.physicsTime ?? event.time, kind: event.kind, style: event.style, lineX: event.lineX, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind, turn: event.turn,
     fromPos: event.fromPos ? { ...event.fromPos } : null, toPos: event.toPos ? { ...event.toPos } : null };
 }

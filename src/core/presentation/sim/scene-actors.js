@@ -8,6 +8,7 @@ import { blendSimulationGait } from './scene-gait.js';
 import { poseSimulationContactFoot } from './scene-contact-feet.js';
 import { simulationWallLift } from '../../sim/wall-reaction.js';
 import { prepareSimulationSkillFeet, poseSimulationSkillContact } from './scene-skill-feet.js';
+import { poseSimulationPassGaze } from './scene-pass-gaze.js';
 
 // Only the detached scene sample reaches here. Runtime locomotion/ball solvers are never called.
 export function createSimulationActors(runtime, describe) {
@@ -49,6 +50,7 @@ function poseSimulationActor(runtime, actor, { sample, frame, seconds }) {
   plantSimulationFeet(runtime, actor, seconds);
   poseSimulationContactFoot(runtime, actor, { sample, frame });
   poseSimulationSkillContact(runtime, actor, { sample, frame });
+  poseSimulationPassGaze(actor, sample, frame);
   actor.model.position.y += simulationWallLift(sample, frame.physicsTime);
   // The rig may lift a foot or lean, but its root never chases a contact marker.
   actor.model.position.x = sample.position.x;
