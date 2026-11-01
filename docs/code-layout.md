@@ -294,3 +294,5 @@ Faz 2 duran top modülleri: `core/sim/restart-state.js` yalnız hazırlık durum
 `sim/pass-technique.js` topuk/rabona duruşunu gerçek integratörde hazırlar; top mevcut kontrollü yerinde dururken oyuncu ayağını fiziksel erişime getirir. `presentation/sim/scene-pass-feet.js` eski backheelFeet/rabonaFeet saf yollarını örnekler; director/ikinci fizik çağrısı yoktur.
 
 Kalan özellikler: cross-delivery/cross-layout servis planını, aerial-choice/aerial-contact gerçek yüksek teması; ground-skill-choice/ground-skills ve nutmeg-choice/nutmeg-geometry gerçek taşıma/ayak boşluğunu; pass-technique/no-look-pass özel pasları; first-touch-technique özel trap'i taşır. scene-skill-feet/scene-pass-feet/scene-trap-feet/scene-pass-gaze yalnız rig sunumudur. scene-replay/panel mevcut sınırlı gerçek kaydı oynatır. remaining-parity smoke, izole çekirdek senaryolarını normal kariyer kaydından ayrı etiketler.
+
+remaining-contact-frames yalnız duraklatılmış gerçek temas checkpoint'lerini WebGL'de gösterir; canlı hareket veya tekrar tamamlanması kabulü yerine geçmez. remaining-parity başarısızlıkları ve geçersiz eski tick ölçümlerini korur; statik görüntü bu kapıyı yeşile çevirmez.

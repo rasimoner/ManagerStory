@@ -36,7 +36,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | Çağrılar doğrulandı; normal zor kurtarış/penaltı/elden vole mevcut zincirde korunur |
 | R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 2/2 | Kariyer kare aktarımındaki yıldız/observed bilgisi korundu; WebGL bekleniyor |
 | R28 | Kariyer arşivi İzle gerçekliği/mevcut kaydın uygunluğu; yeni kalıcı tekrar sistemi kurmadan sınırı raporlama | Bağımsız | 0/2 | Tarif sahneleniyor; mevcut veride gerçek kayıt yok, yeni kalıcı sistem kurulmadı |
-| R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 1/2 | Son zorunlu kapılar ve gerçek görüntü kanıtı hazırlanıyor |
+| R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 1/2 | Açık: performans 2/2 altyapı, 50 tohum gerçek regresyonu ve görsel kanıt sınırı; PR yok |
 
 ## Altyapı sayacı
 
@@ -158,3 +158,14 @@ Uzak verify için push tetikleme düşünülmüştü; aynı performans engelinde
 Son Node 22 oturumunda aynı performans kapısı iki kez geçmedi. İlk shooting/keeper üçlüsü 2039,1 / 1642,4 / 1537,5 ms; ikinci 2462,5 / 1765,7 / 1646,1 ms. İkinci workload üçlüsü 2237,4 / 2169,2 / 1710,3 ms. Her koşu <2000 ms olmalıdır; medyanın geçmesi başarı sayılmadı. Her iki hızlı işte 586 fonksiyonel test geçti / 1 mevcut atlama. İlk ayrı performans 4/5, ikinci 3/5. Eşik, warm-up, lint baseline veya test filtresi değiştirilmedi; üçüncü performans koşusu yapılmaz. Yeni performans ürün optimizasyonu denenmedi; bu nedenle host etkisi mi ürün yükü mü kesinleştirilmiş değildir. Denge/görsel kanıtlar bağımsız sürer. Zorunlu kapı kırmızı olduğundan PR yoktur.
 
 20 eşlenmiş doğal-saat tohum ölçümü tamamlandı: şut 6,80→8,80; gol 0,55→1,05; pas 72,45→71,25; tamamlanan pas 52,70→49,70; faul 1,95→1,85; kurtarış 2,35→3,35; top kaybı (restart dahil sahip takım değişimi) 29,50→31,20. Denge aynı denmedi; dağılım ve seed bazlı farklar comparison.json'dadır. No-look görsel fixture'ının ilk yüksek dribbling oyuncusunda makasla pas öncelik kazanıyordu; ürün kodu değişmeden dribbling 50 / vision-technique 95 uygun oyuncu seçildi. İkinci fixture gerçek nolook pasını üretti; etiket uydurulmadı. Diğer 23 fixture gerçek beklenen olayları doğruladı.
+
+
+R29: Adayın 50 tohumu/sekiz güç deneyi tamamlandı. Taze main d86ac72 aynı 50 seed skorunu/14 sayacı tarihsel CI referansıyla birebir üretti; aday seed 901'de 1:0 yerine 8:9 verdi. Ortalama şut 17,64→48,46; gol 2,76→16,92; ağırlıklı kurtarış %70,89→%37,70. compare.cjs değiştirilmeden exit 1 verdi. Yeni referans/golden istisnası yok. Bu görevin sonuna yeni denge çözümü eklenmedi; özellik sayaçları yeniden adlandırılmaz. Ayrı dar devam promptu eklendi.
+
+Görsel altyapı aynı açık oyun ortası/rabona tekrarında 2/2 süre aşımı yaptı; üçüncü koşu yapılmadı. Ayrıca araç data-simTick yerine gerçek data-sim-tick okumalıydı; düzeltildi, eksik değer assert'i eklendi. Önceki dört görüntü sequenceVerified:false; başarısızlıklar manifestte korunur. Bağımsız statik temas kareleri canlı tekrar/sekans kapısını geçirmiş sayılmaz. Kayıt zaman aşımı veya futbol eşikleri değiştirilmedi.
+
+
+R29 bağımsız doğrulama: değiştirilmemiş npm run smoke bütünü geçti; doğal 1× 7 dakikalık 2D kariyer 448,582 sn aktif sürede 90:00'a vardı, saat geri gitmedi. 250 süre maçında beş grubun kariyer tutarlılığı 50/50. Bunlar kırmızı performans/50-tohum/görsel kapılarını geçirmiş sayılmaz. Ağır fonksiyonel eksikler ve tüm 34 eski golden, hızlı paketi yeniden başlatmadan ayrı tamamlanır; performans üçüncü kez çalıştırılmaz.
+
+
+Son GitHub yenilemesi: PR #16 closed/merged, merge d86ac72. CI 41260752142 verify success; continuous-mobile ve simulation-3d-mobile artık tarayıcı kurulumunda cancelled, sonraki kontroller skipped. Pages 41263740314 build ve publish success. Başlangıçtaki bekleme durumu ile son durum ayrıdır. startup-delivery-provenance.json kaynak durumları taşır. Bu dal PR/merge/yayın tetiklemedi.

@@ -1,7 +1,7 @@
 const { loadGame } = require('./game.cjs');
 const groundMoves = new Set(['stepover', 'nutmeg', 'elastico', 'cruyff', 'croqueta', 'roulette', 'dragBack', 'sombrero', 'automaticReplay']);
 
-function remainingParityCareer(kind, direction = 1) {
+function remainingParityCareer(kind, direction = 1, { contact = false } = {}) {
   const game = loadGame({ quiet: true });
   game.run('S=fresh();init();S.matchSalt=73;setExperimentalMatchEngine(true);startMatch();setMatchView("3d")');
   const api = game.api, sim = api.M.simulation, attack = sim.teams.find(t => t.id === 'user'), defense = sim.teams.find(t => t.id !== 'user');
@@ -10,10 +10,12 @@ function remainingParityCareer(kind, direction = 1) {
   const current = api.M.simulation; api.M.speed = kind === 'normalCareer' ? 1 : 2;
   api.synchronizeExperimentalMatch({ time: current.time, frame: api.captureSimulationFrame(current), forcePlayers: true });
   const observed = verifyRemainingNative(api, current, kind);
+  if (contact && kind !== 'normalCareer') api.advanceExperimentalSeconds(Math.max(.1, observed.time - current.time + .01));
   api.pauseLive(); api.save();
   return { save: game.storage.get('msv4'), kind, direction: current.teams.find(t => t.id === 'user').direction,
     seed: current.seed, matchSalt: 73, observed, startTick: current.tick, startPhysicsTime: current.time,
-    category: kind === 'normalCareer' ? 'unforced normal career checkpoint' : 'isolated core scenario in real career UI' };
+    category: kind === 'normalCareer' ? 'unforced normal career checkpoint' : 'isolated core scenario in real career UI',
+    capture: contact ? 'paused core contact; does not verify live sequence or replay completion' : 'live sequence fixture' };
 }
 
 function prepareRemainingCase(context) {

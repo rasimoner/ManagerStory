@@ -1,0 +1,133 @@
+{
+  "verifiedAt": "2026-11-01T11:11:20.787Z",
+  "main": "d86ac72de6bc4677a2357fc516c06e1ffeceed48",
+  "mainVersion": "7.19.2",
+  "candidateVersion": "7.19.3 (not published)",
+  "pullRequest16": {
+    "state": "closed",
+    "merged": true,
+    "mergedAt": "2026-11-01T02:05:32Z",
+    "mergeCommit": "d86ac72de6bc4677a2357fc516c06e1ffeceed48",
+    "url": "https://github.com/rasimoner/ManagerStory/pull/16"
+  },
+  "previousPullRequestCI": {
+    "url": "https://github.com/rasimoner/ManagerStory/actions/runs/41260752142",
+    "jobs": [
+      {
+        "id": 124713336628,
+        "name": "continuous-mobile",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "steps": [
+          {
+            "name": "Run npx playwright install --with-deps chromium",
+            "status": "completed",
+            "conclusion": "cancelled",
+            "number": 6
+          },
+          {
+            "name": "Watch a complete natural seven-minute 1x career match on a mobile viewport",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          }
+        ]
+      },
+      {
+        "id": 124713336801,
+        "name": "simulation-3d-mobile",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "steps": [
+          {
+            "name": "Run npx playwright install --with-deps chromium",
+            "status": "completed",
+            "conclusion": "cancelled",
+            "number": 6
+          },
+          {
+            "name": "Inspect actual 3D frames and controls at 390 by 844",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Inspect phase 2 controls and physical restart releases in WebGL",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Inspect free kicks, offside, Panenka and actual recorded replays",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10
+          }
+        ]
+      },
+      {
+        "id": 124713336922,
+        "name": "verify",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Run npx playwright install --with-deps chromium",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      }
+    ]
+  },
+  "previousPages": {
+    "url": "https://github.com/rasimoner/ManagerStory/actions/runs/41263740314",
+    "jobs": [
+      {
+        "id": 124722087190,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Smoke test the build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Smoke test the experimental 3D view",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Smoke test restored football events and actual replays",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 124725611079,
+        "name": "publish",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Deploy",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          }
+        ]
+      }
+    ]
+  },
+  "candidatePullRequestCreated": false,
+  "candidateWorkflowDispatched": false,
+  "candidateMerged": false,
+  "candidatePublished": false
+}

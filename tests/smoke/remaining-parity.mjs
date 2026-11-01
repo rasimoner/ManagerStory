@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { chromium } from 'playwright';
 import { pagesServer } from './pages-server.mjs';
@@ -9,33 +9,51 @@ const directory = 'test-results/remaining-parity'; mkdirSync(directory, { recurs
 const server = await pagesServer('dist', { port: 0 });
 const browser = await chromium.launch({ executablePath: process.env.SMOKE_CHROMIUM || undefined,
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const results = [], problems = [];
+const previous = process.env.REMAINING_RESUME && existsSync(`${directory}/verification.json`)
+  ? JSON.parse(readFileSync(`${directory}/verification.json`, 'utf8')) : {};
+const results = previous.results ?? [], problems = previous.problems ?? [], failures = previous.failures ?? [];
 
 async function film(kind, viewport, direction = 1) {
   const fixture = remainingParityCareer(kind, direction), orientation = viewport.width > viewport.height ? 'landscape' : 'portrait';
   const name = `${kind}-${fixture.direction}-${orientation}`;
-  const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, recordVideo: { dir: directory, size: viewport },
-    storageState: { cookies: [], origins: [{ origin: new URL(server.url).origin, localStorage: [{ name: 'msv4', value: fixture.save }] }] } });
-  const page = await context.newPage(); page.on('pageerror', error => problems.push(error.message)); page.on('dialog', dialog => dialog.accept());
+  if (results.some(result => result.name === name)) { console.log(`kept completed WebGL: ${name}`); return; }
+  const { context, page } = await openRemainingPage(fixture, viewport);
   try {
     const start = await openRemainingScene(page, name);
     await page.locator('[data-scene-pause]').click();
     if (kind === 'automaticReplay') await verifyAutomaticReplay(page, name);
     else { await captureRemainingContact(page, { start, kind, name }); await runRemainingSequence(page, start, kind); }
     await page.screenshot({ path: `${directory}/${name}.png`, fullPage: true });
-    results.push({ ...fixture, save: undefined, name, viewport, lastTick: await page.locator('[data-sim-scene]').getAttribute('data-simTick'),
+    results.push({ ...fixture, save: undefined, name, viewport, tickAttribute: 'data-sim-tick', sequenceVerified: true,
+      lastTick: await page.locator('[data-sim-scene]').getAttribute('data-sim-tick'),
       caption: await page.locator('.sim-scene-caption').textContent() });
+    writeRemainingManifest();
+  } catch (error) {
+    failures.push({ name, error: error.message }); writeRemainingManifest(); throw error;
   } finally {
-    const video = page.video(); await context.close(); await video.saveAs(`${directory}/${name}.webm`); await video.delete();
+    await closeRemainingVideo({ page, context, name });
   }
   console.log(`ok   remaining parity WebGL: ${name} (${fixture.category})`);
+}
+
+async function openRemainingPage(fixture, viewport) {
+  const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, recordVideo: { dir: directory, size: viewport },
+    storageState: { cookies: [], origins: [{ origin: new URL(server.url).origin, localStorage: [{ name: 'msv4', value: fixture.save }] }] } });
+  const page = await context.newPage(); page.on('pageerror', error => problems.push(error.message)); page.on('dialog', dialog => dialog.accept());
+  return { context, page };
+}
+
+async function closeRemainingVideo({ page, context, name }) {
+  const video = page.video(); await context.close(); await video.saveAs(`${directory}/${name}.webm`); await video.delete();
 }
 
 async function openRemainingScene(page, name) {
   await page.goto(server.url); await page.waitForFunction(() => document.querySelector('[data-scene-loading]')?.hidden);
   await page.locator('[data-scene-full]').click(); await verifyRemainingLayout(page);
   await page.screenshot({ path: `${directory}/${name}-setup.png`, fullPage: true });
-  return Number(await page.locator('[data-sim-scene]').getAttribute('data-simTick'));
+  const value = await page.locator('[data-sim-scene]').getAttribute('data-sim-tick');
+  assert.ok(value !== null, 'the actual live tick attribute exists');
+  return Number(value);
 }
 
 async function verifyRemainingLayout(page) {
@@ -87,6 +105,13 @@ async function filmReverseDirection(viewport) {
   for (const kind of ['turnRelease', 'corner', 'nutmeg', 'sombrero', 'automaticReplay']) await film(kind, viewport, -1);
 }
 
+function writeRemainingManifest() {
+  writeFileSync(`${directory}/verification.json`, JSON.stringify({ results, problems, failures,
+    status: failures.length ? 'blocked; failures retained' : 'completed selected cases only',
+    tickMeasurementFinding: previous.tickMeasurementFinding,
+    browser: 'Chromium with real SwiftShader WebGL2', physicalSafariTest: false }, null, 2) + '\n');
+}
+
 try {
   const all = ['turnRelease', 'corner', 'shortCorner', 'freeKickService', 'openCross', 'header', 'headpass', 'clearance', 'volley',
     'stepover', 'nutmeg', 'elastico', 'cruyff', 'croqueta', 'roulette', 'dragBack', 'sombrero', 'backheel', 'rabona', 'nolook', 'flairpass', 'trap', 'automaticReplay', 'normalCareer'];
@@ -96,7 +121,9 @@ try {
     await filmReverseDirection(viewport);
   }
   assert.deepEqual(problems, []);
+  assert.deepEqual(failures, [], 'retained delivery failures keep this gate red');
+  assert.ok(results.every(result => result.tickAttribute === 'data-sim-tick'), 'old unmeasured captures are not verified sequences');
 } finally {
-  writeFileSync(`${directory}/verification.json`, JSON.stringify({ results, problems, browser: 'Chromium with real SwiftShader WebGL2', physicalSafariTest: false }, null, 2) + '\n');
+  writeRemainingManifest();
   await browser.close(); await server.close();
 }

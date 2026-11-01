@@ -1,8 +1,8 @@
 # PR #16 sonrası 3D eşitliği — teslim raporu
 
-Dal fix/3d-remaining-feature-parity. Ürün tabanı c6341386f9f0815e12aeb26bd86a77ca52942149; 7.19.3 PR adayıdır, yayımlanmış sürüm değildir. Teslim doğrulaması sürer; kanıt olmadan başarılı kontrol yazılmaz. Merge ve yayın görsel onay bekler.
+Dal fix/3d-remaining-feature-parity. Ürün tabanı c6341386f9f0815e12aeb26bd86a77ca52942149; 7.19.3 PR adayıdır, yayımlanmış sürüm değildir. Zorunlu performans ve 50 tohum yeniden üretme kapıları kırmızıdır; teslim yeşil değildir. Merge ve yayın görsel onay bekler.
 
-Başlangıç main d86ac72de6bc4677a2357fc516c06e1ffeceed48 / 7.19.2. PR #16 merged ve Pages 41263740314 build/publish başarısı ayrı doğrulandı. PR CI 41260752142 verify geçti, iki mobil iş tarayıcı kurulumunda bekliyordu. Eski dizinin README/package/package-lock ve izlenmeyen 7.20.0 notu korunur. Node 22.23.4 kullanılır. Tek motor, saf JS/Vite/three.js mimarisi korunur.
+Başlangıç main d86ac72de6bc4677a2357fc516c06e1ffeceed48 / 7.19.2. PR #16 merged ve Pages 41263740314 build/publish başarısı ayrı doğrulandı. PR CI 41260752142 verify geçti. Başlangıçta tarayıcı kurulumunda bekleyen iki mobil iş son kontrolde cancelled; bu işlerin senaryoları skipped. Pages build/publish başarısı bunlardan ayrı doğrulandı. Eski dizinin README/package/package-lock ve izlenmeyen 7.20.0 notu korunur. Node 22.23.4 kullanılır. Tek motor, saf JS/Vite/three.js mimarisi korunur.
 
 ## Önce → sonra
 
@@ -54,9 +54,9 @@ R28: recordStarMoment → recipeOf → watchHighlight → highlight-scene → di
 
 Yeni 8/9/10 göçleri servis, carry.skill ve özel pas duruşunu korur; ham/sıkıştırılmış ve kayıt/devam testleri vardır. Nutmeg mevcut phase ve gerçek adım segmentini kullanır; trapIntent karede türetilir; otomatik tekrar kalıcı kayıt eklemez.
 
-Önceki ortamda Node 22 tam paket: 676 başarılı, 1 mevcut atlama + ayrı 5/5 performans; hızlı: 586 başarılı, aynı atlama + 5/5 performans. Lint/build ve otomatik tekrar/normal kariyerin dikey/yatay WebGL örnekleri geçti. Ortam eski görüntüye döndüğünden ham yerel log/medya kayboldu; teslimin yeni doğrulaması kalıcı GitHub log/artifact'larıyla tamamlanır.
+Önceki ortamda Node 22 tam paket: 676 başarılı, 1 mevcut atlama + ayrı 5/5 performans; hızlı: 586 başarılı, aynı atlama + 5/5 performans. Lint/build ve otomatik tekrar/normal kariyerin dikey/yatay WebGL örnekleri geçti. Ortam eski görüntüye döndüğünden ham yerel log/medya kayboldu; yeni teslimin Git commit'leri ve indirilebilir kanıt dosyaları aşağıdaki gerçek sonuçları korur.
 
-20 eşlenmiş doğal saat tohumu için before.json hazırdır; after.json ve 50 tohum/güç deneyleri yeniden ölçülür. Ölçmeden denge değişmedi denmez. Golden veya lint eşiği gevşetilmez. Son ölçüm ve görsel manifest eklenecek. Son zorunlu performans kapısı iki girişimde geçmedi; PR oluşturulmaz. Ayrıntı aşağıdadır.
+20 eşlenmiş doğal saat tohumu ile 50 tohum/sekiz güç deneyi tamamlandı; yeni main ölçümü tarihsel 50 tohum sayaçlarını yeniden üretti. Ölçmeden denge değişmedi denmez. Golden veya lint eşiği gevşetilmez. Ham/özet ölçümler ve sınırlı görsel manifest korunur. Son zorunlu performans kapısı iki girişimde geçmedi; PR oluşturulmaz. Ayrıntı aşağıdadır.
 
 Görsel senaryolar: izole çekirdek durumunun gerçek kariyer UI sunumu ve ayrı normal kariyer kaydı. 390×844 / 844×390 Chromium gerçek SwiftShader WebGL2, fiziksel Safari testi değildir. Otomatik tekrar kabulü canlı tick/skor/saat/kaydın beklemesini ve aynı adıma dönüşü kontrol eder. Diğer kareler gerçek maç topunu gösterir; eski sahne tarifi tekrar diye sunulmaz.
 
@@ -83,4 +83,59 @@ Aynı seed sırası, eşit slot özellikleri, 420 fizik saniyesi, iki devre, wor
 | Kurtarış | 2.35 | 3.35 | +1.00 | 0/2/8 | 0/3/7 |
 | Kazanılan top | 18.25 | 19.00 | +0.75 | 12/18.5/28 | 11/19/28 |
 
-*Top kaybı sahip takım değişimidir; verilen restart'lar dahildir. Kazanılan top ayrıca raporlanır. Küçük 20 maç örneğinde ortalama şut +2,00, gol +0,50, kurtarış +1,00; tamamlanan pas -3,00 ve top kaybı +1,70 değişti. Yeni servis/hava teması/taşıma kararlarının toplu etkisidir; tek tek özelliklere nedensel pay ayrıldığı iddia edilmez. 50 tohum/güç ölçümü ayrı tamamlanacak; bu sayılar eski golden/CI referansını otomatik yenilemek için kullanılmadı. Ham before/after ve eşlenmiş dağılım comparison.json içindedir.
+*Top kaybı sahip takım değişimidir; verilen restart'lar dahildir. Kazanılan top ayrıca raporlanır. Küçük 20 maç örneğinde ortalama şut +2,00, gol +0,50, kurtarış +1,00; tamamlanan pas -3,00 ve top kaybı +1,70 değişti. Yeni servis/hava teması/taşıma kararlarının toplu etkisidir; tek tek özelliklere nedensel pay ayrıldığı iddia edilmez. 50 tohum/güç sonucu aşağıdadır; bu sayılar eski golden/CI referansını otomatik yenilemek için kullanılmadı. Ham before/after ve eşlenmiş dağılım comparison.json içindedir.
+
+## Eşlenmiş 50 tohum: uzun adım sözleşmesinde ciddi regresyon
+
+Aynı Node 22, aynı araç ve seed sırasıyla güncel main d86ac72 yeniden ölçüldü. Main, mevcut CI referansının her maç skorunu ve 14 sayacını birebir üretti. Aday c6341386 için mevcut compare.cjs değiştirilmeden bir kez çalıştırıldı ve exit 1 verdi: ilk seed 901 skor 1:0 yerine 8:9. Referans/golden/workflow istisnası değiştirilmedi. Bu yalnız eski bir dosyayla açıklanabilecek fark değildir; taze main karşılaştırması da farkı doğrular.
+
+Bu laboratuvar aracı 54.000 fizik adımını çalıştırır; devre hazırlığı yüzünden tek başına tam 90:00 bitiş kanıtı değildir. Doğal 420 saniyelik 20 kariyer maçı yukarıda ayrı durur. Aşağıdaki sayılar aynı uzun adım sözleşmesinin eşlenmiş dağılımıdır.
+
+| Ölçüt | Main ort. | Aday ort. | Fark | Main min/medyan/max | Aday min/medyan/max |
+|---|---:|---:|---:|---|---|
+| Şut | 17,64 | 48,46 | +30,82 | 7/17/36 | 27/47/83 |
+| Gol | 2,76 | 16,92 | +14,16 | 0/3/6 | 9/17/28 |
+| Pas | 798,64 | 728,98 | -69,66 | 746/798,5/845 | 664/731/784 |
+| Tamamlanan pas | 632,58 | 581,22 | -51,36 | 580/632,5/678 | 506/580/642 |
+| Faul | 25,88 | 30,26 | +4,38 | 14/26/36 | 19/30/44 |
+| Kurtarış | 6,72 | 10,24 | +3,52 | 1/6,5/12 | 3/10/20 |
+| Kazanılan top | 143,52 | 124,16 | -19,36 | 98/144/176 | 90/121,5/160 |
+
+Kazanılan top, top kaybı diye yeniden adlandırılmadı; gerçek sahip takım değişimi 20 maçlık ölçümde ayrıca vardır. Ortalama xG 1,936→5,774, ağırlıklı kurtarış %70,89→%37,70, kırmızı kart 0,44→2,44. Sebepler tek tek değişikliklere ayrıştırılmadı; özellikle kart/eksilen kadro ile şut temas türleri birlikte incelenmelidir. Gol kotası, zorunlu kayıp veya denge çarpanı eklenmedi. Denge kapısı başarısızdır; yeni referansla kapatılmadı.
+
+Sekiz güç deneyinde 50 maçlık aday galibiyet sayıları: all10 48, all20 50, all5 39, finishing 21, reflexes 22, defence 24, swapped10 48, equal 24. Bunlar ölçümdür, kalibrasyonun geçtiği iddiası değildir. ci-50-before-summary.json / ci-50-summary.json / ci-50-comparison.json kaynak ve dağılımları taşır; büyük ham rapor kanıt paketinde tutulur.
+
+## Görsel kapısının mevcut sınırı
+
+Kapsamlı yeni kayıt ilk açık oyun ortası/rabona otomatik tekrarında iki kez 45 saniyede tamamlanmadı. İlkinde 50 tohum işi eşzamanlıydı; ikincisi bu iş bittikten sonra da süre aşımı verdi. İlk videoda tekrar çubuğu yaklaşık %57'ye ilerliyordu; sonsuz döngü veya futbol kararı kilidi kanıtlanmadı. Yazılımsal WebGL'de replay RAF süresinin camera.maximumFrameSeconds ile kısılması incelenmesi gereken adaydır, kesin kök neden diye yazılmaz. Üçüncü tekrar, zaman aşımı büyütme veya otomatik paneli gizleme yapılmadı.
+
+Test aracının başlangıç/son tick okuması data-simTick idi; gerçek öznitelik data-sim-tick'tir. Bu yüzden ilk dört dikey kayıt gerçek WebGL görüntüsü olsa da istenen temas ofseti/sekans uzunluğu kabulünü kanıtlamaz. Manifest bu kayıtları sequenceVerified:false olarak işaretler. Araç doğru öznitelik ve eksik değer assert'iyle düzeltildi; iki başarısız kayıt yeniden koşulmadı ve kapı kırmızı kalır. Bağımsız temas kareleri varsa yalnız duraklatılmış gerçek çekirdek checkpoint'inin görüntüsüdür; canlı animasyon/otomatik tekrar tamamlanması yerine geçmez. Önceki ortamın başarılı otomatik tekrar gözlemi yeni ortamın bu başarısızlığını örtmez.
+
+
+## Tam doğal kariyer ve bütün süreler
+
+npm run smoke, Node 22'de değiştirilmeden geçti: temel/legacy 12/12, laboratuvarlar, eski worker service worker, pas/mücadele/şut/denge, kariyer komut/değişiklik/kayıt/devam/skip/puan tablosu ve doğal 1× 7 dakikalık 2D maç. Telefon Chromium 390×844, 4× CPU yavaşlatma: aktif 448,582 sn; 436,2 fizik sn + 162 duruş tick'i; maç saati 90:00, skor 0:0, saat geri gitmedi. Medyan kare 16,7 ms, p95 16,8 ms; en uzun kare 766,7 ms. Eşzamanlı ölçüm/ağır fonksiyonel kontroller vardı; bu sonuç performans kapısının yerine kullanılmaz. career-mobile.json ham metrikleri korur. Bu 2D doğal kariyer kanıtıdır; izole 3D hareket sıklığı veya fiziksel Safari kanıtı değildir.
+
+sim:duration-report değiştirilmeden 250 maçı tamamladı: reference / 180 / 300 / 420 / 600 saniye gruplarının her birinde kariyer gol/kart/dakika/asist tutarlılığı 50/50. Workload açık ve sakatlanan oyuncu laboratuvarda yedeksiz çıkar. Ortalama (gol, şut, pas): reference (17,64;46,36;716,24), 180 (0,32;3,26;30,34), 300 (0,80;5,58;50,20), 420 (1,14;7,14;69,74), 600 (1,56;11,00;102,48). Bu farklı workload/tam bitiş düzeni, önceki 54.000-adım denge ölçümüne karıştırılmaz; reference grubundaki yüksek gol ayrıca açıktır. duration-after-summary.json ve ham kanıt paketi kullanılır.
+
+
+## Korunan commit'ler
+
+| Commit | Kapsam |
+|---|---|
+| 90ea733ef9ef | R1 taşıma niyeti/koruma ve kaleci karşı örnekleri |
+| 8c99b450da4c | R2 ortak servis, fiziksel korner yerleşimi ve gerçek yakın koşucular |
+| 31fa2a0ea955 | R3–R6 gerçek hava teması |
+| 0aa68d7f4062 | Altı farklı yer hareketi ve gerçek ayak eğrileri |
+| edf8533d80e9 | No-look baş bakışı/normal pas fiziği |
+| 0424a1f171d7 | Backheel/rabona gerçek hazırlık ve temas |
+| 8b1b460c36e7 | Sombrero; durdurulan hava hareketlerinin ayrı izleri |
+| 0f549b98d443 | Mevcut gerçek kayıttan otomatik tekrar |
+| 7d17758ef30b | Eski makasla pas çağrısının gerçek teması |
+| 721b140efbef | Özel ayakla karşılama |
+| 9933258172cc | Kariyer karesinde observed/zor kurtarış kanıtını koruma |
+| b7cc9d4ecd49 | Gerçek nutmeg ayak boşluğu; başarısız flair izi |
+| c6341386f9f0 | Durdurulan Bergkamp/scorpion yeniden üretmeleri |
+| c39eb964a71c | 7.19.3 aday metası, 20 tohum ve açık performans kapısı |
+
+[Dal ve bütün commit'ler](https://github.com/rasimoner/ManagerStory/commits/fix/3d-remaining-feature-parity). Sonraki commit'ler yalnız ölçüm/kanıt aracı/raporu tamamlar; ürün tabanı c6341386'dır. Son teslim commit'lerinde AGENTS.md'nin hızlı paketi yeniden çalıştırma şartı, kullanıcının aynı altyapı engelinde en çok iki girişim şartı nedeniyle tekrarlanmaz; bu sapma commit mesajında açıkça yazılır. Hızlı/tam kapı başarılı ilan edilmez, başarısız performans ve 50 tohum kapısı korunur.

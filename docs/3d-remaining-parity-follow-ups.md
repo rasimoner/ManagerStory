@@ -55,3 +55,15 @@ ManagerStory c6341386 ve son raporlarında bitmiş R1 düzeltmesini yeniden uygu
 ```text
 ManagerStory c6341386 ürün tabanı ve dalın son ölçüm/raporlarını oku. Bu teslim ortamında Node 22 shooting/keeper üçlüsü önce 2039,1/1642,4/1537,5 ms; sonra 2462,5/1765,7/1646,1 ms, workload sonra 2237,4/2169,2/1710,3 ms oldu. Mevcut her koşu <2000 ms kapısı iki kez geçmedi, üçüncü tekrar yapılmadı; önceki ortamda geçtiği için host/ürün ayrımı kesin değildir. Yeni dar görevde önce aynı kontrollü hostta main karşılaştırması ve CPU profiliyle nedeni kanıtla; yalnız ölçülen sıcak yolu, futbol/RNG/olay/pozisyon digest'lerini değiştirmeden optimize et. Eşiği/warm-up'ı/baseline'ı büyütme veya test atlama. Geçmiş iki girişimi koru; yeni görevde en çok iki somut optimizasyon yaklaşımını başta sabitle. Sonra lint/hızlı/tam/build/smoke, 20/50 tohum ve görsel kanıtı doğrula; zorunlu kapılar geçmeden PR, merge veya yayın yapma.
 ```
+
+## R29 — 50 tohum regresyonunu ayrıştırma
+
+```text
+ManagerStory c6341386 ürün tabanı ve fix/3d-remaining-feature-parity dalının son raporlarını oku. Aynı Node 22/50 seed/54.000 adımda taze main d86ac72 eski referansın skor ve 14 sayacını birebir üretirken adayda şut 17,64→48,46, gol 2,76→16,92, kırmızı kart 0,44→2,44, ağırlıklı kurtarış %70,89→%37,70 oldu. compare.cjs seed 901'de 1:0 yerine 8:9 ile kırmızı. ci-50-before-summary/summary/comparison ve ham kanıt paketini kullan. Yeni dar görevde önce aynı seed'lerde kart/eksilen kadro, şut temas türü/başlangıç yüksekliği, kaleci ve taşıma olaylarını ayırarak kesin sebebi göster. Yalnız ölçülen nedeni düzelt; gol kotası/sonuç çarpanı/zorunlu top kaybı ekleme, golden/referans/test eşiğini güncelleme. Başarılı bağımsız özellikleri koru, yeni görev başında en çok iki somut yaklaşımı sabitle. 20 doğal kariyer maçı ile bu uzun adım sözleşmesini ayrı doğrula. Zorunlu kapılar geçmeden PR, merge veya yayın yok.
+```
+
+## R27/R29 — gerçek WebGL tekrar tamamlanması ve kanıt aracı
+
+```text
+ManagerStory c6341386 ürün tabanı ve dalın son rapor/araç commit'lerini oku. Yeni hostta açık oyun ortası sonrası gerçek rabona otomatik tekrarı iki kez 45 saniyede bitmedi; ilk video yaklaşık %57 ilerledi, ikinci koşu da 50-seed CPU işi bittikten sonra timeout verdi. Sonsuz döngü kanıtlanmadı. Eski artefaktların data-simTick okuması hatalıydı; araçta data-sim-tick + eksik değer assert'i düzeltildi, önceki sequenceVerified:false ve iki hata korundu. Eski başarılı ortam gözlemini yeni kapı yerine kullanma. Bu ayrı görevde önce ölçülen WebGL FPS, RAF dt clamp, klibin fizik aralığı ve gerçek çubuk ilerleyişini birlikte izle. Manuel tekrar, 180 kare/iPhone sınırı, canlı checkpoint/RNG/skor/saat ve aynı ana dönüşü koru; timeout büyütme/panel gizleme/test atlama yok. En çok iki yeni yaklaşımı başta yaz; statik temas karesini canlı sekans kabulü sayma. Merge/yayın yapma.
+```

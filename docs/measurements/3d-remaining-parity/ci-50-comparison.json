@@ -1,0 +1,629 @@
+{
+  "status": "complete",
+  "node": "v22.23.4",
+  "beforeCommit": "d86ac72de6bc4677a2357fc516c06e1ffeceed48",
+  "afterProductCommit": "c6341386f9f0815e12aeb26bd86a77ca52942149",
+  "setup": "Same native laboratory tool and 50 seeds, 54000 physical steps. This step-count contract is not proof of reaching 90:00. Elapsed timings are not used as a performance gate.",
+  "historicalReferenceUnchanged": true,
+  "compareExitCode": 1,
+  "firstMismatch": {
+    "seed": 901,
+    "beforeScore": {
+      "home": 1,
+      "away": 0
+    },
+    "afterScore": {
+      "home": 8,
+      "away": 9
+    }
+  },
+  "measurements": {
+    "goals": {
+      "before": {
+        "mean": 2.76,
+        "min": 0,
+        "median": 3.0,
+        "max": 6
+      },
+      "after": {
+        "mean": 16.92,
+        "min": 9,
+        "median": 17.0,
+        "max": 28
+      },
+      "meanDelta": 14.160000000000002
+    },
+    "shots": {
+      "before": {
+        "mean": 17.64,
+        "min": 7,
+        "median": 17.0,
+        "max": 36
+      },
+      "after": {
+        "mean": 48.46,
+        "min": 27,
+        "median": 47.0,
+        "max": 83
+      },
+      "meanDelta": 30.82
+    },
+    "passes": {
+      "before": {
+        "mean": 798.64,
+        "min": 746,
+        "median": 798.5,
+        "max": 845
+      },
+      "after": {
+        "mean": 728.98,
+        "min": 664,
+        "median": 731.0,
+        "max": 784
+      },
+      "meanDelta": -69.65999999999997
+    },
+    "completedPasses": {
+      "before": {
+        "mean": 632.58,
+        "min": 580,
+        "median": 632.5,
+        "max": 678
+      },
+      "after": {
+        "mean": 581.22,
+        "min": 506,
+        "median": 580.0,
+        "max": 642
+      },
+      "meanDelta": -51.360000000000014
+    },
+    "ballWins": {
+      "before": {
+        "mean": 143.52,
+        "min": 98,
+        "median": 144.0,
+        "max": 176
+      },
+      "after": {
+        "mean": 124.16,
+        "min": 90,
+        "median": 121.5,
+        "max": 160
+      },
+      "meanDelta": -19.360000000000014
+    },
+    "fouls": {
+      "before": {
+        "mean": 25.88,
+        "min": 14,
+        "median": 26.0,
+        "max": 36
+      },
+      "after": {
+        "mean": 30.26,
+        "min": 19,
+        "median": 30.0,
+        "max": 44
+      },
+      "meanDelta": 4.380000000000003
+    },
+    "saves": {
+      "before": {
+        "mean": 6.72,
+        "min": 1,
+        "median": 6.5,
+        "max": 12
+      },
+      "after": {
+        "mean": 10.24,
+        "min": 3,
+        "median": 10.0,
+        "max": 20
+      },
+      "meanDelta": 3.5200000000000005
+    }
+  },
+  "paired": [
+    {
+      "seed": 901,
+      "goals": 16,
+      "shots": 29,
+      "passes": -51,
+      "completedPasses": -32,
+      "ballWins": -43,
+      "fouls": 14,
+      "saves": -1
+    },
+    {
+      "seed": 731,
+      "goals": 10,
+      "shots": 19,
+      "passes": -45,
+      "completedPasses": -24,
+      "ballWins": -15,
+      "fouls": -3,
+      "saves": 11
+    },
+    {
+      "seed": 42,
+      "goals": 11,
+      "shots": 12,
+      "passes": -38,
+      "completedPasses": -35,
+      "ballWins": -39,
+      "fouls": 14,
+      "saves": -3
+    },
+    {
+      "seed": 2026,
+      "goals": 24,
+      "shots": 42,
+      "passes": -59,
+      "completedPasses": -64,
+      "ballWins": -8,
+      "fouls": 1,
+      "saves": 2
+    },
+    {
+      "seed": 508,
+      "goals": 14,
+      "shots": 31,
+      "passes": -55,
+      "completedPasses": -41,
+      "ballWins": -24,
+      "fouls": -2,
+      "saves": 3
+    },
+    {
+      "seed": 1,
+      "goals": 11,
+      "shots": 35,
+      "passes": -73,
+      "completedPasses": -90,
+      "ballWins": 3,
+      "fouls": 6,
+      "saves": 6
+    },
+    {
+      "seed": 2,
+      "goals": 10,
+      "shots": 25,
+      "passes": -25,
+      "completedPasses": -21,
+      "ballWins": -22,
+      "fouls": -8,
+      "saves": -2
+    },
+    {
+      "seed": 3,
+      "goals": 19,
+      "shots": 51,
+      "passes": -36,
+      "completedPasses": -28,
+      "ballWins": 4,
+      "fouls": 3,
+      "saves": 9
+    },
+    {
+      "seed": 4,
+      "goals": 7,
+      "shots": 16,
+      "passes": -108,
+      "completedPasses": -91,
+      "ballWins": -36,
+      "fouls": -2,
+      "saves": 3
+    },
+    {
+      "seed": 5,
+      "goals": 9,
+      "shots": 23,
+      "passes": -24,
+      "completedPasses": -14,
+      "ballWins": 0,
+      "fouls": 2,
+      "saves": 2
+    },
+    {
+      "seed": 6,
+      "goals": 13,
+      "shots": 22,
+      "passes": -73,
+      "completedPasses": -53,
+      "ballWins": -36,
+      "fouls": 6,
+      "saves": -2
+    },
+    {
+      "seed": 7,
+      "goals": 17,
+      "shots": 33,
+      "passes": -106,
+      "completedPasses": -69,
+      "ballWins": -15,
+      "fouls": -1,
+      "saves": 4
+    },
+    {
+      "seed": 8,
+      "goals": 22,
+      "shots": 57,
+      "passes": -119,
+      "completedPasses": -121,
+      "ballWins": -28,
+      "fouls": 14,
+      "saves": 11
+    },
+    {
+      "seed": 9,
+      "goals": 17,
+      "shots": 29,
+      "passes": -97,
+      "completedPasses": -51,
+      "ballWins": -25,
+      "fouls": 6,
+      "saves": -6
+    },
+    {
+      "seed": 10,
+      "goals": 18,
+      "shots": 38,
+      "passes": -45,
+      "completedPasses": -50,
+      "ballWins": -2,
+      "fouls": 9,
+      "saves": 6
+    },
+    {
+      "seed": 11,
+      "goals": 15,
+      "shots": 18,
+      "passes": -27,
+      "completedPasses": -7,
+      "ballWins": -31,
+      "fouls": 1,
+      "saves": -6
+    },
+    {
+      "seed": 12,
+      "goals": 13,
+      "shots": 38,
+      "passes": -36,
+      "completedPasses": -18,
+      "ballWins": -4,
+      "fouls": 7,
+      "saves": 9
+    },
+    {
+      "seed": 13,
+      "goals": 12,
+      "shots": 28,
+      "passes": -88,
+      "completedPasses": -81,
+      "ballWins": -52,
+      "fouls": -3,
+      "saves": 3
+    },
+    {
+      "seed": 14,
+      "goals": 10,
+      "shots": 30,
+      "passes": -74,
+      "completedPasses": -36,
+      "ballWins": -18,
+      "fouls": -4,
+      "saves": 4
+    },
+    {
+      "seed": 15,
+      "goals": 11,
+      "shots": 30,
+      "passes": -38,
+      "completedPasses": -75,
+      "ballWins": -32,
+      "fouls": -3,
+      "saves": 6
+    },
+    {
+      "seed": 16,
+      "goals": 17,
+      "shots": 64,
+      "passes": -70,
+      "completedPasses": -59,
+      "ballWins": 23,
+      "fouls": 5,
+      "saves": 11
+    },
+    {
+      "seed": 17,
+      "goals": 22,
+      "shots": 36,
+      "passes": -133,
+      "completedPasses": -106,
+      "ballWins": -82,
+      "fouls": 11,
+      "saves": 4
+    },
+    {
+      "seed": 18,
+      "goals": 16,
+      "shots": 11,
+      "passes": -30,
+      "completedPasses": 3,
+      "ballWins": -65,
+      "fouls": 1,
+      "saves": 0
+    },
+    {
+      "seed": 19,
+      "goals": 18,
+      "shots": 31,
+      "passes": -88,
+      "completedPasses": -82,
+      "ballWins": -31,
+      "fouls": 3,
+      "saves": 2
+    },
+    {
+      "seed": 20,
+      "goals": 24,
+      "shots": 52,
+      "passes": -93,
+      "completedPasses": -91,
+      "ballWins": -20,
+      "fouls": 5,
+      "saves": 8
+    },
+    {
+      "seed": 21,
+      "goals": 21,
+      "shots": 31,
+      "passes": -56,
+      "completedPasses": -16,
+      "ballWins": -47,
+      "fouls": 20,
+      "saves": -2
+    },
+    {
+      "seed": 22,
+      "goals": 14,
+      "shots": 26,
+      "passes": -56,
+      "completedPasses": -29,
+      "ballWins": -25,
+      "fouls": -4,
+      "saves": 3
+    },
+    {
+      "seed": 23,
+      "goals": 19,
+      "shots": 35,
+      "passes": -39,
+      "completedPasses": -36,
+      "ballWins": 19,
+      "fouls": -14,
+      "saves": 9
+    },
+    {
+      "seed": 24,
+      "goals": 10,
+      "shots": 31,
+      "passes": -95,
+      "completedPasses": -59,
+      "ballWins": 19,
+      "fouls": 8,
+      "saves": 2
+    },
+    {
+      "seed": 25,
+      "goals": 25,
+      "shots": 31,
+      "passes": -118,
+      "completedPasses": -74,
+      "ballWins": -11,
+      "fouls": 22,
+      "saves": 11
+    },
+    {
+      "seed": 26,
+      "goals": 10,
+      "shots": 20,
+      "passes": -67,
+      "completedPasses": -43,
+      "ballWins": -43,
+      "fouls": 7,
+      "saves": 5
+    },
+    {
+      "seed": 27,
+      "goals": 8,
+      "shots": 23,
+      "passes": -74,
+      "completedPasses": -48,
+      "ballWins": -70,
+      "fouls": 4,
+      "saves": 1
+    },
+    {
+      "seed": 28,
+      "goals": 14,
+      "shots": 32,
+      "passes": -72,
+      "completedPasses": -33,
+      "ballWins": -21,
+      "fouls": 15,
+      "saves": 0
+    },
+    {
+      "seed": 29,
+      "goals": 18,
+      "shots": 43,
+      "passes": -79,
+      "completedPasses": -59,
+      "ballWins": -24,
+      "fouls": 1,
+      "saves": 11
+    },
+    {
+      "seed": 30,
+      "goals": 18,
+      "shots": 38,
+      "passes": -72,
+      "completedPasses": -30,
+      "ballWins": -30,
+      "fouls": 16,
+      "saves": 4
+    },
+    {
+      "seed": 31,
+      "goals": 8,
+      "shots": 32,
+      "passes": -36,
+      "completedPasses": -31,
+      "ballWins": 3,
+      "fouls": 6,
+      "saves": 8
+    },
+    {
+      "seed": 32,
+      "goals": 9,
+      "shots": 24,
+      "passes": -67,
+      "completedPasses": -69,
+      "ballWins": 9,
+      "fouls": 2,
+      "saves": 8
+    },
+    {
+      "seed": 33,
+      "goals": 9,
+      "shots": 36,
+      "passes": -94,
+      "completedPasses": -80,
+      "ballWins": -5,
+      "fouls": 0,
+      "saves": 3
+    },
+    {
+      "seed": 34,
+      "goals": 15,
+      "shots": 36,
+      "passes": -84,
+      "completedPasses": -48,
+      "ballWins": -3,
+      "fouls": 4,
+      "saves": 5
+    },
+    {
+      "seed": 35,
+      "goals": 8,
+      "shots": 17,
+      "passes": -18,
+      "completedPasses": -20,
+      "ballWins": -10,
+      "fouls": 5,
+      "saves": 1
+    },
+    {
+      "seed": 36,
+      "goals": 14,
+      "shots": 29,
+      "passes": -96,
+      "completedPasses": -74,
+      "ballWins": 11,
+      "fouls": 0,
+      "saves": 2
+    },
+    {
+      "seed": 37,
+      "goals": 15,
+      "shots": 40,
+      "passes": -101,
+      "completedPasses": -79,
+      "ballWins": -20,
+      "fouls": -2,
+      "saves": 11
+    },
+    {
+      "seed": 38,
+      "goals": 7,
+      "shots": 9,
+      "passes": -63,
+      "completedPasses": -20,
+      "ballWins": -19,
+      "fouls": 18,
+      "saves": -1
+    },
+    {
+      "seed": 39,
+      "goals": 10,
+      "shots": 18,
+      "passes": -67,
+      "completedPasses": -34,
+      "ballWins": -6,
+      "fouls": 4,
+      "saves": -3
+    },
+    {
+      "seed": 40,
+      "goals": 6,
+      "shots": 17,
+      "passes": -57,
+      "completedPasses": -24,
+      "ballWins": 8,
+      "fouls": 7,
+      "saves": 3
+    },
+    {
+      "seed": 41,
+      "goals": 16,
+      "shots": 41,
+      "passes": -124,
+      "completedPasses": -99,
+      "ballWins": -27,
+      "fouls": 4,
+      "saves": -1
+    },
+    {
+      "seed": 43,
+      "goals": 17,
+      "shots": 29,
+      "passes": -99,
+      "completedPasses": -32,
+      "ballWins": -15,
+      "fouls": -3,
+      "saves": 0
+    },
+    {
+      "seed": 44,
+      "goals": 18,
+      "shots": 44,
+      "passes": -43,
+      "completedPasses": -44,
+      "ballWins": -10,
+      "fouls": 17,
+      "saves": 3
+    },
+    {
+      "seed": 45,
+      "goals": 15,
+      "shots": 38,
+      "passes": -69,
+      "completedPasses": -87,
+      "ballWins": -38,
+      "fouls": -3,
+      "saves": 9
+    },
+    {
+      "seed": 46,
+      "goals": 8,
+      "shots": 21,
+      "passes": -106,
+      "completedPasses": -64,
+      "ballWins": -15,
+      "fouls": 3,
+      "saves": 0
+    }
+  ]
+}
