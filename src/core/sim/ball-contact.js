@@ -4,6 +4,7 @@ import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { predictSimulationBall } from './ball-physics.js';
 import { simulationRuntime } from './simulation-runtime.js';
 import { simulationWallContactFraction, simulationWallJumpActive } from './wall-reaction.js';
+import RESTART_DATA from '../../data/match-sim-restarts.json';
 
 const { max, min, sqrt } = Math;
 
@@ -22,12 +23,16 @@ export function earliestSimulationBallContact(simulation, motion) {
   runtime.players.forEach((player, index) => {
     if (!canTouchSimulationBall(simulation, player)) return;
     const previous = playerSegmentStart(runtime, index, motion);
-    const fraction = simulationContactFraction(player, previous, contactMotion);
+    const fraction = simulationContactFraction(player, previous, simulationAerialContactMotion(simulation, player, contactMotion));
     if (fraction === null) return;
     const candidate = { player, fraction, previous };
     if (contactPrecedes(simulation, candidate, earliest)) earliest = candidate;
   });
   return earliest;
+}
+
+function simulationAerialContactMotion(simulation, player, motion) {
+  return simulation.ball.flight?.cross && player.slot !== 'GK' ? { ...motion, radius: RESTART_DATA.aerial.horizontalReach } : motion;
 }
 
 function canTouchSimulationBall(simulation, player) {

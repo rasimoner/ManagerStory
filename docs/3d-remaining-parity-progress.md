@@ -9,12 +9,12 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | Kimlik | Sabit kabul maddesi | Başlangıç bağımlılığı | Yeni görev denemesi | Durum |
 |---|---|---|---:|---|
 | R1 | Tekrarlı dönüş: karar/koruma/taşıma/yeniden kontrol, iki yön, bütün süreler, kayıt, normal sürme ve kaleci | Yok; eski P1 iki başarısız yaklaşımı tekrar edilmez | 1/2 | Odaklı 68/68, lint/hızlı/perf geçti; son WebGL bekleniyor |
-| R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 1/2 | İlk fizik yaklaşımı: 40 odaklı test ve hızlı paket geçti; lint/son görsel kabulü sürüyor |
+| R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 2/2 | İkinci yaklaşım: yakındaki gerçek koşucular; 32 ortak kabul geçti, son hızlı/görsel sürüyor |
 | R3 | Gerçek yükseklik/temasla kafa şutu | R2 ortak servis | 0/2 | Bekliyor |
 | R4 | Gerçek kafa pası | R2 ortak servis | 0/2 | Bekliyor |
 | R5 | Gerçek uzaklaştırma | R2 ortak servis | 0/2 | Bekliyor |
 | R6 | Gerçek vole | R2 ortak servis | 0/2 | Bekliyor |
-| R7 | Uygun durumda röveşata | R2 ortak servis | 0/2 | Bekliyor |
+| R7 | Uygun durumda röveşata | R2 ortak servis | 2/2 | Başarısız, yalnız röveşata geri alındı; remaining-bicycle.cjs |
 | R8 | Stepover | R1 temas/çıkış, koddan doğrulanacak | 0/2 | Bekliyor |
 | R9 | Nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
 | R10 | Elastico | R1, çoklu temas | 0/2 | Bekliyor |
@@ -63,3 +63,14 @@ Kırmızı: yüksek beceride iki yönde gerçek servis, geniş endirekt frikik v
 İlk fizik doğrulaması 38/38 geçti. Lintte restart planı ve hazırlığının karmaşıklığı görüldü; davranış değiştirmeyen sorumluluk ayrımı yapıldı. Göçün kırmızı testi sonrasında şema 8 eklendi; 40/40 odaklı ve hızlı/perf geçti. İkinci lintte eski golden metadata yardımcısına eklenen koşulun karmaşıklığı görüldü; iki eşdeğer şema koşulu tek üyelik koşulunda birleştirildi. Bunlar aynı fizik yaklaşımının mekanik lint temizliğidir; ikinci futbol yaklaşımı uygulanmadı, başarısız fizik testi gizlenmedi. Eşik/baseline/golden içeriği değişmedi.
 
 Şema 8 yalnız isteğe bağlı servis uçuşunu korur; ham/sıkıştırılmış eski aktif pas aynı top/olay/RNG ile devam eder. Alıcı değişiklikte ayrılmışsa servis planı yeni kadrodan yeniden kurulur.
+
+## R2 — ikinci fizik yaklaşımı ve R3–R6
+
+Ortak hava temasları sonrası 900 fizik saniyelik otomatik pas kabulü 30 sn kapısında kaldı. Eşik değiştirilmedi. Seed 901'in gerçek duruşu incelendi: kafa/vole kilidi değil, korner/servis yerleşiminin alıcı dışındaki koşucuları kadro sırasından seçmesiydi; yakın hücumcular varken uzak iki stoper 40 m koşuyordu. Gerçek frikik 250,6'da başladı, gereksiz yol nedeniyle 261,0'da çıktı; testteki son pasa göre 32 sn oldu. İkinci yaklaşım koşucuları gerçek hedefe yakınlıktan seçer; hız/ivme veya saat kotası eklenmez. Önce uzak stoperleri seçen kırmızı karşı örnek, sonra 32/32 ilgili kabul (900 sn otomatik akış dahil) geçti.
+
+R3–R6: gerçek yüksekliğe göre kafa/vole, dar yatay temas zarfı, şutun başlangıç yüksekliği, uygun güvenli kafa pası ve tehlikeden uzaklaştırma. İlk izole fizik kabulü geçti; eski header bir recorded motion olduğu için testin act-only varsayımı düzeltildi, gerçek eski motion da doğrulanır. Son 59/59 ortak kontrol; kesirli temas noktasından geçen top örneklemesi ve JSON kayıt/devam dahil. Hava hareketi kaleci sonucunu yazmaz.
+
+## R7 — iki başarısız yaklaşım
+
+1. Geriye dönük, yüksek teknikli ve boş alandaki gerçek gelen top için fiziksel overhead seçimi/şut: izole uçuş geçti ancak yalnız action pose tam eski havalanma/iniş zincirini vermiyordu.
+2. Eski overBackwards salt okuma gövde eğrisi + gerçek temas noktasına ayak IK: kök/çekirdek/RNG korunuyordu ama krampon temas boşluğu **0,933840868 m** (kabul <0,30 m) çıktı. Eşik gevşetilmedi, kök/top kaydırılmadı. Yalnız röveşata seçimi, gövde/ayak sunumu ve ayarları geri alındı; kafa/pas/uzaklaştırma/vole korundu. `tests/reproductions/remaining-bicycle.cjs`, ölçüm JSON'u ve ikinci yaklaşım patch'i saklandı. Yeni yaklaşım gereği: motorun erişim zarfıyla rig'in kalça/ayak geometrisini birlikte çözmek. Diğer bağımsız özel pas ve kaleci envanteri engellenmez.

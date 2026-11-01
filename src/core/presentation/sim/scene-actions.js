@@ -34,7 +34,7 @@ function animationName(contact, sample) {
 function ownerAnimationName(contact) {
   const move = movementAnimationName(contact);
   if (move) return move;
-  if (contact.type === 'pass') return contact.restartKind === 'throwIn' ? 'throwIn' : 'pass';
+  if (contact.type === 'pass') return contact.style === 'header' ? 'header' : contact.restartKind === 'throwIn' ? 'throwIn' : 'pass';
   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
   if (contact.type === 'block') return 'lunge';
@@ -43,10 +43,12 @@ function ownerAnimationName(contact) {
 
 function shotAnimationName(contact) {
   if (contact.type !== 'shot') return null;
+  if (contact.style === 'header') return 'header';
   return ['chip', 'panenka'].includes(contact.style) ? 'pass' : 'shot';
 }
 
 function movementAnimationName(contact) {
+  if (contact.type === 'aerialContact') return contact.kind === 'header' ? 'header' : 'shot';
   if (contact.type === 'beat') return 'cut';
   return contact.type === 'skill' ? skillAnimationName(contact) : null;
 }

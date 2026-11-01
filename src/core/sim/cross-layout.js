@@ -5,7 +5,8 @@ export function arrangeSimulationCross(simulation, restart, targets) {
   if (restart.delivery?.kind !== 'cross') return;
   const attack = simulation.teams.find(team => team.id === restart.teamId), defence = simulation.teams.find(team => team.id !== restart.teamId);
   const runners = attack.players.filter(player => player.slot !== 'GK' && player.id !== restart.takerId && !player.sentOff);
-  runners.sort((a, b) => Number(b.id === restart.receiverId) - Number(a.id === restart.receiverId));
+  runners.sort((a, b) => Number(b.id === restart.receiverId) - Number(a.id === restart.receiverId)
+    || pointDistance(a.position, restart.delivery.target) - pointDistance(b.position, restart.delivery.target));
   const markers = defence.players.filter(player => player.slot !== 'GK' && !player.sentOff);
   for (const [index, spot] of RESTART_DATA.delivery.runnerPositions.entries()) {
     const runner = runners[index];

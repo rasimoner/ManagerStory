@@ -64,5 +64,21 @@
     "goalX": 52.5,
     "keeperDepth": 3,
     "cornerInset": 0.5
+  },
+  "aerial": {
+    "headHeight": 1.45,
+    "horizontalReach": 0.45,
+    "volleyMinimumHeight": 0.4,
+    "volleyMaximumHeight": 0.95,
+    "volleyTechnique": 80,
+    "maximumShotDistance": 18,
+    "maximumTurn": 0.3,
+    "powerFactors": {
+      "header": 0.55,
+      "volley": 0.8
+    },
+    "maximumPassDistance": 30,
+    "clearanceDistance": 25,
+    "clearanceError": 6
   }
 }

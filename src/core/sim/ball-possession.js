@@ -9,6 +9,7 @@ import { endSimulationCarry } from './dribbling.js';
 import { predictSimulationBall } from './ball-physics.js';
 import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
 import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay, captureSimulationOffside } from './offside.js';
+import { redirectSimulationAerial } from './aerial-contact.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
@@ -18,6 +19,7 @@ export function controlSimulationBall(simulation, contact, motion) {
   const time = (motion.startTime ?? simulation.time - seconds) + contact.fraction * seconds;
   if (penalizeSimulationOffsideTouch(simulation, contact.player, { position: contact.player.position, time })) return null;
   if (simulationDeliberateOpponentPlay(simulation, contact.player, { touching, time })) simulation.offside = null;
+  if (redirectSimulationAerial(simulation, contact.player, { touching, time })) return null;
   if (keeperCanHandleSimulationBall(simulation, contact.player, touching)) {
     Object.assign(simulation.ball, touching);
     claimSimulationKeeperBall(simulation, contact.player, { time });

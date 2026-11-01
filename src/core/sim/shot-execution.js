@@ -20,6 +20,7 @@ export function releaseSimulationShot(simulation, owner, option) {
   if (ball.control) ball.control = null;
   const assistId = ball.assist?.teamId === owner.teamId && ball.assist.toId === owner.id ? ball.assist.fromId : null;
   const eventIndex = emitSimulationEvent(simulation, { type: 'shot', fromId: owner.id, fromPos, toPos: { ...option.target },
+    ...(option.contactTime != null ? { time: option.contactTime, height: ball.height } : {}),
     teamId: owner.teamId, xg: option.xg, distance: option.distance, angle: option.angle, blocked: option.blocked, pressure: option.pressure,
     power: Math.hypot(flight.velocity.x, flight.velocity.y), target: { ...option.target }, style: option.style, onTarget: false });
   Object.assign(ball, flight, { ownerId: null, heldBy: null, flight: null, carry: null, restart: null, excludedId: owner.id,
@@ -40,8 +41,9 @@ function createShotFlight(simulation, owner, option) {
   const speed = option.power * errors.power;
   const seconds = Math.hypot(dx, dy) / speed;
   const height = option.target.height + errors.height;
-  return { position: { ...simulation.ball.position }, velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }, height: 0,
-    verticalVelocity: (height + MATCH_SIM_DATA.ball.gravity * seconds * seconds / 2) / seconds };
+  const startHeight = simulation.ball.height;
+  return { position: { ...simulation.ball.position }, velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }, height: startHeight,
+    verticalVelocity: (height - startHeight + MATCH_SIM_DATA.ball.gravity * seconds * seconds / 2) / seconds };
 }
 
 function shotErrors(simulation, owner, option) {

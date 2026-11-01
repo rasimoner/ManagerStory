@@ -122,3 +122,17 @@ test('format 7 raw and compressed active flights migrate without changing their 
     assert.deepEqual(plain(after), checkpoint);
   }
 });
+
+test('a cross uses nearby runners instead of unnecessarily moving distant centre backs into the box', () => {
+  const { api, simulation, taker } = crossFixture();
+  const team = simulation.teams[0];
+  for (const player of team.players) player.position = { x: -20, y: 0 };
+  for (const [slot, y] of [['ST', 0], ['CAM', -4], ['RW', 4]]) team.players.find(player => player.slot === slot).position = { x: 40, y };
+  api.beginSimulationRestart(simulation, { kind: 'corner', teamId: team.id, position: { x: 52.5, y: -34 }, taker });
+  api.stepSimulation(simulation);
+  const targets = simulation.ball.restart.targets;
+  for (const slot of ['LCB', 'RCB']) {
+    const defender = team.players.find(player => player.slot === slot);
+    assert.equal(targets[defender.id].x, -20, 'nearby attackers make a distant centre-back run unnecessary');
+  }
+});

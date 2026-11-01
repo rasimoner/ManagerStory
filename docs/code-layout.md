@@ -284,3 +284,5 @@ Faz 2 duran top modülleri: `core/sim/restart-state.js` yalnız hazırlık durum
 ## PR #16 sonrası ortak servis
 
 `core/sim/cross-delivery.js` servis seçimi, ortak pas uçuşu ve orta olayını; `cross-layout.js` gerçek koşucu/markajcı/kaleci yerleşim hedeflerini kurar. Eski director çalıştırılmaz. Kabul: `tests/match-sim-cross-delivery.test.cjs`.
+
+`core/sim/aerial-choice.js` gerçek temas yüksekliği, mesafe/yön ve güvenli çıkışla kafa/vole/uzaklaştırma niyetini seçer. `aerial-contact.js` aynı topun gerçek temasını ve kalan fizik adımını yürütür. Motor sonucu animasyondan okunmaz. Kabul `match-sim-aerial-finishes.test.cjs`; başarısız röveşata ayrı `tests/reproductions/remaining-bicycle.cjs`.
