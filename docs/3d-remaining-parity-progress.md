@@ -29,7 +29,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R19 | Backheel | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | İki yön, gerçek topuk teması, fiziksel hazırlık ve kayıt/devam geçti |
 | R20 | Rabona | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | Gerçek destek arkası krampon yolu, iki yön ve saha dışı alternatif geçti |
 | R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 1/2 | Gerçek alternatif oyuncuya baş bakışı ve eski nolook pozu; 21 ilgili / 555 hızlı test geçti |
-| R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
+| R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 1/2 | Gerçek iniş/ayağı önce hazırlama, özel yumuşatma ve iki yön/rig/kayıt geçti |
 | R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 0/2 | Bekliyor |
 | R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 1/2 | Gerçek makas dairesi, belirsiz normal pas, iki yön/rig ve kayıt geçti |
 | R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
@@ -120,3 +120,9 @@ Gerçek çağrı: manager/highlight-recorder.recordStarMoment → core/highlight
 Eski director.flairPassTry → stepoverBeat → stepoverPass yolu doğrulandı. İlk kırmızı iki yön testi normal pasın özel daireyi yapmadığını gösterdi. Yeni hazırlık, görüş/teknik/dribbling yeteneği, yakın gerçek baskı, ileri hedef ve mesafeye bağlıdır. Eski saf stepoverFeet eğrisi gerçek kramponu top çevresinde kaldırır; sonrasında normal pas yeniden değerlendirilir ve aynı pas hata fiziği kullanılır. Savunmacı hazırlıkta topu alabilir, zorunlu sendeleme/başarı yoktur. Mevcut passing.technique isteğe bağlı durumuyla JSON devamı eşittir.
 
 14/14 ortak test ve gerçek rig: iki yön, kaldırış/yan geçiş, kök/checkpoint değişmezliği, kesilebilme, kayıt/devam. Lint iki mekanik sorumluluk ayrımıyla temizlendi, eşikler/baseline değişmedi. Yeniden açılan Node 22 ortamında 576 hızlı + 5 performans geçti. İlk yeniden açılış hızlı süreci özet üretmeden sonlandı; başarı sayılmadı. İkinci girişim tam test/pass/fail ve süreç bitişiyle doğrulandı; aynı altyapı üçüncü kez denenmedi.
+
+## R22 — özel ayakla öldürme
+
+İlk üç kırmızı kabul özel temas/ayak hazırlığı olmadığını, alıcının topu daha yukarıda genel kontrol ettiğini gösterdi. İlk yaklaşım: teknik ve ilk kontrol, gerçek düşük hız, iniş noktası/erişim, aşağı hareket ve incik yüksekliğine göre ayakla karşılama niyeti. Ortaların kafa/vole seçimi ve şut/kaleci yolları korunur. Genel foot kontrolü yeniden adlandırılmaz: özel trap gerçek yakın temas ve daha düşük düşey hızla yumuşatma gerektirir, ilk kontrol hatası hâlâ mümkündür. Eski saf trapBoot eğrisi temas öncesinde ayağı hazırlar; yeni ikinci fizik çalışmaz.
+
+25/25 ortak hava/ilk kontrol/sombrero testi ve ilave canlı alıcı testi (5/5 trap) geçti. İki yön ve gerçek krampon <0,30 m; kök/checkpoint/RNG çizimden etkilenmez; kaydet/devam eşittir. Yeni kalıcı alan yoktur; trapIntent karede çekirdekten türetilir, ilkTouch.style olayının isteğe bağlı detayında kalır. Lint yeni ihlal yoktur.

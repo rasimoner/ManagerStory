@@ -9,6 +9,7 @@ import { poseSimulationContactFoot } from './scene-contact-feet.js';
 import { simulationWallLift } from '../../sim/wall-reaction.js';
 import { prepareSimulationSkillFeet, poseSimulationSkillContact } from './scene-skill-feet.js';
 import { poseSimulationPassGaze } from './scene-pass-gaze.js';
+import { prepareSimulationTrapFeet } from './scene-trap-feet.js';
 import { prepareSimulationPassFeet } from './scene-pass-feet.js';
 
 // Only the detached scene sample reaches here. Runtime locomotion/ball solvers are never called.
@@ -45,6 +46,7 @@ function poseSimulationActor(runtime, actor, { sample, frame, seconds }) {
   prepareActorPose(actor, sample, frame);
   prepareSimulationSkillFeet(runtime, actor, { sample, frame });
   prepareSimulationPassFeet(runtime, actor, { sample, frame });
+  prepareSimulationTrapFeet(runtime, actor, { sample, frame });
   runtime.pose(actor, seconds);
   poseSimulationKeeper(actor, sample, frame);
   poseSimulationHands(runtime, actor, frame);

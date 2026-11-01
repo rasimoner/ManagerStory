@@ -18,7 +18,7 @@ const settleSpeed = gap => (gap > 2 ? 6.5 : gap > 0.08 ? Math.min(3, 1 + gap * 4
 // ---- the foot trap: he gets under the ball, lifts the foot to meet it and lets it settle at his feet ----
 
 // the boot goes to where the ball will be at shin height and waits for it there
-function trapBoot({ ball, S }, p) {
+export function trapBoot({ ball, S }, p) {
   return { Right: { w: ramp(S.t, [0, 0.18, 0.55, 0.75]), at: () => {
     const vy = ball.v.y, y = ball.p.y, g = 9.81, hy = 0.62;
     const tt = y <= hy ? 0 : (vy + Math.sqrt(Math.max(0, vy * vy + 2 * g * (y - hy)))) / g;

@@ -1,3 +1,4 @@
+import { captureSimulationTrapIntent } from '../sim/first-touch-technique.js';
 import { captureKeeperPresentation } from './keeper-presentation.js';
 import { capturePresentationContacts } from './presentation-contacts.js';
 
@@ -12,7 +13,7 @@ export function captureSimulationFrame(simulation) {
       distanceMetres: player.workload.distanceMetres, sentOff: player.sentOff }))),
     ball: { position: { ...simulation.ball.position }, height: simulation.ball.height, velocity: { ...simulation.ball.velocity },
       verticalVelocity: simulation.ball.verticalVelocity, heldBy: simulation.ball.heldBy,
-      controlledBy: simulation.ball.ownerId, carry: structuredClone(simulation.ball.carry), restart: structuredClone(simulation.ball.restart),
+      controlledBy: simulation.ball.ownerId, trapIntent: captureSimulationTrapIntent(simulation), carry: structuredClone(simulation.ball.carry), restart: structuredClone(simulation.ball.restart),
       passTechnique: structuredClone(simulation.passing.technique ?? null),
       lastTouchId: simulation.ball.lastTouchId, shot: structuredClone(simulation.ball.shot),
       ownerId: simulation.ball.ownerId ?? simulation.ball.carry?.playerId ?? null, teamId: simulation.ball.teamId },

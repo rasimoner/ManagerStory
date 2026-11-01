@@ -4,6 +4,7 @@ import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { predictSimulationBall } from './ball-physics.js';
 import { simulationRuntime } from './simulation-runtime.js';
 import { simulationWallContactFraction, simulationWallJumpActive } from './wall-reaction.js';
+import { simulationTrapContactMotion } from './first-touch-technique.js';
 import RESTART_DATA from '../../data/match-sim-restarts.json';
 
 const { max, min, sqrt } = Math;
@@ -32,7 +33,7 @@ export function earliestSimulationBallContact(simulation, motion) {
 }
 
 function simulationAerialContactMotion(simulation, player, motion) {
-  return simulation.ball.flight?.cross && player.slot !== 'GK' ? { ...motion, radius: RESTART_DATA.aerial.horizontalReach } : motion;
+  return simulation.ball.flight?.cross && player.slot !== 'GK' ? { ...motion, radius: RESTART_DATA.aerial.horizontalReach } : simulationTrapContactMotion(simulation, player, motion);
 }
 
 function canTouchSimulationBall(simulation, player) {
@@ -62,8 +63,8 @@ export function simulationContactFraction(player, previous, motion) {
   if (!interval) return null;
   if (simulationWallJumpActive(player, motion)) return simulationWallContactFraction(player, interval, motion);
   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
-  if (predictSimulationBall(motion.before, interval.start * seconds).height <= MATCH_SIM_DATA.ball.reachableHeight) return interval.start;
-  const descending = reachableDescentSeconds(motion.before) / seconds;
+  if (predictSimulationBall(motion.before, interval.start * seconds).height <= (motion.reachableHeight ?? MATCH_SIM_DATA.ball.reachableHeight)) return interval.start;
+  const descending = reachableDescentSeconds(motion.before, motion.reachableHeight) / seconds;
   return descending >= interval.start && descending <= interval.end ? descending : null;
 }
 
@@ -79,8 +80,8 @@ function circleContactInterval(offset, relative, radius = MATCH_SIM_DATA.ball.co
   return start <= end ? { start, end } : null;
 }
 
-function reachableDescentSeconds(ball) {
-  const { gravity, reachableHeight } = MATCH_SIM_DATA.ball;
+function reachableDescentSeconds(ball, reachableHeight = MATCH_SIM_DATA.ball.reachableHeight) {
+  const { gravity } = MATCH_SIM_DATA.ball;
   const discriminant = ball.verticalVelocity ** 2 + 2 * gravity * (ball.height - reachableHeight);
   return discriminant >= 0 ? (ball.verticalVelocity + sqrt(discriminant)) / gravity : Infinity;
 }

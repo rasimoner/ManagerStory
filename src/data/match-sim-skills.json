@@ -215,5 +215,17 @@
         }
       ]
     }
+  },
+  "footTrap": {
+    "minimumAbility": 78,
+    "maximumPlayerSpeed": 2.2,
+    "horizontalReach": 0.55,
+    "contactHeight": 0.75,
+    "minimumHeight": 0.35,
+    "maximumBallSpeed": 7,
+    "verticalRetention": 0.12,
+    "maximumDownSpeed": 0.6,
+    "poseLeadSeconds": 0.3,
+    "poseSeconds": 0.75
   }
 }

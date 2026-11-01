@@ -480,3 +480,5 @@ Yeni motor makas, elastico, Cruyff, croqueta, roulette ve drag-back niyetlerini 
 Bakmadan pasta eski nolook pozu gerçek farklı takım arkadaşına bakışla birleşir. Vision/technique, mesafe, hız, gerçek baskı ve görülebilir baş dönüşü seçim şartıdır; normal top uçuşu/RNG aynen korunur. Gerçek pas olayı style:nolook ve gazeTargetId/gazeTarget taşır; başarılı sonuç yazılmaz.
 
 Topuk pası, gerçek gövde yönünün arkasındaki yakın hedef ve uygun teknikle; rabona, uygun yüksek teknikli havadan pas için seçilir. Oyuncu hız/ivme sınırlarıyla topun yanına gelir, topa ulaşan ayak duruşu ve hazırlık tamamlanınca aynı normal pas fiziği serbest kalır. Dönüş/erişim/alan uygunsuzsa sıradan pas alternatifi kalır; saha dışındaki rabona duruşu seçilmez. Gerçek topuk teması ve destek ayağı arkasından dolanan rabona kramponu rig testlidir.
+
+Teknik/durağan alıcı, kesilmemiş uygun düşen serviste gerçek incik yüksekliğini bekleyip ayağıyla öldürebilir. Ortanın kafa/vole ve şutun kaleci temas yolları önceliklidir. Özel trap, normal foot kontrolüne etiket eklemekten farklı düşey yumuşatma ve gerçek yakınlık gerektirir; hata olasılığı korunur.
