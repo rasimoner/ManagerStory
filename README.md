@@ -1,7 +1,9 @@
-# ManagerStory V7.19.2
+# ManagerStory V7.19.3
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
+
+V7.19.3 (PR candidate, not published): physical crosses, aerial contacts, distinct skills, special passes and recorded automatic replays. [Remaining parity report](docs/3d-remaining-parity-report.md).
 
 V7.19.2: second-half preparation pauses the match clock; aerial first controls preserve ball height, physical restarts wait for placement, and observed dribble moves use the restored 3D actions. [Release notes](docs/v7.19.2-release.md).
 

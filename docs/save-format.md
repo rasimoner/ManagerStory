@@ -179,3 +179,5 @@ PR #16 sonrası: mevcut `ball.carry.touchTick` henüz topa dokunulmamış taşı
 Şema 9'daki hareket olayları, bakmadan pasta isteğe bağlı gazeTargetId/gazeTarget ile gerçek görünen oyuncuyu saklar. Pozlar ve tekrar tamponu kalıcı değildir; görsel hedef ek RNG tüketmez.
 
 **9 → 10:** `passing.technique` isteğe bağlı özel pas hazırlığıdır: kind, ownerId/toId, gerçek sabit top noktası, gerçek yaklaşma/ayak duruşu, yüz yönü, hedef ve readyAt. Eski ham/sıkıştırılmış checkpoint null alır; fizik, olaylar, saat ve RNG değişmez. Hazırlığın ortasında kayıt aynı duruştan ve ayak temasından devam eder. Çizimdeki saf ayak eğrileri kayda girmez.
+
+Bu teslimde şema 10 son formattır. Servis (8), carry.skill (9) ve özel pas duruşu (10) göçleri ham/sıkıştırılmış testlerle korunur. Nutmeg ilerlemesi yeni kalıcı previousGap alanı yerine mevcut phase ve gerçek adım segmentini okur; trapIntent karede türetilir. Otomatik tekrar RAM'dedir, arşiv için yeni kalıcı kayıt alanı yoktur. Başarısız adaylar kayda alınmaz.

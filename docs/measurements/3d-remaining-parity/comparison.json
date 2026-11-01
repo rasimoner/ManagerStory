@@ -1,0 +1,198 @@
+{
+  "beforeCommit": "d86ac72de6bc4677a2357fc516c06e1ffeceed48",
+  "afterProductCommit": "c6341386f9f0815e12aeb26bd86a77ca52942149",
+  "node": "v22.23.4",
+  "durationSeconds": 420,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    42,
+    73,
+    101,
+    202,
+    303,
+    404,
+    505,
+    606,
+    707,
+    731
+  ],
+  "fields": {
+    "shots": {
+      "before": {
+        "mean": 6.8,
+        "min": 2,
+        "median": 7.0,
+        "max": 15
+      },
+      "after": {
+        "mean": 8.8,
+        "min": 3,
+        "median": 9.0,
+        "max": 16
+      },
+      "pairedMeanDelta": 2.000000000000001,
+      "pairedDeltaMin": -6,
+      "pairedDeltaMedian": 2.0,
+      "pairedDeltaMax": 13,
+      "increased": 11,
+      "decreased": 7,
+      "equal": 2
+    },
+    "goals": {
+      "before": {
+        "mean": 0.55,
+        "min": 0,
+        "median": 0.0,
+        "max": 4
+      },
+      "after": {
+        "mean": 1.05,
+        "min": 0,
+        "median": 1.0,
+        "max": 5
+      },
+      "pairedMeanDelta": 0.5,
+      "pairedDeltaMin": -4,
+      "pairedDeltaMedian": 0.5,
+      "pairedDeltaMax": 5,
+      "increased": 10,
+      "decreased": 3,
+      "equal": 7
+    },
+    "passes": {
+      "before": {
+        "mean": 72.45,
+        "min": 53,
+        "median": 74.5,
+        "max": 79
+      },
+      "after": {
+        "mean": 71.25,
+        "min": 61,
+        "median": 72.0,
+        "max": 81
+      },
+      "pairedMeanDelta": -1.2000000000000028,
+      "pairedDeltaMin": -16,
+      "pairedDeltaMedian": -2.0,
+      "pairedDeltaMax": 16,
+      "increased": 8,
+      "decreased": 12,
+      "equal": 0
+    },
+    "completedPasses": {
+      "before": {
+        "mean": 52.7,
+        "min": 40,
+        "median": 54.0,
+        "max": 61
+      },
+      "after": {
+        "mean": 49.7,
+        "min": 40,
+        "median": 49.5,
+        "max": 60
+      },
+      "pairedMeanDelta": -3.0,
+      "pairedDeltaMin": -17,
+      "pairedDeltaMedian": -4.0,
+      "pairedDeltaMax": 15,
+      "increased": 7,
+      "decreased": 12,
+      "equal": 1
+    },
+    "turnovers": {
+      "before": {
+        "mean": 29.5,
+        "min": 16,
+        "median": 29.5,
+        "max": 37
+      },
+      "after": {
+        "mean": 31.2,
+        "min": 23,
+        "median": 29.5,
+        "max": 43
+      },
+      "pairedMeanDelta": 1.6999999999999993,
+      "pairedDeltaMin": -5,
+      "pairedDeltaMedian": 0.0,
+      "pairedDeltaMax": 14,
+      "increased": 10,
+      "decreased": 10,
+      "equal": 0
+    },
+    "fouls": {
+      "before": {
+        "mean": 1.95,
+        "min": 0,
+        "median": 1.5,
+        "max": 6
+      },
+      "after": {
+        "mean": 1.85,
+        "min": 0,
+        "median": 2.0,
+        "max": 6
+      },
+      "pairedMeanDelta": -0.09999999999999987,
+      "pairedDeltaMin": -3,
+      "pairedDeltaMedian": -0.5,
+      "pairedDeltaMax": 4,
+      "increased": 7,
+      "decreased": 10,
+      "equal": 3
+    },
+    "saves": {
+      "before": {
+        "mean": 2.35,
+        "min": 0,
+        "median": 2.0,
+        "max": 8
+      },
+      "after": {
+        "mean": 3.35,
+        "min": 0,
+        "median": 3.0,
+        "max": 7
+      },
+      "pairedMeanDelta": 1.0,
+      "pairedDeltaMin": -5,
+      "pairedDeltaMedian": 2.0,
+      "pairedDeltaMax": 7,
+      "increased": 12,
+      "decreased": 7,
+      "equal": 1
+    },
+    "ballWins": {
+      "before": {
+        "mean": 18.25,
+        "min": 12,
+        "median": 18.5,
+        "max": 28
+      },
+      "after": {
+        "mean": 19,
+        "min": 11,
+        "median": 19.0,
+        "max": 28
+      },
+      "pairedMeanDelta": 0.75,
+      "pairedDeltaMin": -9,
+      "pairedDeltaMedian": 0.0,
+      "pairedDeltaMax": 12,
+      "increased": 9,
+      "decreased": 9,
+      "equal": 2
+    }
+  }
+}
