@@ -1,6 +1,6 @@
 # Gol artışı — markaj ve tanı geçmişi
 
-Güncel teslim 7.19.5 adayıdır: [4–5. yaklaşımların sonucu, ölçümler ve açık işler](goal-regression-continuation-report.md). Aşağıdaki 7.19.4 / 3–3 sonuçları tarihsel kayıttır. Sonraki kullanıcı izniyle iki ek yaklaşım uygulandı; G1 toplamı 5/5 oldu.
+Güncel tanı ve 6–7. yaklaşım sonucu [ayrı raporda](goal-regression-attempts-six-seven.md); iki yeni ürün farkı geri alındı. Korunan teslim 7.19.5 adayıdır: [4–5. yaklaşımların sonucu, ölçümler ve açık işler](goal-regression-continuation-report.md). Aşağıdaki 7.19.4 / 3–3 sonuçları tarihsel kayıttır. Sonraki kullanıcı izniyle iki ek yaklaşım uygulandı; G1 toplamı 5/5 oldu.
 
 Dal `fix/3d-goal-regression`, ürün tabanı `97d99fcfad169c4ccf156b2d53884a4f123c4023`, karşılaştırma main `d86ac72de6bc4677a2357fc516c06e1ffeceed48`. Node 22.23.4. 7.19.4 yayımlanmamış adaydır. Eski çalışma dizinleri ve önceki 7.20.0 hazırlıkları değiştirilmedi.
 

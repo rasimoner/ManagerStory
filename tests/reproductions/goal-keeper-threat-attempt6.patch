@@ -1,0 +1,20 @@
+diff --git a/src/core/sim/keeper-positioning.js b/src/core/sim/keeper-positioning.js
+index b0574fc..fe45a67 100644
+--- a/src/core/sim/keeper-positioning.js
++++ b/src/core/sim/keeper-positioning.js
+@@ -4,0 +5 @@ import { simulationInterceptPlan } from './ball-chasing.js';
++import { predictSimulationBall } from './ball-physics.js';
+@@ -15 +16 @@ export function simulationKeeperTarget(simulation, team) {
+-  const ball = simulation.ball.position;
++  const ball = keeperThreatPosition(simulation.ball);
+@@ -26,0 +28,10 @@ export function simulationKeeperTarget(simulation, team) {
++function keeperThreatPosition(ball) {
++  if (!ball.flight?.cross) return ball.position;
++  const gravity = MATCH_SIM_DATA.ball.gravity;
++  const height = ball.height - MATCH_SIM_DATA.ball.reachableHeight;
++  const discriminant = ball.verticalVelocity ** 2 + 2 * gravity * height;
++  // The first playable descending contact can precede a ground landing on the opposite side.
++  const seconds = discriminant < 0 ? 0 : Math.max(0, (ball.verticalVelocity + Math.sqrt(discriminant)) / gravity);
++  return predictSimulationBall(ball, seconds).position;
++}
++

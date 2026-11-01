@@ -1,5 +1,7 @@
 # Gol artışı — iki ek yaklaşımın teslimi
 
+Sonraki devamda 6–7. yaklaşımlar da genel kabulü geçmedi ve ürün farkları geri alındı: [güncel tanı ve devam promptu](goal-regression-attempts-six-seven.md). Bu belgedeki 7.19.5 ürün ve 50/20 ölçümleri değişmedi; geçmiş toplamı 7/7 oldu.
+
 Dal `fix/3d-goal-regression`. Taban ürün `191ce72cec788928dcf881ab4d121200151f5198`, tanı `fbc51b8ed80efc1919782db4a172dcc59af4ae07`; main `d86ac72de6bc4677a2357fc516c06e1ffeceed48` yeniden doğrulandı. Node 22.23.4. **7.19.5 yayımlanmamış adaydır.** Kullanıcı “Tamam denemelere devam edebilirsin” diyerek devamı yetkilendirdi; bu turdaki iki ek yaklaşım eski sayacı sıfırlamadan G1 **4–5 / toplam 5/5** olarak kaydedildi.
 
 İki görev kusuru düzeldi, genel denge kabulü açık kaldı. Önceki markaj düzeltmesi korundu. İlk iki başarısız yama yeniden uygulanmadı; önceki oturumların sürüm/yayın hazırlıkları değiştirilmedi.

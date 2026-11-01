@@ -1,0 +1,60 @@
+{
+  "node": "v22.23.4",
+  "productCommit": "87d57862e2895594d4d2a43f7836a461fdbc425c",
+  "sourceTree": "c2178de962f176a575bac193e494c730b3738f0c",
+  "version": "7.19.5 unchanged unpublished candidate",
+  "G1": {
+    "used": 7,
+    "continuationLimit": 7,
+    "counterReset": false,
+    "attempt6": {
+      "red": {
+        "failed": 4,
+        "passed": 3
+      },
+      "candidateAcceptancePassed": 22,
+      "baselineThreeSeedGoals": 20,
+      "candidateThreeSeedGoals": 24,
+      "reverted": true
+    },
+    "attempt7": {
+      "red": {
+        "failed": 4,
+        "passed": 4
+      },
+      "candidateAcceptancePassed": 34,
+      "relatedTestsPassed": 71,
+      "baselineThreeSeedGoals": 20,
+      "candidateThreeSeedGoals": 24,
+      "reverted": true
+    },
+    "overallAcceptance": "open"
+  },
+  "deliveryChecks": {
+    "lint": "passed; baseline unchanged",
+    "defaultFast": {
+      "passed": 607,
+      "failed": 0,
+      "existingSkipped": 1
+    },
+    "separatePerformance": {
+      "passed": 5,
+      "failed": 0
+    },
+    "productDiff": false,
+    "saveFormatChanged": false,
+    "newBalance50or20Run": false,
+    "newBuildRun": false,
+    "newSmokeRun": false,
+    "newWebGLEvidence": false,
+    "physicalSafariTest": false
+  },
+  "protected": [
+    "previous successful product changes",
+    "main",
+    "publication",
+    "original release preparation",
+    "golden/reference/thresholds/lint baseline/CI"
+  ],
+  "delivery": "diagnosis and off-CI reproductions only; no PR/merge/publication"
+}

@@ -1,0 +1,1321 @@
+{
+  "node": "v22.23.4",
+  "productCommit": "87d57862e2895594d4d2a43f7836a461fdbc425c",
+  "productSourceTree": "c2178de962f176a575bac193e494c730b3738f0c",
+  "baselineProbe": {
+    "seeds": [
+      901,
+      731,
+      42
+    ],
+    "goals": [
+      5,
+      9,
+      6
+    ],
+    "totalGoals": 20,
+    "totalShots": 90
+  },
+  "probes": {
+    "6": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 2,
+            "away": 4
+          },
+          "statistics": {
+            "shots": 49,
+            "goals": 6,
+            "passes": 736,
+            "fouls": 31,
+            "saves": 24,
+            "red": 1,
+            "ballWins": 150
+          },
+          "shotTypes": {
+            "placed": 27,
+            "drive": 18,
+            "freeKick": 1,
+            "volley": 1,
+            "chip": 2
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 5,
+            "away": 5
+          },
+          "statistics": {
+            "shots": 34,
+            "goals": 10,
+            "passes": 709,
+            "fouls": 37,
+            "saves": 13,
+            "red": 1,
+            "ballWins": 122
+          },
+          "shotTypes": {
+            "placed": 14,
+            "drive": 19,
+            "header": 1
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 2,
+            "away": 6
+          },
+          "statistics": {
+            "shots": 29,
+            "goals": 8,
+            "passes": 743,
+            "fouls": 33,
+            "saves": 10,
+            "red": 1,
+            "ballWins": 135
+          },
+          "shotTypes": {
+            "drive": 21,
+            "placed": 8
+          }
+        }
+      ]
+    },
+    "7": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 5,
+            "away": 6
+          },
+          "statistics": {
+            "shots": 47,
+            "goals": 11,
+            "passes": 732,
+            "fouls": 25,
+            "saves": 14,
+            "red": 1,
+            "ballWins": 151
+          },
+          "shotTypes": {
+            "placed": 16,
+            "drive": 22,
+            "header": 8,
+            "chip": 1
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 4,
+            "away": 2
+          },
+          "statistics": {
+            "shots": 31,
+            "goals": 6,
+            "passes": 711,
+            "fouls": 32,
+            "saves": 10,
+            "red": 3,
+            "ballWins": 139
+          },
+          "shotTypes": {
+            "placed": 15,
+            "header": 6,
+            "drive": 10
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 7,
+            "away": 0
+          },
+          "statistics": {
+            "shots": 30,
+            "goals": 7,
+            "passes": 768,
+            "fouls": 27,
+            "saves": 10,
+            "red": 3,
+            "ballWins": 115
+          },
+          "shotTypes": {
+            "drive": 17,
+            "placed": 7,
+            "header": 6
+          }
+        }
+      ]
+    }
+  },
+  "restored": {
+    "sourceChanged": false,
+    "versionChanged": false,
+    "currentVersion": "7.19.5 unpublished candidate",
+    "previousMeasured50SeedGoals": 8.62,
+    "previousMeasured20ShortGoals": 1.1,
+    "wideMeasurementsRepeated": false
+  },
+  "classification": {
+    "source": "prior 87d5786 raw 50-seed report; high-scoring runs only",
+    "rawReportSha256": "4c47176343fc401b930be51ac6d42ca9db4f16b4093db8b13bcd5e2c99d1f562",
+    "analysedGoals": 416,
+    "all50Goals": 431,
+    "rule": "shot.restartKind else most recent cross within 10 seconds before shot; chronological proximity, not proof of causal origin",
+    "labels": {
+      "freeKick": 177,
+      "corner": 122,
+      "other": 74,
+      "penalty": 39,
+      "openCross": 4
+    },
+    "keeperReadyAtShot": {
+      "true": 40,
+      "false": 376
+    }
+  },
+  "naturalLongCase": {
+    "seed": 731,
+    "goalTime": 563.3831269408902,
+    "earlierCards": [
+      {
+        "tick": 3767,
+        "time": 376.70000000000005,
+        "fromId": "home-RCB",
+        "toId": "away-RB",
+        "fromPos": {
+          "x": -51.019909164997856,
+          "y": 30.446620449466238
+        },
+        "toPos": {
+          "x": -51.1990612249247,
+          "y": 27.76302894496402
+        },
+        "success": true,
+        "type": "yellow",
+        "teamId": "away",
+        "contact": "player",
+        "kind": "sliding",
+        "speed": 9.827778381625528,
+        "severity": 2.6327778381625526,
+        "behind": true,
+        "noBallChance": true,
+        "dogso": false,
+        "redCandidate": false,
+        "penaltyPending": false,
+        "restartPosition": {
+          "x": -51.1990612249247,
+          "y": 27.76302894496402
+        },
+        "positionedRestart": true,
+        "secondYellow": false,
+        "physicsTime": 376.70000000000005,
+        "matchTime": 376.7
+      }
+    ],
+    "events": [
+      {
+        "tick": 5587,
+        "time": 558.7,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 52,
+          "y": -33.5
+        },
+        "toPos": {
+          "x": 41.5240899707153,
+          "y": 0.10035680155287442
+        },
+        "success": true,
+        "type": "corner",
+        "kind": "cross",
+        "teamId": "home",
+        "temporaryRestart": false,
+        "nearestOpponentDistance": 10.208595076812507,
+        "physicsTime": 558.7,
+        "matchTime": 558.7
+      },
+      {
+        "tick": 5587,
+        "time": 558.7,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 52,
+          "y": -33.5
+        },
+        "toPos": {
+          "x": 41.5240899707153,
+          "y": 0.10035680155287442
+        },
+        "success": true,
+        "type": "pass",
+        "restartKind": "corner",
+        "temporaryRestart": false,
+        "teamId": "home",
+        "lofted": true,
+        "leadDistance": 0,
+        "distance": 36.63789548236993,
+        "physicsTime": 558.7,
+        "matchTime": 558.7,
+        "actualToId": "home-ST",
+        "resolvedAt": 561.071940028219,
+        "resolvedMatchTime": 561.071940028219,
+        "actualToPos": {
+          "x": 40.60542229153674,
+          "y": 1.3209561072474731
+        }
+      },
+      {
+        "tick": 5587,
+        "time": 558.7,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 52,
+          "y": -33.5
+        },
+        "toPos": {
+          "x": 41.5240899707153,
+          "y": 0.10035680155287442
+        },
+        "success": true,
+        "type": "cross",
+        "teamId": "home",
+        "height": 0,
+        "restartKind": "corner",
+        "physicsTime": 558.7,
+        "matchTime": 558.7,
+        "actualToId": "home-ST",
+        "actualToPos": {
+          "x": 40.60542229153674,
+          "y": 1.3209561072474731
+        },
+        "resolvedAt": 561.071940028219
+      },
+      {
+        "tick": 5609,
+        "time": 560.9,
+        "fromId": "home-ST",
+        "toId": "away-RCM",
+        "fromPos": {
+          "x": 40.54622748093253,
+          "y": 1.688278173762123
+        },
+        "toPos": {
+          "x": 41.092749730932674,
+          "y": 1.439803209894127
+        },
+        "success": true,
+        "type": "duel",
+        "slowedId": "home-ST",
+        "kind": "shoulder",
+        "physicsTime": 560.9,
+        "matchTime": 560.9
+      },
+      {
+        "tick": 5611,
+        "time": 561.071940028219,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 40.60542229153674,
+          "y": 1.3209561072474731
+        },
+        "toPos": {
+          "x": 40.451875776188416,
+          "y": 1.7439495677458445
+        },
+        "success": true,
+        "type": "firstTouch",
+        "height": 0.8984920387610061,
+        "speed": 15.446383570616002,
+        "passId": 729,
+        "kind": "foot",
+        "physicsTime": 561.071940028219,
+        "matchTime": 561.071940028219
+      },
+      {
+        "tick": 5627,
+        "time": 562.7,
+        "fromId": "home-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 39.64450249165682,
+          "y": 1.5819570154262483
+        },
+        "toPos": {
+          "x": 52.5,
+          "y": -2.52,
+          "height": 0.89375
+        },
+        "success": null,
+        "type": "shot",
+        "teamId": "home",
+        "xg": 0.038684936886577925,
+        "distance": 12.646918293168559,
+        "angle": 0.5592384620384211,
+        "blocked": 0.39143415953905364,
+        "pressure": 0.7623006389567543,
+        "power": 21.943133769214914,
+        "target": {
+          "x": 52.5,
+          "y": -2.52,
+          "height": 0.89375
+        },
+        "style": "placed",
+        "onTarget": true,
+        "physicsTime": 562.7,
+        "matchTime": 562.7,
+        "keeper": {
+          "set": false,
+          "reactionSeconds": 0.25,
+          "distance": 10.781913886750473,
+          "lateralDistance": 4.0218168350174,
+          "contact": false,
+          "saved": false,
+          "arrival": true,
+          "requiredExtension": 1.9018102664722303,
+          "extension": 1.8253418677426057,
+          "availableReach": 2.9753418677426056,
+          "timeToKeeper": 0.5239519537359456
+        }
+      },
+      {
+        "tick": 5634,
+        "time": 563.3273770186554,
+        "fromId": "home-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 52.407872439833895,
+          "y": -3.5771276350799757
+        },
+        "toPos": {
+          "x": 52.407872439833895,
+          "y": -3.5771276350799757
+        },
+        "success": true,
+        "type": "post",
+        "height": 1.7435491553186924,
+        "kind": "post",
+        "physicsTime": 563.3273770186554,
+        "matchTime": 563.3273770186554
+      },
+      {
+        "tick": 5634,
+        "time": 563.3831269408902,
+        "fromId": "home-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 39.64450249165682,
+          "y": 1.5819570154262483
+        },
+        "toPos": {
+          "x": 52.61,
+          "y": -2.590141205474577
+        },
+        "success": true,
+        "type": "goal",
+        "height": 1.7116809060418596,
+        "teamId": "home",
+        "assistId": null,
+        "shotId": 733,
+        "score": {
+          "home": 1,
+          "away": 0
+        },
+        "physicsTime": 563.3831269408902,
+        "matchTime": 563.3831269408902
+      }
+    ],
+    "keeperFrames": [
+      {
+        "time": 558.5,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 49.4590503566018,
+            "y": 0.043872544513950965
+          },
+          "target": {
+            "x": 49.5,
+            "y": 0
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "heading": -1.4951906776098807,
+          "role": "restart",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 559,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 49.58732863059045,
+            "y": -0.19764768767712587
+          },
+          "target": {
+            "x": 51.190441405097296,
+            "y": -3.3
+          },
+          "velocity": {
+            "x": 0.6373961467138931,
+            "y": -1.20970508168207
+          },
+          "heading": -1.09354482609903,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 559.5,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 50.19183789637071,
+            "y": -1.4230898986548066
+          },
+          "target": {
+            "x": 51.01029491784053,
+            "y": -3.3
+          },
+          "velocity": {
+            "x": 1.544352624541353,
+            "y": -3.2975903634269734
+          },
+          "heading": -1.15554635737495,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 560,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 50.77110042343839,
+            "y": -2.926701326796771
+          },
+          "target": {
+            "x": 50.691516300066944,
+            "y": -2.707868497395206
+          },
+          "velocity": {
+            "x": 0.7958412337144498,
+            "y": -2.1883282940156494
+          },
+          "heading": -1.2255431991371455,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 560.5,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 50.93534913837084,
+            "y": -3.3783367723049222
+          },
+          "target": {
+            "x": 50.65000194332701,
+            "y": -1.6662745851620493
+          },
+          "velocity": {
+            "x": 0.016934893965186798,
+            "y": -0.0465659556834046
+          },
+          "heading": -0.02554319913714531,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 561,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 51.095478887772394,
+            "y": -2.841994689536774
+          },
+          "target": {
+            "x": 50.46985545607025,
+            "y": -0.1991383931346417
+          },
+          "velocity": {
+            "x": 0.06453749061568453,
+            "y": 1.9289699609763213
+          },
+          "heading": 1.7857665226793071,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 561.5,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 50.83377931835319,
+            "y": -1.2644773570576981
+          },
+          "target": {
+            "x": 50.37854939628174,
+            "y": 0.2919631592112864
+          },
+          "velocity": {
+            "x": -1.03852727564871,
+            "y": 3.893877784348957
+          },
+          "heading": 1.8505833320497065,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 562,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 50.44098883118094,
+            "y": 0.07710632267035927
+          },
+          "target": {
+            "x": 50.493932278652316,
+            "y": -0.10372306957761018
+          },
+          "velocity": {
+            "x": -0.5294344747137922,
+            "y": 1.8082939224796943
+          },
+          "heading": 1.855617287096454,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 562.5,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 50.35728829111078,
+            "y": 0.36298717317402696
+          },
+          "target": {
+            "x": 50.35728829111078,
+            "y": 0.36298717317402696
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "heading": 1.855617287096454,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0.1,
+            "mode": "positioning",
+            "reactionAt": 154.95000000000002,
+            "target": {
+              "x": 52.61,
+              "y": -1.6709743503370333,
+              "height": 0.5942021319647277
+            },
+            "shotIndex": null,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.25171221051208,
+              "y": 1.4452335433774304
+            },
+            "launchMode": "rush"
+          }
+        }
+      },
+      {
+        "time": 563,
+        "keeper": {
+          "id": "away-GK",
+          "teamId": "away",
+          "direction": -1,
+          "position": {
+            "x": 50.35728829111078,
+            "y": 0.36298717317402696
+          },
+          "target": {
+            "x": 50.35728829111078,
+            "y": -3.6588296618433733
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "heading": 2.4556172870964543,
+          "role": "keeper",
+          "laneTargetId": null,
+          "sentOff": false,
+          "keeper": {
+            "setSeconds": 0.30000000000000004,
+            "mode": "dive",
+            "reactionAt": 562.95,
+            "target": {
+              "x": 52.61,
+              "y": -3.6588296618433733,
+              "height": 1.7401024510357017
+            },
+            "shotIndex": 733,
+            "lastSave": {
+              "kind": "parry",
+              "difficulty": 0.13012566981652787,
+              "time": 154.85759839367793
+            },
+            "launchPosition": {
+              "x": 50.35728829111078,
+              "y": 0.36298717317402696
+            },
+            "launchMode": "positioning"
+          }
+        }
+      }
+    ]
+  },
+  "naturalShortCase": {
+    "seed": 202,
+    "duration": 420,
+    "events": [
+      {
+        "tick": 3426,
+        "time": 342.6,
+        "fromId": "home-LCM",
+        "toId": "away-LCM",
+        "fromPos": {
+          "x": 41.623598300398655,
+          "y": -18.197367887034368
+        },
+        "toPos": {
+          "x": 41.88018820179187,
+          "y": -18.16184785090614
+        },
+        "success": true,
+        "type": "foul",
+        "teamId": "away",
+        "contact": "player",
+        "kind": "standing",
+        "speed": 9.255841832071237,
+        "severity": 1.5755841832071238,
+        "behind": true,
+        "noBallChance": false,
+        "dogso": false,
+        "redCandidate": false,
+        "penaltyPending": true,
+        "restartPosition": {
+          "x": 41.5,
+          "y": 0
+        },
+        "positionedRestart": true,
+        "physicsTime": 342.6,
+        "matchTime": 4221
+      },
+      {
+        "tick": 3426,
+        "time": 342.6,
+        "fromId": "home-LCM",
+        "toId": "away-LCM",
+        "fromPos": {
+          "x": 41.623598300398655,
+          "y": -18.197367887034368
+        },
+        "toPos": {
+          "x": 41.88018820179187,
+          "y": -18.16184785090614
+        },
+        "success": true,
+        "type": "advantage",
+        "teamId": "away",
+        "contact": "player",
+        "kind": "standing",
+        "speed": 9.255841832071237,
+        "severity": 1.5755841832071238,
+        "behind": true,
+        "noBallChance": false,
+        "dogso": false,
+        "redCandidate": false,
+        "penaltyPending": true,
+        "restartPosition": {
+          "x": 41.5,
+          "y": 0
+        },
+        "positionedRestart": true,
+        "eventIndex": 382,
+        "status": "played",
+        "physicsTime": 342.6,
+        "matchTime": 4221
+      },
+      {
+        "tick": 3456,
+        "time": 345.6,
+        "fromId": "home-LCM",
+        "toId": "away-LCM",
+        "fromPos": {
+          "x": 41.623598300398655,
+          "y": -18.197367887034368
+        },
+        "toPos": {
+          "x": 41.88018820179187,
+          "y": -18.16184785090614
+        },
+        "success": true,
+        "type": "advantage",
+        "teamId": "away",
+        "contact": "player",
+        "kind": "standing",
+        "speed": 9.255841832071237,
+        "severity": 1.5755841832071238,
+        "behind": true,
+        "noBallChance": false,
+        "dogso": false,
+        "redCandidate": false,
+        "penaltyPending": true,
+        "restartPosition": {
+          "x": 41.5,
+          "y": 0
+        },
+        "positionedRestart": true,
+        "eventIndex": 382,
+        "status": "recalled",
+        "physicsTime": 345.6,
+        "matchTime": 4259.571428571428
+      },
+      {
+        "tick": 3456,
+        "time": 345.6,
+        "fromId": "away-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 41.5,
+          "y": 0
+        },
+        "toPos": {
+          "x": 41.5,
+          "y": 0
+        },
+        "success": true,
+        "type": "restartPosition",
+        "teamId": "away",
+        "kind": "penalty",
+        "physicsTime": 345.6,
+        "matchTime": 4259.571428571428
+      },
+      {
+        "tick": 3511,
+        "time": 351.1,
+        "fromId": "away-ST",
+        "toId": "away-CAM",
+        "fromPos": {
+          "x": 41.5,
+          "y": 0
+        },
+        "toPos": {
+          "x": 35.525092139978874,
+          "y": -9.234312298838853
+        },
+        "success": true,
+        "type": "penalty",
+        "kind": "direct",
+        "teamId": "away",
+        "temporaryRestart": false,
+        "nearestOpponentDistance": 9.514245398592525,
+        "physicsTime": 351.1,
+        "matchTime": 4330.285714285715
+      },
+      {
+        "tick": 3516,
+        "time": 351.55766374481055,
+        "fromId": "away-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 41.5,
+          "y": 0
+        },
+        "toPos": {
+          "x": 52.61,
+          "y": -2.8581730638559852
+        },
+        "success": true,
+        "type": "goal",
+        "height": 0.9049575084767774,
+        "teamId": "away",
+        "assistId": null,
+        "shotId": 389,
+        "score": {
+          "home": 0,
+          "away": 1
+        },
+        "physicsTime": 351.55766374481055,
+        "matchTime": 4336.169962433279
+      }
+    ]
+  },
+  "windowProof": {
+    "node": "v22.23.4",
+    "source": "87d5786",
+    "gaps": [
+      {
+        "tick": 24371,
+        "time": 2437.1,
+        "playerId": "home-RB",
+        "role": "mark",
+        "position": {
+          "x": -40.94684350006696,
+          "y": -7.282552015162868
+        },
+        "plan": {
+          "target": {
+            "x": -28.057189266753312,
+            "y": 34
+          },
+          "reachable": false
+        },
+        "ball": {
+          "position": {
+            "x": -47.75872823171266,
+            "y": -17.379476350438182
+          },
+          "height": 5.090702667521619,
+          "verticalVelocity": 3.8389323821737413
+        },
+        "exact": {
+          "seconds": 1.2990869123454591,
+          "position": {
+            "x": -41.98993191702603,
+            "y": -0.5084045897559122
+          },
+          "height": 1.7999999999999972,
+          "arrival": 1.1600838707827257
+        }
+      },
+      {
+        "tick": 24373,
+        "time": 2437.3,
+        "playerId": "home-RCM",
+        "role": "rebound",
+        "position": {
+          "x": -42.314296443308734,
+          "y": -1.7788448690654608
+        },
+        "plan": {
+          "target": {
+            "x": -27.461649633943345,
+            "y": 34
+          },
+          "reachable": false
+        },
+        "ball": {
+          "position": {
+            "x": -46.87059730531124,
+            "y": -14.782102518040455
+          },
+          "height": 5.662289143956366,
+          "verticalVelocity": 1.8769323821737414
+        },
+        "exact": {
+          "seconds": 1.099086912345459,
+          "position": {
+            "x": -41.98993191702603,
+            "y": -0.5084045897559122
+          },
+          "height": 1.799999999999999,
+          "arrival": 0.6313532753246758
+        }
+      },
+      {
+        "tick": 24376,
+        "time": 2437.6,
+        "playerId": "home-RB",
+        "role": "mark",
+        "position": {
+          "x": -41.65803712008981,
+          "y": -5.4934871753678385
+        },
+        "plan": {
+          "target": {
+            "x": -26.598672319071884,
+            "y": 34
+          },
+          "reachable": false
+        },
+        "ball": {
+          "position": {
+            "x": -45.53840091570912,
+            "y": -10.886041769443867
+          },
+          "height": 5.783918858608488,
+          "verticalVelocity": -1.066067617826259
+        },
+        "exact": {
+          "seconds": 0.7990869123454588,
+          "position": {
+            "x": -41.98993191702603,
+            "y": -0.5084045897559157
+          },
+          "height": 1.8000000000000007,
+          "arrival": 0.667745116336746
+        }
+      },
+      {
+        "tick": 24378,
+        "time": 2437.8,
+        "playerId": "home-RB",
+        "role": "intercept",
+        "position": {
+          "x": -41.86800334999441,
+          "y": -4.5092737019441875
+        },
+        "plan": {
+          "target": {
+            "x": -26.043575532053254,
+            "y": 34
+          },
+          "reachable": false
+        },
+        "ball": {
+          "position": {
+            "x": -44.6502699893077,
+            "y": -8.288667937046142
+          },
+          "height": 5.374505335043236,
+          "verticalVelocity": -3.0280676178262587
+        },
+        "exact": {
+          "seconds": 0.5990869123454589,
+          "position": {
+            "x": -41.98993191702602,
+            "y": -0.5084045897559166
+          },
+          "height": 1.7999999999999996,
+          "arrival": 0.5237502071289919
+        }
+      },
+      {
+        "tick": 24380,
+        "time": 2438,
+        "playerId": "home-RB",
+        "role": "intercept",
+        "position": {
+          "x": -41.924325261072106,
+          "y": -3.4212338012113412
+        },
+        "plan": {
+          "target": {
+            "x": -25.504655883351152,
+            "y": 34
+          },
+          "reachable": false
+        },
+        "ball": {
+          "position": {
+            "x": -43.762139062906286,
+            "y": -5.691294104648415
+          },
+          "height": 4.572691811477983,
+          "verticalVelocity": -4.990067617826258
+        },
+        "exact": {
+          "seconds": 0.39908691234545873,
+          "position": {
+            "x": -41.98993191702602,
+            "y": -0.5084045897559175
+          },
+          "height": 1.7999999999999998,
+          "arrival": 0.3436475444600804
+        }
+      },
+      {
+        "tick": 24381,
+        "time": 2438.1,
+        "playerId": "home-RB",
+        "role": "intercept",
+        "position": {
+          "x": -41.89426543786627,
+          "y": -2.8391868174953734
+        },
+        "plan": {
+          "target": {
+            "x": -25.241262485868805,
+            "y": 34
+          },
+          "reachable": false
+        },
+        "ball": {
+          "position": {
+            "x": -43.31807359970558,
+            "y": -4.392607188449552
+          },
+          "height": 4.024635049695357,
+          "verticalVelocity": -5.971067617826258
+        },
+        "exact": {
+          "seconds": 0.29908691234545876,
+          "position": {
+            "x": -41.98993191702602,
+            "y": -0.5084045897559166
+          },
+          "height": 1.7999999999999992,
+          "arrival": 0.25358725410242
+        }
+      },
+      {
+        "tick": 24383,
+        "time": 2438.3,
+        "playerId": "home-RB",
+        "role": "intercept",
+        "position": {
+          "x": -41.712269338345315,
+          "y": -1.6080931813438242
+        },
+        "plan": {
+          "target": {
+            "x": -24.726608544641508,
+            "y": 34
+          },
+          "reachable": false
+        },
+        "ball": {
+          "position": {
+            "x": -42.42994267330416,
+            "y": -1.7952333560518252
+          },
+          "height": 2.6342215261301054,
+          "verticalVelocity": -7.933067617826258
+        },
+        "exact": {
+          "seconds": 0.09908691234545863,
+          "position": {
+            "x": -41.98993191702602,
+            "y": -0.508404589755918
+          },
+          "height": 1.8000000000000007,
+          "arrival": 0
+        }
+      }
+    ]
+  },
+  "attemptLimit": {
+    "id": "G1",
+    "used": 7,
+    "limitForThisContinuation": 7,
+    "counterReset": false
+  },
+  "productPatchesRetained": false
+}
