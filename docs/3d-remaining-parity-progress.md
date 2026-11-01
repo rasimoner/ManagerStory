@@ -34,8 +34,8 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 0/2 | Bekliyor |
 | R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
 | R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | İncelenecek; yeni hareket çıkarsa bu satır sabit kalır |
-| R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 0/2 | Bekliyor |
-| R28 | Kariyer arşivi İzle gerçekliği/mevcut kaydın uygunluğu; yeni kalıcı tekrar sistemi kurmadan sınırı raporlama | Bağımsız | 0/2 | İncelenecek |
+| R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 1/2 | 12 ortak kayıt/saat testi geçti; kariyer WebGL bekleniyor |
+| R28 | Kariyer arşivi İzle gerçekliği/mevcut kaydın uygunluğu; yeni kalıcı tekrar sistemi kurmadan sınırı raporlama | Bağımsız | 0/2 | Tarif sahneleniyor; mevcut veride gerçek kayıt yok, yeni kalıcı sistem kurulmadı |
 | R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 0/2 | Bekliyor |
 
 ## Altyapı sayacı
@@ -100,3 +100,17 @@ Sombrero ilk yaklaşımda gerçek tek ayak kaldırışıyla savunmacının üzer
 Rainbow 1: ikinci temas genel ilk kontrolde öne taşındı, vücudun arkasından flick kabulü geçmedi. Rainbow 2: geçici kontrol offset'ini korumak denendi; yere oturduğunda followSimulationControl bunu temizliyor, 0,5 sn'deki ikinci temas gerçek gövdenin önünden çıkıyor. Juggling 1: ikinci dokunuş yerdeydi. Juggling 2: 0,8 sn'de 0,703 m'den ikinci gerçek temas oluştu, fakat 0,9 sn'de 0,962 m'de savunmacı aldı; sabit vücut üstü çıkış kabulü geçmedi. Eski juggle'ın lunge bacağı üzerinden tasarlanmış olması bu görevde test eşiğini değiştirmek için kullanılmadı.
 
 İki başarısız hareketin seçim, veri ve özel kontrol farkları geri alındı. Sombrero ve genel fiziksel iniş tahmini korunur. air-skills.cjs, attempt2.patch ve gerçek tick/pozisyon/yükseklik/RNG trace JSON'u ayrı yeniden üretmedir; patch hazır çözüm değildir. Üçüncü ürün yaklaşımı uygulanmadı. Lint karmaşıklığı yalnız geometri/nişan sorumluluğu ayrılarak temizlendi; futbol eşikleri değişmedi.
+
+## R27 — mevcut gerçek kayıtla otomatik yıldız tekrarı
+
+Eski kariyer star hook/cadence yolu kullanılıyordu. Aynı 180 kare tampon yeni motorun gerçek skill, özel pas, chip/Panenka ve zor gerçek kurtarışlarını okur; observed genel dönüş etiketleri kabul edilmez. Temas sonrası 0,9 sn kayıt beklenir; otomatik tekrar aralığı 30 fizik saniyesidir. Duraklama, skip, devre, değişiklik, restart ve gol fotoğrafı korunur. Canlı RAF tekrar sırasında checkpoint'e dokunmaz; dönüşte zaman kökeni sıfırlanır, duvar zamanı telafi edilmez. Manuel düğme ve bellek sınırı korunur; yeni kalıcı alan yoktur.
+
+12/12 kayıt/bellek/kadans/tam checkpoint/RNG ve aynı ana dönüş testi geçti. Test kurulumundaki performance mock'u ve snapshot.state.tick düzeltildi; ürün yaklaşımı değiştirilmedi. Kesinti öncesi 573 hızlı + 5 performans geçti. Lint olay sınıflaması ayrılarak giderildi.
+
+## R28 — arşiv sınırı
+
+Gerçek çağrı: manager/highlight-recorder.recordStarMoment → core/highlights.recipeOf (move/seed/kimlik) → manager/highlight-screens.watchHighlight → presentation/scenes/highlight-scene → director.stage. Son adım sahne tarifi üretir, gerçek maç karesi okumaz. Yeni 180 kare tampon RAM'dedir, arşive yazılmaz. Gerçek maç bağlantısı mevcut tariften çıkarılamaz. Kalıcı klip sürümü, rig/kadro kimliği, sıkıştırma, saklama/atım ve iPhone kotası gerekir; kullanıcı kapsamı gereği kurulmadı. Eski gösteri gerçek maç tekrarı olarak bağlanmadı.
+
+## Ortam kesintisinden dönüş
+
+Çalışma ortamı 2 başarısız erişim sonrası durmuştu; yeniden sağlandığında b3c3be5 ve ürün dosyaları korundu, son otomatik tekrar commit nesnesi yoktu. Aynı başarılı kod yeniden uygulanmadı, korunan fark doğrulanıp tekrar commit'e alınır. Deneme sayaçları ve iki başarısızlıkta durdurulan hareketler sıfırlanmaz. Node 22.23.4 tekrar edinildi; Node 24 ile ürün kabulü çalıştırılmadı.

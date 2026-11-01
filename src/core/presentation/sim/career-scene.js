@@ -1,11 +1,11 @@
-import { animateSimulationCrowd } from './scene-atmosphere.js';
+import { animateSimulationCrowd, observedSimulationGoal } from './scene-atmosphere.js';
 import { createSimulationGoalOverlay } from './scene-goal-overlay.js';
 import { M } from '../../state.js';
 import { presentation } from '../registry.js';
 import { changed } from '../../hooks.js';
 import { resolveClubIdentity } from '../../clubs/clubs.js';
 import { CLUBSTYLE } from '../../clubs/club-style.js';
-import { pauseLive, resumeLive, setMatchSpeed } from '../../engine/live-match.js';
+import { pauseLive, resumeLive, resetLiveFrame, setMatchSpeed } from '../../engine/live-match.js';
 import { loadSimulationSceneAssets, createSimulationStage } from './scene-stage.js';
 import { createSimulationBallView } from './scene-ball.js';
 import { createSimulationActors } from './scene-actors.js';
@@ -75,7 +75,7 @@ function startSceneMatch() {
   actors = createSimulationActors(stage.runtime, describePlayer);
   ballView = createSimulationBallView(stage.ball, stage.shadow, { runtime: stage.runtime });
   broadcast = createSimulationCamera(stage.camera);
-  replayPanel = createSimulationReplayPanel(stage, surface, { closed: paintCurrentFrame, name: id => M.simulationNames[id] ?? '' });
+  replayPanel = createSimulationReplayPanel(stage, surface, { closed: () => { resetLiveFrame(); paintCurrentFrame(); }, name: id => M.simulationNames[id] ?? '' });
   lastPaint = null;
   sceneWasSkipped = false;
 }
@@ -100,14 +100,18 @@ function paint(frame) {
     refocusAfterSkippedScene();
     actors.apply(frame);
     ballView.apply(frame);
-    replayPanel.record(frame, M.pause || M.finished);
     offsideLine.paint(frame);
     animateSimulationCrowd(stage.stadium, frame, M.userHome);
     goalOverlay.paint(frame, clubs);
     paintSceneGeometry(frame);
     paintSimulationRadar(radar, frame, clubs);
     paintSceneLabels(frame);
+    replayPanel.record(frame, { paused: M.pause || M.finished, automatic: automaticReplayAllowed(frame) });
   } catch (error) { fail(error); }
+}
+
+function automaticReplayAllowed(frame) {
+  return !M.pause && !M.finished && !M.skipExperimental && !M.requiredSubstitution && !frame.ball.restart && !observedSimulationGoal(frame);
 }
 
 function canPaintLiveScene() { return sceneActive() && !replayPanel?.active; }
@@ -230,5 +234,5 @@ function detach() {
   if (!fullscreen) surface.remove();
 }
 
-presentation.simulation3d = { mount, paint, detach, get fullscreen() { return fullscreen; } };
+presentation.simulation3d = { mount, paint, detach, get fullscreen() { return fullscreen; }, get replaying() { return !!replayPanel?.active; } };
 mount();

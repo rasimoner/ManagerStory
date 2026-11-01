@@ -19,13 +19,18 @@ class SimulationReplayPanel {
 
   get active() { return this.replay.active; }
 
-  record(frame, paused) {
+  record(frame, { paused, automatic }) {
     this.replay.record(frame);
     this.surface.querySelector('[data-scene-replay]').disabled = !paused || !this.replay.canStart;
+    if (this.replay.startAutomatic(frame.physicsTime, automatic)) this.show();
   }
 
   start(paused) {
     if (!paused || !this.replay.start()) return;
+    this.show();
+  }
+
+  show() {
     const event = this.replay.metadata;
     this.panel.querySelector('strong').textContent = STAR_MOVES[event.kind]?.name ?? 'GOL';
     this.panel.querySelector('.sim-replay-card span').textContent = this.callbacks.name(event.fromId);
