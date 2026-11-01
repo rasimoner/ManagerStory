@@ -1,0 +1,15 @@
+diff --git a/src/core/sim/keeper-positioning.js b/src/core/sim/keeper-positioning.js
+--- a/src/core/sim/keeper-positioning.js
++++ b/src/core/sim/keeper-positioning.js
+@@ -3,0 +4 @@
++import { predictSimulationBall, simulationBallLandingSeconds } from './ball-physics.js';
+@@ -14 +15 @@
+-  const ball = simulation.ball.position;
++  const ball = keeperThreatPosition(simulation.ball);
+@@ -23,0 +25,6 @@
++}
++
++function keeperThreatPosition(ball) {
++  if (!ball.flight?.cross) return ball.position;
++  // Prepare the actual incoming trajectory's landing area while the cross is still on its way.
++  return predictSimulationBall(ball, simulationBallLandingSeconds(ball)).position;

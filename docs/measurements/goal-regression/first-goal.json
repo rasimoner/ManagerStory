@@ -1,0 +1,93 @@
+{
+  "sourceCommit": "8c99b450da4c1451bc185a7648e815f9d75852b3",
+  "seed": 901,
+  "firstGoal": {
+    "time": 1063.5472892290343,
+    "from": "home-ST",
+    "shot": {
+      "index": 1368,
+      "time": 1063.1000000000001,
+      "style": "drive",
+      "from": {
+        "x": 39.90025038166255,
+        "y": -3.40649992333804
+      },
+      "target": {
+        "x": 52.5,
+        "y": -2.772,
+        "height": 0.9515
+      },
+      "distance": 13.429347693503074,
+      "xg": 0.10317148181572951,
+      "keeper": {
+        "position": {
+          "x": 50.86459067842051,
+          "y": 2.0690198585883737
+        },
+        "target": {
+          "x": 42.738553149649185,
+          "y": -2.502019952546949
+        },
+        "role": "keeper",
+        "mode": "reacting",
+        "sentOff": false
+      },
+      "lastRestart": {
+        "time": 1052.5,
+        "kind": "corner",
+        "teamId": "home",
+        "position": {
+          "x": 52,
+          "y": 33.5
+        }
+      },
+      "finalEvent": {
+        "tick": 10631,
+        "time": 1063.1000000000001,
+        "fromId": "home-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 39.90025038166255,
+          "y": -3.40649992333804
+        },
+        "toPos": {
+          "x": 52.5,
+          "y": -2.772,
+          "height": 0.9515
+        },
+        "success": null,
+        "type": "shot",
+        "teamId": "home",
+        "xg": 0.10317148181572951,
+        "distance": 13.429347693503074,
+        "angle": 0.5171583643019003,
+        "blocked": 0,
+        "pressure": 0.531910700534205,
+        "power": 28.50788029810291,
+        "target": {
+          "x": 52.5,
+          "y": -2.772,
+          "height": 0.9515
+        },
+        "style": "drive",
+        "onTarget": true,
+        "physicsTime": 1063.1000000000001,
+        "matchTime": 1063.1,
+        "keeper": {
+          "set": false,
+          "reactionSeconds": 0.256,
+          "distance": 12.25553242521017,
+          "lateralDistance": 4.447368458024691,
+          "contact": false,
+          "saved": false,
+          "arrival": true,
+          "requiredExtension": 2.1390675985117764,
+          "extension": 0.7488272099286428,
+          "availableReach": 2.451327209928643,
+          "timeToKeeper": 0.3738327631674565
+        }
+      }
+    }
+  },
+  "warning": "One observed case; chase and keeper hypotheses were tested and did not remove aggregate regression. It is not proof that either is the sole root cause."
+}

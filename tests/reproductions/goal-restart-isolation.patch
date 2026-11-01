@@ -1,0 +1,31 @@
+diff --git a/src/core/sim/restart-decision.js b/src/core/sim/restart-decision.js
+--- a/src/core/sim/restart-decision.js
++++ b/src/core/sim/restart-decision.js
+@@ -6 +5,0 @@
+-import { planSimulationCross } from './cross-delivery.js';
+@@ -8,0 +8 @@
++  if (restart.indirect) return { kind: 'short' };
+@@ -10,0 +11 @@
++  const settings = RESTART_DATA.freeKick;
+@@ -12 +12,0 @@
+-  if (restart.kind === 'corner') return planSimulationCross(simulation, taker);
+@@ -14,5 +13,0 @@
+-  return freeKickDelivery(simulation, taker, { restart, shot });
+-}
+-
+-function freeKickDelivery(simulation, taker, { restart, shot }) {
+-  const settings = RESTART_DATA.freeKick;
+@@ -20 +15 @@
+-  const direct = !restart.indirect && shot.distance <= settings.maximumDistance && shot.distance >= settings.minimumDistance
++  const direct = shot.distance <= settings.maximumDistance && shot.distance >= settings.minimumDistance
+@@ -23,3 +18 @@
+-  if (direct) return { kind: 'direct', target: shot.target };
+-  return shot.distance <= RESTART_DATA.delivery.maximumFreeKickDistance && Math.abs(restart.position.y) >= RESTART_DATA.delivery.wideFreeKickY
+-    ? planSimulationCross(simulation, taker) : { kind: 'short' };
++  return direct ? { kind: 'direct', target: shot.target } : { kind: 'short' };
+@@ -33,3 +26,2 @@
+-  const pitch = MATCH_SIM_DATA.pitch;
+-  return { x: Math.max(-pitch.length / 2, Math.min(pitch.length / 2, restart.position.x - (target.x - restart.position.x) / distance * offset)),
+-    y: Math.max(-pitch.width / 2, Math.min(pitch.width / 2, restart.position.y - (target.y - restart.position.y) / distance * offset)) };
++  return { x: restart.position.x - (target.x - restart.position.x) / distance * offset,
++    y: restart.position.y - (target.y - restart.position.y) / distance * offset };
