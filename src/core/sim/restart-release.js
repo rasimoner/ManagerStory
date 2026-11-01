@@ -3,10 +3,12 @@ import { emitSimulationEvent } from './ball-events.js';
 import { acquireSimulationBall } from './ball-possession.js';
 import { releaseSimulationPass } from './pass-execution.js';
 import { releaseSimulationShot } from './shot-execution.js';
-import { evaluateSimulationShot } from './shot-evaluation.js';
+import { evaluateSimulationPenalty } from './penalty-decision.js';
 import { simulationRuntime } from './simulation-runtime.js';
 import { pointDistance } from './geometry.js';
 import { simulationShortRestartTarget } from './restart-layout.js';
+import { simulationFreeKickShot } from './restart-decision.js';
+import { reactSimulationWall } from './wall-reaction.js';
 
 export function releasePositionedSimulationRestart(simulation) {
   const restart = simulation.ball.restart, players = simulationRuntime(simulation).byId;
@@ -15,16 +17,24 @@ export function releasePositionedSimulationRestart(simulation) {
   const nearestOpponentDistance = Math.min(...opponents.map(player => pointDistance(player.position, restart.position)));
   acquireSimulationBall(simulation, taker);
   Object.assign(simulation.ball, { position: { ...restart.position }, heldBy: null, height: 0, verticalVelocity: 0 });
-  emitSimulationEvent(simulation, { type: restart.kind, fromId: taker.id, toId: receiver.id, teamId: restart.teamId,
+  emitSimulationEvent(simulation, { type: restart.kind, kind: restart.delivery?.kind, fromId: taker.id, toId: receiver.id, teamId: restart.teamId,
     fromPos: { ...restart.position }, toPos: { ...receiver.position }, success: true, temporaryRestart: false, nearestOpponentDistance });
   if (restart.kind === 'penalty') releasePenalty(simulation, taker);
+  else if (restart.kind === 'freeKick' && restart.delivery.kind === 'direct') releaseFreeKick(simulation, taker);
   else releaseRestartPass(simulation, { taker, receiver, restart });
   simulation.referee.stoppage = null;
+  reactSimulationWall(simulation, restart);
+}
+
+function releaseFreeKick(simulation, taker) {
+  releaseSimulationShot(simulation, taker, simulationFreeKickShot(simulation, taker));
+  simulation.ball.shot.freeKick = true;
+  Object.assign(simulation.events[simulation.ball.shot.eventIndex], { restartKind: 'freeKick' });
 }
 
 function releaseRestartPass(simulation, { taker, receiver, restart }) {
   const distance = restart.kind === 'goalKick' ? MATCH_SIM_DATA.deadBalls.goalKickDistance : MATCH_SIM_DATA.refereeing.restartPassDistance;
-  releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: false,
+  releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: false, restartKind: restart.kind,
     target: simulationShortRestartTarget(restart.position, receiver.position, distance) });
   Object.assign(simulation.events.at(-1), { restartKind: restart.kind, temporaryRestart: false });
   if (restart.kind !== 'throwIn') return;
@@ -36,7 +46,7 @@ function releaseRestartPass(simulation, { taker, receiver, restart }) {
 }
 
 function releasePenalty(simulation, taker) {
-  releaseSimulationShot(simulation, taker, evaluateSimulationShot(simulation, taker));
+  releaseSimulationShot(simulation, taker, evaluateSimulationPenalty(simulation, taker));
   simulation.ball.shot.penalty = true;
   Object.assign(simulation.events.at(-1), { penalty: true, restartKind: 'penalty' });
 }

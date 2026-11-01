@@ -82,5 +82,48 @@
     "photoDelaySeconds": 1.6,
     "photoSeconds": 2,
     "celebrationSeconds": 1.6
+  },
+  "offside": {
+    "width": 0.14,
+    "color": "#ffd400",
+    "opacity": 0.9,
+    "height": 0.03,
+    "seconds": 2.6,
+    "cameraHalfSpan": 8
+  },
+  "replay": {
+    "frames": 180,
+    "minimumSeconds": 0.03333333333333333,
+    "speed": 0.35,
+    "preSeconds": 1.25,
+    "postSeconds": 0.9,
+    "minimumSpan": 0.8,
+    "actorStrideBytes": 1300,
+    "ballStrideBytes": 36,
+    "ballRadius": 0.11,
+    "camera": {
+      "tallAspect": 1.25,
+      "maximumAirPull": 0.6,
+      "airPull": 0.22,
+      "tallSeparation": 1.9,
+      "wideSeparation": 1.1,
+      "margin": 2,
+      "span": 5.8,
+      "separationThreshold": 2.5,
+      "farBallWeight": 0.5,
+      "nearBallWeight": 0.35,
+      "maximumBallWeight": 0.25,
+      "ballHeightWeight": 0.12,
+      "x": -1.7,
+      "tallHeight": 3.6,
+      "wideHeight": 3.3,
+      "tallDepth": 5,
+      "wideDepth": 4.4,
+      "tallFov": 50,
+      "wideFov": 40,
+      "lookHeight": 0.6,
+      "maximumLookLift": 1.2,
+      "lookLift": 0.45
+    }
   }
 }

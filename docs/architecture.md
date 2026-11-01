@@ -171,3 +171,11 @@ Eski top geometrisi/kaplaması ve yayın kamerası ortak modüllerden gelir. Sal
 Devre hazırlığı iki görünümde maskelenebilir; motorun `half` sırasında fizik/maç bütçesinden harcaması bu sunum işinde değiştirilmez. Motorun henüz üretmediği özel çalımlar, gerçek penaltı/frikik/korner dizilişleri ve eski yıldız tekrarı açık kalır. Tam envanter ve görsel kabul sınırları [rapordadır](3d-restoration-report.md).
 
 Elde tutuşta `scene-grip.js`, motorun `heldBy` kimliğini kullanarak yalnız görünür top mesh'ini iki el kemiklerinin ortasına bağlar. Serbest top metrik konumdan gelir; bırakma olayında kavramadan bu örneğe kısa geçiş vardır. Motordaki top çapası, sahiplik, kaleci kökü ve 2D durumu aynı kalır. Bu uyarlama yerde kurtarışta sabit ayakta tutuş yüksekliğinin topu havada bırakmasını önler; yeni fizik veya kurtarış sonucu üretmez.
+
+## 1 Kasım 2026 — 3D özellik eşitliği adayı
+
+`sim/restart-decision`, `wall-reaction`, `penalty-decision` saf futbol kararı/temasıdır. Duran topların koşusu mevcut integratörü kullanır. `sim/offside` pas/şut anını ve gerçek katılımı izler, düdükte ortak fiziksel yeniden başlamayı kurar. Oyuncular mevcut noktasal metre modeliyle değerlendirilir; ayrı uzuv ofsayt modeli yoktur.
+
+`presentation/sim/scene-replay` mevcut `newview/replay` gövde/top kaydedicisini sarmalar. En fazla 180 kare; aktif kadro değişince eski kayıtlar bırakılır. Renderer ve kamera nesneleri dışında yazma yoktur; maç zaten duraklatılmışken manuel tekrar oynar. Otomatik yıldız tekrarı ve kalıcı arşiv bağlantısı açık kalır. Eski staging tarifleri gerçek pozisyon kaydı sayılmaz.
+
+Dönüş ve orta/hava bitirişi işleri iki başarısız yaklaşımdan sonra geri alındı; bağımlı özel çalımlar/temaslar açık borç olarak korunur. Kesin envanter, deneme sayıları, devam promptları ve ölçüm: `docs/3d-feature-parity-report.md`. Önceki tarihli "henüz bağlı değil" paragrafları kendi aşamalarının tarihidir.

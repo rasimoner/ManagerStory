@@ -452,3 +452,13 @@ Ceza alanındaki durdurulmuş faul artık topu dışarı taşımaz: 11 m noktas�
 ### Gerçek çalım gözlemleri
 
 Mevcut sürme, yön kararı ve gerçek birebirden çıkış korunur. `dribble-observation.js`, yakındaki gerçek savunmacıyla karşılaşmada gerçekleşmiş yön değişimini `skill/cut`, aynı dönüşün devamını `skill/turn`, savunmacı önceki yöne gerçekten hareket ederken yapılan ters dönüşü `skill/bodyFeint` olarak bildirir. Başarı veya rakibi geçme sonucu bu olaydan verilmez; mevcut `beat` geometrisi tek kaynaktır. Gözlem ek RNG tüketmez; top/oyuncu/karar/istatistiğe yazmaz. Gözlem geçmişi karşılaşmada saklanır; eski checkpoint’in eksik yönü ilk gözlemde tamamlanır. Sunum eski sağ/sol cut ve feint pozlarını kullanır, gerçek hareket sonrasında koşuya döner. Rakibe gözlenmemiş düşüş eklenmez. İsimli stepover/roulette/rainbow gibi farklı top yolları, genel sürmeden türetilmiş gibi etiketlenmez.
+
+## 1 Kasım 2026 — frikik, penaltı ve ofsayt adayı
+
+Yakın ve uygun açılı frikikte beceri ve savunmanın kapattığı açıklık doğrudan şut/pas kararına katılır. Koşu, gerçek vuruş, mevcut parabol, barajın yasal mesafesi/gecikmeli sıçrama zarfı ve kalecinin gerçek uçuşa tepkisi ortak çekirdektedir. Sıçrama süresi dışında normal temas geri gelir. Servis ortası, P3 kabulü başarısız olduğu için teslim edilmedi; uzak/dar açıda kısa pas korunur. Falso eklenmedi.
+
+Penaltıda yüksek oneOnOne özellikli kaleci, yaklaşma sırasında gördüğü gövde yönüne fiziksel yan adımla erken bağlanabilir. Yüksek teknik/composure oyuncu, kalecinin mevcut yanal hızı ve frenlenebileceği konumu merkezden uzaksa Panenka seçebilir. Normal vuruş alternatifi ve bütün uygulama hataları/kaleci erişimi korunur; gol/kurtarış sonucu hareket adına göre yazılmaz.
+
+Ofsaytta pas/şut çıkışındaki ikinci son rakip/top/yarı alan konumu saklanır. Yalnız pasif konum düdük değildir; gerçek dokunma, top mücadelesi veya yakındaki kaleci görüşünün kapanması gerekir. Doğrudan taç, aut ve korner istisnadır; sonraki takım arkadaşı teması yeni konum anıdır. Kontrollü rakip oyunuyla hızlı sekme/çelme ayrılır; ihlalde endirekt frikik gerçek yerinden, fiziksel yerleşmeyle kullanılır. Geometri motorun kök noktası modelidir; bütün uzuv ve öznel hakem durumları modellenmiş değildir. Birincil kural: https://www.theifab.com/laws/latest/offside/ .
+
+Kayıt biçimi 7 ve gerçek tekrarın salt okuma sınırı `save-format.md` içinde. Tam özellik eşitliği sağlanmadı; özel çalım, servis/hava bitirişleri ve otomatik/kalıcı tekrar sınırları `3d-feature-parity-report.md` içinde açıkça ayrılmıştır.

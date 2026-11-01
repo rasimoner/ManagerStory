@@ -18,7 +18,8 @@ export function beginSimulationRestart(simulation, input) {
   endSimulationCarry(simulation);
   if (ball.teamId !== team.id) beginSimTransition(simulation, team.id);
   const restart = { kind: input.kind, teamId: team.id, takerId: taker.id, receiverId: receiver?.id ?? taker.id,
-    position: { ...input.position }, sinceTick: simulation.tick, stage: 'positioning', targets: null };
+    position: { ...input.position }, sinceTick: simulation.tick, stage: 'positioning', targets: null, indirect: !!input.indirect };
+  simulation.offside = null;
   Object.assign(ball, { position: { ...input.position }, velocity: { x: 0, y: 0 }, height: 0, verticalVelocity: 0,
     ownerId: null, heldBy: null, shot: null, flight: null, assist: null, carry: null, control: null,
     backpassTeamId: null, excludedId: null, teamId: team.id, restart });

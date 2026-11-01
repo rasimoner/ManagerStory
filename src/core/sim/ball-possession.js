@@ -8,6 +8,7 @@ import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
 import { endSimulationCarry } from './dribbling.js';
 import { predictSimulationBall } from './ball-physics.js';
 import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
+import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay, captureSimulationOffside } from './offside.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
@@ -15,6 +16,8 @@ export function controlSimulationBall(simulation, contact, motion) {
   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
   const touching = predictSimulationBall(motion.before, contact.fraction * seconds);
   const time = (motion.startTime ?? simulation.time - seconds) + contact.fraction * seconds;
+  if (penalizeSimulationOffsideTouch(simulation, contact.player, { position: contact.player.position, time })) return null;
+  if (simulationDeliberateOpponentPlay(simulation, contact.player, { touching, time })) simulation.offside = null;
   if (keeperCanHandleSimulationBall(simulation, contact.player, touching)) {
     Object.assign(simulation.ball, touching);
     claimSimulationKeeperBall(simulation, contact.player, { time });
@@ -34,6 +37,7 @@ function completeSimulationControl(simulation, contact, result) {
   if (!usesContinuousSimulationControl(simulation)) return;
   beginSimulationControl(simulation, contact, result);
   followSimulationBallOwner(simulation);
+  captureSimulationOffside(simulation, contact.player);
 }
 
 function firstTouchRisk(player, ball) {
@@ -62,6 +66,7 @@ function recordSimulationTouch(simulation, contact, result) {
 }
 
 export function acquireSimulationBall(simulation, player) {
+  clearSimulationOffsideOnControl(simulation, player);
   const ball = simulation.ball;
   const restart = ball.restart;
   const returning = ball.carry?.playerId === player.id;

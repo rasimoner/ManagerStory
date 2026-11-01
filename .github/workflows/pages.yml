@@ -44,6 +44,8 @@ jobs:
           CAREER_CONTROLS_ONLY: '1'
       - name: Smoke test the experimental 3D view
         run: npm run smoke:sim-3d
+      - name: Smoke test restored football events and actual replays
+        run: node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/feature-parity.mjs
       - uses: actions/configure-pages@v5
         with:
           enablement: true

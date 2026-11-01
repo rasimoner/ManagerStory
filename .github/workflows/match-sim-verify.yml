@@ -44,7 +44,7 @@ jobs:
         if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation' && github.head_ref != 'fix/3d-restoration-phase2'
         run: |
           npm run sim:report -- --strength --output balance-measurements.json
-          node tools/sim-report/compare.cjs docs/measurements/match-sim-balance-after.json balance-measurements.json
+          node tools/sim-report/compare.cjs docs/measurements/match-sim-parity-reference.json balance-measurements.json
       - name: Measure all five durations with the same fifty equal-squad seeds
         if: github.head_ref != 'feat/short-match-flow' && github.head_ref != 'feat/match-sim-3d' && github.head_ref != 'feat/match-sim-keeper-animation' && github.head_ref != 'fix/sim-presentation-parity' && github.head_ref != 'fix/sim-goal-smoke-capture' && github.head_ref != 'fix/restore-3d-presentation' && github.head_ref != 'fix/3d-restoration-phase2'
         run: npm run sim:duration-report -- duration-measurements.json
@@ -103,6 +103,8 @@ jobs:
         run: npm run smoke:keeper-animation
       - name: Inspect phase 2 controls and physical restart releases in WebGL
         run: node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/restoration-phase2.mjs
+      - name: Inspect free kicks, offside, Panenka and actual recorded replays
+        run: node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/smoke/feature-parity.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -121,4 +123,11 @@ jobs:
         with:
           name: restoration-phase2-mobile
           path: test-results/restoration-phase2/
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: feature-parity-mobile
+          path: test-results/feature-parity/
           if-no-files-found: ignore

@@ -48,11 +48,12 @@ function isCloseChallenge(event) {
 
 function copyPresentationContact(event, cue) {
   return { ...cue, type: event.type, fromId: event.fromId, toId: event.toId, teamId: event.teamId,
-    time: event.physicsTime ?? event.time, kind: event.kind, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind, turn: event.turn,
+    time: event.physicsTime ?? event.time, kind: event.kind, style: event.style, lineX: event.lineX, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind, turn: event.turn,
     fromPos: event.fromPos ? { ...event.fromPos } : null, toPos: event.toPos ? { ...event.toPos } : null };
 }
 
 function contactHistorySeconds(event) {
   if (event.type === 'goal') return SIM_VIEW_DATA.atmosphere.goalSeconds;
+  if (event.type === 'offside') return SIM_VIEW_DATA.offside.seconds;
   return event.type === 'keeperClaim' ? SIM_VIEW_DATA.pose.handHistorySeconds : SIM_VIEW_DATA.contacts.seconds;
 }

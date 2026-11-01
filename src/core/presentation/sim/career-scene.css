@@ -45,3 +45,16 @@ html.sim-scene-lock,html.sim-scene-lock body{overflow:hidden!important;overscrol
 .sim-scene-full .sim-scene-player{top:calc(env(safe-area-inset-top,0px) + 47px)}
 @media(max-width:520px){.sim-scene-direction{top:82px;left:14px;transform:none}.sim-scene-caption{top:104px}}
 @media(orientation:landscape){.sim-scene-full .sim-scene-caption{top:auto;bottom:112px}.sim-scene-full .career3d-radar{top:60px;bottom:auto}}
+.sim-replay{position:absolute;inset:0;pointer-events:none;z-index:5;background:linear-gradient(#0007,transparent 20%,transparent 75%,#0008)}
+.sim-replay[hidden]{display:none}
+.sim-replay-heading{display:flex;align-items:center;gap:.6rem;padding:1rem;color:#fff;font-weight:800;font-size:.75rem;letter-spacing:.08em}
+.sim-replay-heading span{margin-left:auto;background:#ffcf32;color:#222;padding:.3rem .5rem;border-radius:.3rem}
+.sim-replay-heading button{pointer-events:auto;border:0;border-radius:.3rem;background:#222b;color:#fff;padding:.4rem .7rem}
+.sim-replay-card{position:absolute;bottom:13%;left:1rem;display:grid;color:#fff;text-shadow:0 1px 4px #000}
+.sim-replay-card strong{font-size:1rem;color:#ffcf32}.sim-replay-card span{font-size:.8rem}
+.sim-replay-track{position:absolute;bottom:10%;left:1rem;right:1rem;height:3px;background:#ffffff50}
+.sim-replay-track i{display:block;height:100%;background:#ffcf32;width:0}
+[data-sim-replaying=true] .sim-scene-controls,[data-sim-replaying=true] .sim-scene-cameras,[data-sim-replaying=true] .sim-scene-caption{visibility:hidden}
+@media(max-width:520px){.sim-scene-full .sim-scene-cameras{bottom:calc(env(safe-area-inset-bottom,0px) + 108px)}.sim-scene-full .career3d-radar{bottom:154px}}
+[data-sim-replaying=true] .sim-goal-overlay,[data-sim-replaying=true] .sim-scene-player,[data-sim-replaying=true] .sim-scene-direction{visibility:hidden}
+[data-sim-replaying=true] .sim-scene-tools,[data-sim-replaying=true] .career3d-radar{visibility:hidden}

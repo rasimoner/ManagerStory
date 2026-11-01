@@ -21,6 +21,7 @@ import { captureSimulationPlayerPositions } from './ball-contact.js';
 import { updateSimulationBallChasers } from './ball-chasing.js';
 import { prepareSimulationOwner, finishSimulationOwnerStep } from './owner-decision.js';
 import { advanceSimulationFreeBall, recordSimulationPossessionTime } from './ball-step.js';
+import { simulationOffsideInterference } from './offside.js';
 
 export function stepSimulation(simulation, replayBall) {
   if (simulationStepStopped(simulation, replayBall)) return simulation;
@@ -50,6 +51,7 @@ function prepareBallMovement(simulation, owned) {
 }
 
 function finishBallMovement(simulation, owned) {
+  if (simulationOffsideInterference(simulation)) return;
   if (simulation.referee.stoppage) { finishSimulationFoulRestart(simulation); return; }
   if (simulation.ball.heldBy != null) { advanceSimulationKeeperPossession(simulation); recordSimulationPossessionTime(simulation); return; }
   recordSimulationCarryDistance(simulation);

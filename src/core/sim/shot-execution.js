@@ -4,6 +4,7 @@ import { evaluateSimulationShot } from './shot-evaluation.js';
 import { endSimulationCarry } from './dribbling.js';
 import { emitSimulationEvent } from './ball-events.js';
 import { armSimulationKeepers } from './keeper-reaction.js';
+import { captureSimulationOffside } from './offside.js';
 
 export function requestSimulationShot(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
@@ -12,6 +13,7 @@ export function requestSimulationShot(simulation) {
 }
 
 export function releaseSimulationShot(simulation, owner, option) {
+  captureSimulationOffside(simulation, owner);
   endSimulationCarry(simulation);
   const ball = simulation.ball, fromPos = { ...ball.position };
   const flight = createShotFlight(simulation, owner, option);

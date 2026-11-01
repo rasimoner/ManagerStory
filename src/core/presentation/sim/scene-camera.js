@@ -10,7 +10,7 @@ export function createSimulationCamera(camera) {
     update(frame, seconds, view) {
       const { aspect, mode = 'auto' } = typeof view === 'number' ? { aspect: view } : view;
       const shot = simulationCameraShot(frame, mode);
-      if (mode === 'auto' && ['shot', 'side'].includes(shot.mode)) shot.framePoints = simulationCameraPoints(frame);
+      if (mode === 'auto' && ['shot', 'side', 'pen'].includes(shot.mode)) shot.framePoints = simulationCameraPoints(frame);
       shot.frameMargin = SIM_VIEW_DATA.camera.margin;
       broadcast.update({ ball: { p: new THREE.Vector3().copy(frame.ball.position) } }, shot, seconds, aspect);
       return broadcast.look;
@@ -30,10 +30,16 @@ export function simulationCameraShot(frame, mode) {
 function automaticSimulationCameraShot(frame, { actor, owner }) {
   const goal = observedSimulationGoal(frame);
   if (goal) return { mode: 'close', a: actor(frame.players.find(player => player.id === goal.fromId)) };
+  const offside = offsideCameraShot(frame);
+  if (offside) return offside;
   const shot = frame.ball.shot;
   const restartShot = penaltyRestartCameraShot(frame, actor);
   if (restartShot) return restartShot;
   if (!shot) return observedCameraCue(frame, actor) ?? { mode: 'tv' };
+  return shootingCameraShot(frame, { actor, owner, shot });
+}
+
+function shootingCameraShot(frame, { actor, owner, shot }) {
   const shooter = frame.players.find(player => player.id === shot.fromId) ?? owner;
   const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== shot.teamId);
   if (!shooter || !keeper) return { mode: 'tv' };
@@ -41,8 +47,19 @@ function automaticSimulationCameraShot(frame, { actor, owner }) {
   return { mode: shot.penalty ? 'pen' : near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
 }
 
+function offsideCameraShot(frame) {
+  const event = frame.contacts.findLast(contact => contact.type === 'offside' && contact.time <= frame.physicsTime);
+  if (!event || frame.physicsTime - event.time > SIM_VIEW_DATA.offside.seconds) return null;
+  const ball = frame.ball.position, span = SIM_VIEW_DATA.offside.cameraHalfSpan;
+  return { mode: 'stand', framePoints: [new THREE.Vector3().copy(ball),
+    new THREE.Vector3(event.lineX, 0, ball.z - span), new THREE.Vector3(event.lineX, 0, ball.z + span)] };
+}
+
 function penaltyRestartCameraShot(frame, actor) {
   const restart = frame.ball.restart;
+  if (restart?.kind === 'freeKick' && restart.delivery?.kind === 'direct') return { mode: 'shot',
+    a: actor(frame.players.find(player => player.id === restart.takerId)),
+    b: actor(frame.players.find(player => player.slot === 'GK' && player.teamId !== restart.teamId)) };
   return restart?.kind === 'penalty' ? { mode: 'pen', a: actor(frame.players.find(player => player.id === restart.takerId)),
     b: actor(frame.players.find(player => player.slot === 'GK' && player.teamId !== restart.teamId)) } : null;
 }
@@ -70,9 +87,18 @@ export function simulationCameraPoints(frame) {
   const attacking = frame.players.find(player => player.teamId === (ball.shot?.teamId ?? ball.teamId));
   if (!attacking) return points;
   const goalX = pitch.length / 2 * attacking.direction;
-  if (!ball.shot && Math.abs(goalX - ball.position.x) > SIM_VIEW_DATA.camera.goalApproachMetres) return points;
+  if (!ball.shot && !ball.restart?.delivery?.target && Math.abs(goalX - ball.position.x) > SIM_VIEW_DATA.camera.goalApproachMetres) return points;
   points.push(new THREE.Vector3(goalX, pitch.goalHeight, -pitch.goalWidth / 2), new THREE.Vector3(goalX, 0, pitch.goalWidth / 2));
   const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== attacking.teamId);
   if (keeper) points.push(new THREE.Vector3().copy(keeper.position).setY(1));
+  points.push(...restartCameraParticipants(frame));
   return points;
+}
+
+function restartCameraParticipants(frame) {
+  if (!frame.ball.restart?.delivery?.target) return [];
+  const restart = frame.ball.restart, ball = frame.ball.position;
+  return frame.players.filter(player => player.id === restart.takerId || player.teamId !== restart.teamId
+    && Math.hypot(player.position.x - ball.x, player.position.z - ball.z) <= MATCH_SIM_DATA.refereeing.restartDistance + MATCH_SIM_DATA.deadBalls.wallSpacing)
+    .map(player => new THREE.Vector3().copy(player.position).setY(1));
 }

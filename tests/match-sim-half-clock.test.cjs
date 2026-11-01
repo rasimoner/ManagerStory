@@ -96,7 +96,7 @@ test('format 5 raw and archived career checkpoints migrate without rewriting the
     const active = { experimental: true, simulationCheckpoint: snapshot, events: [] };
     const career = { schemaVersion: 5, players: [], xi: [], activeMatchV71: archived ? api.packExperimentalMatch(active) : active };
     api.migrateSave(career);
-    assert.equal(career.schemaVersion, 6);
+    assert.equal(career.schemaVersion, api.SAVE_SCHEMA);
     const migrated = api.unpackMatchSnapshot(career.activeMatchV71).simulationCheckpoint;
     assert.equal(migrated.state.clock.stoppedTicks, 0);
     assert.equal(migrated.state.matchTime, snapshot.state.matchTime);

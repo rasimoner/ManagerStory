@@ -6,14 +6,19 @@ import { simulationRestartLayout } from './restart-layout.js';
 import { usesPositionedSimulationRestarts, nearestSimulationRestartPlayer } from './restart-state.js';
 import { releasePositionedSimulationRestart } from './restart-release.js';
 import { pointDistance } from './geometry.js';
+import RESTART_DATA from '../../data/match-sim-restarts.json';
+import { planSimulationRestart, simulationRestartStrikePosition } from './restart-decision.js';
+import { simulationPenaltyKeeperTarget } from './penalty-decision.js';
 
 export function preparePositionedSimulationRestart(simulation) {
   const restart = simulation.ball.restart;
   if (!restart || !usesPositionedSimulationRestarts(simulation)) return false;
   prepareRestartParticipants(simulation, restart);
+  restart.delivery ??= planSimulationRestart(simulation, restart);
   restart.targets ??= simulationRestartLayout(simulation, restart);
   for (const team of simulation.teams) for (const player of team.players) moveRestartPlayer(simulation, player, restart);
-  if (restart.stage === 'ready') advanceRestartWindup(simulation, restart);
+  if (restart.stage === 'runup') advanceRestartRunup(simulation, restart);
+  else if (restart.stage === 'ready') advanceRestartWindup(simulation, restart);
   else if (restartPlayersReady(simulation, restart)) beginRestartWindup(simulation, restart);
   return true;
 }
@@ -37,7 +42,10 @@ function prepareRestartParticipants(simulation, restart) {
 
 function moveRestartPlayer(simulation, player, restart) {
   player.motionMode = null;
-  player.target = restart.targets[player.id] ?? { ...player.position };
+  player.target = player.id === restart.takerId && restart.delivery?.target ? simulationRestartStrikePosition(restart)
+    : restart.targets[player.id] ?? { ...player.position };
+  const anticipating = simulationPenaltyKeeperTarget(simulation, restart, player);
+  if (anticipating) { player.target = anticipating; player.motionMode = 'jockey'; player.facingTarget = restart.position; }
   player.gait = 'run';
   player.role = 'restart';
   recoverSimulationDefender(simulation, player);
@@ -50,7 +58,7 @@ function moveRestartPlayer(simulation, player, restart) {
 function restartFacingTarget(simulation, player, restart) {
   const receiver = simulationRuntime(simulation).byId.get(restart.receiverId);
   const goal = { x: -simulation.teams.find(team => team.id !== restart.teamId).direction * MATCH_SIM_DATA.pitch.length / 2, y: 0 };
-  return player.id === restart.takerId ? restart.kind === 'penalty' ? goal : receiver.position : restart.position;
+  return player.id === restart.takerId ? restart.delivery?.target ?? (restart.kind === 'penalty' ? goal : receiver.position) : restart.position;
 }
 
 function restartPlayersReady(simulation, restart) {
@@ -69,9 +77,16 @@ function facingRestartTarget(simulation, player, restart) {
 function beginRestartWindup(simulation, restart) {
   restart.stage = 'ready';
   restart.readyTime = simulation.time;
+  if (restart.delivery?.target) { restart.stage = 'runup'; return; }
   if (restart.kind !== 'throwIn') { releasePositionedSimulationRestart(simulation); return; }
   simulation.ball.heldBy = restart.takerId;
   simulation.ball.height = MATCH_SIM_DATA.goalkeeper.carryHeight;
+}
+
+function advanceRestartRunup(simulation, restart) {
+  const taker = simulationRuntime(simulation).byId.get(restart.takerId);
+  const ready = simulation.time - restart.readyTime >= RESTART_DATA.runup.minimumSeconds;
+  if (ready && pointDistance(taker.position, restart.position) <= RESTART_DATA.runup.contactDistance) releasePositionedSimulationRestart(simulation);
 }
 
 function advanceRestartWindup(simulation, restart) {
