@@ -48,3 +48,14 @@ test('the career live clock freezes the full real checkpoint through replay and 
   game.run('liveFrameStep(1000099)');
   assert.ok(game.run('M.simulation.tick') > tick);
 });
+
+test('career frame capture retains actual star-save evidence and never strips an observed skill marker', () => {
+  const { labFixture } = require('./support/lab.cjs');
+  const { simulation } = labFixture();
+  simulation.events.push({ type: 'skill', time: 0, kind: 'stepover', fromId: 'home-ST', fromPos: { x: 30, y: 0 }, observed: true });
+  simulation.events.push({ type: 'save', time: 0, kind: 'parry', fromId: 'away-GK', success: true, reachDifficulty: .9, lastMoment: true });
+  const contacts = loadGame({ quiet: true }).api.captureSimulationFrame(simulation).contacts;
+  assert.equal(contacts.find(e => e.type === 'skill').observed, true);
+  assert.equal(contacts.find(e => e.type === 'save').reachDifficulty, .9);
+  assert.equal(contacts.find(e => e.type === 'save').lastMoment, true);
+});

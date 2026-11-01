@@ -34,7 +34,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 1/2 | Gerçek makas dairesi, belirsiz normal pas, iki yön/rig ve kayıt geçti |
 | R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
 | R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | İncelenecek; yeni hareket çıkarsa bu satır sabit kalır |
-| R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 1/2 | 12 ortak kayıt/saat testi geçti; kariyer WebGL bekleniyor |
+| R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 2/2 | Kariyer kare aktarımındaki yıldız/observed bilgisi korundu; WebGL bekleniyor |
 | R28 | Kariyer arşivi İzle gerçekliği/mevcut kaydın uygunluğu; yeni kalıcı tekrar sistemi kurmadan sınırı raporlama | Bağımsız | 0/2 | Tarif sahneleniyor; mevcut veride gerçek kayıt yok, yeni kalıcı sistem kurulmadı |
 | R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 0/2 | Bekliyor |
 
@@ -126,3 +126,5 @@ Eski director.flairPassTry → stepoverBeat → stepoverPass yolu doğrulandı. 
 İlk üç kırmızı kabul özel temas/ayak hazırlığı olmadığını, alıcının topu daha yukarıda genel kontrol ettiğini gösterdi. İlk yaklaşım: teknik ve ilk kontrol, gerçek düşük hız, iniş noktası/erişim, aşağı hareket ve incik yüksekliğine göre ayakla karşılama niyeti. Ortaların kafa/vole seçimi ve şut/kaleci yolları korunur. Genel foot kontrolü yeniden adlandırılmaz: özel trap gerçek yakın temas ve daha düşük düşey hızla yumuşatma gerektirir, ilk kontrol hatası hâlâ mümkündür. Eski saf trapBoot eğrisi temas öncesinde ayağı hazırlar; yeni ikinci fizik çalışmaz.
 
 25/25 ortak hava/ilk kontrol/sombrero testi ve ilave canlı alıcı testi (5/5 trap) geçti. İki yön ve gerçek krampon <0,30 m; kök/checkpoint/RNG çizimden etkilenmez; kaydet/devam eşittir. Yeni kalıcı alan yoktur; trapIntent karede çekirdekten türetilir, ilkTouch.style olayının isteğe bağlı detayında kalır. Lint yeni ihlal yoktur.
+
+R27 ikinci yaklaşım: gerçek captureSimulationFrame yolu için ek kırmızı test, sunum olay kopyasının observed/reachDifficulty/lastMoment alanlarını düşürdüğünü gösterdi. İzole kaydedici filtresi doğruydu; kariyere aktarım eksikti. Kopya bu gerçek kanıtı korur: genel observed etiket yıldız olmaz, zor gerçek kurtarış otomatik seçilebilir. Yeni tekrar tamponu veya motor durum değişikliği yoktur. Bu satır 2/2'dir; ileri kabul başarısızsa yalnız otomatik bağlantı geri alınacak, manuel gerçek tekrar korunacaktır.
