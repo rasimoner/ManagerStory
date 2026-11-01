@@ -8,9 +8,9 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 
 | Kimlik | Sabit kabul maddesi | Başlangıç bağımlılığı | Yeni görev denemesi | Durum |
 |---|---|---|---:|---|
-| R1 | Tekrarlı dönüş: karar/koruma/taşıma/yeniden kontrol, iki yön, bütün süreler, kayıt, normal sürme ve kaleci | Yok; eski P1 iki başarısız yaklaşımı tekrar edilmez | 1/2 | Odaklı 68/68, lint/hızlı/perf geçti; son WebGL bekleniyor |
-| R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 2/2 | İkinci yaklaşım: yakındaki gerçek koşucular; 32 ortak kabul geçti, son hızlı/görsel sürüyor |
-| R3 | Gerçek yükseklik/temasla kafa şutu | R2 ortak servis | 1/2 | Kafa şutu fizik/rig geçti; son WebGL bekleniyor |
+| R1 | Tekrarlı dönüş: karar/koruma/taşıma/yeniden kontrol, iki yön, bütün süreler, kayıt, normal sürme ve kaleci | Yok; eski P1 iki başarısız yaklaşımı tekrar edilmez | 1/2 | Odaklı 68/68 geçti; özgün video kaydı eksik ve teslim dinamik görsel kapısı açık |
+| R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 2/2 | İkinci yaklaşım: yakındaki gerçek koşucular; 32 ortak kabul geçti; teslim dinamik görsel/denge kapıları açık |
+| R3 | Gerçek yükseklik/temasla kafa şutu | R2 ortak servis | 1/2 | Kafa şutu fizik/rig ve statik WebGL geçti; canlı görsel kapı açık |
 | R4 | Gerçek kafa pası | R2 ortak servis | 1/2 | Gerçek güvenli kafa pası ve kayıt/devam geçti |
 | R5 | Gerçek uzaklaştırma | R2 ortak servis | 1/2 | Gerçek uzaklaştırma ve iki yön geçti |
 | R6 | Gerçek vole | R2 ortak servis | 1/2 | Gerçek yükseklikten vole geçti |
@@ -34,7 +34,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 1/2 | Gerçek makas dairesi, belirsiz normal pas, iki yön/rig ve kayıt geçti |
 | R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 2/2 | Başarısız: sabit kökte gerçek topuk 0,576 m uzakta; ürün değişikliği geri alındı |
 | R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | Çağrılar doğrulandı; normal zor kurtarış/penaltı/elden vole mevcut zincirde korunur |
-| R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 2/2 | Kariyer kare aktarımındaki yıldız/observed bilgisi korundu; WebGL bekleniyor |
+| R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 2/2 | Kariyer kare aktarımı ve fonksiyonel kabul geçti; yeni dinamik WebGL kapısı açık |
 | R28 | Kariyer arşivi İzle gerçekliği/mevcut kaydın uygunluğu; yeni kalıcı tekrar sistemi kurmadan sınırı raporlama | Bağımsız | 0/2 | Tarif sahneleniyor; mevcut veride gerçek kayıt yok, yeni kalıcı sistem kurulmadı |
 | R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 1/2 | Açık: performans 2/2 altyapı, 50 tohum gerçek regresyonu ve görsel kanıt sınırı; PR yok |
 
@@ -169,3 +169,18 @@ R29 bağımsız doğrulama: değiştirilmemiş npm run smoke bütünü geçti; d
 
 
 Son GitHub yenilemesi: PR #16 closed/merged, merge d86ac72. CI 41260752142 verify success; continuous-mobile ve simulation-3d-mobile artık tarayıcı kurulumunda cancelled, sonraki kontroller skipped. Pages 41263740314 build ve publish success. Başlangıçtaki bekleme durumu ile son durum ayrıdır. startup-delivery-provenance.json kaynak durumları taşır. Bu dal PR/merge/yayın tetiklemedi.
+
+
+Ağır sekiz dosya ve 34-fixture golden: 91/91 geçti; hızlı paketin fonksiyonel birleşimi 676 başarılı / 1 mevcut atlama. Tekrar eden golden testi iki kez toplanmaz. Üçüncü performans koşusu yok. 34 statik temas karesi doğru checkpoint tick'iyle geçti. Bağımsız normal kariyer 3D dikey kaydında saat/pozisyon ilerlese de 45 sn içinde 60 tick kabulüne ulaşılamadı; başarısız video korunur, yatay ayağa geçilmez/yeniden denenmez. Bu görevde statik görselin canlı sekans kabulü yerine geçmediği açık tutulur.
+
+
+Değiştirilmemiş smoke:keeper-animation 12/12 gerçek WebGL kaydıyla geçti: 10 izole fizik zinciri ve 2 normal kariyer (iki kadraj). Kök/eldiven/kemik ve gerçek olay ölçümleri doğrulandı. Genel 3D yeni hareket/tekrar süre aşımı kapısı açık kalır; farklı kabulün başarısı bu başarısızlığı silmez. Statik temas ve kaleci kanıt özeti visual-verification-summary.json'dadır.
+
+
+R29 ek mevcut kapılar: smoke:sim-3d gerçek sabit kariyerde 900 tick içinde shot üretmediği için tarayıcı öncesi kırmızı; 90 fizik saniyesinde gerçek engine shot da 0, ilk pass tick 55. Bundan bağımsız restoration-phase2 ayrıca çalıştırıldı, 2000 adımlık normal skill kabulü de tarayıcı öncesi kırmızı. Süre/tohum/sonuç zorlanmadı, fixture değiştirilmedi. Ayrı remaining-career-gates.cjs yeniden üretmesi saklandı; yeni ürün çözümü denenmedi. Manuel WebGL tekrarın aynı tamamlama engelini üçüncü kez denemek yerine açık durum raporlandı. Kaynak kamera/kaleci fonksiyonel testleri ve 34 statik/12 kaleci WebGL kanıtı bu iki normal kariyer kabulünü geçirmiş sayılmaz.
+
+
+Taze main d86ac72 / aynı Node 22.23.4 kontrolünde iki eski kariyer fixture'ı geçti (6 kamera, 8 restorasyon). Adaydaki kırmızı durum Node 24/tarayıcı kurulumu değildir. Yeni ürün çözümü veya fixture sözleşmesi değişikliği uygulanmadı; sınır/seed yerinde kalır.
+
+
+Kanıtlar teslim edildi: 198 dosyalı ZIP 97.781.924 bayt / SHA-256 80278d8fe61aaae3780f5ddf5558681dbdf84e40c02bf02f44302511ad33a581; örnek JPG, 27 sn izole kaleci ve 12 sn kısmi normal kariyer MP4. Ham başarısız kayıtlar silinmedi. Son Node 22 lint geçti; kaynak/golden/workflow/lint-baseline korumaları değiştirilmedi. Tam performans kapısı üçüncü kez koşulmadı. Son rapor/kayıt commit'i zorunlu başarısızlıkları açıkça koruyarak teslim edilir; PR/merge/yayın yoktur.

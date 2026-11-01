@@ -139,3 +139,39 @@ sim:duration-report değiştirilmeden 250 maçı tamamladı: reference / 180 / 3
 | c39eb964a71c | 7.19.3 aday metası, 20 tohum ve açık performans kapısı |
 
 [Dal ve bütün commit'ler](https://github.com/rasimoner/ManagerStory/commits/fix/3d-remaining-feature-parity). Sonraki commit'ler yalnız ölçüm/kanıt aracı/raporu tamamlar; ürün tabanı c6341386'dır. Son teslim commit'lerinde AGENTS.md'nin hızlı paketi yeniden çalıştırma şartı, kullanıcının aynı altyapı engelinde en çok iki girişim şartı nedeniyle tekrarlanmaz; bu sapma commit mesajında açıkça yazılır. Hızlı/tam kapı başarılı ilan edilmez, başarısız performans ve 50 tohum kapısı korunur.
+
+
+## Son fonksiyonel ekler ve görsel kanıt sınırı
+
+Hızlı paketin hariç tuttuğu sekiz ağır dosya ve tüm eski golden dosyası ayrı çalıştırıldı: 91/91 başarılı, atlama yok (633,584 sn). Hızlı paketteki aynı golden dosyası bir test olarak tekrar sayılmadan birleşim 676 fonksiyonel başarı / 1 mevcut atlamadır. Bu, üçüncü performans koşusu yapılmış veya npm test kapısı tümüyle geçmiş demek değildir; iki başarısız performans sonucu geçerlidir.
+
+17 bağımsız hareket için 34 duraklatılmış gerçek WebGL checkpoint karesi (390×844 / 844×390) doğru tick eşitliğiyle geçti; sayfa hatası yok. Bunlar otomatik kamera görünümüdür, dinamik hareket süresini/başarı sıklığını kanıtlamaz. Sonraki bağımsız normal kariyer 3D dikey çekiminde gerçek saat/oyuncular ilerledi fakat hedef 60 tick artışı 45 saniyelik kapıya ulaşmadı; o kabul de başarısız kaldı, yatay ayağa geçilmedi ve yeniden denenmedi. Video gerçek normal kariyerdir; tamamlanan 3D maç veya akıcı fiziksel Safari kanıtı değildir. Dinamik görsel kapı kırmızıdır. Test süreleri büyütülmedi, başarısızlık geçmişi korunur.
+
+
+Kaleci için değiştirilmemiş smoke:keeper-animation bütünü Node 22'de geçti: iki kadrajda 10 izole çekirdek zinciri ve 2 normal kariyer penceresi. Normal kayıtta kadro/oyuncu/top geometrisi ve kurtarış sonucu değiştirilmedi; seed salt 73 / gerçek kariyer seed 8873. İzole sahnelerde gerçek krampon/kök/kemik sonluluğu ve eldeki topun eldiven uzaklığı <0,02 m kontrol edilir. Tam kayıtlar ve kareler kanıt paketindedir. Bu başarı, yeni isimli hareketlerin başarısız dinamik kabulünü veya performans kapısını geçirmez. Kaydın yerel kaynak commit'i 0b68dee, GitHub eşdeğeri afad23198979; ağaçları birebir 78e71cf596edef21cb0141001a0673f321ef57ee. Küçük özet visual-verification-summary.json içindedir.
+
+
+## İki mevcut kariyer fixture kapısı — açık
+
+Değiştirilmemiş smoke:sim-3d, tarayıcı başlamadan recordedSceneCareers içindeki “fixed career seed produced shot” assert'inde durdu. Aynı normal seed salt 73'ü 900 tick izleyen teşhiste ilk pass tick 55, 90 fizik saniyesi sonuna kadar gerçek çekirdek shot olayı 0 çıktı; yalnız sunum filtresinde kayıp diye yorumlanamaz. Bu tek pencere tek başına kilitlenme kanıtı değildir; normal pas/taşıma kararları ile ilk şut zamanı ayrıştırılmalıdır. 900 sınırı/tohum değiştirilmedi.
+
+Bağımsız restoration-phase2 kontrolü de tarayıcı başlamadan ordinarySkillCareer içindeki “the ordinary career generates a real skill cue” assert'inde durdu (en çok 2000 adım). Diğer kontrol başarısız diye engellenmiş varsayılmadı; ayrı çalıştırıldı. Seçim/uygunluk/çağrı yolu mu değiştiği yoksa beklenen doğal frekansın mı değiştiği henüz kesin değildir. İzole senaryonun ürettiği isimli hareketler, bu normal kariyer kabulünün geçtiği diye sunulmaz. Pencere büyütme, rastgele seed arama veya zorunlu olay üretme yapılmadı. tests/reproductions/remaining-career-gates.cjs iki hatayı tarayıcısız yeniden üretir, varsayılan test dosyaları dışındadır. Mevcut smoke/golden/CI kapıları yerinde kalır.
+
+Yeni hostta mevcut feature-parity manuel tekrar WebGL komutu yeniden çalıştırılmadı: gerçek kaydın tamamlama panelinde aynı süre aşımı engeli iki kez gözlendi. Manuel tekrarın çekirdek kayıt/RNG/geri dönüş testleri 676 fonksiyonel testin içindedir; bu, yeni manuel WebGL kapısı başarılı diye yazılmaz. Son teslim açıkları performans, 50 tohum dengesi, iki kariyer fixture kabulü ve dinamik görsel tamamlanmadır. Bu nedenlerle PR oluşturulmadı; main'e merge/yayın yoktur.
+
+
+## Son teslim kararı
+
+20 maddenin uygulaması/odaklı fizik-rig-kayıt kabulü bu dalda korunur; altı hareketin başarısız ürün farkı geri alınmıştır. Bu sayı normal kariyerde bütün özelliklerin görsel kabulünün geçtiği iddiası değildir. R29 teslimi açık kalır. Performans iki girişimde, 50 tohum karşılaştırması ve iki mevcut doğal kariyer fixture'ı başarısızdır; yeni dinamik tekrar/tam ekran görüntü kabulü de tamamlanmamıştır. Sürüm 7.19.3 yalnız adaydır. PR oluşturulmadı; main, canlı yayın ve önceki 7.20.0 hazırlıkları değiştirilmedi.
+
+Durdurulan altı hareket için iki ürün yaklaşımı yukarıdaki tabloda verilmiştir. Performans/görsel için iki altyapı girişimi ayrı tutulur. Son ölçümde bulunan denge ve kariyer fixture sorunlarına bu görevde ürün çözümü uygulanmadı; iki yaklaşım denenmiş gibi yazılmaz. Arşiv sınırı kapsam gereğidir. Özgün video için gereken bilgi gerçek kariyer checkpoint/seed'idir. Her açık konuya ayrı dar devam promptu follow-ups belgesinde vardır; bu görevin sayaçları sıfırlanmadı. delivery-checks.json tüm geçer/başarısız/yeniden çalıştırılmayan kapıları birlikte gösterir.
+
+
+Bu iki doğal kariyer fixture'ı aynı Node 22.23.4 ile ayrı, temiz d86ac72 main worktree'sinde de çalıştırıldı: ikisi de geçti (6 kamera sahnesi ve 8 restorasyon sahnesi). Adaydaki başarısızlık Node 24 veya tarayıcı kurulumu değildir. Bunun hangi üretim kararından veya değişen fixture sözleşmesinden kaynaklandığı henüz ayrıştırılmadı; eski seed/pencere korunur.
+
+
+## Teslim edilen görsel dosyalar
+
+ManagerStory_3D_Kanit_Paketi.zip: 198 dosya / 97.781.924 bayt; SHA-256 80278d8fe61aaae3780f5ddf5558681dbdf84e40c02bf02f44302511ad33a581. Ham WebM/PNG, geçer ve başarısız görsel manifestler, taze main/adaya ait ham ölçümler, loglar ve her dosyanın SHA-256 indeksi birlikte korunur. Kanıt paketi bu oturumda kullanıcıya teslim edildi; ürün kaynakları/belgeleri GitHub dalındadır.
+
+ManagerStory_3D_Kareler.jpg yalnız 6 örnek duraklatılmış izole kareyi gösterir; 34 asıl kare pakettedir. ManagerStory_Kaleci_Izole.mp4, geçen gerçek çekirdek catch-low-right-portrait zincirinin tam 27 saniyelik kaydıdır. ManagerStory_Normal_Kariyer_3D_Kismi.mp4, başarısız 45 saniye ilerleme kabulüne ait gerçek normal kariyer videosundan yalnız 12 saniyelik parçadır; tam 53,44 saniye WebM korunur. Videolar hızlandırılmadı veya üretilmiş görüntüyle değiştirilmedi. İki geçen normal kariyer kaleci penceresinin ham videoları ayrıca pakettedir. Fiziksel Safari onayı değildir.
