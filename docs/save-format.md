@@ -169,3 +169,5 @@ Format 6 `ball.restart` için tür/takım/kullanan/alıcı, sabit top noktası, 
 Format 6 `defending.engagements` içinde isteğe bağlı `observedHeading`/`observedTurn`, gerçekleşmiş çalım gözleminin tekrar üretilmesini önler. Bunlar hareket/karar hesabına girmez; önceki kayıtta eksikse mevcut yönle başlatılır.
 
 **6 → 7:** Eski ham/sıkıştırılmış deneysel aktif checkpoint'e isteğe bağlı `offside:null` eklenir; RNG, saat, kadro, olaylar ve sonuç yeniden hesaplanmaz. Yeni `ball.restart.delivery` karar türü ve hedefini, `stage:runup` yaklaşmayı; `duel.wallJump.start` barajın gerçek tepki zamanını saklar. Bunlar checkpoint'in normal düz nesne arşivinden kayıpsız geçer. Yeni format 7 kaydı format 6 uygulamada açılmaz. Tekrar görsel kayıtları kalıcı kariyer şemasına yazılmaz.
+
+PR #16 sonrası: mevcut `ball.carry.touchTick` henüz topa dokunulmamış taşıma niyetinde null olabilir. Yeni alan veya göç yoktur; gerçek dokunuşta tam fizik adımı yazılır. Niyet/koruma bekleyişi ve RNG normal checkpoint ile kayıpsız devam eder.

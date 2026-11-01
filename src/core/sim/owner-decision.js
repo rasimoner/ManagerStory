@@ -46,7 +46,7 @@ export function prepareSimulationOwner(simulation) {
 function refreshSimulationOwnerPlan(simulation, owner) {
   const options = evaluateSimulationOwnerOptions(simulation, owner);
   const forced = simulation.ownerDecision.forcedPlayerId;
-  const shieldSinceTick = simulation.ownerDecision.selected === 'shield' ? simulation.ownerDecision.shieldSinceTick : simulation.tick;
+  const shieldSinceTick = retainedShieldStart(simulation);
   simulation.ownerDecision = { ...options, forcedPlayerId: forced, shieldSinceTick };
   simulation.passing.options = options.passOptions;
   const manual = simulation.passing.requested;
@@ -95,8 +95,16 @@ function ownerCanRelease(simulation, owner, option) {
 
 function carryMovementTarget(simulation, owner) {
   const ball = simulation.ball;
-  const chasing = ball.ownerId == null && pointSquaredDistance(owner.position, ball.position) > MATCH_SIM_DATA.ball.controlRadius ** 2;
+  const chasing = ball.carry && pointSquaredDistance(owner.position, ball.position) > MATCH_SIM_DATA.ball.controlRadius ** 2;
   return chasing ? ball.position : simulation.ownerDecision.dribble.target;
+}
+
+function retainedShieldStart(simulation) {
+  if (!simulation.clock.pauseHalfPreparation) return simulation.ownerDecision.selected === 'shield' ? simulation.ownerDecision.shieldSinceTick : simulation.tick;
+  const carry = simulation.ball.carry;
+  const progressed = carry && simulation.events[carry.eventIndex].distance >= MATCH_SIM_DATA.dribbling.minimumLookAhead;
+  const since = simulation.ownerDecision.shieldSinceTick;
+  return !progressed && since >= simulation.ball.ownerSinceTick ? since : simulation.tick;
 }
 
 function finishOwnerShot(simulation, owner) {

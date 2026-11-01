@@ -15,6 +15,7 @@ export function forceSimulationDribble(simulation, playerId) {
 export function kickSimulationDribble(simulation, owner) {
   const ball = simulation.ball;
   if (!ball.carry) startCarry(simulation, owner);
+  if (simulation.clock.pauseHalfPreparation && !carryTouchAligned(simulation, owner)) return;
   const settings = MATCH_SIM_DATA.dribbling;
   const skill = (owner.attributes.dribbling + owner.attributes.technique) / (2 * MATCH_SIM_DATA.attributes.maximum);
   const speedRatio = Math.hypot(owner.velocity.x, owner.velocity.y) / owner.limits.maxSpeed;
@@ -35,8 +36,14 @@ function startCarry(simulation, owner) {
   const eventIndex = emitSimulationEvent(simulation, { type: 'dribble', fromId: owner.id, toId: owner.id,
     fromPos: { ...owner.position }, toPos: { ...owner.position }, teamId: owner.teamId, distance: 0, touches: 0, success: true });
   simulation.ball.carry = { playerId: owner.id, teamId: owner.teamId, ownerSinceTick: simulation.ball.ownerSinceTick,
-    eventIndex, previousPosition: { ...owner.position }, touchTick: simulation.tick };
+    eventIndex, previousPosition: { ...owner.position }, touchTick: null };
   simulation.statistics.teams[owner.teamId].dribbles++;
+}
+
+function carryTouchAligned(simulation, owner) {
+  const target = simulation.ownerDecision.dribble.target;
+  const turn = Math.atan2(target.y - owner.position.y, target.x - owner.position.x) - owner.heading;
+  return Math.abs(Math.atan2(Math.sin(turn), Math.cos(turn))) <= MATCH_SIM_DATA.passing.angleTolerance;
 }
 
 export function recordSimulationCarryDistance(simulation) {

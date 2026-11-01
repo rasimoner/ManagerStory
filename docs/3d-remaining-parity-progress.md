@@ -1,0 +1,57 @@
+# PR #16 sonrası 3D eşitliği — sabit kabul ve deneme günlüğü
+
+Başlangıç: 1 Kasım 2026; main `d86ac72de6bc4677a2357fc516c06e1ffeceed48`, ağaç `b564749a2eeb0b361ba35a422716b6890467e787`, sürüm 7.19.2. Dal: `fix/3d-remaining-feature-parity`. Önceki dizindeki README/package/package-lock ve izlenmeyen 7.20.0 yayın notu korunur; bu ayrı worktree'ye alınmaz. Merge/yayın yapılmayacak.
+
+Başlangıç doğrulaması: PR #16 merged. Pages çalışması 41263740314 build/test/smoke ve publish başarılı. PR CI 41260752142 verify başarılı; iki mobil iş tarayıcı kurulumunda bekliyor. Bunlar birbirinden ayrı sonuçlardır. Node 22.23.4 edinildi; varsayılan Node 24 kullanılmayacak.
+
+Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir. Teşhis/kırmızı test deneme değildir. Her satır bu görevde en çok iki yaklaşım alır; yeniden adlandırma/alt parçalama sayaç yenilemez. İkinci başarısızlıkta yalnız o maddenin başarısız ürün farkı geri alınır; ayrı yeniden üretme saklanır. Önceki P1/P3 ve diğer denemeler `3d-feature-parity-progress.md` içinde değişmeden korunur. Bağımlılık aşağıda başlangıç varsayımıdır; kod/karşı örnek ile doğrulanmadan engellenmiş sayılmaz.
+
+| Kimlik | Sabit kabul maddesi | Başlangıç bağımlılığı | Yeni görev denemesi | Durum |
+|---|---|---|---:|---|
+| R1 | Tekrarlı dönüş: karar/koruma/taşıma/yeniden kontrol, iki yön, bütün süreler, kayıt, normal sürme ve kaleci | Yok; eski P1 iki başarısız yaklaşımı tekrar edilmez | 1/2 | Odaklı 68/68, lint/hızlı/perf geçti; son WebGL bekleniyor |
+| R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 0/2 | Bekliyor |
+| R3 | Gerçek yükseklik/temasla kafa şutu | R2 ortak servis | 0/2 | Bekliyor |
+| R4 | Gerçek kafa pası | R2 ortak servis | 0/2 | Bekliyor |
+| R5 | Gerçek uzaklaştırma | R2 ortak servis | 0/2 | Bekliyor |
+| R6 | Gerçek vole | R2 ortak servis | 0/2 | Bekliyor |
+| R7 | Uygun durumda röveşata | R2 ortak servis | 0/2 | Bekliyor |
+| R8 | Stepover | R1 temas/çıkış, koddan doğrulanacak | 0/2 | Bekliyor |
+| R9 | Nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
+| R10 | Elastico | R1, çoklu temas | 0/2 | Bekliyor |
+| R11 | Cruyff | R1 | 0/2 | Bekliyor |
+| R12 | Croqueta | R1, çoklu temas | 0/2 | Bekliyor |
+| R13 | Roulette | R1, çoklu temas | 0/2 | Bekliyor |
+| R14 | Flair nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
+| R15 | Drag-back | R1 | 0/2 | Bekliyor |
+| R16 | Rainbow | R1 + R2 hava teması | 0/2 | Bekliyor |
+| R17 | Sombrero | R1 + R2 hava teması | 0/2 | Bekliyor |
+| R18 | Juggling | R1 + R2 hava teması | 0/2 | Bekliyor |
+| R19 | Backheel | Pas temasının yön/ayak gereksinimi; R1 ilişkisi doğrulanacak | 0/2 | Bekliyor |
+| R20 | Rabona | Pas temasının yön/ayak gereksinimi; R1 ilişkisi doğrulanacak | 0/2 | Bekliyor |
+| R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 0/2 | Bekliyor |
+| R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
+| R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 0/2 | Bekliyor |
+| R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 0/2 | Bekliyor |
+| R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
+| R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | İncelenecek; yeni hareket çıkarsa bu satır sabit kalır |
+| R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 0/2 | Bekliyor |
+| R28 | Kariyer arşivi İzle gerçekliği/mevcut kaydın uygunluğu; yeni kalıcı tekrar sistemi kurmadan sınırı raporlama | Bağımsız | 0/2 | İncelenecek |
+| R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 0/2 | Bekliyor |
+
+## Altyapı sayacı
+
+Git erişimi 1/2 başarılı; eski dizin değişmeden ayrı worktree. Node 22 edinme 1/2 başarılı. Video materyalizasyonu 1/2 başarılı. Tarayıcı için önce önceki görevde çalışan mevcut Chromium kullanılacak; bozuk ZIP döngüsü tekrarlanmayacak. Her yeni aynı engel burada en çok iki girişimle izlenecek.
+
+## Tarihsel karşı örnekler
+
+R1: dokunuşu bekletip taşıma niyetini kaybetmek ve niyeti erken başlatıp uzak top kovalamayı bozmak önceki başarısızlıklardır. `turn-release.cjs` ve seed 9 trace/checkpoint korunur. Özgün kullanıcı videosunun kariyer checkpoint/seed'i yoktur; seed 9 videonun kesin kök nedeni sayılmaz.
+
+R2: çizgi dışı yaklaşma ve ikinci denemede restartKind/eski referans olay-kondisyon uyumu önceki başarısızlıklardır. `cross-delivery-attempt2.patch` uygulanacak hazır çözüm değildir.
+
+## R1 — birinci yaklaşım
+
+Kırmızı: sekiz yön/süre temas testi ve koruma maliyetini kısa sonuçsuz sürmeyle sıfırlama testi. Kaydet/devam zaten geçti. Kesin iki kod bulgusu: dokunuş yönü seçilen taşıma hedefi yerine henüz dönmemiş heading'den çıkıyor; `shieldSinceTick` her kısa dribble kararından sonra yenileniyor. Sunumdaki `shoulder` döngüsü bu motor kararını tekrar gösteriyor; ikinci bir animasyon kararı yok. Seed 9 trace'inde pas seçenekleri güvenlik ve erişimden eleniyor/puan kaybediyor; rastgele pas eklenmedi.
+
+Yeni yaklaşım önceki başarısız ikisinden şu nedenle farklı: taşıma niyetiyle gerçek dokunuş zamanı ayrılıyor (`carry.touchTick:null`); kaleci bu niyetle korunuyor, taşıma sırasında kontrol yarıçapı dışındaki gerçek top hedefi sahiplik etiketinden bağımsız okunuyor. Eski ikinci denemenin tam karşı örneği olan uzak topu takip testi geçti. Gerçek en az 3 m taşıma olmadan koruma destek zamanı yenilenmiyor; ilerleyen normal taşıma yeniden koruma hakkını koruyor. Yeni katsayı veya sonuç/RNG zarı yok. Tarihsel `pauseHalfPreparation:false` checkpoint'inde eski karar/dokunuş yolu korunur.
+
+68/68 odaklı test (iki yön, 180/300/420/600 saniye, kayıt, sürme, mücadele, kaleci ayakla taşıma/uzak top takibi ve havadan kontrol). Lint tabanı büyümedi; hızlı paket ve 5/5 ayrı performans geçti. Kullanıcı videosu 34,43 sn; 57:07/58:10/59:15 karelerinde aynı bölge doğrulandı, özgün checkpoint yok. Bu nedenle video için kesin aynı kök neden veya tam çözüm iddia edilmez. Mevcut tarihsel yeniden üretmeler değiştirilmedi.
