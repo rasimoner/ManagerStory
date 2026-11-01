@@ -280,3 +280,7 @@ Faz 2 duran top modülleri: `core/sim/restart-state.js` yalnız hazırlık durum
 - `core/presentation/sim/scene-offside.js`, `scene-replay.js`, `scene-replay-panel.js`: eski sarı çizgi ve eski gerçek gövde/top kaydedicisine bağlı salt okuma görünümü.
 - `tests/reproductions/`: varsayılan paketi kırmadan saklanan açık dönüş/orta regresyonları; ilerleme günlüğü hangi ürün yaklaşımının geri alındığını anlatır.
 - `tools/match-sim-parity-report.cjs`: aynı 20 tohumda eşlenmiş kısa maç ölçümü; tarihli ham sonuçlar `docs/measurements/3d-feature-parity/`.
+
+## PR #16 sonrası ortak servis
+
+`core/sim/cross-delivery.js` servis seçimi, ortak pas uçuşu ve orta olayını; `cross-layout.js` gerçek koşucu/markajcı/kaleci yerleşim hedeflerini kurar. Eski director çalıştırılmaz. Kabul: `tests/match-sim-cross-delivery.test.cjs`.

@@ -38,13 +38,15 @@ function advanceRollingBall(ball, seconds) {
 }
 
 export function simulationPassFlight(start, target, lofted = false) {
+  const options = typeof lofted === 'object' ? lofted : { lofted };
   const distance = hypot(target.x - start.x, target.y - start.y);
   const settings = MATCH_SIM_DATA.passing;
   const seconds = settings.lobMinimumSeconds + distance * settings.lobSecondsPerMetre;
-  const speed = lofted ? distance / seconds : min(settings.maximumSpeed, settings.minimumSpeed + distance * settings.distanceSpeedFactor);
+  const speed = options.lofted ? distance / seconds : min(settings.maximumSpeed, settings.minimumSpeed + distance * settings.distanceSpeedFactor);
   const factor = distance ? speed / distance : 0;
   return { position: { ...start }, velocity: { x: (target.x - start.x) * factor, y: (target.y - start.y) * factor },
-    height: 0, verticalVelocity: lofted ? MATCH_SIM_DATA.ball.gravity * seconds / 2 : 0 };
+    height: options.startHeight ?? 0, verticalVelocity: options.lofted ? MATCH_SIM_DATA.ball.gravity * seconds / 2
+      + ((options.arrivalHeight ?? 0) - (options.startHeight ?? 0)) / seconds : 0 };
 }
 
 export function simulationBallTravelSeconds(flight, distance) {

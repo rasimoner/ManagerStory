@@ -9,6 +9,7 @@ import { pointDistance } from './geometry.js';
 import { simulationShortRestartTarget } from './restart-layout.js';
 import { simulationFreeKickShot } from './restart-decision.js';
 import { reactSimulationWall } from './wall-reaction.js';
+import RESTART_DATA from '../../data/match-sim-restarts.json';
 
 export function releasePositionedSimulationRestart(simulation) {
   const restart = simulation.ball.restart, players = simulationRuntime(simulation).byId;
@@ -33,6 +34,12 @@ function releaseFreeKick(simulation, taker) {
 }
 
 function releaseRestartPass(simulation, { taker, receiver, restart }) {
+  if (restart.delivery?.kind === 'cross') {
+    const lead = RESTART_DATA.delivery.leadSeconds;
+    releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: true, cross: true, restartKind: restart.kind,
+      target: { x: receiver.position.x + receiver.velocity.x * lead, y: receiver.position.y + receiver.velocity.y * lead } });
+    return;
+  }
   const distance = restart.kind === 'goalKick' ? MATCH_SIM_DATA.deadBalls.goalKickDistance : MATCH_SIM_DATA.refereeing.restartPassDistance;
   releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: false, restartKind: restart.kind,
     target: simulationShortRestartTarget(restart.position, receiver.position, distance) });

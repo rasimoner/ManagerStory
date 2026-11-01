@@ -14,13 +14,20 @@ export function preparePositionedSimulationRestart(simulation) {
   const restart = simulation.ball.restart;
   if (!restart || !usesPositionedSimulationRestarts(simulation)) return false;
   prepareRestartParticipants(simulation, restart);
-  restart.delivery ??= planSimulationRestart(simulation, restart);
+  prepareRestartDelivery(simulation, restart);
   restart.targets ??= simulationRestartLayout(simulation, restart);
   for (const team of simulation.teams) for (const player of team.players) moveRestartPlayer(simulation, player, restart);
   if (restart.stage === 'runup') advanceRestartRunup(simulation, restart);
   else if (restart.stage === 'ready') advanceRestartWindup(simulation, restart);
   else if (restartPlayersReady(simulation, restart)) beginRestartWindup(simulation, restart);
   return true;
+}
+
+function prepareRestartDelivery(simulation, restart) {
+  const id = restart.delivery?.receiverId, player = simulationRuntime(simulation).byId.get(id);
+  if (id && (!player || player.sentOff)) { restart.delivery = null; restart.targets = null; restart.stage = 'positioning'; }
+  restart.delivery ??= planSimulationRestart(simulation, restart);
+  if (restart.delivery.receiverId) restart.receiverId = restart.delivery.receiverId;
 }
 
 function prepareRestartParticipants(simulation, restart) {

@@ -35,5 +35,34 @@
     "commitDistance": 0.7,
     "speed": 10,
     "targetHeight": 0.8
+  },
+  "delivery": {
+    "minimumSkill": 0.65,
+    "runnerPositions": [
+      {
+        "x": 41.5,
+        "y": 0
+      },
+      {
+        "x": 39,
+        "y": -8
+      },
+      {
+        "x": 44,
+        "y": 8
+      }
+    ],
+    "arrivalHeight": 1.6,
+    "leadSeconds": 0.4,
+    "openPlayX": 24,
+    "wideY": 18,
+    "minimumTargetX": 34,
+    "maximumTargetY": 20,
+    "maximumFreeKickDistance": 48,
+    "wideFreeKickY": 12,
+    "markingDistance": 1.5,
+    "goalX": 52.5,
+    "keeperDepth": 3,
+    "cornerInset": 0.5
   }
 }

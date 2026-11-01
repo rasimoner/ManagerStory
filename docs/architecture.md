@@ -179,3 +179,7 @@ Elde tutuşta `scene-grip.js`, motorun `heldBy` kimliğini kullanarak yalnız g�
 `presentation/sim/scene-replay` mevcut `newview/replay` gövde/top kaydedicisini sarmalar. En fazla 180 kare; aktif kadro değişince eski kayıtlar bırakılır. Renderer ve kamera nesneleri dışında yazma yoktur; maç zaten duraklatılmışken manuel tekrar oynar. Otomatik yıldız tekrarı ve kalıcı arşiv bağlantısı açık kalır. Eski staging tarifleri gerçek pozisyon kaydı sayılmaz.
 
 Dönüş ve orta/hava bitirişi işleri iki başarısız yaklaşımdan sonra geri alındı; bağımlı özel çalımlar/temaslar açık borç olarak korunur. Kesin envanter, deneme sayıları, devam promptları ve ölçüm: `docs/3d-feature-parity-report.md`. Önceki tarihli "henüz bağlı değil" paragrafları kendi aşamalarının tarihidir.
+
+## PR #16 sonrası fiziksel taşıma ve servis
+
+Taşıma niyeti gerçek dokunuş zamanından ayrılır; sonuçsuz koruma/sürme dönüşü bekleme maliyetini yenilemez. Ortak cross-delivery/cross-layout modülleri mevcut pas ve yerçekimiyle servis kurar; ikinci simülasyon yoktur. Eski reference checkpoint davranışı korunur. İsteğe bağlı orta uçuşu şema 8 ile saklanır; gerçek tekrar tamponu kalıcı arşive eklenmez. Sabit kabul/deneme kaydı `3d-remaining-parity-progress.md` içindedir.

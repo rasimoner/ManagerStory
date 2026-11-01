@@ -26,6 +26,8 @@ export function settleSimulationPass(simulation, result) {
   pass.resolvedMatchTime = simulationMatchSeconds(simulation, pass.resolvedAt);
   pass.actualToPos = { ...result.position };
   pass.distance = pointDistance(pass.fromPos, result.position);
+  if (flight.crossEventIndex != null) Object.assign(simulation.events[flight.crossEventIndex], {
+    success: pass.success, actualToId: pass.actualToId, actualToPos: { ...result.position }, resolvedAt: pass.resolvedAt });
   stats.resolvedPasses++;
   stats.passDistance += pass.distance;
   if (pass.success) {

@@ -9,7 +9,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | Kimlik | Sabit kabul maddesi | Başlangıç bağımlılığı | Yeni görev denemesi | Durum |
 |---|---|---|---:|---|
 | R1 | Tekrarlı dönüş: karar/koruma/taşıma/yeniden kontrol, iki yön, bütün süreler, kayıt, normal sürme ve kaleci | Yok; eski P1 iki başarısız yaklaşımı tekrar edilmez | 1/2 | Odaklı 68/68, lint/hızlı/perf geçti; son WebGL bekleniyor |
-| R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 0/2 | Bekliyor |
+| R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 1/2 | İlk fizik yaklaşımı: 40 odaklı test ve hızlı paket geçti; lint/son görsel kabulü sürüyor |
 | R3 | Gerçek yükseklik/temasla kafa şutu | R2 ortak servis | 0/2 | Bekliyor |
 | R4 | Gerçek kafa pası | R2 ortak servis | 0/2 | Bekliyor |
 | R5 | Gerçek uzaklaştırma | R2 ortak servis | 0/2 | Bekliyor |
@@ -55,3 +55,11 @@ Kırmızı: sekiz yön/süre temas testi ve koruma maliyetini kısa sonuçsuz s�
 Yeni yaklaşım önceki başarısız ikisinden şu nedenle farklı: taşıma niyetiyle gerçek dokunuş zamanı ayrılıyor (`carry.touchTick:null`); kaleci bu niyetle korunuyor, taşıma sırasında kontrol yarıçapı dışındaki gerçek top hedefi sahiplik etiketinden bağımsız okunuyor. Eski ikinci denemenin tam karşı örneği olan uzak topu takip testi geçti. Gerçek en az 3 m taşıma olmadan koruma destek zamanı yenilenmiyor; ilerleyen normal taşıma yeniden koruma hakkını koruyor. Yeni katsayı veya sonuç/RNG zarı yok. Tarihsel `pauseHalfPreparation:false` checkpoint'inde eski karar/dokunuş yolu korunur.
 
 68/68 odaklı test (iki yön, 180/300/420/600 saniye, kayıt, sürme, mücadele, kaleci ayakla taşıma/uzak top takibi ve havadan kontrol). Lint tabanı büyümedi; hızlı paket ve 5/5 ayrı performans geçti. Kullanıcı videosu 34,43 sn; 57:07/58:10/59:15 karelerinde aynı bölge doğrulandı, özgün checkpoint yok. Bu nedenle video için kesin aynı kök neden veya tam çözüm iddia edilmez. Mevcut tarihsel yeniden üretmeler değiştirilmedi.
+
+## R2 — birinci fizik yaklaşımı
+
+Kırmızı: yüksek beceride iki yönde gerçek servis, geniş endirekt frikik ve açık oyun ortası (5/9 kırmızı). Düşük beceride kısa seçenek, tarihsel uçuş ve kaçan pas önceden de geçti. Eski patch uygulanmadı; planlama/yerleşim ve ortak pas fiziği ayrı modüllerde kuruldu. Korner noktası yay içinde 0,5 m içeride; yaklaşma hedefi saha içinde. Pas olayının restartKind/temporaryRestart bilgisi asıl eventIndex'te tutuluyor, sonraki cross olayına yanlış yazılmıyor. Tarihsel pauseHalfPreparation:false uçuşlarında orta sınıflandırması/yeni düşey hız uygulanmıyor.
+
+İlk fizik doğrulaması 38/38 geçti. Lintte restart planı ve hazırlığının karmaşıklığı görüldü; davranış değiştirmeyen sorumluluk ayrımı yapıldı. Göçün kırmızı testi sonrasında şema 8 eklendi; 40/40 odaklı ve hızlı/perf geçti. İkinci lintte eski golden metadata yardımcısına eklenen koşulun karmaşıklığı görüldü; iki eşdeğer şema koşulu tek üyelik koşulunda birleştirildi. Bunlar aynı fizik yaklaşımının mekanik lint temizliğidir; ikinci futbol yaklaşımı uygulanmadı, başarısız fizik testi gizlenmedi. Eşik/baseline/golden içeriği değişmedi.
+
+Şema 8 yalnız isteğe bağlı servis uçuşunu korur; ham/sıkıştırılmış eski aktif pas aynı top/olay/RNG ile devam eder. Alıcı değişiklikte ayrılmışsa servis planı yeni kadrodan yeniden kurulur.

@@ -10,7 +10,7 @@ test('format 6 raw and archived checkpoints add optional feature state without c
     const active={experimental:true,simulationCheckpoint:checkpoint,events:[]};
     const career={schemaVersion:6,players:[],activeMatchV71:archived?game.api.packExperimentalMatch(active):active};
     game.api.migrateSave(career);
-    assert.equal(career.schemaVersion,7);
+    assert.equal(career.schemaVersion,game.api.SAVE_SCHEMA);
     const after=game.api.unpackMatchSnapshot(career.activeMatchV71).simulationCheckpoint;
     assert.equal(after.state.offside,null);
     delete after.state.offside;

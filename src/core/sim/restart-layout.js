@@ -1,11 +1,13 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue, pointDistance } from './geometry.js';
 import { simulationPenaltyAreaContains } from './keeper-positioning.js';
+import { arrangeSimulationCross } from './cross-layout.js';
 
 export function simulationRestartLayout(simulation, restart) {
   const targets = {};
   for (const team of simulation.teams) for (const player of team.players) targets[player.id] = restartPlayerTarget({ simulation, restart, team }, player);
   if (restart.kind === 'freeKick') placeFreeKickWall(simulation, restart, targets);
+  arrangeSimulationCross(simulation, restart, targets);
   return targets;
 }
 
