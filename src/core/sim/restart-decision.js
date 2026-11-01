@@ -5,6 +5,7 @@ import { simulationRuntime } from './simulation-runtime.js';
 import { pointDistance } from './geometry.js';
 
 export function planSimulationRestart(simulation, restart) {
+  if (restart.indirect) return { kind: 'short' };
   const taker = simulationRuntime(simulation).byId.get(restart.takerId);
   const shot = evaluateSimulationShot(simulation, taker);
   const settings = RESTART_DATA.freeKick;

@@ -19,5 +19,12 @@
     "jumpSeconds": 0.65,
     "jumpHeight": 0.35,
     "contactSamples": 12
+  },
+  "offside": {
+    "challengeDistance": 1.25,
+    "screenDistance": 4,
+    "screenWidth": 0.35,
+    "deliberateHeight": 0.7,
+    "deliberateSpeed": 12
   }
 }

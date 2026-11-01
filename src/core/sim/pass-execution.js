@@ -4,10 +4,12 @@ import { pointDistance } from './geometry.js';
 import { drawSimulationRandom, simulationRuntime } from './simulation-runtime.js';
 import { simulationOwnerPressure } from './pass-evaluation.js';
 import { emitSimulationEvent } from './ball-events.js';
+import { captureSimulationOffside } from './offside.js';
 
 const { cos, sin } = Math;
 
 export function releaseSimulationPass(simulation, owner, option) {
+  captureSimulationOffside(simulation, owner, option.restartKind);
   const ball = simulation.ball, fromPos = { ...ball.position };
   const flight = simulationPassFlight(fromPos, option.target, option.lofted);
   applyPassError(simulation, owner, flight);

@@ -34,7 +34,7 @@ function releaseFreeKick(simulation, taker) {
 
 function releaseRestartPass(simulation, { taker, receiver, restart }) {
   const distance = restart.kind === 'goalKick' ? MATCH_SIM_DATA.deadBalls.goalKickDistance : MATCH_SIM_DATA.refereeing.restartPassDistance;
-  releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: false,
+  releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: false, restartKind: restart.kind,
     target: simulationShortRestartTarget(restart.position, receiver.position, distance) });
   Object.assign(simulation.events.at(-1), { restartKind: restart.kind, temporaryRestart: false });
   if (restart.kind !== 'throwIn') return;

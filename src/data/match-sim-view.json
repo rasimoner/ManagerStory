@@ -82,5 +82,12 @@
     "photoDelaySeconds": 1.6,
     "photoSeconds": 2,
     "celebrationSeconds": 1.6
+  },
+  "offside": {
+    "width": 0.14,
+    "color": "#ffd400",
+    "opacity": 0.9,
+    "height": 0.03,
+    "seconds": 2.6
   }
 }

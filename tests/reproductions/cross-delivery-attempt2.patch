@@ -1,0 +1,441 @@
+diff --git a/src/core/match/presentation-contacts.js b/src/core/match/presentation-contacts.js
+index 18bf684..fc47484 100644
+--- a/src/core/match/presentation-contacts.js
++++ b/src/core/match/presentation-contacts.js
+@@ -48,7 +48,7 @@ function isCloseChallenge(event) {
+ 
+ function copyPresentationContact(event, cue) {
+   return { ...cue, type: event.type, fromId: event.fromId, toId: event.toId, teamId: event.teamId,
+-    time: event.physicsTime ?? event.time, kind: event.kind, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind, turn: event.turn,
++    time: event.physicsTime ?? event.time, kind: event.kind, style: event.style, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind, turn: event.turn,
+     fromPos: event.fromPos ? { ...event.fromPos } : null, toPos: event.toPos ? { ...event.toPos } : null };
+ }
+ 
+diff --git a/src/core/presentation/sim/ball-sample.js b/src/core/presentation/sim/ball-sample.js
+index e8a1bfc..3f53267 100644
+--- a/src/core/presentation/sim/ball-sample.js
++++ b/src/core/presentation/sim/ball-sample.js
+@@ -4,7 +4,7 @@ import { simulationWorldPoint } from './scene-frame.js';
+ export function sampleSceneBall(previous, current, time) {
+   const from = { time: previous.physicsTime, position: previous.ball.position, height: previous.ball.height };
+   const to = { time: current.physicsTime, position: current.ball.position, height: current.ball.height };
+-  const contact = current.contacts.findLast(event => event.type === 'firstTouch' && event.height != null && event.fromPos
++  const contact = current.contacts.findLast(event => ['firstTouch', 'aerialContact'].includes(event.type) && event.height != null && event.fromPos
+     && event.time > from.time && event.time < to.time);
+   if (!contact) return interpolateBallPoints(from, to, time);
+   const touch = { time: contact.time, position: contact.fromPos, height: contact.height };
+diff --git a/src/core/presentation/sim/scene-actions.js b/src/core/presentation/sim/scene-actions.js
+index 45fb7e7..9867044 100644
+--- a/src/core/presentation/sim/scene-actions.js
++++ b/src/core/presentation/sim/scene-actions.js
+@@ -38,10 +38,16 @@ function ownerAnimationName(contact) {
+   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
+   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
+   if (contact.type === 'block') return 'lunge';
+-  return contact.type === 'shot' ? 'shot' : null;
++  return shotAnimationName(contact);
++}
++
++function shotAnimationName(contact) {
++  if (contact.type !== 'shot') return null;
++  return contact.style === 'header' ? 'header' : 'shot';
+ }
+ 
+ function movementAnimationName(contact) {
++  if (contact.type === 'aerialContact') return contact.kind === 'header' ? 'header' : 'shot';
+   if (contact.type === 'beat') return 'cut';
+   return contact.type === 'skill' ? skillAnimationName(contact) : null;
+ }
+diff --git a/src/core/presentation/sim/scene-event-label.js b/src/core/presentation/sim/scene-event-label.js
+index 8d710fa..14415f9 100644
+--- a/src/core/presentation/sim/scene-event-label.js
++++ b/src/core/presentation/sim/scene-event-label.js
+@@ -1,5 +1,5 @@
+ const EVENT_LABELS = { goal: 'GOOOL!', save: 'Kurtarış', shot: 'Şut', tackle: 'Müdahale', block: 'Blok',
+-  beat: 'Rakibini geçti', throwIn: 'Taç', corner: 'Korner', freeKick: 'Serbest vuruş', penalty: 'Penaltı', goalKick: 'Aut' };
++  beat: 'Rakibini geçti', cross: 'Orta', aerialContact: 'Hava topuna vuruş', throwIn: 'Taç', corner: 'Korner', freeKick: 'Serbest vuruş', penalty: 'Penaltı', goalKick: 'Aut' };
+ 
+ export function simulationSceneCaption(frame) {
+   const event = frame.contacts.findLast(contact => contact.time <= frame.physicsTime && (EVENT_LABELS[contact.type] || contact.type === 'skill'));
+diff --git a/src/core/sim/ball-possession.js b/src/core/sim/ball-possession.js
+index 607ee67..1ed3776 100644
+--- a/src/core/sim/ball-possession.js
++++ b/src/core/sim/ball-possession.js
+@@ -8,6 +8,7 @@ import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
+ import { endSimulationCarry } from './dribbling.js';
+ import { predictSimulationBall } from './ball-physics.js';
+ import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
++import { redirectSimulationAerial } from './aerial-contact.js';
+ 
+ const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
+ 
+@@ -15,6 +16,7 @@ export function controlSimulationBall(simulation, contact, motion) {
+   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
+   const touching = predictSimulationBall(motion.before, contact.fraction * seconds);
+   const time = (motion.startTime ?? simulation.time - seconds) + contact.fraction * seconds;
++  if (redirectSimulationAerial(simulation, contact.player, { touching, time })) return null;
+   if (keeperCanHandleSimulationBall(simulation, contact.player, touching)) {
+     Object.assign(simulation.ball, touching);
+     claimSimulationKeeperBall(simulation, contact.player, { time });
+diff --git a/src/core/sim/pass-execution.js b/src/core/sim/pass-execution.js
+index 2c1e0ed..d796640 100644
+--- a/src/core/sim/pass-execution.js
++++ b/src/core/sim/pass-execution.js
+@@ -4,16 +4,19 @@ import { pointDistance } from './geometry.js';
+ import { drawSimulationRandom, simulationRuntime } from './simulation-runtime.js';
+ import { simulationOwnerPressure } from './pass-evaluation.js';
+ import { emitSimulationEvent } from './ball-events.js';
++import { markSimulationCross } from './cross-delivery.js';
+ 
+ const { cos, sin } = Math;
+ 
+ export function releaseSimulationPass(simulation, owner, option) {
+   const ball = simulation.ball, fromPos = { ...ball.position };
+   const flight = simulationPassFlight(fromPos, option.target, option.lofted);
++  flight.height = option.startHeight ?? 0;
+   applyPassError(simulation, owner, flight);
+   Object.assign(ball, flight, { ownerId: null, excludedId: owner.id, controlAfterTick: simulation.tick + owner.limits.reactionTicks });
+   if (ball.control) ball.control = null;
+   const eventIndex = emitSimulationEvent(simulation, { type: 'pass', fromId: owner.id, toId: option.toId, fromPos,
++    time: option.contactTime ?? simulation.time,
+     toPos: { ...option.target }, teamId: owner.teamId, lofted: option.lofted, leadDistance: pointDistance(option.target, simulationRuntime(simulation).byId.get(option.toId).position), distance: pointDistance(fromPos, option.target) });
+   ball.backpassTeamId = owner.teamId;
+   ball.shot = null;
+@@ -21,6 +24,7 @@ export function releaseSimulationPass(simulation, owner, option) {
+   simulation.statistics.teams[owner.teamId].passes++;
+   simulation.passing.selected = { ...option, fromPos };
+   simulation.passing.requested = null;
++  markSimulationCross(simulation, owner, option);
+ }
+ 
+ function applyPassError(simulation, owner, flight) {
+diff --git a/src/core/sim/restart-decision.js b/src/core/sim/restart-decision.js
+index 236ec23..9a3dc08 100644
+--- a/src/core/sim/restart-decision.js
++++ b/src/core/sim/restart-decision.js
+@@ -3,18 +3,21 @@ import RESTART_DATA from '../../data/match-sim-restarts.json';
+ import { evaluateSimulationShot } from './shot-evaluation.js';
+ import { simulationRuntime } from './simulation-runtime.js';
+ import { pointDistance } from './geometry.js';
++import { planSimulationCross } from './cross-delivery.js';
+ 
+ export function planSimulationRestart(simulation, restart) {
+   const taker = simulationRuntime(simulation).byId.get(restart.takerId);
+   const shot = evaluateSimulationShot(simulation, taker);
+   const settings = RESTART_DATA.freeKick;
+   if (restart.kind === 'penalty') return { kind: 'direct', target: shot.target };
++  if (restart.kind === 'corner') return planSimulationCross(simulation, taker);
+   if (restart.kind !== 'freeKick') return { kind: 'short' };
+   const skill = (taker.attributes.technique + taker.attributes.finishing) / (2 * MATCH_SIM_DATA.attributes.maximum);
+   const direct = shot.distance <= settings.maximumDistance && shot.distance >= settings.minimumDistance
+     && shot.angle >= settings.minimumGoalAngle && skill >= settings.minimumSkill
+     && shot.blocked <= settings.maximumBlockedFraction;
+-  return direct ? { kind: 'direct', target: shot.target } : { kind: 'short' };
++  if (direct) return { kind: 'direct', target: shot.target };
++  return shot.distance <= RESTART_DATA.delivery.maximumFreeKickDistance ? planSimulationCross(simulation, taker) : { kind: 'short' };
+ }
+ 
+ export function simulationRestartStrikePosition(restart) {
+@@ -22,8 +25,9 @@ export function simulationRestartStrikePosition(restart) {
+   if (!target) return { ...restart.position };
+   const distance = pointDistance(restart.position, target);
+   const offset = restart.stage === 'runup' ? MATCH_SIM_DATA.ball.footOffset : RESTART_DATA.runup.distance;
+-  return { x: restart.position.x - (target.x - restart.position.x) / distance * offset,
+-    y: restart.position.y - (target.y - restart.position.y) / distance * offset };
++  const pitch = MATCH_SIM_DATA.pitch;
++  return { x: Math.max(-pitch.length / 2, Math.min(pitch.length / 2, restart.position.x - (target.x - restart.position.x) / distance * offset)),
++    y: Math.max(-pitch.width / 2, Math.min(pitch.width / 2, restart.position.y - (target.y - restart.position.y) / distance * offset)) };
+ }
+ 
+ export function simulationFreeKickShot(simulation, taker) {
+diff --git a/src/core/sim/restart-layout.js b/src/core/sim/restart-layout.js
+index f197af3..2d5b06f 100644
+--- a/src/core/sim/restart-layout.js
++++ b/src/core/sim/restart-layout.js
+@@ -1,11 +1,13 @@
+ import MATCH_SIM_DATA from '../../data/match-sim.json';
+ import { clampSimValue, pointDistance } from './geometry.js';
+ import { simulationPenaltyAreaContains } from './keeper-positioning.js';
++import { arrangeSimulationCross } from './cross-layout.js';
+ 
+ export function simulationRestartLayout(simulation, restart) {
+   const targets = {};
+   for (const team of simulation.teams) for (const player of team.players) targets[player.id] = restartPlayerTarget({ simulation, restart, team }, player);
+   if (restart.kind === 'freeKick') placeFreeKickWall(simulation, restart, targets);
++  arrangeSimulationCross(simulation, restart, targets);
+   return targets;
+ }
+ 
+diff --git a/src/core/sim/restart-release.js b/src/core/sim/restart-release.js
+index 94ea0a3..1711b9c 100644
+--- a/src/core/sim/restart-release.js
++++ b/src/core/sim/restart-release.js
+@@ -9,6 +9,7 @@ import { pointDistance } from './geometry.js';
+ import { simulationShortRestartTarget } from './restart-layout.js';
+ import { simulationFreeKickShot } from './restart-decision.js';
+ import { reactSimulationWall } from './wall-reaction.js';
++import RESTART_DATA from '../../data/match-sim-restarts.json';
+ 
+ export function releasePositionedSimulationRestart(simulation) {
+   const restart = simulation.ball.restart, players = simulationRuntime(simulation).byId;
+@@ -33,6 +34,12 @@ function releaseFreeKick(simulation, taker) {
+ }
+ 
+ function releaseRestartPass(simulation, { taker, receiver, restart }) {
++  if (restart.delivery?.kind === 'cross') {
++    const lead = RESTART_DATA.delivery.leadSeconds;
++    releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: true, cross: true, restartKind: restart.kind,
++      target: { x: receiver.position.x + receiver.velocity.x * lead, y: receiver.position.y + receiver.velocity.y * lead } });
++    return;
++  }
+   const distance = restart.kind === 'goalKick' ? MATCH_SIM_DATA.deadBalls.goalKickDistance : MATCH_SIM_DATA.refereeing.restartPassDistance;
+   releaseSimulationPass(simulation, taker, { toId: receiver.id, lofted: false,
+     target: simulationShortRestartTarget(restart.position, receiver.position, distance) });
+diff --git a/src/core/sim/restart-state.js b/src/core/sim/restart-state.js
+index 06a3f38..b73c8c6 100644
+--- a/src/core/sim/restart-state.js
++++ b/src/core/sim/restart-state.js
+@@ -3,6 +3,7 @@ import { endSimulationCarry } from './dribbling.js';
+ import { beginSimTransition } from './simulation-phases.js';
+ import { pointDistance } from './geometry.js';
+ import { simulationPlayerAvailable } from './duel-state.js';
++import RESTART_DATA from '../../data/match-sim-restarts.json';
+ 
+ export function usesPositionedSimulationRestarts(simulation) { return simulation.clock.pauseHalfPreparation; }
+ 
+@@ -11,6 +12,7 @@ export function nearestSimulationRestartPlayer(players, position) {
+ }
+ 
+ export function beginSimulationRestart(simulation, input) {
++  if (input.kind === 'corner') input = { ...input, position: insetCornerPosition(input.position) };
+   const team = simulation.teams.find(team => team.id === input.teamId), ball = simulation.ball;
+   const taker = input.taker ?? nearestSimulationRestartPlayer(team.players.filter(player => player.slot !== 'GK'), input.position);
+   const receiver = nearestSimulationRestartPlayer(team.players.filter(player => player.id !== taker.id && player.slot !== 'GK'), input.position)
+@@ -28,3 +30,8 @@ export function beginSimulationRestart(simulation, input) {
+   emitSimulationEvent(simulation, { type: 'restartPosition', fromId: taker.id, teamId: team.id, kind: input.kind,
+     fromPos: { ...input.position }, toPos: { ...input.position }, success: true });
+ }
++
++function insetCornerPosition(position) {
++  const inset = RESTART_DATA.delivery.cornerInset;
++  return { x: position.x - Math.sign(position.x) * inset, y: position.y - Math.sign(position.y) * inset };
++}
+diff --git a/src/core/sim/restart-step.js b/src/core/sim/restart-step.js
+index 8cabf4f..d524f48 100644
+--- a/src/core/sim/restart-step.js
++++ b/src/core/sim/restart-step.js
+@@ -13,7 +13,7 @@ export function preparePositionedSimulationRestart(simulation) {
+   const restart = simulation.ball.restart;
+   if (!restart || !usesPositionedSimulationRestarts(simulation)) return false;
+   prepareRestartParticipants(simulation, restart);
+-  restart.delivery ??= planSimulationRestart(simulation, restart);
++  prepareRestartDelivery(simulation, restart);
+   restart.targets ??= simulationRestartLayout(simulation, restart);
+   for (const team of simulation.teams) for (const player of team.players) moveRestartPlayer(simulation, player, restart);
+   if (restart.stage === 'runup') advanceRestartRunup(simulation, restart);
+@@ -22,6 +22,11 @@ export function preparePositionedSimulationRestart(simulation) {
+   return true;
+ }
+ 
++function prepareRestartDelivery(simulation, restart) {
++  restart.delivery ??= planSimulationRestart(simulation, restart);
++  if (restart.delivery.receiverId) restart.receiverId = restart.delivery.receiverId;
++}
++
+ function prepareRestartParticipants(simulation, restart) {
+   const players = simulationRuntime(simulation).byId, team = simulation.teams.find(team => team.id === restart.teamId);
+   const roster = simulation.teams.flatMap(team => team.players.map(player => player.id)).join(':');
+diff --git a/src/core/sim/shot-execution.js b/src/core/sim/shot-execution.js
+index 7c257b5..4af5810 100644
+--- a/src/core/sim/shot-execution.js
++++ b/src/core/sim/shot-execution.js
+@@ -18,6 +18,7 @@ export function releaseSimulationShot(simulation, owner, option) {
+   if (ball.control) ball.control = null;
+   const assistId = ball.assist?.teamId === owner.teamId && ball.assist.toId === owner.id ? ball.assist.fromId : null;
+   const eventIndex = emitSimulationEvent(simulation, { type: 'shot', fromId: owner.id, fromPos, toPos: { ...option.target },
++    time: option.contactTime ?? simulation.time, height: ball.height,
+     teamId: owner.teamId, xg: option.xg, distance: option.distance, angle: option.angle, blocked: option.blocked, pressure: option.pressure,
+     power: Math.hypot(flight.velocity.x, flight.velocity.y), target: { ...option.target }, style: option.style, onTarget: false });
+   Object.assign(ball, flight, { ownerId: null, heldBy: null, flight: null, carry: null, restart: null, excludedId: owner.id,
+@@ -38,8 +39,9 @@ function createShotFlight(simulation, owner, option) {
+   const speed = option.power * errors.power;
+   const seconds = Math.hypot(dx, dy) / speed;
+   const height = option.target.height + errors.height;
+-  return { position: { ...simulation.ball.position }, velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }, height: 0,
+-    verticalVelocity: (height + MATCH_SIM_DATA.ball.gravity * seconds * seconds / 2) / seconds };
++  const startHeight = simulation.ball.height;
++  return { position: { ...simulation.ball.position }, velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed }, height: startHeight,
++    verticalVelocity: (height - startHeight + MATCH_SIM_DATA.ball.gravity * seconds * seconds / 2) / seconds };
+ }
+ 
+ function shotErrors(simulation, owner, option) {
+diff --git a/src/data/match-sim-restarts.json b/src/data/match-sim-restarts.json
+index 06fb3d4..e9dd8dc 100644
+--- a/src/data/match-sim-restarts.json
++++ b/src/data/match-sim-restarts.json
+@@ -19,5 +19,44 @@
+     "jumpSeconds": 0.65,
+     "jumpHeight": 0.35,
+     "contactSamples": 12
++  },
++  "delivery": {
++    "minimumSkill": 0.65,
++    "targetX": 41.5,
++    "targetY": 0,
++    "arrivalHeight": 1.6,
++    "leadSeconds": 0.4,
++    "openPlayX": 24,
++    "wideY": 18,
++    "minimumTargetX": 34,
++    "maximumTargetY": 20,
++    "maximumFreeKickDistance": 48,
++    "markingDistance": 1.5,
++    "runnerPositions": [
++      {
++        "x": 41.5,
++        "y": 0
++      },
++      {
++        "x": 39,
++        "y": -8
++      },
++      {
++        "x": 44,
++        "y": 8
++      }
++    ],
++    "cornerInset": 0.5
++  },
++  "aerial": {
++    "headHeight": 1.45,
++    "volleyMinimumHeight": 0.4,
++    "volleyMaximumHeight": 0.95,
++    "volleyTechnique": 80,
++    "maximumShotDistance": 18,
++    "maximumTurn": 0.3,
++    "headPowerFactor": 0.55,
++    "volleyPowerFactor": 0.8,
++    "clearanceDistance": 25
+   }
+ }
+diff --git a/src/core/sim/aerial-contact.js b/src/core/sim/aerial-contact.js
+new file mode 100644
+index 0000000..be5ac0f
+--- /dev/null
++++ b/src/core/sim/aerial-contact.js
+@@ -0,0 +1,41 @@
++import MATCH_SIM_DATA from '../../data/match-sim.json';
++import RESTART_DATA from '../../data/match-sim-restarts.json';
++import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
++import { evaluateSimulationShot } from './shot-evaluation.js';
++import { releaseSimulationShot } from './shot-execution.js';
++import { releaseSimulationPass } from './pass-execution.js';
++import { predictSimulationBall } from './ball-physics.js';
++
++export function redirectSimulationAerial(simulation, player, { touching, time }) {
++  if (!simulation.ball.flight?.cross || player.slot === 'GK') return false;
++  const kind = aerialContactKind(player, touching.height);
++  if (!kind) return false;
++  const option = evaluateSimulationShot(simulation, player), settings = RESTART_DATA.aerial;
++  const shot = option.distance <= settings.maximumShotDistance && option.body.turn <= settings.maximumTurn;
++  const flight = simulation.ball.flight, remaining = Math.max(0, simulation.time - time);
++  settleSimulationPass(simulation, { position: touching.position, controlled: true, playerId: player.id, teamId: player.teamId, time });
++  Object.assign(simulation.ball, touching, { flight: null });
++  emitSimulationEvent(simulation, { type: 'aerialContact', time, kind, fromId: player.id, toId: flight.fromId, teamId: player.teamId,
++    fromPos: { ...touching.position }, toPos: { ...touching.position }, height: touching.height, result: shot ? 'shot' : 'clearance' });
++  if (shot) releaseSimulationShot(simulation, player, { ...option, style: kind, contactTime: time,
++    power: option.power * (kind === 'header' ? settings.headPowerFactor : settings.volleyPowerFactor) });
++  else releaseAerialOutlet(simulation, player, { touching, time });
++  Object.assign(simulation.ball, predictSimulationBall(simulation.ball, remaining));
++  return true;
++}
++
++function aerialContactKind(player, height) {
++  const settings = RESTART_DATA.aerial;
++  if (height >= settings.headHeight) return 'header';
++  return height >= settings.volleyMinimumHeight && height <= settings.volleyMaximumHeight && player.attributes.technique >= settings.volleyTechnique ? 'volley' : null;
++}
++
++function releaseAerialOutlet(simulation, player, { touching, time }) {
++  const team = simulation.teams.find(team => team.id === player.teamId);
++  const available = team.players.filter(candidate => candidate.id !== player.id && candidate.slot !== 'GK' && !candidate.sentOff);
++  const receiver = available.sort((left, right) => right.position.x * team.direction - left.position.x * team.direction)[0];
++  if (!receiver) return;
++  const target = { x: Math.max(-MATCH_SIM_DATA.pitch.length / 2, Math.min(MATCH_SIM_DATA.pitch.length / 2,
++    touching.position.x + team.direction * RESTART_DATA.aerial.clearanceDistance)), y: touching.position.y };
++  releaseSimulationPass(simulation, player, { toId: receiver.id, target, lofted: true, startHeight: touching.height, contactTime: time });
++}
+diff --git a/src/core/sim/cross-delivery.js b/src/core/sim/cross-delivery.js
+new file mode 100644
+index 0000000..a36b776
+--- /dev/null
++++ b/src/core/sim/cross-delivery.js
+@@ -0,0 +1,38 @@
++import MATCH_SIM_DATA from '../../data/match-sim.json';
++import RESTART_DATA from '../../data/match-sim-restarts.json';
++import { emitSimulationEvent } from './ball-events.js';
++
++export function simulationCrossReceiver(simulation, taker) {
++  const team = simulation.teams.find(team => team.id === taker.teamId);
++  return team.players.filter(player => player.id !== taker.id && player.slot !== 'GK' && !player.sentOff)
++    .sort((left, right) => aerialValue(right) - aerialValue(left))[0];
++}
++
++function aerialValue(player) { return player.attributes.firstTouch + player.attributes.technique + player.attributes.strength; }
++
++export function planSimulationCross(simulation, taker) {
++  const receiver = simulationCrossReceiver(simulation, taker), settings = RESTART_DATA.delivery;
++  const skill = (taker.attributes.passing + taker.attributes.technique) / (2 * MATCH_SIM_DATA.attributes.maximum);
++  if (!receiver || skill < settings.minimumSkill) return { kind: 'short' };
++  const direction = simulation.teams.find(team => team.id === taker.teamId).direction;
++  return { kind: 'cross', receiverId: receiver.id, target: { x: direction * settings.targetX, y: settings.targetY } };
++}
++
++export function markSimulationCross(simulation, owner, option) {
++  if (!isSimulationCross(simulation, owner, option)) return;
++  const ball = simulation.ball, settings = RESTART_DATA.delivery;
++  const speed = Math.hypot(ball.velocity.x, ball.velocity.y);
++  const seconds = Math.hypot(option.target.x - ball.position.x, option.target.y - ball.position.y) / speed;
++  ball.verticalVelocity += settings.arrivalHeight / seconds;
++  ball.flight.cross = true;
++  emitSimulationEvent(simulation, { type: 'cross', fromId: owner.id, toId: option.toId, teamId: owner.teamId,
++    fromPos: { ...ball.position }, toPos: { ...option.target }, height: ball.height, restartKind: option.restartKind, success: null });
++}
++
++function isSimulationCross(simulation, owner, option) {
++  if (!option.lofted) return false;
++  if (option.cross) return true;
++  const settings = RESTART_DATA.delivery, direction = simulation.teams.find(team => team.id === owner.teamId).direction;
++  return owner.position.x * direction >= settings.openPlayX && Math.abs(owner.position.y) >= settings.wideY
++    && option.target.x * direction >= settings.minimumTargetX && Math.abs(option.target.y) <= settings.maximumTargetY;
++}
+diff --git a/src/core/sim/cross-layout.js b/src/core/sim/cross-layout.js
+new file mode 100644
+index 0000000..6d0e46a
+--- /dev/null
++++ b/src/core/sim/cross-layout.js
+@@ -0,0 +1,24 @@
++import RESTART_DATA from '../../data/match-sim-restarts.json';
++import { pointDistance } from './geometry.js';
++
++export function arrangeSimulationCross(simulation, restart, targets) {
++  if (restart.delivery?.kind !== 'cross') return;
++  const attack = simulation.teams.find(team => team.id === restart.teamId), defense = simulation.teams.find(team => team.id !== restart.teamId);
++  const runners = attack.players.filter(player => player.slot !== 'GK' && player.id !== restart.takerId && !player.sentOff);
++  runners.sort((left, right) => Number(right.id === restart.delivery.receiverId) - Number(left.id === restart.delivery.receiverId));
++  const selected = runners.slice(0, RESTART_DATA.delivery.runnerPositions.length);
++  selected.forEach((player, index) => {
++    const position = RESTART_DATA.delivery.runnerPositions[index];
++    targets[player.id] = { x: position.x * attack.direction, y: position.y };
++  });
++  assignCrossMarkers(defense.players, selected, { targets, direction: attack.direction });
++}
++
++function assignCrossMarkers(players, runners, { targets, direction }) {
++  const available = players.filter(player => player.slot !== 'GK' && !player.sentOff);
++  for (const runner of runners) {
++    const marker = available.sort((left, right) => pointDistance(left.position, targets[runner.id]) - pointDistance(right.position, targets[runner.id])).shift();
++    if (!marker) break;
++    targets[marker.id] = { x: targets[runner.id].x + direction * RESTART_DATA.delivery.markingDistance, y: targets[runner.id].y };
++  }
++}

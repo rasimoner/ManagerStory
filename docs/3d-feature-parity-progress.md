@@ -9,7 +9,7 @@ Bir deneme, bir çözüm yaklaşımının uygulanması + ilgili kabul doğrulama
 |---|---|---|---:|---|
 | P1 | Dar alanda tekrarlı dönüş; iki yön/süre/kayıt | ikinci deneme başarısız | 2/2 | Ürün geri alındı; tests/reproductions/turn-release.cjs |
 | P2 | Doğrudan frikik kararı, fizik, hazırlık, baraj, kamera | doğrulama bekliyor | 0/2 | Mevcut `restart-release` yalnız kısa pas |
-| P3 | Korner/açık oyun ortası ve gerçek kafa/vole/röveşata | doğrulama bekliyor | 0/2 | Kafa kontrolü bitiriş sayılmayacak |
+| P3 | Korner/açık oyun ortası ve gerçek kafa/vole/röveşata | ikinci deneme başarısız | 2/2 | Ürün geri alındı; yeniden üretme ve patch saklandı |
 | P4 | İsimli özel çalımlar; gerçek temas ve savunma | doğrulama bekliyor | 0/2 | Eski beats var; ikinci simülasyon kullanılamaz |
 | P5 | Özel pas/ilk kontrol/aşırtma/Panenka | doğrulama bekliyor | 0/2 | Eski sekanslar koddan karşılaştırılacak |
 | P6 | Scorpion ve eski özel kaleci hareketleri | doğrulama bekliyor | 0/2 | Normal kaleci zinciri korunacak |
@@ -36,3 +36,19 @@ Yalnız P1 ürün değişikliği (`dribbling.js`) geri alındı. Varsayılan pak
 Tamamlama: barajın gecikmeli fiziksel sıçrama zarfı ve altından geçme, vuruş karesinde gerçek ayağa IK bağlantısı. Gerçek rig teması ve baraj çarpışma testleri geçti. Falso eklenmedi: mevcut doğrusal yatay/parabolik dikey uçuşta doğrudan vuruşlar hesaplanır; bu aşamada falso gerektiren uçuş seçilmez. Uygun servis seçeneği P3 ile ortaklaştırılacak. Genel frikik maddesi henüz bütün görsel kanıtlarıyla tamamlandı sayılmıyor.
 
 Altyapı: varsayılan Node 24 eski golden sonuçlarını değiştiriyor; Node 22.23.4 edinildi. Node 22 hızlı pakette yalnız yeni JSON belgesinin eksik başlığı yakalandı ve belge eklendi; golden yenilenmedi. Yerel Playwright indirmesi eksik ZIP döndürüyor; otomatik iç tekrar yapan yükleyici durduruldu. Aynı indirme tekrar başlatılmayacak.
+
+## P3 — ortak orta / hava teması
+
+İlk yaklaşım: korner ve uygun servis frikiğinde alıcı/markaj hedefleri, açık oyunda aynı havadan pas uçuşu, temas yüksekliğinden gerçek kafa şutu/uzaklaştırma/vole. Kafa/vole ve kayıt testleri geçti; köşe çizgisinin arkasına çıkan yaklaşma hedefi hareket sınırında erişilemedi. İlk deneme başarısız.
+
+İkinci yaklaşım: köşe yayı içinde 0,5 m içeride top noktası ve saha içinde kırpılan yaklaşma hedefi. Aynı 22 odaklı test geçti; fiziksel yerleşim ve önceki duran top testleri korunuyor. İsimli röveşata henüz eklenmedi; kafa pası/boşa çıkan servis ve normal kariyer kanıtı için doğrulama sürüyor. Sayaç 2/2; aynı köşe/hedef kabulü yeniden açılmayacak.
+
+P3 ikinci yaklaşımın zorunlu hızlı paketi iki regresyon buldu: servis pasında `restartKind` metadata'sı eksik; V7.15.0 referans kaydında açık oyun orta sınıflandırmasının uyumluluk kapısı olmadığı için özgün olay/fitness sonucu değişiyor. 22 odaklı test yeterli kabul edilmedi. İki yaklaşım da tüm kabulü sağlayamadığı için P3 ürün farkının tamamı geri alındı; P2 frikik commit'i korundu. Üçüncü düzeltme yapılmadı. `tests/reproductions/cross-delivery.cjs` kırmızı örnekleri, `cross-delivery-attempt2.patch` denenmiş yaklaşımı saklar. Kafa/vole, ikinci yaklaşımda izole testte çalışsa da teslim edilen ürün özelliği sayılmaz. P3'e bağlı hava bitirişleri, havadan özel kontroller ve bunların kamera/tekrarları engellendi.
+
+## P7 — ofsayt
+
+İlk yaklaşım: gerçek pas/şut çıkışında top ve sondan ikinci rakibe göre konumu saklama; katılımda düdük, endirekt frikik; taç/aut/korner istisnaları; kontrolle sıfırlama; kayıt/devam. 24 odaklı test geçti.
+
+İkinci yaklaşım: pasif oyuncu/gerçek top mücadelesi/kaleci görüşünü kapatma ayrımı ve yavaş, hazırlanılmış rakip oyunuyla hızlı sekmenin ayrımı. 7 motor testi ve eski sarı çizgi/rengin salt okuma görünüm testi geçti. Bu model oyuncuları mevcut motorun metre kök noktalarıyla değerlendirir; ayrı uzuv ofsayt geometrisi yoktur. Rakibin kasti oyun ölçütü bu motorun süre/hız/yükseklik yaklaşımıdır; hakemlikteki bütün öznel durumların eksiksiz karşılığı iddia edilmez. Kaynak: https://www.theifab.com/laws/latest/offside/ .
+
+İki deneme sayacı korunur. P1/P3 başarısız ürünleri geri alındıktan sonra P7 ilk hızlı paket: 483 test, 482 başarılı, 1 mevcut atlama; ayrı performans 5/5. Sarı çizgi görünümünün eklenmesinden sonraki kapılar teslimde ayrıca çalıştırılacak.

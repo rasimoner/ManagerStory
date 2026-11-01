@@ -18,6 +18,7 @@ import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import { simulationSceneStatus } from './scene-status.js';
 import { paintSimulationHud } from './scene-hud.js';
 import { simulationSceneCaption } from './scene-event-label.js';
+import { createSimulationOffsideLine } from './scene-offside.js';
 import './career-scene.css';
 
 const surface = document.createElement('div');
@@ -33,6 +34,7 @@ surface.innerHTML = `<canvas class=career3d-scene aria-label="Yeni motorun canlÄ
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 let stage, actors, broadcast, match, loading, clubs, lastPaint = null, fullscreen = false, failed = false;
 let ballView;
+let offsideLine;
 let crowd = [], cameraMode = 'auto';
 const goalOverlay = createSimulationGoalOverlay(surface);
 let sceneWasSkipped = false;
@@ -45,7 +47,11 @@ function mount() {
   if (!host && !fullscreen) { sceneWasSkipped = true; return; }
   if (!fullscreen) host.replaceChildren(surface);
   if (!stage) {
-    loading ??= loadSimulationSceneAssets().then(loaded => { stage = createSimulationStage(canvas, loaded); paintCurrentFrame(); }).catch(fail);
+    loading ??= loadSimulationSceneAssets().then(loaded => {
+      stage = createSimulationStage(canvas, loaded);
+      offsideLine = createSimulationOffsideLine(stage.scene);
+      paintCurrentFrame();
+    }).catch(fail);
     return;
   }
   paintCurrentFrame();
@@ -90,6 +96,7 @@ function paint(frame) {
     refocusAfterSkippedScene();
     actors.apply(frame);
     ballView.apply(frame);
+    offsideLine.paint(frame);
     animateSimulationCrowd(stage.stadium, frame, M.userHome);
     goalOverlay.paint(frame, clubs);
     paintSceneGeometry(frame);

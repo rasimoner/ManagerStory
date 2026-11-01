@@ -29,7 +29,7 @@ async function captureScene(label, storage) {
   await page.waitForFunction(() => document.querySelector('[data-scene-loading]')?.hidden);
   const expected = api.unpackMatchSnapshot(JSON.parse(storage).activeMatchV71).simulationCheckpoint.state;
   assert.deepEqual(await savedState(page), expected, 'opening the actual 3D view never advances its checkpoint');
-  await verifyCaption(page, label);
+  await verifyCaption(page, label, expected);
   await page.screenshot({ path: evidence + '/' + label + '.png', fullPage: true });
   if (['chest', 'head'].includes(label)) await verifyDescent(page, expected);
   captures.push({ label, tick: expected.tick, height: expected.ball.height, physicsTime: expected.physicsTime });
@@ -37,8 +37,9 @@ async function captureScene(label, storage) {
   console.log('ok   phase 2 actual WebGL: ' + label);
 }
 
-async function verifyCaption(page, label) {
+async function verifyCaption(page, label, expected) {
   const labels = { throwIn: 'Taç', corner: 'Korner', goalKick: 'Aut', freeKick: 'Serbest vuruş', penalty: 'Şut', skill: 'Yön değiştirme' };
+  if (label === 'freeKick' && expected.ball.shot?.freeKick) labels.freeKick = 'Şut';
   if (labels[label]) assert.equal(await page.locator('.sim-scene-caption').textContent(), labels[label]);
   const scene = page.locator('[data-sim-scene]'), canvas = scene.locator('canvas.career3d-scene');
   const [bounds, drawn] = await Promise.all([scene.boundingBox(), canvas.boundingBox()]);
