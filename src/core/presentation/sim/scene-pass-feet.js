@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import SKILL_DATA from '../../../data/match-sim-skills.json';
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
+import { stepoverFeet } from '../match3d/newview/beats/feints.js';
 import { backheelFeet, rabonaFeet } from '../match3d/newview/beats/flair-passes.js';
 
 export function prepareSimulationPassFeet(runtime, actor, { sample, frame }) {
@@ -14,6 +15,7 @@ export function prepareSimulationPassFeet(runtime, actor, { sample, frame }) {
   const r = new THREE.Vector3(f.z, 0, -f.x), rA = new THREE.Vector3(-f.z, 0, f.x);
   const context = { ball: { p: b0 } }, t0 = technique.readyAt;
   const plantL = b0.clone().addScaledVector(rA, settings.rabona.plantSide).addScaledVector(f, settings.rabona.plantForward).setY(settings.plantHeight);
+  if (technique.kind === 'flairpass') { actor.feet = stepoverFeet(context, { t0, b0, f, r }); return; }
   actor.feet = technique.kind === 'backheel' ? backheelFeet(context, { t0, b0, f, r }) : rabonaFeet(context, { t0, aim: f, rA, plantL });
 }
 

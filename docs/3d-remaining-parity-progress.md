@@ -31,7 +31,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 1/2 | Gerçek alternatif oyuncuya baş bakışı ve eski nolook pozu; 21 ilgili / 555 hızlı test geçti |
 | R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
 | R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 0/2 | Bekliyor |
-| R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 0/2 | Bekliyor |
+| R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 1/2 | Gerçek makas dairesi, belirsiz normal pas, iki yön/rig ve kayıt geçti |
 | R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
 | R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | İncelenecek; yeni hareket çıkarsa bu satır sabit kalır |
 | R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 1/2 | 12 ortak kayıt/saat testi geçti; kariyer WebGL bekleniyor |
@@ -114,3 +114,9 @@ Gerçek çağrı: manager/highlight-recorder.recordStarMoment → core/highlight
 ## Ortam kesintisinden dönüş
 
 Çalışma ortamı 2 başarısız erişim sonrası durmuştu; yeniden sağlandığında b3c3be5 ve ürün dosyaları korundu, son otomatik tekrar commit nesnesi yoktu. Aynı başarılı kod yeniden uygulanmadı, korunan fark doğrulanıp tekrar commit'e alınır. Deneme sayaçları ve iki başarısızlıkta durdurulan hareketler sıfırlanmaz. Node 22.23.4 tekrar edinildi; Node 24 ile ürün kabulü çalıştırılmadı.
+
+## R24 — gerçek makasla pas
+
+Eski director.flairPassTry → stepoverBeat → stepoverPass yolu doğrulandı. İlk kırmızı iki yön testi normal pasın özel daireyi yapmadığını gösterdi. Yeni hazırlık, görüş/teknik/dribbling yeteneği, yakın gerçek baskı, ileri hedef ve mesafeye bağlıdır. Eski saf stepoverFeet eğrisi gerçek kramponu top çevresinde kaldırır; sonrasında normal pas yeniden değerlendirilir ve aynı pas hata fiziği kullanılır. Savunmacı hazırlıkta topu alabilir, zorunlu sendeleme/başarı yoktur. Mevcut passing.technique isteğe bağlı durumuyla JSON devamı eşittir.
+
+14/14 ortak test ve gerçek rig: iki yön, kaldırış/yan geçiş, kök/checkpoint değişmezliği, kesilebilme, kayıt/devam. Lint iki mekanik sorumluluk ayrımıyla temizlendi, eşikler/baseline değişmedi. Yeniden açılan Node 22 ortamında 576 hızlı + 5 performans geçti. İlk yeniden açılış hızlı süreci özet üretmeden sonlandı; başarı sayılmadı. İkinci girişim tam test/pass/fail ve süreç bitişiyle doğrulandı; aynı altyapı üçüncü kez denenmedi.

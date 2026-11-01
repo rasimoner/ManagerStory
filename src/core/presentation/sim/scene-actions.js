@@ -5,10 +5,8 @@ import MATCH_SIM_DATA from '../../../data/match-sim.json';
 import { simulationCarrySkillData } from '../../sim/carry-skill-data.js';
 
 export function simulationContactAnimation(sample, frame, actor) {
-  const pending = pendingRestartAnimation(sample, frame.ball.restart);
+  const pending = pendingSimulationAnimation(sample, frame);
   if (pending) return pending;
-  const skill = pendingSkillAnimation(sample, frame);
-  if (skill) return skill;
   const tackle = sample.duel.tackle;
   if (tackle?.kind === 'sliding') return { motion: motionAt('tackle', tackle.contactTick * MATCH_SIM_DATA.clock.stepSeconds) };
   const contact = frame.contacts.findLast(event => event.time <= frame.physicsTime && animationName(event, sample));
@@ -20,6 +18,16 @@ export function simulationContactAnimation(sample, frame, actor) {
   }
   const action = ACTIONS[name], start = contact.time - action.dur * (action.contact ?? 0);
   return frame.physicsTime - start <= action.dur ? { act: { name, t0: start } } : {};
+}
+
+function pendingSimulationAnimation(sample, frame) {
+  return pendingRestartAnimation(sample, frame.ball.restart) ?? pendingFlairPassAnimation(sample, frame) ?? pendingSkillAnimation(sample, frame);
+}
+
+function pendingFlairPassAnimation(sample, frame) {
+  const technique = frame.ball.passTechnique;
+  return technique?.kind === 'flairpass' && technique.ownerId === sample.id && technique.readyAt != null
+    ? { act: { name: 'stepover', t0: technique.readyAt } } : null;
 }
 
 function pendingSkillAnimation(sample, frame) {

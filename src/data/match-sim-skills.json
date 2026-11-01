@@ -182,6 +182,15 @@
       "windup": 0.5,
       "plantSide": 0.2,
       "plantForward": -0.03
+    },
+    "flairpass": {
+      "minimumDistance": 8,
+      "maximumDistance": 28,
+      "maximumTurn": 0.6,
+      "minimumPressure": 0.08,
+      "behind": 0.35,
+      "side": 0,
+      "windup": 0.7
     }
   },
   "airAbility": 92,

@@ -31,17 +31,30 @@ function selectPassTechnique(simulation, owner, option) {
   const distance = pointDistance(simulation.ball.position, option.target);
   const heading = Math.atan2(option.target.y - owner.position.y, option.target.x - owner.position.x);
   const turn = Math.abs(Math.atan2(Math.sin(heading - owner.heading), Math.cos(heading - owner.heading)));
-  const kind = passTechniqueKind({ option, rating, distance, turn });
+  const kind = passTechniqueKind({ option, rating, distance, turn, pressure: simulationOwnerPressure(simulation, owner) });
   if (!kind) return null;
   return createPassTechnique(simulation, owner, { kind, option, heading });
 }
 
-function passTechniqueKind({ option, rating, distance, turn }) {
+function passTechniqueKind(context) {
+  const { option, rating, distance } = context;
   const settings = SKILL_DATA.flairPass;
-  if (!option.lofted && rating.moves.includes('backheel') && distance >= settings.backheel.minimumDistance
-    && distance <= settings.backheel.maximumDistance && turn >= settings.backheel.minimumTurn) return 'backheel';
+  if (stepoverPassAvailable(context)) return 'flairpass';
+  if (backheelPassAvailable(context)) return 'backheel';
   return option.lofted && rating.moves.includes('rabona') && distance >= settings.rabona.minimumDistance
     && distance <= settings.rabona.maximumDistance ? 'rabona' : null;
+}
+
+function backheelPassAvailable({ option, rating, distance, turn }) {
+  const settings = SKILL_DATA.flairPass.backheel;
+  return !option.lofted && rating.moves.includes('backheel') && distance >= settings.minimumDistance
+    && distance <= settings.maximumDistance && turn >= settings.minimumTurn;
+}
+
+function stepoverPassAvailable({ option, rating, distance, turn, pressure }) {
+  const settings = SKILL_DATA.flairPass.flairpass;
+  return !option.lofted && rating.moves.includes('flairpass') && distance >= settings.minimumDistance
+    && distance <= settings.maximumDistance && turn <= settings.maximumTurn && pressure >= settings.minimumPressure;
 }
 
 function createPassTechnique(simulation, owner, { kind, option, heading }) {
