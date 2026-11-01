@@ -11,7 +11,8 @@
     "minimumSkill": 0.6,
     "maximumBlockedFraction": 1,
     "minimumSpeed": 18,
-    "strengthSpeed": 3
+    "strengthSpeed": 3,
+    "blockedSkillCost": 0.08
   },
   "wall": {
     "radiusMargin": 1.2,
@@ -26,5 +27,13 @@
     "screenWidth": 0.35,
     "deliberateHeight": 0.7,
     "deliberateSpeed": 12
+  },
+  "penalty": {
+    "anticipationSkill": 85,
+    "panenkaSkill": 90,
+    "commitSpeed": 1,
+    "commitDistance": 0.7,
+    "speed": 10,
+    "targetHeight": 0.8
   }
 }

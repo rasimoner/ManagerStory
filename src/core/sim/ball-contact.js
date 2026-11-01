@@ -3,7 +3,7 @@ import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { predictSimulationBall } from './ball-physics.js';
 import { simulationRuntime } from './simulation-runtime.js';
-import { simulationWallContactFraction } from './wall-reaction.js';
+import { simulationWallContactFraction, simulationWallJumpActive } from './wall-reaction.js';
 
 const { max, min, sqrt } = Math;
 
@@ -55,7 +55,7 @@ export function simulationContactFraction(player, previous, motion) {
     y: motion.after.position.y - motion.before.position.y - player.position.y + previous.y };
   const interval = circleContactInterval(offset, relative, motion.radius);
   if (!interval) return null;
-  if (player.duel?.wallJump) return simulationWallContactFraction(player, interval, motion);
+  if (simulationWallJumpActive(player, motion)) return simulationWallContactFraction(player, interval, motion);
   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
   if (predictSimulationBall(motion.before, interval.start * seconds).height <= MATCH_SIM_DATA.ball.reachableHeight) return interval.start;
   const descending = reachableDescentSeconds(motion.before) / seconds;

@@ -8,7 +8,7 @@ import { emitSimulationEvent, settleSimulationPass } from './ball-events.js';
 import { endSimulationCarry } from './dribbling.js';
 import { predictSimulationBall } from './ball-physics.js';
 import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
-import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay } from './offside.js';
+import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay, captureSimulationOffside } from './offside.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
@@ -37,6 +37,7 @@ function completeSimulationControl(simulation, contact, result) {
   if (!usesContinuousSimulationControl(simulation)) return;
   beginSimulationControl(simulation, contact, result);
   followSimulationBallOwner(simulation);
+  captureSimulationOffside(simulation, contact.player);
 }
 
 function firstTouchRisk(player, ball) {

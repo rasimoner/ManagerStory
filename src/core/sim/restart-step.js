@@ -8,6 +8,7 @@ import { releasePositionedSimulationRestart } from './restart-release.js';
 import { pointDistance } from './geometry.js';
 import RESTART_DATA from '../../data/match-sim-restarts.json';
 import { planSimulationRestart, simulationRestartStrikePosition } from './restart-decision.js';
+import { simulationPenaltyKeeperTarget } from './penalty-decision.js';
 
 export function preparePositionedSimulationRestart(simulation) {
   const restart = simulation.ball.restart;
@@ -43,6 +44,8 @@ function moveRestartPlayer(simulation, player, restart) {
   player.motionMode = null;
   player.target = player.id === restart.takerId && restart.delivery?.target ? simulationRestartStrikePosition(restart)
     : restart.targets[player.id] ?? { ...player.position };
+  const anticipating = simulationPenaltyKeeperTarget(simulation, restart, player);
+  if (anticipating) { player.target = anticipating; player.motionMode = 'jockey'; player.facingTarget = restart.position; }
   player.gait = 'run';
   player.role = 'restart';
   recoverSimulationDefender(simulation, player);

@@ -13,7 +13,7 @@ export function planSimulationRestart(simulation, restart) {
   if (restart.kind !== 'freeKick') return { kind: 'short' };
   const skill = (taker.attributes.technique + taker.attributes.finishing) / (2 * MATCH_SIM_DATA.attributes.maximum);
   const direct = shot.distance <= settings.maximumDistance && shot.distance >= settings.minimumDistance
-    && shot.angle >= settings.minimumGoalAngle && skill >= settings.minimumSkill
+    && shot.angle >= settings.minimumGoalAngle && skill >= settings.minimumSkill + shot.blocked * settings.blockedSkillCost
     && shot.blocked <= settings.maximumBlockedFraction;
   return direct ? { kind: 'direct', target: shot.target } : { kind: 'short' };
 }

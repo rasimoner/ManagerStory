@@ -19,6 +19,7 @@ import { simulationSceneStatus } from './scene-status.js';
 import { paintSimulationHud } from './scene-hud.js';
 import { simulationSceneCaption } from './scene-event-label.js';
 import { createSimulationOffsideLine } from './scene-offside.js';
+import { createSimulationReplayPanel } from './scene-replay-panel.js';
 import './career-scene.css';
 
 const surface = document.createElement('div');
@@ -28,13 +29,14 @@ surface.innerHTML = `<canvas class=career3d-scene aria-label="Yeni motorun canl�
   <canvas class=career3d-radar width=200 height=130 aria-label="Gerçek konumların radarı"></canvas>
   <div class=sim-scene-tools><span class=sim-scene-score><b data-scene-home></b><strong data-scene-score></strong><b data-scene-away></b><time data-scene-clock></time></span><button type=button data-scene-full aria-label="Tam ekran">⤢</button></div>
   <div class=sim-scene-player hidden><b></b><span></span></div><span class=sim-scene-direction hidden></span>
-  <div class=sim-scene-cameras role=group aria-label="Kamera"><button type=button data-scene-camera=auto aria-pressed=true>Otomatik</button><button type=button data-scene-camera=tv aria-pressed=false>Yayın</button><button type=button data-scene-camera=close aria-pressed=false>Yakın</button><button type=button data-scene-camera=stand aria-pressed=false>Tribün</button></div>
+  <div class=sim-scene-cameras role=group aria-label="Kamera"><button type=button data-scene-camera=auto aria-pressed=true>Otomatik</button><button type=button data-scene-camera=tv aria-pressed=false>Yayın</button><button type=button data-scene-camera=close aria-pressed=false>Yakın</button><button type=button data-scene-camera=stand aria-pressed=false>Tribün</button><button type=button data-scene-replay disabled>Tekrar</button></div>
   <div class=sim-scene-caption aria-live=polite></div><span data-scene-loading>3D saha hazırlanıyor…</span>
   <div class=sim-scene-controls><button type=button data-scene-speed=0.5>0,5×</button><button type=button data-scene-speed=1>1×</button><button type=button data-scene-speed=2>2×</button><button type=button data-scene-pause>Duraklat</button><button type=button data-scene-intervene>Müdahale</button><button type=button data-scene-flat>2D</button></div>`;
 const canvas = surface.querySelector('.career3d-scene'), radar = surface.querySelector('.career3d-radar');
 let stage, actors, broadcast, match, loading, clubs, lastPaint = null, fullscreen = false, failed = false;
 let ballView;
 let offsideLine;
+let replayPanel;
 let crowd = [], cameraMode = 'auto';
 const goalOverlay = createSimulationGoalOverlay(surface);
 let sceneWasSkipped = false;
@@ -62,6 +64,7 @@ function paintCurrentFrame() {
 }
 
 function startSceneMatch() {
+  replayPanel?.dispose();
   for (const player of stage.runtime.players) stage.scene.remove(player.model);
   for (const mesh of crowd) stage.scene.remove(mesh);
   stage.runtime.players.length = 0;
@@ -72,6 +75,7 @@ function startSceneMatch() {
   actors = createSimulationActors(stage.runtime, describePlayer);
   ballView = createSimulationBallView(stage.ball, stage.shadow, { runtime: stage.runtime });
   broadcast = createSimulationCamera(stage.camera);
+  replayPanel = createSimulationReplayPanel(stage, surface, { closed: paintCurrentFrame, name: id => M.simulationNames[id] ?? '' });
   lastPaint = null;
   sceneWasSkipped = false;
 }
@@ -88,7 +92,7 @@ function describePlayer(player) {
 }
 
 function paint(frame) {
-  if (!sceneActive()) return;
+  if (!canPaintLiveScene()) return;
   try {
     if (match !== M) startSceneMatch();
     if (M.reason === 'half' || M.finished || M.requiredSubstitution) leaveFullscreen();
@@ -96,6 +100,7 @@ function paint(frame) {
     refocusAfterSkippedScene();
     actors.apply(frame);
     ballView.apply(frame);
+    replayPanel.record(frame, M.pause || M.finished);
     offsideLine.paint(frame);
     animateSimulationCrowd(stage.stadium, frame, M.userHome);
     goalOverlay.paint(frame, clubs);
@@ -104,6 +109,8 @@ function paint(frame) {
     paintSceneLabels(frame);
   } catch (error) { fail(error); }
 }
+
+function canPaintLiveScene() { return sceneActive() && !replayPanel?.active; }
 
 function sceneActive() { return !!stage && !failed && surface.isConnected && M?.experimental && M.fieldView === '3d'; }
 
@@ -207,7 +214,8 @@ function easePausedCamera() {
 }
 
 function handleSceneControl(button) {
-  if (button.hasAttribute('data-scene-pause')) { if (M.pause) resumeLive(); else pauseLive(); }
+  if (button.hasAttribute('data-scene-replay')) replayPanel.start(M.pause || M.finished);
+  else if (button.hasAttribute('data-scene-pause')) { if (M.pause) resumeLive(); else pauseLive(); }
   else if (button.hasAttribute('data-scene-intervene')) { leaveFullscreen(); pauseLive(); }
   else if (button.hasAttribute('data-scene-flat')) { M.fieldView = '2d'; leaveFullscreen(); changed(); }
 }
@@ -217,6 +225,7 @@ canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); f
 document.addEventListener('keydown', event => { if (event.key === 'Escape') leaveFullscreen(); });
 globalThis.addEventListener('resize', paintCurrentFrame);
 function detach() {
+  if (replayPanel?.active) replayPanel.stop();
   if (M?.experimental && (M.fieldView !== '3d' || M.activeTab !== 'pitch')) sceneWasSkipped = true;
   if (!fullscreen) surface.remove();
 }

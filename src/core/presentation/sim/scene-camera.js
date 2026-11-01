@@ -30,15 +30,29 @@ export function simulationCameraShot(frame, mode) {
 function automaticSimulationCameraShot(frame, { actor, owner }) {
   const goal = observedSimulationGoal(frame);
   if (goal) return { mode: 'close', a: actor(frame.players.find(player => player.id === goal.fromId)) };
+  const offside = offsideCameraShot(frame);
+  if (offside) return offside;
   const shot = frame.ball.shot;
   const restartShot = penaltyRestartCameraShot(frame, actor);
   if (restartShot) return restartShot;
   if (!shot) return observedCameraCue(frame, actor) ?? { mode: 'tv' };
+  return shootingCameraShot(frame, { actor, owner, shot });
+}
+
+function shootingCameraShot(frame, { actor, owner, shot }) {
   const shooter = frame.players.find(player => player.id === shot.fromId) ?? owner;
   const keeper = frame.players.find(player => player.slot === 'GK' && player.teamId !== shot.teamId);
   if (!shooter || !keeper) return { mode: 'tv' };
   const near = new THREE.Vector3().copy(shooter.position).distanceTo(keeper.position) < SIM_VIEW_DATA.camera.shotMinimumSeparationMetres;
   return { mode: shot.penalty ? 'pen' : near ? 'side' : 'shot', a: actor(shooter), b: actor(keeper) };
+}
+
+function offsideCameraShot(frame) {
+  const event = frame.contacts.findLast(contact => contact.type === 'offside' && contact.time <= frame.physicsTime);
+  if (!event || frame.physicsTime - event.time > SIM_VIEW_DATA.offside.seconds) return null;
+  const ball = frame.ball.position, span = SIM_VIEW_DATA.offside.cameraHalfSpan;
+  return { mode: 'stand', framePoints: [new THREE.Vector3().copy(ball),
+    new THREE.Vector3(event.lineX, 0, ball.z - span), new THREE.Vector3(event.lineX, 0, ball.z + span)] };
 }
 
 function penaltyRestartCameraShot(frame, actor) {

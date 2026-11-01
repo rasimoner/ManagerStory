@@ -272,3 +272,11 @@ V7.19.1: `core/presentation/sim/scene-atmosphere.js` gözlenmiş gol ve tribün 
 Özellik envanteri, kapsam ve açık Safari/motor sınırları: [3D restorasyon raporu](3d-restoration-report.md).
 
 Faz 2 duran top modülleri: `core/sim/restart-state.js` yalnız hazırlık durumu/katılımcıları; `restart-layout.js` yasal hedefler/baraj/penaltı düzeni; `restart-step.js` mevcut hareketle yerleşme ve hazır kontrolü; `restart-release.js` gerçek olay ve mevcut pas/şut çıkışı. `first-control.js` gerçek temasın sürekliliğini taşır. Sunum bunları salt okur; ikinci top veya oyuncu fiziği kurmaz.
+
+### 3D özellik eşitliği adayı (1 Kasım 2026)
+
+- `core/sim/restart-decision.js`, `wall-reaction.js`, `penalty-decision.js`: saf duran top kararı, fiziksel baraj ve penaltı erken yönelimi/Panenka.
+- `core/sim/offside.js`: konum kaydı, katılım, istisna ve düdük; ortak restart düzenini çağırır.
+- `core/presentation/sim/scene-offside.js`, `scene-replay.js`, `scene-replay-panel.js`: eski sarı çizgi ve eski gerçek gövde/top kaydedicisine bağlı salt okuma görünümü.
+- `tests/reproductions/`: varsayılan paketi kırmadan saklanan açık dönüş/orta regresyonları; ilerleme günlüğü hangi ürün yaklaşımının geri alındığını anlatır.
+- `tools/match-sim-parity-report.cjs`: aynı 20 tohumda eşlenmiş kısa maç ölçümü; tarihli ham sonuçlar `docs/measurements/3d-feature-parity/`.

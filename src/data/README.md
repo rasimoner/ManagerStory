@@ -101,3 +101,5 @@ Yeni motorun salt okuyan 3D görünümünün temas penceresi, çizim/kamera/rada
 ## match-sim-restarts.json (`RESTART_DATA`)
 
 Doğrudan frikik mesafe/açı/beceri kararı, koşu mesafesi ve gerçek temas yarıçapı; frikik çıkış hızı ve barajın tepki/sıçrama zarfı. Sonuç zarı yoktur. Aynı ortak top uçuşu ve oyuncu hareket sınırlarını kullanır.
+
+`match-sim-restarts.json`: frikikte kapalı açıklığın beceri maliyeti, gerçek penaltı erken yönelim/Panenka koşulları ve ofsaytın noktasal mücadele/görüş/kasti oyun ölçüleri. Hareket ve sonuç mevcut fiziktedir. `match-sim-view.json.replay`: 180 kare sınırı, 0,35× görsel tekrar ve eski yıldız kadraj ölçüleri; `offside`: eski sarı çizgi ve görünür olay kadrajı.

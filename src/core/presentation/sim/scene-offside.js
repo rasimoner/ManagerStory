@@ -7,6 +7,7 @@ export function createSimulationOffsideLine(scene) {
   const line = new THREE.Mesh(new THREE.PlaneGeometry(settings.width, MATCH_SIM_DATA.pitch.width),
     new THREE.MeshBasicMaterial({ color: settings.color, transparent: true, opacity: settings.opacity, depthWrite: false }));
   line.rotation.x = -Math.PI / 2;
+  line.material.userData.outlineParameters = { visible: false };
   line.position.y = settings.height;
   line.visible = false;
   scene.add(line);

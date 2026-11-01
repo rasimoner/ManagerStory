@@ -38,7 +38,12 @@ function ownerAnimationName(contact) {
   if (contact.type === 'keeperDistribution') return contact.kind === 'throw' ? 'gkThrow' : 'gkVolley';
   if (contact.type === 'tackle') return contact.kind === 'sliding' ? 'tackle' : 'lunge';
   if (contact.type === 'block') return 'lunge';
-  return contact.type === 'shot' ? 'shot' : null;
+  return shotAnimationName(contact);
+}
+
+function shotAnimationName(contact) {
+  if (contact.type !== 'shot') return null;
+  return ['chip', 'panenka'].includes(contact.style) ? 'pass' : 'shot';
 }
 
 function movementAnimationName(contact) {

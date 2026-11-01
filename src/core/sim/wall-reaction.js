@@ -20,6 +20,13 @@ export function simulationWallLift(player, time) {
   return RESTART_DATA.wall.jumpHeight * 4 * phase * (1 - phase);
 }
 
+export function simulationWallJumpActive(player, motion) {
+  const jump = player.duel?.wallJump;
+  if (!jump) return false;
+  const time = motion.startTime ?? jump.start, seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
+  return time + seconds >= jump.start && time < jump.start + RESTART_DATA.wall.jumpSeconds;
+}
+
 export function simulationWallContactFraction(player, interval, motion) {
   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
   const startTime = motion.startTime ?? player.duel.wallJump.start - RESTART_DATA.wall.reactionSeconds;

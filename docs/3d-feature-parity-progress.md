@@ -10,9 +10,9 @@ Bir deneme, bir çözüm yaklaşımının uygulanması + ilgili kabul doğrulama
 | P1 | Dar alanda tekrarlı dönüş; iki yön/süre/kayıt | ikinci deneme başarısız | 2/2 | Ürün geri alındı; tests/reproductions/turn-release.cjs |
 | P2 | Doğrudan frikik kararı, fizik, hazırlık, baraj, kamera | doğrulama bekliyor | 0/2 | Mevcut `restart-release` yalnız kısa pas |
 | P3 | Korner/açık oyun ortası ve gerçek kafa/vole/röveşata | ikinci deneme başarısız | 2/2 | Ürün geri alındı; yeniden üretme ve patch saklandı |
-| P4 | İsimli özel çalımlar; gerçek temas ve savunma | doğrulama bekliyor | 0/2 | Eski beats var; ikinci simülasyon kullanılamaz |
+| P4 | İsimli özel çalımlar; gerçek temas ve savunma | engellendi | 0/2 | P1 taşıma/çıkış ve havadakilerde P3 başarısız; isim etiketiyle gizlenmedi |
 | P5 | Özel pas/ilk kontrol/aşırtma/Panenka | doğrulama bekliyor | 0/2 | Eski sekanslar koddan karşılaştırılacak |
-| P6 | Scorpion ve eski özel kaleci hareketleri | doğrulama bekliyor | 0/2 | Normal kaleci zinciri korunacak |
+| P6 | Scorpion ve eski özel kaleci hareketleri | engellendi | 0/2 | P3 gerçek hava/topuk teması teslim edilmedi; normal zincir korunuyor |
 | P7 | Ofsayt konumu/katılım/istisnalar/düdük/yeniden başlama | doğrulama bekliyor | 0/2 | Yeni motorda kural bulunmuyor |
 | P8 | Diğer duran toplar, devre, 90:00, kamera/sunum koruması | doğrulama bekliyor | 0/2 | Önceki çalışmayı yeniden uygulamadan regresyon doğrulaması |
 | P9 | Eski gerçek yıldız tekrarı ve sınırlı salt okuma kayıt | doğrulama bekliyor | 0/2 | `newview/replay.js` gerçek kariyer kaydı; prototip ayrı |
@@ -51,4 +51,28 @@ P3 ikinci yaklaşımın zorunlu hızlı paketi iki regresyon buldu: servis pası
 
 İkinci yaklaşım: pasif oyuncu/gerçek top mücadelesi/kaleci görüşünü kapatma ayrımı ve yavaş, hazırlanılmış rakip oyunuyla hızlı sekmenin ayrımı. 7 motor testi ve eski sarı çizgi/rengin salt okuma görünüm testi geçti. Bu model oyuncuları mevcut motorun metre kök noktalarıyla değerlendirir; ayrı uzuv ofsayt geometrisi yoktur. Rakibin kasti oyun ölçütü bu motorun süre/hız/yükseklik yaklaşımıdır; hakemlikteki bütün öznel durumların eksiksiz karşılığı iddia edilmez. Kaynak: https://www.theifab.com/laws/latest/offside/ .
 
-İki deneme sayacı korunur. P1/P3 başarısız ürünleri geri alındıktan sonra P7 ilk hızlı paket: 483 test, 482 başarılı, 1 mevcut atlama; ayrı performans 5/5. Sarı çizgi görünümünün eklenmesinden sonraki kapılar teslimde ayrıca çalıştırılacak.
+İki deneme sayacı korunur. P1/P3 başarısız ürünleri geri alındıktan sonra P7 hızlı paketleri başarılı; mevcut bir atlama var; ayrı performans 5/5. Sarı çizgi görünümünün eklenmesinden sonraki kapılar teslimde ayrıca çalıştırılacak.
+
+## P2 — teslim öncesi ikinci yaklaşım
+
+Açıklığı tamamen kapatmanın ilk kararda maliyetsiz kaldığı ek kabul testi kırmızıydı. İkinci yaklaşım, kapalı kale açıklığına göre gerekli teknik beceriyi artırır; beceri/mesafe/açı ve kalecinin köşe konumu birlikte korunur. Sabit barajın gerçek çarpışması ve sıçrama aralığı dışında sıradan top temasına dönüş de kabul testindedir. Bu kapsamdan sonra yeni bir futbol yaklaşımı eklenmez. Servis ortası P3 yüzünden engellidir.
+
+## P5 — bağımsız aşırtma/Panenka
+
+Aşırtma zaten fiziksel `shot.style:chip` üretmekteydi; eksik eski scoop/pass pozu bağlandı. Top/sonuç/RNG değişmez.
+
+Panenka 1. yaklaşımda izole gerçek kaleci konumunda çalıştı, **normal hazırlık/koşuda tetiklenmedi**: kaleci vuruştan önce yalnız 0,445 m yanal yer değiştiriyordu. 2. yaklaşım, gerçek yanal hızdan mevcut ivmeyle frenlenebilen konumu kullanır; beceri/hız/mesafe eşikleri düşürülmedi. Normal penaltı yaklaşmasında gerçekten Panenka oluştu. İki yön, düşük beceri/bağlanmamış kalecide normal şut, kayıt/devam ve önceki 39 ilgili kontrol geçti. Daha sonra 20 ortak çekirdek kabulü geçti. Backheel/rabona/özel kontrol P1/P3'e bağlı; no-look ayrıca 0 denemeyle açık kalır.
+
+## P9 — gerçek manuel tekrar
+
+Eski createReplay kullanıldı: gerçek çizilmiş beden ve top, mevcut yıldız kamera ölçüleri, 0,35× ve ilerleme çubuğu. İlk yaklaşımda çekirdek eşitliği ve 180 kare/bellek sınırı geçti. WebGL'de dikey kamera düğmeleri iki satırlı oynatma düğmeleriyle çakıştı. İkinci yaklaşımda dikey yerleşimler ayrıldı, gerçek UI tıklamasıyla kabul geçti. Kadro değişince tampon temizlenir; sonraki maça taşınmaz. Kayıtlı gövde/top oynatılırken canlı checkpoint/RNG eşitliği ve gerçek kayda dönüş testli. Otomatik başlatma ve kalıcı arşiv tamamlanmış sayılmaz.
+
+## P10 — görsel ve altyapı
+
+Node 22 ve yerel Chromium 153 gerçek WebGL çalışıyor. CDN'deki bozuk ZIP yerine scratch'te mevcut bağımlılıkları değiştirmeyen bir tarayıcı paketi kullanıldı; sistem FFmpeg'i video için kullanıldı. Fiziksel iPhone/Safari yok. İzole gerçek kariyer UI'sinde 10 kayıt alındı: dört frikik (iki yön/iki oran), iki ofsayt, iki gerçek aşırtma tekrarı, iki Panenka. Ofsayt çizgisinin ilk TV kadrajında dışarıda kaldığı görsel bulgu sonrası eski yüksek kamera olay bağlantısı eklendi; sarı çizgi görüntüde doğrulandı.
+
+Son futbol kaynağı sabitlendi. Sonraki işlemler zorunlu tam/hızlı/lint/build/smoke, salt okuma video kaydı ve ölçüm referansıdır. Ölçüm sürerken kaynak değiştiğinde eski kaynaklı çalışma durduruldu; aynı koşulda sonuç değişsin diye tekrar denenmedi.
+
+## Son kaynak doğrulaması
+
+P2'de savunmanın karar maliyeti ve sıçrama zaman aralığının bitişi, P5'te doğal koşuda Panenka, P7'de takım arkadaşının yeni temas anı, P9'da gerçek kayda dönüş birlikte son odaklı pakette doğrulandı. Yeni futbol değişikliği eklenmiyor. CI'nin eski tarihli Denge 1 dosyası yerinde korunur; aynı 50 tohum + sekiz güç deneyinin yeniden üretme kapısı yeni tarihli ölçüm referansına bağlanır. Hiçbir ünite/smoke/performans/50-tohum karşılaştırması kaldırılmadı. Yeni WebGL kabulü PR'a ve ilerideki Pages yayın kapısına eklendi; bu dal yayın tetiklemez.

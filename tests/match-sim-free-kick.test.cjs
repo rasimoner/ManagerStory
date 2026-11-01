@@ -97,3 +97,20 @@ test('the actual taker boot meets the real released ball without moving the root
   assert.ok(Math.min(...gaps)<.2);
   assert.equal(actor.pos.x,fixture.owner.position.x);
 });
+
+test('a marginal technician changes the direct decision when defenders close the goal opening',()=>{
+ const fixture=freeKick({x:27,y:1},1,64),{api,simulation,owner}=fixture;
+ const opponents=simulation.teams[1].players.filter(p=>p.slot!=='GK');
+ for(const p of opponents)p.position={x:-30,y:25};
+ assert.equal(api.planSimulationRestart(simulation,simulation.ball.restart).kind,'direct');
+ opponents.slice(0,4).forEach((p,index)=>p.position={x:36,y:-1.5+index});
+ assert.equal(api.planSimulationRestart(simulation,simulation.ball.restart).kind,'short');
+ assert.equal(owner.attributes.technique,64);
+});
+
+test('an expired wall jump uses ordinary landing-ball contact again',()=>{
+ const {api}=labFixture();
+ const player={position:{x:0,y:0},duel:{wallJump:{start:0}}};
+ const motion={before:{position:{x:-2,y:0},velocity:{x:21,y:0},height:.1,verticalVelocity:-5},after:{position:{x:.1,y:0}},seconds:.1,startTime:10,radius:.72};
+ assert.equal(api.simulationContactFraction(player,{x:0,y:0},motion),api.simulationContactFraction({...player,duel:{}},{x:0,y:0},motion));
+});

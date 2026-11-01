@@ -3,7 +3,7 @@ import { emitSimulationEvent } from './ball-events.js';
 import { acquireSimulationBall } from './ball-possession.js';
 import { releaseSimulationPass } from './pass-execution.js';
 import { releaseSimulationShot } from './shot-execution.js';
-import { evaluateSimulationShot } from './shot-evaluation.js';
+import { evaluateSimulationPenalty } from './penalty-decision.js';
 import { simulationRuntime } from './simulation-runtime.js';
 import { pointDistance } from './geometry.js';
 import { simulationShortRestartTarget } from './restart-layout.js';
@@ -46,7 +46,7 @@ function releaseRestartPass(simulation, { taker, receiver, restart }) {
 }
 
 function releasePenalty(simulation, taker) {
-  releaseSimulationShot(simulation, taker, evaluateSimulationShot(simulation, taker));
+  releaseSimulationShot(simulation, taker, evaluateSimulationPenalty(simulation, taker));
   simulation.ball.shot.penalty = true;
   Object.assign(simulation.events.at(-1), { penalty: true, restartKind: 'penalty' });
 }

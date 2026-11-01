@@ -71,3 +71,12 @@ test('a save/deflection preserves offside while a slow deliberate opponent play 
  assert.equal(api.simulationDeliberateOpponentPlay(simulation,defender,{touching:{height:0,velocity:{x:30,y:0}},time:1}),false);
  assert.equal(api.simulationDeliberateOpponentPlay(simulation,defender,{touching:{height:0,velocity:{x:5,y:0}},time:2}),true);
 });
+
+test('an onside teammate touch replaces the old kick snapshot before any later participation',()=>{
+ const fixture=passScene(1,35),{api,simulation,passer,receiver}=fixture,third=simulation.teams[0].players[5];
+ third.position={x:45,y:2};api.captureSimulationOffside(simulation,passer);
+ assert.ok(simulation.offside.candidates.includes(third.id));
+ third.position={x:39,y:2};touchReceiver(fixture,35);
+ assert.equal(simulation.offside.fromId,receiver.id);
+ assert.equal(simulation.offside.candidates.includes(third.id),false);
+});
