@@ -1,4 +1,6 @@
-# Kornerde yanlış markaj önceliği
+# Kornerde yanlış markaj önceliği — tanı geçmişi
+
+Bu belgenin aşağıdaki öneri ve 2/2 kaydı ek kullanıcı onayından önceki tanıdır. Güncel sonuç en alttadır.
 
 2 Kasım 2026. Ürün tabanı 97d99fc; tanı kaydı 1311857. G1'in önceki iki başarısız yaklaşımı ve 2/2 sayacı korunur.
 
@@ -31,3 +33,7 @@ Bu karar hatası, önceki kovalama hedefi ve kaleci hazırlığı tahminlerinden
 Veri: [markaj planı](measurements/goal-regression/corner-mark-plan.json). Geçmiş: [G1 günlüğü](goal-regression-progress.md).
 
 Tanı teslim kontrolü: Node 22.23.4 lint başarılı; test:fast 586 başarılı, 1 mevcut atlama, ayrı performans 5/5. Yeni dört kırmızı markaj kabulü ayrı yeniden üretme dosyasındadır; bu sonuçlar kusurun düzeldiği anlamına gelmez.
+
+## Ek onay sonrası sonuç
+
+Kullanıcı “Dene ve devam et” diyerek tek ek denemeyi onayladı; G1 toplamı 3/3. Önerilen dar fark uygulandı. Eski kırmızı test varsayılan `tests/match-sim-corner-mark-priority.test.cjs` dosyasına taşındı; dört yön/kanat kabulü, normal top karşı örneği ve kayıt/devam 6/6 geçti. Aynı doğal kornerde ilk kontrolde savunmacı mesafesi 4,128585→1,753223 m; şut/kurtarışla devam etti. Üç seed 43→28 gol; aynı 50 seed ortalaması 16,92→10,30. Bu kısmi başarıdır; main 2,76, referans karşılaştırması hâlâ başarısız. Markaj düzeltmesi tutuldu; dördüncü yaklaşım/PR/merge/yayın yok. [Güncel rapor](goal-regression-report.md).

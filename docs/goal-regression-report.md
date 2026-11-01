@@ -1,46 +1,88 @@
-# Gol artışı: ilk ayrıştırma — düzeltme tamamlanmadı
+# Gol artışı — markaj kusuru düzeltildi, genel kabul açık
 
-Dal: fix/3d-goal-regression. Taban: 97d99fcfad169c4ccf156b2d53884a4f123c4023. Main d86ac72de6bc4677a2357fc516c06e1ffeceed48. Node 22.23.4; önceki ortamın kopuk Git/Node bağlantıları ayrı clone ve aynı Node sürümüyle birer girişimde giderildi. Eski çalışma dizinleri değiştirilmedi.
+Dal `fix/3d-goal-regression`, ürün tabanı `97d99fcfad169c4ccf156b2d53884a4f123c4023`, karşılaştırma main `d86ac72de6bc4677a2357fc516c06e1ffeceed48`. Node 22.23.4. 7.19.4 yayımlanmamış adaydır. Eski çalışma dizinleri ve önceki 7.20.0 hazırlıkları değiştirilmedi.
 
-## Kesinleşen bulgu
+Kullanıcı somut markaj önerisine “Dene ve devam et” diyerek tek ek denemeyi onayladı. **G1 sayacı 3/3**; önceki iki başarısızlık korunur. Üçüncü yaklaşım kanıtlanan markaj kusurunu düzeltti ve ölçülen gol artışını azalttı; genel denge kabulü geçmedi. Bu bağımsız başarı tutuldu. Dördüncü yaklaşım, PR, merge ve yayın yapılmadı.
 
-İlk büyük sıçrama **8c99b450da4c1451bc185a7648e815f9d75852b3** korner/servis commit'inde başlıyor. Henüz özel çalımlar, kafa/vole ve otomatik tekrar eklenmeden de artış var. Aynı 901/731/42 seed'leri, aynı createLabScenario girdileri, aynı 54.000 fizik adımı kullanıldı. Bunlar erken teşhis için üç maçtır; önceki 50 maç ortalamalarıyla karıştırılmaz ve CI karşılaştırmasının yerine geçmez.
+## Kesin neden ve ürün farkı
 
-| Kaynak / kontrol | 901 gol | 731 gol | 42 gol | Toplam gol | Toplam şut |
+Saklanan doğal seed 901 kornerinde, servis anında `planSimulationBoxDefence` yalnız x farkıyla alıcı seçiyordu. Köşedeki home-LW, kale çizgisine yatayda 0,331 m ama kaleye gerçekte 33,866 m uzaktı. İki markaj hakkından birini tüketiyordu; merkezdeki gerçek alıcı home-ST, 10,904 m kale uzaklığına rağmen listeden düşüyordu. İkinci seçilen home-LCM gerçekte 11,685 m uzaktı. [Tanı ve eski kırmızı kanıt](corner-marking-diagnosis.md).
+
+Yalnız gerçek `flight.cross` uçuşunda uygun alıcı filtresi ve sıralaması iki boyutlu kale uzaklığını kullanır. Mevcut 23 m sınırı ve iki markaj hakkı korundu. Diğer toplarda eski seçim sürer. Fizik, hız, RNG, şut/kaleci katsayısı, temas ve sonuç çözücüsü değişmedi. Yeni durum alanı yok; kayıt biçimi/göç gerekmiyor. Kayıt/devam gerçek orta uçuşundan aynı sonuçla doğrulandı.
+
+Aynı checkpoint'in iki hücum yönü × iki kanat geometrisinde dört kabul önce kırmızı, sonra yeşil oldu. Normal top karşı örneği ve kayıt/devam eşitliğiyle `tests/match-sim-corner-mark-priority.test.cjs` **6/6**. Geometrik aynalar doğal kariyer sıklığının kanıtı değildir.
+
+Aynı doğal korner ileri oynatılınca:
+
+| Gözlem | Önce | Markaj düzeltmesiyle |
+|---|---:|---:|
+| Servis zamanı | 332,200000 | 332,200000 |
+| Gerçek ilk kontrol zamanı | 334,665085 | 334,665085 |
+| İlk kontrolde en yakın savunmacı | 4,128585 m | 1,753223 m |
+| Şut zamanı | 335,100000 | 335,500000 |
+| Sonraki sonuç | 335,598738 gol | 335,918177 kurtarış |
+
+Oyuncu konumu veya sonuç zorlanmadı. Eski gol, temasta savunmacı zaten uzakta olduğu için tek başına eksik çarpışma kanıtı değildi. Yeni kanıt yalnız bu kusurun ve aynı pozisyonun etkisini gösterir; bütün artışın bu nedenle oluştuğu iddia edilmez.
+
+## Aynı tohumlarla ölçülen etki
+
+İlk büyük tarihsel sıçrama korner/servis commit'i `8c99b450da4c1451bc185a7648e815f9d75852b3` içinde, özel hareketler ve otomatik tekrar eklenmeden oluşuyordu. Aynı 901/731/42 girdileri ve 54.000 fizik adımı:
+
+| Kaynak / yaklaşım | 901 gol | 731 gol | 42 gol | Toplam gol | Toplam şut |
 |---|---:|---:|---:|---:|---:|
 | Main d86ac72 | 1 | 4 | 1 | 6 | 54 |
-| Taşıma düzeltmesi 90ea733 | 4 | 4 | 1 | 9 | 43 |
+| Taşıma 90ea733 | 4 | 4 | 1 | 9 | 43 |
 | Korner/servis 8c99b45 | 14 | 12 | 15 | 41 | 128 |
-| Son aday 97d99fc | 17 | 14 | 12 | 43 | 114 |
-| 1. yaklaşım | 15 | 14 | 15 | 44 | 127 |
-| 2. yaklaşım | 18 | 10 | 9 | 37 | 130 |
-| 8c99b45 + yalnız önceki restart-decision | 1 | 2 | 3 | 6 | 56 |
+| Önceki aday 97d99fc | 17 | 14 | 12 | 43 | 114 |
+| 1. yaklaşım, geri alındı | 15 | 14 | 15 | 44 | 127 |
+| 2. yaklaşım, geri alındı | 18 | 10 | 9 | 37 | 130 |
+| 8c99b45 + eski restart seçimi, yalnız tanı | 1 | 2 | 3 | 6 | 56 |
+| 3. yaklaşım, markaj | 11 | 5 | 12 | 28 | 104 |
 
-Son satır, yalnız ayrı teşhis worktree'sinde eski duran-top kararını kullanır. Yeni korner/frikik servis seçimini kapattığı için ürün düzeltmesi sayılmadı; aday dala katılmadı. Bu kontrol, artışın yeni duran-top servis yolundan geldiğini nedensel olarak daraltır. Yerleşim, servis seçimi, ilk kontrol ve takip eden yakın şut arasındaki tam alt neden henüz yeterince ayrıştırılmadı. Tek bir satır kusuru veya bütün sorunun kaleciden kaynaklandığı iddia edilmez.
+Eski restart seçimi yeni servisi kapattığı için ürün çözümü değildir; probe worktree eski haline döndürüldü. Markajdaki küçük ölçüm olumlu olduğu için tek 50-tohum ve 20 kısa maç ölçümü yapıldı.
 
-901'in ilk yüksek-skor örneği: korner 1052,5 sn; servis 1060,3; ST gerçek kontrolü 1062,6919; şut 1063,1; gol 1063,5473. Şut mesafesi 13,429 m. Kaleci y=+2,069 iken top karşı köşeye gider; gereken ek uzanma 2,139 m, oluşan 0,749 m. Ayrı izde bazı savunmacılar alıcı çevresini bırakıp x≈20–22/y=-34 hedeflerine koşar. Bu iki yerel sorun ölçüldü, fakat aşağıdaki denemeler genel artışı gidermediği için yeterli kök neden/düzeltme sayılmadı.
+**50 aynı tohum, 54.000 fizik adımı:** satırlar maç başına ortalama. Bu sözleşme doğal 420 saniyelik maçlarla birleştirilmez.
 
-## İki deneme ve geri alma
+| Sayaç | Main | Önceki aday | Markaj düzeltmesi |
+|---|---:|---:|---:|
+| Gol | 2,76 | 16,92 | 10,30 |
+| Şut | 17,64 | 48,46 | 38,48 |
+| Pas | 798,64 | 728,98 | 734,76 |
+| Top kazanma | 143,52 | 124,16 | 126,82 |
+| Faul | 25,88 | 30,26 | 31,10 |
+| Kurtarış | 6,72 | 10,24 | 9,54 |
+| Kırmızı kart | 0,44 | 2,44 | 2,50 |
+| Maçların ortalama kurtarış yüzdesi | 69,82 | 37,68 | 48,06 |
 
-1. Ulaşılamayan ortada son ufuk noktasını kovalamak yerine en yakın oynanabilir yaklaşımı koruma. Önce kırmızı test hedefi (21,23;-34) gösterdi. Yerel geometri ve koruma testleri 3/3 geçti; maç toplamı 43→44 oldu. **Başarısız.** ball-chasing ürün farkı kaldırıldı.
-2. Kalecinin ortanın mevcut kanat konumu yerine gerçek fiziksel iniş alanını önceden örtmesi. Önce iki yön/iki kanatta dört kırmızı test; normal top karşı örneği geçti. Uygulama sonrası 5/5 yerel kabul geçti, toplam gol 43→37 oldu; 901 17→18 kötüleşti. Büyük artış kaldı. **Başarısız.** keeper-positioning ürün farkı kaldırıldı.
+Gol %39,1, şut %20,6 azaldı. Yeni gol medyanı 11, p10/p90 6/14. Genel denge hâlâ bozuk; main'e göre gol 3,73 kat. Faul/kart artışı giderilmedi. “Denge değişmedi” veya “gol sorunu çözüldü” denmez.
 
-Üçüncü yaklaşım yapılmadı. İki patch ve kırmızı yeniden üretmeler tests/reproductions altında, varsayılan test dosyalarının dışındadır. Patch'ler hazır çözüm değildir; boş bağlam satırlarının dosya içi whitespace hatası üretmemesi için sıfır bağlamlıdır (teşhis için git apply --unidiff-zero). src/, sürüm metası, mevcut golden, CI, lint-baseline ve 50-tohum referansı **97d99fc ile aynıdır**. Önceki başarılı özellikler ve altı hareketin eski başarısızlık geçmişi korunur. Sürüm artırılmadı; yeni ürün değişikliği yoktur. PR/merge/yayın yapılmadı.
+**20 doğal kısa maç, 420 saniye, iki devre, slot bazında eşit özellikler, workload kapalı:**
 
-## Doğrulama ve yeniden üretme
+| Sayaç | Main | Önceki aday | Markaj düzeltmesi |
+|---|---:|---:|---:|
+| Gol | 0,55 | 1,05 | 0,80 |
+| Şut | 6,80 | 8,80 | 7,80 |
+| Pas | 72,45 | 71,25 | 72,80 |
+| Top kaybı | 29,50 | 31,20 | 30,20 |
+| Faul | 1,95 | 1,85 | 2,05 |
+| Kurtarış | 2,35 | 3,35 | 2,45 |
 
-AGENTS.md commit kontrolleri bir kez çalıştırıldı: lint yeni ihlal yok; test:fast 586 başarılı, 1 mevcut atlama, ayrı performans 5/5. Bu yeni ortamın performans başarısı önceki ortamdaki iki başarısız girişimin kök nedeninin çözüldüğü anlamına gelmez; optimizasyon uygulanmadı. Başarısız ürünler geri alındığından tam test/build/smoke, 50 tohum/güç ve yeni video paketi tekrar başlatılmadı. G1 kabulü açık kalır.
+Top kaybı burada yeniden başlatmalarda sahiplik değişimini de sayar; 50 maçtaki top kazanmayla aynı sayaç değildir. [Karşılaştırma](measurements/goal-regression/mark-attempt3-comparison.json), [50 tohum ve dağılımlar](measurements/goal-regression/mark-attempt3-50-summary.json), [20 kısa maç](measurements/goal-regression/mark-attempt3-short.json), [tek korner olayları](measurements/goal-regression/mark-attempt3-corner.json).
 
-Node 22 ile mevcut bir checkout'u küçük ölçmek için:
+## Deneme geçmişi ve doğrulama
 
-```bash
-node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/reproductions/goal-regression-probe.cjs /absolute/checkout /absolute/output.json
-```
+1. Ulaşılamayan ortada en yakın oynanabilir yaklaşımı koruma: yerel geometri 3/3, üç tohum 43→44 gol. Başarısız ürün farkı geri alındı. `goal-chase-attempt1.patch` / `goal-cross-chase.cjs` korunur.
+2. Kalecinin gerçek iniş alanını önceden örtmesi: yerel yön/kanat kabulleri 5/5, üç tohum 43→37 gol; 901 17→18 kötüleşti. Büyük artış kaldı. Başarısız ürün farkı geri alındı. `goal-keeper-attempt2.patch` / `goal-keeper-cross-anticipation.cjs` korunur.
+3. Kullanıcı onayıyla gerçek kale uzaklığına göre markaj: kesin seçim kusuru düzeldi, 50 tohumda kısmi etki doğrulandı. Önceki yamalar yeniden uygulanmadı. Genel G1 açık; bütçe doldu.
 
-Karşılaştırma checkout'ları aynı bağımlılıklarla çalışmalıdır. 90ea733 → 8c99b45 farkı için bu iki commit ayrı checkout'ta ölçülür. goal-restart-isolation.patch yalnız 8c99b45 üzerinde teşhis amaçlıdır; yeni özelliği kapatır. goal-cross-chase.cjs ve goal-keeper-cross-anticipation.cjs geri alınmış adayların yerel kırmızı kabulleridir; normal CI'ya eklenmedi. Tohumlar/girdi/istatistikler [probes.json](measurements/goal-regression/probes.json), ilk gol izi [first-goal.json](measurements/goal-regression/first-goal.json), sayaç [ilerleme belgesi](goal-regression-progress.md) içindedir.
+Yeni altı kabul 6/6; ilgili korner/hava teması/kaleci sınırı/kayıt/taşıma testleri 39/39 geçti. Teslim kontrolü Node 22.23.4: lint temiz; test:fast 592 başarılı, 1 mevcut atlama; ardından ayrı performans 5/5; build başarılı. Denge kapısı açık olduğundan bu dar teslimde tam test/smoke ve yeni video paketi tekrar başlatılmadı; tam paket yeşil diye sunulmaz. [Kontrol kaydı](measurements/goal-regression/mark-attempt3-checks.json).
 
-## Ayrı devam görevi için dar prompt
+Mevcut `match-sim-parity-reference.json` ile gerçek karşılaştırma ilk seed 901'de **1–0 yerine 6–5** nedeniyle başarısız. Referans, eşikler, golden, lint tabanı ve CI değiştirilmedi. İlk skor farkı zorunlu kapıyı zaten durdurduğu için 400 ek güç maçı, beş süre taraması ve geniş video paketi yeniden çalıştırılmadı. Önceki doğal kariyer fixture ve görsel kabul açıkları bu küçük düzeltmeyle kapanmış sayılmaz. Yeni WebGL görüntüsü/video veya fiziksel iPhone/Safari kanıtı üretilmedi. PR koşulu sağlanmadı; başarılı düzeltme dala teslim edilir.
+
+Yeniden ölçüm (Node 22): `npm run sim:report -- --output /absolute/report.json`; kısa seri: `node --experimental-vm-modules --disable-warning=ExperimentalWarning tools/match-sim-parity-report.cjs . /absolute/short.json`. Tek korner: `node --experimental-vm-modules --disable-warning=ExperimentalWarning tests/reproductions/corner-mark-replay.cjs /absolute/checkout /absolute/corner.json`.
+
+## Açık G1 için kopyalanabilir dar devam promptu
 
 ```text
-ManagerStory fix/3d-goal-regression dalının son raporunu ve ölçümlerini oku. Ürün tabanı 97d99fc, main d86ac72; yeni ürün düzeltmesi teslim edilmedi. İlk büyük artış 8c99b45 korner/servis commit'inde: aynı 901/731/42 seed ve 54.000 adımda toplam 9→41 gol; son aday 43. 8c99b45'te yalnız eski restart-decision kullanılması 6 gole dönüyor, fakat servisi kapattığından bu ürün çözümü değildir. Yeni ayrı görev yalnız duran-top servisinden ilk kontrole ve yakın şuta kadar savunma/alıcı yerleşimi ve gerçek fırsat zincirini ayrıştırsın. Önce tek bir doğal checkpoint üzerinde kesin kusuru kırmızı testle göster; sonra yalnız o nedeni düzelt. Savunmacının en yakın yaklaşımını seçmek 44, kaleci iniş öngörüsü 37 gol verdi; ikisi geri alındı, aynı çözümleri gerekçesiz tekrarlama. Bu görevin iki başarısızlığını koru; kullanıcı başlatacağı yeni görev için en çok iki yaklaşımı başta sabitle. Gol kotası, şut/kaleci katsayısı, zorunlu kayıp, eski servisi kapatma, seed/eşik/golden değişikliği yok. Önce üç sabit seed; ancak kabul geçerse 20 doğal kısa maç ve aynı 50 tohumla geniş doğrulama. Diğer özel hareket/perf/tekrar işlerine girme. Zorunlu kontroller geçmeden PR, merge veya yayın yapma.
+ManagerStory fix/3d-goal-regression dalının güncel HEAD'ini, docs/goal-regression-report.md ve docs/goal-regression-progress.md'yi oku; sürüm 7.19.4 yayımlanmamış adaydır. Main d86ac72, ürün tabanı 97d99fc. Yeni markaj düzeltmesini ve varsayılan 6/6 testini koru: yalnız cross uçuşunda iki boyutlu kale uzaklığı kullanılır. Aynı 50 tohumda gol 16,92→10,30, şut 48,46→38,48 oldu; main 2,76/17,64. Genel G1 hâlâ açık. G1 bütçesi iki başarısız yaklaşım ve kullanıcının bir ek onayıyla 3/3 doldu; bu devam mesajı dördüncü ürün yaklaşımına otomatik yetki vermez. Yalnız kalan artışı tek bir farklı doğal checkpoint'te salt okuma olay/karar/yerleşim iziyle daralt; golün korner, servis, ilk kontrol, savunmacı rolü ve kart eksilmesi zincirini ayrı göster. Yeni ürün değişikliğinden önce somut kırmızı kabulü ve öneriyi incelemeye hazırla. En yakın orta yaklaşımı ve kaleci iniş öngörüsü geri alındı; aynı çözümleri gerekçesiz tekrarlama. Gol kotası, şut/kaleci katsayısı, zorunlu kayıp, servisi kapatma veya seed/eşik/golden/ref/CI değişikliği yok. Diğer özel hareket/perf/tekrar işlerine girme. Zorunlu kapılar geçmeden PR; görsel onay olmadan merge/yayın yapma.
 ```

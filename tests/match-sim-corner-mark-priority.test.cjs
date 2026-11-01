@@ -1,9 +1,9 @@
-// Red proof of the observed marking choice; intentionally outside the default CI suite.
+// The saved natural corner must mark central threats without changing the simulation.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { inflateSync } = require('node:zlib');
-const { loadLab, plain } = require('../support/lab.cjs');
-const archive = require('./corner-before-delivery.json');
+const { loadLab, plain } = require('./support/lab.cjs');
+const archive = require('./reproductions/corner-before-delivery.json');
 
 function releasedCorner(direction, side) {
   const { api } = loadLab();
@@ -43,4 +43,16 @@ test('non-cross marking retains its existing compatibility contract', () => {
   const { api, simulation } = releasedCorner(1, -1);
   simulation.ball.flight.cross = false;
   assert.deepEqual(boxMarks(api, simulation), ['home-LW', 'home-LCM']);
+});
+
+test('a saved cross resumes with the same marking, decisions and outcome', () => {
+  const { api, simulation } = releasedCorner(1, -1);
+  for (let tick = 0; tick < 10; tick++) api.stepSimulation(simulation);
+  assert.ok(simulation.ball.flight?.cross);
+  const resumed = api.restoreSimulation(plain(api.snapshotSimulation(simulation)));
+  for (let tick = 0; tick < 80; tick++) {
+    api.stepSimulation(simulation);
+    api.stepSimulation(resumed);
+  }
+  assert.deepEqual(plain(api.snapshotSimulation(resumed)), plain(api.snapshotSimulation(simulation)));
 });

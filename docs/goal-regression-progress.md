@@ -4,7 +4,7 @@
 
 Tek ürün kabulü G1: Aynı 50 tohum/54.000 adım sözleşmesindeki gol 2,76→16,92 ve şut 17,64→48,46 artışının nedenini kod/olay iziyle ayır; nedeni gösteren kırmızı testi yaz, yalnız kanıtlanan kusuru düzelt. Diğer yeni fizik özelliklerini, normal şut/kaleci davranışını ve kayıt/devamı koru. Uzun ölçümü doğal kısa maçlarla karıştırma. Gol kotası/sonuç çarpanı, seed/eşik/golden/lint baseline değişikliği yok.
 
-G1 çözüm yaklaşımı sayacı: **2/2**. Salt okuma teşhisi, tarihsel commit karşılaştırması ve kırmızı test çözüm yaklaşımı sayılmaz. Uygulama + ilgili kabul bir denemedir; ikinci başarısızlıkta yalnız bu işin başarısız ürün farkı geri alınır ve ayrı yeniden üretme korunur. Önceki görevin altı başarısız hareketi ve diğer açık maddeleri bu işte yeniden denenmez; sayaçları korunur.
+G1 çözüm yaklaşımı sayacı: **3/3**, kullanıcının “Dene ve devam et” onayıyla yalnız somut markaj düzeltmesi için bir ek deneme. Önceki iki başarısızlık korunur. Salt okuma teşhisi, tarihsel commit karşılaştırması ve kırmızı test çözüm yaklaşımı sayılmaz. Uygulama + ilgili kabul bir denemedir; başarısız ürün farkı geri alınır ve ayrı yeniden üretme korunur. Önceki görevin altı başarısız hareketi ve diğer açık maddeleri bu işte yeniden denenmez; sayaçları korunur. Aşağıdaki eski 2/2 ve uygulanmamış öneri kayıtları ek onaydan önceki durumu anlatır.
 
 Bağımlılık: Başlangıç varsayımı yok. Önce 901/731/42 tohumlarında küçük karşılaştırma ve tarihsel commit daraltması; kesin neden bulunduktan sonra ürün değişikliği. Odaklı test/ölçümden sonra bir geniş doğrulama. Performans, diğer kariyer fixture'ları ve 3D tekrar ayrı sonraki işlerdir; başarısız kapılar gizlenmez. Main'e merge/yayın yok. PR yalnız zorunlu kapılar geçerse.
 
@@ -39,3 +39,15 @@ G1 geçmişi 2/2 olarak korunur; yeni ürün denemesi uygulanmadı. Aynı checkp
 corner-mark-priority.cjs: Node 22.23.4, iki yön × iki kanatta 4 kırmızı kabul aynı yanlış home-LW/home-LCM listesini gösterdi. Normal orta dışı davranış karşı örneği geçti (1/1). Bu tanı testi varsayılan CI dışında tutuldu; ürün kodu değişmedi.
 
 corner-mark-priority-proposed.patch yalnız cross uçuşunda mevcut receiverDistance değerini gerçek iki boyutlu kale uzaklığıyla değerlendiren ve aynı uzaklıkla sıralayan inceleme önerisidir. Eşik, markaj sayısı, hız/erişim, RNG, gol veya kurtarış sonucu değiştirmez. Patch UYGULANMADI, kabul edildiği veya gol artışını giderdiği iddia edilmez. Bunu uygulayıp test etmek G1 için üçüncü ürün denemesi olacağı için ilk kullanıcı talebindeki iki yaklaşım sınırı nedeniyle açık ek yetki gerekir. Önceki denemelerin adları/sayaçları değiştirilmez.
+
+## Kullanıcı onayıyla tek ek deneme — G1 3/3
+
+2 Kasım 2026: Kullanıcı, somut markaj önerisi için sorulan tek ek denemeye “Dene ve devam et” yanıtını verdi. Önceki iki başarısızlık silinmez; toplam bütçe yalnız bu düzeltme için 3/3 olur, dördüncü yaklaşım yoktur. Önce dört aynalı kırmızı markaj kabulü tekrarlandı (4 başarısız / 1 normal karşı örnek başarılı). Sıra: önerilen patch → aynı kabuller → aynı korner → aynı 901/731/42 → ancak azalma varsa geniş ölçüm. Başka ürün/perf/tekrar işi eklenmez.
+
+Üçüncü yaklaşımın yerel sonucu: yalnız `flight.cross` için alıcı uzaklığı gerçek iki boyutlu kale uzaklığı oldu. Dört kırmızı kabul yeşil; normal top karşı örneği ve orta uçuşunda kayıt/devam eşitliğiyle varsayılan `match-sim-corner-mark-priority.test.cjs` 6/6. Aynı doğal kornerde ilk kontroldeki en yakın savunmacı 4,128585→1,753223 m; eski gol yerine gerçek şut/kurtarış zinciri oluştu. Konum, RNG veya sonuç zorlanmadı.
+
+Üç sabit tohumda 17/14/12→11/5/12 gol (43→28); bu nedenle tek 50-tohum ve 20 kısa maç ölçümüne geçildi. Aynı 50 tohum/54.000 adımda gol ortalaması 16,92→10,30 (%39,1 azalma), şut 48,46→38,48. Main 2,76 gol/17,64 şut; G1'in genel denge kabulü açık. 20 doğal kısa maçta gol 1,05→0,80, şut 8,80→7,80, top kaybı 31,20→30,20. İki sözleşme birleştirilmez. Markajdaki bağımsız ve kanıtlanan başarı tutuldu; dördüncü ürün yaklaşımı uygulanmadı. İlk iki başarısız yama geri alınmış kalır.
+
+Mevcut referansla karşılaştırma seed 901'de 1–0 yerine 6–5 skoruyla başarısız. Referans/golden/eşik/CI değiştirilmedi; ilk skor farkı zaten kapıyı durdurduğu için 400 ek güç maçı ve beş süre taraması yeniden başlatılmadı. PR/merge/yayın yok. Sürüm 7.19.4 yalnız yayımlanmamış adaydır. Ölçümler ve dar devam promptu `goal-regression-report.md` içindedir.
+
+Son commit kontrolleri: Node 22.23.4, lint temiz; test:fast 592 başarılı / 1 mevcut atlama, performans 5/5, build başarılı. Tam test/smoke ve yeni WebGL/iPhone kanıtı bu dar teslimde yeniden çalıştırılmadı.

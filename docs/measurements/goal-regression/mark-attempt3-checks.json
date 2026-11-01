@@ -1,0 +1,55 @@
+{
+  "node": "v22.23.4",
+  "attempt": {
+    "id": "G1",
+    "used": 3,
+    "limit": 3,
+    "extraAttemptAuthorizedBy": "Dene ve devam et",
+    "markingAcceptance": "passed",
+    "overallBalanceAcceptance": "open"
+  },
+  "checks": {
+    "redBeforeFix": {
+      "passed": 1,
+      "failed": 4
+    },
+    "markingAndResume": {
+      "passed": 6,
+      "failed": 0
+    },
+    "focusedPhysics": {
+      "passed": 39,
+      "failed": 0
+    },
+    "lint": "passed; baseline unchanged",
+    "testFast": {
+      "passed": 592,
+      "failed": 0,
+      "existingSkipped": 1
+    },
+    "separatePerformance": {
+      "passed": 5,
+      "failed": 0
+    },
+    "build": "passed",
+    "same50SeedComparison": "failed at seed 901: expected 1-0, actual 6-5",
+    "fullTest": "not repeated in this narrow delivery",
+    "smoke": "not repeated in this narrow delivery",
+    "newVisualEvidence": false
+  },
+  "protected": [
+    "main unchanged",
+    "no merge",
+    "no publication",
+    "no PR while mandatory balance gate fails",
+    "first two failed product patches remain reverted",
+    "golden/reference/thresholds/CI unchanged",
+    "old release preparation untouched"
+  ],
+  "measurements": [
+    "mark-attempt3-50-summary.json",
+    "mark-attempt3-comparison.json",
+    "mark-attempt3-short.json",
+    "mark-attempt3-corner.json"
+  ]
+}

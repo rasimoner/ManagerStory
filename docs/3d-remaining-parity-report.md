@@ -1,5 +1,7 @@
 # PR #16 sonrası 3D eşitliği — teslim raporu
 
+Sonraki dar çalışma: yayımlanmamış 7.19.4 markaj düzeltmesi ve 50 tohumda kısmi gol azalması [ayrı G1 raporunda](goal-regression-report.md). Bu belgedeki 7.19.3 sonuçları tarihsel olarak korunur; genel teslim kapıları hâlâ geçmedi.
+
 Dal fix/3d-remaining-feature-parity. Ürün tabanı c6341386f9f0815e12aeb26bd86a77ca52942149; 7.19.3 PR adayıdır, yayımlanmış sürüm değildir. Zorunlu performans ve 50 tohum yeniden üretme kapıları kırmızıdır; teslim yeşil değildir. Merge ve yayın görsel onay bekler.
 
 Başlangıç main d86ac72de6bc4677a2357fc516c06e1ffeceed48 / 7.19.2. PR #16 merged ve Pages 41263740314 build/publish başarısı ayrı doğrulandı. PR CI 41260752142 verify geçti. Başlangıçta tarayıcı kurulumunda bekleyen iki mobil iş son kontrolde cancelled; bu işlerin senaryoları skipped. Pages build/publish başarısı bunlardan ayrı doğrulandı. Eski dizinin README/package/package-lock ve izlenmeyen 7.20.0 notu korunur. Node 22.23.4 kullanılır. Tek motor, saf JS/Vite/three.js mimarisi korunur.
