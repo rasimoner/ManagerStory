@@ -1,0 +1,26 @@
+diff --git a/src/core/presentation/match3d/newview/beats/scorpion.js b/src/core/presentation/match3d/newview/beats/scorpion.js
+index 4ba804a..9397332 100644
+--- a/src/core/presentation/match3d/newview/beats/scorpion.js
++++ b/src/core/presentation/match3d/newview/beats/scorpion.js
+@@ -40,7 +40,7 @@ export function scorpionSpot(gk, T, body) {
+ // the heels reach the ball with the knees folding up behind him (not forwards), going to where the ball will
+ // be at the strike (above his back), not chasing it forwards early; arms out in front in flight (Superman),
+ // then down to the grass to land on
+-function scorpionLimbs(gk, { T, body, F }) {
++export function scorpionLimbs(gk, { T, body, F }) {
+   const w = ramp(T - 0.32, [0, 0.26, 0.38, 0.52]), R = () => rightOf(gk), behind = () => F.clone().negate().add(V(0, 1.2, 0));
+   const spot = scorpionSpot(gk, T, body);
+   gk.feet = { Left: { w, at: () => spot.clone().addScaledVector(R(), -0.09), pole: behind }, Right: { w, at: () => spot.clone().addScaledVector(R(), 0.09), pole: behind } };
+diff --git a/tests/support/simulation-scene.cjs b/tests/support/simulation-scene.cjs
+index 62ce6b3..30f1200 100644
+--- a/tests/support/simulation-scene.cjs
++++ b/tests/support/simulation-scene.cjs
+@@ -7,7 +7,7 @@ function loadScene() { return pending ??= bundleScene(); }
+ 
+ async function bundleScene() {
+   const { build } = await import('vite');
+-  const modules = ['scene-atmosphere.js', 'scene-ball.js', 'camera.js', 'scene-actors.js', 'scene-camera.js', 'scene-kits.js', 'runtime.js', 'rig.js', 'stadium.js', 'scene-event-label.js', 'scene-offside.js', 'scene-replay.js'];
++  const modules = ['scene-atmosphere.js', 'scene-ball.js', 'camera.js', 'scene-actors.js', 'scene-camera.js', 'scene-kits.js', 'runtime.js', 'rig.js', 'stadium.js', 'scene-event-label.js', 'scene-offside.js', 'scene-replay.js', 'scorpion.js', 'match3d/newview/actions.js'];
+   const entry = modules.map(name => `export * from ${JSON.stringify(path.join(SRC, locate(name)))};`).join('\n');
+   const result = await build({ configFile: false, logLevel: 'silent',
+     plugins: [{ name: 'scene-test', resolveId: id => id.endsWith('scene-test') ? '\0scene-test' : null,

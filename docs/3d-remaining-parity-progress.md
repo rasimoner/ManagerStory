@@ -30,13 +30,13 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R20 | Rabona | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | Gerçek destek arkası krampon yolu, iki yön ve saha dışı alternatif geçti |
 | R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 1/2 | Gerçek alternatif oyuncuya baş bakışı ve eski nolook pozu; 21 ilgili / 555 hızlı test geçti |
 | R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 1/2 | Gerçek iniş/ayağı önce hazırlama, özel yumuşatma ve iki yön/rig/kayıt geçti |
-| R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 0/2 | Bekliyor |
+| R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 2/2 | Başarısız; gerçek ayak geçti, karşı-yandan tam sekans geçmedi; ürün farkı geri alındı |
 | R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 1/2 | Gerçek makas dairesi, belirsiz normal pas, iki yön/rig ve kayıt geçti |
-| R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
-| R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | İncelenecek; yeni hareket çıkarsa bu satır sabit kalır |
+| R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 2/2 | Başarısız: sabit kökte gerçek topuk 0,576 m uzakta; ürün değişikliği geri alındı |
+| R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | Çağrılar doğrulandı; normal zor kurtarış/penaltı/elden vole mevcut zincirde korunur |
 | R27 | Gerçek kayıttan otomatik yıldız tekrarı, saati bekletme/aynı canlı ana dönüş ve belleği koruma | Bağımsız; mevcut manuel kaydedici | 2/2 | Kariyer kare aktarımındaki yıldız/observed bilgisi korundu; WebGL bekleniyor |
 | R28 | Kariyer arşivi İzle gerçekliği/mevcut kaydın uygunluğu; yeni kalıcı tekrar sistemi kurmadan sınırı raporlama | Bağımsız | 0/2 | Tarif sahneleniyor; mevcut veride gerçek kayıt yok, yeni kalıcı sistem kurulmadı |
-| R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 0/2 | Bekliyor |
+| R29 | Teslim: eşlenmiş denge ölçümü, kayıt göçü gerekiyorsa test, lint/hızlı/tam/build/smoke, WebGL/video ve dar devam promptları | Başarılı ürün maddeleri | 1/2 | Son zorunlu kapılar ve gerçek görüntü kanıtı hazırlanıyor |
 
 ## Altyapı sayacı
 
@@ -134,3 +134,17 @@ R9/R14 ilk yaklaşım: mevcut 1,2 m kontrol çemberinin yerine yalnız gerçek j
 R14 ikinci yaklaşımda gerçek ayak boşluğu geçildi fakat geri dönük gerçek topuk teması kabulü geçmedi. Eşik gevşetilmedi, üçüncü zamanlama/IK düzeltmesi yapılmadı. İkinci temas ölçümü JSON'u ve patch'i saklandı; patch hazır çözüm değildir. Yalnız flairnutmeg veri/seçim/ayak dalı geri alındı. Ortak ayak geometrisi ve geçen normal nutmeg bağımsızdır; diğer özel ilk kontrolü ve kaleciyi engellemez.
 
 R14 ölçülen ikinci başarısızlık: tam geri dönüş (cos = -1) tamamlandı ama gerçek RightFoot-top boşluğu **0,533681087 m**, kabul <0,30 m. Fiziksel boşluk geçişi tek başına topuk hareketi kabul edilmedi. R9 korunan normal hareket için 36 ortak ve 4 ilave kabul geçti: merkez boşluk gerçek geçiş; ayak çizgisine gelen top savunmacıya çarpar; kayıt/devam tüm sonucu/RNG'yi korur. Yeni kayıt alanı açılmadı: geçiş, mevcut phase ve o gerçek serbest-top adımının önce/sonra segmentinden okunur. Kalıcı previousGap/crossed prototip alanları kaldırıldı; aynı temas yaklaşımı korunur.
+
+R23 birinci yaklaşım: gerçek özel ilk temas oldu ama savunmacı gövdenin önünde jokey kalınca karşı-yandan geçiş oluşmadı. Trace saklandı. İlk çizim testi sabit sol ayağı ölçüyordu; seçilen gerçek ayna tarafı ölçülür (aynı <0,30 m sınırı). İkinci yaklaşım: ekseni henüz değişebilen gövde heading'i yerine gerçek gelen pas doğrultusundan alır; 0,35 m yakın teması bekler; savunmacı gerçek topun kendi tepki süresindeki tahminine normal hareket eder. Hız/ivme ve müdahale kazanımı korunur; sendeleme/başarı zorlanmaz.
+
+R23 ikinci sonuç: gerçek seçilen krampon teması, kesirli top sürekliliği ve JSON devamı geçti; iki yönde karşı-yandan tam sekans yine oluşmadı. Genel dönüşe pirouette adı verilmedi. İkinci trace/patch ve bağımsız fixture saklandı; tüm R23 seçim, yönlendirme ve sunum ürün farkları geri alındı. R1, R9 gerçek ayak boşluğu ve R22 özel trap korunur; diğer işler engellenmez. Üçüncü yön/tempo/AI yaklaşımı yapılmadı.
+
+R25 birinci rig yaklaşımında eski ileri gövde/katlanan diz eğrisi topa erişti ama legacy model kökü **0,943077341 m** kaydı. Bu, motor köküyle uyum kabulünü geçmez. İkinci yaklaşım kalecinin gerçek düzleminde kökü sabit tutup topu yerinden oynatmadan topuk hedefi/ters diz kutbuyla mevcut IK erişimini ölçer. R7'den bağımsızdır: burada gövde ileri yatar ve dizler arkaya katlanır; erişim aynı varsayılmadı. Yeni kurtarış sonucu veya eski fizik sürücüsü eklenmedi.
+
+R25 ikinci rig ölçümü iki kale yönünde **0,576207097 / 0,576207025 m**, kabul <0,30 m. Kök 48 m'de sabitken topuk gerçek 1,53 m topa erişmedi. Eşik/top/kök oynatılmadı; üçüncü kemik-yerel kalça çözümü denenmedi. Kaleci outcome koduna scorpion etiketi veya zorunlu kurtarış eklenmeden duruldu. Yalnız deneme için açılan saf yardımcı export'u ve test bundler farkı geri alındı; iki rig yeniden üretmesi/patch/ölçüm saklandı. Bunlar kariyer özelliği sayılmaz.
+
+## R26 — gerçek eski kaleci envanteri
+
+moves.json keeperSaves: scorpion, pensave, starsave. director.shot gerçek scorpion/pensave/starReach dallarına sahiptir; gkvolley keeperDistribution/degaj yoludur, ayrı yeni gizli kurtarış yoktur. Yeni motorun penaltıda gerçek tepki/çizgi davranışı; normal kurtarış/tutma/parry/tip/iniş/kalkış ve throw/punt dağıtımı mevcut test ve karelerden doğrulanır. Scorpion R25'te ayrı durur; R7 veya R23 başarısızlığı normal kaleci zincirini engellemez. Yeni sonuç zarı/ikinci fizik eklenmedi.
+
+Normal kaleci koruması: 40/40 gerçek rig, kurtarış, ayakla takip, sınır ve kalkış/şut testi geçti. Son ürün değişikliği normal nutmeg'dir; sonrasında yalnız başarısız adaylar geri alındı. Teslim sürümü için main'in gerçek 7.19.2'sinden **7.19.3 PR adayı** hazırlanır; önceki dizinin commit edilmemiş 7.20.0 yayın hazırlıkları bu işe alınmaz ve değiştirilmez. Bu sürüm yayımlandı anlamına gelmez.

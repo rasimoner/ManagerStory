@@ -1,0 +1,253 @@
+diff --git a/docs/3d-remaining-parity-progress.md b/docs/3d-remaining-parity-progress.md
+index 03880d0..3219875 100644
+--- a/docs/3d-remaining-parity-progress.md
++++ b/docs/3d-remaining-parity-progress.md
+@@ -30,7 +30,7 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
+ | R20 | Rabona | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | Gerçek destek arkası krampon yolu, iki yön ve saha dışı alternatif geçti |
+ | R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 1/2 | Gerçek alternatif oyuncuya baş bakışı ve eski nolook pozu; 21 ilgili / 555 hızlı test geçti |
+ | R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 1/2 | Gerçek iniş/ayağı önce hazırlama, özel yumuşatma ve iki yön/rig/kayıt geçti |
+-| R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 0/2 | Bekliyor |
++| R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 2/2 | İkinci yaklaşım: gelen top ekseni, gerçek topa savunma ve daha yakın ayak teması |
+ | R24 | Flair pass (eski gerçek stepover pas yolu) | R8 ve gerçek pas teması | 1/2 | Gerçek makas dairesi, belirsiz normal pas, iki yön/rig ve kayıt geçti |
+ | R25 | Scorpion | Gerçek hava/topuk erişimi, R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
+ | R26 | Diğer eski özel kaleci yollarının envanteri, mevcut starsave/pensave/degaj zincirinin eşitliği | Koddan gerçek çağrı doğrulaması | 0/2 | İncelenecek; yeni hareket çıkarsa bu satır sabit kalır |
+@@ -134,3 +134,5 @@ R9/R14 ilk yaklaşım: mevcut 1,2 m kontrol çemberinin yerine yalnız gerçek j
+ R14 ikinci yaklaşımda gerçek ayak boşluğu geçildi fakat geri dönük gerçek topuk teması kabulü geçmedi. Eşik gevşetilmedi, üçüncü zamanlama/IK düzeltmesi yapılmadı. İkinci temas ölçümü JSON'u ve patch'i saklandı; patch hazır çözüm değildir. Yalnız flairnutmeg veri/seçim/ayak dalı geri alındı. Ortak ayak geometrisi ve geçen normal nutmeg bağımsızdır; diğer özel ilk kontrolü ve kaleciyi engellemez.
+ 
+ R14 ölçülen ikinci başarısızlık: tam geri dönüş (cos = -1) tamamlandı ama gerçek RightFoot-top boşluğu **0,533681087 m**, kabul <0,30 m. Fiziksel boşluk geçişi tek başına topuk hareketi kabul edilmedi. R9 korunan normal hareket için 36 ortak ve 4 ilave kabul geçti: merkez boşluk gerçek geçiş; ayak çizgisine gelen top savunmacıya çarpar; kayıt/devam tüm sonucu/RNG'yi korur. Yeni kayıt alanı açılmadı: geçiş, mevcut phase ve o gerçek serbest-top adımının önce/sonra segmentinden okunur. Kalıcı previousGap/crossed prototip alanları kaldırıldı; aynı temas yaklaşımı korunur.
++
++R23 birinci yaklaşım: gerçek özel ilk temas oldu ama savunmacı gövdenin önünde jokey kalınca karşı-yandan geçiş oluşmadı. Trace saklandı. İlk çizim testi sabit sol ayağı ölçüyordu; seçilen gerçek ayna tarafı ölçülür (aynı <0,30 m sınırı). İkinci yaklaşım: ekseni henüz değişebilen gövde heading'i yerine gerçek gelen pas doğrultusundan alır; 0,35 m yakın teması bekler; savunmacı gerçek topun kendi tepki süresindeki tahminine normal hareket eder. Hız/ivme ve müdahale kazanımı korunur; sendeleme/başarı zorlanmaz.
+diff --git a/src/core/presentation/match3d/newview/beats/first-touch.js b/src/core/presentation/match3d/newview/beats/first-touch.js
+index 4b5c42a..3fd4b5d 100644
+--- a/src/core/presentation/match3d/newview/beats/first-touch.js
++++ b/src/core/presentation/match3d/newview/beats/first-touch.js
+@@ -112,6 +112,10 @@ export function* chestControl(beat, p, { spot, tArr }) {
+ 
+ // ---- Bergkamp's turn (the pirouette) ----
+ 
++export function pirouetteFeet({ ball }, { f, r, t0 }) {
++  return { Left: { w: ramp(t0, [0, 0.1, 0.5, 0.65]), at: () => ball.p.clone().addScaledVector(r, -0.12).addScaledVector(f, 0.02).setY(0.06) } };
++}
++
+ // he comes to the ball, the defender right behind him
+ function* receiveWithManBehind({ ball, until }, { R, D, toW }) {
+   return yield* until(() => {
+@@ -158,7 +162,7 @@ function* firstTouchAround(beat, R, m) {
+   const { ball, hooks, until } = beat, { f, r, t0 } = m;
+   hooks.cam('close', R, m.D); hooks.slow(0.4);
+   ball.through = t0 + 2;
+-  R.feet = { Left: { w: ramp(t0, [0, 0.1, 0.5, 0.65]), at: () => ball.p.clone().addScaledVector(r, -0.12).addScaledVector(f, 0.02).setY(0.06) } };
++  R.feet = pirouetteFeet(beat, { f, r, t0 });
+   return yield* until(() => { R.target.copy(R.pos); R.want = 0; return toeGap(ball, R, 'Left') < 0.22 && V(ball.p.x - R.pos.x, 0, ball.p.z - R.pos.z).dot(f) < 0.55; }, 1.2);
+ }
+ 
+diff --git a/src/core/presentation/sim/scene-skill-feet.js b/src/core/presentation/sim/scene-skill-feet.js
+index 90d6ea1..fe5290b 100644
+--- a/src/core/presentation/sim/scene-skill-feet.js
++++ b/src/core/presentation/sim/scene-skill-feet.js
+@@ -4,6 +4,7 @@ import MATCH_SIM_DATA from '../../../data/match-sim.json';
+ import { stepoverFeet, elasticoFeet, croquetaFeet } from '../match3d/newview/beats/feints.js';
+ import { cruyffFeet, rouletteFeet } from '../match3d/newview/beats/turns.js';
+ import { simulationNutmegFeet } from '../../sim/nutmeg-geometry.js';
++import { pirouetteFeet } from '../match3d/newview/beats/first-touch.js';
+ import { nutmegFeet } from '../match3d/newview/beats/through-the-legs.js';
+ import { sombreroFeet } from '../match3d/newview/beats/over-the-top.js';
+ import { simulationCarrySkillData } from '../../sim/carry-skill-data.js';
+@@ -44,6 +45,7 @@ function createSkillFeet(runtime, actor, skill) {
+ function skillFeetFor(context, actor, { skill, m }) {
+   if (skill.kind === 'croqueta') return croquetaFeet(context, actor, m);
+   if (skill.kind === 'roulette') return rouletteFeet(context, actor, m);
++  if (skill.kind === 'pirouette') return pirouetteFeet(context, { ...m, t0: skill.startedAt - SKILL_DATA.receivingTurn.poseLeadSeconds });
+   if (skill.kind === 'nutmeg') return nutmegFeet(context, { ...m, tc: SKILL_DATA.ground.nutmeg.contacts[0].at });
+   if (skill.kind === 'sombrero') return sombreroFeet(context, actor, m);
+   return paths[skill.kind]?.(context, m);
+@@ -64,7 +66,8 @@ function activeSkillContact(sample, frame) {
+   const carry = frame.ball.carry, skill = carry?.playerId === sample.id ? carry.skill : null;
+   if (!skill || carry.touchTick == null || skill.phase === 0) return null;
+   if (simulationCarrySkillData(skill.kind).throughLegs && skill.phase > 1) return null;
+-  const elapsed = frame.physicsTime - carry.touchTick * MATCH_SIM_DATA.clock.stepSeconds;
++  const time = simulationCarrySkillData(skill.kind).receiving ? skill.lastTouch : carry.touchTick * MATCH_SIM_DATA.clock.stepSeconds;
++  const elapsed = frame.physicsTime - time;
+   return elapsed >= 0 && elapsed <= SKILL_DATA.contactSeconds ? { skill, elapsed } : null;
+ }
+ 
+diff --git a/src/core/sim/ball-contact.js b/src/core/sim/ball-contact.js
+index 0497605..1d1a886 100644
+--- a/src/core/sim/ball-contact.js
++++ b/src/core/sim/ball-contact.js
+@@ -4,6 +4,7 @@ import MATCH_SIM_DATA from '../../data/match-sim.json';
+ import { predictSimulationBall } from './ball-physics.js';
+ import { simulationRuntime } from './simulation-runtime.js';
+ import { simulationWallContactFraction, simulationWallJumpActive } from './wall-reaction.js';
++import { simulationReceivingTurnMotion } from './receiving-turn-choice.js';
+ import { simulationNutmegContactMotion } from './nutmeg-geometry.js';
+ import { simulationTrapContactMotion } from './first-touch-technique.js';
+ import RESTART_DATA from '../../data/match-sim-restarts.json';
+@@ -34,7 +35,7 @@ export function earliestSimulationBallContact(simulation, motion) {
+ }
+ 
+ function simulationAerialContactMotion(simulation, player, motion) {
+-  return simulation.ball.flight?.cross && player.slot !== 'GK' ? { ...motion, radius: RESTART_DATA.aerial.horizontalReach } : simulationTrapContactMotion(simulation, player, motion);
++  return simulation.ball.flight?.cross && player.slot !== 'GK' ? { ...motion, radius: RESTART_DATA.aerial.horizontalReach } : simulationReceivingTurnMotion(simulation, player, simulationTrapContactMotion(simulation, player, motion));
+ }
+ 
+ function canTouchSimulationBall(simulation, player) {
+diff --git a/src/core/sim/ball-possession.js b/src/core/sim/ball-possession.js
+index 4e2f338..7e51caf 100644
+--- a/src/core/sim/ball-possession.js
++++ b/src/core/sim/ball-possession.js
+@@ -10,6 +10,8 @@ import { predictSimulationBall } from './ball-physics.js';
+ import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
+ import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay, captureSimulationOffside } from './offside.js';
+ import { redirectSimulationAerial } from './aerial-contact.js';
++import { planSimulationReceivingTurn } from './receiving-turn-choice.js';
++import { beginSimulationReceivingTurn } from './receiving-turn.js';
+ import { simulationFirstTouchStyle } from './first-touch-technique.js';
+ import { holdSimulationPassBall } from './pass-technique.js';
+ 
+@@ -29,8 +31,9 @@ export function controlSimulationBall(simulation, contact, motion) {
+   }
+   const returning = simulation.ball.carry?.playerId === contact.player.id;
+   const success = returning || drawSimulationRandom(simulation) >= firstTouchRisk(contact.player, touching);
+-  recordSimulationTouch(simulation, contact, { touching, time, success });
+-  if (success) { completeSimulationControl(simulation, contact, { touching, time }); return null; }
++  const result = { touching, time, success, receiving: planSimulationReceivingTurn(simulation, contact.player, touching) };
++  recordSimulationTouch(simulation, contact, result);
++  if (success) { completeSimulationControl(simulation, contact, result); return null; }
+   const remaining = (1 - contact.fraction) * seconds;
+   const deflected = deflectSimulationBall(simulation, contact.player, { touching, remaining, time });
+   return { before: deflected, seconds: remaining, startTime: time };
+@@ -38,6 +41,7 @@ export function controlSimulationBall(simulation, contact, motion) {
+ 
+ function completeSimulationControl(simulation, contact, result) {
+   acquireSimulationBall(simulation, contact.player);
++  if (result.receiving) { beginSimulationReceivingTurn(simulation, contact.player, result); return; }
+   if (!usesContinuousSimulationControl(simulation)) return;
+   beginSimulationControl(simulation, contact, result);
+   followSimulationBallOwner(simulation);
+@@ -60,7 +64,7 @@ function recordSimulationTouch(simulation, contact, result) {
+   const event = { time: result.time, fromId, toId: player.id, fromPos: { ...result.touching.position }, toPos,
+     success: result.success, height: result.touching.height, speed: hypot(result.touching.velocity.x, result.touching.velocity.y), passId: flight?.eventIndex ?? null };
+   emitSimulationEvent(simulation, { type: 'firstTouch', ...event,
+-    ...(usesContinuousSimulationControl(simulation) ? { kind: simulationControlKind(result.touching.height), ...specialFirstTouch(simulation, player, result.touching) } : {}) });
++    ...(usesContinuousSimulationControl(simulation) ? { kind: simulationControlKind(result.touching.height), ...(result.receiving ? { style: 'pirouette' } : specialFirstTouch(simulation, player, result.touching)) } : {}) });
+   if (flight && player.teamId !== flight.teamId) {
+     emitSimulationEvent(simulation, { type: 'interception', ...event });
+     if (result.success) simulation.statistics.teams[player.teamId].interceptions++;
+diff --git a/src/core/sim/ground-skill-choice.js b/src/core/sim/ground-skill-choice.js
+index 3b174be..bbd0ff9 100644
+--- a/src/core/sim/ground-skill-choice.js
++++ b/src/core/sim/ground-skill-choice.js
+@@ -11,7 +11,7 @@ export function chooseSimulationGroundSkill(simulation, owner) {
+   const turn = carryHeadingChange(simulation, owner);
+   const nutmeg = chooseSimulationNutmeg(owner, defender, { rating, turn });
+   if (nutmeg) return nutmeg;
+-  const candidates = Object.entries(SKILL_DATA.ground).filter(([kind]) => !SKILL_DATA.ground[kind].throughLegs && (kind === 'dragBack' || rating.moves.includes(kind)));
++  const candidates = Object.entries(SKILL_DATA.ground).filter(([kind]) => !SKILL_DATA.ground[kind].throughLegs && !SKILL_DATA.ground[kind].receiving && (kind === 'dragBack' || rating.moves.includes(kind)));
+   const preferred = candidates.sort((a, b) => Math.abs(Math.abs(turn) - a[1].preferredTurn) - Math.abs(Math.abs(turn) - b[1].preferredTurn))[0];
+   return preferred ? { kind: preferred[0], defenderId: defender.id } : null;
+ }
+diff --git a/src/core/sim/ground-skills.js b/src/core/sim/ground-skills.js
+index 79099af..49597a2 100644
+--- a/src/core/sim/ground-skills.js
++++ b/src/core/sim/ground-skills.js
+@@ -1,7 +1,9 @@
++import { prepareSimulationReceivingTurn } from './receiving-turn.js';
+ import { simulationNutmegRoute, simulationNutmegProgress } from './nutmeg-geometry.js';
+ import SKILL_DATA from '../../data/match-sim-skills.json';
+ import MATCH_SIM_DATA from '../../data/match-sim.json';
+ import { chooseSimulationGroundSkill } from './ground-skill-choice.js';
++import { predictSimulationBall } from './ball-physics.js';
+ import { startCarry } from './dribbling.js';
+ import { emitSimulationEvent } from './ball-events.js';
+ import { simulationRuntime } from './simulation-runtime.js';
+@@ -32,6 +34,7 @@ export function prepareSimulationCarrySkill(simulation, owner) {
+   if (!skill) return false;
+   const pattern = simulationCarrySkillData(skill.kind), elapsed = simulation.time - skill.startedAt;
+   if (elapsed >= pattern.duration) { simulation.ball.carry.skill = null; simulation.passing.nextEvaluationTick = simulation.tick; return false; }
++  if (prepareSimulationReceivingTurn(simulation, owner, skill)) return true;
+   owner.role = 'holder'; owner.gait = 'walk'; owner.motionMode = 'jockey';
+   owner.target = simulation.ball.ownerId == null ? simulation.ball.position : { ...owner.position };
+   prepareSimulationAirSkillTarget(simulation, owner, pattern);
+@@ -99,6 +102,7 @@ export function simulationSkillDefenderTarget(simulation, defender, target) {
+   const skill = simulation.ball.carry?.skill;
+   if (!skill || skill.defenderId !== defender.id) return target;
+   const pattern = simulationCarrySkillData(skill.kind), elapsed = simulation.time - skill.startedAt;
++  if (pattern.receiving) return fitCarryTarget(predictSimulationBall(simulation.ball, defender.limits.reactionSeconds).position);
+   if (pattern.throughLegs) return target;
+   if (elapsed < SKILL_DATA.feintStartSeconds || elapsed > pattern.contacts[0].at) return target;
+   const error = 1 - (defender.attributes.positioning + defender.attributes.reactions) / (2 * MATCH_SIM_DATA.attributes.maximum);
+diff --git a/src/core/sim/simulation-step.js b/src/core/sim/simulation-step.js
+index 96d5737..18e7c56 100644
+--- a/src/core/sim/simulation-step.js
++++ b/src/core/sim/simulation-step.js
+@@ -8,6 +8,7 @@ import { prepareSimulationKeepers } from './keeper-positioning.js';
+ import { advanceSimulationKeeperPossession } from './keeper-possession.js';
+ import { prepareSimulationDefenders, finishSimulationTackles } from './defending.js';
+ import { prepareSimulationShoulders, recordSimulationShoulders } from './shoulder-duels.js';
++import { recordSimulationReceivingTurn } from './receiving-turn.js';
+ import { trackSimulationBeats } from './beat-tracking.js';
+ import { recordSimulationCarryDistance } from './dribbling.js';
+ import { prepareSimulationFoulRestart, finishSimulationFoulRestart } from './foul-restart.js';
+@@ -60,6 +61,7 @@ function finishBallMovement(simulation, owned) {
+   finishSimulationKeeperRush(simulation);
+   recordSimulationShoulders(simulation);
+   finishSimulationTackles(simulation);
++  recordSimulationReceivingTurn(simulation);
+   trackSimulationBeats(simulation);
+   updateSimulationReferee(simulation);
+   recordSimulationPossessionTime(simulation);
+diff --git a/src/data/match-sim-skills.json b/src/data/match-sim-skills.json
+index 2d285af..687fbd9 100644
+--- a/src/data/match-sim-skills.json
++++ b/src/data/match-sim-skills.json
+@@ -158,6 +158,17 @@
+           "speed": 5.2
+         }
+       ]
++    },
++    "pirouette": {
++      "duration": 3.5,
++      "preferredTurn": 3.14,
++      "exitAngle": 3.14,
++      "receiving": true,
++      "action": "pass",
++      "feet": [
++        "Left"
++      ],
++      "contacts": []
+     }
+   },
+   "contactSeconds": 0.18,
+@@ -259,5 +270,31 @@
+     "minimumAhead": 1.1,
+     "maximumLateral": 0.15,
+     "maximumCarryTurn": 0.7
++  },
++  "receivingTurn": {
++    "roles": [
++      "ST",
++      "CAM",
++      "CF"
++    ],
++    "minimumAbility": 84,
++    "maximumHeight": 0.12,
++    "maximumPlayerSpeed": 1.5,
++    "approachReach": 1.2,
++    "horizontalReach": 0.35,
++    "minimumIncomingSpeed": 2,
++    "maximumIncomingSpeed": 9,
++    "minimumBehind": 0.8,
++    "maximumBehind": 1.8,
++    "maximumMarkerLateral": 0.45,
++    "ballForward": 0.1,
++    "ballSide": 2.4,
++    "bodyForward": 0.5,
++    "bodySide": 1.3,
++    "routeArrival": 0.35,
++    "touchSpeed": 4.6,
++    "angleError": 0.15,
++    "minimumSide": 0.35,
++    "poseLeadSeconds": 0.2
+   }
+ }
