@@ -31,3 +31,11 @@ G1 çözümü **başarısız, 2/2**. Yeni adayın src/ ağacı 97d99fc ile aynı
 ## Tek pozisyonun temas ayrıştırması
 
 Kullanıcının devam talebiyle yalnız tanı kaydı eklendi; G1 iki başarısız ürün yaklaşımı 2/2 olarak korunur. Son adayın 901 ilk golü: servis 332,2; ilk kontrol 334,665085415; şut 335,1; gol 335,598738005. İlk kontrolde en yakın savunmacı 4,128585 m, şutta 3,840997 m; temas yarıçapı dışında. Bu vaka eksik çarpışma kanıtı değildir; boş alan ilk kontrolden önce oluşuyor. Önceki hedef/kaleci yamaları yeniden uygulanmadı. Tek korner öncesi checkpoint ile bütün maçı tekrar koşturmadan yeniden üretme eklendi. Ürün kusuru için yeni kesin kırmızı kabul henüz kurulmadığından ürün kodu değiştirilmedi.
+
+## 2 Kasım: kanıtlanan markaj önceliği ve uygulanmamış öneri
+
+G1 geçmişi 2/2 olarak korunur; yeni ürün denemesi uygulanmadı. Aynı checkpoint servis anında (332,2 sn), planSimulationBoxDefence iki markajı home-LW (köşede, gerçek kale uzaklığı 33,866 m) ve home-LCM (11,685 m) için kullanıyor. Gerçek alıcı home-ST (10,904 m) listeye girmiyor. boxReceiver ve sıralama yalnız x eksenini kullanıyor; y=-33,865 konumundaki kornerci x farkı 0,331 olduğu için öncelik alıyor. Bu, önceki hedef kovalama/kaleci tahminlerinden farklı, doğrudan seçim listesinde gözlenen hatadır.
+
+corner-mark-priority.cjs: Node 22.23.4, iki yön × iki kanatta 4 kırmızı kabul aynı yanlış home-LW/home-LCM listesini gösterdi. Normal orta dışı davranış karşı örneği geçti (1/1). Bu tanı testi varsayılan CI dışında tutuldu; ürün kodu değişmedi.
+
+corner-mark-priority-proposed.patch yalnız cross uçuşunda mevcut receiverDistance değerini gerçek iki boyutlu kale uzaklığıyla değerlendiren ve aynı uzaklıkla sıralayan inceleme önerisidir. Eşik, markaj sayısı, hız/erişim, RNG, gol veya kurtarış sonucu değiştirmez. Patch UYGULANMADI, kabul edildiği veya gol artışını giderdiği iddia edilmez. Bunu uygulayıp test etmek G1 için üçüncü ürün denemesi olacağı için ilk kullanıcı talebindeki iki yaklaşım sınırı nedeniyle açık ek yetki gerekir. Önceki denemelerin adları/sayaçları değiştirilmez.
