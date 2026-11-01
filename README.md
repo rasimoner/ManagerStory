@@ -1,7 +1,9 @@
-# ManagerStory V7.19.4
+# ManagerStory V7.19.5
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
+
+V7.19.5 (candidate, not published): box marking stays available during crosses; keepers reject unreachable cross interceptions. Fifty-seed goals decreased from 10.30 to 8.62, while short-match goals increased. Balance verification remains open. [Continuation report](docs/goal-regression-continuation-report.md).
 
 V7.19.4 (candidate, not published): crosses prioritize central receivers for box marking. Fifty-seed goals decreased from 16.92 to 10.30, but balance verification still fails. [Goal regression report](docs/goal-regression-report.md).
 

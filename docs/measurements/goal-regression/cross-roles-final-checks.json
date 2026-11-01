@@ -1,0 +1,81 @@
+{
+  "node": "v22.23.4",
+  "version": "7.19.5 unpublished candidate",
+  "baseProductCommit": "191ce72cec788928dcf881ab4d121200151f5198",
+  "diagnosisCommit": "fbc51b8ed80efc1919782db4a172dcc59af4ae07",
+  "attempts": {
+    "id": "G1",
+    "historical": [
+      1,
+      2,
+      3
+    ],
+    "additional": [
+      4,
+      5
+    ],
+    "used": 5,
+    "limitForThisContinuation": 5,
+    "authorization": "Tamam denemelere devam edebilirsin",
+    "attempt4": "local 8/8, aggregate three-seed goals unchanged; not a standalone success",
+    "attempt5": "combined role policy, local acceptance passed, long-run goals decreased, short-run goals increased",
+    "overallBalanceAcceptance": "open"
+  },
+  "checks": {
+    "keeperRedBeforeApproach4": {
+      "failed": 5,
+      "passed": 3
+    },
+    "markRedBeforeApproach5": {
+      "failed": 4,
+      "passed": 2
+    },
+    "newDefaultTests": {
+      "passed": 15,
+      "failed": 0
+    },
+    "relatedTests": {
+      "passed": 79,
+      "failed": 0
+    },
+    "lint": "passed; baseline unchanged",
+    "testFast": {
+      "passed": 607,
+      "failed": 0,
+      "existingSkipped": 1
+    },
+    "separatePerformance": {
+      "passed": 5,
+      "failed": 0
+    },
+    "build": "passed",
+    "same50SeedComparison": "failed at seed 901: expected 1-0, actual 3-2",
+    "fullTest": "not repeated; mandatory balance gate already fails",
+    "smoke": "not repeated; no working browser installed",
+    "browserInstall": {
+      "commands": 1,
+      "internalDownloadAttempts": 5,
+      "error": "End of central directory record signature not found",
+      "exceededRequestedInfrastructureLimit": true,
+      "commandRepeated": false
+    },
+    "newWebGLEvidence": false,
+    "physicalSafariTest": false
+  },
+  "protected": [
+    "main unchanged",
+    "no PR while mandatory balance gate fails",
+    "no merge",
+    "no publication",
+    "golden/reference/thresholds/CI unchanged",
+    "old release preparation untouched",
+    "initial two failed product patches remain reverted",
+    "no save fields changed"
+  ],
+  "measurements": [
+    "cross-roles-final-50-summary.json",
+    "cross-roles-final-short.json",
+    "cross-roles-final-comparison.json",
+    "cross-roles-final-corner.json"
+  ]
+}

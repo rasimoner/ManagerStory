@@ -1,4 +1,4 @@
-# Kalan gol artışı — yeni doğal pozisyonda kaleci görev çatışması
+# Kalan gol artışı — kaleci görev çatışmasının tanı geçmişi
 
 Ürün commit'i `191ce72cec788928dcf881ab4d121200151f5198`, yerel aynı ağaç `f4c3b34`; main `d86ac72`. İki uzak dal başı yeniden doğrulandı. Node 22.23.4. Bu çalışma yalnız tanı ve kırmızı kabul ekler. `src/`, 7.19.4 aday metası, markaj düzeltmesi, referans/golden/eşik/CI değişmedi. **G1 sayacı 3/3; dördüncü ürün yaklaşımı uygulanmadı.**
 
@@ -57,3 +57,7 @@ Bu, başarısız 1. yaklaşımın “her oyuncuya daha yakın fallback hedefi”
 Bir ek ürün denemesi ayrıca yetkilendirilirse sıra: kırmızı kabul → iki hücum yönü ve iki kanat → erişilebilir orta/normal serbest top/ayakla taşıma/kayıt-devam → aynı 901/731/42 → yalnız düzelme varsa aynı 50 tohum ve 20 kısa maç. Daha sık örnekleme bulgusunu ayrı ürün değişikliğine dönüştürme; önce kaleci görev geçerliliğini dar tut. Bu tanıda geniş ölçüm, yeni WebGL video, sürüm artışı, PR, merge veya yayın yapılmadı.
 
 Teslim kontrolü: Node 22.23.4 lint temiz; varsayılan test:fast 592 başarılı, 1 mevcut atlama; ayrı performans 5/5. Bilinçli kırmızı test bu sayılara dahil değildir. Ürün kaynak ağacı `bc72c24cb318c1abfbe35138bc4ea2c3b977b5a5` aynı kaldı.
+
+## Devam izni sonrasında
+
+Kullanıcı devam denemelerini yetkilendirdi. 4. yaklaşımda bu kusurun yerel kabulleri geçti, üç tohum toplam golü azalmadı (28→28); bağımsız genel başarı sayılmadı. 5. yaklaşımda orta anındaki stoper görev önceliğiyle birlikte ele alındı; 50 tohum 10,30→8,62 gol, kısa seri 0,80→1,10 oldu. Genel kabul açık, G1 5/5. Test şimdi varsayılan `tests/match-sim-keeper-cross-role.test.cjs` dosyasında 8/8; eski kırmızı komut tarihsel kayıttır. [Güncel rapor](goal-regression-continuation-report.md).

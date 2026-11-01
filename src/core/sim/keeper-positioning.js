@@ -1,6 +1,7 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue, pointDistance } from './geometry.js';
 import { simulationRuntime } from './simulation-runtime.js';
+import { simulationInterceptPlan } from './ball-chasing.js';
 
 export function simulationPenaltyAreaContains(team, point) {
   const pitch = MATCH_SIM_DATA.pitch;
@@ -60,7 +61,8 @@ function keeperUnavailableForPositioning(simulation, keeper) {
 function keeperFollowsFreeBall(simulation, keeper) {
   const ball = simulation.ball;
   if (ball.ownerId != null || ball.carry || keeperShotActive(ball)) return false;
-  return ['restart', 'recover', 'receive', 'intercept'].includes(keeper.role);
+  if (!['restart', 'recover', 'receive', 'intercept'].includes(keeper.role)) return false;
+  return !ball.flight?.cross || simulationInterceptPlan(keeper, ball).reachable;
 }
 
 function prepareKeeperSet(simulation, team, keeper) {
