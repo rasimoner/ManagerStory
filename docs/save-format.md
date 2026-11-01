@@ -17,7 +17,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | `schemaVersion` | Kaydın **biçimi**. Taşıma zinciri buna bakar. | Biçim değişince (yeni taşıma adımıyla). V7.9.13 öncesi kayıtlarda yok = biçim 0. |
 | `version` | Kaydı en son yazan **oyun sürümü** (ör. `"7.9.13"`). | Her yüklemede güncel sürüme yazılır. Yedek anahtarları buna göre. |
 
-Şu anki biçim: **8** (`SAVE_SCHEMA`).
+Şu anki biçim: **9** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
 - Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
@@ -173,3 +173,5 @@ Format 6 `defending.engagements` içinde isteğe bağlı `observedHeading`/`obse
 PR #16 sonrası: mevcut `ball.carry.touchTick` henüz topa dokunulmamış taşıma niyetinde null olabilir. Yeni alan veya göç yoktur; gerçek dokunuşta tam fizik adımı yazılır. Niyet/koruma bekleyişi ve RNG normal checkpoint ile kayıpsız devam eder.
 
 **7 → 8:** Ortak fiziksel servis `ball.flight.cross` ve `crossEventIndex` ile gerçek orta olayını asıl pas sonucuna bağlar. Eski ham/sıkıştırılmış aktif uçuş bu alanları false/null alır; top, olaylar, saat veya RNG yeniden hesaplanmaz. Uçuş yoksa yeni nesne yaratılmaz. Kaydedilmiş restart.delivery mevcut genel nesnede servis hedefi/alıcı kimliğini korur. Görsel tekrar tamponu kalıcı kayda eklenmez. Eski golden karşılaştırmasında yalnız deneysel anahtar kapalıyken şema 8 meta verisi önceki şemaya indirgenir; hiçbir futbol/kariyer alanı silinmez ve golden dosyaları yenilenmez.
+
+**8 → 9:** `ball.carry.skill` isteğe bağlı gerçek hareket niyetidir: kind, defenderId, startedAt, heading, side, phase, ilk top noktası ve son gerçek temas. Eski ham/sıkıştırılmış taşıma bu alanı null alır; mevcut fizik/RNG/kararlar değişmez. Yeni kayıt hareketin ortasından aynı temas dizisiyle devam eder. Tekrar tamponu kalıcı hale getirilmez.

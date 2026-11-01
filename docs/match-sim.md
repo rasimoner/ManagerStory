@@ -472,3 +472,7 @@ Korner ve uygun geniş frikik servisi, açık oyun ortasıyla aynı `simulationP
 ### Servis sonrası gerçek hava teması
 
 Ortalarda saha oyuncusunun yatay temas zarfı 0,45 m; kafa 1,45–1,80 m, vole 0,40–0,95 m aralığından seçilir. Uygun mesafe/vücut yönünde gerçek şut; daha uzakta görünür/güvenli/erişilebilir kafa pası; çıkış yoksa gerçek uzaklaştırma oluşur. Başlangıç yüksekliği silinmez; temas kesirli fizik zamanında yazılır ve kalan adım aynı yerçekimiyle devam eder. Normal kafa kontrolü bu şutların yerine sayılmaz. Röveşata iki başarısız yaklaşım sonrası geri alındı; ölçülen gerçek krampon boşluğu ayrı yeniden üretmede korunur.
+
+### Fiziksel isimli yer hareketleri
+
+Yeni motor makas, elastico, Cruyff, croqueta, roulette ve drag-back niyetlerini gerçek beceri, yakın baskı, hız, hücum alanı ve taşıma yönünden seçer. Aynı top ve ivme/dönüş integratörüyle farklı serbest dokunuş dizileri yürür; her sonraki vuruş için oyuncu yeniden gerçekten yetişir. Makas sırasında topa değmeden ayak dolaşır; elastico aynı, croqueta iki ayrı ayaktan oynanır; roulette turu normal açısal sınırda tamamlanır. Savunmacı sinyali gerçek tepki/konumlanma becerisiyle okuyup fiziksel hedefe hareket eder; topu kazanabilir. Başarı, beat veya top kaybı hareket adıyla verilmez. Eski salt ayak eğrileri çizilir; yönetmenin ikinci fizik çözücüsü çalıştırılmaz.

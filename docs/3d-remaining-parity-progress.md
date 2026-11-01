@@ -10,19 +10,19 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 |---|---|---|---:|---|
 | R1 | Tekrarlı dönüş: karar/koruma/taşıma/yeniden kontrol, iki yön, bütün süreler, kayıt, normal sürme ve kaleci | Yok; eski P1 iki başarısız yaklaşımı tekrar edilmez | 1/2 | Odaklı 68/68, lint/hızlı/perf geçti; son WebGL bekleniyor |
 | R2 | Kısa korner/ceza alanı ortası, frikik servisi, açık oyun ortası; fiziksel yerleşim, boş alan/kaçan/kesilen/seken servis; restartKind ve eski referans uyumu | Yok; eski P3 patch hazır çözüm değildir | 2/2 | İkinci yaklaşım: yakındaki gerçek koşucular; 32 ortak kabul geçti, son hızlı/görsel sürüyor |
-| R3 | Gerçek yükseklik/temasla kafa şutu | R2 ortak servis | 0/2 | Bekliyor |
-| R4 | Gerçek kafa pası | R2 ortak servis | 0/2 | Bekliyor |
-| R5 | Gerçek uzaklaştırma | R2 ortak servis | 0/2 | Bekliyor |
-| R6 | Gerçek vole | R2 ortak servis | 0/2 | Bekliyor |
+| R3 | Gerçek yükseklik/temasla kafa şutu | R2 ortak servis | 1/2 | Kafa şutu fizik/rig geçti; son WebGL bekleniyor |
+| R4 | Gerçek kafa pası | R2 ortak servis | 1/2 | Gerçek güvenli kafa pası ve kayıt/devam geçti |
+| R5 | Gerçek uzaklaştırma | R2 ortak servis | 1/2 | Gerçek uzaklaştırma ve iki yön geçti |
+| R6 | Gerçek vole | R2 ortak servis | 1/2 | Gerçek yükseklikten vole geçti |
 | R7 | Uygun durumda röveşata | R2 ortak servis | 2/2 | Başarısız, yalnız röveşata geri alındı; remaining-bicycle.cjs |
-| R8 | Stepover | R1 temas/çıkış, koddan doğrulanacak | 0/2 | Bekliyor |
+| R8 | Stepover | R1 temas/çıkış, koddan doğrulanacak | 1/2 | Gerçek makas dairesi/teması, iki yön, rig ve kesilebilme geçti |
 | R9 | Nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
-| R10 | Elastico | R1, çoklu temas | 0/2 | Bekliyor |
-| R11 | Cruyff | R1 | 0/2 | Bekliyor |
-| R12 | Croqueta | R1, çoklu temas | 0/2 | Bekliyor |
-| R13 | Roulette | R1, çoklu temas | 0/2 | Bekliyor |
+| R10 | Elastico | R1, çoklu temas | 1/2 | Dış/iç iki dokunuş aynı gerçek ayaktan; rig geçti |
+| R11 | Cruyff | R1 | 1/2 | Gerçek geri çekiş/ayak teması, iki yön geçti |
+| R12 | Croqueta | R1, çoklu temas | 2/2 | İkinci yaklaşım: destek ayağı ayrılır, gerçek iki ayak teması geçti |
+| R13 | Roulette | R1, çoklu temas | 2/2 | İkinci yaklaşım: tam tur hareket sınırında tamamlanır; 5,7 rad kapısı geçti |
 | R14 | Flair nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
-| R15 | Drag-back | R1 | 0/2 | Bekliyor |
+| R15 | Drag-back | R1 | 1/2 | Gerçek geriye serbest dokunuş ve eski dragBack pozu geçti |
 | R16 | Rainbow | R1 + R2 hava teması | 0/2 | Bekliyor |
 | R17 | Sombrero | R1 + R2 hava teması | 0/2 | Bekliyor |
 | R18 | Juggling | R1 + R2 hava teması | 0/2 | Bekliyor |
@@ -74,3 +74,11 @@ R3–R6: gerçek yüksekliğe göre kafa/vole, dar yatay temas zarfı, şutun ba
 
 1. Geriye dönük, yüksek teknikli ve boş alandaki gerçek gelen top için fiziksel overhead seçimi/şut: izole uçuş geçti ancak yalnız action pose tam eski havalanma/iniş zincirini vermiyordu.
 2. Eski overBackwards salt okuma gövde eğrisi + gerçek temas noktasına ayak IK: kök/çekirdek/RNG korunuyordu ama krampon temas boşluğu **0,933840868 m** (kabul <0,30 m) çıktı. Eşik gevşetilmedi, kök/top kaydırılmadı. Yalnız röveşata seçimi, gövde/ayak sunumu ve ayarları geri alındı; kafa/pas/uzaklaştırma/vole korundu. `tests/reproductions/remaining-bicycle.cjs`, ölçüm JSON'u ve ikinci yaklaşım patch'i saklandı. Yeni yaklaşım gereği: motorun erişim zarfıyla rig'in kalça/ayak geometrisini birlikte çözmek. Diğer bağımsız özel pas ve kaleci envanteri engellenmez.
+
+## R8/R10/R11/R12/R13/R15 — isimli yer hareketleri
+
+Eski director DUEL_MOVES/dragBack ve feints/turns gerçek çağrıları doğrulandı. Altı hareket farklı gerçek temas dizileridir: makasta topa değmeyen ayak dairesi ve çıkış; elasticoda aynı ayağın dış/iç iki teması; Cruyff ve drag-back'te gerçek geriye çekiş; croquetada iki ayrı ayak; roulettede çoklu taban teması ve fiziksel tam tur. Eski saf ayak eğrileri kullanılır, beat jeneratörleri/drive/move/stepBall çalışmaz. Kök/top çizimde kaydırılmaz.
+
+İlk 49 fizik kabulü geçti. Çizim incelemesindeki tek-dışa-aktarım yükleyici çakışması ortak movesFor tanımının tek modülde kalmasıyla temizlendi; eski motor aynı saf kuralı import eder. İleri kabulde croqueta her iki vuruşu aynı ayağa yakın gösterdi; roulette toplam dönüşü 5,584874765 rad oldu (istenen >5,7). R12 ikinci yaklaşımı gerçek geçişte destek ayağını topun dışına basar ve eski ayak eğrisinin temas fazını günceller. R13 ikinci yaklaşımı tam dönüş zamanını toparlanmadan ayırır; 2,0 saniyede tur, 2,2 saniyede normal oyuna dönüş. Eşikler gevşetilmedi. 44/44 fizik/rig/mücadele kabulü; son hızlı paket 551 başarılı, 1 mevcut atlama, ayrı 5/5 performans. Lint yeni ihlal yok.
+
+Savunmacı gerçek ayak/gövde sinyalini konumlanma/tepki becerisine göre hatalı okuyabilir; yalnız hedefi değişir, mevcut hız/ivme ve temas düelloyu çözer. Hareket sırasında rakip kazanabilir; skill başarı zarı/sonuç yazmaz. Beceri, hız, gerçek yakın savunmacı, hücum alanı ve boşluk kısıtlarıyla otomatik seçim; seyrekliğe 12 fizik saniyelik sunulan hareket aralığı. Kayıtta carry.skill isteğe bağlıdır, şema 9 ve ham/sıkıştırılmış göç testi vardır.

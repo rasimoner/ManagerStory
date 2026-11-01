@@ -11,6 +11,7 @@ import { releaseSimulationPass } from './pass-execution.js';
 import { faceSimulationPlayer } from './player-movement.js';
 import { simulationShieldTarget } from './dribble-evaluation.js';
 import { kickSimulationDribble, endSimulationCarry } from './dribbling.js';
+import { prepareSimulationGroundSkill } from './ground-skills.js';
 
 const { abs, atan2, sin, cos, max, hypot } = Math;
 
@@ -26,10 +27,8 @@ export function requestSimulationPass(simulation, request) {
 
 export function prepareSimulationOwner(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId ?? simulation.ball.carry?.playerId);
-  if (!owner) return;
-  if (simulation.ball.control && simulation.ball.height > 0) {
-    owner.target = { ...owner.position }; owner.gait = 'walk'; owner.role = 'holder'; owner.motionMode = 'control'; return;
-  }
+  if (!owner || prepareSimulationGroundSkill(simulation, owner)) return;
+  if (prepareOwnerFirstControl(simulation, owner)) return;
   if (simulation.ball.ownerId != null && simulation.tick >= simulation.passing.nextEvaluationTick) refreshSimulationOwnerPlan(simulation, owner);
   const decision = simulation.ownerDecision;
   owner.role = 'holder';
@@ -41,6 +40,12 @@ export function prepareSimulationOwner(simulation) {
     owner.motionMode = 'dribble';
   }
   if (decision.selected === 'shield') { owner.target = simulationShieldTarget(simulation, owner); owner.motionMode = 'shield'; }
+}
+
+function prepareOwnerFirstControl(simulation, owner) {
+  if (!simulation.ball.control || simulation.ball.height <= 0) return false;
+  owner.target = { ...owner.position }; owner.gait = 'walk'; owner.role = 'holder'; owner.motionMode = 'control';
+  return true;
 }
 
 function refreshSimulationOwnerPlan(simulation, owner) {

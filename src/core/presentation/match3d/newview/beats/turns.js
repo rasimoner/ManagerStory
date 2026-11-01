@@ -9,7 +9,7 @@ import { afterBeat } from './duel-exit.js';
 
 // ---- Cruyff turn: he shapes to strike it (the boot goes back and comes through), but the inside of the
 // boot drags the ball back behind his standing leg instead and he turns away with it ----
-function cruyffFeet({ ball }, m) {
+export function cruyffFeet({ ball }, m) {
   const { f, r, t0, b0 } = m;
   const rel = (a, l, y) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
   const back = b0.clone().addScaledVector(f, -0.34).addScaledVector(r, 0.12).setY(0.3);
@@ -89,7 +89,7 @@ function rouletteSoleWeight(u) {
   return u > 0.72 && u < 0.86 ? 1 : 0;
 }
 
-function rouletteFeet({ ball }, car, m) {
+export function rouletteFeet({ ball }, car, m) {
   const { t0 } = m;
   const onTop = (side) => () => ball.p.clone().addScaledVector(rightOf(car), side === 'Right' ? 0.04 : -0.04).setY(0.2);
   return {

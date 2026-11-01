@@ -1,3 +1,4 @@
+import { movesFor } from '../players/move-eligibility.js';
 /* Additive V7.3.1 football events. The seeded match engine remains authoritative. */
 
 /* ===== V7.3.6.1 Phase 2: one attribute model =====================================================
@@ -99,15 +100,6 @@ export function skillMoves(id,side,rec=playerRecord(id,side)){
 }
 // an outfield player's skill stars and special moves from his attributes and position (data/moves.json):
 // stars from the weighted flair against the thresholds; a move is his when any of its alternatives holds
-export function movesFor(attr,role){
- const R=MOVE_DATA.rating,flair=Object.entries(R.flair).reduce((n,[k,w])=>n+attr(k)*w,0);
- const stars=1+R.starsAt.filter(at=>flair>=at).length,moves=[],value={stars};
- const holds=alt=>Object.entries(alt).every(([k,v])=>
-  k==='role'?v.includes(role):k==='notRole'?!v.includes(role):k==='roleContains'?String(role||'').includes(v):
-  k==='move'?moves.includes(v):(value[k]??=attr(k))>=v);
- for(const m of MOVE_DATA.moves)if(m.requires&&m.requires.some(holds))moves.push(m.id);
- return {stars,moves};
-}
 
 // Stamina, age and existing on-pitch activity drive in-match fitness loss (per football minute).
 export function matchFatigueDrain(p,activity=1,tactical=1){

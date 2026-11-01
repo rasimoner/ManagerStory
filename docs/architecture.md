@@ -183,3 +183,5 @@ Dönüş ve orta/hava bitirişi işleri iki başarısız yaklaşımdan sonra ger
 ## PR #16 sonrası fiziksel taşıma ve servis
 
 Taşıma niyeti gerçek dokunuş zamanından ayrılır; sonuçsuz koruma/sürme dönüşü bekleme maliyetini yenilemez. Ortak cross-delivery/cross-layout modülleri mevcut pas ve yerçekimiyle servis kurar; ikinci simülasyon yoktur. Eski reference checkpoint davranışı korunur. İsteğe bağlı orta uçuşu şema 8 ile saklanır; gerçek tekrar tamponu kalıcı arşive eklenmez. Sabit kabul/deneme kaydı `3d-remaining-parity-progress.md` içindedir.
+
+İsimli yer hareketleri ground-skill-choice/ground-skills içinde aynı çekirdeğin niyet/temas dizileridir. Eski movesFor saf kuralı players/move-eligibility modülüne ayrıldı; eski motor aynı tanımı import eder. Renderer yalnız eski ayak eğrilerini örnekler. carry.skill ve gerçek faz şema 9 checkpoint'inde saklanır; deneme/kısıtlar 3d-remaining-parity-progress belgesindedir.

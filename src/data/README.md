@@ -103,3 +103,7 @@ Yeni motorun salt okuyan 3D görünümünün temas penceresi, çizim/kamera/rada
 Doğrudan frikik mesafe/açı/beceri kararı, koşu mesafesi ve gerçek temas yarıçapı; frikik çıkış hızı ve barajın tepki/sıçrama zarfı. Sonuç zarı yoktur. Aynı ortak top uçuşu ve oyuncu hareket sınırlarını kullanır.
 
 `match-sim-restarts.json`: frikikte kapalı açıklığın beceri maliyeti, gerçek penaltı erken yönelim/Panenka koşulları ve ofsaytın noktasal mücadele/görüş/kasti oyun ölçüleri. Hareket ve sonuç mevcut fiziktedir. `match-sim-view.json.replay`: 180 kare sınırı, 0,35× görsel tekrar ve eski yıldız kadraj ölçüleri; `offside`: eski sarı çizgi ve görünür olay kadrajı.
+
+## match-sim-skills.json
+
+Physical ground-skill eligibility, timing, individual contact directions and distances, foot choices, recovery, field limits and the observation-based defender response. The same core ball and player integrator execute every touch; the legacy director is not called.

@@ -1,0 +1,153 @@
+{
+  "minimumAbility": 85,
+  "maximumSpeed": 2.5,
+  "maximumBallHeight": 0.12,
+  "maximumDefenderDistance": 3.2,
+  "minimumAttackX": 20,
+  "maximumWidth": 29,
+  "cooldownSeconds": 12,
+  "exitDistance": 6,
+  "ground": {
+    "stepover": {
+      "duration": 1.0,
+      "preferredTurn": 0,
+      "exitAngle": 0.72,
+      "contacts": [
+        {
+          "at": 0.62,
+          "angle": 0.72,
+          "distance": 1.1,
+          "seconds": 0.32
+        }
+      ],
+      "action": "stepover",
+      "feet": [
+        "Right"
+      ]
+    },
+    "elastico": {
+      "duration": 1.1,
+      "preferredTurn": 0.45,
+      "exitAngle": 0.8,
+      "contacts": [
+        {
+          "at": 0.2,
+          "angle": -1.1,
+          "distance": 0.42,
+          "seconds": 0.2
+        },
+        {
+          "at": 0.5,
+          "angle": 1.1,
+          "distance": 0.7,
+          "seconds": 0.22
+        }
+      ],
+      "action": "elastico",
+      "feet": [
+        "Right",
+        "Right"
+      ]
+    },
+    "cruyff": {
+      "duration": 1.3,
+      "preferredTurn": 2.4,
+      "exitAngle": 2.3,
+      "contacts": [
+        {
+          "at": 0.5,
+          "angle": 2.45,
+          "distance": 0.75,
+          "seconds": 0.25
+        }
+      ],
+      "action": "pass",
+      "feet": [
+        "Right"
+      ]
+    },
+    "croqueta": {
+      "duration": 1.3,
+      "preferredTurn": 0.9,
+      "exitAngle": 0.8,
+      "contacts": [
+        {
+          "at": 0.2,
+          "angle": -1.5707963267948966,
+          "distance": 0.4,
+          "seconds": 0.2
+        },
+        {
+          "at": 0.55,
+          "angle": 1.5707963267948966,
+          "distance": 0.75,
+          "seconds": 0.25
+        }
+      ],
+      "action": "cut",
+      "feet": [
+        "Right",
+        "Left"
+      ]
+    },
+    "roulette": {
+      "duration": 2.2,
+      "preferredTurn": 1.6,
+      "exitAngle": 0.25,
+      "spin": 6.283185307179586,
+      "contacts": [
+        {
+          "at": 0.1,
+          "angle": 2.0,
+          "distance": 0.32,
+          "seconds": 0.2
+        },
+        {
+          "at": 0.85,
+          "angle": 1.0,
+          "distance": 0.42,
+          "seconds": 0.2
+        },
+        {
+          "at": 1.65,
+          "angle": 0.25,
+          "distance": 1.1,
+          "seconds": 0.3
+        }
+      ],
+      "action": "dragBack",
+      "feet": [
+        "Right",
+        "Left",
+        "Right"
+      ],
+      "spinSeconds": 2
+    },
+    "dragBack": {
+      "duration": 1.3,
+      "preferredTurn": 3.141592653589793,
+      "exitAngle": 1.9,
+      "contacts": [
+        {
+          "at": 0.35,
+          "angle": 3.141592653589793,
+          "distance": 0.8,
+          "seconds": 0.25
+        }
+      ],
+      "action": "dragBack",
+      "feet": [
+        "Right"
+      ]
+    }
+  },
+  "contactSeconds": 0.18,
+  "pose": {
+    "plantForward": 0.16,
+    "plantSide": -0.26,
+    "plantHeight": 0.03,
+    "supportSideOffset": 0.3
+  },
+  "feintStartSeconds": 0.2,
+  "feintReadDistance": 1.5
+}

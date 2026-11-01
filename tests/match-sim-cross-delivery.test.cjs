@@ -114,7 +114,7 @@ test('format 7 raw and compressed active flights migrate without changing their 
     const active = { experimental: true, simulationCheckpoint: checkpoint, events: [] };
     const career = { schemaVersion: 7, players: [], activeMatchV71: packed ? game.api.packExperimentalMatch(active) : active };
     game.api.migrateSave(career);
-    assert.equal(career.schemaVersion, 8);
+    assert.equal(career.schemaVersion, game.api.SAVE_SCHEMA);
     const after = game.api.unpackMatchSnapshot(career.activeMatchV71).simulationCheckpoint;
     assert.equal(after.state.ball.flight.cross, false);
     assert.equal(after.state.ball.flight.crossEventIndex, null);

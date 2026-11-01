@@ -6,6 +6,7 @@ import { simulationDurationTicks, simulationPlayerAvailable, recoverSimulationDe
 import { predictSimulationBall } from './ball-physics.js';
 import { resolveSimulationTackle } from './tackle-resolution.js';
 import { fitCarryTarget } from './dribble-evaluation.js';
+import { simulationSkillDefenderTarget } from './ground-skills.js';
 
 export function prepareSimulationDefenders(simulation) {
   const runtime = simulationRuntime(simulation);
@@ -29,7 +30,7 @@ function planDefenderMovement(simulation, defender, victim) {
   if (simulation.tick < defender.duel.nextPlanTick) return;
   defender.duel.nextPlanTick = simulation.tick + defender.limits.reactionTicks;
   defender.duel.state = 'jockey';
-  defender.target = jockeyTarget(simulation, defender, victim);
+  defender.target = simulationSkillDefenderTarget(simulation, defender, jockeyTarget(simulation, defender, victim));
   defender.gait = 'sprint';
   if (simulation.tick >= defender.duel.nextTackleTick) considerDefenderTackle(simulation, defender, victim);
 }

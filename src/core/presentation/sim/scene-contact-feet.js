@@ -20,7 +20,7 @@ export function poseSimulationContactFoot(runtime, actor, { sample, frame }) {
 
 function observedFootContact(sample, frame) {
   const carry = frame.ball.carry;
-  if (carry?.playerId === sample.id) return carry.touchTick * MATCH_SIM_DATA.clock.stepSeconds;
+  if (carry?.playerId === sample.id) return carry.touchTick == null ? -Infinity : carry.touchTick * MATCH_SIM_DATA.clock.stepSeconds;
   const contact = frame.contacts.findLast(event => isFootContact(event, sample.id) && event.time <= frame.physicsTime);
   return contact?.time ?? -Infinity;
 }

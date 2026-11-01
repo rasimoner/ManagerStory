@@ -26,7 +26,7 @@ function settleOverBall(beat, duel, { f, t0, carry, through }) {
 // back across the other way ----
 const STEPOVER_PATH = [[-0.2, -0.1], [0.04, -0.22], [0.27, 0.0], [0.13, 0.3]];
 
-function stepoverFeet({ ball }, m) {
+export function stepoverFeet({ ball }, m) {
   const { f, r, t0, b0 } = m;
   const at = (a, l, y = 0.03) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
   const plantL = b0.clone().addScaledVector(r, -0.27).addScaledVector(f, -0.12).setY(0.03); let plantL2 = null;
@@ -134,7 +134,7 @@ export function* stepoverBeat(beat, duel) {
 const ELASTICO_WRAP = [[-0.02, -0.13], [0.16, -0.06], [0.17, 0.08], [0.0, 0.15]];
 const ELASTICO_OUT = 0.2, ELASTICO_BACK = 0.44;                          // push out, snap back in
 
-function elasticoFeet({ ball }, m) {
+export function elasticoFeet({ ball }, m) {
   const { f, r, t0, b0 } = m;
   const rel = (a, l, y) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
   const plantL = b0.clone().addScaledVector(r, -0.27).addScaledVector(f, -0.14).setY(0.03);
@@ -199,7 +199,7 @@ export function* elasticoBeat(beat, duel) {
 
 // ---- La Croqueta: the inside of the right boot slides the ball across to the left boot, which pushes it
 // on past the defender's side, two touches in a blink ----
-function croquetaFeet({ ball }, car, m) {
+export function croquetaFeet({ ball }, car, m) {
   const { f, r, t0 } = m;
   const rel = (a, l, y) => ball.p.clone().addScaledVector(f, a).addScaledVector(r, l).setY(y);
   return {
