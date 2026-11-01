@@ -51,3 +51,9 @@ corner-mark-priority-proposed.patch yalnız cross uçuşunda mevcut receiverDist
 Mevcut referansla karşılaştırma seed 901'de 1–0 yerine 6–5 skoruyla başarısız. Referans/golden/eşik/CI değiştirilmedi; ilk skor farkı zaten kapıyı durdurduğu için 400 ek güç maçı ve beş süre taraması yeniden başlatılmadı. PR/merge/yayın yok. Sürüm 7.19.4 yalnız yayımlanmamış adaydır. Ölçümler ve dar devam promptu `goal-regression-report.md` içindedir.
 
 Son commit kontrolleri: Node 22.23.4, lint temiz; test:fast 592 başarılı / 1 mevcut atlama, performans 5/5, build başarılı. Tam test/smoke ve yeni WebGL/iPhone kanıtı bu dar teslimde yeniden çalıştırılmadı.
+
+## Ek deneme sonrası devam: yalnız tanı
+
+Kullanıcının “Devam et” mesajıyla farklı doğal seed 42'nin ilk golü incelendi. G1 3/3 ve markaj düzeltmesi korunur. Kart/eksilme öncesindeki kornerde kaleci, mevcut tahmine göre saha içinde ulaşamayacağı top için `intercept` görevi alıyor; `keeperFollowsFreeBall` bu görevi kabul ederek normal konumlanmayı erken kesiyor. Gerçek checkpoint'te yeni kırmızı kabul 1 başarısız; ulaşılabilir orta ve normal serbest top karşı örnekleri 2/2 başarılı. Test ayrı reproductions dosyasında, CI dışında. Stoperin markaj/cover devri de gözlendi; aynı erişilemezlik hükmü ona genellenmedi. Ürün değişikliği veya dördüncü yaklaşım uygulanmadı; ayrıntı `remaining-keeper-cross-diagnosis.md`.
+
+Bu tanı commit'inin kontrolleri: Node 22.23.4 lint temiz; test:fast 592 başarılı / 1 mevcut atlama, performans 5/5. src/ ağacı değişmedi; sürüm artırılmadı.
