@@ -27,3 +27,7 @@ Gol izinde kaleci orta uçuşu boyunca mevcut topun kanadını izliyor; orta mer
 8c99b45 üzerinde yalnız restart-decision.js önceki 90ea733 sürümüne alınınca üç seed 1/2/3 gol, toplam 6 oldu (8c99b45: 14/12/15, toplam 41). Bu tanı kontrolü yeni duran-top servis seçimini kapatır; nihai ürün çözümü değildir ve aday dala alınmadı. Probe worktree de eski haline döndürüldü. Yeni servis yolunun büyük artıştaki nedensel payı doğrulandı; oyuncu yerleşimi/orta seçimi/ilk kontrol/atış zincirindeki tam alt neden henüz izole edilmedi.
 
 G1 çözümü **başarısız, 2/2**. Yeni adayın src/ ağacı 97d99fc ile aynıdır. Üçüncü ürün yaklaşımı yok. Dört yönlü yerel testin geçmesi veya toplamın 43→37 olması yeterli başarı sayılmadı. Başarısız ürünler geri alındığı için daha büyük 50 tohum/güç/video paketi tekrar başlatılmadı. AGENTS.md commit lint/hızlı kontrolü bir kez çalıştırılır; performans veya başka özellik düzeltmesine geçilmez.
+
+## Tek pozisyonun temas ayrıştırması
+
+Kullanıcının devam talebiyle yalnız tanı kaydı eklendi; G1 iki başarısız ürün yaklaşımı 2/2 olarak korunur. Son adayın 901 ilk golü: servis 332,2; ilk kontrol 334,665085415; şut 335,1; gol 335,598738005. İlk kontrolde en yakın savunmacı 4,128585 m, şutta 3,840997 m; temas yarıçapı dışında. Bu vaka eksik çarpışma kanıtı değildir; boş alan ilk kontrolden önce oluşuyor. Önceki hedef/kaleci yamaları yeniden uygulanmadı. Tek korner öncesi checkpoint ile bütün maçı tekrar koşturmadan yeniden üretme eklendi. Ürün kusuru için yeni kesin kırmızı kabul henüz kurulmadığından ürün kodu değiştirilmedi.
