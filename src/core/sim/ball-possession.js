@@ -10,6 +10,7 @@ import { predictSimulationBall } from './ball-physics.js';
 import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
 import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay, captureSimulationOffside } from './offside.js';
 import { redirectSimulationAerial } from './aerial-contact.js';
+import { holdSimulationPassBall } from './pass-technique.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
@@ -105,6 +106,7 @@ function deflectSimulationBall(simulation, player, { touching, remaining, time }
 export function followSimulationBallOwner(simulation) {
   const ball = simulation.ball, owner = simulationRuntime(simulation).byId.get(ball.ownerId);
   if (!owner) return;
+  if (holdSimulationPassBall(simulation)) return;
   const offset = MATCH_SIM_DATA.ball.footOffset, pitch = MATCH_SIM_DATA.pitch;
   const target = { x: clampSimValue(owner.position.x + cos(owner.heading) * offset, -pitch.length / 2, pitch.length / 2),
     y: clampSimValue(owner.position.y + sin(owner.heading) * offset, -pitch.width / 2, pitch.width / 2) };

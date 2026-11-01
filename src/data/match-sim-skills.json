@@ -159,5 +159,29 @@
     "maximumSpeed": 2,
     "minimumGazeTurn": 0.6,
     "maximumGazeTurn": 1.4
+  },
+  "flairPass": {
+    "maximumHeight": 0.12,
+    "maximumSpeed": 2,
+    "maximumPressure": 0.7,
+    "poseSeconds": 0.85,
+    "plantHeight": 0.03,
+    "backheel": {
+      "minimumDistance": 4,
+      "maximumDistance": 18,
+      "minimumTurn": 2.4,
+      "behind": 0.28,
+      "side": 0,
+      "windup": 0.5
+    },
+    "rabona": {
+      "minimumDistance": 12,
+      "maximumDistance": 45,
+      "behind": 0.42,
+      "side": 0.32,
+      "windup": 0.5,
+      "plantSide": 0.2,
+      "plantForward": -0.03
+    }
   }
 }

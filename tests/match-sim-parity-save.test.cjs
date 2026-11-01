@@ -14,6 +14,8 @@ test('format 6 raw and archived checkpoints add optional feature state without c
     const after=game.api.unpackMatchSnapshot(career.activeMatchV71).simulationCheckpoint;
     assert.equal(after.state.offside,null);
     delete after.state.offside;
+    assert.equal(after.state.passing.technique,null);
+    delete after.state.passing.technique;
     assert.deepEqual(plain(after),checkpoint);
   }
 });

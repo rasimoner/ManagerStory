@@ -17,7 +17,7 @@ Yeniden yapılanma C, D ve E kayıt biçimini değiştirmedi (biçim 1). V7.13.2
 | `schemaVersion` | Kaydın **biçimi**. Taşıma zinciri buna bakar. | Biçim değişince (yeni taşıma adımıyla). V7.9.13 öncesi kayıtlarda yok = biçim 0. |
 | `version` | Kaydı en son yazan **oyun sürümü** (ör. `"7.9.13"`). | Her yüklemede güncel sürüme yazılır. Yedek anahtarları buna göre. |
 
-Şu anki biçim: **9** (`SAVE_SCHEMA`).
+Şu anki biçim: **10** (`SAVE_SCHEMA`).
 
 ## Taşıma kuralları
 - Tüm taşımalar tek yerde: `SAVE_MIGRATIONS` (`src/core/save.js`). Her adım `{from, to, about, run(state)}`; sadece bir biçimden bir sonrakine geçirir ve sadece kendi işine dokunur.
@@ -177,3 +177,5 @@ PR #16 sonrası: mevcut `ball.carry.touchTick` henüz topa dokunulmamış taşı
 **8 → 9:** `ball.carry.skill` isteğe bağlı gerçek hareket niyetidir: kind, defenderId, startedAt, heading, side, phase, ilk top noktası ve son gerçek temas. Eski ham/sıkıştırılmış taşıma bu alanı null alır; mevcut fizik/RNG/kararlar değişmez. Yeni kayıt hareketin ortasından aynı temas dizisiyle devam eder. Tekrar tamponu kalıcı hale getirilmez.
 
 Şema 9'daki hareket olayları, bakmadan pasta isteğe bağlı gazeTargetId/gazeTarget ile gerçek görünen oyuncuyu saklar. Pozlar ve tekrar tamponu kalıcı değildir; görsel hedef ek RNG tüketmez.
+
+**9 → 10:** `passing.technique` isteğe bağlı özel pas hazırlığıdır: kind, ownerId/toId, gerçek sabit top noktası, gerçek yaklaşma/ayak duruşu, yüz yönü, hedef ve readyAt. Eski ham/sıkıştırılmış checkpoint null alır; fizik, olaylar, saat ve RNG değişmez. Hazırlığın ortasında kayıt aynı duruştan ve ayak temasından devam eder. Çizimdeki saf ayak eğrileri kayda girmez.

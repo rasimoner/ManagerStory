@@ -26,8 +26,8 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R16 | Rainbow | R1 + R2 hava teması | 0/2 | Bekliyor |
 | R17 | Sombrero | R1 + R2 hava teması | 0/2 | Bekliyor |
 | R18 | Juggling | R1 + R2 hava teması | 0/2 | Bekliyor |
-| R19 | Backheel | Pas temasının yön/ayak gereksinimi; R1 ilişkisi doğrulanacak | 0/2 | Bekliyor |
-| R20 | Rabona | Pas temasının yön/ayak gereksinimi; R1 ilişkisi doğrulanacak | 0/2 | Bekliyor |
+| R19 | Backheel | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | İki yön, gerçek topuk teması, fiziksel hazırlık ve kayıt/devam geçti |
+| R20 | Rabona | Gerçek kontrollü top/ayak hazırlığı; R1 çözümü korunur | 2/2 | Gerçek destek arkası krampon yolu, iki yön ve saha dışı alternatif geçti |
 | R21 | No-look | Bağımsız pas/görünür hedef ve baş pozu | 1/2 | Gerçek alternatif oyuncuya baş bakışı ve eski nolook pozu; 21 ilgili / 555 hızlı test geçti |
 | R22 | Foot trap özel ilk kontrol | Mevcut gerçek ilk kontrol; R2 ilişkisi doğrulanacak | 0/2 | Bekliyor |
 | R23 | Pirouette/Bergkamp özel karşılama sekansı | R1 + gerçek gelen top | 0/2 | Bekliyor |
@@ -86,3 +86,9 @@ Savunmacı gerçek ayak/gövde sinyalini konumlanma/tepki becerisine göre hatal
 ## R21 — bakmadan pas
 
 Eski director pass/nolook ve ACTIONS.nolook yolu doğrulandı. Gerçek farklı/görünür bir takım arkadaşı baş hedefidir; beceri, mesafe, düşük gerçek hız ve orta baskı şartları vardır. İlk iki yeni kabul kırmızıydı. Gerçek rig'de başın dünya bakış vektörü hedef oyuncuyla >0,98 doğrultuda; top normal fiziksel pasa gider. Aynı durumda normal pasla hız/düşey hız/RNG birebir eşit; başarı önceden verilmez. 21 ilgili test, lint ve 555 başarılı hızlı / 1 mevcut atlama, 5/5 performans geçti. Kodun karmaşıklığı aynı koşullar ayrı saf yüklemlere ayrılarak düşürüldü; eşikler/baseline büyümedi.
+
+## R19/R20 — özel paslar
+
+Eski flair-passes backheelKick/backheelFeet ve rabonaKick/rabonaFeet çağrıları doğrulandı. R19 ilk yaklaşımında stance varış yarıçapı içindeki durağan oyuncu yüzünü çevirmediği için topuk pası çıkmadı. İkinci yaklaşım duruşta tek fiziksel dönüşü tamamlar; hız/dönüş sınırı korunur. R20 ilk yaklaşımı gerçek pas/ayak yolu ve JSON devamı geçti ama saha kenarında hazırlık hedefi dışarı taşabiliyordu. İkinci yaklaşım yasal duruş sığmıyorsa normal pasa döner; hedefi erişilemez yere zorlamaz.
+
+24 ortak kabul: iki yön; zayıf teknikte normal alternatif; gerçek RightFoot topuk teması; rabona kramponunun destek ayağı arkasından ve öbür yana geçtiği gerçek rig yolu; hazırlığın ortasında kayıt/devam ve normal pas/RNG korumaları. Eski saf ayak eğrileri kullanılır; jeneratör ve director fiziği çağrılmaz. Şema 10, isteğe bağlı passing.technique duruş/readyAt bilgisini saklar; ham/sıkıştırılmış göç kırmızıdan yeşile döndü. Lint yeni ihlal yok; son hızlı 566 başarılı / 1 mevcut atlama, ayrı 5/5 performans.

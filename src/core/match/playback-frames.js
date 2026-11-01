@@ -13,6 +13,7 @@ export function captureSimulationFrame(simulation) {
     ball: { position: { ...simulation.ball.position }, height: simulation.ball.height, velocity: { ...simulation.ball.velocity },
       verticalVelocity: simulation.ball.verticalVelocity, heldBy: simulation.ball.heldBy,
       controlledBy: simulation.ball.ownerId, carry: structuredClone(simulation.ball.carry), restart: structuredClone(simulation.ball.restart),
+      passTechnique: structuredClone(simulation.passing.technique ?? null),
       lastTouchId: simulation.ball.lastTouchId, shot: structuredClone(simulation.ball.shot),
       ownerId: simulation.ball.ownerId ?? simulation.ball.carry?.playerId ?? null, teamId: simulation.ball.teamId },
     contacts: capturePresentationContacts(simulation),

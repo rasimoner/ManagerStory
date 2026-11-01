@@ -24,7 +24,7 @@ import { packSimulationHistory, restoreSimulationHistory } from './match/history
 import { presentation } from './presentation/registry.js';
 import { normalizeMatchDurationMinutes } from './match/duration-setting.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 9;
+export const SAVE_SCHEMA = 10;
 export let saveWarning = false;
 let saveSerial = 0;
 
@@ -135,6 +135,17 @@ export const SAVE_MIGRATIONS = [
       if (!stored?.experimental) return;
       const active = unpackMatchSnapshot(stored), carry = active.simulationCheckpoint?.state.ball.carry;
       if (carry) carry.skill ??= null;
+      state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
+    },
+  },
+  {
+    from: 9, to: 10,
+    about: 'optional pass technique stance and windup; earlier active passes retain their ball, decisions, time and RNG',
+    run(state) {
+      const stored = state.activeMatchV71;
+      if (!stored?.experimental) return;
+      const active = unpackMatchSnapshot(stored);
+      if (active.simulationCheckpoint) active.simulationCheckpoint.state.passing.technique ??= null;
       state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
     },
   },

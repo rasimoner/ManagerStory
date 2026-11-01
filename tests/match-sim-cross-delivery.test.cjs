@@ -119,6 +119,8 @@ test('format 7 raw and compressed active flights migrate without changing their 
     assert.equal(after.state.ball.flight.cross, false);
     assert.equal(after.state.ball.flight.crossEventIndex, null);
     delete after.state.ball.flight.cross; delete after.state.ball.flight.crossEventIndex;
+    assert.equal(after.state.passing.technique, null);
+    delete after.state.passing.technique;
     assert.deepEqual(plain(after), checkpoint);
   }
 });
