@@ -4,6 +4,7 @@ import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { predictSimulationBall } from './ball-physics.js';
 import { simulationRuntime } from './simulation-runtime.js';
 import { simulationWallContactFraction, simulationWallJumpActive } from './wall-reaction.js';
+import { simulationNutmegContactMotion } from './nutmeg-geometry.js';
 import { simulationTrapContactMotion } from './first-touch-technique.js';
 import RESTART_DATA from '../../data/match-sim-restarts.json';
 
@@ -24,7 +25,7 @@ export function earliestSimulationBallContact(simulation, motion) {
   runtime.players.forEach((player, index) => {
     if (!canTouchSimulationBall(simulation, player)) return;
     const previous = playerSegmentStart(runtime, index, motion);
-    const fraction = simulationContactFraction(player, previous, simulationAerialContactMotion(simulation, player, contactMotion));
+    const fraction = simulationContactFraction(player, previous, simulationNutmegContactMotion(simulation, player, simulationAerialContactMotion(simulation, player, contactMotion)));
     if (fraction === null) return;
     const candidate = { player, fraction, previous };
     if (contactPrecedes(simulation, candidate, earliest)) earliest = candidate;
@@ -56,6 +57,7 @@ function contactPrecedes(simulation, candidate, earliest) {
 }
 
 export function simulationContactFraction(player, previous, motion) {
+  if (motion.feet) return simulationFeetContactFraction(player, previous, motion);
   const offset = { x: motion.before.position.x - previous.x, y: motion.before.position.y - previous.y };
   const relative = { x: motion.after.position.x - motion.before.position.x - player.position.x + previous.x,
     y: motion.after.position.y - motion.before.position.y - player.position.y + previous.y };
@@ -66,6 +68,12 @@ export function simulationContactFraction(player, previous, motion) {
   if (predictSimulationBall(motion.before, interval.start * seconds).height <= (motion.reachableHeight ?? MATCH_SIM_DATA.ball.reachableHeight)) return interval.start;
   const descending = reachableDescentSeconds(motion.before, motion.reachableHeight) / seconds;
   return descending >= interval.start && descending <= interval.end ? descending : null;
+}
+
+function simulationFeetContactFraction(player, previous, motion) {
+  const fractions = motion.feet.map(offset => simulationContactFraction({ ...player, position: { x: player.position.x + offset.x, y: player.position.y + offset.y } },
+    { x: previous.x + offset.x, y: previous.y + offset.y }, { ...motion, feet: null })).filter(value => value !== null);
+  return fractions.length ? Math.min(...fractions) : null;
 }
 
 function circleContactInterval(offset, relative, radius = MATCH_SIM_DATA.ball.controlRadius) {

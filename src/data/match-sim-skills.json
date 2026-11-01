@@ -139,6 +139,25 @@
       "feet": [
         "Right"
       ]
+    },
+    "nutmeg": {
+      "duration": 1.6,
+      "preferredTurn": 0,
+      "exitAngle": 0,
+      "throughLegs": true,
+      "action": "poke",
+      "feet": [
+        "Right"
+      ],
+      "contacts": [
+        {
+          "at": 0.25,
+          "angle": 0,
+          "distance": 2,
+          "seconds": 0.4,
+          "speed": 5.2
+        }
+      ]
     }
   },
   "contactSeconds": 0.18,
@@ -227,5 +246,18 @@
     "maximumDownSpeed": 0.6,
     "poseLeadSeconds": 0.3,
     "poseSeconds": 0.75
+  },
+  "nutmeg": {
+    "stanceSide": 0.4,
+    "stanceForward": 0.06,
+    "footRadius": 0.12,
+    "footHeight": 0.03,
+    "maximumStanceSpeed": 2,
+    "maximumHeight": 0.25,
+    "aroundForward": 0.3,
+    "aroundSide": 1.2,
+    "minimumAhead": 1.1,
+    "maximumLateral": 0.15,
+    "maximumCarryTurn": 0.7
   }
 }

@@ -2,6 +2,7 @@ import { simulationGoalFrameContact, reflectSimulationGoalFrame } from './goal-f
 import { advanceSimulationShotBall } from './shot-step.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { simulationRuntime } from './simulation-runtime.js';
+import { recordSimulationNutmeg } from './ground-skills.js';
 import { predictSimulationBall } from './ball-physics.js';
 import { earliestSimulationBallContact } from './ball-contact.js';
 import { controlSimulationBall } from './ball-possession.js';
@@ -18,6 +19,7 @@ export function advanceSimulationFreeBall(simulation) {
   let continuation = { before, startTime: simulation.time - MATCH_SIM_DATA.clock.stepSeconds, seconds: MATCH_SIM_DATA.clock.stepSeconds };
   if (contact && contact.fraction <= simulationBallExitFraction({ before, after })) continuation = controlSimulationBall(simulation, contact, { before, after }) ?? continuation;
   resolveSimulationBallOut(simulation, continuation.before, continuation);
+  recordSimulationNutmeg(simulation, before);
 }
 
 export function recordSimulationPossessionTime(simulation) {

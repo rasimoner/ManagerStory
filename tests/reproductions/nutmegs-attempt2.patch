@@ -1,0 +1,325 @@
+diff --git a/docs/3d-remaining-parity-progress.md b/docs/3d-remaining-parity-progress.md
+index 1d311d5..3ef3476 100644
+--- a/docs/3d-remaining-parity-progress.md
++++ b/docs/3d-remaining-parity-progress.md
+@@ -16,12 +16,12 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
+ | R6 | Gerçek vole | R2 ortak servis | 1/2 | Gerçek yükseklikten vole geçti |
+ | R7 | Uygun durumda röveşata | R2 ortak servis | 2/2 | Başarısız, yalnız röveşata geri alındı; remaining-bicycle.cjs |
+ | R8 | Stepover | R1 temas/çıkış, koddan doğrulanacak | 1/2 | Gerçek makas dairesi/teması, iki yön, rig ve kesilebilme geçti |
+-| R9 | Nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
++| R9 | Nutmeg | R1, gerçek savunmacı boşluğu | 1/2 | Ortak gerçek ayak boşluğu yaklaşımı uygulanıyor |
+ | R10 | Elastico | R1, çoklu temas | 1/2 | Dış/iç iki dokunuş aynı gerçek ayaktan; rig geçti |
+ | R11 | Cruyff | R1 | 1/2 | Gerçek geri çekiş/ayak teması, iki yön geçti |
+ | R12 | Croqueta | R1, çoklu temas | 2/2 | İkinci yaklaşım: destek ayağı ayrılır, gerçek iki ayak teması geçti |
+ | R13 | Roulette | R1, çoklu temas | 2/2 | İkinci yaklaşım: tam tur hareket sınırında tamamlanır; 5,7 rad kapısı geçti |
+-| R14 | Flair nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
++| R14 | Flair nutmeg | R1, gerçek savunmacı boşluğu | 2/2 | İkinci yaklaşım: normal dönüş sınırında daha erken gerçek topuk teması |
+ | R15 | Drag-back | R1 | 1/2 | Gerçek geriye serbest dokunuş ve eski dragBack pozu geçti |
+ | R16 | Rainbow | R1 + R2 hava teması | 2/2 | Başarısız; ürün farkı geri alındı, gerçek temas izi saklandı |
+ | R17 | Sombrero | R1 + R2 hava teması | 1/2 | Gerçek savunmacı üzerinden uçuş, iki yön, rig/kayıt geçti |
+@@ -128,3 +128,5 @@ Eski director.flairPassTry → stepoverBeat → stepoverPass yolu doğrulandı.
+ 25/25 ortak hava/ilk kontrol/sombrero testi ve ilave canlı alıcı testi (5/5 trap) geçti. İki yön ve gerçek krampon <0,30 m; kök/checkpoint/RNG çizimden etkilenmez; kaydet/devam eşittir. Yeni kalıcı alan yoktur; trapIntent karede çekirdekten türetilir, ilkTouch.style olayının isteğe bağlı detayında kalır. Lint yeni ihlal yoktur.
+ 
+ R27 ikinci yaklaşım: gerçek captureSimulationFrame yolu için ek kırmızı test, sunum olay kopyasının observed/reachDifficulty/lastMoment alanlarını düşürdüğünü gösterdi. İzole kaydedici filtresi doğruydu; kariyere aktarım eksikti. Kopya bu gerçek kanıtı korur: genel observed etiket yıldız olmaz, zor gerçek kurtarış otomatik seçilebilir. Yeni tekrar tamponu veya motor durum değişikliği yoktur. Bu satır 2/2'dir; ileri kabul başarısızsa yalnız otomatik bağlantı geri alınacak, manuel gerçek tekrar korunacaktır.
++
++R9/R14 ilk yaklaşım: mevcut 1,2 m kontrol çemberinin yerine yalnız gerçek jokey boşluğu anında iki fiziksel ayak diski ve aynı ayak hedeflerini kullanan rig. Savunmacı hızlanır veya müdahaleye başlarsa normal top kazanma yolu geri gelir; hareket adından ötürü bağışıklık yoktur. R9 iki yönde geçti. R14 birinci trace'inde uzun hazırlıktan sonra savunmacı 1,3 sn'de hızlanıp topu aldı; sonraki topun sahipli yürüyüşü bacak arası sayılmadı. İkinci yaklaşım 0,7 sn'de, mevcut açısal dönüş sınırında ve fiziksel 6,5 m/sn topuk hızında temas eder; savunmacı hedefi/hızı/ivmesi değiştirilmez. İlk trace ayrı korunur.
+diff --git a/src/core/presentation/match3d/newview/beats/through-the-legs.js b/src/core/presentation/match3d/newview/beats/through-the-legs.js
+index e8c5de7..882444c 100644
+--- a/src/core/presentation/match3d/newview/beats/through-the-legs.js
++++ b/src/core/presentation/match3d/newview/beats/through-the-legs.js
+@@ -42,7 +42,7 @@ function* nutmegStab(beat, duel, m) {
+   car.heading = Math.atan2(f.x, f.z);
+   rt.startAction(car, 'poke', 0.06);
+   m.tc = 0.06 + ACTIONS.poke.dur * ACTIONS.poke.contact;
+-  car.feet = { Right: { w: ramp(t0, [0.02, 0.12, m.tc, m.tc + 0.12]), at: () => ball.p.clone().addScaledVector(f, -0.13).setY(0.06) } };
++  car.feet = nutmegFeet(beat, { t0, tc: m.tc, f });
+   yield* until(() => S.t - t0 >= m.tc, 1);
+   const toe = car.feet.Right.last;
+   m.audit = { kind: 'nutmeg', contact: toe ? +toe.distanceTo(ball.p).toFixed(3) : null };
+@@ -52,6 +52,10 @@ function* nutmegStab(beat, duel, m) {
+   return f;
+ }
+ 
++export function nutmegFeet({ ball }, { t0, tc, f }) {
++  return { Right: { w: ramp(t0, [0.02, 0.12, tc, tc + 0.12]), at: () => ball.p.clone().addScaledVector(f, -0.13).setY(0.06) } };
++}
++
+ // the ball through the gap: was it between his boots
+ function* nutmegThrough(beat, duel, m) {
+   const { ball, S, until, debug } = beat, { def } = duel, { t0, tc, gap, f, audit } = m;
+@@ -90,7 +94,7 @@ export function* nutmegBeat(beat, duel) {
+ const BACK_TURN = 0.36;
+ 
+ // the heel goes onto the near face of the ball (the boot points the way he now faces)
+-function heelOntoBall({ ball }, { t0, hd }) {
++export function heelOntoBall({ ball }, { t0, hd }) {
+   return { Right: { w: t => { const u = t - t0; return u < BACK_TURN - 0.1 ? 0 : Math.min(1, (u - BACK_TURN + 0.1) / 0.08); }, at: t => { const fnow = V(Math.sin(hd(t)), 0, Math.cos(hd(t))); return ball.p.clone().addScaledVector(fnow, 0.1 + 0.17).setY(0.07); } } };
+ }
+ 
+diff --git a/src/core/presentation/sim/scene-skill-feet.js b/src/core/presentation/sim/scene-skill-feet.js
+index 7985832..5197fb5 100644
+--- a/src/core/presentation/sim/scene-skill-feet.js
++++ b/src/core/presentation/sim/scene-skill-feet.js
+@@ -3,6 +3,8 @@ import SKILL_DATA from '../../../data/match-sim-skills.json';
+ import MATCH_SIM_DATA from '../../../data/match-sim.json';
+ import { stepoverFeet, elasticoFeet, croquetaFeet } from '../match3d/newview/beats/feints.js';
+ import { cruyffFeet, rouletteFeet } from '../match3d/newview/beats/turns.js';
++import { simulationNutmegFeet } from '../../sim/nutmeg-geometry.js';
++import { nutmegFeet, heelOntoBall } from '../match3d/newview/beats/through-the-legs.js';
+ import { sombreroFeet } from '../match3d/newview/beats/over-the-top.js';
+ import { simulationCarrySkillData } from '../../sim/carry-skill-data.js';
+ 
+@@ -10,7 +12,7 @@ const paths = { stepover: stepoverFeet, elastico: elasticoFeet, cruyff: cruyffFe
+ 
+ export function prepareSimulationSkillFeet(runtime, actor, { sample, frame }) {
+   const skill = frame.ball.carry?.playerId === sample.id ? frame.ball.carry.skill : null;
+-  if (!skill) { actor.feet = null; actor.sceneSkill = null; return; }
++  if (!skill) { actor.feet = simulationNutmegDefenderFeet(sample, frame); actor.sceneSkill = null; return; }
+   const key = `${skill.kind}:${skill.startedAt}`;
+   if (actor.sceneSkill?.key !== key) actor.sceneSkill = { key, ...createSkillFeet(runtime, actor, skill) };
+   actor.sceneSkill.state.touched = skill.phase;
+@@ -18,6 +20,16 @@ export function prepareSimulationSkillFeet(runtime, actor, { sample, frame }) {
+   actor.feet = actor.sceneSkill.feet;
+ }
+ 
++function simulationNutmegDefenderFeet(sample, frame) {
++  const skill = frame.ball.carry?.skill;
++  if (!SKILL_DATA.ground[skill?.kind]?.throughLegs || skill.defenderId !== sample.id) return null;
++  const feet = simulationNutmegFeet({ ...sample, heading: Math.PI / 2 - sample.heading,
++    velocity: { x: sample.velocity.x, y: sample.velocity.z } });
++  if (!feet) return null;
++  const at = offset => new THREE.Vector3(sample.position.x + offset.x, SKILL_DATA.nutmeg.footHeight, sample.position.z + offset.y);
++  return { Left: { w: () => 1, at: () => at(feet[0]) }, Right: { w: () => 1, at: () => at(feet[1]) } };
++}
++
+ function createSkillFeet(runtime, actor, skill) {
+   const f = new THREE.Vector3(Math.cos(skill.heading), 0, Math.sin(skill.heading));
+   const r = new THREE.Vector3(f.z, 0, -f.x).multiplyScalar(skill.side);
+@@ -32,6 +44,8 @@ function createSkillFeet(runtime, actor, skill) {
+ function skillFeetFor(context, actor, { skill, m }) {
+   if (skill.kind === 'croqueta') return croquetaFeet(context, actor, m);
+   if (skill.kind === 'roulette') return rouletteFeet(context, actor, m);
++  if (skill.kind === 'nutmeg') return nutmegFeet(context, { ...m, tc: SKILL_DATA.ground.nutmeg.contacts[0].at });
++  if (skill.kind === 'flairnutmeg') return heelOntoBall(context, { ...m, hd: () => actor.heading });
+   if (skill.kind === 'sombrero') return sombreroFeet(context, actor, m);
+   return paths[skill.kind]?.(context, m);
+ }
+diff --git a/src/core/sim/ball-contact.js b/src/core/sim/ball-contact.js
+index 53e363d..0497605 100644
+--- a/src/core/sim/ball-contact.js
++++ b/src/core/sim/ball-contact.js
+@@ -4,6 +4,7 @@ import MATCH_SIM_DATA from '../../data/match-sim.json';
+ import { predictSimulationBall } from './ball-physics.js';
+ import { simulationRuntime } from './simulation-runtime.js';
+ import { simulationWallContactFraction, simulationWallJumpActive } from './wall-reaction.js';
++import { simulationNutmegContactMotion } from './nutmeg-geometry.js';
+ import { simulationTrapContactMotion } from './first-touch-technique.js';
+ import RESTART_DATA from '../../data/match-sim-restarts.json';
+ 
+@@ -24,7 +25,7 @@ export function earliestSimulationBallContact(simulation, motion) {
+   runtime.players.forEach((player, index) => {
+     if (!canTouchSimulationBall(simulation, player)) return;
+     const previous = playerSegmentStart(runtime, index, motion);
+-    const fraction = simulationContactFraction(player, previous, simulationAerialContactMotion(simulation, player, contactMotion));
++    const fraction = simulationContactFraction(player, previous, simulationNutmegContactMotion(simulation, player, simulationAerialContactMotion(simulation, player, contactMotion)));
+     if (fraction === null) return;
+     const candidate = { player, fraction, previous };
+     if (contactPrecedes(simulation, candidate, earliest)) earliest = candidate;
+@@ -56,6 +57,7 @@ function contactPrecedes(simulation, candidate, earliest) {
+ }
+ 
+ export function simulationContactFraction(player, previous, motion) {
++  if (motion.feet) return simulationFeetContactFraction(player, previous, motion);
+   const offset = { x: motion.before.position.x - previous.x, y: motion.before.position.y - previous.y };
+   const relative = { x: motion.after.position.x - motion.before.position.x - player.position.x + previous.x,
+     y: motion.after.position.y - motion.before.position.y - player.position.y + previous.y };
+@@ -68,6 +70,12 @@ export function simulationContactFraction(player, previous, motion) {
+   return descending >= interval.start && descending <= interval.end ? descending : null;
+ }
+ 
++function simulationFeetContactFraction(player, previous, motion) {
++  const fractions = motion.feet.map(offset => simulationContactFraction({ ...player, position: { x: player.position.x + offset.x, y: player.position.y + offset.y } },
++    { x: previous.x + offset.x, y: previous.y + offset.y }, { ...motion, feet: null })).filter(value => value !== null);
++  return fractions.length ? Math.min(...fractions) : null;
++}
++
+ function circleContactInterval(offset, relative, radius = MATCH_SIM_DATA.ball.controlRadius) {
+   const squared = relative.x * relative.x + relative.y * relative.y;
+   const distance = offset.x * offset.x + offset.y * offset.y - radius * radius;
+diff --git a/src/core/sim/ground-skill-choice.js b/src/core/sim/ground-skill-choice.js
+index d399e6f..3b174be 100644
+--- a/src/core/sim/ground-skill-choice.js
++++ b/src/core/sim/ground-skill-choice.js
+@@ -1,3 +1,4 @@
++import { chooseSimulationNutmeg } from './nutmeg-choice.js';
+ import SKILL_DATA from '../../data/match-sim-skills.json';
+ import { movesFor } from '../players/move-eligibility.js';
+ import { pointDistance } from './geometry.js';
+@@ -8,7 +9,9 @@ export function chooseSimulationGroundSkill(simulation, owner) {
+   if (!defender) return null;
+   const rating = movesFor(name => owner.attributes[name] ?? 0, owner.slot);
+   const turn = carryHeadingChange(simulation, owner);
+-  const candidates = Object.entries(SKILL_DATA.ground).filter(([kind]) => kind === 'dragBack' || rating.moves.includes(kind));
++  const nutmeg = chooseSimulationNutmeg(owner, defender, { rating, turn });
++  if (nutmeg) return nutmeg;
++  const candidates = Object.entries(SKILL_DATA.ground).filter(([kind]) => !SKILL_DATA.ground[kind].throughLegs && (kind === 'dragBack' || rating.moves.includes(kind)));
+   const preferred = candidates.sort((a, b) => Math.abs(Math.abs(turn) - a[1].preferredTurn) - Math.abs(Math.abs(turn) - b[1].preferredTurn))[0];
+   return preferred ? { kind: preferred[0], defenderId: defender.id } : null;
+ }
+diff --git a/src/core/sim/ground-skills.js b/src/core/sim/ground-skills.js
+index 13fde65..7dc09eb 100644
+--- a/src/core/sim/ground-skills.js
++++ b/src/core/sim/ground-skills.js
+@@ -1,3 +1,4 @@
++import { simulationNutmegRoute, simulationNutmegProgress } from './nutmeg-geometry.js';
+ import SKILL_DATA from '../../data/match-sim-skills.json';
+ import MATCH_SIM_DATA from '../../data/match-sim.json';
+ import { chooseSimulationGroundSkill } from './ground-skill-choice.js';
+@@ -34,12 +35,19 @@ export function prepareSimulationCarrySkill(simulation, owner) {
+   owner.role = 'holder'; owner.gait = 'walk'; owner.motionMode = 'jockey';
+   owner.target = simulation.ball.ownerId == null ? simulation.ball.position : { ...owner.position };
+   prepareSimulationAirSkillTarget(simulation, owner, pattern);
++  prepareSimulationNutmegRoute(simulation, owner, { skill, pattern });
+   const heading = skill.heading + (pattern.spin ?? 0) * Math.min(1, elapsed / (pattern.spinSeconds ?? pattern.duration));
+   owner.facingTarget = { x: owner.position.x + Math.cos(heading), y: owner.position.y + Math.sin(heading) };
+   if (pointDistance(owner.position, owner.target) <= MATCH_SIM_DATA.movement.arrivalRadius) faceSimulationPlayer(owner, owner.facingTarget);
+   return true;
+ }
+ 
++function prepareSimulationNutmegRoute(simulation, owner, { skill, pattern }) {
++  if (!pattern.throughLegs || skill.phase === 0 || skill.crossed) return;
++  const defender = simulationRuntime(simulation).byId.get(skill.defenderId);
++  owner.target = simulationNutmegRoute(owner, defender, skill); owner.gait = 'sprint'; owner.motionMode = 'dribble';
++}
++
+ function prepareSimulationAirSkillTarget(simulation, owner, pattern) {
+   if (!pattern.air || simulation.ball.ownerId != null || simulation.ball.height <= 0) return;
+   owner.target = simulationSkillLandingTarget(simulation.ball); owner.gait = 'sprint'; owner.motionMode = 'dribble';
+@@ -64,18 +72,34 @@ export function recordSimulationSkillTouch(simulation, owner) {
+   skill.phase++; skill.lastTouch = simulation.time;
+   const pattern = simulationCarrySkillData(skill.kind);
+   if (skill.phase !== pattern.contacts.length) return;
+-  emitSimulationEvent(simulation, { type: 'skill', kind: skill.kind, fromId: owner.id, toId: skill.defenderId,
+-    teamId: owner.teamId, fromPos: { ...skill.position }, toPos: { ...simulation.ball.position },
+-    startedAt: skill.startedAt, heading: skill.heading, side: skill.side, observed: false });
++  if (!pattern.throughLegs) emitSimulationSkill(simulation, owner, skill);
++  else simulationNutmegProgress(simulation.ball, simulationRuntime(simulation).byId.get(skill.defenderId), skill);
+   const heading = skill.heading + pattern.exitAngle * skill.side;
+   simulation.ownerDecision.dribble.target = fitCarryTarget({ x: owner.position.x + Math.cos(heading) * SKILL_DATA.exitDistance,
+     y: owner.position.y + Math.sin(heading) * SKILL_DATA.exitDistance });
+ }
+ 
++function emitSimulationSkill(simulation, owner, skill) {
++  emitSimulationEvent(simulation, { type: 'skill', kind: skill.kind, fromId: owner.id, toId: skill.defenderId,
++    teamId: owner.teamId, fromPos: { ...skill.position }, toPos: { ...simulation.ball.position },
++    startedAt: skill.startedAt, heading: skill.heading, side: skill.side, observed: false });
++
++}
++
++export function recordSimulationNutmeg(simulation) {
++  const skill = simulation.ball.carry?.skill;
++  if (!SKILL_DATA.ground[skill?.kind]?.throughLegs || !skill.phase || skill.crossed) return;
++  const runtime = simulationRuntime(simulation);
++  if (!simulationNutmegProgress(simulation.ball, runtime.byId.get(skill.defenderId), skill)) return;
++  skill.crossed = true;
++  emitSimulationSkill(simulation, runtime.byId.get(simulation.ball.carry.playerId), skill);
++}
++
+ export function simulationSkillDefenderTarget(simulation, defender, target) {
+   const skill = simulation.ball.carry?.skill;
+   if (!skill || skill.defenderId !== defender.id) return target;
+   const pattern = simulationCarrySkillData(skill.kind), elapsed = simulation.time - skill.startedAt;
++  if (pattern.throughLegs) return target;
+   if (elapsed < SKILL_DATA.feintStartSeconds || elapsed > pattern.contacts[0].at) return target;
+   const error = 1 - (defender.attributes.positioning + defender.attributes.reactions) / (2 * MATCH_SIM_DATA.attributes.maximum);
+   const side = skill.heading - skill.side * Math.PI / 2, distance = error * SKILL_DATA.feintReadDistance;
+diff --git a/src/core/sim/simulation-step.js b/src/core/sim/simulation-step.js
+index 96d5737..8f2fa0a 100644
+--- a/src/core/sim/simulation-step.js
++++ b/src/core/sim/simulation-step.js
+@@ -8,6 +8,7 @@ import { prepareSimulationKeepers } from './keeper-positioning.js';
+ import { advanceSimulationKeeperPossession } from './keeper-possession.js';
+ import { prepareSimulationDefenders, finishSimulationTackles } from './defending.js';
+ import { prepareSimulationShoulders, recordSimulationShoulders } from './shoulder-duels.js';
++import { recordSimulationNutmeg } from './ground-skills.js';
+ import { trackSimulationBeats } from './beat-tracking.js';
+ import { recordSimulationCarryDistance } from './dribbling.js';
+ import { prepareSimulationFoulRestart, finishSimulationFoulRestart } from './foul-restart.js';
+@@ -61,6 +62,7 @@ function finishBallMovement(simulation, owned) {
+   recordSimulationShoulders(simulation);
+   finishSimulationTackles(simulation);
+   trackSimulationBeats(simulation);
++  recordSimulationNutmeg(simulation);
+   updateSimulationReferee(simulation);
+   recordSimulationPossessionTime(simulation);
+ }
+diff --git a/src/data/match-sim-skills.json b/src/data/match-sim-skills.json
+index 1ce007a..2726e96 100644
+--- a/src/data/match-sim-skills.json
++++ b/src/data/match-sim-skills.json
+@@ -139,6 +139,46 @@
+       "feet": [
+         "Right"
+       ]
++    },
++    "nutmeg": {
++      "duration": 1.6,
++      "preferredTurn": 0,
++      "exitAngle": 0,
++      "throughLegs": true,
++      "action": "poke",
++      "feet": [
++        "Right"
++      ],
++      "contacts": [
++        {
++          "at": 0.25,
++          "angle": 0,
++          "distance": 2,
++          "seconds": 0.4,
++          "speed": 5.2
++        }
++      ]
++    },
++    "flairnutmeg": {
++      "duration": 2.2,
++      "preferredTurn": 1.6,
++      "exitAngle": 0,
++      "throughLegs": true,
++      "action": "pass",
++      "spin": 3.141592653589793,
++      "spinSeconds": 0.6,
++      "feet": [
++        "Right"
++      ],
++      "contacts": [
++        {
++          "at": 0.7,
++          "angle": 0,
++          "distance": 2,
++          "seconds": 0.4,
++          "speed": 6.5
++        }
++      ]
+     }
+   },
+   "contactSeconds": 0.18,
+@@ -227,5 +267,18 @@
+     "maximumDownSpeed": 0.6,
+     "poseLeadSeconds": 0.3,
+     "poseSeconds": 0.75
++  },
++  "nutmeg": {
++    "stanceSide": 0.4,
++    "stanceForward": 0.06,
++    "footRadius": 0.12,
++    "footHeight": 0.03,
++    "maximumStanceSpeed": 2,
++    "maximumHeight": 0.25,
++    "aroundForward": 0.3,
++    "aroundSide": 1.2,
++    "minimumAhead": 1.1,
++    "maximumLateral": 0.15,
++    "flairTurn": 1.4
+   }
+ }

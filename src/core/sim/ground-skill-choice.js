@@ -1,3 +1,4 @@
+import { chooseSimulationNutmeg } from './nutmeg-choice.js';
 import SKILL_DATA from '../../data/match-sim-skills.json';
 import { movesFor } from '../players/move-eligibility.js';
 import { pointDistance } from './geometry.js';
@@ -8,7 +9,9 @@ export function chooseSimulationGroundSkill(simulation, owner) {
   if (!defender) return null;
   const rating = movesFor(name => owner.attributes[name] ?? 0, owner.slot);
   const turn = carryHeadingChange(simulation, owner);
-  const candidates = Object.entries(SKILL_DATA.ground).filter(([kind]) => kind === 'dragBack' || rating.moves.includes(kind));
+  const nutmeg = chooseSimulationNutmeg(owner, defender, { rating, turn });
+  if (nutmeg) return nutmeg;
+  const candidates = Object.entries(SKILL_DATA.ground).filter(([kind]) => !SKILL_DATA.ground[kind].throughLegs && (kind === 'dragBack' || rating.moves.includes(kind)));
   const preferred = candidates.sort((a, b) => Math.abs(Math.abs(turn) - a[1].preferredTurn) - Math.abs(Math.abs(turn) - b[1].preferredTurn))[0];
   return preferred ? { kind: preferred[0], defenderId: defender.id } : null;
 }

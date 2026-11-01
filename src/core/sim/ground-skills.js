@@ -1,3 +1,4 @@
+import { simulationNutmegRoute, simulationNutmegProgress } from './nutmeg-geometry.js';
 import SKILL_DATA from '../../data/match-sim-skills.json';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { chooseSimulationGroundSkill } from './ground-skill-choice.js';
@@ -34,10 +35,17 @@ export function prepareSimulationCarrySkill(simulation, owner) {
   owner.role = 'holder'; owner.gait = 'walk'; owner.motionMode = 'jockey';
   owner.target = simulation.ball.ownerId == null ? simulation.ball.position : { ...owner.position };
   prepareSimulationAirSkillTarget(simulation, owner, pattern);
+  prepareSimulationNutmegRoute(simulation, owner, { skill, pattern });
   const heading = skill.heading + (pattern.spin ?? 0) * Math.min(1, elapsed / (pattern.spinSeconds ?? pattern.duration));
   owner.facingTarget = { x: owner.position.x + Math.cos(heading), y: owner.position.y + Math.sin(heading) };
   if (pointDistance(owner.position, owner.target) <= MATCH_SIM_DATA.movement.arrivalRadius) faceSimulationPlayer(owner, owner.facingTarget);
   return true;
+}
+
+function prepareSimulationNutmegRoute(simulation, owner, { skill, pattern }) {
+  if (!pattern.throughLegs || skill.phase !== 1) return;
+  const defender = simulationRuntime(simulation).byId.get(skill.defenderId);
+  owner.target = simulationNutmegRoute(defender, skill); owner.gait = 'sprint'; owner.motionMode = 'dribble';
 }
 
 function prepareSimulationAirSkillTarget(simulation, owner, pattern) {
@@ -64,18 +72,34 @@ export function recordSimulationSkillTouch(simulation, owner) {
   skill.phase++; skill.lastTouch = simulation.time;
   const pattern = simulationCarrySkillData(skill.kind);
   if (skill.phase !== pattern.contacts.length) return;
-  emitSimulationEvent(simulation, { type: 'skill', kind: skill.kind, fromId: owner.id, toId: skill.defenderId,
-    teamId: owner.teamId, fromPos: { ...skill.position }, toPos: { ...simulation.ball.position },
-    startedAt: skill.startedAt, heading: skill.heading, side: skill.side, observed: false });
+  if (!pattern.throughLegs) emitSimulationSkill(simulation, owner, skill);
   const heading = skill.heading + pattern.exitAngle * skill.side;
   simulation.ownerDecision.dribble.target = fitCarryTarget({ x: owner.position.x + Math.cos(heading) * SKILL_DATA.exitDistance,
     y: owner.position.y + Math.sin(heading) * SKILL_DATA.exitDistance });
+}
+
+function emitSimulationSkill(simulation, owner, skill) {
+  emitSimulationEvent(simulation, { type: 'skill', kind: skill.kind, fromId: owner.id, toId: skill.defenderId,
+    teamId: owner.teamId, fromPos: { ...skill.position }, toPos: { ...simulation.ball.position },
+    startedAt: skill.startedAt, heading: skill.heading, side: skill.side, observed: false });
+}
+
+export function recordSimulationNutmeg(simulation, before) {
+  const skill = simulation.ball.carry?.skill;
+  if (!SKILL_DATA.ground[skill?.kind]?.throughLegs || skill.phase !== 1) return;
+  const runtime = simulationRuntime(simulation);
+  const defender = runtime.byId.get(skill.defenderId), index = runtime.players.indexOf(defender);
+  const previous = { x: runtime.previousPositions[index * 2], y: runtime.previousPositions[index * 2 + 1] };
+  if (!simulationNutmegProgress(simulation.ball, defender, { skill, before, previous })) return;
+  skill.phase = 2;
+  emitSimulationSkill(simulation, runtime.byId.get(simulation.ball.carry.playerId), skill);
 }
 
 export function simulationSkillDefenderTarget(simulation, defender, target) {
   const skill = simulation.ball.carry?.skill;
   if (!skill || skill.defenderId !== defender.id) return target;
   const pattern = simulationCarrySkillData(skill.kind), elapsed = simulation.time - skill.startedAt;
+  if (pattern.throughLegs) return target;
   if (elapsed < SKILL_DATA.feintStartSeconds || elapsed > pattern.contacts[0].at) return target;
   const error = 1 - (defender.attributes.positioning + defender.attributes.reactions) / (2 * MATCH_SIM_DATA.attributes.maximum);
   const side = skill.heading - skill.side * Math.PI / 2, distance = error * SKILL_DATA.feintReadDistance;

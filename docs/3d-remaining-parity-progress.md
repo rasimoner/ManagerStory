@@ -16,12 +16,12 @@ Bir çözüm yaklaşımının uygulanması ve kabul doğrulaması bir denemedir.
 | R6 | Gerçek vole | R2 ortak servis | 1/2 | Gerçek yükseklikten vole geçti |
 | R7 | Uygun durumda röveşata | R2 ortak servis | 2/2 | Başarısız, yalnız röveşata geri alındı; remaining-bicycle.cjs |
 | R8 | Stepover | R1 temas/çıkış, koddan doğrulanacak | 1/2 | Gerçek makas dairesi/teması, iki yön, rig ve kesilebilme geçti |
-| R9 | Nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
+| R9 | Nutmeg | R1, gerçek savunmacı boşluğu | 1/2 | İki yön/gerçek boşluk, ayakta kesilme ve kayıt geçti |
 | R10 | Elastico | R1, çoklu temas | 1/2 | Dış/iç iki dokunuş aynı gerçek ayaktan; rig geçti |
 | R11 | Cruyff | R1 | 1/2 | Gerçek geri çekiş/ayak teması, iki yön geçti |
 | R12 | Croqueta | R1, çoklu temas | 2/2 | İkinci yaklaşım: destek ayağı ayrılır, gerçek iki ayak teması geçti |
 | R13 | Roulette | R1, çoklu temas | 2/2 | İkinci yaklaşım: tam tur hareket sınırında tamamlanır; 5,7 rad kapısı geçti |
-| R14 | Flair nutmeg | R1, gerçek savunmacı boşluğu | 0/2 | Bekliyor |
+| R14 | Flair nutmeg | R1, gerçek savunmacı boşluğu | 2/2 | Başarısız; yalnız flair seçim/veri/ayak farkı geri alındı, normal nutmeg korundu |
 | R15 | Drag-back | R1 | 1/2 | Gerçek geriye serbest dokunuş ve eski dragBack pozu geçti |
 | R16 | Rainbow | R1 + R2 hava teması | 2/2 | Başarısız; ürün farkı geri alındı, gerçek temas izi saklandı |
 | R17 | Sombrero | R1 + R2 hava teması | 1/2 | Gerçek savunmacı üzerinden uçuş, iki yön, rig/kayıt geçti |
@@ -128,3 +128,9 @@ Eski director.flairPassTry → stepoverBeat → stepoverPass yolu doğrulandı. 
 25/25 ortak hava/ilk kontrol/sombrero testi ve ilave canlı alıcı testi (5/5 trap) geçti. İki yön ve gerçek krampon <0,30 m; kök/checkpoint/RNG çizimden etkilenmez; kaydet/devam eşittir. Yeni kalıcı alan yoktur; trapIntent karede çekirdekten türetilir, ilkTouch.style olayının isteğe bağlı detayında kalır. Lint yeni ihlal yoktur.
 
 R27 ikinci yaklaşım: gerçek captureSimulationFrame yolu için ek kırmızı test, sunum olay kopyasının observed/reachDifficulty/lastMoment alanlarını düşürdüğünü gösterdi. İzole kaydedici filtresi doğruydu; kariyere aktarım eksikti. Kopya bu gerçek kanıtı korur: genel observed etiket yıldız olmaz, zor gerçek kurtarış otomatik seçilebilir. Yeni tekrar tamponu veya motor durum değişikliği yoktur. Bu satır 2/2'dir; ileri kabul başarısızsa yalnız otomatik bağlantı geri alınacak, manuel gerçek tekrar korunacaktır.
+
+R9/R14 ilk yaklaşım: mevcut 1,2 m kontrol çemberinin yerine yalnız gerçek jokey boşluğu anında iki fiziksel ayak diski ve aynı ayak hedeflerini kullanan rig. Savunmacı hızlanır veya müdahaleye başlarsa normal top kazanma yolu geri gelir; hareket adından ötürü bağışıklık yoktur. R9 iki yönde geçti. R14 birinci trace'inde uzun hazırlıktan sonra savunmacı 1,3 sn'de hızlanıp topu aldı; sonraki topun sahipli yürüyüşü bacak arası sayılmadı. İkinci yaklaşım 0,7 sn'de, mevcut açısal dönüş sınırında ve fiziksel 6,5 m/sn topuk hızında temas eder; savunmacı hedefi/hızı/ivmesi değiştirilmez. İlk trace ayrı korunur.
+
+R14 ikinci yaklaşımda gerçek ayak boşluğu geçildi fakat geri dönük gerçek topuk teması kabulü geçmedi. Eşik gevşetilmedi, üçüncü zamanlama/IK düzeltmesi yapılmadı. İkinci temas ölçümü JSON'u ve patch'i saklandı; patch hazır çözüm değildir. Yalnız flairnutmeg veri/seçim/ayak dalı geri alındı. Ortak ayak geometrisi ve geçen normal nutmeg bağımsızdır; diğer özel ilk kontrolü ve kaleciyi engellemez.
+
+R14 ölçülen ikinci başarısızlık: tam geri dönüş (cos = -1) tamamlandı ama gerçek RightFoot-top boşluğu **0,533681087 m**, kabul <0,30 m. Fiziksel boşluk geçişi tek başına topuk hareketi kabul edilmedi. R9 korunan normal hareket için 36 ortak ve 4 ilave kabul geçti: merkez boşluk gerçek geçiş; ayak çizgisine gelen top savunmacıya çarpar; kayıt/devam tüm sonucu/RNG'yi korur. Yeni kayıt alanı açılmadı: geçiş, mevcut phase ve o gerçek serbest-top adımının önce/sonra segmentinden okunur. Kalıcı previousGap/crossed prototip alanları kaldırıldı; aynı temas yaklaşımı korunur.
