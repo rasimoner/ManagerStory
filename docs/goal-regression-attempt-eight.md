@@ -1,6 +1,6 @@
 # Gol artışı — 8. yaklaşım: baskı altında şut sapması karar modeliyle tutarlı
 
-Dal `fix/3d-goal-regression`, ürün `87d5786`, main `d86ac72`, Node 22.23.4. G1 geçmişi 1–7 korunur; bu tur **8** eklenir (toplam 8). Bu turda 9. yaklaşım uygulanmadı. Main'e merge, PR veya yayın yapılmadı.
+Dal `fix/3d-goal-regression`, ürün `87d5786`, main `d86ac72`, Node 22.23.4. G1 geçmişi 1–7 korunur; bu tur **8** eklenir (toplam 8). 8. yaklaşım koda alındı; 9. yaklaşım uygulanmadı. Main'e merge, PR veya yayın yapılmadı.
 
 ## Yeni ayrıştırma (20 tohum, 90 dakika, referans saat)
 
@@ -29,11 +29,11 @@ Kırmızı kabul (`tests/reproductions/shot-pressure-consistency.cjs`, varsayıl
 
 Ayrıntı: [attempt-eight.json](measurements/goal-regression/attempt-eight.json).
 
-## Neden ürüne alınmadı
+## Karar ve uygulama
 
-`test:fast` yamayla **tek test kırmızı**: `match-sim-duration-career.test.cjs` → “a genuine V7.15.0 active experimental match retains its original duration and football result”. Kayıtlı yarım maç artık 1–5 yerine 3–0 bitiyor. Bu, şut sonucunu değiştiren her düzeltmenin yaşayacağı uyumluluk sözleşmesidir. Beklenen dosyayı (`tests/fixtures/saves/duration/v7.15.0-expected.json`) ben güncellemedim: golden/beklenen sonuç değiştirerek kapı geçirmeme kuralı var ve bu, eski kayıtların sonucunu değiştirme kararıdır. Bu yüzden `src/` ürün kodu geri alındı; yama ve kabul testi korunur.
+`test:fast` yamayla tek test kırdı: V7.15.0 kayıtlı yarım maç testi (maç 1–5 yerine 3–0 bitiyor). Kullanıcı bunu bilinçli davranış değişikliği olarak kabul etti (“1-evet”). Ürün farkı (`pressureAngleError` 0,09) ve kabul testi (`tests/match-sim-shot-pressure.test.cjs`, artık CI içinde) ayrı bir commit'te, beklenen sonuç dosyasının yeniden üretimi (`tests/fixtures/saves/duration/v7.15.0-expected.json`) ondan ayrı ikinci commit'te. Yeniden üretim yöntemi, eski kodla çalıştırıldığında mevcut dosyayla bayt bayt aynı çıktığı için doğrulandı. `test:fast` 609/609 geçti.
 
-Karar gerekiyor (aşağıda).
+Performans paketi bu ortamda 3. testi (2 sn bütçe) geçemiyor; aynı sonuç eski JSON ile de çıkıyor (2459 ms eski, 2198 ms yeni), yani yama kaynaklı bir yavaşlama yok, ortam yavaş.
 
 ## Kalan fark ve açık aday (uygulanmadı)
 
@@ -41,7 +41,6 @@ Karar gerekiyor (aşağıda).
 - Baskısız şutta da fizik karar modelinden iyi: 8 m'de gol %91 / xG %31, 11 m'de %39 / %20 (isabet ~%100). Hedef noktası köşeye çok yakın ve sapma küçük. Bu genel bir şut doğruluğu kalibrasyonudur; sizin “genel şut katsayısıyla düşürme” yasağınıza girebileceği için ayrı yetki olmadan denenmedi. İki prob (açı sapması üç terimde 2×: 8,60→6,80; kaleci dalışı güçlendirme: →6,35) yalnız bilgi amaçlıdır, ürün değildir.
 - Koşu ve gövde dönüşü maliyeti de xG'de var, yürütmede zayıf (11 m: model 0,80, oynanan 0,97), etkisi küçük.
 
-## Karar istenen noktalar
+## Karar
 
-1. Baskı kalibrasyonu (8) için: V7.15.0 kayıtlı maç beklentisini bilinçli davranış değişikliği olarak yeniden üretmek (ayrı commit), ya da yeni kalibrasyonu yalnız yeni başlayan maçlara bağlamak.
-2. Baskısız şut doğruluğunu karar modeliyle hizalama (9. aday) denensin mi?
+Baskısız şut doğruluğunu hizalama (9. aday) kullanıcı kararıyla denenmeyecek: kaleye çok yakın mesafede yüksek gol oranı doğal kabul edildi.
