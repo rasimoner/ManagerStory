@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { loadLab } = require('../support/lab.cjs');
+const { loadLab } = require('./support/lab.cjs');
 
 const SEEDS = 150;
 const PRESSED = 0.7;
