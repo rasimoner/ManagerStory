@@ -1,0 +1,263 @@
+{
+  "minimumAbility": 85,
+  "maximumSpeed": 2.5,
+  "maximumBallHeight": 0.12,
+  "maximumDefenderDistance": 3.2,
+  "minimumAttackX": 20,
+  "maximumWidth": 29,
+  "cooldownSeconds": 12,
+  "exitDistance": 6,
+  "ground": {
+    "stepover": {
+      "duration": 1.0,
+      "preferredTurn": 0,
+      "exitAngle": 0.72,
+      "contacts": [
+        {
+          "at": 0.62,
+          "angle": 0.72,
+          "distance": 1.1,
+          "seconds": 0.32
+        }
+      ],
+      "action": "stepover",
+      "feet": [
+        "Right"
+      ]
+    },
+    "elastico": {
+      "duration": 1.1,
+      "preferredTurn": 0.45,
+      "exitAngle": 0.8,
+      "contacts": [
+        {
+          "at": 0.2,
+          "angle": -1.1,
+          "distance": 0.42,
+          "seconds": 0.2
+        },
+        {
+          "at": 0.5,
+          "angle": 1.1,
+          "distance": 0.7,
+          "seconds": 0.22
+        }
+      ],
+      "action": "elastico",
+      "feet": [
+        "Right",
+        "Right"
+      ]
+    },
+    "cruyff": {
+      "duration": 1.3,
+      "preferredTurn": 2.4,
+      "exitAngle": 2.3,
+      "contacts": [
+        {
+          "at": 0.5,
+          "angle": 2.45,
+          "distance": 0.75,
+          "seconds": 0.25
+        }
+      ],
+      "action": "pass",
+      "feet": [
+        "Right"
+      ]
+    },
+    "croqueta": {
+      "duration": 1.3,
+      "preferredTurn": 0.9,
+      "exitAngle": 0.8,
+      "contacts": [
+        {
+          "at": 0.2,
+          "angle": -1.5707963267948966,
+          "distance": 0.4,
+          "seconds": 0.2
+        },
+        {
+          "at": 0.55,
+          "angle": 1.5707963267948966,
+          "distance": 0.75,
+          "seconds": 0.25
+        }
+      ],
+      "action": "cut",
+      "feet": [
+        "Right",
+        "Left"
+      ]
+    },
+    "roulette": {
+      "duration": 2.2,
+      "preferredTurn": 1.6,
+      "exitAngle": 0.25,
+      "spin": 6.283185307179586,
+      "contacts": [
+        {
+          "at": 0.1,
+          "angle": 2.0,
+          "distance": 0.32,
+          "seconds": 0.2
+        },
+        {
+          "at": 0.85,
+          "angle": 1.0,
+          "distance": 0.42,
+          "seconds": 0.2
+        },
+        {
+          "at": 1.65,
+          "angle": 0.25,
+          "distance": 1.1,
+          "seconds": 0.3
+        }
+      ],
+      "action": "dragBack",
+      "feet": [
+        "Right",
+        "Left",
+        "Right"
+      ],
+      "spinSeconds": 2
+    },
+    "dragBack": {
+      "duration": 1.3,
+      "preferredTurn": 3.141592653589793,
+      "exitAngle": 1.9,
+      "contacts": [
+        {
+          "at": 0.35,
+          "angle": 3.141592653589793,
+          "distance": 0.8,
+          "seconds": 0.25
+        }
+      ],
+      "action": "dragBack",
+      "feet": [
+        "Right"
+      ]
+    },
+    "nutmeg": {
+      "duration": 1.6,
+      "preferredTurn": 0,
+      "exitAngle": 0,
+      "throughLegs": true,
+      "action": "poke",
+      "feet": [
+        "Right"
+      ],
+      "contacts": [
+        {
+          "at": 0.25,
+          "angle": 0,
+          "distance": 2,
+          "seconds": 0.4,
+          "speed": 5.2
+        }
+      ]
+    }
+  },
+  "contactSeconds": 0.18,
+  "pose": {
+    "plantForward": 0.16,
+    "plantSide": -0.26,
+    "plantHeight": 0.03,
+    "supportSideOffset": 0.3
+  },
+  "feintStartSeconds": 0.2,
+  "feintReadDistance": 1.5,
+  "noLook": {
+    "minimumDistance": 8,
+    "maximumDistance": 30,
+    "minimumAttackX": 0,
+    "minimumPressure": 0.1,
+    "maximumPressure": 0.75,
+    "maximumSpeed": 2,
+    "minimumGazeTurn": 0.6,
+    "maximumGazeTurn": 1.4
+  },
+  "flairPass": {
+    "maximumHeight": 0.12,
+    "maximumSpeed": 2,
+    "maximumPressure": 0.7,
+    "poseSeconds": 0.85,
+    "plantHeight": 0.03,
+    "backheel": {
+      "minimumDistance": 4,
+      "maximumDistance": 18,
+      "minimumTurn": 2.4,
+      "behind": 0.28,
+      "side": 0,
+      "windup": 0.5
+    },
+    "rabona": {
+      "minimumDistance": 12,
+      "maximumDistance": 45,
+      "behind": 0.42,
+      "side": 0.32,
+      "windup": 0.5,
+      "plantSide": 0.2,
+      "plantForward": -0.03
+    },
+    "flairpass": {
+      "minimumDistance": 8,
+      "maximumDistance": 28,
+      "maximumTurn": 0.6,
+      "minimumPressure": 0.08,
+      "behind": 0.35,
+      "side": 0,
+      "windup": 0.7
+    }
+  },
+  "airAbility": 92,
+  "airMaximumSpeed": 1,
+  "air": {
+    "sombrero": {
+      "air": true,
+      "duration": 2.2,
+      "exitAngle": 0,
+      "action": "pass",
+      "feet": [
+        "Right"
+      ],
+      "contacts": [
+        {
+          "at": 0.2,
+          "angle": 0,
+          "distance": 4.5,
+          "seconds": 0.4,
+          "speed": 3,
+          "verticalVelocity": 7.5
+        }
+      ]
+    }
+  },
+  "footTrap": {
+    "minimumAbility": 78,
+    "maximumPlayerSpeed": 2.2,
+    "horizontalReach": 0.55,
+    "contactHeight": 0.75,
+    "minimumHeight": 0.35,
+    "maximumBallSpeed": 7,
+    "verticalRetention": 0.12,
+    "maximumDownSpeed": 0.6,
+    "poseLeadSeconds": 0.3,
+    "poseSeconds": 0.75
+  },
+  "nutmeg": {
+    "stanceSide": 0.4,
+    "stanceForward": 0.06,
+    "footRadius": 0.12,
+    "footHeight": 0.03,
+    "maximumStanceSpeed": 2,
+    "maximumHeight": 0.25,
+    "aroundForward": 0.3,
+    "aroundSide": 1.2,
+    "minimumAhead": 1.1,
+    "maximumLateral": 0.15,
+    "maximumCarryTurn": 0.7
+  }
+}

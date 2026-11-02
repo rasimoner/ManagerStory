@@ -268,7 +268,7 @@
     "chipTechnique": 65,
     "minimumAngleError": 0.014,
     "skillAngleError": 0.12,
-    "pressureAngleError": 0.045,
+    "pressureAngleError": 0.09,
     "runningAngleError": 0.025,
     "bodyAngleError": 0.05,
     "minimumPowerError": 0.025,

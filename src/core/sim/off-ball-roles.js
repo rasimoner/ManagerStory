@@ -72,6 +72,7 @@ function planAttackingRoles(context) {
 
 function planDefensiveRoles(context) {
   const { simulation, team } = context;
+  if (simulation.ball.flight?.cross && planSimulationBoxDefence(context, assignSimRole)) return;
   const pressers = selectSimPressers(simulation, team);
   for (const presser of pressers) assignSimRole(context, presser, { role: 'press', target: simPressTarget(simulation, presser) });
   const receiver = dangerousSimReceiver(simulation, team);

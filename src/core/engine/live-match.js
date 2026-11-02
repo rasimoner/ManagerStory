@@ -105,6 +105,7 @@ export function liveFrameStep(now) {
   liveFrame = null;
   if (!M || ((M.finished || M.lifecycle==='FINISHED')&&!livePresentationPending()) || livePlaybackPaused()) { liveLastFrame = null; return; }
   if(typeof document!=='undefined'&&document.hidden){pauseLive('background');return;}
+  if (waitForSimulationReplay()) return;
   // Catch up clock time when Safari throttles frames; presentation retains its own .12s cap.
   const dt = liveLastFrame == null ? 0 : Math.min(2, Math.max(0, (now - liveLastFrame) / 1000));
   liveLastFrame = now;
@@ -120,6 +121,12 @@ export function liveFrameStep(now) {
   if (M && !livePlaybackPaused() && (!M.finished||livePresentationPending()) && liveFrame === null)
     liveFrame = requestAnimationFrame(liveFrameStep);
 }
+function waitForSimulationReplay() {
+  if (!M.experimental || !presentation.simulation3d?.replaying) return false;
+  liveLastFrame = null; liveFrame = requestAnimationFrame(liveFrameStep);
+  return true;
+}
+
 function livePitchNeedsPaint(now) { return M.experimental || now - liveLastPaint >= 45; }
 function advanceExperimentalLiveFrame(seconds) {
   const frame = prepareExperimentalFrame(seconds);

@@ -9,6 +9,9 @@ import { endSimulationCarry } from './dribbling.js';
 import { predictSimulationBall } from './ball-physics.js';
 import { beginSimulationControl, followSimulationControl, simulationControlKind, usesContinuousSimulationControl } from './first-control.js';
 import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay, captureSimulationOffside } from './offside.js';
+import { redirectSimulationAerial } from './aerial-contact.js';
+import { simulationFirstTouchStyle } from './first-touch-technique.js';
+import { holdSimulationPassBall } from './pass-technique.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
@@ -18,6 +21,7 @@ export function controlSimulationBall(simulation, contact, motion) {
   const time = (motion.startTime ?? simulation.time - seconds) + contact.fraction * seconds;
   if (penalizeSimulationOffsideTouch(simulation, contact.player, { position: contact.player.position, time })) return null;
   if (simulationDeliberateOpponentPlay(simulation, contact.player, { touching, time })) simulation.offside = null;
+  if (redirectSimulationAerial(simulation, contact.player, { touching, time })) return null;
   if (keeperCanHandleSimulationBall(simulation, contact.player, touching)) {
     Object.assign(simulation.ball, touching);
     claimSimulationKeeperBall(simulation, contact.player, { time });
@@ -56,13 +60,18 @@ function recordSimulationTouch(simulation, contact, result) {
   const event = { time: result.time, fromId, toId: player.id, fromPos: { ...result.touching.position }, toPos,
     success: result.success, height: result.touching.height, speed: hypot(result.touching.velocity.x, result.touching.velocity.y), passId: flight?.eventIndex ?? null };
   emitSimulationEvent(simulation, { type: 'firstTouch', ...event,
-    ...(usesContinuousSimulationControl(simulation) ? { kind: simulationControlKind(result.touching.height) } : {}) });
+    ...(usesContinuousSimulationControl(simulation) ? { kind: simulationControlKind(result.touching.height), ...specialFirstTouch(simulation, player, result.touching) } : {}) });
   if (flight && player.teamId !== flight.teamId) {
     emitSimulationEvent(simulation, { type: 'interception', ...event });
     if (result.success) simulation.statistics.teams[player.teamId].interceptions++;
   }
   settleSimulationPass(simulation, { position: result.touching.position, controlled: result.success, playerId: player.id, teamId: player.teamId, time: result.time });
   simulation.ball.flight = null;
+}
+
+function specialFirstTouch(simulation, player, touching) {
+  const style = simulationFirstTouchStyle(simulation, player, touching);
+  return style ? { style } : {};
 }
 
 export function acquireSimulationBall(simulation, player) {
@@ -103,6 +112,7 @@ function deflectSimulationBall(simulation, player, { touching, remaining, time }
 export function followSimulationBallOwner(simulation) {
   const ball = simulation.ball, owner = simulationRuntime(simulation).byId.get(ball.ownerId);
   if (!owner) return;
+  if (holdSimulationPassBall(simulation)) return;
   const offset = MATCH_SIM_DATA.ball.footOffset, pitch = MATCH_SIM_DATA.pitch;
   const target = { x: clampSimValue(owner.position.x + cos(owner.heading) * offset, -pitch.length / 2, pitch.length / 2),
     y: clampSimValue(owner.position.y + sin(owner.heading) * offset, -pitch.width / 2, pitch.width / 2) };

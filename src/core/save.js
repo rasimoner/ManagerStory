@@ -24,7 +24,7 @@ import { packSimulationHistory, restoreSimulationHistory } from './match/history
 import { presentation } from './presentation/registry.js';
 import { normalizeMatchDurationMinutes } from './match/duration-setting.js';
 export const SAVE_KEY = "msv4";
-export const SAVE_SCHEMA = 7;
+export const SAVE_SCHEMA = 10;
 export let saveWarning = false;
 let saveSerial = 0;
 
@@ -113,6 +113,39 @@ export const SAVE_MIGRATIONS = [
       if (!stored?.experimental) return;
       const active = unpackMatchSnapshot(stored);
       if (active.simulationCheckpoint) active.simulationCheckpoint.state.offside ??= null;
+      state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
+    },
+  },
+  {
+    from: 7, to: 8,
+    about: 'optional physical cross flight metadata; older active passes retain their trajectory, events and RNG',
+    run(state) {
+      const stored = state.activeMatchV71;
+      if (!stored?.experimental) return;
+      const active = unpackMatchSnapshot(stored), flight = active.simulationCheckpoint?.state.ball.flight;
+      if (flight) { flight.cross ??= false; flight.crossEventIndex ??= null; }
+      state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
+    },
+  },
+  {
+    from: 8, to: 9,
+    about: 'optional physical skill intent in a carry; retain old active ball, decision, clock and RNG state',
+    run(state) {
+      const stored = state.activeMatchV71;
+      if (!stored?.experimental) return;
+      const active = unpackMatchSnapshot(stored), carry = active.simulationCheckpoint?.state.ball.carry;
+      if (carry) carry.skill ??= null;
+      state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
+    },
+  },
+  {
+    from: 9, to: 10,
+    about: 'optional pass technique stance and windup; earlier active passes retain their ball, decisions, time and RNG',
+    run(state) {
+      const stored = state.activeMatchV71;
+      if (!stored?.experimental) return;
+      const active = unpackMatchSnapshot(stored);
+      if (active.simulationCheckpoint) active.simulationCheckpoint.state.passing.technique ??= null;
       state.activeMatchV71 = stored.simulationArchive ? packExperimentalMatch(active) : active;
     },
   },

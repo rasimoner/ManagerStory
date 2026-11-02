@@ -1,7 +1,8 @@
 import { simulationPlayerAvailable } from './duel-state.js';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { planningDistance, clampSimValue } from './geometry.js';
-import { simulationPassFlight, simulationBallTravelSeconds } from './ball-physics.js';
+import { simulationBallTravelSeconds } from './ball-physics.js';
+import { simulationDeliveryFlight, simulationCrossCandidate } from './cross-delivery.js';
 import { simulationPlayerArrival, simulationOpponentArrival } from './player-arrival.js';
 import { simulationRuntime } from './simulation-runtime.js';
 
@@ -10,7 +11,7 @@ const { min, max, abs, hypot } = Math;
 export function evaluateSimulationPass(simulation, request, prepared) {
   const context = prepared ?? preparePassEvaluation(simulation, request);
   const { passer, receiver, fromPos, target, distance, receiverSeconds, opponentSeconds, space } = context;
-  const flight = simulationPassFlight(fromPos, target, request.lofted);
+  const flight = simulationDeliveryFlight(simulation, passer, { ...request, target });
   const ballSeconds = simulationBallTravelSeconds(flight, distance);
   const reachable = receiverSeconds <= ballSeconds + MATCH_SIM_DATA.passing.arrivalGraceSeconds;
   const route = reachable ? evaluatePassRoute({ flight, ballSeconds, opponents: context.opponents, launchChecked: context.launchChecked })
@@ -71,7 +72,7 @@ function samplePassRoute(flight, time, speed) {
   const airborne = flight.verticalVelocity > 0;
   const distance = speed * time - (airborne ? 0 : MATCH_SIM_DATA.ball.rollingDeceleration * time * time / 2);
   return { position: { x: flight.position.x + flight.velocity.x / speed * distance, y: flight.position.y + flight.velocity.y / speed * distance },
-    height: airborne ? max(0, flight.verticalVelocity * time - MATCH_SIM_DATA.ball.gravity * time * time / 2) : 0 };
+    height: airborne ? max(0, flight.height + flight.verticalVelocity * time - MATCH_SIM_DATA.ball.gravity * time * time / 2) : 0 };
 }
 
 function inspectPassSample(route, opponents, sample) {
@@ -125,7 +126,9 @@ function appendReceiverOptions(context, receiver, direction) {
     if (ground.distance < MATCH_SIM_DATA.passing.minimumDistance) continue;
     context.options.push(ground);
     // A lob is an alternative to a blocked route, rather than a bonus for every clear short pass.
-    if (!ground.safe) context.options.push(evaluateSimulationPass(context.simulation, { ...request, lofted: true }, prepared));
+    if (!ground.safe || simulationCrossCandidate(context.simulation, context.owner, { ...request, lofted: true })) {
+      context.options.push(evaluateSimulationPass(context.simulation, { ...request, lofted: true }, prepared));
+    }
   }
 }
 

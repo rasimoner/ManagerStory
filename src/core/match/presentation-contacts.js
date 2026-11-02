@@ -2,6 +2,7 @@ import SIM_VIEW_DATA from '../../data/match-sim-view.json';
 
 const cameraHistory = new WeakMap();
 
+// A beaten defender is the moment a dribble is worth watching, so it earns a close-up anywhere on the pitch.
 // Keep the legacy alternate final-third close-up gate without writing to the simulation log.
 export function capturePresentationContacts(simulation) {
   const history = updateCameraHistory(simulation);
@@ -23,6 +24,7 @@ function updateCameraHistory(simulation) {
       if (history.challenges++ % 2 === 0) history.closeUps.add(history.cursor);
     }
     if (event.type === 'skill' && Math.abs(event.fromPos.x) > SIM_VIEW_DATA.camera.challengeZoneMetres) history.closeUps.add(history.cursor);
+    if (event.type === 'beat' && event.success) history.closeUps.add(history.cursor);
     history.cursor++;
   }
   trimPresentationHistory(simulation, history);
@@ -48,6 +50,9 @@ function isCloseChallenge(event) {
 
 function copyPresentationContact(event, cue) {
   return { ...cue, type: event.type, fromId: event.fromId, toId: event.toId, teamId: event.teamId,
+    ...(event.gazeTarget ? { gazeTargetId: event.gazeTargetId, gazeTarget: { ...event.gazeTarget } } : {}),
+    ...(event.technique ? { technique: structuredClone(event.technique) } : {}),
+    observed: event.observed, reachDifficulty: event.reachDifficulty, lastMoment: event.lastMoment,
     time: event.physicsTime ?? event.time, kind: event.kind, style: event.style, lineX: event.lineX, height: event.height, success: event.success, result: event.result, restartKind: event.restartKind, turn: event.turn,
     fromPos: event.fromPos ? { ...event.fromPos } : null, toPos: event.toPos ? { ...event.toPos } : null };
 }

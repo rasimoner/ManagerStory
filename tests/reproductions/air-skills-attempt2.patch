@@ -1,0 +1,323 @@
+diff --git a/src/core/sim/ball-possession.js b/src/core/sim/ball-possession.js
+index 1000065..30210b3 100644
+--- a/src/core/sim/ball-possession.js
++++ b/src/core/sim/ball-possession.js
+@@ -11,6 +11,7 @@ import { beginSimulationControl, followSimulationControl, simulationControlKind,
+ import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simulationDeliberateOpponentPlay, captureSimulationOffside } from './offside.js';
+ import { redirectSimulationAerial } from './aerial-contact.js';
+ import { holdSimulationPassBall } from './pass-technique.js';
++import { followSimulationAirSkillControl } from './air-skills.js';
+ 
+ const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
+ 
+@@ -107,6 +108,7 @@ export function followSimulationBallOwner(simulation) {
+   const ball = simulation.ball, owner = simulationRuntime(simulation).byId.get(ball.ownerId);
+   if (!owner) return;
+   if (holdSimulationPassBall(simulation)) return;
++  if (followSimulationAirSkillControl(simulation, owner)) return;
+   const offset = MATCH_SIM_DATA.ball.footOffset, pitch = MATCH_SIM_DATA.pitch;
+   const target = { x: clampSimValue(owner.position.x + cos(owner.heading) * offset, -pitch.length / 2, pitch.length / 2),
+     y: clampSimValue(owner.position.y + sin(owner.heading) * offset, -pitch.width / 2, pitch.width / 2) };
+diff --git a/src/core/sim/dribbling.js b/src/core/sim/dribbling.js
+index 3923f35..14b857b 100644
+--- a/src/core/sim/dribbling.js
++++ b/src/core/sim/dribbling.js
+@@ -3,7 +3,7 @@ import { simulationRuntime, drawSimulationRandom } from './simulation-runtime.js
+ import { planningDistance } from './geometry.js';
+ import { emitSimulationEvent } from './ball-events.js';
+ import { simulationDurationTicks } from './duel-state.js';
+-import { simulationGroundSkillTouch, recordSimulationGroundSkillTouch } from './ground-skills.js';
++import { simulationCarrySkillTouch, recordSimulationSkillTouch } from './ground-skills.js';
+ 
+ export function forceSimulationDribble(simulation, playerId) {
+   const player = simulationRuntime(simulation).byId.get(playerId);
+@@ -16,7 +16,7 @@ export function forceSimulationDribble(simulation, playerId) {
+ export function kickSimulationDribble(simulation, owner) {
+   const ball = simulation.ball;
+   if (!ball.carry) startCarry(simulation, owner);
+-  const special = simulationGroundSkillTouch(simulation, owner);
++  const special = simulationCarrySkillTouch(simulation, owner);
+   if (special === false) return;
+   if (!special && simulation.clock.pauseHalfPreparation && !carryTouchAligned(simulation, owner)) return;
+   releaseCarryTouch(simulation, owner, special);
+@@ -32,13 +32,14 @@ function releaseCarryTouch(simulation, owner, special) {
+   const distance = special?.distance ?? (settings.touchMinimum + speedRatio * settings.touchSpeedDistance + error * settings.touchSkillDistance) * (1 - pressure * settings.touchPressureFactor);
+   const angle = (special?.angle ?? owner.heading) + (drawSimulationRandom(simulation) * 2 - 1) * settings.touchErrorAngle * error;
+   const duration = special?.duration ?? Math.max(settings.touchMinimumSeconds, distance / Math.max(1, Math.hypot(owner.velocity.x, owner.velocity.y)));
+-  const speed = distance / duration + MATCH_SIM_DATA.ball.rollingDeceleration * duration / 2 + (drawSimulationRandom(simulation) * 2 - 1) * settings.touchErrorDistance * error;
++  const speed = (special?.speed ?? distance / duration + MATCH_SIM_DATA.ball.rollingDeceleration * duration / 2)
++    + (drawSimulationRandom(simulation) * 2 - 1) * settings.touchErrorDistance * error;
+   Object.assign(ball, { ownerId: null, velocity: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
+-    excludedId: owner.id, controlAfterTick: simulation.tick + simulationDurationTicks(duration), height: 0, verticalVelocity: 0 });
++    excludedId: owner.id, controlAfterTick: simulation.tick + simulationDurationTicks(duration), height: special?.height ?? 0, verticalVelocity: special?.verticalVelocity ?? 0 });
+   if (ball.control) ball.control = null;
+   ball.carry.touchTick = simulation.tick;
+   simulation.events[ball.carry.eventIndex].touches++;
+-  if (special) recordSimulationGroundSkillTouch(simulation, owner);
++  if (special) recordSimulationSkillTouch(simulation, owner);
+ }
+ 
+ export function startCarry(simulation, owner) {
+diff --git a/src/core/sim/ground-skills.js b/src/core/sim/ground-skills.js
+index 637a9ca..5d2dcbd 100644
+--- a/src/core/sim/ground-skills.js
++++ b/src/core/sim/ground-skills.js
+@@ -7,9 +7,15 @@ import { simulationRuntime } from './simulation-runtime.js';
+ import { pointDistance } from './geometry.js';
+ import { fitCarryTarget } from './dribble-evaluation.js';
+ import { faceSimulationPlayer } from './player-movement.js';
++import { simulationCarrySkillData } from './carry-skill-data.js';
++import { chooseSimulationAirSkill, simulationSkillLandingTarget, simulationAirSkillContactReady } from './air-skills.js';
+ 
+ export function beginSimulationGroundSkill(simulation, owner, choice) {
+-  const pattern = SKILL_DATA.ground[choice.kind], defender = simulationRuntime(simulation).byId.get(choice.defenderId);
++  return !!SKILL_DATA.ground[choice.kind] && beginSimulationCarrySkill(simulation, owner, choice);
++}
++
++export function beginSimulationCarrySkill(simulation, owner, choice) {
++  const pattern = simulationCarrySkillData(choice.kind), defender = simulationRuntime(simulation).byId.get(choice.defenderId);
+   if (!pattern || !defender || defender.teamId === owner.teamId || simulation.ball.ownerId !== owner.id) return false;
+   if (simulation.ball.height > SKILL_DATA.maximumBallHeight || pointDistance(owner.position, defender.position) > SKILL_DATA.maximumDefenderDistance) return false;
+   if (!simulation.ball.carry) startCarry(simulation, owner);
+@@ -20,37 +26,41 @@ export function beginSimulationGroundSkill(simulation, owner, choice) {
+   return true;
+ }
+ 
+-export function prepareSimulationGroundSkill(simulation, owner) {
++export function prepareSimulationCarrySkill(simulation, owner) {
+   const skill = simulation.ball.carry?.skill;
+   if (!skill) return false;
+-  const pattern = SKILL_DATA.ground[skill.kind], elapsed = simulation.time - skill.startedAt;
++  const pattern = simulationCarrySkillData(skill.kind), elapsed = simulation.time - skill.startedAt;
+   if (elapsed >= pattern.duration) { simulation.ball.carry.skill = null; simulation.passing.nextEvaluationTick = simulation.tick; return false; }
+   owner.role = 'holder'; owner.gait = 'walk'; owner.motionMode = 'jockey';
+   owner.target = simulation.ball.ownerId == null ? simulation.ball.position : { ...owner.position };
++  if (pattern.air && simulation.ball.ownerId == null && simulation.ball.height > 0) {
++    owner.target = simulationSkillLandingTarget(simulation.ball); owner.gait = 'sprint'; owner.motionMode = 'dribble';
++  }
+   const heading = skill.heading + (pattern.spin ?? 0) * Math.min(1, elapsed / (pattern.spinSeconds ?? pattern.duration));
+   owner.facingTarget = { x: owner.position.x + Math.cos(heading), y: owner.position.y + Math.sin(heading) };
+   if (pointDistance(owner.position, owner.target) <= MATCH_SIM_DATA.movement.arrivalRadius) faceSimulationPlayer(owner, owner.facingTarget);
+   return true;
+ }
+ 
+-export function simulationGroundSkillTouch(simulation, owner) {
++export function simulationCarrySkillTouch(simulation, owner) {
+   let skill = simulation.ball.carry?.skill;
+   if (!skill) {
+-    const choice = chooseSimulationGroundSkill(simulation, owner);
+-    if (!choice || !beginSimulationGroundSkill(simulation, owner, choice)) return null;
++    const choice = chooseSimulationAirSkill(simulation, owner) ?? chooseSimulationGroundSkill(simulation, owner);
++    if (!choice || !beginSimulationCarrySkill(simulation, owner, choice)) return null;
+     skill = simulation.ball.carry.skill;
+   }
+-  const pattern = SKILL_DATA.ground[skill.kind], phase = pattern.contacts[skill.phase];
++  const pattern = simulationCarrySkillData(skill.kind), phase = pattern.contacts[skill.phase];
+   if (!phase || simulation.time - skill.startedAt + MATCH_SIM_DATA.clock.epsilon < phase.at) return false;
++  if (phase.airContact && !simulationAirSkillContactReady(simulation, owner)) return false;
+   const angle = skill.heading + phase.angle * skill.side;
+-  return { angle, distance: phase.distance, duration: phase.seconds };
++  return { angle, distance: phase.distance, duration: phase.seconds, speed: phase.speed, height: simulation.ball.height, verticalVelocity: phase.verticalVelocity };
+ }
+ 
+-export function recordSimulationGroundSkillTouch(simulation, owner) {
++export function recordSimulationSkillTouch(simulation, owner) {
+   const skill = simulation.ball.carry?.skill;
+   if (!skill) return;
+   skill.phase++; skill.lastTouch = simulation.time;
+-  const pattern = SKILL_DATA.ground[skill.kind];
++  const pattern = simulationCarrySkillData(skill.kind);
+   if (skill.phase !== pattern.contacts.length) return;
+   emitSimulationEvent(simulation, { type: 'skill', kind: skill.kind, fromId: owner.id, toId: skill.defenderId,
+     teamId: owner.teamId, fromPos: { ...skill.position }, toPos: { ...simulation.ball.position },
+@@ -63,7 +73,7 @@ export function recordSimulationGroundSkillTouch(simulation, owner) {
+ export function simulationSkillDefenderTarget(simulation, defender, target) {
+   const skill = simulation.ball.carry?.skill;
+   if (!skill || skill.defenderId !== defender.id) return target;
+-  const pattern = SKILL_DATA.ground[skill.kind], elapsed = simulation.time - skill.startedAt;
++  const pattern = simulationCarrySkillData(skill.kind), elapsed = simulation.time - skill.startedAt;
+   if (elapsed < SKILL_DATA.feintStartSeconds || elapsed > pattern.contacts[0].at) return target;
+   const error = 1 - (defender.attributes.positioning + defender.attributes.reactions) / (2 * MATCH_SIM_DATA.attributes.maximum);
+   const side = skill.heading - skill.side * Math.PI / 2, distance = error * SKILL_DATA.feintReadDistance;
+diff --git a/src/core/sim/owner-decision.js b/src/core/sim/owner-decision.js
+index 7a1512e..ede12d9 100644
+--- a/src/core/sim/owner-decision.js
++++ b/src/core/sim/owner-decision.js
+@@ -11,8 +11,9 @@ import { releaseSimulationPass } from './pass-execution.js';
+ import { faceSimulationPlayer } from './player-movement.js';
+ import { simulationShieldTarget } from './dribble-evaluation.js';
+ import { kickSimulationDribble, endSimulationCarry } from './dribbling.js';
+-import { prepareSimulationGroundSkill } from './ground-skills.js';
++import { prepareSimulationCarrySkill } from './ground-skills.js';
+ import { prepareSimulationPassTechnique, simulationPassFacingTarget, simulationPassTechniqueReady } from './pass-technique.js';
++import { simulationAirSkillContactReady } from './air-skills.js';
+ 
+ const { abs, atan2, sin, cos, max, hypot } = Math;
+ 
+@@ -28,7 +29,7 @@ export function requestSimulationPass(simulation, request) {
+ 
+ export function prepareSimulationOwner(simulation) {
+   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId ?? simulation.ball.carry?.playerId);
+-  if (!owner || prepareSimulationGroundSkill(simulation, owner)) return;
++  if (!owner || prepareSimulationCarrySkill(simulation, owner)) return;
+   if (prepareOwnerFirstControl(simulation, owner)) return;
+   if (simulation.ball.ownerId != null && simulation.tick >= simulation.passing.nextEvaluationTick) refreshSimulationOwnerPlan(simulation, owner);
+   const decision = simulation.ownerDecision;
+@@ -71,7 +72,7 @@ function refreshSimulationOwnerPlan(simulation, owner) {
+ export function finishSimulationOwnerStep(simulation) {
+   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
+   if (!owner) return;
+-  if (simulation.ball.control && simulation.ball.height > 0) { followSimulationBallOwner(simulation); return; }
++  if (ownerAwaitsAirControl(simulation, owner)) { followSimulationBallOwner(simulation); return; }
+   if (simulation.ownerDecision.selected === 'shot') { finishOwnerShot(simulation, owner); return; }
+   const option = simulation.passing.selected;
+   if (option && simulation.ownerDecision.selected === 'pass') faceCurrentPass(simulation, owner, option);
+@@ -81,6 +82,10 @@ export function finishSimulationOwnerStep(simulation) {
+   if (option && ownerCanRelease(simulation, owner, option)) releaseCurrentOwnerPass(simulation, owner, option);
+ }
+ 
++function ownerAwaitsAirControl(simulation, owner) {
++  return simulation.ball.control && simulation.ball.height > 0 && !simulationAirSkillContactReady(simulation, owner);
++}
++
+ function faceCurrentPass(simulation, owner, option) {
+   if (!simulation.passing.technique) faceSimulationPlayer(owner, option.target);
+ }
+diff --git a/src/data/match-sim-skills.json b/src/data/match-sim-skills.json
+index 2a1d84b..371df3a 100644
+--- a/src/data/match-sim-skills.json
++++ b/src/data/match-sim-skills.json
+@@ -183,5 +183,86 @@
+       "plantSide": 0.2,
+       "plantForward": -0.03
+     }
+-  }
++  },
++  "airAbility": 92,
++  "airMaximumSpeed": 1,
++  "air": {
++    "rainbow": {
++      "air": true,
++      "duration": 2.8,
++      "exitAngle": 0,
++      "action": "dragBack",
++      "feet": [
++        "Right",
++        "Left"
++      ],
++      "contacts": [
++        {
++          "at": 0.1,
++          "angle": 3.141592653589793,
++          "distance": 0.85,
++          "seconds": 0.25
++        },
++        {
++          "at": 0.5,
++          "angle": 0,
++          "distance": 3.6,
++          "seconds": 0.4,
++          "speed": 1.7,
++          "verticalVelocity": 10.5
++        }
++      ]
++    },
++    "sombrero": {
++      "air": true,
++      "duration": 2.2,
++      "exitAngle": 0,
++      "action": "pass",
++      "feet": [
++        "Right"
++      ],
++      "contacts": [
++        {
++          "at": 0.2,
++          "angle": 0,
++          "distance": 4.5,
++          "seconds": 0.4,
++          "speed": 3,
++          "verticalVelocity": 7.5
++        }
++      ]
++    },
++    "juggle": {
++      "air": true,
++      "duration": 2.2,
++      "exitAngle": 0,
++      "action": "pass",
++      "feet": [
++        "Right",
++        "Right"
++      ],
++      "contacts": [
++        {
++          "at": 0.1,
++          "angle": 0,
++          "distance": 0.2,
++          "seconds": 0.55,
++          "speed": 0.6,
++          "verticalVelocity": 4.3
++        },
++        {
++          "at": 0.7,
++          "angle": 0,
++          "distance": 4.5,
++          "seconds": 0.3,
++          "speed": 4.5,
++          "verticalVelocity": 5.5,
++          "airContact": true
++        }
++      ]
++    }
++  },
++  "airContactMinimumHeight": 0.35,
++  "airContactMaximumHeight": 0.95,
++  "airContactHorizontalReach": 0.7
+ }
+diff --git a/src/core/sim/air-skills.js b/src/core/sim/air-skills.js
+new file mode 100644
+index 0000000..d3fe933
+--- /dev/null
++++ b/src/core/sim/air-skills.js
+@@ -0,0 +1,40 @@
++import SKILL_DATA from '../../data/match-sim-skills.json';
++import { movesFor } from '../players/move-eligibility.js';
++import { beginSimulationCarrySkill } from './ground-skills.js';
++import { simulationSkillSituation, nearestSimulationSkillDefender } from './ground-skill-choice.js';
++import { predictSimulationBall, simulationBallLandingSeconds } from './ball-physics.js';
++import { fitCarryTarget } from './dribble-evaluation.js';
++import { followSimulationControl } from './first-control.js';
++import { pointDistance } from './geometry.js';
++
++export function beginSimulationAirSkill(simulation, owner, choice) {
++  return !!SKILL_DATA.air[choice.kind] && beginSimulationCarrySkill(simulation, owner, choice);
++}
++
++export function chooseSimulationAirSkill(simulation, owner) {
++  if (!simulationSkillSituation(simulation, owner) || owner.attributes.technique < SKILL_DATA.airAbility) return null;
++  if (Math.hypot(owner.velocity.x, owner.velocity.y) > SKILL_DATA.airMaximumSpeed) return null;
++  const defender = nearestSimulationSkillDefender(simulation, owner);
++  if (!defender) return null;
++  const rating = movesFor(name => owner.attributes[name] ?? 0, owner.slot);
++  const preferred = Object.keys(SKILL_DATA.air).find(kind => rating.moves.includes(kind));
++  return preferred ? { kind: preferred, defenderId: defender.id } : null;
++}
++
++export function simulationSkillLandingTarget(ball) {
++  return fitCarryTarget(predictSimulationBall(ball, simulationBallLandingSeconds(ball)).position);
++}
++
++export function followSimulationAirSkillControl(simulation, owner) {
++  const control = simulation.ball.control, skill = simulation.ball.carry?.skill;
++  if (!control || !SKILL_DATA.air[skill?.kind]) return false;
++  return followSimulationControl(simulation, owner, { x: owner.position.x + control.offset.x, y: owner.position.y + control.offset.y });
++}
++
++export function simulationAirSkillContactReady(simulation, owner) {
++  const ball = simulation.ball, skill = ball.carry?.skill, pattern = SKILL_DATA.air[skill?.kind];
++  if (!pattern?.contacts[skill.phase]?.airContact) return false;
++  const contact = pattern.contacts[skill.phase];
++  return simulation.time - skill.startedAt >= contact.at && ball.height >= SKILL_DATA.airContactMinimumHeight
++    && ball.height <= SKILL_DATA.airContactMaximumHeight && pointDistance(owner.position, ball.position) <= SKILL_DATA.airContactHorizontalReach;
++}

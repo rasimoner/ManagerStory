@@ -3,6 +3,7 @@ import { endSimulationCarry } from './dribbling.js';
 import { beginSimTransition } from './simulation-phases.js';
 import { pointDistance } from './geometry.js';
 import { simulationPlayerAvailable } from './duel-state.js';
+import RESTART_DATA from '../../data/match-sim-restarts.json';
 
 export function usesPositionedSimulationRestarts(simulation) { return simulation.clock.pauseHalfPreparation; }
 
@@ -11,6 +12,7 @@ export function nearestSimulationRestartPlayer(players, position) {
 }
 
 export function beginSimulationRestart(simulation, input) {
+  if (input.kind === 'corner') input = { ...input, position: insetCornerPosition(input.position) };
   const team = simulation.teams.find(team => team.id === input.teamId), ball = simulation.ball;
   const taker = input.taker ?? nearestSimulationRestartPlayer(team.players.filter(player => player.slot !== 'GK'), input.position);
   const receiver = nearestSimulationRestartPlayer(team.players.filter(player => player.id !== taker.id && player.slot !== 'GK'), input.position)
@@ -28,4 +30,9 @@ export function beginSimulationRestart(simulation, input) {
   for (const team of simulation.teams) for (const player of team.players) player.duel.tackle = null;
   emitSimulationEvent(simulation, { type: 'restartPosition', fromId: taker.id, teamId: team.id, kind: input.kind,
     fromPos: { ...input.position }, toPos: { ...input.position }, success: true });
+}
+
+function insetCornerPosition(position) {
+  const inset = RESTART_DATA.delivery.cornerInset;
+  return { x: position.x - Math.sign(position.x) * inset, y: position.y - Math.sign(position.y) * inset };
 }

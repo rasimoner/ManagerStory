@@ -4,6 +4,9 @@ import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { predictSimulationBall } from './ball-physics.js';
 import { simulationRuntime } from './simulation-runtime.js';
 import { simulationWallContactFraction, simulationWallJumpActive } from './wall-reaction.js';
+import { simulationNutmegContactMotion } from './nutmeg-geometry.js';
+import { simulationTrapContactMotion } from './first-touch-technique.js';
+import RESTART_DATA from '../../data/match-sim-restarts.json';
 
 const { max, min, sqrt } = Math;
 
@@ -22,12 +25,16 @@ export function earliestSimulationBallContact(simulation, motion) {
   runtime.players.forEach((player, index) => {
     if (!canTouchSimulationBall(simulation, player)) return;
     const previous = playerSegmentStart(runtime, index, motion);
-    const fraction = simulationContactFraction(player, previous, contactMotion);
+    const fraction = simulationContactFraction(player, previous, simulationNutmegContactMotion(simulation, player, simulationAerialContactMotion(simulation, player, contactMotion)));
     if (fraction === null) return;
     const candidate = { player, fraction, previous };
     if (contactPrecedes(simulation, candidate, earliest)) earliest = candidate;
   });
   return earliest;
+}
+
+function simulationAerialContactMotion(simulation, player, motion) {
+  return simulation.ball.flight?.cross && player.slot !== 'GK' ? { ...motion, radius: RESTART_DATA.aerial.horizontalReach } : simulationTrapContactMotion(simulation, player, motion);
 }
 
 function canTouchSimulationBall(simulation, player) {
@@ -50,6 +57,7 @@ function contactPrecedes(simulation, candidate, earliest) {
 }
 
 export function simulationContactFraction(player, previous, motion) {
+  if (motion.feet) return simulationFeetContactFraction(player, previous, motion);
   const offset = { x: motion.before.position.x - previous.x, y: motion.before.position.y - previous.y };
   const relative = { x: motion.after.position.x - motion.before.position.x - player.position.x + previous.x,
     y: motion.after.position.y - motion.before.position.y - player.position.y + previous.y };
@@ -57,9 +65,15 @@ export function simulationContactFraction(player, previous, motion) {
   if (!interval) return null;
   if (simulationWallJumpActive(player, motion)) return simulationWallContactFraction(player, interval, motion);
   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
-  if (predictSimulationBall(motion.before, interval.start * seconds).height <= MATCH_SIM_DATA.ball.reachableHeight) return interval.start;
-  const descending = reachableDescentSeconds(motion.before) / seconds;
+  if (predictSimulationBall(motion.before, interval.start * seconds).height <= (motion.reachableHeight ?? MATCH_SIM_DATA.ball.reachableHeight)) return interval.start;
+  const descending = reachableDescentSeconds(motion.before, motion.reachableHeight) / seconds;
   return descending >= interval.start && descending <= interval.end ? descending : null;
+}
+
+function simulationFeetContactFraction(player, previous, motion) {
+  const fractions = motion.feet.map(offset => simulationContactFraction({ ...player, position: { x: player.position.x + offset.x, y: player.position.y + offset.y } },
+    { x: previous.x + offset.x, y: previous.y + offset.y }, { ...motion, feet: null })).filter(value => value !== null);
+  return fractions.length ? Math.min(...fractions) : null;
 }
 
 function circleContactInterval(offset, relative, radius = MATCH_SIM_DATA.ball.controlRadius) {
@@ -74,8 +88,8 @@ function circleContactInterval(offset, relative, radius = MATCH_SIM_DATA.ball.co
   return start <= end ? { start, end } : null;
 }
 
-function reachableDescentSeconds(ball) {
-  const { gravity, reachableHeight } = MATCH_SIM_DATA.ball;
+function reachableDescentSeconds(ball, reachableHeight = MATCH_SIM_DATA.ball.reachableHeight) {
+  const { gravity } = MATCH_SIM_DATA.ball;
   const discriminant = ball.verticalVelocity ** 2 + 2 * gravity * (ball.height - reachableHeight);
   return discriminant >= 0 ? (ball.verticalVelocity + sqrt(discriminant)) / gravity : Infinity;
 }

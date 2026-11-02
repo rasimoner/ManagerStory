@@ -72,17 +72,21 @@ export function* rainbowBeat(beat, duel) {
 
 // ---- sombrero: face to face with the defender, the toe scoops the ball up over his head; round him and
 // collect it behind him ----
+export function sombreroFeet({ ball }, car, { f, r, t0 }) {
+  const plantL = ball.p.clone().addScaledVector(r, -0.25).addScaledVector(f, -0.08).setY(0.03);
+  return {
+    Left: { w: ramp(t0, [0, 0.08, 0.45, 0.6]), at: () => plantL },
+    Right: { w: ramp(t0, [0, 0.06, 0.4, 0.55]), at: () => ball.p.clone().addScaledVector(f, -0.1).setY(0.03) },
+  };
+}
+
 function* sombreroScoop({ ball, S, hooks, until }, { car, def, closeUp }, { f, r }) {
   // the defender closes to just over a metre and a half
   yield* until(() => { def.target.copy(car.pos).addScaledVector(f, 1.7); def.want = 3; def.face = car.pos; def.faceLock = true; def.loopsWant.jockey = 1; car.target.copy(car.pos); car.want = 0.3; return def.pos.distanceTo(car.pos) < 1.95; }, 0.7);
   if (closeUp) hooks.cam('close', car, def);
   hooks.slow(0.4);
   ball.through = S.t + 2.5; ball.v.set(0, 0, 0);
-  const plantL = ball.p.clone().addScaledVector(r, -0.25).addScaledVector(f, -0.08).setY(0.03);
-  car.feet = {
-    Left: { w: ramp(S.t, [0, 0.08, 0.45, 0.6]), at: () => plantL },
-    Right: { w: ramp(S.t, [0, 0.06, 0.4, 0.55]), at: () => ball.p.clone().addScaledVector(f, -0.1).setY(0.03) },
-  };
+  car.feet = sombreroFeet({ ball }, car, { f, r, t0: S.t });
   const t1 = S.t;
   yield* until(() => S.t - t1 > 0.16 && toeGap(ball, car, 'Right') < 0.2, 0.32);
   return { kind: 'sombrero', toe: +toeGap(ball, car, 'Right').toFixed(3) };

@@ -45,7 +45,8 @@ function bestOwnerOutlet(options, { pressure, waiting, tempo, team, flow }) {
 }
 
 function shieldingWaitCost(simulation) {
-  if (simulation.ownerDecision.selected !== 'shield') return 0;
+  const retained = simulation.clock.pauseHalfPreparation && simulation.ownerDecision.shieldSinceTick >= simulation.ball.ownerSinceTick;
+  if (simulation.ownerDecision.selected !== 'shield' && !retained) return 0;
   const seconds = (simulation.tick - simulation.ownerDecision.shieldSinceTick) * MATCH_SIM_DATA.clock.stepSeconds;
   return Math.max(0, seconds - MATCH_SIM_DATA.ownerDecision.shieldSupportSeconds) * MATCH_SIM_DATA.ownerDecision.shieldWaitCost;
 }

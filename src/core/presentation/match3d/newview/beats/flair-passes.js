@@ -34,7 +34,7 @@ function* backheelSetUp({ ball, rt, until }, p, toW) {
 }
 
 // the right boot steps over the ball, the heel comes down onto its far side
-function backheelFeet({ ball }, { t0, b0, f, r }) {
+export function backheelFeet({ ball }, { t0, b0, f, r }) {
   const plantL = b0.clone().addScaledVector(r, -0.22).addScaledVector(f, -0.06).setY(0.03);
   const side = b0.clone().addScaledVector(r, 0.15).setY(0.05), over = b0.clone().addScaledVector(f, 0.27).addScaledVector(r, 0.03).setY(0.16);
   return {
@@ -85,7 +85,7 @@ function* rabonaSetUp({ ball, until }, p, { aim, rA }) {
 }
 
 // the kicking boot drawn back outside the standing leg, round behind it, and through the ball
-function rabonaFeet({ ball }, m) {
+export function rabonaFeet({ ball }, m) {
   const { t0, aim, rA, plantL } = m;
   const back = plantL.clone().addScaledVector(aim, -0.36).addScaledVector(rA, 0.14).setY(0.3);
   const behind = plantL.clone().addScaledVector(aim, -0.19).addScaledVector(rA, -0.02).setY(0.13);

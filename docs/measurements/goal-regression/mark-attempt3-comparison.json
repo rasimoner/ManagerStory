@@ -1,0 +1,144 @@
+{
+  "sameSeeds": true,
+  "longContract": {
+    "seeds": 50,
+    "physicalSteps": 54000,
+    "mainCommit": "d86ac72de6bc4677a2357fc516c06e1ffeceed48",
+    "previousCandidate": "97d99fcfad169c4ccf156b2d53884a4f123c4023",
+    "main": {
+      "goals": 2.76,
+      "shots": 17.64,
+      "passes": 798.64,
+      "completedPasses": 632.58,
+      "ballWins": 143.52,
+      "fouls": 25.88,
+      "saves": 6.72
+    },
+    "before": {
+      "goals": 16.92,
+      "shots": 48.46,
+      "passes": 728.98,
+      "completedPasses": 581.22,
+      "ballWins": 124.16,
+      "fouls": 30.26,
+      "saves": 10.24
+    },
+    "after": {
+      "goals": 10.3,
+      "shots": 38.48,
+      "passes": 734.76,
+      "completedPasses": 580.78,
+      "ballWins": 126.82,
+      "fouls": 31.1,
+      "saves": 9.54
+    },
+    "goalReductionPercent": 39.125295508274235
+  },
+  "shortContract": {
+    "seeds": 20,
+    "durationSeconds": 420,
+    "setup": "Equal attributes by slot; both halves; same seed order; turnovers include ownership changes at awarded restarts.",
+    "main": {
+      "shots": 6.8,
+      "goals": 0.55,
+      "passes": 72.45,
+      "completedPasses": 52.7,
+      "fouls": 1.95,
+      "saves": 2.35,
+      "ballWins": 18.25,
+      "turnovers": 29.5
+    },
+    "before": {
+      "shots": 8.8,
+      "goals": 1.05,
+      "passes": 71.25,
+      "completedPasses": 49.7,
+      "fouls": 1.85,
+      "saves": 3.35,
+      "ballWins": 19,
+      "turnovers": 31.2
+    },
+    "after": {
+      "shots": 7.8,
+      "goals": 0.8,
+      "passes": 72.8,
+      "completedPasses": 51.65,
+      "fouls": 2.05,
+      "saves": 2.45,
+      "ballWins": 17.7,
+      "turnovers": 30.2
+    }
+  },
+  "referenceGate": {
+    "passed": false,
+    "firstMismatch": {
+      "seed": 901,
+      "expected": {
+        "home": 1,
+        "away": 0
+      },
+      "actual": {
+        "home": 6,
+        "away": 5
+      }
+    },
+    "referenceUpdated": false
+  },
+  "threeSeedProbe": {
+    "node": "v22.23.4",
+    "seeds": [
+      901,
+      731,
+      42
+    ],
+    "beforeGoals": [
+      17,
+      14,
+      12
+    ],
+    "runs": [
+      {
+        "seed": 901,
+        "score": {
+          "home": 6,
+          "away": 5
+        },
+        "statistics": {
+          "goals": 11,
+          "shots": 37,
+          "passes": 736,
+          "fouls": 26,
+          "saves": 7
+        }
+      },
+      {
+        "seed": 731,
+        "score": {
+          "home": 1,
+          "away": 4
+        },
+        "statistics": {
+          "goals": 5,
+          "shots": 24,
+          "passes": 745,
+          "fouls": 29,
+          "saves": 7
+        }
+      },
+      {
+        "seed": 42,
+        "score": {
+          "home": 11,
+          "away": 1
+        },
+        "statistics": {
+          "goals": 12,
+          "shots": 43,
+          "passes": 705,
+          "fouls": 36,
+          "saves": 6
+        }
+      }
+    ]
+  }
+}

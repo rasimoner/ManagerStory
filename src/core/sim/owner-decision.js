@@ -11,6 +11,8 @@ import { releaseSimulationPass } from './pass-execution.js';
 import { faceSimulationPlayer } from './player-movement.js';
 import { simulationShieldTarget } from './dribble-evaluation.js';
 import { kickSimulationDribble, endSimulationCarry } from './dribbling.js';
+import { prepareSimulationCarrySkill } from './ground-skills.js';
+import { prepareSimulationPassTechnique, simulationPassFacingTarget, simulationPassTechniqueReady } from './pass-technique.js';
 
 const { abs, atan2, sin, cos, max, hypot } = Math;
 
@@ -26,10 +28,8 @@ export function requestSimulationPass(simulation, request) {
 
 export function prepareSimulationOwner(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId ?? simulation.ball.carry?.playerId);
-  if (!owner) return;
-  if (simulation.ball.control && simulation.ball.height > 0) {
-    owner.target = { ...owner.position }; owner.gait = 'walk'; owner.role = 'holder'; owner.motionMode = 'control'; return;
-  }
+  if (!owner || prepareSimulationCarrySkill(simulation, owner)) return;
+  if (prepareOwnerFirstControl(simulation, owner)) return;
   if (simulation.ball.ownerId != null && simulation.tick >= simulation.passing.nextEvaluationTick) refreshSimulationOwnerPlan(simulation, owner);
   const decision = simulation.ownerDecision;
   owner.role = 'holder';
@@ -41,12 +41,19 @@ export function prepareSimulationOwner(simulation) {
     owner.motionMode = 'dribble';
   }
   if (decision.selected === 'shield') { owner.target = simulationShieldTarget(simulation, owner); owner.motionMode = 'shield'; }
+  prepareSimulationPassTechnique(simulation, owner);
+}
+
+function prepareOwnerFirstControl(simulation, owner) {
+  if (!simulation.ball.control || simulation.ball.height <= 0) return false;
+  owner.target = { ...owner.position }; owner.gait = 'walk'; owner.role = 'holder'; owner.motionMode = 'control';
+  return true;
 }
 
 function refreshSimulationOwnerPlan(simulation, owner) {
   const options = evaluateSimulationOwnerOptions(simulation, owner);
   const forced = simulation.ownerDecision.forcedPlayerId;
-  const shieldSinceTick = simulation.ownerDecision.selected === 'shield' ? simulation.ownerDecision.shieldSinceTick : simulation.tick;
+  const shieldSinceTick = retainedShieldStart(simulation);
   simulation.ownerDecision = { ...options, forcedPlayerId: forced, shieldSinceTick };
   simulation.passing.options = options.passOptions;
   const manual = simulation.passing.requested;
@@ -64,14 +71,22 @@ function refreshSimulationOwnerPlan(simulation, owner) {
 export function finishSimulationOwnerStep(simulation) {
   const owner = simulationRuntime(simulation).byId.get(simulation.ball.ownerId);
   if (!owner) return;
-  if (simulation.ball.control && simulation.ball.height > 0) { followSimulationBallOwner(simulation); return; }
+  if (ownerAwaitsAirControl(simulation)) { followSimulationBallOwner(simulation); return; }
   if (simulation.ownerDecision.selected === 'shot') { finishOwnerShot(simulation, owner); return; }
   const option = simulation.passing.selected;
-  if (option && simulation.ownerDecision.selected === 'pass') faceSimulationPlayer(owner, option.target);
+  if (option && simulation.ownerDecision.selected === 'pass') faceCurrentPass(simulation, owner, option);
   followSimulationBallOwner(simulation);
   if (simulation.ownerDecision.selected === 'dribble') { kickSimulationDribble(simulation, owner); return; }
   endSimulationCarry(simulation);
   if (option && ownerCanRelease(simulation, owner, option)) releaseCurrentOwnerPass(simulation, owner, option);
+}
+
+function ownerAwaitsAirControl(simulation) {
+  return simulation.ball.control && simulation.ball.height > 0;
+}
+
+function faceCurrentPass(simulation, owner, option) {
+  if (!simulation.passing.technique) faceSimulationPlayer(owner, option.target);
 }
 
 function releaseCurrentOwnerPass(simulation, owner, option) {
@@ -88,15 +103,24 @@ function ownerCanRelease(simulation, owner, option) {
   const skill = (owner.attributes.reactions + owner.attributes.technique) / (2 * MATCH_SIM_DATA.attributes.maximum);
   const hold = max(reaction, settings.holdMinimumSeconds + (1 - skill) * settings.holdSkillSeconds - simulationOwnerPressure(simulation, owner) * settings.pressureHoldReduction);
   const waiting = (simulation.tick - simulation.ball.ownerSinceTick) * MATCH_SIM_DATA.clock.stepSeconds;
-  const angle = atan2(option.target.y - owner.position.y, option.target.x - owner.position.x) - owner.heading;
+  const target = simulationPassFacingTarget(simulation, owner, option);
+  const angle = atan2(target.y - owner.position.y, target.x - owner.position.x) - owner.heading;
   const aligned = abs(atan2(sin(angle), cos(angle))) <= settings.angleTolerance;
-  return waiting >= hold && aligned && hypot(owner.velocity.x, owner.velocity.y) <= settings.recoverySpeedThreshold && pointDistance(owner.position, option.target) > MATCH_SIM_DATA.movement.arrivalRadius;
+  return waiting >= hold && aligned && simulationPassTechniqueReady(simulation) && hypot(owner.velocity.x, owner.velocity.y) <= settings.recoverySpeedThreshold && pointDistance(owner.position, option.target) > MATCH_SIM_DATA.movement.arrivalRadius;
 }
 
 function carryMovementTarget(simulation, owner) {
   const ball = simulation.ball;
-  const chasing = ball.ownerId == null && pointSquaredDistance(owner.position, ball.position) > MATCH_SIM_DATA.ball.controlRadius ** 2;
+  const chasing = ball.carry && pointSquaredDistance(owner.position, ball.position) > MATCH_SIM_DATA.ball.controlRadius ** 2;
   return chasing ? ball.position : simulation.ownerDecision.dribble.target;
+}
+
+function retainedShieldStart(simulation) {
+  if (!simulation.clock.pauseHalfPreparation) return simulation.ownerDecision.selected === 'shield' ? simulation.ownerDecision.shieldSinceTick : simulation.tick;
+  const carry = simulation.ball.carry;
+  const progressed = carry && simulation.events[carry.eventIndex].distance >= MATCH_SIM_DATA.dribbling.minimumLookAhead;
+  const since = simulation.ownerDecision.shieldSinceTick;
+  return !progressed && since >= simulation.ball.ownerSinceTick ? since : simulation.tick;
 }
 
 function finishOwnerShot(simulation, owner) {

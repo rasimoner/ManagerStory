@@ -1,0 +1,1837 @@
+{
+  "node": "v22.23.4",
+  "productCommit": "191ce72cec788928dcf881ab4d121200151f5198",
+  "seed": 42,
+  "naturalInput": "createLabScenario({seed:42}); no overrides; first goal",
+  "goalTime": 49.064706456481424,
+  "earlierFoulsOrCards": [],
+  "sentOffBeforeGoal": [],
+  "events": [
+    {
+      "tick": 455,
+      "time": 45.5,
+      "fromId": "home-ST",
+      "toId": "home-CAM",
+      "fromPos": {
+        "x": 52,
+        "y": -33.5
+      },
+      "toPos": {
+        "x": 41.61166751425142,
+        "y": -0.0005603233201536793
+      },
+      "success": true,
+      "type": "corner",
+      "kind": "cross",
+      "teamId": "home",
+      "temporaryRestart": false,
+      "nearestOpponentDistance": 15.697002155540414,
+      "physicsTime": 45.5,
+      "matchTime": 45.5
+    },
+    {
+      "tick": 455,
+      "time": 45.5,
+      "fromId": "home-ST",
+      "toId": "home-CAM",
+      "fromPos": {
+        "x": 52,
+        "y": -33.5
+      },
+      "toPos": {
+        "x": 41.61166751425142,
+        "y": -0.0005603233201536793
+      },
+      "success": null,
+      "type": "pass",
+      "restartKind": "corner",
+      "temporaryRestart": false,
+      "teamId": "home",
+      "lofted": true,
+      "leadDistance": 0,
+      "distance": 35.073207872761955,
+      "physicsTime": 45.5,
+      "matchTime": 45.5
+    },
+    {
+      "tick": 455,
+      "time": 45.5,
+      "fromId": "home-ST",
+      "toId": "home-CAM",
+      "fromPos": {
+        "x": 52,
+        "y": -33.5
+      },
+      "toPos": {
+        "x": 41.61166751425142,
+        "y": -0.0005603233201536793
+      },
+      "success": null,
+      "type": "cross",
+      "teamId": "home",
+      "height": 0,
+      "restartKind": "corner",
+      "physicsTime": 45.5,
+      "matchTime": 45.5
+    },
+    {
+      "tick": 479,
+      "time": 47.8730495760292,
+      "fromId": "home-ST",
+      "toId": "home-CAM",
+      "fromPos": {
+        "x": 41.021582022708735,
+        "y": 2.7278281531199493
+      },
+      "toPos": {
+        "x": 40.905144184534954,
+        "y": 3.162503008432994
+      },
+      "success": true,
+      "type": "firstTouch",
+      "height": 0.8325199528664021,
+      "speed": 15.951937307785075,
+      "passId": 40,
+      "kind": "foot",
+      "physicsTime": 47.8730495760292,
+      "matchTime": 47.8730495760292
+    },
+    {
+      "tick": 484,
+      "time": 48.400000000000006,
+      "fromId": "home-CAM",
+      "toId": null,
+      "fromPos": {
+        "x": 41.20216852544988,
+        "y": 3.384548288217954
+      },
+      "toPos": {
+        "x": 52.5,
+        "y": 2.496,
+        "height": 0.88825
+      },
+      "success": null,
+      "type": "shot",
+      "teamId": "home",
+      "xg": 0.1140717081418068,
+      "distance": 12.0139458652105,
+      "angle": 0.5744056456200664,
+      "blocked": 0,
+      "pressure": 0.6123092030330592,
+      "power": 17.399339034926314,
+      "target": {
+        "x": 52.5,
+        "y": 2.496,
+        "height": 0.88825
+      },
+      "style": "placed",
+      "onTarget": false,
+      "physicsTime": 48.400000000000006,
+      "matchTime": 48.4,
+      "keeper": {
+        "set": false,
+        "reactionSeconds": 0.26,
+        "distance": 10.121049537970281,
+        "lateralDistance": 3.6407889284942847,
+        "contact": false,
+        "saved": false
+      }
+    },
+    {
+      "tick": 491,
+      "time": 49.064706456481424,
+      "fromId": "home-CAM",
+      "toId": "home-ST",
+      "fromPos": {
+        "x": 41.20216852544988,
+        "y": 3.384548288217954
+      },
+      "toPos": {
+        "x": 52.61,
+        "y": 1.4816336741611407
+      },
+      "success": true,
+      "type": "goal",
+      "height": 0.40200219364223605,
+      "teamId": "home",
+      "assistId": "home-ST",
+      "shotId": 43,
+      "score": {
+        "home": 1,
+        "away": 0
+      },
+      "physicsTime": 49.064706456481424,
+      "matchTime": 49.064706456481424
+    }
+  ],
+  "decisionStages": [
+    {
+      "tick": 467,
+      "before": {
+        "id": "away-RCB",
+        "role": "mark",
+        "laneTargetId": "home-CAM",
+        "position": {
+          "x": 42.112419914241606,
+          "y": -0.19293894439190729
+        },
+        "target": {
+          "x": 41.94020486132064,
+          "y": -0.16970280095115448
+        }
+      },
+      "afterPlan": {
+        "id": "away-RCB",
+        "role": "cover",
+        "laneTargetId": "home-ST",
+        "position": {
+          "x": 42.112419914241606,
+          "y": -0.19293894439190729
+        },
+        "target": {
+          "x": 48.566492993325554,
+          "y": -9.867239519615556
+        }
+      },
+      "afterChase": {
+        "id": "away-RCB",
+        "role": "cover",
+        "laneTargetId": "home-ST",
+        "position": {
+          "x": 42.112419914241606,
+          "y": -0.19293894439190729
+        },
+        "target": {
+          "x": 48.566492993325554,
+          "y": -9.867239519615556
+        }
+      },
+      "ball": {
+        "position": {
+          "x": 46.448450758962395,
+          "y": -15.180368491716239
+        },
+        "teamId": "home",
+        "ownerId": null,
+        "velocity": {
+          "x": -4.626291034197996,
+          "y": 15.266359590236453
+        },
+        "height": 7.325557192858748,
+        "verticalVelocity": 0.21863099404895925,
+        "heldBy": null,
+        "heldSinceTick": 0,
+        "shot": null,
+        "assist": null,
+        "backpassTeamId": "home",
+        "lastTouchId": "home-ST",
+        "lastTouchTeamId": "home",
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        },
+        "restart": null,
+        "carry": null,
+        "ownerSinceTick": 455,
+        "controlAfterTick": 459,
+        "excludedId": "home-ST",
+        "control": null
+      },
+      "reachable": false,
+      "fine": {
+        "stepSeconds": 0.01,
+        "reachable": true,
+        "minimumMargin": -0.5060641185990219
+      },
+      "samples": [
+        {
+          "time": 0,
+          "position": {
+            "x": 46.448450758962395,
+            "y": -15.180368491716239
+          },
+          "height": 7.325557192858748,
+          "inside": true,
+          "arrival": 3.160847882898191,
+          "reachable": false
+        },
+        {
+          "time": 0.25,
+          "position": {
+            "x": 45.29187800041289,
+            "y": -11.363778594157125
+          },
+          "height": 7.073652441370988,
+          "inside": true,
+          "arrival": 2.6323917475237466,
+          "reachable": false
+        },
+        {
+          "time": 0.5,
+          "position": {
+            "x": 44.1353052418634,
+            "y": -7.547188696598012
+          },
+          "height": 6.208622689883228,
+          "inside": true,
+          "arrival": 2.101733849799869,
+          "reachable": false
+        },
+        {
+          "time": 0.75,
+          "position": {
+            "x": 42.9787324833139,
+            "y": -3.7305987990388996
+          },
+          "height": 4.730467938395468,
+          "inside": true,
+          "arrival": 1.4169836515506646,
+          "reachable": false
+        },
+        {
+          "time": 1,
+          "position": {
+            "x": 41.8221597247644,
+            "y": 0.08599109852021414
+          },
+          "height": 2.639188186907707,
+          "inside": true,
+          "arrival": -0.4,
+          "reachable": false
+        },
+        {
+          "time": 1.25,
+          "position": {
+            "x": 40.66559230454194,
+            "y": 3.902563380062595
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 1.2972180228372348,
+          "reachable": false
+        },
+        {
+          "time": 1.5,
+          "position": {
+            "x": 39.52084007060188,
+            "y": 7.680146570542767
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 1.925755025680962,
+          "reachable": false
+        },
+        {
+          "time": 1.75,
+          "position": {
+            "x": 38.39874520924755,
+            "y": 11.382962394528516
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 2.440817668766872,
+          "reachable": false
+        },
+        {
+          "time": 2,
+          "position": {
+            "x": 37.29930772047895,
+            "y": 15.011010852019842
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 2.9440690794446422,
+          "reachable": false
+        },
+        {
+          "time": 2.25,
+          "position": {
+            "x": 36.22252760429608,
+            "y": 18.564291943016748
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 3.436377092645942,
+          "reachable": false
+        },
+        {
+          "time": 2.5,
+          "position": {
+            "x": 35.16840486069894,
+            "y": 22.042805667519232
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 3.91803932632406,
+          "reachable": false
+        },
+        {
+          "time": 2.75,
+          "position": {
+            "x": 34.13693948968754,
+            "y": 25.446552025527282
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 4.389185427459937,
+          "reachable": false
+        },
+        {
+          "time": 3,
+          "position": {
+            "x": 33.12813149126187,
+            "y": 28.77553101704092
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 4.849880917696273,
+          "reachable": false
+        },
+        {
+          "time": 3.25,
+          "position": {
+            "x": 32.14198086542193,
+            "y": 32.029742642060135
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 5.300162476252553,
+          "reachable": false
+        },
+        {
+          "time": 3.5,
+          "position": {
+            "x": 31.178487612167714,
+            "y": 35.209186900584925
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 5.740052236521539,
+          "reachable": false
+        },
+        {
+          "time": 3.75,
+          "position": {
+            "x": 30.237651731499234,
+            "y": 38.313863792615294
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 6.1695643458800875,
+          "reachable": false
+        },
+        {
+          "time": 4,
+          "position": {
+            "x": 29.31947322341649,
+            "y": 41.34377331815123
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 6.588708269232809,
+          "reachable": false
+        },
+        {
+          "time": 4.25,
+          "position": {
+            "x": 28.423952087919474,
+            "y": 44.29891547719275
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 6.997490577980351,
+          "reachable": false
+        },
+        {
+          "time": 4.5,
+          "position": {
+            "x": 27.55108832500819,
+            "y": 47.17929026973985
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 7.395915977017598,
+          "reachable": false
+        },
+        {
+          "time": 4.75,
+          "position": {
+            "x": 26.70088193468264,
+            "y": 49.984897695792526
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 7.783987923296737,
+          "reachable": false
+        },
+        {
+          "time": 5,
+          "position": {
+            "x": 25.873332916942815,
+            "y": 52.71573775535079
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 8.161709013679582,
+          "reachable": false
+        }
+      ]
+    },
+    {
+      "tick": 468,
+      "before": {
+        "id": "away-GK",
+        "role": "keeper",
+        "laneTargetId": null,
+        "position": {
+          "x": 50.70367453844265,
+          "y": -2.7628110503373793
+        },
+        "target": {
+          "x": 50.619718250992214,
+          "y": -2.520657929711072
+        }
+      },
+      "afterPlan": {
+        "id": "away-GK",
+        "role": "keeper",
+        "laneTargetId": null,
+        "position": {
+          "x": 50.70367453844265,
+          "y": -2.7628110503373793
+        },
+        "target": {
+          "x": 50.619718250992214,
+          "y": -2.520657929711072
+        }
+      },
+      "afterChase": {
+        "id": "away-GK",
+        "role": "intercept",
+        "laneTargetId": null,
+        "position": {
+          "x": 50.70367453844265,
+          "y": -2.7628110503373793
+        },
+        "target": {
+          "x": 25.548657374170894,
+          "y": 34
+        }
+      },
+      "ball": {
+        "position": {
+          "x": 45.985821655542594,
+          "y": -13.653732532692594
+        },
+        "teamId": "home",
+        "ownerId": null,
+        "velocity": {
+          "x": -4.626291034197996,
+          "y": 15.266359590236453
+        },
+        "height": 7.298370292263644,
+        "verticalVelocity": -0.7623690059510408,
+        "heldBy": null,
+        "heldSinceTick": 0,
+        "shot": null,
+        "assist": null,
+        "backpassTeamId": "home",
+        "lastTouchId": "home-ST",
+        "lastTouchTeamId": "home",
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        },
+        "restart": null,
+        "carry": null,
+        "ownerSinceTick": 455,
+        "controlAfterTick": 459,
+        "excludedId": "home-ST",
+        "control": null
+      },
+      "reachable": false,
+      "fine": {
+        "stepSeconds": 0.01,
+        "reachable": false,
+        "minimumMargin": 1.490765684489072
+      },
+      "samples": [
+        {
+          "time": 0,
+          "position": {
+            "x": 45.985821655542594,
+            "y": -13.653732532692594
+          },
+          "height": 7.298370292263644,
+          "inside": true,
+          "arrival": 2.007476397822248,
+          "reachable": false
+        },
+        {
+          "time": 0.25,
+          "position": {
+            "x": 44.82924889699309,
+            "y": -9.83714263513348
+          },
+          "height": 6.801215540775884,
+          "inside": true,
+          "arrival": 1.844760742871197,
+          "reachable": false
+        },
+        {
+          "time": 0.5,
+          "position": {
+            "x": 43.6726761384436,
+            "y": -6.020552737574367
+          },
+          "height": 5.690935789288123,
+          "inside": true,
+          "arrival": 1.9665391534326706,
+          "reachable": false
+        },
+        {
+          "time": 0.75,
+          "position": {
+            "x": 42.5161033798941,
+            "y": -2.2039628400152544
+          },
+          "height": 3.967531037800364,
+          "inside": true,
+          "arrival": 2.172651721115361,
+          "reachable": false
+        },
+        {
+          "time": 1,
+          "position": {
+            "x": 41.3595306213446,
+            "y": 1.6126270575438593
+          },
+          "height": 1.6310012863126024,
+          "inside": true,
+          "arrival": 2.4953842459883213,
+          "reachable": false
+        },
+        {
+          "time": 1.25,
+          "position": {
+            "x": 40.20497252625563,
+            "y": 5.422568740233994
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 2.89123916757218,
+          "reachable": false
+        },
+        {
+          "time": 1.5,
+          "position": {
+            "x": 39.06928324134986,
+            "y": 9.170244984116398
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 3.3153089736212964,
+          "reachable": false
+        },
+        {
+          "time": 1.75,
+          "position": {
+            "x": 37.95625132902982,
+            "y": 12.843153861504376
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 3.7470450870007874,
+          "reachable": false
+        },
+        {
+          "time": 2,
+          "position": {
+            "x": 36.86587678929551,
+            "y": 16.441295372397935
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 4.178460857799853,
+          "reachable": false
+        },
+        {
+          "time": 2.25,
+          "position": {
+            "x": 35.79815962214694,
+            "y": 19.96466951679707
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 4.605818765825233,
+          "reachable": false
+        },
+        {
+          "time": 2.5,
+          "position": {
+            "x": 34.753099827584094,
+            "y": 23.41327629470178
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 5.0271716499875305,
+          "reachable": false
+        },
+        {
+          "time": 2.75,
+          "position": {
+            "x": 33.73069740560698,
+            "y": 26.78711570611207
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 5.441415177029543,
+          "reachable": false
+        },
+        {
+          "time": 3,
+          "position": {
+            "x": 32.7309523562156,
+            "y": 30.086187751027936
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 5.847879620334694,
+          "reachable": false
+        },
+        {
+          "time": 3.25,
+          "position": {
+            "x": 31.75386467940995,
+            "y": 33.31049242944938
+          },
+          "height": 0,
+          "inside": true,
+          "arrival": 6.246136458354166,
+          "reachable": false
+        },
+        {
+          "time": 3.5,
+          "position": {
+            "x": 30.799434375190035,
+            "y": 36.4600297413764
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 6.635899283333052,
+          "reachable": false
+        },
+        {
+          "time": 3.75,
+          "position": {
+            "x": 29.867661443555846,
+            "y": 39.534799686808995
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 7.016969643844041,
+          "reachable": false
+        },
+        {
+          "time": 4,
+          "position": {
+            "x": 28.958545884507394,
+            "y": 42.534802265747174
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 7.389205810548056,
+          "reachable": false
+        },
+        {
+          "time": 4.25,
+          "position": {
+            "x": 28.07208769804467,
+            "y": 45.46003747819093
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 7.75250392809297,
+          "reachable": false
+        },
+        {
+          "time": 4.5,
+          "position": {
+            "x": 27.20828688416768,
+            "y": 48.31050532414025
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 8.106786194111226,
+          "reachable": false
+        },
+        {
+          "time": 4.75,
+          "position": {
+            "x": 26.367143442876422,
+            "y": 51.08620580359516
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 8.451993195133142,
+          "reachable": false
+        },
+        {
+          "time": 5,
+          "position": {
+            "x": 25.548657374170894,
+            "y": 53.78713891655565
+          },
+          "height": 0,
+          "inside": false,
+          "arrival": 8.788078792136675,
+          "reachable": false
+        }
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "tick": 455,
+      "time": 45.5,
+      "ball": {
+        "position": {
+          "x": 52,
+          "y": -33.5
+        },
+        "height": 0,
+        "ownerId": null,
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        }
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "restart",
+          "laneTargetId": null,
+          "position": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "target": {
+            "x": 41.5,
+            "y": 0
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "restart",
+          "laneTargetId": null,
+          "position": {
+            "x": 52.16769942420765,
+            "y": -33.85200846917728
+          },
+          "velocity": {
+            "x": -0.09251067325286982,
+            "y": 0.026466493956167486
+          },
+          "target": {
+            "x": 52.10468003988587,
+            "y": -33.83397917487396
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "restart",
+          "laneTargetId": null,
+          "position": {
+            "x": 49.45430640197624,
+            "y": 0.09211108785309773
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "target": {
+            "x": 49.5,
+            "y": 0
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "restart",
+          "laneTargetId": null,
+          "position": {
+            "x": 43.00225862711417,
+            "y": -0.08033309077982213
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "target": {
+            "x": 43,
+            "y": 0
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 467,
+      "time": 46.7,
+      "ball": {
+        "position": {
+          "x": 46.448450758962395,
+          "y": -15.180368491716239
+        },
+        "height": 7.325557192858748,
+        "ownerId": null,
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        }
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "receive",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.411367013163655,
+            "y": 0.47948907506493543
+          },
+          "velocity": {
+            "x": -0.6877252360773127,
+            "y": 2.1436474218467354
+          },
+          "target": {
+            "x": 40.8969015179248,
+            "y": 3.139263016567501
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.90375124988039,
+            "y": -30.248456504414477
+          },
+          "velocity": {
+            "x": -0.3075552388549861,
+            "y": 5.522636395026671
+          },
+          "target": {
+            "x": 50.5,
+            "y": -2
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "keeper",
+          "laneTargetId": null,
+          "position": {
+            "x": 50.619718250992214,
+            "y": -2.520657929711072
+          },
+          "velocity": {
+            "x": 0.9743938155328722,
+            "y": -2.810420878717036
+          },
+          "target": {
+            "x": 50.880830989678664,
+            "y": -3.3
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "mark",
+          "laneTargetId": "home-CAM",
+          "position": {
+            "x": 42.112419914241606,
+            "y": -0.19293894439190729
+          },
+          "velocity": {
+            "x": -1.1775378689412546,
+            "y": 0.15887948449078718
+          },
+          "target": {
+            "x": 41.94020486132064,
+            "y": -0.16970280095115448
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 468,
+      "time": 46.800000000000004,
+      "ball": {
+        "position": {
+          "x": 45.985821655542594,
+          "y": -13.653732532692594
+        },
+        "height": 7.298370292263644,
+        "ownerId": null,
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        }
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "receive",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.36396679946717,
+            "y": 0.7262608653882081
+          },
+          "velocity": {
+            "x": -0.47400213696481136,
+            "y": 2.4677179032327263
+          },
+          "target": {
+            "x": 40.8969015179248,
+            "y": 3.139263016567501
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.871483016586986,
+            "y": -29.650377831241112
+          },
+          "velocity": {
+            "x": -0.3226823329340684,
+            "y": 5.980786731733655
+          },
+          "target": {
+            "x": 50.5,
+            "y": -2
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "keeper",
+          "laneTargetId": null,
+          "position": {
+            "x": 50.70367453844265,
+            "y": -2.7628110503373793
+          },
+          "velocity": {
+            "x": 0.8395628745043064,
+            "y": -2.4215312062630723
+          },
+          "target": {
+            "x": 50.619718250992214,
+            "y": -2.520657929711072
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "cover",
+          "laneTargetId": "home-ST",
+          "position": {
+            "x": 42.035198846383935,
+            "y": -0.18251987951369184
+          },
+          "velocity": {
+            "x": -0.7722106785766872,
+            "y": 0.10419064878215457
+          },
+          "target": {
+            "x": 48.566492993325554,
+            "y": -9.867239519615556
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 469,
+      "time": 46.900000000000006,
+      "ball": {
+        "position": {
+          "x": 45.523192552122794,
+          "y": -12.127096573668949
+        },
+        "height": 7.1730833916685395,
+        "ownerId": null,
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        }
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "receive",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.34115978361462,
+            "y": 1.0030687509938134
+          },
+          "velocity": {
+            "x": -0.2280701585255206,
+            "y": 2.7680788560560523
+          },
+          "target": {
+            "x": 40.8969015179248,
+            "y": 3.139263016567501
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.83772278085642,
+            "y": -29.006483445383914
+          },
+          "velocity": {
+            "x": -0.3376023573056676,
+            "y": 6.4389438585719825
+          },
+          "target": {
+            "x": 50.5,
+            "y": -2
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "intercept",
+          "laneTargetId": null,
+          "position": {
+            "x": 50.77414773179022,
+            "y": -2.9660752037182903
+          },
+          "velocity": {
+            "x": 0.7047319334757406,
+            "y": -2.0326415338091084
+          },
+          "target": {
+            "x": 25.548657374170894,
+            "y": 34
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "cover",
+          "laneTargetId": "home-ST",
+          "position": {
+            "x": 41.94973461642707,
+            "y": -0.21216152205067773
+          },
+          "velocity": {
+            "x": -0.8546422995686535,
+            "y": -0.296416425369859
+          },
+          "target": {
+            "x": 48.566492993325554,
+            "y": -9.867239519615556
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 472,
+      "time": 47.2,
+      "ball": {
+        "position": {
+          "x": 44.13530524186339,
+          "y": -7.547188696598013
+        },
+        "height": 6.208622689883226,
+        "ownerId": null,
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        }
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "receive",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.466112224462094,
+            "y": 1.9482888900181903
+          },
+          "velocity": {
+            "x": 0.7892177662876536,
+            "y": 3.209878359913942
+          },
+          "target": {
+            "x": 40.896901517924796,
+            "y": 3.1392630165675044
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.72865884411791,
+            "y": -26.830363407017455
+          },
+          "velocity": {
+            "x": -0.3715519338263928,
+            "y": 7.508813032728266
+          },
+          "target": {
+            "x": 50.5,
+            "y": -2
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "intercept",
+          "laneTargetId": null,
+          "position": {
+            "x": 50.83306413463242,
+            "y": -3.4123411204508893
+          },
+          "velocity": {
+            "x": -0.153791132117245,
+            "y": -1.2843669733078058
+          },
+          "target": {
+            "x": 25.548657374170894,
+            "y": 34
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "cover",
+          "laneTargetId": "home-ST",
+          "position": {
+            "x": 41.83171776798146,
+            "y": -0.4823379984602447
+          },
+          "velocity": {
+            "x": -0.052032621536073076,
+            "y": -1.1247443656583336
+          },
+          "target": {
+            "x": 47.36365732443407,
+            "y": -5.8979860261540775
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 473,
+      "time": 47.300000000000004,
+      "ball": {
+        "position": {
+          "x": 43.67267613844359,
+          "y": -6.020552737574368
+        },
+        "height": 5.690935789288122,
+        "ownerId": null,
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        }
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "receive",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.5639517845422,
+            "y": 2.235378202895912
+          },
+          "velocity": {
+            "x": 0.978395600801058,
+            "y": 2.870893128777217
+          },
+          "target": {
+            "x": 40.896901517924796,
+            "y": 3.1392630165675044
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.69150365073527,
+            "y": -26.079482103744628
+          },
+          "velocity": {
+            "x": -0.3715519338263928,
+            "y": 7.508813032728266
+          },
+          "target": {
+            "x": 50.5,
+            "y": -2
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "intercept",
+          "laneTargetId": null,
+          "position": {
+            "x": 50.79781300814462,
+            "y": -3.504732725350722
+          },
+          "velocity": {
+            "x": -0.3525112648779719,
+            "y": -0.923916048998325
+          },
+          "target": {
+            "x": 25.548657374170894,
+            "y": 34
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "intercept",
+          "laneTargetId": null,
+          "position": {
+            "x": 41.8284045891869,
+            "y": -0.5539561309238242
+          },
+          "velocity": {
+            "x": -0.03313178794558001,
+            "y": -0.7161813246357951
+          },
+          "target": {
+            "x": 24.286206999220372,
+            "y": 34
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 476,
+      "time": 47.6,
+      "ball": {
+        "position": {
+          "x": 42.28478882818419,
+          "y": -1.4406448605034325
+        },
+        "height": 3.5492750875028087,
+        "ownerId": null,
+        "flight": {
+          "eventIndex": 40,
+          "teamId": "home",
+          "fromId": "home-ST",
+          "toId": "home-CAM",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.61166751425142,
+            "y": -0.0005603233201536793
+          },
+          "launchTick": 455,
+          "cross": true,
+          "crossEventIndex": 41
+        }
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "receive",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.797267918052455,
+            "y": 2.8721525519276256
+          },
+          "velocity": {
+            "x": 0.6500988206012205,
+            "y": 1.7559876584394032
+          },
+          "target": {
+            "x": 40.896901517924796,
+            "y": 3.1392630165675035
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.58155218218267,
+            "y": -23.826764802634095
+          },
+          "velocity": {
+            "x": -0.35641081787328494,
+            "y": 7.509546945648778
+          },
+          "target": {
+            "x": 50.5,
+            "y": -1.0385482868344773
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "keeper",
+          "laneTargetId": null,
+          "position": {
+            "x": 50.597817528574225,
+            "y": -3.5605605269218645
+          },
+          "velocity": {
+            "x": -0.7011694028588605,
+            "y": 0.20688341710092034
+          },
+          "target": {
+            "x": 50.5685563448703,
+            "y": -0.5199658868810555
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "intercept",
+          "laneTargetId": null,
+          "position": {
+            "x": 41.86188421686987,
+            "y": -0.5344759037252308
+          },
+          "velocity": {
+            "x": 0.15988481339348945,
+            "y": 0.4551863747968327
+          },
+          "target": {
+            "x": 24.286206999220372,
+            "y": 34
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 479,
+      "time": 47.900000000000006,
+      "ball": {
+        "position": {
+          "x": 41.02918547079694,
+          "y": 2.859542059284155
+        },
+        "height": 0.7681087387545572,
+        "ownerId": "home-CAM",
+        "flight": null
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "receive",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.91179135142745,
+            "y": 3.1803848364402043
+          },
+          "velocity": {
+            "x": 0.24664424202394933,
+            "y": 0.6635082263115848
+          },
+          "target": {
+            "x": 40.896901517924796,
+            "y": 3.1392630165675035
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.47462893682069,
+            "y": -21.57390071893946
+          },
+          "velocity": {
+            "x": -0.35641081787328827,
+            "y": 7.509546945648778
+          },
+          "target": {
+            "x": 50.5,
+            "y": -1.0385482868344773
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "keeper",
+          "laneTargetId": null,
+          "position": {
+            "x": 50.41843501429804,
+            "y": -3.2534871959218727
+          },
+          "velocity": {
+            "x": -0.5440049351592691,
+            "y": 1.4316272225725752
+          },
+          "target": {
+            "x": 50.46446479660084,
+            "y": 0.2664298584859935
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "intercept",
+          "laneTargetId": null,
+          "position": {
+            "x": 41.781967710412324,
+            "y": -0.18847468483762997
+          },
+          "velocity": {
+            "x": -0.4798575029327613,
+            "y": 1.50220970661165
+          },
+          "target": {
+            "x": 23.081759498089312,
+            "y": 34
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 484,
+      "time": 48.400000000000006,
+      "ball": {
+        "position": {
+          "x": 41.20216852544988,
+          "y": 3.384548288217954
+        },
+        "height": 0,
+        "ownerId": null,
+        "flight": null
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "holder",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.92292961708582,
+            "y": 3.210348361355789
+          },
+          "velocity": {
+            "x": 0,
+            "y": 0
+          },
+          "target": {
+            "x": 40.92292961708582,
+            "y": 3.210348361355789
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "depth",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.31284585916241,
+            "y": -17.818383879499283
+          },
+          "velocity": {
+            "x": -0.3207277435088325,
+            "y": 7.5111555512147214
+          },
+          "target": {
+            "x": 50.5,
+            "y": 1.2177357294096913
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "keeper",
+          "laneTargetId": null,
+          "position": {
+            "x": 49.66993061364974,
+            "y": -2.159155254333141
+          },
+          "velocity": {
+            "x": -2.200943932648733,
+            "y": 2.6153747806373326
+          },
+          "target": {
+            "x": 43.945705306201276,
+            "y": 2.3746872875032454
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "press",
+          "laneTargetId": null,
+          "position": {
+            "x": 41.86315033785478,
+            "y": 1.0826889567189208
+          },
+          "velocity": {
+            "x": 0.6758339059362715,
+            "y": 3.1719640355175076
+          },
+          "target": {
+            "x": 42.51292896835006,
+            "y": 2.7694378681949945
+          },
+          "sentOff": false
+        }
+      ]
+    },
+    {
+      "tick": 491,
+      "time": 49.1,
+      "ball": {
+        "position": {
+          "x": 53.21571518852227,
+          "y": 1.3805956910206458
+        },
+        "height": 0,
+        "ownerId": null,
+        "flight": null
+      },
+      "players": [
+        {
+          "id": "home-CAM",
+          "role": "support",
+          "laneTargetId": null,
+          "position": {
+            "x": 40.605540666383476,
+            "y": 3.256956115320583
+          },
+          "velocity": {
+            "x": -1.175354197534095,
+            "y": -0.2227122622394034
+          },
+          "target": {
+            "x": 43.49949423665478,
+            "y": -8.333125366522596
+          },
+          "sentOff": false
+        },
+        {
+          "id": "home-ST",
+          "role": "recover",
+          "laneTargetId": null,
+          "position": {
+            "x": 51.48412033999457,
+            "y": -12.75429038234247
+          },
+          "velocity": {
+            "x": 1.1246502936935951,
+            "y": 6.530569663664599
+          },
+          "target": {
+            "x": 52.5,
+            "y": -9.69473161551196
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-GK",
+          "role": "keeper",
+          "laneTargetId": null,
+          "position": {
+            "x": 48.74977455228027,
+            "y": -0.21264525416271074
+          },
+          "velocity": {
+            "x": -0.5392722260829785,
+            "y": 3.6087393964478065
+          },
+          "target": {
+            "x": 48.803701774888566,
+            "y": 1.4816336741611436
+          },
+          "sentOff": false
+        },
+        {
+          "id": "away-RCB",
+          "role": "recover",
+          "laneTargetId": null,
+          "position": {
+            "x": 42.79631758366164,
+            "y": 2.8089803524958183
+          },
+          "velocity": {
+            "x": 1.8454311109360144,
+            "y": 1.4330163301644199
+          },
+          "target": {
+            "x": 52.5,
+            "y": -9.69473161551196
+          },
+          "sentOff": false
+        }
+      ]
+    }
+  ],
+  "acceptance": {
+    "naturalUnreachableCross": "failed: keeper role becomes intercept toward x=25.548657374170894, y=34",
+    "reachableCross": "passed; isolated ball override",
+    "reachableLooseGroundBall": "passed; isolated ball override"
+  },
+  "limits": {
+    "newProductApproachApplied": false,
+    "attemptsUsed": 3,
+    "attemptsAllowed": 3,
+    "goalContributionMeasured": false,
+    "fineGridIsAnalyticArrivalBound": true
+  },
+  "commitTree": "b8845d3f3f06dab5d03b27c81d19613c8ad2cd51",
+  "srcTree": "bc72c24cb318c1abfbe35138bc4ea2c3b977b5a5",
+  "deliveryChecks": {
+    "node": "v22.23.4",
+    "lint": "passed; baseline unchanged",
+    "defaultFast": {
+      "passed": 592,
+      "failed": 0,
+      "existingSkipped": 1
+    },
+    "separatePerformance": {
+      "passed": 5,
+      "failed": 0
+    },
+    "isolatedReproduction": {
+      "passed": 2,
+      "failed": 1,
+      "includedInDefaultCI": false
+    },
+    "fullMatchBalanceRerun": false,
+    "productChanged": false
+  }
+}

@@ -1,3 +1,5 @@
+import { simulationFirstTouchStyle } from './first-touch-technique.js';
+import SKILL_DATA from '../../data/match-sim-skills.json';
 import MATCH_SIM_DATA from '../../data/match-sim.json';
 import { clampSimValue } from './geometry.js';
 
@@ -11,7 +13,12 @@ export function beginSimulationControl(simulation, contact, result) {
   const position = { x: previous.x + (player.position.x - previous.x) * fraction,
     y: previous.y + (player.position.y - previous.y) * fraction };
   ball.control = { time: result.time, offset: { x: result.touching.position.x - position.x, y: result.touching.position.y - position.y },
-    height: result.touching.height, verticalVelocity: -Math.abs(result.touching.verticalVelocity) * MATCH_SIM_DATA.ball.firstTouch.controlVerticalRetention };
+    height: result.touching.height, verticalVelocity: controlledVerticalVelocity(simulation, player, result.touching) };
+}
+
+function controlledVerticalVelocity(simulation, player, touching) {
+  if (simulationFirstTouchStyle(simulation, player, touching) !== 'trap') return -Math.abs(touching.verticalVelocity) * MATCH_SIM_DATA.ball.firstTouch.controlVerticalRetention;
+  return -Math.min(SKILL_DATA.footTrap.maximumDownSpeed, Math.abs(touching.verticalVelocity) * SKILL_DATA.footTrap.verticalRetention);
 }
 
 export function followSimulationControl(simulation, owner, target) {

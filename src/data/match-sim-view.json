@@ -93,6 +93,8 @@
   },
   "replay": {
     "frames": 180,
+    "automaticGapSeconds": 30,
+    "automaticSaveDifficulty": 0.75,
     "minimumSeconds": 0.03333333333333333,
     "speed": 0.35,
     "preSeconds": 1.25,

@@ -1,0 +1,38 @@
+{
+  "node": "v22.23.4",
+  "status": "blocked",
+  "limitMs": 2000,
+  "attempts": [
+    {
+      "functionalPassed": 586,
+      "existingSkipped": 1,
+      "performancePassed": 4,
+      "performanceFailed": 1,
+      "shootingMs": [
+        2039.1,
+        1642.4,
+        1537.5
+      ]
+    },
+    {
+      "functionalPassed": 586,
+      "existingSkipped": 1,
+      "performancePassed": 3,
+      "performanceFailed": 2,
+      "shootingMs": [
+        2462.5,
+        1765.7,
+        1646.1
+      ],
+      "workloadMs": [
+        2237.4066269999985,
+        2169.170048,
+        1710.3233440000004
+      ]
+    }
+  ],
+  "productOptimizationAttempted": false,
+  "rootCause": "unresolved: controlled main comparison and CPU profile required",
+  "thresholdChanged": false,
+  "thirdAttempt": false
+}

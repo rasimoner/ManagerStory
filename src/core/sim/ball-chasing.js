@@ -52,14 +52,22 @@ function chaseSimulationBall(simulation, player, role) {
 }
 
 export function simulationInterceptTarget(player, ball) {
+  return simulationInterceptPlan(player, ball).target;
+}
+
+export function simulationInterceptPlan(player, ball) {
   const settings = MATCH_SIM_DATA.passing;
-  let predicted = ball;
+  let predicted = ball, reachable = false;
   for (let time = 0; time <= settings.chaseHorizonSeconds; time += settings.chaseStepSeconds) {
     predicted = predictSimulationBall(ball, time);
     if (predicted.height > MATCH_SIM_DATA.ball.reachableHeight) continue;
-    if (Math.max(0, simulationPlayerArrival(player, predicted.position) - player.limits.reactionSeconds) <= time) break;
+    if (Math.max(0, simulationPlayerArrival(player, predicted.position) - player.limits.reactionSeconds) <= time) {
+      const pitch = MATCH_SIM_DATA.pitch;
+      reachable = Math.abs(predicted.position.x) <= pitch.length / 2 && Math.abs(predicted.position.y) <= pitch.width / 2;
+      break;
+    }
   }
-  return fitBallChaseTarget(predicted.position);
+  return { target: fitBallChaseTarget(predicted.position), reachable };
 }
 
 function fitBallChaseTarget(position) {

@@ -20,7 +20,7 @@ export function planSimulationBoxDefence(context, assignRole) {
   const settings = MATCH_SIM_DATA.boxDefending;
   const goalX = -team.direction * MATCH_SIM_DATA.pitch.length / 2;
   const opponents = simulation.teams.find(candidate => candidate.id !== team.id).players;
-  const threats = opponents.filter(player => boxReceiver(player, simulation, goalX)).sort((a, b) => Math.abs(goalX - a.position.x) - Math.abs(goalX - b.position.x));
+  const threats = opponents.filter(player => boxReceiver(player, simulation, goalX)).sort((a, b) => boxReceiverDistance(a, simulation, goalX) - boxReceiverDistance(b, simulation, goalX));
   for (const receiver of threats.slice(0, settings.markCount)) markBoxReceiver(context, { receiver, assignRole, goalX });
   const rebound = { x: goalX + team.direction * settings.reboundDepth, y: simulation.ball.position.y * settings.reboundSideFactor };
   assignRole(context, nearestAvailable(context.available, rebound), { role: 'rebound', target: rebound });
@@ -29,7 +29,12 @@ export function planSimulationBoxDefence(context, assignRole) {
 
 function boxReceiver(player, simulation, goalX) {
   return player.slot !== 'GK' && !player.sentOff && player.id !== simulation.ball.ownerId && player.id !== simulation.ball.carry?.playerId
-    && Math.abs(goalX - player.position.x) <= MATCH_SIM_DATA.boxDefending.receiverDistance;
+    && boxReceiverDistance(player, simulation, goalX) <= MATCH_SIM_DATA.boxDefending.receiverDistance;
+}
+
+function boxReceiverDistance(player, simulation, goalX) {
+  const depth = Math.abs(goalX - player.position.x);
+  return simulation.ball.flight?.cross ? Math.hypot(depth, player.position.y) : depth;
 }
 
 function markBoxReceiver(context, { receiver, assignRole, goalX }) {

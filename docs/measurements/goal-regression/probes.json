@@ -1,0 +1,484 @@
+{
+  "scope": "G1 only; diagnosis plus two failed product approaches, both reverted",
+  "seeds": [
+    901,
+    731,
+    42
+  ],
+  "physicalStepsPerRun": 54000,
+  "notAReplacementForFiftySeedCI": true,
+  "measurements": {
+    "main-d86ac72": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 1,
+            "away": 0
+          },
+          "goals": 1,
+          "shots": 20,
+          "passes": 773,
+          "completedPasses": 610,
+          "fouls": 18,
+          "saves": 10,
+          "red": 0,
+          "ballWins": 161,
+          "shotTypes": {
+            "placed": 10,
+            "drive": 9,
+            "freeKick": 1
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 2,
+            "away": 2
+          },
+          "goals": 4,
+          "shots": 19,
+          "passes": 789,
+          "completedPasses": 623,
+          "fouls": 26,
+          "saves": 2,
+          "red": 0,
+          "ballWins": 137,
+          "shotTypes": {
+            "drive": 9,
+            "placed": 9,
+            "freeKick": 1
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 0,
+            "away": 1
+          },
+          "goals": 1,
+          "shots": 15,
+          "passes": 769,
+          "completedPasses": 612,
+          "fouls": 20,
+          "saves": 9,
+          "red": 2,
+          "ballWins": 152,
+          "shotTypes": {
+            "drive": 12,
+            "chip": 1,
+            "freeKick": 1,
+            "placed": 1
+          }
+        }
+      ],
+      "totalGoals": 6,
+      "totalShots": 54
+    },
+    "carry-90ea733": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 1,
+            "away": 3
+          },
+          "goals": 4,
+          "shots": 13,
+          "passes": 776,
+          "completedPasses": 599,
+          "fouls": 31,
+          "saves": 4,
+          "red": 4,
+          "ballWins": 113,
+          "shotTypes": {
+            "placed": 6,
+            "drive": 7
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 2,
+            "away": 2
+          },
+          "goals": 4,
+          "shots": 14,
+          "passes": 786,
+          "completedPasses": 616,
+          "fouls": 37,
+          "saves": 3,
+          "red": 2,
+          "ballWins": 103,
+          "shotTypes": {
+            "drive": 10,
+            "placed": 4
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 0,
+            "away": 1
+          },
+          "goals": 1,
+          "shots": 16,
+          "passes": 777,
+          "completedPasses": 620,
+          "fouls": 36,
+          "saves": 10,
+          "red": 2,
+          "ballWins": 130,
+          "shotTypes": {
+            "freeKick": 2,
+            "drive": 10,
+            "placed": 4
+          }
+        }
+      ],
+      "totalGoals": 9,
+      "totalShots": 43
+    },
+    "cross-8c99b45": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 11,
+            "away": 3
+          },
+          "goals": 14,
+          "shots": 36,
+          "passes": 749,
+          "completedPasses": 596,
+          "fouls": 20,
+          "saves": 9,
+          "red": 0,
+          "ballWins": 115,
+          "shotTypes": {
+            "drive": 14,
+            "placed": 20,
+            "freeKick": 2
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 6,
+            "away": 6
+          },
+          "goals": 12,
+          "shots": 45,
+          "passes": 697,
+          "completedPasses": 557,
+          "fouls": 40,
+          "saves": 11,
+          "red": 2,
+          "ballWins": 103,
+          "shotTypes": {
+            "drive": 34,
+            "placed": 10,
+            "freeKick": 1
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 12,
+            "away": 3
+          },
+          "goals": 15,
+          "shots": 47,
+          "passes": 716,
+          "completedPasses": 542,
+          "fouls": 30,
+          "saves": 10,
+          "red": 4,
+          "ballWins": 116,
+          "shotTypes": {
+            "freeKick": 2,
+            "drive": 30,
+            "placed": 14,
+            "chip": 1
+          }
+        }
+      ],
+      "totalGoals": 41,
+      "totalShots": 128
+    },
+    "candidate-97d99fc": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 8,
+            "away": 9
+          },
+          "goals": 17,
+          "shots": 49,
+          "passes": 722,
+          "completedPasses": 578,
+          "fouls": 32,
+          "saves": 9,
+          "red": 1,
+          "ballWins": 118,
+          "shotTypes": {
+            "drive": 17,
+            "placed": 28,
+            "volley": 2,
+            "chip": 2
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 6,
+            "away": 8
+          },
+          "goals": 14,
+          "shots": 38,
+          "passes": 744,
+          "completedPasses": 599,
+          "fouls": 23,
+          "saves": 13,
+          "red": 1,
+          "ballWins": 122,
+          "shotTypes": {
+            "placed": 24,
+            "drive": 13,
+            "header": 1
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 6,
+            "away": 6
+          },
+          "goals": 12,
+          "shots": 27,
+          "passes": 731,
+          "completedPasses": 577,
+          "fouls": 34,
+          "saves": 6,
+          "red": 1,
+          "ballWins": 113,
+          "shotTypes": {
+            "placed": 8,
+            "drive": 18,
+            "freeKick": 1
+          }
+        }
+      ],
+      "totalGoals": 43,
+      "totalShots": 114
+    },
+    "attempt1": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 13,
+            "away": 2
+          },
+          "goals": 15,
+          "shots": 38,
+          "passes": 730,
+          "completedPasses": 570,
+          "fouls": 25,
+          "saves": 7,
+          "red": 0,
+          "ballWins": 137,
+          "shotTypes": {
+            "placed": 19,
+            "drive": 18,
+            "volley": 1
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 6,
+            "away": 8
+          },
+          "goals": 14,
+          "shots": 44,
+          "passes": 689,
+          "completedPasses": 561,
+          "fouls": 31,
+          "saves": 8,
+          "red": 2,
+          "ballWins": 102,
+          "shotTypes": {
+            "placed": 15,
+            "drive": 28,
+            "freeKick": 1
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 9,
+            "away": 6
+          },
+          "goals": 15,
+          "shots": 45,
+          "passes": 760,
+          "completedPasses": 624,
+          "fouls": 30,
+          "saves": 13,
+          "red": 1,
+          "ballWins": 110,
+          "shotTypes": {
+            "placed": 19,
+            "drive": 26
+          }
+        }
+      ],
+      "totalGoals": 44,
+      "totalShots": 127
+    },
+    "attempt2": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 10,
+            "away": 8
+          },
+          "goals": 18,
+          "shots": 57,
+          "passes": 725,
+          "completedPasses": 571,
+          "fouls": 27,
+          "saves": 19,
+          "red": 3,
+          "ballWins": 146,
+          "shotTypes": {
+            "drive": 25,
+            "header": 2,
+            "placed": 24,
+            "chip": 1,
+            "volley": 5
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 4,
+            "away": 6
+          },
+          "goals": 10,
+          "shots": 39,
+          "passes": 723,
+          "completedPasses": 590,
+          "fouls": 37,
+          "saves": 13,
+          "red": 2,
+          "ballWins": 131,
+          "shotTypes": {
+            "placed": 12,
+            "drive": 27
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 6,
+            "away": 3
+          },
+          "goals": 9,
+          "shots": 34,
+          "passes": 789,
+          "completedPasses": 627,
+          "fouls": 28,
+          "saves": 13,
+          "red": 0,
+          "ballWins": 111,
+          "shotTypes": {
+            "placed": 9,
+            "drive": 25
+          }
+        }
+      ],
+      "totalGoals": 37,
+      "totalShots": 130
+    },
+    "diagnostic-parent-restart": {
+      "node": "v22.23.4",
+      "runs": [
+        {
+          "seed": 901,
+          "score": {
+            "home": 0,
+            "away": 1
+          },
+          "goals": 1,
+          "shots": 25,
+          "passes": 778,
+          "completedPasses": 606,
+          "fouls": 27,
+          "saves": 16,
+          "red": 2,
+          "ballWins": 158,
+          "shotTypes": {
+            "drive": 10,
+            "placed": 14,
+            "chip": 1
+          }
+        },
+        {
+          "seed": 731,
+          "score": {
+            "home": 1,
+            "away": 1
+          },
+          "goals": 2,
+          "shots": 14,
+          "passes": 749,
+          "completedPasses": 618,
+          "fouls": 31,
+          "saves": 9,
+          "red": 2,
+          "ballWins": 123,
+          "shotTypes": {
+            "placed": 10,
+            "drive": 4
+          }
+        },
+        {
+          "seed": 42,
+          "score": {
+            "home": 2,
+            "away": 1
+          },
+          "goals": 3,
+          "shots": 17,
+          "passes": 770,
+          "completedPasses": 599,
+          "fouls": 33,
+          "saves": 7,
+          "red": 2,
+          "ballWins": 139,
+          "shotTypes": {
+            "freeKick": 1,
+            "drive": 8,
+            "chip": 1,
+            "placed": 7
+          }
+        }
+      ],
+      "totalGoals": 6,
+      "totalShots": 56
+    }
+  },
+  "unchangedProductHead": "97d99fcfad169c4ccf156b2d53884a4f123c4023",
+  "solutionAttempts": 2,
+  "successfulProductFix": false
+}

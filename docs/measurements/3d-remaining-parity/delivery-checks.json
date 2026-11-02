@@ -1,0 +1,65 @@
+{
+  "node": "v22.23.4",
+  "status": "blocked; no PR, merge or deployment",
+  "productCommit": "c6341386f9f0815e12aeb26bd86a77ca52942149",
+  "candidateVersion": "7.19.3 unpublished",
+  "mainCommit": "d86ac72de6bc4677a2357fc516c06e1ffeceed48",
+  "mainVersion": "7.19.2",
+  "functional": {
+    "fastPassed": 586,
+    "fastExistingSkipped": 1,
+    "additionalPassed": 91,
+    "overlappingGoldenTest": 1,
+    "uniquePassed": 676,
+    "uniqueExistingSkipped": 1,
+    "additionalCommandExitCode": 0
+  },
+  "performance": {
+    "attempts": 2,
+    "attempt1Passed": 4,
+    "attempt1Failed": 1,
+    "attempt2Passed": 3,
+    "attempt2Failed": 2,
+    "thresholdMs": 2000,
+    "thirdAttempt": false,
+    "productOptimizationAttempted": false
+  },
+  "fullRunnerFreshStatus": "not green; separate functional union completed, no third performance invocation",
+  "build": "passed",
+  "requiredSmoke": "passed including full natural 1x mobile 2D match",
+  "fiftySeedExactComparison": "failed; fresh main reproduced the original reference counters and scores",
+  "durationReport": {
+    "groups": 5,
+    "seedsEach": 50,
+    "consistentCareerMatchesEach": 50
+  },
+  "webgl": {
+    "staticIndependentContactFrames": 34,
+    "keeperIsolatedPassed": 10,
+    "keeperOrdinaryCareerPassed": 2,
+    "newLiveSequenceVerified": 0,
+    "newRawSequencesWithWrongInitialTickAttribute": 4,
+    "openCrossReplayTimeouts": 2,
+    "normalCareerFullscreenTimeouts": 1,
+    "cameraScenePreparation": "failed; shot missing",
+    "restorationPreparation": "failed; skill missing",
+    "manualReplayFreshCommand": "not rerun due to the same exhausted replay-completion obstacle"
+  },
+  "unchangedGuards": [
+    ".github/workflows",
+    "lint-baseline.json",
+    "tests/golden",
+    "docs/measurements/match-sim-parity-reference.json"
+  ],
+  "previousUncommittedWork": "original 7.20.0 preparation and stale task changes left untouched",
+  "physicalIphoneSafariTest": false,
+  "nativeCareerFixtureControl": {
+    "node": "v22.23.4",
+    "mainCommit": "d86ac72de6bc4677a2357fc516c06e1ffeceed48",
+    "mainCameraFixture": "passed, 6 scenes",
+    "mainRestorationFixture": "passed, 8 scenes",
+    "candidateCameraFixture": "failed",
+    "candidateRestorationFixture": "failed",
+    "rootCause": "not isolated; changed candidate football/fixture contract rather than Node 24 or browser installation"
+  }
+}

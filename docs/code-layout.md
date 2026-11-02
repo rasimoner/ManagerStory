@@ -280,3 +280,19 @@ Faz 2 duran top modülleri: `core/sim/restart-state.js` yalnız hazırlık durum
 - `core/presentation/sim/scene-offside.js`, `scene-replay.js`, `scene-replay-panel.js`: eski sarı çizgi ve eski gerçek gövde/top kaydedicisine bağlı salt okuma görünümü.
 - `tests/reproductions/`: varsayılan paketi kırmadan saklanan açık dönüş/orta regresyonları; ilerleme günlüğü hangi ürün yaklaşımının geri alındığını anlatır.
 - `tools/match-sim-parity-report.cjs`: aynı 20 tohumda eşlenmiş kısa maç ölçümü; tarihli ham sonuçlar `docs/measurements/3d-feature-parity/`.
+
+## PR #16 sonrası ortak servis
+
+`core/sim/cross-delivery.js` servis seçimi, ortak pas uçuşu ve orta olayını; `cross-layout.js` gerçek koşucu/markajcı/kaleci yerleşim hedeflerini kurar. Eski director çalıştırılmaz. Kabul: `tests/match-sim-cross-delivery.test.cjs`.
+
+`core/sim/aerial-choice.js` gerçek temas yüksekliği, mesafe/yön ve güvenli çıkışla kafa/vole/uzaklaştırma niyetini seçer. `aerial-contact.js` aynı topun gerçek temasını ve kalan fizik adımını yürütür. Motor sonucu animasyondan okunmaz. Kabul `match-sim-aerial-finishes.test.cjs`; başarısız röveşata ayrı `tests/reproductions/remaining-bicycle.cjs`.
+
+`core/players/move-eligibility.js` eski movesFor kurallarının saf tek kaynağıdır; eski motor ve yeni fizik aynı yetenek listesini okur. `sim/ground-skill-choice.js` gerçek alan/baskı/hız ve beceriden seçim; `ground-skills.js` aynı taşıma içindeki fiziksel temas dizileri; `presentation/sim/scene-skill-feet.js` eski salt ayak eğrileriyle çizimdir. Eski beat jeneratörleri veya hareket/top çözücüleri çalışmaz.
+
+`sim/no-look-pass.js` gerçek alternatif bakış hedefini saf olarak seçer; `presentation/sim/scene-pass-gaze.js` eski nolook pozunda yalnız baş kemiğini o oyuncuya çevirir.
+
+`sim/pass-technique.js` topuk/rabona duruşunu gerçek integratörde hazırlar; top mevcut kontrollü yerinde dururken oyuncu ayağını fiziksel erişime getirir. `presentation/sim/scene-pass-feet.js` eski backheelFeet/rabonaFeet saf yollarını örnekler; director/ikinci fizik çağrısı yoktur.
+
+Kalan özellikler: cross-delivery/cross-layout servis planını, aerial-choice/aerial-contact gerçek yüksek teması; ground-skill-choice/ground-skills ve nutmeg-choice/nutmeg-geometry gerçek taşıma/ayak boşluğunu; pass-technique/no-look-pass özel pasları; first-touch-technique özel trap'i taşır. scene-skill-feet/scene-pass-feet/scene-trap-feet/scene-pass-gaze yalnız rig sunumudur. scene-replay/panel mevcut sınırlı gerçek kaydı oynatır. remaining-parity smoke, izole çekirdek senaryolarını normal kariyer kaydından ayrı etiketler.
+
+remaining-contact-frames yalnız duraklatılmış gerçek temas checkpoint'lerini WebGL'de gösterir; canlı hareket veya tekrar tamamlanması kabulü yerine geçmez. remaining-parity başarısızlıkları ve geçersiz eski tick ölçümlerini korur; statik görüntü bu kapıyı yeşile çevirmez.

@@ -1,21 +1,26 @@
 import MATCH_SIM_DATA from '../../data/match-sim.json';
-import { simulationPassFlight } from './ball-physics.js';
+import { simulationDeliveryFlight, recordSimulationCross } from './cross-delivery.js';
 import { pointDistance } from './geometry.js';
 import { drawSimulationRandom, simulationRuntime } from './simulation-runtime.js';
 import { simulationOwnerPressure } from './pass-evaluation.js';
 import { emitSimulationEvent } from './ball-events.js';
 import { captureSimulationOffside } from './offside.js';
+import { simulationNoLookPass } from './no-look-pass.js';
+import { simulationPassTechniqueCue } from './pass-technique.js';
 
 const { cos, sin } = Math;
 
 export function releaseSimulationPass(simulation, owner, option) {
   captureSimulationOffside(simulation, owner, option.restartKind);
   const ball = simulation.ball, fromPos = { ...ball.position };
-  const flight = simulationPassFlight(fromPos, option.target, option.lofted);
+  const flight = simulationDeliveryFlight(simulation, owner, option);
   applyPassError(simulation, owner, flight);
   Object.assign(ball, flight, { ownerId: null, excludedId: owner.id, controlAfterTick: simulation.tick + owner.limits.reactionTicks });
   if (ball.control) ball.control = null;
   const eventIndex = emitSimulationEvent(simulation, { type: 'pass', fromId: owner.id, toId: option.toId, fromPos,
+    ...(simulationPassTechniqueCue(simulation, owner) ?? simulationNoLookPass(simulation, owner, option)),
+    ...(option.contactTime != null ? { time: option.contactTime, style: option.style, height: ball.height } : {}),
+    ...(option.restartKind ? { restartKind: option.restartKind, temporaryRestart: false } : {}),
     toPos: { ...option.target }, teamId: owner.teamId, lofted: option.lofted, leadDistance: pointDistance(option.target, simulationRuntime(simulation).byId.get(option.toId).position), distance: pointDistance(fromPos, option.target) });
   ball.backpassTeamId = owner.teamId;
   ball.shot = null;
@@ -23,6 +28,9 @@ export function releaseSimulationPass(simulation, owner, option) {
   simulation.statistics.teams[owner.teamId].passes++;
   simulation.passing.selected = { ...option, fromPos };
   simulation.passing.requested = null;
+  if (simulation.passing.technique) simulation.passing.technique = null;
+  recordSimulationCross(simulation, owner, option);
+  return eventIndex;
 }
 
 function applyPassError(simulation, owner, flight) {

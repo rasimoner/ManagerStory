@@ -1,0 +1,14 @@
+diff --git a/src/core/sim/box-defending.js b/src/core/sim/box-defending.js
+--- a/src/core/sim/box-defending.js
++++ b/src/core/sim/box-defending.js
+@@ -23 +23 @@
+-  const threats = opponents.filter(player => boxReceiver(player, simulation, goalX)).sort((a, b) => Math.abs(goalX - a.position.x) - Math.abs(goalX - b.position.x));
++  const threats = opponents.filter(player => boxReceiver(player, simulation, goalX)).sort((a, b) => boxReceiverDistance(a, simulation, goalX) - boxReceiverDistance(b, simulation, goalX));
+@@ -32 +32,6 @@
+-    && Math.abs(goalX - player.position.x) <= MATCH_SIM_DATA.boxDefending.receiverDistance;
++    && boxReceiverDistance(player, simulation, goalX) <= MATCH_SIM_DATA.boxDefending.receiverDistance;
++}
++
++function boxReceiverDistance(player, simulation, goalX) {
++  const depth = Math.abs(goalX - player.position.x);
++  return simulation.ball.flight?.cross ? Math.hypot(depth, player.position.y) : depth;

@@ -42,7 +42,7 @@ function* nutmegStab(beat, duel, m) {
   car.heading = Math.atan2(f.x, f.z);
   rt.startAction(car, 'poke', 0.06);
   m.tc = 0.06 + ACTIONS.poke.dur * ACTIONS.poke.contact;
-  car.feet = { Right: { w: ramp(t0, [0.02, 0.12, m.tc, m.tc + 0.12]), at: () => ball.p.clone().addScaledVector(f, -0.13).setY(0.06) } };
+  car.feet = nutmegFeet(beat, { t0, tc: m.tc, f });
   yield* until(() => S.t - t0 >= m.tc, 1);
   const toe = car.feet.Right.last;
   m.audit = { kind: 'nutmeg', contact: toe ? +toe.distanceTo(ball.p).toFixed(3) : null };
@@ -50,6 +50,10 @@ function* nutmegStab(beat, duel, m) {
   if (debug) m.audit.dbg = { ball: vec2(ball.p), gap: vec2(gap), def: vec2(def.pos) };
   ball.v.copy(f).multiplyScalar(5.2); ball.through = S.t + 1.1; car.lastTouch = S.t;
   return f;
+}
+
+export function nutmegFeet({ ball }, { t0, tc, f }) {
+  return { Right: { w: ramp(t0, [0.02, 0.12, tc, tc + 0.12]), at: () => ball.p.clone().addScaledVector(f, -0.13).setY(0.06) } };
 }
 
 // the ball through the gap: was it between his boots

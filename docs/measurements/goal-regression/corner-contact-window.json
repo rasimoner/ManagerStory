@@ -1,0 +1,2112 @@
+{
+  "node": "v22.23.4",
+  "seed": 901,
+  "source": "97d99fc product; no overrides",
+  "rows": [
+    {
+      "event": {
+        "tick": 3322,
+        "time": 332.20000000000005,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 52,
+          "y": -33.5
+        },
+        "toPos": {
+          "x": 41.59650204041187,
+          "y": 0.03129538474942748
+        },
+        "success": null,
+        "type": "pass",
+        "restartKind": "corner",
+        "temporaryRestart": false,
+        "teamId": "home",
+        "lofted": true,
+        "leadDistance": 0,
+        "distance": 35.108126409343924,
+        "physicsTime": 332.20000000000005,
+        "matchTime": 332.2
+      },
+      "ball": {
+        "position": {
+          "x": 52,
+          "y": -33.5
+        },
+        "teamId": "home",
+        "ownerId": null,
+        "velocity": {
+          "x": -4.845597840543873,
+          "y": 15.3176518227893
+        },
+        "height": 0,
+        "verticalVelocity": 11.99706088512869,
+        "heldBy": null,
+        "heldSinceTick": 995,
+        "shot": null,
+        "assist": null,
+        "backpassTeamId": "home",
+        "lastTouchId": "home-LW",
+        "lastTouchTeamId": "home",
+        "flight": {
+          "eventIndex": 365,
+          "teamId": "home",
+          "fromId": "home-LW",
+          "toId": "home-ST",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.59650204041187,
+            "y": 0.03129538474942748
+          },
+          "launchTick": 3322,
+          "cross": true,
+          "crossEventIndex": 366
+        },
+        "restart": null,
+        "carry": null,
+        "ownerSinceTick": 3322,
+        "controlAfterTick": 3326,
+        "excludedId": "home-LW",
+        "control": null
+      },
+      "players": [
+        {
+          "id": "home-GK",
+          "teamId": "home",
+          "slot": "GK",
+          "position": {
+            "x": -47.49547348872671,
+            "y": -1.6235451672246917
+          },
+          "target": {
+            "x": -47.49547348872671,
+            "y": -1.6235451672246917
+          },
+          "role": "restart",
+          "heading": -0.31004847524493867,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LB",
+          "teamId": "home",
+          "slot": "LB",
+          "position": {
+            "x": -5.898826366091469,
+            "y": -29.66738288597959
+          },
+          "target": {
+            "x": -5.82767183087775,
+            "y": -29.671540577315348
+          },
+          "role": "restart",
+          "heading": -0.06609864345372646,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCB",
+          "teamId": "home",
+          "slot": "LCB",
+          "position": {
+            "x": 1.6762982790951895,
+            "y": -16.988637997349016
+          },
+          "target": {
+            "x": 1.7763190602259624,
+            "y": -16.962931805077165
+          },
+          "role": "restart",
+          "heading": -0.3170359721721901,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCB",
+          "teamId": "home",
+          "slot": "RCB",
+          "position": {
+            "x": 0.6779954390537252,
+            "y": -3.3117747017076478
+          },
+          "target": {
+            "x": 0.7942709713261396,
+            "y": -3.289953259809956
+          },
+          "role": "restart",
+          "heading": -0.5317068531152229,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RB",
+          "teamId": "home",
+          "slot": "RB",
+          "position": {
+            "x": -4.673140119462641,
+            "y": 8.541993525338127
+          },
+          "target": {
+            "x": -4.576984824419049,
+            "y": 8.538440933501905
+          },
+          "role": "restart",
+          "heading": -0.6382535692018236,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCM",
+          "teamId": "home",
+          "slot": "LCM",
+          "position": {
+            "x": 44.0614748243448,
+            "y": 8.082378760971944
+          },
+          "target": {
+            "x": 44,
+            "y": 8
+          },
+          "role": "restart",
+          "heading": -1.3821554620321772,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCM",
+          "teamId": "home",
+          "slot": "RCM",
+          "position": {
+            "x": 9.96649316921457,
+            "y": -3.6681971749119193
+          },
+          "target": {
+            "x": 10.061385062279518,
+            "y": -3.6314975174030963
+          },
+          "role": "restart",
+          "heading": -0.6172162659066738,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LW",
+          "teamId": "home",
+          "slot": "LW",
+          "position": {
+            "x": 52.16869383662114,
+            "y": -33.86464578211649
+          },
+          "target": {
+            "x": 52.10468003988587,
+            "y": -33.83397917487396
+          },
+          "role": "restart",
+          "heading": 2.094834933055254,
+          "duelState": "jockey"
+        },
+        {
+          "id": "home-CAM",
+          "teamId": "home",
+          "slot": "CAM",
+          "position": {
+            "x": 39.102522672587824,
+            "y": -8.02992175939575
+          },
+          "target": {
+            "x": 39,
+            "y": -8
+          },
+          "role": "restart",
+          "heading": -1.1020596568401588,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RW",
+          "teamId": "home",
+          "slot": "RW",
+          "position": {
+            "x": 6.203837971753602,
+            "y": 12.431640024342686
+          },
+          "target": {
+            "x": 6.117409908409596,
+            "y": 12.3912337943916
+          },
+          "role": "restart",
+          "heading": -0.7868751190701474,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-ST",
+          "teamId": "home",
+          "slot": "ST",
+          "position": {
+            "x": 41.59650204041187,
+            "y": 0.03129538474942748
+          },
+          "target": {
+            "x": 41.5,
+            "y": 0
+          },
+          "role": "restart",
+          "heading": -1.2699513407424052,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-GK",
+          "teamId": "away",
+          "slot": "GK",
+          "position": {
+            "x": 49.471320039870044,
+            "y": 0.030489057451126633
+          },
+          "target": {
+            "x": 49.5,
+            "y": 0
+          },
+          "role": "restart",
+          "heading": -1.4955244618145538,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LB",
+          "teamId": "away",
+          "slot": "LB",
+          "position": {
+            "x": 41.96979324605652,
+            "y": -31.879605667959552
+          },
+          "target": {
+            "x": 42.063587039915596,
+            "y": -31.89738271912672
+          },
+          "role": "restart",
+          "heading": -0.16016760828167376,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "slot": "LCB",
+          "position": {
+            "x": 40.412237774925686,
+            "y": -7.9424399705239255
+          },
+          "target": {
+            "x": 40.5,
+            "y": -8
+          },
+          "role": "restart",
+          "heading": -1.1451197101825612,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RCB",
+          "teamId": "away",
+          "slot": "RCB",
+          "position": {
+            "x": 42.92944583186956,
+            "y": -0.07784260898747175
+          },
+          "target": {
+            "x": 43,
+            "y": 0
+          },
+          "role": "restart",
+          "heading": -1.305786190706792,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RB",
+          "teamId": "away",
+          "slot": "RB",
+          "position": {
+            "x": 45.52171886187022,
+            "y": 7.886141480970325
+          },
+          "target": {
+            "x": 45.5,
+            "y": 8
+          },
+          "role": "restart",
+          "heading": -1.4155237126940539,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LCM",
+          "teamId": "away",
+          "slot": "LCM",
+          "position": {
+            "x": 23.090477755346047,
+            "y": -12.508127052783022
+          },
+          "target": {
+            "x": 23.161226587590495,
+            "y": -12.506500401179546
+          },
+          "role": "restart",
+          "heading": -0.6280439802185729,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-RCM",
+          "teamId": "away",
+          "slot": "RCM",
+          "position": {
+            "x": 21.576555337099318,
+            "y": 9.228212929319335
+          },
+          "target": {
+            "x": 21.63608064067248,
+            "y": 9.218925837136409
+          },
+          "role": "restart",
+          "heading": -0.9520471276547913,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LW",
+          "teamId": "away",
+          "slot": "LW",
+          "position": {
+            "x": 35.754138350846404,
+            "y": -33.07730693997111
+          },
+          "target": {
+            "x": 35.85243002485829,
+            "y": -33.04348109458116
+          },
+          "role": "restart",
+          "heading": -0.026012637889068786,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-CAM",
+          "teamId": "away",
+          "slot": "CAM",
+          "position": {
+            "x": 24.67243456838402,
+            "y": -13.032614817001152
+          },
+          "target": {
+            "x": 24.642792232951763,
+            "y": -12.990664923134505
+          },
+          "role": "restart",
+          "heading": -0.6428382657026267,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RW",
+          "teamId": "away",
+          "slot": "RW",
+          "position": {
+            "x": 7.687083862919602,
+            "y": 27.754874690299996
+          },
+          "target": {
+            "x": 7.686858768030775,
+            "y": 27.75486165762008
+          },
+          "role": "restart",
+          "heading": -0.9445254677257501,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-ST",
+          "teamId": "away",
+          "slot": "ST",
+          "position": {
+            "x": 12.526152379714036,
+            "y": -18.12722328080864
+          },
+          "target": {
+            "x": 12.429734431352584,
+            "y": -18.074724984572676
+          },
+          "role": "restart",
+          "heading": -0.3713717056123943,
+          "duelState": "idle"
+        }
+      ]
+    },
+    {
+      "event": {
+        "tick": 3322,
+        "time": 332.20000000000005,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 52,
+          "y": -33.5
+        },
+        "toPos": {
+          "x": 41.59650204041187,
+          "y": 0.03129538474942748
+        },
+        "success": null,
+        "type": "cross",
+        "teamId": "home",
+        "height": 0,
+        "restartKind": "corner",
+        "physicsTime": 332.20000000000005,
+        "matchTime": 332.2
+      },
+      "ball": {
+        "position": {
+          "x": 52,
+          "y": -33.5
+        },
+        "teamId": "home",
+        "ownerId": null,
+        "velocity": {
+          "x": -4.845597840543873,
+          "y": 15.3176518227893
+        },
+        "height": 0,
+        "verticalVelocity": 11.99706088512869,
+        "heldBy": null,
+        "heldSinceTick": 995,
+        "shot": null,
+        "assist": null,
+        "backpassTeamId": "home",
+        "lastTouchId": "home-LW",
+        "lastTouchTeamId": "home",
+        "flight": {
+          "eventIndex": 365,
+          "teamId": "home",
+          "fromId": "home-LW",
+          "toId": "home-ST",
+          "fromPos": {
+            "x": 52,
+            "y": -33.5
+          },
+          "target": {
+            "x": 41.59650204041187,
+            "y": 0.03129538474942748
+          },
+          "launchTick": 3322,
+          "cross": true,
+          "crossEventIndex": 366
+        },
+        "restart": null,
+        "carry": null,
+        "ownerSinceTick": 3322,
+        "controlAfterTick": 3326,
+        "excludedId": "home-LW",
+        "control": null
+      },
+      "players": [
+        {
+          "id": "home-GK",
+          "teamId": "home",
+          "slot": "GK",
+          "position": {
+            "x": -47.49547348872671,
+            "y": -1.6235451672246917
+          },
+          "target": {
+            "x": -47.49547348872671,
+            "y": -1.6235451672246917
+          },
+          "role": "restart",
+          "heading": -0.31004847524493867,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LB",
+          "teamId": "home",
+          "slot": "LB",
+          "position": {
+            "x": -5.898826366091469,
+            "y": -29.66738288597959
+          },
+          "target": {
+            "x": -5.82767183087775,
+            "y": -29.671540577315348
+          },
+          "role": "restart",
+          "heading": -0.06609864345372646,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCB",
+          "teamId": "home",
+          "slot": "LCB",
+          "position": {
+            "x": 1.6762982790951895,
+            "y": -16.988637997349016
+          },
+          "target": {
+            "x": 1.7763190602259624,
+            "y": -16.962931805077165
+          },
+          "role": "restart",
+          "heading": -0.3170359721721901,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCB",
+          "teamId": "home",
+          "slot": "RCB",
+          "position": {
+            "x": 0.6779954390537252,
+            "y": -3.3117747017076478
+          },
+          "target": {
+            "x": 0.7942709713261396,
+            "y": -3.289953259809956
+          },
+          "role": "restart",
+          "heading": -0.5317068531152229,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RB",
+          "teamId": "home",
+          "slot": "RB",
+          "position": {
+            "x": -4.673140119462641,
+            "y": 8.541993525338127
+          },
+          "target": {
+            "x": -4.576984824419049,
+            "y": 8.538440933501905
+          },
+          "role": "restart",
+          "heading": -0.6382535692018236,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCM",
+          "teamId": "home",
+          "slot": "LCM",
+          "position": {
+            "x": 44.0614748243448,
+            "y": 8.082378760971944
+          },
+          "target": {
+            "x": 44,
+            "y": 8
+          },
+          "role": "restart",
+          "heading": -1.3821554620321772,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCM",
+          "teamId": "home",
+          "slot": "RCM",
+          "position": {
+            "x": 9.96649316921457,
+            "y": -3.6681971749119193
+          },
+          "target": {
+            "x": 10.061385062279518,
+            "y": -3.6314975174030963
+          },
+          "role": "restart",
+          "heading": -0.6172162659066738,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LW",
+          "teamId": "home",
+          "slot": "LW",
+          "position": {
+            "x": 52.16869383662114,
+            "y": -33.86464578211649
+          },
+          "target": {
+            "x": 52.10468003988587,
+            "y": -33.83397917487396
+          },
+          "role": "restart",
+          "heading": 2.094834933055254,
+          "duelState": "jockey"
+        },
+        {
+          "id": "home-CAM",
+          "teamId": "home",
+          "slot": "CAM",
+          "position": {
+            "x": 39.102522672587824,
+            "y": -8.02992175939575
+          },
+          "target": {
+            "x": 39,
+            "y": -8
+          },
+          "role": "restart",
+          "heading": -1.1020596568401588,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RW",
+          "teamId": "home",
+          "slot": "RW",
+          "position": {
+            "x": 6.203837971753602,
+            "y": 12.431640024342686
+          },
+          "target": {
+            "x": 6.117409908409596,
+            "y": 12.3912337943916
+          },
+          "role": "restart",
+          "heading": -0.7868751190701474,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-ST",
+          "teamId": "home",
+          "slot": "ST",
+          "position": {
+            "x": 41.59650204041187,
+            "y": 0.03129538474942748
+          },
+          "target": {
+            "x": 41.5,
+            "y": 0
+          },
+          "role": "restart",
+          "heading": -1.2699513407424052,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-GK",
+          "teamId": "away",
+          "slot": "GK",
+          "position": {
+            "x": 49.471320039870044,
+            "y": 0.030489057451126633
+          },
+          "target": {
+            "x": 49.5,
+            "y": 0
+          },
+          "role": "restart",
+          "heading": -1.4955244618145538,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LB",
+          "teamId": "away",
+          "slot": "LB",
+          "position": {
+            "x": 41.96979324605652,
+            "y": -31.879605667959552
+          },
+          "target": {
+            "x": 42.063587039915596,
+            "y": -31.89738271912672
+          },
+          "role": "restart",
+          "heading": -0.16016760828167376,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "slot": "LCB",
+          "position": {
+            "x": 40.412237774925686,
+            "y": -7.9424399705239255
+          },
+          "target": {
+            "x": 40.5,
+            "y": -8
+          },
+          "role": "restart",
+          "heading": -1.1451197101825612,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RCB",
+          "teamId": "away",
+          "slot": "RCB",
+          "position": {
+            "x": 42.92944583186956,
+            "y": -0.07784260898747175
+          },
+          "target": {
+            "x": 43,
+            "y": 0
+          },
+          "role": "restart",
+          "heading": -1.305786190706792,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RB",
+          "teamId": "away",
+          "slot": "RB",
+          "position": {
+            "x": 45.52171886187022,
+            "y": 7.886141480970325
+          },
+          "target": {
+            "x": 45.5,
+            "y": 8
+          },
+          "role": "restart",
+          "heading": -1.4155237126940539,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LCM",
+          "teamId": "away",
+          "slot": "LCM",
+          "position": {
+            "x": 23.090477755346047,
+            "y": -12.508127052783022
+          },
+          "target": {
+            "x": 23.161226587590495,
+            "y": -12.506500401179546
+          },
+          "role": "restart",
+          "heading": -0.6280439802185729,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-RCM",
+          "teamId": "away",
+          "slot": "RCM",
+          "position": {
+            "x": 21.576555337099318,
+            "y": 9.228212929319335
+          },
+          "target": {
+            "x": 21.63608064067248,
+            "y": 9.218925837136409
+          },
+          "role": "restart",
+          "heading": -0.9520471276547913,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LW",
+          "teamId": "away",
+          "slot": "LW",
+          "position": {
+            "x": 35.754138350846404,
+            "y": -33.07730693997111
+          },
+          "target": {
+            "x": 35.85243002485829,
+            "y": -33.04348109458116
+          },
+          "role": "restart",
+          "heading": -0.026012637889068786,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-CAM",
+          "teamId": "away",
+          "slot": "CAM",
+          "position": {
+            "x": 24.67243456838402,
+            "y": -13.032614817001152
+          },
+          "target": {
+            "x": 24.642792232951763,
+            "y": -12.990664923134505
+          },
+          "role": "restart",
+          "heading": -0.6428382657026267,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RW",
+          "teamId": "away",
+          "slot": "RW",
+          "position": {
+            "x": 7.687083862919602,
+            "y": 27.754874690299996
+          },
+          "target": {
+            "x": 7.686858768030775,
+            "y": 27.75486165762008
+          },
+          "role": "restart",
+          "heading": -0.9445254677257501,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-ST",
+          "teamId": "away",
+          "slot": "ST",
+          "position": {
+            "x": 12.526152379714036,
+            "y": -18.12722328080864
+          },
+          "target": {
+            "x": 12.429734431352584,
+            "y": -18.074724984572676
+          },
+          "role": "restart",
+          "heading": -0.3713717056123943,
+          "duelState": "idle"
+        }
+      ]
+    },
+    {
+      "event": {
+        "tick": 3347,
+        "time": 334.6650854151026,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 40.055256937046565,
+          "y": 4.259100398323902
+        },
+        "toPos": {
+          "x": 39.777722810745594,
+          "y": 4.612181278449557
+        },
+        "success": true,
+        "type": "firstTouch",
+        "height": 0,
+        "speed": 16.04180896983304,
+        "passId": 365,
+        "kind": "foot",
+        "physicsTime": 334.6650854151026,
+        "matchTime": 334.6650854151026
+      },
+      "ball": {
+        "position": {
+          "x": 39.88832361660995,
+          "y": 4.379610849174511
+        },
+        "teamId": "home",
+        "ownerId": "home-ST",
+        "velocity": {
+          "x": -4.43779733402765,
+          "y": 3.2596114472325652
+        },
+        "height": 0,
+        "verticalVelocity": 0,
+        "heldBy": null,
+        "heldSinceTick": 995,
+        "shot": null,
+        "assist": {
+          "fromId": "home-LW",
+          "toId": "home-ST",
+          "teamId": "home"
+        },
+        "backpassTeamId": "home",
+        "lastTouchId": "home-ST",
+        "lastTouchTeamId": "home",
+        "flight": null,
+        "restart": null,
+        "carry": null,
+        "ownerSinceTick": 3347,
+        "controlAfterTick": 3326,
+        "excludedId": null,
+        "control": {
+          "time": 334.6650854151026,
+          "offset": {
+            "x": 0.27753412630097074,
+            "y": -0.3530808801256553
+          },
+          "height": 0,
+          "verticalVelocity": 0
+        }
+      },
+      "players": [
+        {
+          "id": "home-GK",
+          "teamId": "home",
+          "slot": "GK",
+          "position": {
+            "x": -47.499997588582254,
+            "y": 0.03352927548240793
+          },
+          "target": {
+            "x": -47.5,
+            "y": 0.17536835198843756
+          },
+          "role": "keeper",
+          "heading": 1.5708133278767353,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LB",
+          "teamId": "home",
+          "slot": "LB",
+          "position": {
+            "x": 0.8055942851548072,
+            "y": -29.58450087566003
+          },
+          "target": {
+            "x": 0.5,
+            "y": -26.85817246885698
+          },
+          "role": "block",
+          "heading": 1.6568930704734142,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCB",
+          "teamId": "home",
+          "slot": "LCB",
+          "position": {
+            "x": 0.5266521259929424,
+            "y": -10.826243628519439
+          },
+          "target": {
+            "x": 0.5,
+            "y": -8.378172468856985
+          },
+          "role": "block",
+          "heading": 1.5844425707507273,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCB",
+          "teamId": "home",
+          "slot": "RCB",
+          "position": {
+            "x": 0.63317919138183,
+            "y": 5.944526387225934
+          },
+          "target": {
+            "x": 0.5,
+            "y": 8.517356275952517
+          },
+          "role": "block",
+          "heading": 1.6225138664913257,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RB",
+          "teamId": "home",
+          "slot": "RB",
+          "position": {
+            "x": -1.337471565936884,
+            "y": 18.839944222437254
+          },
+          "target": {
+            "x": 0.5,
+            "y": 29.14182753114302
+          },
+          "role": "block",
+          "heading": 1.3942897710815723,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCM",
+          "teamId": "home",
+          "slot": "LCM",
+          "position": {
+            "x": 37.13521974028971,
+            "y": 0.7263106066144629
+          },
+          "target": {
+            "x": 21.99042045734379,
+            "y": 34
+          },
+          "role": "intercept",
+          "heading": 2.005104349362277,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCM",
+          "teamId": "home",
+          "slot": "RCM",
+          "position": {
+            "x": 16.91656312821786,
+            "y": 4.868332679240242
+          },
+          "target": {
+            "x": 19.7,
+            "y": 9.077356275952516
+          },
+          "role": "block",
+          "heading": 0.9865167347686066,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LW",
+          "teamId": "home",
+          "slot": "LW",
+          "position": {
+            "x": 42.099303327409245,
+            "y": -31.137942326191457
+          },
+          "target": {
+            "x": 34.1,
+            "y": -26.85817246885698
+          },
+          "role": "block",
+          "heading": 2.6558395268922332,
+          "duelState": "jockey"
+        },
+        {
+          "id": "home-CAM",
+          "teamId": "home",
+          "slot": "CAM",
+          "position": {
+            "x": 37.998812879320134,
+            "y": -3.0376870720402906
+          },
+          "target": {
+            "x": 22.305169834654162,
+            "y": 34
+          },
+          "role": "intercept",
+          "heading": 1.9712718106793943,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RW",
+          "teamId": "home",
+          "slot": "RW",
+          "position": {
+            "x": 17.698194084522463,
+            "y": 18.00014519220629
+          },
+          "target": {
+            "x": 34.1,
+            "y": 26.997356275952516
+          },
+          "role": "block",
+          "heading": 0.5017293066217519,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-ST",
+          "teamId": "home",
+          "slot": "ST",
+          "position": {
+            "x": 39.77772281074562,
+            "y": 4.612181278449522
+          },
+          "target": {
+            "x": 21.068793022442797,
+            "y": 34
+          },
+          "role": "receive",
+          "heading": -3.135093360255026,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-GK",
+          "teamId": "away",
+          "slot": "GK",
+          "position": {
+            "x": 51.10731009791219,
+            "y": -2.808014819862099
+          },
+          "target": {
+            "x": 50.3902923887021,
+            "y": 0.5228053654831627
+          },
+          "role": "keeper",
+          "heading": 1.7755057565984476,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LB",
+          "teamId": "away",
+          "slot": "LB",
+          "position": {
+            "x": 45.565154011423914,
+            "y": -25.360282900748352
+          },
+          "target": {
+            "x": 43.44663041177243,
+            "y": -17.205699593918116
+          },
+          "role": "mark",
+          "heading": 1.8051385314872384,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "slot": "LCB",
+          "position": {
+            "x": 40.141144993264795,
+            "y": -4.652841809728411
+          },
+          "target": {
+            "x": 22.62368932813621,
+            "y": 34
+          },
+          "role": "intercept",
+          "heading": 1.9959241760632875,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RCB",
+          "teamId": "away",
+          "slot": "RCB",
+          "position": {
+            "x": 44.23174668620717,
+            "y": -3.745792165501984
+          },
+          "target": {
+            "x": 20.769124109819167,
+            "y": 34
+          },
+          "role": "intercept",
+          "heading": 2.1265658205867,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RB",
+          "teamId": "away",
+          "slot": "RB",
+          "position": {
+            "x": 44.006013036257166,
+            "y": 5.457741665257158
+          },
+          "target": {
+            "x": 21.068793022442797,
+            "y": 34
+          },
+          "role": "intercept",
+          "heading": 2.590576871946962,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LCM",
+          "teamId": "away",
+          "slot": "LCM",
+          "position": {
+            "x": 33.367534545949184,
+            "y": -12.09327869619084
+          },
+          "target": {
+            "x": 37.9,
+            "y": -3.605699593918115
+          },
+          "role": "block",
+          "heading": 1.0667646106096722,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-RCM",
+          "teamId": "away",
+          "slot": "RCM",
+          "position": {
+            "x": 31.233982402287808,
+            "y": 2.6590192174436464
+          },
+          "target": {
+            "x": 41.5,
+            "y": -0.5156453437958493
+          },
+          "role": "rebound",
+          "heading": -0.2999122674333052,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LW",
+          "teamId": "away",
+          "slot": "LW",
+          "position": {
+            "x": 34.98670378939953,
+            "y": -26.027160150995932
+          },
+          "target": {
+            "x": 30.7,
+            "y": -16.57558299493176
+          },
+          "role": "block",
+          "heading": 1.9965933306682044,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-CAM",
+          "teamId": "away",
+          "slot": "CAM",
+          "position": {
+            "x": 31.806621064320122,
+            "y": -8.836528926262766
+          },
+          "target": {
+            "x": 30.7,
+            "y": -1.575582994931762
+          },
+          "role": "block",
+          "heading": 1.7079640638230174,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RW",
+          "teamId": "away",
+          "slot": "RW",
+          "position": {
+            "x": 17.185495699325866,
+            "y": 19.916705144337183
+          },
+          "target": {
+            "x": 30.7,
+            "y": 13.424417005068237
+          },
+          "role": "block",
+          "heading": -0.4478402287786557,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-ST",
+          "teamId": "away",
+          "slot": "ST",
+          "position": {
+            "x": 19.461065090011925,
+            "y": -11.172454296045222
+          },
+          "target": {
+            "x": 23.5,
+            "y": 1.7943004060818843
+          },
+          "role": "block",
+          "heading": 1.2679322804411053,
+          "duelState": "idle"
+        }
+      ]
+    },
+    {
+      "event": {
+        "tick": 3351,
+        "time": 335.1,
+        "fromId": "home-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 39.2330180850958,
+          "y": 4.736412799304781
+        },
+        "toPos": {
+          "x": 52.5,
+          "y": 2.772,
+          "height": 0.9515
+        },
+        "success": null,
+        "type": "shot",
+        "teamId": "home",
+        "xg": 0.07783559394171136,
+        "distance": 13.929136660176814,
+        "angle": 0.4855510420863081,
+        "blocked": 0.012252474668540991,
+        "pressure": 0.40478027517057313,
+        "power": 27.55673628350438,
+        "target": {
+          "x": 52.5,
+          "y": 2.772,
+          "height": 0.9515
+        },
+        "style": "drive",
+        "onTarget": false,
+        "physicsTime": 335.1,
+        "matchTime": 335.1,
+        "keeper": {
+          "set": false,
+          "reactionSeconds": 0.256,
+          "distance": 13.283801888857127,
+          "lateralDistance": 3.215753928723726,
+          "contact": false,
+          "saved": false
+        }
+      },
+      "ball": {
+        "position": {
+          "x": 39.2330180850958,
+          "y": 4.736412799304781
+        },
+        "teamId": "home",
+        "ownerId": null,
+        "velocity": {
+          "x": 26.8623574932196,
+          "y": -6.147150925841643
+        },
+        "height": 0,
+        "verticalVelocity": 1.5527173097944962,
+        "heldBy": null,
+        "heldSinceTick": 995,
+        "shot": {
+          "eventIndex": 368,
+          "fromId": "home-ST",
+          "teamId": "home",
+          "assistId": "home-LW",
+          "launchTick": 3351,
+          "saved": false
+        },
+        "assist": null,
+        "backpassTeamId": null,
+        "lastTouchId": "home-ST",
+        "lastTouchTeamId": "home",
+        "flight": null,
+        "restart": null,
+        "carry": null,
+        "ownerSinceTick": 3347,
+        "controlAfterTick": 3355,
+        "excludedId": "home-ST",
+        "control": null
+      },
+      "players": [
+        {
+          "id": "home-GK",
+          "teamId": "home",
+          "slot": "GK",
+          "position": {
+            "x": -47.49999912261415,
+            "y": 0.1570951360840438
+          },
+          "target": {
+            "x": -47.5,
+            "y": 0.26550685184685013
+          },
+          "role": "keeper",
+          "heading": 1.5708073553014208,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LB",
+          "teamId": "home",
+          "slot": "LB",
+          "position": {
+            "x": 0.9764943148356612,
+            "y": -28.543593917649424
+          },
+          "target": {
+            "x": 0.5,
+            "y": -26.292442963066907
+          },
+          "role": "block",
+          "heading": 1.7569834413159409,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCB",
+          "teamId": "home",
+          "slot": "LCB",
+          "position": {
+            "x": 0.502375942000542,
+            "y": -9.399950653449194
+          },
+          "target": {
+            "x": 0.5,
+            "y": -7.812442963066909
+          },
+          "role": "block",
+          "heading": 1.572402477286835,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCB",
+          "teamId": "home",
+          "slot": "RCB",
+          "position": {
+            "x": 0.5893343981476263,
+            "y": 7.537409393429392
+          },
+          "target": {
+            "x": 0.5,
+            "y": 11.05286379721108
+          },
+          "role": "block",
+          "heading": 1.5962027652409165,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RB",
+          "teamId": "home",
+          "slot": "RB",
+          "position": {
+            "x": -0.8682644259796348,
+            "y": 21.510050806346367
+          },
+          "target": {
+            "x": 0.5,
+            "y": 29.707557036933093
+          },
+          "role": "block",
+          "heading": 1.4054086872427092,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCM",
+          "teamId": "home",
+          "slot": "LCM",
+          "position": {
+            "x": 35.557673291284694,
+            "y": -0.3829144151670415
+          },
+          "target": {
+            "x": 19.7,
+            "y": -8.547136202788922
+          },
+          "role": "block",
+          "heading": -2.6639428018651348,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCM",
+          "teamId": "home",
+          "slot": "RCM",
+          "position": {
+            "x": 18.06242574773456,
+            "y": 7.324426313372879
+          },
+          "target": {
+            "x": 19.7,
+            "y": 11.612863797211078
+          },
+          "role": "block",
+          "heading": 1.2060267424824578,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LW",
+          "teamId": "home",
+          "slot": "LW",
+          "position": {
+            "x": 39.975864365360835,
+            "y": -30.017490825669366
+          },
+          "target": {
+            "x": 34.1,
+            "y": -26.292442963066907
+          },
+          "role": "block",
+          "heading": 2.5765779569084053,
+          "duelState": "jockey"
+        },
+        {
+          "id": "home-CAM",
+          "teamId": "home",
+          "slot": "CAM",
+          "position": {
+            "x": 36.80552677483496,
+            "y": -0.627953354274007
+          },
+          "target": {
+            "x": 34.1,
+            "y": 1.7075570369330921
+          },
+          "role": "block",
+          "heading": -3.1137667078869353,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RW",
+          "teamId": "home",
+          "slot": "RW",
+          "position": {
+            "x": 20.877803559703803,
+            "y": 19.28182783455994
+          },
+          "target": {
+            "x": 31.888323616609952,
+            "y": 14.379610849174512
+          },
+          "role": "support",
+          "heading": -0.3792565213636496,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-ST",
+          "teamId": "home",
+          "slot": "ST",
+          "position": {
+            "x": 39.47901854903912,
+            "y": 4.947210340344785
+          },
+          "target": {
+            "x": 39.496112817714206,
+            "y": 4.928037273428093
+          },
+          "role": "holder",
+          "heading": -2.535093360255026,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-GK",
+          "teamId": "away",
+          "slot": "GK",
+          "position": {
+            "x": 50.94026282572469,
+            "y": -1.5405142518422554
+          },
+          "target": {
+            "x": 50.30476835904556,
+            "y": 0.7560438489118813
+          },
+          "role": "keeper",
+          "heading": 1.830348522808588,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LB",
+          "teamId": "away",
+          "slot": "LB",
+          "position": {
+            "x": 45.80449338700385,
+            "y": -23.10001966896424
+          },
+          "target": {
+            "x": 41.45379587383914,
+            "y": -16.316696084819426
+          },
+          "role": "mark",
+          "heading": 2.1088992329455873,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "slot": "LCB",
+          "position": {
+            "x": 39.36321483557514,
+            "y": -2.7143280935675373
+          },
+          "target": {
+            "x": 39.40003117617838,
+            "y": -2.8107474122039706
+          },
+          "role": "mark",
+          "heading": 1.958478325955429,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RCB",
+          "teamId": "away",
+          "slot": "RCB",
+          "position": {
+            "x": 43.718211109690436,
+            "y": -2.6694521767918147
+          },
+          "target": {
+            "x": 43.874659111728164,
+            "y": 3.1711773543043145
+          },
+          "role": "cover",
+          "heading": 1.5662349045903634,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RB",
+          "teamId": "away",
+          "slot": "RB",
+          "position": {
+            "x": 43.03372013938772,
+            "y": 5.291319848074239
+          },
+          "target": {
+            "x": 40.84932648503052,
+            "y": 4.556099769663557
+          },
+          "role": "press",
+          "heading": 2.8349624801098368,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-LCM",
+          "teamId": "away",
+          "slot": "LCM",
+          "position": {
+            "x": 34.93497613409579,
+            "y": -10.130165794314879
+          },
+          "target": {
+            "x": 37.9,
+            "y": -2.7166960848194255
+          },
+          "role": "block",
+          "heading": 1.179484788129853,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RCM",
+          "teamId": "away",
+          "slot": "RCM",
+          "position": {
+            "x": 34.43734942553561,
+            "y": 1.9639109874030434
+          },
+          "target": {
+            "x": 37.9,
+            "y": 7.8087859670459805
+          },
+          "role": "block",
+          "heading": 0.9432992814755795,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LW",
+          "teamId": "away",
+          "slot": "LW",
+          "position": {
+            "x": 34.171619431644956,
+            "y": -23.602591064493353
+          },
+          "target": {
+            "x": 30.7,
+            "y": -12.591214032954019
+          },
+          "role": "block",
+          "heading": 1.8762079306265582,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-CAM",
+          "teamId": "away",
+          "slot": "CAM",
+          "position": {
+            "x": 31.816183959905498,
+            "y": -6.324764987568139
+          },
+          "target": {
+            "x": 30.7,
+            "y": 2.408785967045981
+          },
+          "role": "block",
+          "heading": 1.696277889895997,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RW",
+          "teamId": "away",
+          "slot": "RW",
+          "position": {
+            "x": 20.158112717426928,
+            "y": 18.7778326951504
+          },
+          "target": {
+            "x": 30.7,
+            "y": 17.40878596704598
+          },
+          "role": "block",
+          "heading": -0.13896508771629051,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-ST",
+          "teamId": "away",
+          "slot": "ST",
+          "position": {
+            "x": 20.24873508505121,
+            "y": -8.618228639494065
+          },
+          "target": {
+            "x": 23.5,
+            "y": 2.683303915180574
+          },
+          "role": "block",
+          "heading": 1.290676983228048,
+          "duelState": "idle"
+        }
+      ]
+    },
+    {
+      "event": {
+        "tick": 3356,
+        "time": 335.5987380052179,
+        "fromId": "home-ST",
+        "toId": "home-LW",
+        "fromPos": {
+          "x": 39.2330180850958,
+          "y": 4.736412799304781
+        },
+        "toPos": {
+          "x": 52.61,
+          "y": 1.6752223041534053
+        },
+        "success": true,
+        "type": "goal",
+        "height": 0,
+        "teamId": "home",
+        "assistId": "home-LW",
+        "shotId": 368,
+        "score": {
+          "home": 1,
+          "away": 0
+        },
+        "physicsTime": 335.5987380052179,
+        "matchTime": 335.5987380052179
+      },
+      "ball": {
+        "position": {
+          "x": 52.643694955515556,
+          "y": 1.6675289620997926
+        },
+        "teamId": "home",
+        "ownerId": null,
+        "velocity": {
+          "x": 0,
+          "y": 0
+        },
+        "height": 0,
+        "verticalVelocity": 0,
+        "heldBy": null,
+        "heldSinceTick": 995,
+        "shot": null,
+        "assist": null,
+        "backpassTeamId": null,
+        "lastTouchId": "home-ST",
+        "lastTouchTeamId": "home",
+        "flight": null,
+        "restart": null,
+        "carry": null,
+        "ownerSinceTick": 3347,
+        "controlAfterTick": 3355,
+        "excludedId": "home-ST",
+        "control": null
+      },
+      "players": [
+        {
+          "id": "home-GK",
+          "teamId": "home",
+          "slot": "GK",
+          "position": {
+            "x": -47.49999912261415,
+            "y": 0.1570951360840438
+          },
+          "target": {
+            "x": -47.5,
+            "y": 0.1110344031769973
+          },
+          "role": "keeper",
+          "heading": 1.5708073553014208,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LB",
+          "teamId": "home",
+          "slot": "LB",
+          "position": {
+            "x": 0.6178922540659664,
+            "y": -26.93154385626745
+          },
+          "target": {
+            "x": 0.5,
+            "y": -26.9877063674567
+          },
+          "role": "block",
+          "heading": 2.3644633082597717,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCB",
+          "teamId": "home",
+          "slot": "LCB",
+          "position": {
+            "x": 0.5005844256093693,
+            "y": -8.33694958321512
+          },
+          "target": {
+            "x": 0.5,
+            "y": -8.5077063674567
+          },
+          "role": "block",
+          "heading": 1.5785654613052396,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCB",
+          "teamId": "home",
+          "slot": "RCB",
+          "position": {
+            "x": 0.5418177570839167,
+            "y": 9.364167478229586
+          },
+          "target": {
+            "x": 0.5,
+            "y": 10.962594197352217
+          },
+          "role": "block",
+          "heading": 1.5969521836159521,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RB",
+          "teamId": "home",
+          "slot": "RB",
+          "position": {
+            "x": -0.3733286650721815,
+            "y": 24.44276920456979
+          },
+          "target": {
+            "x": 0.5,
+            "y": 29.0122936325433
+          },
+          "role": "block",
+          "heading": 1.3836363895860393,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LCM",
+          "teamId": "home",
+          "slot": "LCM",
+          "position": {
+            "x": 33.63707277555134,
+            "y": -1.8783477286717503
+          },
+          "target": {
+            "x": 52.5,
+            "y": -24.855388149052757
+          },
+          "role": "recover",
+          "heading": -1.0495483418936655,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RCM",
+          "teamId": "home",
+          "slot": "RCM",
+          "position": {
+            "x": 19.028446045756407,
+            "y": 9.83007842627419
+          },
+          "target": {
+            "x": 19.7,
+            "y": 11.522594197352216
+          },
+          "role": "block",
+          "heading": 1.1939314324885077,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-LW",
+          "teamId": "home",
+          "slot": "LW",
+          "position": {
+            "x": 37.73601908137962,
+            "y": -28.6336277430685
+          },
+          "target": {
+            "x": 34.1,
+            "y": -26.9877063674567
+          },
+          "role": "block",
+          "heading": 2.7066724986218813,
+          "duelState": "jockey"
+        },
+        {
+          "id": "home-CAM",
+          "teamId": "home",
+          "slot": "CAM",
+          "position": {
+            "x": 35.268162571644936,
+            "y": 1.1622815801336401
+          },
+          "target": {
+            "x": 52.5,
+            "y": -24.855388149052757
+          },
+          "role": "recover",
+          "heading": -2.9970994704309843,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-RW",
+          "teamId": "home",
+          "slot": "RW",
+          "position": {
+            "x": 24.413247790271186,
+            "y": 19.952804850911576
+          },
+          "target": {
+            "x": 34.1,
+            "y": 29.0122936325433
+          },
+          "role": "block",
+          "heading": 0.7265950906766373,
+          "duelState": "idle"
+        },
+        {
+          "id": "home-ST",
+          "teamId": "home",
+          "slot": "ST",
+          "position": {
+            "x": 39.48952836172844,
+            "y": 4.903449920897991
+          },
+          "target": {
+            "x": 50.5,
+            "y": 1.0122936325433007
+          },
+          "role": "depth",
+          "heading": -1.335093360255026,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-GK",
+          "teamId": "away",
+          "slot": "GK",
+          "position": {
+            "x": 50.756880633099115,
+            "y": 0.08437603461790916
+          },
+          "target": {
+            "x": 50.759116143920934,
+            "y": 1.6752396768814701
+          },
+          "role": "keeper",
+          "heading": 1.5707963267948966,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LB",
+          "teamId": "away",
+          "slot": "LB",
+          "position": {
+            "x": 45.175828351768104,
+            "y": -20.583794111254182
+          },
+          "target": {
+            "x": 39.58206983992591,
+            "y": -17.409252863146243
+          },
+          "role": "mark",
+          "heading": 2.5797399905790925,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "slot": "LCB",
+          "position": {
+            "x": 38.995019099412794,
+            "y": -0.7597159398894875
+          },
+          "target": {
+            "x": 40.96901854903912,
+            "y": 4.947210340344785
+          },
+          "role": "mark",
+          "heading": 1.2605314313055809,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RCB",
+          "teamId": "away",
+          "slot": "RCB",
+          "position": {
+            "x": 43.399172464509526,
+            "y": -0.6795197336373302
+          },
+          "target": {
+            "x": 52.5,
+            "y": -24.855388149052757
+          },
+          "role": "recover",
+          "heading": 0.3005424626771478,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RB",
+          "teamId": "away",
+          "slot": "RB",
+          "position": {
+            "x": 41.484120189793174,
+            "y": 4.715633303848577
+          },
+          "target": {
+            "x": 52.5,
+            "y": -24.381025885861035
+          },
+          "role": "recover",
+          "heading": -1.5684777780997936,
+          "duelState": "jockey"
+        },
+        {
+          "id": "away-LCM",
+          "teamId": "away",
+          "slot": "LCM",
+          "position": {
+            "x": 36.05187751188472,
+            "y": -7.499003816294367
+          },
+          "target": {
+            "x": 37.9,
+            "y": -3.809252863146241
+          },
+          "role": "block",
+          "heading": 1.1134052270702117,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RCM",
+          "teamId": "away",
+          "slot": "RCM",
+          "position": {
+            "x": 37.60927454566454,
+            "y": 1.570495714437319
+          },
+          "target": {
+            "x": 41.5,
+            "y": 0.7419055872097109
+          },
+          "role": "rebound",
+          "heading": -0.20983069827469994,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-LW",
+          "teamId": "away",
+          "slot": "LW",
+          "position": {
+            "x": 33.27997257174563,
+            "y": -20.805210495467964
+          },
+          "target": {
+            "x": 30.7,
+            "y": -12.73306626130366
+          },
+          "role": "block",
+          "heading": 1.8801493415069077,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-CAM",
+          "teamId": "away",
+          "slot": "CAM",
+          "position": {
+            "x": 31.40727912278526,
+            "y": -3.1702469409398333
+          },
+          "target": {
+            "x": 30.7,
+            "y": 2.266933738696339
+          },
+          "role": "block",
+          "heading": 1.7001519284553506,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-RW",
+          "teamId": "away",
+          "slot": "RW",
+          "position": {
+            "x": 23.230243218745738,
+            "y": 18.25964583186138
+          },
+          "target": {
+            "x": 30.7,
+            "y": 17.266933738696338
+          },
+          "role": "block",
+          "heading": -0.1321232993619479,
+          "duelState": "idle"
+        },
+        {
+          "id": "away-ST",
+          "teamId": "away",
+          "slot": "ST",
+          "position": {
+            "x": 21.13608457969401,
+            "y": -5.684219695326427
+          },
+          "target": {
+            "x": 23.5,
+            "y": 1.5907471368537585
+          },
+          "role": "block",
+          "heading": 1.2566202261436175,
+          "duelState": "idle"
+        }
+      ]
+    }
+  ]
+}

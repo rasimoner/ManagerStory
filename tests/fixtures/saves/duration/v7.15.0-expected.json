@@ -1,73 +1,73 @@
 {
   "score": [
-    1,
-    5
+    3,
+    0
   ],
-  "rng": -1902229106,
+  "rng": 504807480,
   "statistics": {
-    "possessionTeamId": "opponent",
+    "possessionTeamId": "user",
     "teams": {
       "user": {
-        "passes": 450,
-        "completedPasses": 340,
-        "resolvedPasses": 450,
-        "passDistance": 8290.430550157635,
-        "dribbles": 419,
-        "dribbleDistance": 4916.918252502472,
-        "beats": 18,
-        "tackles": 51,
+        "passes": 399,
+        "completedPasses": 309,
+        "resolvedPasses": 399,
+        "passDistance": 8331.637211072033,
+        "dribbles": 392,
+        "dribbleDistance": 5317.737800455046,
+        "beats": 20,
+        "tackles": 59,
         "tacklesWon": 8,
-        "tacklesLoose": 27,
-        "tacklesMissed": 16,
-        "duels": 53,
-        "fouls": 5,
-        "yellow": 1,
-        "red": 0,
-        "advantages": 1,
-        "ballWins": 107,
-        "shots": 13,
-        "shotsOnTarget": 5,
-        "goals": 1,
-        "xg": 2.107177538786451,
-        "blocks": 1,
-        "saves": 10,
-        "posts": 1,
-        "interceptions": 30,
-        "possessions": 166,
-        "possessionSeconds": 2630.699999998703,
-        "controlSeconds": 982.9000000001549,
-        "controls": 605
-      },
-      "opponent": {
-        "passes": 351,
-        "completedPasses": 256,
-        "resolvedPasses": 351,
-        "passDistance": 7489.720348335474,
-        "dribbles": 324,
-        "dribbleDistance": 5119.713532901496,
-        "beats": 24,
-        "tackles": 68,
-        "tacklesWon": 6,
-        "tacklesLoose": 38,
-        "tacklesMissed": 24,
-        "duels": 53,
-        "fouls": 6,
-        "yellow": 1,
+        "tacklesLoose": 25,
+        "tacklesMissed": 26,
+        "duels": 58,
+        "fouls": 8,
+        "yellow": 3,
         "red": 0,
         "advantages": 2,
-        "ballWins": 119,
-        "shots": 25,
-        "shotsOnTarget": 15,
-        "goals": 5,
-        "xg": 4.52132920979494,
-        "blocks": 4,
-        "saves": 4,
+        "ballWins": 104,
+        "shots": 8,
+        "shotsOnTarget": 4,
+        "goals": 3,
+        "xg": 0.8900753612940179,
+        "blocks": 0,
+        "saves": 1,
         "posts": 0,
-        "interceptions": 36,
-        "possessions": 166,
-        "possessionSeconds": 2328.8999999989774,
-        "controlSeconds": 827.5000000001196,
-        "controls": 514
+        "interceptions": 29,
+        "possessions": 152,
+        "possessionSeconds": 2540.199999998785,
+        "controlSeconds": 892.3000000001343,
+        "controls": 540
+      },
+      "opponent": {
+        "passes": 415,
+        "completedPasses": 319,
+        "resolvedPasses": 415,
+        "passDistance": 8027.713943429443,
+        "dribbles": 386,
+        "dribbleDistance": 4810.826372669838,
+        "beats": 27,
+        "tackles": 61,
+        "tacklesWon": 9,
+        "tacklesLoose": 36,
+        "tacklesMissed": 16,
+        "duels": 58,
+        "fouls": 7,
+        "yellow": 2,
+        "red": 1,
+        "advantages": 1,
+        "ballWins": 96,
+        "shots": 6,
+        "shotsOnTarget": 1,
+        "goals": 0,
+        "xg": 0.539496061795746,
+        "blocks": 1,
+        "saves": 1,
+        "posts": 1,
+        "interceptions": 27,
+        "possessions": 151,
+        "possessionSeconds": 2438.5999999988776,
+        "controlSeconds": 898.5000000001357,
+        "controls": 564
       }
     }
   },
@@ -79,16 +79,16 @@
       0,
       0,
       0,
-      81.07220053114612
+      81.36532248918058
     ],
     [
       1,
       90,
       0,
       0,
+      1,
       0,
-      0,
-      82.12788875782135
+      82.25860963358849
     ],
     [
       2,
@@ -97,7 +97,7 @@
       0,
       0,
       0,
-      82.68852960789184
+      82.55486980709844
     ],
     [
       3,
@@ -106,7 +106,7 @@
       0,
       0,
       0,
-      81.68135375393481
+      82.079276842162
     ],
     [
       4,
@@ -124,16 +124,16 @@
       0,
       0,
       0,
-      82.40624256108353
+      82.17784076245604
     ],
     [
       6,
       90,
       0,
       0,
+      1,
       0,
-      0,
-      83.77185248023746
+      82.80195356357102
     ],
     [
       7,
@@ -142,7 +142,7 @@
       0,
       0,
       0,
-      82.55591507258936
+      82.23193992972482
     ],
     [
       8,
@@ -156,11 +156,11 @@
     [
       9,
       90,
+      1,
       0,
       0,
       0,
-      0,
-      81.33885489133874
+      80.6939496848115
     ],
     [
       10,
@@ -169,25 +169,25 @@
       0,
       1,
       0,
-      82.09312297707697
+      81.23567175013896
     ],
     [
       11,
       90,
+      2,
       0,
       0,
       0,
-      0,
-      82.29991409460276
+      81.33385089064426
     ],
     [
       12,
       90,
-      1,
       0,
       0,
       0,
-      81.09358777320327
+      0,
+      80.31354223655204
     ],
     [
       13,
@@ -217,5 +217,5 @@
       100
     ]
   ],
-  "eventsSha256": "4f0c6363b2790c7b3254b48b8c9799caa0869e40c836a2acd87456393f5722d2"
+  "eventsSha256": "aec3a664d68e0f731d9525447c5ef30afbf5ec3c255c2b470f35a5bef4a10d7f"
 }

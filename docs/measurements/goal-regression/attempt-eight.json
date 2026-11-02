@@ -1,0 +1,147 @@
+{
+  "note": "Yaklaşım 8 ölçümü: pressureAngleError 0.045->0.09 (yalnız prob, ürün geri alındı). Önceki ürün ölçümü: 50 tohum 8.62 gol, 20 kısa maç 1.10 gol; main 2.76 / 0.55.",
+  "node": "v22.23.4",
+  "seeds50": [
+    901,
+    731,
+    42,
+    2026,
+    508,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    43,
+    44,
+    45,
+    46
+  ],
+  "fiftySeedSummary": {
+    "goals": {
+      "mean": 7.38,
+      "median": 7,
+      "p10": 4,
+      "p90": 11
+    },
+    "shots": {
+      "mean": 35.8,
+      "median": 35,
+      "p10": 26.9,
+      "p90": 47.1
+    },
+    "shotsOnTarget": {
+      "mean": 17.42,
+      "median": 17,
+      "p10": 12,
+      "p90": 24
+    },
+    "xg": {
+      "mean": 4.009591320824523,
+      "median": 3.572318883148893,
+      "p10": 2.6909410223420545,
+      "p90": 5.993353285624612
+    },
+    "xgPerShot": {
+      "mean": 0.11101634914689225,
+      "median": 0.10949035847155753,
+      "p10": 0.09082101590997554,
+      "p90": 0.13588216875791215
+    },
+    "savePercent": {
+      "mean": 57.21410367836678,
+      "median": 58.1989247311828,
+      "p10": 33.33333333333333,
+      "p90": 71.42857142857143
+    }
+  },
+  "shortSummary": {
+    "shots": 8.15,
+    "goals": 0.7,
+    "passes": 71.35,
+    "completedPasses": 51.5,
+    "fouls": 1.45,
+    "saves": 2.95,
+    "ballWins": 16.85,
+    "turnovers": 29
+  },
+  "threeSeeds_901_731_42": {
+    "baselineGoals": [
+      5,
+      9,
+      6
+    ],
+    "attempt8Goals": [
+      6,
+      4,
+      8
+    ],
+    "baselineTotal": 20,
+    "attempt8Total": 18
+  },
+  "twentySeedsOneToTwenty": {
+    "baselineGoalsMean": 8.6,
+    "attempt8GoalsMean": 7.8
+  },
+  "controlledShotRetention": {
+    "xgImplied": {
+      "8m": 0.72,
+      "11m": 0.69
+    },
+    "baselinePlayed": {
+      "8m": 0.91,
+      "11m": 0.98
+    },
+    "patchedPlayed": {
+      "8m": "~0.75",
+      "11m": "~0.69"
+    }
+  },
+  "legacyFixtureV7_15_0": {
+    "committedScore": [
+      1,
+      5
+    ],
+    "scoreWithPatch": [
+      3,
+      0
+    ],
+    "consequence": "tests/match-sim-duration-career.test.cjs 'genuine V7.15.0 active experimental match retains ...' kırmızı"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "milliseconds": 448582.2,
+  "seconds": 448.5822,
+  "overallMilliseconds": 448461,
+  "node": "v22.23.4",
+  "cpuThrottle": 4,
+  "viewport": [
+    390,
+    844
+  ],
+  "frames": 24392,
+  "medianFrameMs": 16.69999999999709,
+  "p95FrameMs": 16.800000000017462,
+  "maximumFrameMs": 766.7000000000116,
+  "longFrames": [
+    {
+      "milliseconds": 766.7000000000116,
+      "gameSecond": 5400,
+      "physicsSecond": 436.20000000000005,
+      "phase": "natural",
+      "status": "90:00 • MAÇ BİTTİ"
+    },
+    {
+      "milliseconds": 600,
+      "gameSecond": 3360,
+      "physicsSecond": 277.6,
+      "phase": "natural",
+      "status": "56:00 • CANLI"
+    },
+    {
+      "milliseconds": 516.5999999999767,
+      "gameSecond": 3359,
+      "physicsSecond": 277.5,
+      "phase": "natural",
+      "status": "55:59 • CANLI"
+    },
+    {
+      "milliseconds": 483.3000000000029,
+      "gameSecond": 1182,
+      "physicsSecond": 92,
+      "phase": "natural",
+      "status": "19:42 • CANLI"
+    },
+    {
+      "milliseconds": 483.29999999998836,
+      "gameSecond": 3317,
+      "physicsSecond": 274.2,
+      "phase": "natural",
+      "status": "55:17 • CANLI"
+    },
+    {
+      "milliseconds": 450,
+      "gameSecond": 975,
+      "physicsSecond": 75.9,
+      "phase": "natural",
+      "status": "16:15 • CANLI"
+    },
+    {
+      "milliseconds": 433.3000000000029,
+      "gameSecond": 1495,
+      "physicsSecond": 116.30000000000001,
+      "phase": "natural",
+      "status": "24:55 • CANLI"
+    },
+    {
+      "milliseconds": 416.6000000000058,
+      "gameSecond": 1352,
+      "physicsSecond": 105.2,
+      "phase": "natural",
+      "status": "22:32 • CANLI"
+    },
+    {
+      "milliseconds": 350.1000000000058,
+      "gameSecond": 1977,
+      "physicsSecond": 153.8,
+      "phase": "natural",
+      "status": "32:57 • CANLI"
+    },
+    {
+      "milliseconds": 350,
+      "gameSecond": 1760,
+      "physicsSecond": 136.9,
+      "phase": "natural",
+      "status": "29:20 • CANLI"
+    }
+  ],
+  "phases": {
+    "natural": 24394
+  },
+  "backwards": false,
+  "activeMilliseconds": 448582.2,
+  "waitingMilliseconds": 0,
+  "seed": 8873,
+  "physicsSeconds": 436.20000000000005,
+  "matchSeconds": 5400,
+  "ticks": 4362,
+  "stoppedTicks": 162,
+  "score": [
+    0,
+    0
+  ],
+  "savedUtf16Bytes": 637922,
+  "simulationMetrics": {
+    "realSeconds": 436.44940000008285,
+    "frames": 24393,
+    "steps": 4362,
+    "budgetLimitedFrames": 11,
+    "phaseSeconds": {
+      "natural": 436.44940000008285
+    }
+  }
+}

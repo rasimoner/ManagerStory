@@ -1,0 +1,365 @@
+{
+  "node": "v22.23.4",
+  "checkpoint": "tests/reproductions/corner-before-delivery.json",
+  "start": 331.6,
+  "end": 341.6,
+  "rows": [
+    {
+      "event": {
+        "tick": 3322,
+        "time": 332.20000000000005,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 52,
+          "y": -33.5
+        },
+        "toPos": {
+          "x": 41.59650204041187,
+          "y": 0.03129538474942748
+        },
+        "success": true,
+        "type": "pass",
+        "restartKind": "corner",
+        "temporaryRestart": false,
+        "teamId": "home",
+        "lofted": true,
+        "leadDistance": 0,
+        "distance": 39.60336538389987,
+        "physicsTime": 332.20000000000005,
+        "matchTime": 332.2,
+        "actualToId": "home-ST",
+        "resolvedAt": 334.6650854151026,
+        "resolvedMatchTime": 334.6650854151026,
+        "actualToPos": {
+          "x": 40.055256937046565,
+          "y": 4.259100398323902
+        }
+      },
+      "nearestOpponents": [
+        {
+          "id": "away-LB",
+          "teamId": "away",
+          "role": "restart",
+          "position": {
+            "x": 41.96979324605652,
+            "y": -31.879605667959552
+          },
+          "distance": 10.160252227093688
+        },
+        {
+          "id": "away-LW",
+          "teamId": "away",
+          "role": "restart",
+          "position": {
+            "x": 35.754138350846404,
+            "y": -33.07730693997111
+          },
+          "distance": 16.251359639932783
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "role": "restart",
+          "position": {
+            "x": 40.412237774925686,
+            "y": -7.9424399705239255
+          },
+          "distance": 28.06180870943875
+        }
+      ],
+      "ball": {
+        "position": {
+          "x": 52,
+          "y": -33.5
+        },
+        "height": 0
+      }
+    },
+    {
+      "event": {
+        "tick": 3322,
+        "time": 332.20000000000005,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 52,
+          "y": -33.5
+        },
+        "toPos": {
+          "x": 41.59650204041187,
+          "y": 0.03129538474942748
+        },
+        "success": true,
+        "type": "cross",
+        "teamId": "home",
+        "height": 0,
+        "restartKind": "corner",
+        "physicsTime": 332.20000000000005,
+        "matchTime": 332.2,
+        "actualToId": "home-ST",
+        "actualToPos": {
+          "x": 40.055256937046565,
+          "y": 4.259100398323902
+        },
+        "resolvedAt": 334.6650854151026
+      },
+      "nearestOpponents": [
+        {
+          "id": "away-LB",
+          "teamId": "away",
+          "role": "restart",
+          "position": {
+            "x": 41.96979324605652,
+            "y": -31.879605667959552
+          },
+          "distance": 10.160252227093688
+        },
+        {
+          "id": "away-LW",
+          "teamId": "away",
+          "role": "restart",
+          "position": {
+            "x": 35.754138350846404,
+            "y": -33.07730693997111
+          },
+          "distance": 16.251359639932783
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "role": "restart",
+          "position": {
+            "x": 40.412237774925686,
+            "y": -7.9424399705239255
+          },
+          "distance": 28.06180870943875
+        }
+      ],
+      "ball": {
+        "position": {
+          "x": 52,
+          "y": -33.5
+        },
+        "height": 0
+      }
+    },
+    {
+      "event": {
+        "tick": 3347,
+        "time": 334.6650854151026,
+        "fromId": "home-LW",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 40.055256937046565,
+          "y": 4.259100398323902
+        },
+        "toPos": {
+          "x": 39.777722810745594,
+          "y": 4.612181278449557
+        },
+        "success": true,
+        "type": "firstTouch",
+        "height": 0,
+        "speed": 16.04180896983304,
+        "passId": 365,
+        "kind": "foot",
+        "physicsTime": 334.6650854151026,
+        "matchTime": 334.6650854151026
+      },
+      "nearestOpponents": [
+        {
+          "id": "away-RB",
+          "teamId": "away",
+          "role": "intercept",
+          "position": {
+            "x": 41.791114465105146,
+            "y": 4.505249249983659
+          },
+          "distance": 1.7532229221896067
+        },
+        {
+          "id": "away-RCB",
+          "teamId": "away",
+          "role": "intercept",
+          "position": {
+            "x": 43.80795792380851,
+            "y": 2.2018065989732905
+          },
+          "distance": 4.279628777463127
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "role": "intercept",
+          "position": {
+            "x": 38.7903247472497,
+            "y": -0.10686766400430969
+          },
+          "distance": 4.545517634555415
+        }
+      ],
+      "ball": {
+        "position": {
+          "x": 39.88832361660995,
+          "y": 4.379610849174511
+        },
+        "height": 0
+      }
+    },
+    {
+      "event": {
+        "tick": 3355,
+        "time": 335.5,
+        "fromId": "home-ST",
+        "toId": null,
+        "fromPos": {
+          "x": 39.234259341875536,
+          "y": 5.1973961323247755
+        },
+        "toPos": {
+          "x": 52.5,
+          "y": 2.772,
+          "height": 0.9515
+        },
+        "success": null,
+        "type": "shot",
+        "teamId": "home",
+        "xg": 0.047675233988688406,
+        "distance": 13.929136660176814,
+        "angle": 0.4855510420863081,
+        "blocked": 0.17066905023950815,
+        "pressure": 0.74241423519728,
+        "power": 27.42443689553679,
+        "target": {
+          "x": 52.5,
+          "y": 2.772,
+          "height": 0.9515
+        },
+        "style": "drive",
+        "onTarget": true,
+        "physicsTime": 335.5,
+        "matchTime": 335.5,
+        "keeper": {
+          "set": false,
+          "reactionSeconds": 0.256,
+          "distance": 12.390645058773563,
+          "lateralDistance": 2.052285300807339,
+          "contact": true,
+          "saved": true,
+          "arrival": true,
+          "requiredExtension": 0.31889258512687535,
+          "extension": 1.0306332783043568,
+          "availableReach": 2.1806332783043567,
+          "timeToKeeper": 0.41817675504393037
+        }
+      },
+      "nearestOpponents": [
+        {
+          "id": "away-RB",
+          "teamId": "away",
+          "role": "press",
+          "position": {
+            "x": 40.22381036147009,
+            "y": 3.592994515455761
+          },
+          "distance": 1.8850240763959847
+        },
+        {
+          "id": "away-RCB",
+          "teamId": "away",
+          "role": "cover",
+          "position": {
+            "x": 42.11577903232598,
+            "y": 5.153565226388142
+          },
+          "distance": 2.881853027961152
+        },
+        {
+          "id": "away-LCB",
+          "teamId": "away",
+          "role": "mark",
+          "position": {
+            "x": 36.47184113910656,
+            "y": 4.110452114178737
+          },
+          "distance": 2.968568952470675
+        }
+      ],
+      "ball": {
+        "position": {
+          "x": 39.234259341875536,
+          "y": 5.1973961323247755
+        },
+        "height": 0
+      }
+    },
+    {
+      "event": {
+        "tick": 3360,
+        "time": 335.91817675504393,
+        "fromId": "away-GK",
+        "toId": "home-ST",
+        "fromPos": {
+          "x": 50.24549095218718,
+          "y": 0.6608169051381245
+        },
+        "toPos": {
+          "x": 50.24638640692151,
+          "y": 2.129709490265
+        },
+        "success": true,
+        "type": "save",
+        "kind": "tip",
+        "difficulty": 0.6736082585463772,
+        "reachDifficulty": 0.6736082585463772,
+        "reactionMarginSeconds": 0.11199696194767605,
+        "lastMoment": false,
+        "onTarget": true,
+        "reactionAt": 335.756,
+        "height": 0,
+        "physicsTime": 335.91817675504393,
+        "matchTime": 335.91817675504393
+      },
+      "nearestOpponents": [
+        {
+          "id": "home-ST",
+          "teamId": "home",
+          "role": "depth",
+          "position": {
+            "x": 39.48243887941289,
+            "y": 4.954756331621019
+          },
+          "distance": 11.587976774206759
+        },
+        {
+          "id": "home-CAM",
+          "teamId": "home",
+          "role": "recover",
+          "position": {
+            "x": 34.34007338342687,
+            "y": 1.9974117861899852
+          },
+          "distance": 15.9614784375597
+        },
+        {
+          "id": "home-LCM",
+          "teamId": "home",
+          "role": "recover",
+          "position": {
+            "x": 32.9642922103255,
+            "y": -2.807990593033019
+          },
+          "distance": 17.62590296736851
+        }
+      ],
+      "ball": {
+        "position": {
+          "x": 50.704963564585775,
+          "y": 2.8621247662166986
+        },
+        "height": 0
+      }
+    }
+  ]
+}

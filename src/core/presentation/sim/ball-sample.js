@@ -4,7 +4,7 @@ import { simulationWorldPoint } from './scene-frame.js';
 export function sampleSceneBall(previous, current, time) {
   const from = { time: previous.physicsTime, position: previous.ball.position, height: previous.ball.height };
   const to = { time: current.physicsTime, position: current.ball.position, height: current.ball.height };
-  const contact = current.contacts.findLast(event => event.type === 'firstTouch' && event.height != null && event.fromPos
+  const contact = current.contacts.findLast(event => ['firstTouch', 'aerialContact'].includes(event.type) && event.height != null && event.fromPos
     && event.time > from.time && event.time < to.time);
   if (!contact) return interpolateBallPoints(from, to, time);
   const touch = { time: contact.time, position: contact.fromPos, height: contact.height };

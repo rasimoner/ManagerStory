@@ -1,7 +1,15 @@
-# ManagerStory V7.19.2
+# ManagerStory V7.19.6
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
+
+V7.19.6: a pressed shooter now misses as often as the chance model charges (fifty-seed goals 8.62 to 7.38, short matches 1.10 to 0.70; the goal balance is still above the old engine's 2.76 / 0.55), and a dribbler beating a defender gets a close-up camera anywhere on the pitch. [Report](docs/goal-regression-attempt-eight.md), [lost 3D moves note](docs/3d-eski-yeni-fark-notu.md).
+
+V7.19.5 (candidate, not published): box marking stays available during crosses; keepers reject unreachable cross interceptions. Fifty-seed goals decreased from 10.30 to 8.62, while short-match goals increased. Balance verification remains open. [Continuation report](docs/goal-regression-continuation-report.md).
+
+V7.19.4 (candidate, not published): crosses prioritize central receivers for box marking. Fifty-seed goals decreased from 16.92 to 10.30, but balance verification still fails. [Goal regression report](docs/goal-regression-report.md).
+
+V7.19.3 (unpublished candidate): physical crosses, aerial contacts, distinct skills, special passes and recorded automatic replays. [Remaining parity report](docs/3d-remaining-parity-report.md).
 
 V7.19.2: second-half preparation pauses the match clock; aerial first controls preserve ball height, physical restarts wait for placement, and observed dribble moves use the restored 3D actions. [Release notes](docs/v7.19.2-release.md).
 

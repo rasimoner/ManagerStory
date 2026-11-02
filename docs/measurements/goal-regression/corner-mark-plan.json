@@ -1,0 +1,131 @@
+{
+  "node": "v22.23.4",
+  "time": 332.20000000000005,
+  "delivery": {
+    "eventIndex": 365,
+    "teamId": "home",
+    "fromId": "home-LW",
+    "toId": "home-ST",
+    "fromPos": {
+      "x": 52,
+      "y": -33.5
+    },
+    "target": {
+      "x": 41.59650204041187,
+      "y": 0.03129538474942748
+    },
+    "launchTick": 3322,
+    "cross": true,
+    "crossEventIndex": 366
+  },
+  "opponents": [
+    {
+      "id": "home-LB",
+      "position": {
+        "x": -5.898826366091469,
+        "y": -29.66738288597959
+      },
+      "goalDistance": 65.50249253456096
+    },
+    {
+      "id": "home-LCB",
+      "position": {
+        "x": 1.6762982790951895,
+        "y": -16.988637997349016
+      },
+      "goalDistance": 53.58789487953854
+    },
+    {
+      "id": "home-RCB",
+      "position": {
+        "x": 0.6779954390537252,
+        "y": -3.3117747017076478
+      },
+      "goalDistance": 51.92771907555354
+    },
+    {
+      "id": "home-RB",
+      "position": {
+        "x": -4.673140119462641,
+        "y": 8.541993525338127
+      },
+      "goalDistance": 57.80772962594732
+    },
+    {
+      "id": "home-LCM",
+      "position": {
+        "x": 44.0614748243448,
+        "y": 8.082378760971944
+      },
+      "goalDistance": 11.684757317804124
+    },
+    {
+      "id": "home-RCM",
+      "position": {
+        "x": 9.96649316921457,
+        "y": -3.6681971749119193
+      },
+      "goalDistance": 42.69139109748595
+    },
+    {
+      "id": "home-LW",
+      "position": {
+        "x": 52.16869383662114,
+        "y": -33.86464578211649
+      },
+      "goalDistance": 33.866266368203526
+    },
+    {
+      "id": "home-CAM",
+      "position": {
+        "x": 39.102522672587824,
+        "y": -8.02992175939575
+      },
+      "goalDistance": 15.619604418823819
+    },
+    {
+      "id": "home-RW",
+      "position": {
+        "x": 6.203837971753602,
+        "y": 12.431640024342686
+      },
+      "goalDistance": 47.93621065791999
+    },
+    {
+      "id": "home-ST",
+      "position": {
+        "x": 41.59650204041187,
+        "y": 0.03129538474942748
+      },
+      "goalDistance": 10.903542871738944
+    }
+  ],
+  "marks": [
+    {
+      "defender": "away-LB",
+      "role": "mark",
+      "receiver": "home-LW",
+      "target": {
+        "x": 51,
+        "y": -33.86464578211649
+      }
+    },
+    {
+      "defender": "away-RB",
+      "role": "mark",
+      "receiver": "home-LCM",
+      "target": {
+        "x": 45.111474824344796,
+        "y": 8.082378760971944
+      }
+    },
+    {
+      "defender": "away-LCB",
+      "role": "rebound",
+      "target": {
+        "x": 41.5,
+        "y": -6.029999999999999
+      }
+    }
+  ]
+}

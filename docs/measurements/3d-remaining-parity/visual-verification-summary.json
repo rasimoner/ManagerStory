@@ -1,0 +1,539 @@
+{
+  "node": "v22.23.4",
+  "physicalSafariTest": false,
+  "status": "partial evidence; mandatory dynamic delivery gate remains failed",
+  "source": {
+    "localCommit": "0b68dee48fe917af4fce269179ffb648bb3dfb57",
+    "remoteEquivalent": "afad23198979c6b876bf73895d6c31f63e07e36f",
+    "sameTree": "78e71cf596edef21cb0141001a0673f321ef57ee"
+  },
+  "keeper": {
+    "passed": 12,
+    "isolated": 10,
+    "ordinaryCareer": 2,
+    "labels": [
+      "catch-low-right-portrait",
+      "parry-low-left-portrait",
+      "parry-high-other-goal-portrait",
+      "miss-low-left-portrait",
+      "near-step-portrait",
+      "ordinary-career-portrait",
+      "catch-low-right-landscape",
+      "parry-low-left-landscape",
+      "parry-high-other-goal-landscape",
+      "miss-low-left-landscape",
+      "near-step-landscape",
+      "ordinary-career-landscape"
+    ]
+  },
+  "staticContact": {
+    "frames": 34,
+    "pageErrors": [],
+    "limitations": "still failed; these static frames do not verify animation or replay completion",
+    "samples": [
+      {
+        "name": "header-portrait",
+        "tick": "1",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "shot",
+          "style": "header",
+          "time": 0
+        }
+      },
+      {
+        "name": "headpass-portrait",
+        "tick": "1",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "header",
+          "time": 0
+        }
+      },
+      {
+        "name": "clearance-portrait",
+        "tick": "1",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "clearance",
+          "time": 0
+        }
+      },
+      {
+        "name": "volley-portrait",
+        "tick": "1",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "shot",
+          "style": "volley",
+          "time": 0
+        }
+      },
+      {
+        "name": "stepover-portrait",
+        "tick": "8",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "stepover",
+          "time": 0.7000000000000001
+        }
+      },
+      {
+        "name": "nutmeg-portrait",
+        "tick": "9",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "nutmeg",
+          "time": 0.8
+        }
+      },
+      {
+        "name": "elastico-portrait",
+        "tick": "6",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "elastico",
+          "time": 0.5
+        }
+      },
+      {
+        "name": "cruyff-portrait",
+        "tick": "6",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "cruyff",
+          "time": 0.5
+        }
+      },
+      {
+        "name": "croqueta-portrait",
+        "tick": "7",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "croqueta",
+          "time": 0.6000000000000001
+        }
+      },
+      {
+        "name": "roulette-portrait",
+        "tick": "18",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "roulette",
+          "time": 1.7000000000000002
+        }
+      },
+      {
+        "name": "dragBack-portrait",
+        "tick": "5",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "dragBack",
+          "time": 0.4
+        }
+      },
+      {
+        "name": "sombrero-portrait",
+        "tick": "3",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "sombrero",
+          "time": 0.2
+        }
+      },
+      {
+        "name": "backheel-portrait",
+        "tick": "12",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "backheel",
+          "time": 1.1
+        }
+      },
+      {
+        "name": "rabona-portrait",
+        "tick": "12",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "rabona",
+          "time": 1.1
+        }
+      },
+      {
+        "name": "nolook-portrait",
+        "tick": "9",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "nolook",
+          "time": 0.8
+        }
+      },
+      {
+        "name": "flairpass-portrait",
+        "tick": "9",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "flairpass",
+          "time": 0.8
+        }
+      },
+      {
+        "name": "trap-portrait",
+        "tick": "3",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "firstTouch",
+          "kind": "foot",
+          "style": "trap",
+          "time": 0.27609620197787904
+        }
+      },
+      {
+        "name": "header-landscape",
+        "tick": "1",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "shot",
+          "style": "header",
+          "time": 0
+        }
+      },
+      {
+        "name": "headpass-landscape",
+        "tick": "1",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "header",
+          "time": 0
+        }
+      },
+      {
+        "name": "clearance-landscape",
+        "tick": "1",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "clearance",
+          "time": 0
+        }
+      },
+      {
+        "name": "volley-landscape",
+        "tick": "1",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "shot",
+          "style": "volley",
+          "time": 0
+        }
+      },
+      {
+        "name": "stepover-landscape",
+        "tick": "8",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "stepover",
+          "time": 0.7000000000000001
+        }
+      },
+      {
+        "name": "nutmeg-landscape",
+        "tick": "9",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "nutmeg",
+          "time": 0.8
+        }
+      },
+      {
+        "name": "elastico-landscape",
+        "tick": "6",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "elastico",
+          "time": 0.5
+        }
+      },
+      {
+        "name": "cruyff-landscape",
+        "tick": "6",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "cruyff",
+          "time": 0.5
+        }
+      },
+      {
+        "name": "croqueta-landscape",
+        "tick": "7",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "croqueta",
+          "time": 0.6000000000000001
+        }
+      },
+      {
+        "name": "roulette-landscape",
+        "tick": "18",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "roulette",
+          "time": 1.7000000000000002
+        }
+      },
+      {
+        "name": "dragBack-landscape",
+        "tick": "5",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "dragBack",
+          "time": 0.4
+        }
+      },
+      {
+        "name": "sombrero-landscape",
+        "tick": "3",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "skill",
+          "kind": "sombrero",
+          "time": 0.2
+        }
+      },
+      {
+        "name": "backheel-landscape",
+        "tick": "12",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "backheel",
+          "time": 1.1
+        }
+      },
+      {
+        "name": "rabona-landscape",
+        "tick": "12",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "rabona",
+          "time": 1.1
+        }
+      },
+      {
+        "name": "nolook-landscape",
+        "tick": "9",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "nolook",
+          "time": 0.8
+        }
+      },
+      {
+        "name": "flairpass-landscape",
+        "tick": "9",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "pass",
+          "style": "flairpass",
+          "time": 0.8
+        }
+      },
+      {
+        "name": "trap-landscape",
+        "tick": "3",
+        "viewport": {
+          "width": 844,
+          "height": 390
+        },
+        "category": "isolated core scenario in real career UI",
+        "observed": {
+          "type": "firstTouch",
+          "kind": "foot",
+          "style": "trap",
+          "time": 0.27609620197787904
+        }
+      }
+    ]
+  },
+  "dynamicNewSkills": {
+    "failures": [
+      {
+        "name": "openCross-1-portrait",
+        "attempt": 1,
+        "error": "runRemainingSequence 45000ms timeout",
+        "recordedFinding": "automatic rabona replay still advanced to about 57%; native fifty-seed report was running concurrently",
+        "thresholdChanged": false
+      },
+      {
+        "name": "openCross-1-portrait",
+        "error": "page.waitForFunction: Timeout 45000ms exceeded."
+      },
+      {
+        "name": "normalCareer-1-portrait",
+        "error": "page.waitForFunction: Timeout 45000ms exceeded."
+      }
+    ],
+    "earlierTickMeasurement": "Initial start/last tick used data-simTick rather than data-sim-tick. Existing captures do not prove requested contact offsets or sequence lengths. No third replay-timeout attempt was made.",
+    "verifiedSequences": 0,
+    "rawCaptures": 4
+  },
+  "nativePreparation": {
+    "cameraScenes": "failed before browser: no expected shot in fixed 900-tick career window",
+    "phase2Restoration": "failed before browser: no expected skill event in fixed 2000-step career window",
+    "freshManualReplayWebGL": "not rerun after the same replay completion obstacle failed twice; core replay tests passed"
+  }
+}

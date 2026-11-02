@@ -1,0 +1,14 @@
+diff --git a/src/core/sim/ball-chasing.js b/src/core/sim/ball-chasing.js
+--- a/src/core/sim/ball-chasing.js
++++ b/src/core/sim/ball-chasing.js
+@@ -56 +56 @@
+-  let predicted = ball;
++  let predicted = ball, closest = null, distance = Infinity;
+@@ -60 +60,3 @@
+-    if (Math.max(0, simulationPlayerArrival(player, predicted.position) - player.limits.reactionSeconds) <= time) break;
++    const separation = pointSquaredDistance(player.position, predicted.position);
++    if (separation < distance) { closest = predicted; distance = separation; }
++    if (Math.max(0, simulationPlayerArrival(player, predicted.position) - player.limits.reactionSeconds) <= time) return fitBallChaseTarget(predicted.position);
+@@ -61,0 +64,2 @@
++  // A fast cross may be collected before this defender can catch it; keep the closest playable approach.
++  if (ball.flight?.cross && closest) return fitBallChaseTarget(closest.position);
