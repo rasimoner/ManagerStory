@@ -15,10 +15,13 @@ function sceneCareerSnapshot(game) {
   return snapshot;
 }
 
+const FIRST_HALF_TICKS = 2000;
+
 function recordedSceneCareers() {
   const game = startSceneCareer(), scenes = { kickoff: sceneCareerSnapshot(game) };
   const labels = { pass: 'passing', shot: 'shot', save: 'save' };
-  for (let tick = 0; tick < 900 && !scenes.save; tick++) {
+  // The first real shot of the fixed seed depends on the engine's random stream, so scan the whole first half.
+  for (let tick = 0; tick < FIRST_HALF_TICKS && !scenes.save; tick++) {
     game.api.advanceExperimentalPlayback(.1, { maxSteps: 1 });
     for (const event of game.api.M.simulationPlayback.frame.contacts) {
       const label = labels[event.type];

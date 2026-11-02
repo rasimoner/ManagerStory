@@ -40,6 +40,8 @@ async function captureScene(label, storage) {
 async function verifyCaption(page, label, expected) {
   const labels = { throwIn: 'Taç', corner: 'Korner', goalKick: 'Aut', freeKick: 'Serbest vuruş', penalty: 'Şut', skill: 'Yön değiştirme' };
   if (label === 'freeKick' && expected.ball.shot?.freeKick) labels.freeKick = 'Şut';
+  // A released corner is delivered as a cross in the same step, and the caption names the latest observed event.
+  if (label === 'corner' && expected.ball.flight?.cross) labels.corner = 'Orta';
   if (labels[label]) assert.equal(await page.locator('.sim-scene-caption').textContent(), labels[label]);
   const scene = page.locator('[data-sim-scene]'), canvas = scene.locator('canvas.career3d-scene');
   const [bounds, drawn] = await Promise.all([scene.boundingBox(), canvas.boundingBox()]);
