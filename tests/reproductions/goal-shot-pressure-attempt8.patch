@@ -1,0 +1,13 @@
+diff --git a/src/data/match-sim.json b/src/data/match-sim.json
+index 0214faa..38f846b 100644
+--- a/src/data/match-sim.json
++++ b/src/data/match-sim.json
+@@ -268,7 +268,7 @@
+     "chipTechnique": 65,
+     "minimumAngleError": 0.014,
+     "skillAngleError": 0.12,
+-    "pressureAngleError": 0.045,
++    "pressureAngleError": 0.09,
+     "runningAngleError": 0.025,
+     "bodyAngleError": 0.05,
+     "minimumPowerError": 0.025,
