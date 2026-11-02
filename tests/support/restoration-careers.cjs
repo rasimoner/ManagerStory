@@ -1,6 +1,8 @@
 const assert = require('node:assert/strict');
 const { loadGame } = require('./game.cjs');
 
+const SKILL_SEARCH_TICKS = 4500;
+
 function career() {
   const game = loadGame({ quiet: true });
   game.run('S=fresh();init();S.matchSalt=73;setExperimentalMatchEngine(true);startMatch();setMatchView("3d")');
@@ -52,7 +54,8 @@ function airborneCareer(height) {
 
 function ordinarySkillCareer() {
   const game = career();
-  for (let tick = 0; tick < 2000 && !game.api.M.simulation.events.some(event => event.type === 'skill'); tick++) advanceCareer(game);
+  // Real skills are rare and the first one depends on the engine's random stream, so allow a whole seven-minute match.
+  for (let tick = 0; tick < SKILL_SEARCH_TICKS && !game.api.M.simulation.events.some(event => event.type === 'skill'); tick++) advanceCareer(game);
   assert.ok(game.api.M.simulation.events.some(event => event.type === 'skill'), 'the ordinary career generates a real skill cue');
   return snapshot(game);
 }
