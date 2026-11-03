@@ -97,7 +97,8 @@ async function verifyHalfAndEnd() {
   await page.waitForSelector('[data-sim-scene]');
   await page.locator('[data-action="pauseLive"]').click();
   assert.equal(await page.locator('[data-scene-clock]').textContent(), '45:00');
-  assert.equal(await page.locator('.sim-scene.sim-preparing').count(), 1, 'changing ends is a preparation state');
+  assert.equal(await page.locator('.sim-scene.sim-preparing').count(), 0, 'relocated teams need no preparation mask');
+  assert.doesNotMatch(await page.locator('.sim-scene-caption').textContent(), /hazırlanıyor/);
   await page.screenshot({ path: `${evidence}/second-half.png`, fullPage: true });
   await page.locator('[data-action="resumeLive"]').click();
   await page.locator('[data-action="skipExperimentalMatch"]').click();
@@ -111,6 +112,7 @@ async function verifyHalfAndEnd() {
 }
 
 // Freeze through the real pause control before a slow software-WebGL screenshot can miss the next stage.
+// Software WebGL advances well under a tenth of a second of football per second, so a two-second goal window needs far more than 30 s.
 async function pauseAtGoalFrame(condition) {
   await page.waitForFunction(({ after, photo }) => {
     const scene = document.querySelector('[data-sim-scene]');
@@ -119,7 +121,7 @@ async function pauseAtGoalFrame(condition) {
     if (!ready) return false;
     document.querySelector('[data-action="pauseLive"]').click();
     return true;
-  }, condition);
+  }, condition, { timeout: 90000 });
 }
 
 async function captureCameraChoices(root) {

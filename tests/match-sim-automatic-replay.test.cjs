@@ -41,7 +41,7 @@ test('the career live clock freezes the full real checkpoint through replay and 
   const game = loadGame({ quiet: true }); game.ctx.requestAnimationFrame = () => 1; game.ctx.performance = { now: () => 0 };
   game.run('S=fresh();init();setExperimentalMatchEngine(true);startMatch();resumeLive();liveFrameStep(0)');
   const before = game.json('snapshotSimulation(M.simulation)'), tick = game.run('M.simulation.tick');
-  game.run('presentation.simulation3d={replaying:true};liveFrameStep(1000);liveFrameStep(900000)');
+  game.run('presentation.simulation3d={replaying:true,paint(){}};liveFrameStep(1000);liveFrameStep(900000)');
   assert.deepEqual(game.json('snapshotSimulation(M.simulation)'), before);
   game.run('presentation.simulation3d.replaying=false;liveFrameStep(999999)');
   assert.deepEqual(game.json('snapshotSimulation(M.simulation)'), before);

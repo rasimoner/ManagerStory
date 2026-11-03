@@ -32,6 +32,11 @@
     "rollingDeceleration": 1.25,
     "gravity": 9.81,
     "footOffset": 0.35,
+    "carryPlantedSpeed": 0.25,
+    "carryPathSpeed": 1.5,
+    "carryPlantedRadius": 0.6,
+    "carryMinimumRadius": 0.1,
+    "carryCatchUpSpeed": 3,
     "defaultAttribute": 65,
     "contactCooldownSeconds": 0.3,
     "firstTouch": {

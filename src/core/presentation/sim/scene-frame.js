@@ -1,4 +1,5 @@
 import MATCH_SIM_DATA from '../../../data/match-sim.json';
+import SIM_VIEW_DATA from '../../../data/match-sim-view.json';
 import { sampleSceneBall } from './ball-sample.js';
 
 // The simulation uses metres with +x along the pitch; the rig faces +z at heading zero.
@@ -13,18 +14,31 @@ export function sampleSimulationScene(playback, options = {}) {
   const span = current.physicsTime - previous.physicsTime;
   const alpha = options.immediate || span <= 0 ? 1 : Math.min(1, Math.max(0, playback.accumulatorSeconds / span));
   const before = new Map(previous.players.map(player => [player.id, player]));
-  return { tick: current.tick, half: current.half, phase: current.phase, alpha,
+  return { tick: current.tick, half: current.half, phase: current.phase, teamsRelocated: current.teamsRelocated, alpha,
     physicsTime: interpolateSceneValue(previous.physicsTime, current.physicsTime, alpha), matchTime: current.matchTime,
-    players: current.players.filter(player => !player.sentOff).map(player => scenePlayer(player, before.get(player.id), alpha)),
+    players: current.players.filter(player => !player.sentOff).map(player => scenePlayer(player, before.get(player.id), { alpha, carrying: player.id === current.ball.ownerId })),
     ball: sceneBall(previous, current, alpha), contacts: current.contacts };
 }
 
-function scenePlayer(player, previous = player, alpha) {
+// No player runs this far between two frames, so a jump this large is a relocation and must not be drawn as a slide.
+function isRelocation(from, to) { return Math.hypot(to.x - from.x, to.y - from.y) > SIM_VIEW_DATA.relocationMetres; }
+
+function scenePlayer(player, previous = player, { alpha, carrying }) {
   const turn = Math.atan2(Math.sin(player.heading - previous.heading), Math.cos(player.heading - previous.heading));
   const observed = alpha < 1 ? previous : player;
+  const velocity = interpolateScenePoint(previous.velocity, player.velocity, alpha);
+  const heading = previous.heading + turn * alpha;
   return { ...player, keeper: observed.keeper, keeperPresentation: observed.keeperPresentation,
-    position: simulationWorldPoint(interpolateScenePoint(previous.position, player.position, alpha)),
-    velocity: simulationWorldPoint(interpolateScenePoint(previous.velocity, player.velocity, alpha)), heading: simulationWorldHeading(previous.heading + turn * alpha) };
+    position: simulationWorldPoint(isRelocation(previous.position, player.position) ? player.position : interpolateScenePoint(previous.position, player.position, alpha)),
+    velocity: simulationWorldPoint(velocity), heading: simulationWorldHeading(carrying ? carrierBodyHeading(heading, velocity) : heading) };
+}
+
+// His shoulders may already be turning to the next pass, but while he runs with the ball the body is never drawn sliding sideways.
+function carrierBodyHeading(heading, velocity) {
+  const settings = SIM_VIEW_DATA.carrierBody;
+  if (Math.hypot(velocity.x, velocity.y) < settings.minimumSpeed) return heading;
+  const path = Math.atan2(velocity.y, velocity.x), gap = Math.atan2(Math.sin(heading - path), Math.cos(heading - path));
+  return path + Math.max(-settings.maximumRadians, Math.min(settings.maximumRadians, gap));
 }
 
 function sceneBall(previous, current, alpha) {

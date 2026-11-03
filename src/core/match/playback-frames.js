@@ -1,10 +1,11 @@
 import { captureSimulationTrapIntent } from '../sim/first-touch-technique.js';
 import { captureKeeperPresentation } from './keeper-presentation.js';
 import { capturePresentationContacts } from './presentation-contacts.js';
+import { usesNaturalMatchClock } from '../sim/simulation-clock.js';
 
 export function captureSimulationFrame(simulation) {
   return { tick: simulation.tick, time: simulation.time, physicsTime: simulation.physicsTime, matchTime: simulation.matchTime, half: simulation.match.half,
-    phase: simulation.match.phase,
+    phase: simulation.match.phase, teamsRelocated: usesNaturalMatchClock(simulation),
     players: simulation.teams.flatMap(team => team.players.map(player => ({ id: player.id, teamId: team.id, number: player.number,
       direction: team.direction, slot: player.slot, velocity: { ...player.velocity }, heading: player.heading,
       role: player.role, gait: player.gait, motionMode: player.motionMode, keeper: structuredClone(player.keeper), duel: structuredClone(player.duel),

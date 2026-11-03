@@ -12,6 +12,7 @@ import { penalizeSimulationOffsideTouch, clearSimulationOffsideOnControl, simula
 import { redirectSimulationAerial } from './aerial-contact.js';
 import { simulationFirstTouchStyle } from './first-touch-technique.js';
 import { holdSimulationPassBall } from './pass-technique.js';
+import { usesNaturalMatchClock } from './simulation-clock.js';
 
 const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
 
@@ -114,11 +115,31 @@ export function followSimulationBallOwner(simulation) {
   if (!owner) return;
   if (holdSimulationPassBall(simulation)) return;
   const offset = MATCH_SIM_DATA.ball.footOffset, pitch = MATCH_SIM_DATA.pitch;
-  const target = { x: clampSimValue(owner.position.x + cos(owner.heading) * offset, -pitch.length / 2, pitch.length / 2),
-    y: clampSimValue(owner.position.y + sin(owner.heading) * offset, -pitch.width / 2, pitch.width / 2) };
+  const direction = usesNaturalMatchClock(simulation) ? carryDirection(owner, ball.position) : owner.heading;
+  const target = { x: clampSimValue(owner.position.x + cos(direction) * offset, -pitch.length / 2, pitch.length / 2),
+    y: clampSimValue(owner.position.y + sin(direction) * offset, -pitch.width / 2, pitch.width / 2) };
   if (followSimulationControl(simulation, owner, target)) return;
-  ball.position = target;
+  ball.position = usesNaturalMatchClock(simulation) && ball.heldBy == null ? carriedBallPosition(ball.position, owner, target) : target;
   ball.velocity = { ...owner.velocity };
   ball.height = ball.heldBy != null ? MATCH_SIM_DATA.goalkeeper.carryHeight : 0;
   ball.verticalVelocity = 0;
+}
+
+// The ball stays under a carrier who is turning on the spot, and slides to his stride only once he moves; it never orbits him.
+function carriedBallPosition(current, owner, target) {
+  const settings = MATCH_SIM_DATA.ball, speed = hypot(owner.velocity.x, owner.velocity.y);
+  const planted = speed < settings.carryPlantedSpeed && hypot(current.x - owner.position.x, current.y - owner.position.y) <= settings.carryPlantedRadius;
+  if (planted) return current;
+  const step = (speed + settings.carryCatchUpSpeed) * MATCH_SIM_DATA.clock.stepSeconds;
+  const distance = hypot(target.x - current.x, target.y - current.y);
+  if (distance <= step) return target;
+  return { x: current.x + (target.x - current.x) * step / distance, y: current.y + (target.y - current.y) * step / distance };
+}
+
+// A runner pushes the ball along his path; a carrier turning on the spot keeps it where it lies, so it never orbits him.
+function carryDirection(owner, ball) {
+  const settings = MATCH_SIM_DATA.ball;
+  if (hypot(owner.velocity.x, owner.velocity.y) >= settings.carryPathSpeed) return atan2(owner.velocity.y, owner.velocity.x);
+  const x = ball.x - owner.position.x, y = ball.y - owner.position.y, distance = hypot(x, y);
+  return distance > settings.carryMinimumRadius && distance <= settings.carryPlantedRadius ? atan2(y, x) : owner.heading;
 }

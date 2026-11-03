@@ -10,6 +10,8 @@
     "fogNear": 90,
     "fogFar": 220
   },
+  "relocationMetres": 8,
+  "carrierBody": { "minimumSpeed": 1.5, "maximumRadians": 0.45 },
   "camera": {
     "maximumFrameSeconds": 0.1,
     "margin": 0.8,
