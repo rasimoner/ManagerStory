@@ -33,8 +33,11 @@ async function prepareCareer(beforeMatch) {
   await page.reload();
   await beforeMatch?.();
   await enterMatchThroughCareer();
+  await page.waitForSelector('[data-sim-scene]');
+  assert.equal(await page.locator('[data-action="setMatchView"][data-view="3d"]').getAttribute('aria-pressed'), 'true', 'a new match opens in 3D');
+  // The rest of this script exercises the flat 2D view, so choose it explicitly.
+  await page.locator('[data-action="setMatchView"][data-view="2d"]').click();
   await page.waitForSelector('[data-sim-pitch]');
-  assert.equal(await page.locator('[data-action="setMatchView"][data-view="3d"]').count(), 1);
   assert.equal(await page.locator('[data-action="setMatchView"][data-view="2d"]').getAttribute('aria-pressed'), 'true');
 }
 
