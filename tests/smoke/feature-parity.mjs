@@ -33,6 +33,7 @@ async function verifyControlSeparation(page) {
  assert.ok(camera.y+camera.height<=controls.y,'camera buttons must not intercept playback controls');
 }
 
+// Software WebGL on a shared runner needs about 30 s for the chip scenario, so the default 30 s wait is a coin toss.
 async function advanceAndPause(page,request) {
  await page.locator('[data-scene-pause]').click();
  await page.waitForFunction(target=>{
@@ -40,7 +41,7 @@ async function advanceAndPause(page,request) {
   const reached=['freeKick','panenka'].includes(target.kind)?document.querySelector('.sim-scene-caption')?.textContent==='Şut':Number(scene?.dataset.simTick)>=target.tick;
   if(!reached)return false;
   document.querySelector('[data-scene-pause]').click();return true;
- },request);
+ },request,{timeout:90000});
 }
 
 async function verifyReplay(page) {
