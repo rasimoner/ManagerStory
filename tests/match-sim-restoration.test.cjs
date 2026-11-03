@@ -147,9 +147,9 @@ test('turning boots stay continuous through 90 and 180 degrees and repeated paus
   assert.ok(worst < .15, `turning foot jump at 60 Hz: ${worst}`);
 });
 
-test('second-half preparation is masked until the real kickoff without advancing another simulation', () => {
+test('a second-half break that walks the teams is masked until the real kickoff without advancing another simulation', () => {
   const game = gameMatch(), frame = game.api.M.simulationPlayback.frame;
-  frame.phase = 'half'; frame.half = 2; frame.matchTime = 2780;
+  frame.phase = 'half'; frame.half = 2; frame.matchTime = 2780; frame.teamsRelocated = false;
   const before = JSON.stringify(game.api.snapshotSimulation(game.api.M.simulation));
   assert.equal(game.api.simulationSceneStatus(frame).preparing, true);
   assert.equal(game.api.simulationDisplayMatchTime(frame), 2700);

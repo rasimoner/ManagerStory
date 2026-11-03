@@ -93,3 +93,17 @@ test('a JSON round trip preserves the RNG, chase cache and pending commands thro
   while (restored.match.phase !== 'ended') api.stepSimulation(restored);
   assert.deepEqual(api.snapshotSimulation(restored), api.snapshotSimulation(original));
 });
+
+test('a substitution that removes the chosen pass receiver cancels the pass instead of crashing the owner', () => {
+  const { api, input, simulation } = labFixture();
+  for (let tick = 0; tick < 4000 && !(simulation.ownerDecision.selected === 'pass' && simulation.passing.selected); tick++) api.stepSimulation(simulation);
+  const receiverId = simulation.passing.selected?.toId;
+  assert.ok(receiverId, 'the fixture never chose a pass');
+  const receiver = simulation.teams.flatMap(team => team.players).find(player => player.id === receiverId);
+  api.requestSimulationSubstitution(simulation, { teamId: receiver.teamId, outId: receiverId, player: { ...replacement(input, 'bench-receiver'), id: 'bench-receiver' } });
+  simulation.referee.stoppage = { kind: 'test' };
+  api.applySimulationCommands(simulation);
+  simulation.referee.stoppage = null;
+  assert.notEqual(simulation.passing.selected?.toId, receiverId);
+  for (let tick = 0; tick < 50; tick++) api.stepSimulation(simulation);
+});

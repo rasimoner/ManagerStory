@@ -6,6 +6,7 @@ import { acquireSimulationBall } from './ball-possession.js';
 import { releaseSimulationPass } from './pass-execution.js';
 import { integrateSimPlayer } from './player-movement.js';
 import { pointDistance } from './geometry.js';
+import { usesNaturalMatchClock } from './simulation-clock.js';
 
 export function createSimulationMatch(input) {
   return { enabled: input.match === true, phase: input.match === true && input.ball.ownerId == null ? 'kickoff' : 'playing', half: 1,
@@ -47,6 +48,17 @@ function beginSimulationHalf(simulation) {
   Object.assign(simulation.match, { half: 2, phase: 'half', phaseSinceTick: simulation.tick, restart: null,
     kickoffTeamId: simulation.teams.find(team => team.id !== simulation.match.firstKickoffTeamId).id });
   emitSimulationEvent(simulation, { type: 'half', fromPos: { x: 0, y: 0 }, toPos: { x: 0, y: 0 }, success: true, half: 2 });
+  if (usesNaturalMatchClock(simulation)) relocateTeamsToKickoff(simulation);
+}
+
+// The teams swap ends during the break; nobody needs to watch a squad jog the length of the pitch, so they start in place.
+function relocateTeamsToKickoff(simulation) {
+  prepareKickoffPlayers(simulation);
+  for (const team of simulation.teams) for (const player of team.players) {
+    player.position = { ...player.target };
+    player.velocity = { x: 0, y: 0 };
+    player.heading = team.direction > 0 ? 0 : Math.PI;
+  }
 }
 
 function endSimulationMatch(simulation) {

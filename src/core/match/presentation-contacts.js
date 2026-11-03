@@ -2,7 +2,6 @@ import SIM_VIEW_DATA from '../../data/match-sim-view.json';
 
 const cameraHistory = new WeakMap();
 
-// A beaten defender is the moment a dribble is worth watching, so it earns a close-up anywhere on the pitch.
 // Keep the legacy alternate final-third close-up gate without writing to the simulation log.
 export function capturePresentationContacts(simulation) {
   const history = updateCameraHistory(simulation);
@@ -23,8 +22,7 @@ function updateCameraHistory(simulation) {
     if (isCloseChallenge(event)) {
       if (history.challenges++ % 2 === 0) history.closeUps.add(history.cursor);
     }
-    if (event.type === 'skill' && Math.abs(event.fromPos.x) > SIM_VIEW_DATA.camera.challengeZoneMetres) history.closeUps.add(history.cursor);
-    if (event.type === 'beat' && event.success) history.closeUps.add(history.cursor);
+    if (earnsSkillCloseUp(event)) history.closeUps.add(history.cursor);
     history.cursor++;
   }
   trimPresentationHistory(simulation, history);
@@ -41,6 +39,11 @@ function trimPresentationHistory(simulation, history) {
     const event = simulation.events[id];
     if (simulation.time - event.time > contactHistorySeconds(event)) history.retained.delete(id);
   }
+}
+
+// A deliberate special move is worth a close-up anywhere; a measured change of direction only near the goals.
+function earnsSkillCloseUp(event) {
+  return event.type === 'skill' && (!event.observed || Math.abs(event.fromPos.x) > SIM_VIEW_DATA.camera.challengeZoneMetres);
 }
 
 function isCloseChallenge(event) {

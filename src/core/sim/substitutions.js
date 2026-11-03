@@ -51,7 +51,15 @@ function applySubstitution(simulation, command) {
   invalidateSimulationRuntime(simulation);
   invalidateSimulationPlanning(team);
   repairSubstitutionRestart(simulation, { outgoing, incoming });
+  cancelPassToReplacedPlayer(simulation, outgoing);
   emitSimulationEvent(simulation, { type: 'substitution', tick: simulation.tick, teamId: team.id, fromId: outgoing.id, toId: incoming.id, slot: incoming.slot, success: true });
+}
+
+// A pass chosen for a man who has left the pitch must be chosen again.
+function cancelPassToReplacedPlayer(simulation, outgoing) {
+  const passing = simulation.passing;
+  if (passing.selected?.toId === outgoing.id) { passing.selected = null; passing.nextEvaluationTick = simulation.tick; }
+  if (passing.requested?.toId === outgoing.id) passing.requested = null;
 }
 
 function copySubstitutionSlot(incoming, outgoing) {

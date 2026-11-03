@@ -13,7 +13,6 @@ export function initializeExperimentalMatch() {
   const opponent = M.oppIds.map((id, index) => ({ ...opponentPlayer(id), id, number: opponentPlayer(id).number ?? index + 1,
     role: opponentPlayer(id).position, lineupPosition: oppositeLineupPosition(id) }));
   M.experimental = true;
-  M.fieldView = '2d';
   M.simulationCursor = 0;
   M.simulationNames = Object.fromEntries([...own, ...opponent].map(player => [player.id, player.name]));
   M.simulationTeams = Object.fromEntries([...own.map(player => [player.id, 'user']), ...opponent.map(player => [player.id, 'opponent'])]);
