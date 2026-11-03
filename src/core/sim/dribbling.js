@@ -4,6 +4,7 @@ import { planningDistance } from './geometry.js';
 import { emitSimulationEvent } from './ball-events.js';
 import { simulationDurationTicks } from './duel-state.js';
 import { simulationCarrySkillTouch, recordSimulationSkillTouch } from './ground-skills.js';
+import { usesNaturalMatchClock } from './simulation-clock.js';
 
 export function forceSimulationDribble(simulation, playerId) {
   const player = simulationRuntime(simulation).byId.get(playerId);
@@ -29,7 +30,8 @@ function releaseCarryTouch(simulation, owner, special) {
   const speedRatio = Math.hypot(owner.velocity.x, owner.velocity.y) / owner.limits.maxSpeed;
   const pressure = simulation.ownerDecision.pressure ?? 0;
   const error = 1 - skill;
-  const touch = carryTouchGeometry(owner, { settings, speedRatio, pressure, error }, special);
+  const lead = usesNaturalMatchClock(simulation) && !special ? 1 + settings.naturalTouchLead : 1;
+  const touch = carryTouchGeometry(owner, { settings, speedRatio, pressure, error, lead }, special);
   const angle = touch.angle + (drawSimulationRandom(simulation) * 2 - 1) * settings.touchErrorAngle * error;
   const speed = touch.speed + (drawSimulationRandom(simulation) * 2 - 1) * settings.touchErrorDistance * error;
   const duration = touch.duration;
@@ -42,8 +44,8 @@ function releaseCarryTouch(simulation, owner, special) {
 }
 
 function carryTouchGeometry(owner, context, special) {
-  const { settings, speedRatio, pressure, error } = context;
-  const distance = special?.distance ?? (settings.touchMinimum + speedRatio * settings.touchSpeedDistance + error * settings.touchSkillDistance) * (1 - pressure * settings.touchPressureFactor);
+  const { settings, speedRatio, pressure, error, lead } = context;
+  const distance = special?.distance ?? (settings.touchMinimum + speedRatio * settings.touchSpeedDistance + error * settings.touchSkillDistance) * (1 - pressure * settings.touchPressureFactor) * lead;
   const duration = special?.duration ?? Math.max(settings.touchMinimumSeconds, distance / Math.max(1, Math.hypot(owner.velocity.x, owner.velocity.y)));
   return { angle: special?.angle ?? owner.heading, duration,
     speed: special?.speed ?? distance / duration + MATCH_SIM_DATA.ball.rollingDeceleration * duration / 2 };

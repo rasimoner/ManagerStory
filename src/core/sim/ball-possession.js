@@ -14,7 +14,7 @@ import { simulationFirstTouchStyle } from './first-touch-technique.js';
 import { holdSimulationPassBall } from './pass-technique.js';
 import { usesNaturalMatchClock } from './simulation-clock.js';
 
-const { hypot, max, sin, cos, atan2, ceil, abs } = Math;
+const { hypot, max, min, sin, cos, atan2, ceil, abs } = Math;
 
 export function controlSimulationBall(simulation, contact, motion) {
   const seconds = motion.seconds ?? MATCH_SIM_DATA.clock.stepSeconds;
@@ -114,7 +114,7 @@ export function followSimulationBallOwner(simulation) {
   const ball = simulation.ball, owner = simulationRuntime(simulation).byId.get(ball.ownerId);
   if (!owner) return;
   if (holdSimulationPassBall(simulation)) return;
-  const offset = MATCH_SIM_DATA.ball.footOffset, pitch = MATCH_SIM_DATA.pitch;
+  const offset = usesNaturalMatchClock(simulation) ? carryOffset(owner) : MATCH_SIM_DATA.ball.footOffset, pitch = MATCH_SIM_DATA.pitch;
   const direction = usesNaturalMatchClock(simulation) ? carryDirection(owner, ball.position) : owner.heading;
   const target = { x: clampSimValue(owner.position.x + cos(direction) * offset, -pitch.length / 2, pitch.length / 2),
     y: clampSimValue(owner.position.y + sin(direction) * offset, -pitch.width / 2, pitch.width / 2) };
@@ -142,4 +142,10 @@ function carryDirection(owner, ball) {
   if (hypot(owner.velocity.x, owner.velocity.y) >= settings.carryPathSpeed) return atan2(owner.velocity.y, owner.velocity.x);
   const x = ball.x - owner.position.x, y = ball.y - owner.position.y, distance = hypot(x, y);
   return distance > settings.carryMinimumRadius && distance <= settings.carryPlantedRadius ? atan2(y, x) : owner.heading;
+}
+
+// A running carrier plays the ball a little ahead of his stride instead of under his feet.
+function carryOffset(owner) {
+  const settings = MATCH_SIM_DATA.ball;
+  return settings.footOffset + settings.carryLeadMetres * min(1, hypot(owner.velocity.x, owner.velocity.y) / settings.carryLeadSpeed);
 }

@@ -65,3 +65,23 @@ test('the scene turns a running carrier\'s body toward his path, but leaves a jo
   assert.ok(body('carrier') <= 0.46, `the carrier's body is ${body('carrier').toFixed(2)} rad off his path`);
   assert.ok(Math.abs(body('defender') - 0.9) < 0.01, 'a player without the ball keeps the simulated heading');
 });
+
+test('a carrier at speed keeps the ball a little ahead of him, not under his feet', () => {
+  const { api } = loadLab(), distances = [];
+  for (const seed of [1, 2, 3, 4]) {
+    const simulation = naturalMatch(api, seed);
+    for (let tick = 0; tick < 2400 && simulation.match.phase !== 'ended'; tick++) {
+      if (simulation.paused) api.resumeSimulation(simulation);
+      api.stepSimulation(simulation);
+      const id = simulation.ball.ownerId ?? simulation.ball.carry?.playerId;
+      const carrier = simulation.teams.flatMap(team => team.players).find(player => player.id === id);
+      if (!carrier || carrier.slot === 'GK' || Math.hypot(carrier.velocity.x, carrier.velocity.y) < 3.5) continue;
+      distances.push(Math.hypot(simulation.ball.position.x - carrier.position.x, simulation.ball.position.y - carrier.position.y));
+    }
+  }
+  distances.sort((a, b) => a - b);
+  const median = distances[Math.floor(distances.length / 2)], wide = distances[Math.floor(distances.length * 0.95)];
+  assert.ok(distances.length >= 500, `only ${distances.length} fast carried ticks`);
+  assert.ok(median >= 0.45, `the median ball distance of a fast carrier is ${median.toFixed(2)} m`);
+  assert.ok(wide <= 1.4, `the ball of a fast carrier is often ${wide.toFixed(2)} m away`);
+});

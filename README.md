@@ -1,7 +1,9 @@
-# ManagerStory V7.19.7
+# ManagerStory V7.19.8
 
 Offline-capable football management game for mobile browsers.
 Live: https://rasimoner.github.io/ManagerStory/
+
+V7.19.8: a throw-in taker holds the ball over his own head with both hands and follows through forward and down instead of crossing his arms, and a running carrier now plays the ball a little ahead of his stride instead of under his feet. [Release note](docs/v7.19.8-release.md).
 
 V7.19.7: the 3D match is now the default view; the second half starts with both teams already at kickoff (no "preparing" mask, keepers no longer glide across the pitch); the ball no longer orbits a carrier who turns on the spot or trails beside a running one; and only a special move, not every beaten defender, earns a close-up. [Release note](docs/v7.19.7-release.md).
 

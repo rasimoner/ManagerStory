@@ -32,6 +32,8 @@
     "maximumAnimationGapSeconds": 0.5,
     "chestControlHeight": 0.9,
     "gloveOffsetMetres": 0.09,
+    "throwGripForwardMetres": 0.05,
+    "throwFollow": { "seconds": 0.45, "startForwardMetres": 0.12, "endForwardMetres": 0.5, "startHeightMetres": 2, "endHeightMetres": 1.15, "spreadMetres": 0.14, "fadeFrom": 0.6 },
     "ballContactSeconds": 0.18,
     "maximumFootReachMetres": 1.05,
     "plantFadeSeconds": 0.08,
